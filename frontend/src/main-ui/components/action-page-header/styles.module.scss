@@ -1,0 +1,53 @@
+@import "../../styles/globals.module.scss";
+@import "../../styles/layout.module.scss";
+
+.content {
+    @include centered-page-content;
+    display: flex;
+}
+
+.image {
+    width: 100px;
+    height: 100px;
+    background-color: $color-primary-contrast;
+}
+
+.details {
+    display: flex;
+    flex-grow: 2;
+    flex-direction: column;
+    justify-content: flex-end;
+    margin-left: 20px;
+    height: 100px;
+}
+
+.title {
+    font-size: 1.4em;
+}
+
+.subtitle {
+    margin-top: 20px;
+}
+
+.actions {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+.container.breakpoint-large {
+    .content {
+        text-align: center;
+        display: block;
+    }
+
+    .image {
+        margin: 0 auto;
+    }
+
+    .details {
+        margin: 0;
+        margin-top: 20px;
+        height: auto;
+    }
+}

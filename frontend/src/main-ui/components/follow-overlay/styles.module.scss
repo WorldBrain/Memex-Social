@@ -1,0 +1,75 @@
+@import "../../styles/globals.module.scss";
+@import "../../styles/elements.module.scss";
+
+$delivery-options-margin-v: 10px;
+
+.title {
+    @include overlay-title;
+}
+
+.deliveryOptions {
+    position: relative;
+    margin: $delivery-options-margin-v 0;
+    padding: 20px 20px;
+    // padding-top: 10px;
+    // padding-bottom: 20px;
+    // border-top: 1px solid $color-primary;
+    background-color: $color-primary-shade-2;
+    color: $color-primary-shade-2-contrast;
+}
+
+.deliveryRemove {
+    float: right;
+    line-height: 2.0em;
+    cursor: pointer;
+}
+
+.deliveryType {
+    margin-bottom: 10px;
+    line-height: 2.0em;
+
+    select {
+        font-size: .8em;
+        color: $color-primary-shade-2-contrast;
+        border: 2px solid $color-primary-shade-2-contrast;
+        background: $color-primary-shade-2;
+        outline: none;
+    }
+
+    .selectSpacing {
+        margin-left: 5px;
+    }
+}
+
+.addNew {
+    cursor: pointer;
+    $base-margin: 20px;
+    margin-top: $base-margin - $delivery-options-margin-v / 2;
+    margin-bottom: $base-margin;
+    font-size: 1.2em;
+}
+
+.confirmButton {
+    @include button($filled: true);
+    display: inline-block;
+    width: 200px;
+    margin-top: 10px;
+    margin-right: 10px;
+}
+
+.unfollowButton {
+    @include button($filled: false, $danger: true);
+    display: inline-block;
+    width: 200px;
+    margin-top: 10px;
+}
+
+.confirmUnfollowButton {
+    @include button($filled: true, $danger: true);
+    margin-top: 10px;
+}
+
+.cancelUnfollowButton {
+    @include button($filled: false);
+    margin-top: 10px;
+}

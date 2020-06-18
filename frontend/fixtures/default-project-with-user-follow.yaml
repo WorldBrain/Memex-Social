@@ -1,0 +1,19 @@
+extends: [with-default-user, with-default-project]
+objects:
+  projectSubscriptions:
+    - user: { $ref: users.default }
+      project: {$ref: projects.default}
+  projectSubscriptionConfigurations:
+    - user: { $ref: users.default }
+      project: { $ref: projects.default }
+      deliveries: [
+        {
+          "filterTags": {
+            "Bounty": {
+              "label": "Bounty"
+            }
+          },
+          "filterType": "and",
+          "action": "weekly-email"
+        }
+      ]

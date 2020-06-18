@@ -1,0 +1,9 @@
+@import "../../styles/globals.module.scss";
+
+.container > *:last-child {
+    margin-left: 20px;
+}
+
+.container > * {
+    vertical-align: middle;
+}

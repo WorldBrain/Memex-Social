@@ -1,0 +1,29 @@
+@import "../../styles/elements.module.scss";
+
+.tags {
+    display: inline-flex;
+    flex-wrap: wrap;
+}
+
+.tag {
+    @include small-button($contrast: false);
+    margin-right: 5px;
+    margin-top: 5px;
+
+    &:last-child {
+        margin-right: 0;
+    }
+
+    &.marked {
+        @include small-button($contrast: false, $filled: true);
+    }
+}
+
+.contrast .tag {
+    @include small-button($contrast: true);
+
+    &.marked {
+        @include small-button($contrast: true, $filled: true);
+    }
+}
+

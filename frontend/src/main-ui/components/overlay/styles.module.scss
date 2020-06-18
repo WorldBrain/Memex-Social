@@ -1,0 +1,19 @@
+@import "../../styles/globals.module.scss";
+
+.container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: $z-index-overlay;
+}
+
+.inner {
+    background-color: white;
+    top: 50%;
+    width: 90%;
+    max-width: 600px;
+    min-height: 200px;
+    margin: 50px auto;
+    padding: 20px;
+}

@@ -1,0 +1,39 @@
+@import "../../styles/globals.module.scss";
+@import "../../styles/elements.module.scss";
+
+.authBox {
+    width: 100%;
+}
+
+.authButton {
+    @include button();
+    width: 100%;
+    margin: 40px 0; 
+}
+
+.emailAuthBox {
+    text-align: center;
+}
+
+.emailInput {
+    width: 100%;
+}
+
+.emailSubmitButton {
+    margin: 40px 0;
+    @include button($filled: true);
+
+    &.disabled {
+        @include disabled-button();
+    }
+}
+
+.providerIconContainer {
+    display: inline-block;
+    width: 40px;
+    text-align: center;
+}
+
+.providerIcon {
+    // margin-right: 10px;
+}

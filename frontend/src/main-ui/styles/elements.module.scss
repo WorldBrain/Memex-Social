@@ -1,0 +1,75 @@
+@import "./globals.module.scss";
+
+@mixin _button-base {
+    padding: 10px 20px;
+    text-align: center;
+    font-size: 1em;
+    cursor: pointer;
+    border-width: 2px;
+    border-style: solid;
+}
+
+@mixin button($contrast: false, $filled: false, $danger: false) {
+    @include _button-base();
+
+    @if ($contrast) {
+        border-color: $color-primary-contrast;
+        @if ($filled) {
+            background-color: $color-primary-contrast;
+            color: $color-primary;
+        }
+    } @else {
+        border-color: $color-primary;
+        @if ($filled) {
+            @if ($danger) {
+                border-color: $color-danger;
+                background-color: $color-danger;
+                color: $color-primary-contrast;
+            } @else {
+                background-color: $color-primary;
+                color: $color-primary-contrast;
+            }
+        } @else {
+            @if ($danger) {
+                border-color: $color-danger;
+                color: $color-danger;
+            }
+        }
+    }
+}
+
+@mixin disabled-button() {
+    @include _button-base();
+
+    background-color: $color-primary-shade-2;
+    color: mix($color-primary-shade-2, $color-primary-shade-2-contrast, 50%);
+}
+
+@mixin small-button($contrast: false, $filled: false, $danger: false) {
+    padding: 0px 10px;
+    @if ($contrast) {
+        border: 2px solid $color-primary-contrast;
+        @if ($filled) {
+            background-color: $color-primary-contrast;
+            color: $color-primary;
+        }
+    } @else {
+        border: 2px solid $color-primary;
+        @if ($filled) {
+            background-color: $color-primary;
+            color: $color-primary-contrast;
+        } @else {
+            @if ($danger) {
+                border-color: $color-danger;
+                color: $color-danger;
+            }
+        }
+    }
+    text-align: center;
+    font-size: .8em;
+    cursor: pointer;
+}
+
+@mixin overlay-title {
+    font-size: 1.4em;
+}

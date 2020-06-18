@@ -1,0 +1,8 @@
+@import "../../styles/globals.module.scss";
+
+.container {
+    position: relative;
+    background-color: $color-primary;
+    color: $color-primary-contrast;
+    padding: 50px 0;
+}

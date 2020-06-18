@@ -1,0 +1,7 @@
+@import "../../styles/globals.module.scss";
+@import "../../styles/layout.module.scss";
+
+.container {
+    @include centered-page-content;
+    padding-top: 40px;
+}

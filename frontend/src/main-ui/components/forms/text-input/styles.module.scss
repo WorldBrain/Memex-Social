@@ -1,0 +1,9 @@
+@import "../../../styles/globals.module.scss";
+
+.input {
+    outline: 0;
+    padding: 10px;
+    background: none;
+    border: 0;
+    border-bottom: 2px solid $color-primary;
+}
