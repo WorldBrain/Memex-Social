@@ -1,5 +1,4 @@
 import React from "react";
-import "../../styles/global.scss";
 import { UIElement, UIElementServices } from "../../classes";
 import { EventHandlers } from "../../classes/events";
 // import ROUTES from "../../../routes";

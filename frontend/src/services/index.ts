@@ -6,7 +6,6 @@ import { Storage } from "../storage/types";
 import ROUTES from "../routes";
 import OverlayService from "./overlay";
 import LogicRegistryService from "./logic-registry";
-import StyleRegistryService from "./style-registry";
 import FixtureService, { defaultFixtureFetcher } from "./fixtures";
 import RouterService from "./router";
 import { AuthService } from "./auth/types";
@@ -28,7 +27,6 @@ export function createServices(options: {
     const limitedServices: Omit<Services, 'auth' | 'router'> = {
         overlay: new OverlayService(),
         logicRegistry,
-        styleRegistry: new StyleRegistryService(),
         device,
     }
 

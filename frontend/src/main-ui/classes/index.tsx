@@ -1,10 +1,11 @@
+import mapValues from "lodash/mapValues";
 import * as reactUILogic from "ui-logic-react";
 import { Services } from "../../services/types";
 import * as logic from "./logic";
 import { capitalize } from "../../utils/string";
 import { EventHandlers } from "./events";
 
-type UIServices = "logicRegistry" | "styleRegistry" | "device";
+type UIServices = "logicRegistry" | "device";
 export type UIElementServices<Wanted extends keyof Services = never> = Pick<
   Services,
   UIServices | Wanted
@@ -17,13 +18,9 @@ export abstract class UIElement<
   State = {},
   Event extends logic.UIEvent<{}> = logic.UIEvent<{}>
 > extends reactUILogic.UIElement<Props, State, Event> {
-  protected styleModule?: string;
-  protected styleBreakpoints?: { [name: string]: number };
-  protected styleClasses?: {
-    [elementName: string]: { [className: string]: (state: State) => boolean };
-  };
   private services: Pick<Services, UIServices>;
   private baseEventHandlers = new EventHandlers();
+  private usesStyleBreakpoints = false;
 
   constructor(
     props: Props,
@@ -51,15 +48,6 @@ export abstract class UIElement<
         });
       }
     }
-    if (this.styleBreakpoints) {
-      this.baseEventHandlers.subscribeTo(
-        this.services.device.events,
-        "rootResize",
-        () => {
-          this.forceUpdate();
-        }
-      );
-    }
   }
 
   componentWillUnmount() {
@@ -72,20 +60,28 @@ export abstract class UIElement<
     this.baseEventHandlers.unsubscribeAll();
   }
 
-  private getBreakpointClassNames(styles: {
-    [name: string]: string;
-  }): string[] {
-    if (!this.styleBreakpoints) {
-      return [];
+  getStyleBreakpoints<
+    BreakpointDefinitions extends {
+      [name: string]: number;
+    }
+  >(
+    breakpointDefinitions: BreakpointDefinitions
+  ): { [Key in keyof BreakpointDefinitions]: boolean } {
+    if (!this.usesStyleBreakpoints) {
+      this.usesStyleBreakpoints = true;
+      this.baseEventHandlers.subscribeTo(
+        this.services.device.events,
+        "rootResize",
+        () => {
+          this.forceUpdate();
+        }
+      );
     }
 
-    const classNames: string[] = [];
     const rootSize = this.services.device.rootSize;
-    for (const [key, sizeLimit] of Object.entries(this.styleBreakpoints)) {
-      if (rootSize.width <= sizeLimit) {
-        classNames.push(styles[`breakpoint-${key}`]);
-      }
-    }
-    return classNames;
+    const breakpoints = mapValues(breakpointDefinitions, (sizeLimit) => {
+      return rootSize.width <= sizeLimit;
+    }) as { [Key in keyof BreakpointDefinitions]: boolean };
+    return breakpoints;
   }
 }

@@ -3,7 +3,6 @@ import OverlayService from "./overlay"
 import LogicRegistryService from "./logic-registry"
 import FixtureService from "./fixtures"
 import RouterService from "./router"
-import StyleRegistryService from "./style-registry"
 import { ScenarioService } from "./scenarios"
 import { DeviceService } from "./device"
 
@@ -12,7 +11,6 @@ export interface Services {
     auth: AuthService
     overlay: OverlayService
     logicRegistry: LogicRegistryService
-    styleRegistry: StyleRegistryService
     device: DeviceService
 
     // only available when playground enabled
