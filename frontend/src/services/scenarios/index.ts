@@ -3,20 +3,20 @@ import { Services } from "../../services/types";
 import { Scenario, ScenarioStep, ScenarioModuleMap, ScenarioReplayQueryParams } from "./types";
 import FixtureService from '../fixtures';
 const scenariosContext = typeof __webpack_require__ !== 'undefined'
-    ? require.context('../../main-ui', true, /scenarios\.ts$/)
+    ? require.context('../../scenarios', true, /\.ts$/)
     // eslint-disable-next-line
-    : require('require-context')(require('path').resolve(__dirname + '/../../main-ui'), true, /scenarios\.ts$/)
+    : require('require-context')(require('path').resolve(__dirname + '/../../scenarios'), true, /\.ts$/)
 
 export function getDefaultScenarioModules() {
     const scenarios: ScenarioModuleMap = {}
 
     for (const path of scenariosContext.keys()) {
-        const matches = /\/([^/]+)\/scenarios\.ts$/.exec(path)
+        const matches = /\/([^.]+)\.ts$/.exec(path)
         if (!matches) {
             throw new Error(`Scenarios with weird path: ${path}`)
         }
         const key = matches[1]
-        scenarios[key] = scenariosContext(path).default
+        scenarios[key] = scenariosContext(path).SCENARIOS
     }
 
     return scenarios
@@ -155,7 +155,7 @@ export function getReplayOptionsFromQueryParams(queryParams: ScenarioReplayQuery
 }
 
 export function parseScenarioIdentifier(scenarioIdentifierString: string): ScenarioIdentifier {
-    let [pageName, scenarioName, stepName] = scenarioIdentifierString.split('/');
+    let [pageName, scenarioName, stepName] = scenarioIdentifierString.split('.');
     if (!stepName) {
         stepName = '$end'
     }
@@ -167,7 +167,7 @@ export function stringifyScenarioIdentifier(scenarioIdentifier: ScenarioIdentifi
     if (scenarioIdentifier.stepName) {
         parts.push(scenarioIdentifier.stepName)
     }
-    return parts.join('/')
+    return parts.join('.')
 }
 
 export function findScenario(scenarioModules: ScenarioModuleMap, scenarioIdentifier: ScenarioIdentifier) {
