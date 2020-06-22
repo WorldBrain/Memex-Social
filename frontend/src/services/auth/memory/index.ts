@@ -1,5 +1,5 @@
 import { AuthProvider } from "../../../types/auth";
-import { User, UserEmail } from "../../../types/users";
+import { User } from "../../../types/users";
 import { Storage } from "../../../storage/types";
 import { Services } from "../../types";
 import { AuthMethod, AuthLoginFlow, AuthRequest } from "../types";
@@ -7,7 +7,7 @@ import { AuthServiceBase } from "../base";
 import USER_PICTURE_DATA_URLS from "./user-pictures.data";
 
 export default class MemoryAuthService extends AuthServiceBase {
-    private _user: User<true, null, 'emails'> | null = null
+    private _user: User | null = null
 
     constructor(private options: { storage: Storage, services: Omit<Services, 'auth' | 'router'> }) {
         super()
@@ -23,16 +23,14 @@ export default class MemoryAuthService extends AuthServiceBase {
     }
 
     async loginWithProvider(provider: AuthProvider, options?: { request?: AuthRequest }) {
-        const user: User<true, null, 'emails'> = {
-            id: 1,
+        const user: User = {
             isActive: true,
             displayName: 'Vincent den Boer',
             picture: USER_PICTURE_DATA_URLS[0],
             managementData: { provider },
-            emails: [{ address: 'vincent@test.com', isActive: true, isPrimary: true } as UserEmail]
         }
         this._user = user
-        await this.options.storage.modules.users.ensureUser(user)
+        await this.options.storage.modules.users.ensureUser(user, { type: 'user-reference', id: 1 })
 
         this.events.emit('changed')
 
@@ -51,5 +49,9 @@ export default class MemoryAuthService extends AuthServiceBase {
 
     getCurrentUser() {
         return this._user
+    }
+
+    getCurrentUserID() {
+        return this._user && 1
     }
 }

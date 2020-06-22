@@ -1,8 +1,8 @@
 import { AccountCollectionInfoMap } from "./constants";
-import { StorageRegistry, isChildOfRelationship, isConnectsRelationship } from "@worldbrain/storex";
+import { StorageRegistry } from "@worldbrain/storex";
 import { collectAccountCollections } from "./utils";
 
-export function checkAccountCollectionInfoMap(options : {
+export function checkAccountCollectionInfoMap(options: {
     accountCollections: AccountCollectionInfoMap
     storageRegistry: StorageRegistry
 }) {

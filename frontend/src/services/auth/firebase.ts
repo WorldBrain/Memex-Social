@@ -1,4 +1,3 @@
-const blobToBuffer = require('blob-to-buffer')
 import * as firebase from 'firebase'
 import { EventEmitter } from "events";
 import { Storage } from '../../storage/types';
@@ -8,12 +7,12 @@ import { AuthMethod, AuthLoginFlow } from "./types";
 import { Services } from '../types';
 import { UnsavedMediaObject } from '@worldbrain/storex-media-middleware/lib/types';
 import { AuthServiceBase } from './base';
-import { UserEmail } from '../../types/storex-generated/users';
+const blobToBuffer = require('blob-to-buffer')
 
 export default class FirebaseAuthService extends AuthServiceBase {
     events = new EventEmitter()
     private _firebase: typeof firebase
-    private _user: User<true, null, 'emails'> | null = null
+    private _user: User | null = null
 
     constructor(firebaseRoot: typeof firebase, private options: {
         storage: Storage,
@@ -59,17 +58,17 @@ export default class FirebaseAuthService extends AuthServiceBase {
     getCurrentUser() {
         return this._user
     }
+
+    getCurrentUserID() {
+        return this._firebase.auth().currentUser?.uid ?? null
+    }
 }
 
 async function _ensureFirebaseUser(firebaseUser: firebase.User, userStorage: Storage['modules']['users']) {
-    const provider = firebaseUser.providerId as AuthProvider
+    // const provider = firebaseUser.providerId as AuthProvider
     const user = await userStorage.ensureUser({
-        id: firebaseUser.uid,
         isActive: true,
-        emails: firebaseUser.email ? [
-            { address: firebaseUser.email, isPrimary: true, isActive: true } as UserEmail<false>
-        ] : []
-    })
+    }, { type: 'user-reference', id: firebaseUser.uid })
     return user
 }
 

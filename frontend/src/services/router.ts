@@ -1,14 +1,14 @@
 import { History } from "history";
-const Routes = require('routes')
 import { RouteMap, RouteName } from "../routes"
 import { AuthService } from "./auth/types";
+const Routes = require('routes')
 
 export default class RouterService {
-    private router : any = new Routes()
+    private router: any = new Routes()
 
-    constructor(private options : { history : History, routes : RouteMap, auth : AuthService }) {
-        const byRoute : { [path : string] : { route? : string, authDependentRoutes? : { true? : string, false? : string } } } = {}
-        const resolver = (path : string) => {
+    constructor(private options: { history: History, routes: RouteMap, auth: AuthService }) {
+        const byRoute: { [path: string]: { route?: string, authDependentRoutes?: { true?: string, false?: string } } } = {}
+        const resolver = (path: string) => {
             return () => {
                 const routeEntry = byRoute[path]
                 if (routeEntry.authDependentRoutes) {
@@ -35,11 +35,11 @@ export default class RouterService {
         }
     }
 
-    goTo(route : RouteName, params : {[key : string] : string} = {}, options? : {}) {
+    goTo(route: RouteName, params: { [key: string]: string } = {}, options?: {}) {
         this.options.history.push(this.getUrl(route, params))
     }
 
-    getUrl(route : RouteName, params : {[key : string] : string} = {}, options? : {}) : string {
+    getUrl(route: RouteName, params: { [key: string]: string } = {}, options?: {}): string {
         const routeConfig = this.options.routes[route]
         if (!routeConfig) {
             throw new Error(`No such route ${route}`)
@@ -53,7 +53,7 @@ export default class RouterService {
         return url
     }
 
-    matchCurrentUrl() : { route : RouteName, params : {[key : string] : string}} {
+    matchCurrentUrl(): { route: RouteName, params: { [key: string]: string } } {
         const parsed = this.matchUrl(window.location.href)
         if (!parsed) {
             throw new Error(`Tried to parse current URL, both are no routes matching current URL`)
@@ -61,7 +61,7 @@ export default class RouterService {
         return parsed
     }
 
-    matchUrl(url : string) : { route : RouteName, params : {[key : string] : string}} | null {
+    matchUrl(url: string): { route: RouteName, params: { [key: string]: string } } | null {
         const urlObject = new URL(url)
 
         const match = this.router.match(urlObject.pathname)
@@ -70,8 +70,4 @@ export default class RouterService {
         }
         return { route: match.fn(), params: match.params }
     }
-}
-
-function reverseUrl(pattern : string, params : {[key : string] : string}) {
-
 }

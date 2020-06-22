@@ -6,18 +6,11 @@ const scenario = (options: Omit<Scenario, 'startRoute'>): Scenario => ({
 })
 
 const SCENARIOS: ScenarioMap = {
-    'authenticated-follower': scenario({
-        fixture: 'default-project-with-user-follow',
+    'authenticated-user': scenario({
         authenticated: true,
         steps: [
         ]
     }),
-    'authenticated-publisher': scenario({
-        fixture: 'no-project-with-publisher',
-        authenticated: true,
-        steps: [
-        ]
-    })
 }
 
 export default SCENARIOS

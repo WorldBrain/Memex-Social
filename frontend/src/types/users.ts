@@ -1,17 +1,19 @@
 import { AuthProvider } from "./auth";
 import * as generatedUsers from './storex-generated/users'
 
-export type User<WithPk extends boolean = true, Relationships extends null = null, ReverseRelationships extends 'emails' | 'rights' | null = null>
-    = generatedUsers.User<WithPk, Relationships, ReverseRelationships> &
-    { managementData? : UserManagementData }
+export type User = generatedUsers.User &
+{ managementData?: UserManagementData }
+export interface UserReference {
+    type: 'user-reference'
+    id: string | number
+}
 
 export interface UserPublicProfile {
 }
 
 export interface UserManagementData {
-    provider : AuthProvider
+    provider: AuthProvider
 }
 
-export type UserEmail<WithPk extends boolean = true> = generatedUsers.UserEmail<WithPk>
-export type UserRight = generatedUsers.UserRight
+export type UserEmail = generatedUsers.UserEmail
 

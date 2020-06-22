@@ -1,20 +1,20 @@
 import StorageManager from "@worldbrain/storex";
 import { StorageModule, StorageModuleConfig, StorageModuleConstructorArgs } from "@worldbrain/storex-pattern-modules";
 import { STORAGE_VERSIONS } from "../../versions";
-import { User, UserEmail, UserRight } from "../../../types/users";
+import { User, UserReference } from "../../../types/users";
 import { collectAccountCollections } from "../../utils";
 import { ACCOUNT_COLLECTIONS } from "../../constants";
 
 export default class UserStorage extends StorageModule {
-    private storageManager : StorageManager
+    private storageManager: StorageManager
 
-    constructor(options : StorageModuleConstructorArgs) {
+    constructor(options: StorageModuleConstructorArgs) {
         super(options)
 
         this.storageManager = options.storageManager
     }
 
-    getConfig() : StorageModuleConfig {
+    getConfig(): StorageModuleConfig {
         return {
             collections: {
                 user: {
@@ -36,19 +36,19 @@ export default class UserStorage extends StorageModule {
                         { childOf: 'user', reverseAlias: 'emails' }
                     ],
                 },
-                userRight: {
-                    version: STORAGE_VERSIONS[0].date,
-                    fields: {
-                        canCreateProjects: { type: 'boolean', optional: true },
-                    },
-                    relationships: [
-                        { childOf: 'user', reverseAlias: 'rights' }
-                    ]
-                },
+                // userRight: {
+                //     version: STORAGE_VERSIONS[0].date,
+                //     fields: {
+                //         canCreateProjects: { type: 'boolean', optional: true },
+                //     },
+                //     relationships: [
+                //         { childOf: 'user', reverseAlias: 'rights' }
+                //     ]
+                // },
                 // userPublicProfile: {
                 //     version: STORAGE_VERSIONS[].date,
                 //     fields: {
-                        
+
                 //     },
                 //     relationships: [
                 //         { singleChildOf: 'user', reverseAlias: 'publicProfile' }
@@ -76,8 +76,8 @@ export default class UserStorage extends StorageModule {
         }
     }
 
-    async ensureUser(user : User<true> & { emails?: UserEmail<false>[] }) : Promise<User<true, null, 'emails'>> {
-        const foundUser = await this.operation('findUserById', { id: user.id })
+    async ensureUser(user: User, userReference: UserReference): Promise<User> {
+        const foundUser = await this.operation('findUserById', { id: userReference.id })
         if (foundUser) {
             return foundUser
         }
@@ -85,19 +85,15 @@ export default class UserStorage extends StorageModule {
         return (await this.operation('createUser', user)).object
     }
 
-    async getUserRights(user : Pick<User, 'id'>) : Promise<UserRight> {
-        return (await this.operation('findUserRights', { user: user.id })) || {}
-    }
-
-    async deleteUser(user : Pick<User, 'id'>) {
-        const promises : Array<Promise<void>> = []
+    async deleteUser(userReference: UserReference) {
+        const promises: Array<Promise<void>> = []
 
         const accountCollections = collectAccountCollections(this.storageManager.registry)
         for (const [collectionName, collectedInfo] of Object.entries(accountCollections)) {
             const accountCollectionInfo = ACCOUNT_COLLECTIONS[collectionName]
             if (accountCollectionInfo.onAccountDelete === 'delete') {
                 promises.push(this.storageManager.collection(collectionName).deleteObjects({
-                    [collectedInfo.alias]: user.id
+                    [collectedInfo.alias]: userReference.id
                 }))
             }
         }

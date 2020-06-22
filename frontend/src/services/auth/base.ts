@@ -8,7 +8,8 @@ export abstract class AuthServiceBase implements AuthService {
     events: EventEmitter = new EventEmitter()
 
     abstract loginWithProvider(provider: AuthProvider, options?: { request?: AuthRequest }): Promise<void>
-    abstract getCurrentUser(): User<true, null, 'emails'> | null
+    abstract getCurrentUser(): User | null
+    abstract getCurrentUserID(): string | number | null
     abstract getSupportedMethods(options: { method: AuthMethod, provider?: AuthProvider }): AuthMethod[]
     abstract getLoginFlow(options: { method: AuthMethod, provider?: AuthProvider }): AuthLoginFlow | null
     abstract logout(): Promise<void>

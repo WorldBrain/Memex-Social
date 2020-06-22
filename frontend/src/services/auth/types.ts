@@ -6,7 +6,8 @@ export interface AuthService {
     events: EventEmitter
 
     loginWithProvider(provider: AuthProvider, options?: { request?: AuthRequest }): Promise<void>
-    getCurrentUser(): User<true, null, 'emails'> | null
+    getCurrentUser(): User | null
+    getCurrentUserID(): string | number | null
     getSupportedMethods(options: { method: AuthMethod, provider?: AuthProvider }): AuthMethod[]
     getLoginFlow(options: { method: AuthMethod, provider?: AuthProvider }): AuthLoginFlow | null
 
