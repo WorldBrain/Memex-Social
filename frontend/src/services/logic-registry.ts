@@ -1,18 +1,18 @@
 import { EventEmitter } from "events";
 
 export interface LogicUnit {
-    events : EventEmitter
-    eventProcessor : LogicEventProcessor
-    triggerOutput : (event : string, ...args : any[]) => Promise<void>
+    events: EventEmitter
+    eventProcessor: LogicEventProcessor
+    triggerOutput: (event: string, ...args: any[]) => Promise<void>
 }
-export type LogicEventProcessor = (event : any) => Promise<void>
-export type EventProcessedArgs = { event : { type : string, [key : string] : any }, mutation : any, state : any }
+export type LogicEventProcessor = (eventName: string, eventArgs: any) => Promise<void>
+export type EventProcessedArgs = { event: { type: string, [key: string]: any }, mutation: any, state: any }
 export default class LogicRegistryService {
-    events : EventEmitter = new EventEmitter()
-    logicUnits : {[name : string] : LogicUnit} = {}
-    eventLoggers : {[logicUnit : string] : {[event : string] : (args : EventProcessedArgs) => void}} = {}
+    events: EventEmitter = new EventEmitter()
+    logicUnits: { [name: string]: LogicUnit } = {}
+    eventLoggers: { [logicUnit: string]: { [event: string]: (args: EventProcessedArgs) => void } } = {}
 
-    constructor(private options? : { logEvents? : boolean }) {
+    constructor(private options?: { logEvents?: boolean }) {
         // if (options && options.logEvents) {
         //     this.eventLogger = (args : EventProcessedArgs) => {
         //         console.log(`EVENT/${args.event.type}/processed`, args)
@@ -20,17 +20,17 @@ export default class LogicRegistryService {
         // }
     }
 
-    registerLogic(name : string, logicUnit : LogicUnit) {
+    registerLogic(name: string, logicUnit: LogicUnit) {
         this.logicUnits[name] = logicUnit
         this.events.emit('registered', { name, eventProcessor: logicUnit.eventProcessor })
         if (this.options && this.options.logEvents) {
             console.log(`LOGIC/registered/${name}`)
 
             this.eventLoggers[name] = {
-                eventIncoming: (args : EventProcessedArgs) => {
+                eventIncoming: (args: EventProcessedArgs) => {
                     console.log(`LOGIC/incoming/${name}/${args.event.type}`, args)
                 },
-                eventProcessed: (args : EventProcessedArgs) => {
+                eventProcessed: (args: EventProcessedArgs) => {
                     console.log(`LOGIC/processed/${name}/${args.event.type}`, args)
                 },
             }
@@ -40,7 +40,7 @@ export default class LogicRegistryService {
         }
     }
 
-    unregisterLogic(name : string) {
+    unregisterLogic(name: string) {
         if (this.options && this.options.logEvents) {
             console.log(`LOGIC/unregistered/${name}`)
 

@@ -7,7 +7,10 @@ const scenario = (options: Omit<Scenario, 'startRoute'>): Scenario => ({
 
 const SCENARIOS: ScenarioMap = {
     'default': scenario({
-        steps: []
+        steps: [
+            { name: 'first-toggle', target: 'LandingPage', eventName: 'toggle', eventArgs: {} },
+            { name: 'second-toggle', target: 'LandingPage', eventName: 'toggle', eventArgs: {} },
+        ]
     }),
 }
 

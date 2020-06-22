@@ -1,3 +1,4 @@
+// import {} from 'ui-logic-react'
 import { Component } from "react";
 import classNames from "classnames";
 import { Services } from "../../services/types";
@@ -128,7 +129,8 @@ export abstract class UIElement<
       if (this.services) {
         this.services.logicRegistry.registerLogic(this.elementName, {
           events: this.logic.events,
-          eventProcessor: (event: any) => this.processEvent(event.type, event),
+          eventProcessor: (eventName: string, eventArgs: any) =>
+            this.processEvent(eventName as any, eventArgs),
           triggerOutput: (event: string, ...args: any[]) =>
             (this.props as any)[`on${capitalize(event)}`](...args),
         });

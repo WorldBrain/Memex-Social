@@ -1,21 +1,29 @@
 import React from "react";
 import { UIElement, UIElementServices } from "../../classes";
-import Logic from "./logic";
+import Logic, { LandingPageState, LandingPageEvent } from "./logic";
 
-interface Props {
+interface LandingPageProps {
   services: UIElementServices<"auth">;
 }
 
-export default class LandingPage extends UIElement<Props> {
+export default class LandingPage extends UIElement<
+  LandingPageProps,
+  LandingPageState,
+  LandingPageEvent
+> {
   styleBreakpoints = {
     large: 860,
   };
 
-  constructor(props: Props) {
+  constructor(props: LandingPageProps) {
     super(props, { logic: new Logic() });
   }
 
   render() {
-    return <div></div>;
+    return (
+      <div onClick={() => this.processEvent("toggle", {})}>
+        foo: {this.state.foo ? "true" : "false"}
+      </div>
+    );
   }
 }
