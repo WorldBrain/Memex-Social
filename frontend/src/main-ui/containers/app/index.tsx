@@ -28,12 +28,7 @@ class App extends UIElement<Props> {
     // const currentRoute = this.props.services.router.matchCurrentUrl();
     // const routeInfo = currentRoute && ROUTES[currentRoute.route];
 
-    return (
-      <div>
-        {this.props.children}
-        <div className={this.styles.auth}></div>
-      </div>
-    );
+    return <div>{this.props.children}</div>;
   }
 }
 

@@ -56,7 +56,9 @@
     "slugify": "^1.3.5",
     "typedarray-to-buffer": "^3.1.5",
     "typeface-nunito": "^0.0.72",
-    "typeface-open-sans": "^0.0.54"
+    "typeface-open-sans": "^0.0.54",
+    "ui-logic-core": "^0.2.0",
+    "ui-logic-react": "^0.1.3"
   },
   "devDependencies": {
     "@types/classnames": "^2.2.7",

@@ -12,7 +12,7 @@ export default class LandingPageLogic extends UILogic<LandingPageState, LandingP
         return { foo: false }
     }
 
-    processToggle(): UIMutation<LandingPageState> {
+    toggle(): UIMutation<LandingPageState> {
         return { $toggle: ['foo'] }
     }
 }
