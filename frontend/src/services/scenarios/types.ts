@@ -27,7 +27,7 @@ interface ElementScenarioStep extends BaseScenarioStep {
 }
 
 export interface ElementEventScenarioStep extends ElementScenarioStep {
-    eventName: any
+    eventName: string
     eventArgs: { [key: string]: any }
 }
 

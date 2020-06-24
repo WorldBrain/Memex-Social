@@ -13,7 +13,7 @@ export default class [name] extends UIElement<Props, State, Event> {
 
     render() {
         return (
-            <div className={this.styles.container}>
+            <div>
             </div>
         )
     }

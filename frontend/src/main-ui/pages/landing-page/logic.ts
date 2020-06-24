@@ -1,12 +1,9 @@
-import { UILogic, UIEvent, UIMutation } from "../../classes/logic"
+import { UILogic, UIMutation } from "../../classes/logic"
+import { LandingPageEvent } from "./types"
 
 export interface LandingPageState {
     foo: boolean
 }
-export type LandingPageEvent = UIEvent<{
-    toggle: {}
-}>
-
 export default class LandingPageLogic extends UILogic<LandingPageState, LandingPageEvent> {
     getInitialState() {
         return { foo: false }

@@ -16,7 +16,9 @@
     "create:storage-module": "cp -r code-templates/storage-module.ts src/storage/modules/${MODULE}.ts",
     "create:ui-component": "cp -r code-templates/ui-element src/main-ui/components/${ELEMENT}",
     "create:ui-container": "cp -r code-templates/ui-element src/main-ui/containers/${ELEMENT}",
-    "create:ui-page": "cp -r code-templates/ui-element src/main-ui/pages/${ELEMENT}"
+    "create:ui-page": "cp -r code-templates/ui-element src/main-ui/pages/${ELEMENT}",
+    "storybook": "start-storybook -p 9009 -s public",
+    "build-storybook": "build-storybook -s public"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -52,9 +54,9 @@
     "react-dom": "^16.8.4",
     "react-router-dom": "^4.3.1",
     "react-scripts": "^3.4.1",
-    "styled-components": "^5.1.1",
     "routes": "^2.1.0",
     "slugify": "^1.3.5",
+    "styled-components": "^5.1.1",
     "typedarray-to-buffer": "^3.1.5",
     "typeface-nunito": "^0.0.72",
     "typeface-open-sans": "^0.0.54",
@@ -62,6 +64,11 @@
     "ui-logic-react": "^0.1.3"
   },
   "devDependencies": {
+    "@storybook/addon-actions": "^5.3.19",
+    "@storybook/addon-links": "^5.3.19",
+    "@storybook/addons": "^5.3.19",
+    "@storybook/preset-create-react-app": "^3.1.2",
+    "@storybook/react": "^5.3.19",
     "@types/classnames": "^2.2.7",
     "@types/expect": "^1.20.4",
     "@types/jest": "24.0.10",

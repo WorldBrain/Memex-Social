@@ -1,6 +1,7 @@
 import React from "react";
 import { UIElement, UIElementServices } from "../../classes";
-import Logic, { LandingPageState, LandingPageEvent } from "./logic";
+import Logic, { LandingPageState } from "./logic";
+import { LandingPageEvent } from "./types";
 
 interface LandingPageProps {
   services: UIElementServices<"auth">;
