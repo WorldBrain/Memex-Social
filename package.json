@@ -1,15 +1,24 @@
 {
-    "name": "website",
-    "private": true,
-    "scripts": {
-        "bootstrap": "yarn && yarn lerna bootstrap",
-        "update-packages": "git submodule update --remote",
-        "lerna": "lerna",
-        "test": "yarn lerna run test",
-        "test:watch": "lerna run --parallel --stream test:watch -- --colors",
-        "prepare:watch": "lerna run --parallel --stream prepare:watch"
-    },
-    "devDependencies": {
-        "lerna": "^3.13.2"
-    }
+  "name": "website",
+  "private": true,
+  "scripts": {
+    "bootstrap": "yarn && yarn lerna bootstrap --ignore-scripts --force-local && yarn prepare-packages",
+    "prepare-packages": "for scope in `ts-node tools/ordered-packages.ts`; do lerna exec --scope $scope 'yarn prepare'; done",
+    "update-packages": "git submodule update --remote",
+    "lerna": "lerna",
+    "test": "yarn lerna run test",
+    "test:watch": "lerna run --parallel --stream test:watch -- --colors",
+    "prepare:watch": "lerna run --parallel --stream prepare:watch"
+  },
+  "devDependencies": {
+    "@types/glob": "5.0.35",
+    "@types/lodash": "^4.14.108",
+    "@types/node": "^14.0.14",
+    "glob": "^7.1.6",
+    "lerna": "^3.13.2",
+    "lodash": "^4.17.15",
+    "toposort": "^2.0.2",
+    "ts-node": "^8.10.2",
+    "typescript": "^3.9.5"
+  }
 }

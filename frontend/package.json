@@ -5,6 +5,7 @@
   "scripts": {
     "start": "concurrently -n DS,FE -p name \"yarn dev-server\" \"yarn client\"",
     "client": "cross-env BROWSER=none react-scripts start",
+    "prepare": "true",
     "dev-server": "nodemon --watch ./dev-server --exec 'ts-node --project dev-server/tsconfig.json' dev-server/src/main.ts",
     "generate-types": "ts-node --project scripts/tsconfig.json scripts/generate-types.ts",
     "karma": "karma",
