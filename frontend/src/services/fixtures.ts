@@ -17,7 +17,7 @@ export default class FixtureService {
     async loadFixture(name: string, options?: { context?: { [key: string]: any } }) {
         return this.loading = (async () => {
             let fixture = await this.options.fixtureFetcher(name)
-            await loadFixtures({ storageManager: this.options.storage.manager, fixtures: fixture.objects, context: options && options.context })
+            await loadFixtures({ storageManager: this.options.storage.serverStorageManager, fixtures: fixture.objects, context: options && options.context })
         })()
     }
 

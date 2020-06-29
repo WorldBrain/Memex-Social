@@ -30,7 +30,7 @@ export default class MemoryAuthService extends AuthServiceBase {
             managementData: { provider },
         }
         this._user = user
-        await this.options.storage.modules.users.ensureUser(user, { type: 'user-reference', id: 1 })
+        await this.options.storage.serverModules.users.ensureUser(user, { type: 'user-reference', id: 1 })
 
         this.events.emit('changed')
 

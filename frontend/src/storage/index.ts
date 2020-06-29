@@ -12,6 +12,7 @@ import UserStorage from "./modules/users";
 import { StorageMiddleware } from "@worldbrain/storex/lib/types/middleware";
 import { checkAccountCollectionInfoMap } from './checks';
 import { ACCOUNT_COLLECTIONS } from './constants';
+import ContentSharingStorage from '../features/content-sharing/storage';
 
 export async function createStorage(options: { backend: BackendType }): Promise<Storage> {
     let storageBackend: StorageBackend
@@ -25,13 +26,14 @@ export async function createStorage(options: { backend: BackendType }): Promise<
     const storageManager = new StorageManager({ backend: storageBackend })
 
     const storage: Storage = {
-        manager: storageManager,
-        modules: {
+        serverStorageManager: storageManager,
+        serverModules: {
             // auth: new AuthStorage({ storageManager }),
             users: new UserStorage({ storageManager }),
+            contentSharing: new ContentSharingStorage({ storageManager })
         }
     }
-    registerModuleMapCollections(storageManager.registry, storage.modules as any)
+    registerModuleMapCollections(storageManager.registry, storage.serverModules as any)
     await storageManager.finishInitialization()
     storageManager.setMiddleware(createStorageMiddleware())
 

@@ -24,7 +24,7 @@ export default class FirebaseAuthService extends AuthServiceBase {
         this._user = null
 
         this._firebase.auth().onAuthStateChanged(async (user: firebase.User | null) => {
-            this._user = user && await _ensureFirebaseUser(user, options.storage.modules.users)
+            this._user = user && await _ensureFirebaseUser(user, options.storage.serverModules.users)
 
             if (user) {
                 _fetchUserPicture(user)
@@ -64,7 +64,7 @@ export default class FirebaseAuthService extends AuthServiceBase {
     }
 }
 
-async function _ensureFirebaseUser(firebaseUser: firebase.User, userStorage: Storage['modules']['users']) {
+async function _ensureFirebaseUser(firebaseUser: firebase.User, userStorage: Storage['serverModules']['users']) {
     // const provider = firebaseUser.providerId as AuthProvider
     const user = await userStorage.ensureUser({
         isActive: true,

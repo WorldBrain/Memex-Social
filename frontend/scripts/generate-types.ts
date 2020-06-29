@@ -1,64 +1,71 @@
 import kebabCase from 'lodash/kebabCase'
 import * as fs from 'fs'
 import * as path from 'path'
+const glob = require('fast-glob')
 import StorageManager, { StorageRegistry } from '@worldbrain/storex';
 import { StorageModule } from '@worldbrain/storex-pattern-modules'
 import { generateTypescriptInterfaces } from '@worldbrain/storex-typescript-generation'
 import { createStorage } from '../src/storage'
 
-type StorageModuleInfoMap = { [className : string] : StorageModuleInfo }
+type StorageModuleInfoMap = { [className: string]: StorageModuleInfo }
 interface StorageModuleInfo {
-    path : string
-    baseNameWithoutExt : string
-    isSingleFile : boolean
+    path: string
+    baseNameWithoutExt: string
+    isSingleFile: boolean
 }
 
 export async function main() {
     const rootTypesPath = path.join(__dirname, '../src/types/storex-generated')
-    if (!fs.existsSync(rootTypesPath)){
+    if (!fs.existsSync(rootTypesPath)) {
         fs.mkdirSync(rootTypesPath)
     }
 
     const storage = await createStorage({ backend: 'memory' })
     const storageModuleInfoMap = collectStorageModuleInfo()
-    for (const [storageModuleName, storageModule] of Object.entries(storage.modules)) {
+    for (const [storageModuleName, storageModule] of Object.entries(storage.serverModules)) {
         const className = Object.getPrototypeOf(storageModule).constructor.name
         const storageModuleInfo = storageModuleInfoMap[className]
-        const types = generateTypesForStorageModule(storageModule, { storageModuleInfo, storageRegistry: storage.manager.registry })
+        const types = generateTypesForStorageModule(storageModule, { storageModuleInfo, storageRegistry: storage.serverStorageManager.registry })
 
         const moduleTypesPath = path.join(rootTypesPath, `${storageModuleInfo.baseNameWithoutExt}.ts`)
         fs.writeFileSync(moduleTypesPath, types)
     }
 }
 
-function collectStorageModuleInfo() : StorageModuleInfoMap {
-    const infoMap : StorageModuleInfoMap = {}
+function collectStorageModuleInfo(): StorageModuleInfoMap {
+    const infoMap: StorageModuleInfoMap = {}
 
-    const storageModulesPath = path.join(__dirname, '../src/storage/modules')
-    const storageModuleBaseNames = fs.readdirSync(storageModulesPath)
-    for (const storageModuleBaseName of storageModuleBaseNames) {
-        const storageModulePath = path.join(storageModulesPath, storageModuleBaseName)
+    const coreStorageModulesGlob = path.join(__dirname, '../src/storage/modules/*')
+    const featureStorageModulesGlob = path.join(__dirname, '../src/features/*/storage')
+    // const storageModuleBaseNames = fs.readdirSync(storageModulesPath)
+    for (const storageModulePath of glob.sync([coreStorageModulesGlob, featureStorageModulesGlob], { onlyFiles: false })) {
         const StorageModuleClass = require(storageModulePath).default
         if (typeof StorageModuleClass !== 'function') {
-            console.log(`Skipping module storage/modules/${storageModuleBaseName}`)
+            console.log(`Skipping module: ${storageModulePath}`)
+            continue
         }
 
-        const isSingleFile = /\.ts$/.test(storageModuleBaseName)
+        const isSingleFile = /\.ts$/.test(storageModulePath)
         const storageModuleClasName = StorageModuleClass.name
-        
+
+        let baseName = path.basename(storageModulePath)
+        if (baseName === 'storage') {
+            baseName = path.basename(path.dirname(storageModulePath))
+        }
+
         infoMap[storageModuleClasName] = {
             path: storageModulePath,
             isSingleFile,
-            baseNameWithoutExt: isSingleFile ? /(.+)\.ts$/.exec(storageModuleBaseName)[1] : storageModuleBaseName
+            baseNameWithoutExt: isSingleFile ? /(.+)\.ts$/.exec(baseName)[1] : baseName
         }
     }
 
     return infoMap
 }
 
-function generateTypesForStorageModule(storageModule : StorageModule, options : {
-    storageModuleInfo : StorageModuleInfo, storageRegistry : StorageRegistry
-}) : string {
+function generateTypesForStorageModule(storageModule: StorageModule, options: {
+    storageModuleInfo: StorageModuleInfo, storageRegistry: StorageRegistry
+}): string {
     const collections = Object.keys(storageModule.getConfig().collections || {})
     const interfaces = generateTypescriptInterfaces(options.storageRegistry, {
         autoPkType: 'generic',
@@ -78,6 +85,6 @@ function generateTypesForStorageModule(storageModule : StorageModule, options : 
     return interfaces
 }
 
-if(require.main === module) {
+if (require.main === module) {
     main()
 }
