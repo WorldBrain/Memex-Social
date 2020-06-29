@@ -1,7 +1,12 @@
 import React from "react";
+import styled from "styled-components";
 import { UIElement, UIElementServices } from "../../classes";
 import Logic, { LandingPageState } from "./logic";
 import { LandingPageEvent } from "./types";
+
+const StyledFoo = styled.div`
+  background-color: ${(props) => props.theme.colors.warning};
+`;
 
 interface LandingPageProps {
   services: UIElementServices<"auth">;
@@ -24,11 +29,11 @@ export default class LandingPage extends UIElement<
     });
 
     return (
-      <div onClick={() => this.processEvent("toggle", {})}>
+      <StyledFoo onClick={() => this.processEvent("toggle", {})}>
         foo: {this.state.foo ? "true" : "false"}
         <br />
-        breakPoints: {JSON.stringify(breakPoints)}
-      </div>
+        {/* breakPoints: {JSON.stringify(breakPoints)} */}
+      </StyledFoo>
     );
   }
 }

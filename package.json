@@ -2,7 +2,7 @@
   "name": "website",
   "private": true,
   "scripts": {
-    "bootstrap": "yarn && yarn lerna bootstrap --ignore-scripts --force-local && yarn prepare-packages",
+    "bootstrap": "yarn lerna bootstrap --ignore-scripts --force-local && yarn prepare-packages",
     "prepare-packages": "for scope in `ts-node tools/ordered-packages.ts`; do lerna exec --scope $scope 'yarn prepare'; done",
     "update-packages": "git submodule update --remote",
     "lerna": "lerna",

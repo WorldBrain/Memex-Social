@@ -1,5 +1,5 @@
 {
-  "name": "website",
+  "name": "frontend",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -32,6 +32,7 @@
     "not op_mini all"
   ],
   "dependencies": {
+    "@types/styled-components": "^5.1.0",
     "@worldbrain/storex": "^0.3.3",
     "@worldbrain/storex-backend-dexie": "^0.2.2",
     "@worldbrain/storex-backend-firestore": "^0.1.0",
