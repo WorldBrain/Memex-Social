@@ -1,14 +1,12 @@
-export type SharedCustomList =
+export type SharedList =
     {
-        ownerUserId: string
         createdWhen: number
         updatedWhen: number
         title: string
     }
 
-export type SharedCustomListEntry =
+export type SharedListEntry =
     {
-        listId: string
         createdWhen: number
         updatedWhen: number
         title: string

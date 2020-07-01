@@ -6,7 +6,7 @@ import { DevelopmentRpcInterface, DevelopmentRpcRequest, DevelopmentRpcResponse 
 import { getDefaultScenarioModules } from '../services/scenarios';
 import { Scenario } from '../services/scenarios/types';
 import RouterService from '../services/router';
-import ROUTES from '../routes';
+import ROUTES, { RouteName } from '../routes';
 const io = require('socket.io-client')
 // import * as webdriver from 'selenium-webdriver'
 // import * as chrome from 'selenium-webdriver/chrome'
@@ -69,7 +69,7 @@ class UiConnection {
     }
 }
 
-describe.skip('End to end scenario tests', () => {
+describe('End to end scenario tests', () => {
     let i = 0
     const router = new RouterService({ history: null as any, auth: null as any, routes: ROUTES })
 
@@ -91,7 +91,7 @@ describe.skip('End to end scenario tests', () => {
     }
 
     async function runTest(scenario: Scenario, options: { pageName: string, scenarioName: string }) {
-        const startUrlPath = router.getUrl(scenario.startRoute.route, scenario.startRoute.params)
+        const startUrlPath = router.getUrl(scenario.startRoute.route as RouteName, scenario.startRoute.params)
 
         const uiConnection = new UiConnection()
 

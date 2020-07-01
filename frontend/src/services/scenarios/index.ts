@@ -11,7 +11,7 @@ export function getDefaultScenarioModules() {
     const scenarios: ScenarioModuleMap = {}
 
     for (const path of scenariosContext.keys()) {
-        const matches = /\/([^.]+)\.ts$/.exec(path)
+        const matches = /([^.]+)\.ts$/.exec(path)
         if (!matches) {
             throw new Error(`Scenarios with weird path: ${path}`)
         }
