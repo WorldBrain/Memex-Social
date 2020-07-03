@@ -1,6 +1,7 @@
 import { StorageModule, StorageModuleConfig } from '@worldbrain/storex-pattern-modules'
 import { STORAGE_VERSIONS } from '../../../storage/versions'
 import { SharedList, SharedListEntry, SharedListReference } from '../types'
+import { UserReference } from '../../../types/users'
 
 interface StoredSharedListReference extends SharedListReference {
     id: string | number
@@ -25,15 +26,17 @@ export default class ContentSharingStorage extends StorageModule {
                 fields: {
                     createdWhen: { type: 'timestamp' },
                     updatedWhen: { type: 'timestamp' },
-                    title: { type: 'string' },
-                    url: { type: 'string' }
+                    entryTitle: { type: 'string' },
+                    normalizedUrl: { type: 'string' },
+                    originalUrl: { type: 'string' },
                 },
                 relationships: [
-                    { childOf: 'sharedList' }
+                    { childOf: 'sharedList' },
+                    { alias: 'creator', childOf: 'user' }
                 ],
-                groupBy: [
-                    { key: 'sharedList', subcollectionName: 'entries' }
-                ]
+                // groupBy: [
+                //     { key: 'sharedList', subcollectionName: 'entries' }
+                // ]
             }
         },
         operations: {
@@ -58,9 +61,13 @@ export default class ContentSharingStorage extends StorageModule {
         }
     })
 
-    async createSharedList(listData: Omit<SharedList, 'createdWhen' | 'updatedWhen'>): Promise<SharedListReference> {
+    async createSharedList(options: {
+        listData: Omit<SharedList, 'createdWhen' | 'updatedWhen'>
+        userReference: UserReference
+    }): Promise<SharedListReference> {
         const sharedList = (await this.operation('createSharedList', {
-            ...listData,
+            ...options.listData,
+            creator: options.userReference.id,
             createdWhen: '$now',
             updatedWhen: '$now'
         })).object
@@ -68,28 +75,48 @@ export default class ContentSharingStorage extends StorageModule {
         return reference
     }
 
-    async createListEntries(listReference: SharedListReference, listEntries: SharedListEntry[]) {
-        await this.operation('createListEntries', listEntries.map(entry => ({
-            sharedList: (listReference as StoredSharedListReference).id,
-            createdWhen: '$now',
-            updatedWhen: '$now',
-            ...entry,
-        })))
+    async createListEntries(options: {
+        listReference: SharedListReference,
+        listEntries: Omit<SharedListEntry, 'createdWhen' | 'updatedWhen'>[],
+        userReference: UserReference
+    }) {
+        await this.operation('createListEntries', {
+            batch: options.listEntries.map(entry => ({
+                operation: 'createObject',
+                collection: 'sharedListEntry',
+                args: {
+                    sharedList: (options.listReference as StoredSharedListReference).id,
+                    creator: options.userReference.id,
+                    createdWhen: '$now',
+                    updatedWhen: '$now',
+                    ...entry,
+                }
+            }))
+        })
     }
 
-    getSharedListLinkID(listRefrence: SharedListReference): string {
-        const id = (listRefrence as StoredSharedListReference).id
+    getSharedListLinkID(listReference: SharedListReference): string {
+        const id = (listReference as StoredSharedListReference).id
         return typeof id === "string" ? id : id.toString()
     }
 
-    async retrieveList(listReference: SharedListReference): Promise<{ sharedList: SharedList, entries: SharedListEntry[] } | null> {
+    async retrieveList(listReference: SharedListReference): Promise<{
+        sharedList: SharedList,
+        entries: Array<SharedListEntry & { sharedList: SharedListReference }>
+    } | null> {
         const id = (listReference as StoredSharedListReference).id
         const sharedList: SharedList = await this.operation('findListByID', { id })
         if (!sharedList) {
             return null
         }
 
-        const entries: SharedListEntry[] = await this.operation('findListEntriesByList', { sharedListID: id })
+        const rawEntries = await this.operation('findListEntriesByList', { sharedListID: id })
+        const entries: Array<SharedListEntry & { sharedList: SharedListReference }> = rawEntries.map(
+            (entry: SharedListEntry & { sharedList: string | number }) => ({
+                ...entry,
+                sharedList: { type: 'shared-list-reference', id: entry.sharedList } as StoredSharedListReference
+            })
+        )
         return { sharedList, entries }
     }
 }

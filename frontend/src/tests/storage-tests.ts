@@ -1,19 +1,145 @@
+import * as firebase from '@firebase/testing'
 import { Storage } from "../storage/types"
 import { createStorage } from "../storage"
+import { FirestoreStorageBackend } from '@worldbrain/storex-backend-firestore'
+import { createServices } from '../services'
+import { Services } from '../services/types'
 
 export interface StorageTestContext {
     storage: Storage
+    services: Services
+    auth: {
+        signInTestUser: () => Promise<void>
+        signOutTestUser: () => Promise<void>
+    }
 }
 export type StorageTest = (context: StorageTestContext) => Promise<void>
-export type StorageTestFactory = (description: string, test: StorageTest) => void
+export interface StorageTestOptions {
+}
+export type StorageTestFactory = (
+    ((description: string, test: StorageTest) => void) &
+    ((description: string, options: StorageTestOptions, test: StorageTest) => void)
+)
+export type StorageTestSuite = (context: { it: StorageTestFactory }) => void
 
-export function createStorageTestFactory() {
-    const factory: StorageTestFactory = (description, test) => {
+type StorageTestBackend = keyof typeof STORAGE_TEST_BACKENDS
+const STORAGE_TEST_BACKENDS = {
+    memory: true,
+    'firebase-emulator': true
+}
+
+export function createStorageTestFactory(suiteOptions: { backend: StorageTestBackend }) {
+    const factory: StorageTestFactory = (description: string, testOrOptions: StorageTest | StorageTestOptions, maybeTest?: StorageTest) => {
+        const testOptions: StorageTestOptions = maybeTest ? (testOrOptions as StorageTestOptions) : {}
+        const test = maybeTest ?? (testOrOptions as StorageTest)
+
         it(description, async () => {
-            const storage = await createStorage({ backend: 'memory' })
-            await test({ storage })
+            if (suiteOptions.backend === 'memory') {
+                const storage = await createStorage({ backend: 'memory' })
+                const services = createServices({
+                    backend: 'memory',
+                    storage,
+                    history: null!,
+                    uiMountPoint: null!,
+                    localStorage: null!,
+                })
+                await test({
+                    storage,
+                    services,
+                    auth: {
+                        signInTestUser: async () => {
+                            await services.auth.loginWithProvider('google')
+                        },
+                        signOutTestUser: async () => {
+                            await services.auth.logout()
+                        }
+                    }
+                })
+            } else if (suiteOptions.backend === 'firebase-emulator') {
+                const projectId = `unit-test-${Date.now()}`
+                // if (options.printProjectId) {
+                //     console.log(`Creating Firebase emulator project: ${projectId}`)
+                // }
+
+                // const userId: string | null = testOptions.auth ? ((testOptions.auth as { userId?: string }).userId || 'alice') : null
+                const firebaseApp = firebase.initializeTestApp({
+                    projectId: projectId,
+                    // auth: userId ? { uid: userId } : {}
+                })
+                await firebase.loadFirestoreRules({
+                    projectId,
+                    rules: `
+                    service cloud.firestore {
+                        match /databases/{database}/documents {
+                            match /{document=**} {
+                                allow read, write; // or allow read, write: if true;
+                             }
+                        }
+                      }                      
+                    `
+                })
+
+                const firestore = firebaseApp.firestore()
+                const storageBackend = new FirestoreStorageBackend({
+                    firebase: firebaseApp as any,
+                    firebaseModule: firebase as any,
+                    firestore: firestore as any
+                })
+                const storage = await createStorage({ backend: storageBackend })
+                // const authService = new FirebaseAuthService(firebaseApp as any, { storage })
+
+                const services = createServices({
+                    backend: 'memory',
+                    storage,
+                    history: null!,
+                    uiMountPoint: null!,
+                    localStorage: null!,
+                })
+
+                await test({
+                    storage,
+                    services,
+                    auth: {
+                        signInTestUser: async () => {
+                            await services.auth.loginWithProvider('google')
+                        },
+                        signOutTestUser: async () => {
+                            await services.auth.logout()
+                        }
+                    }
+                })
+            } else {
+                throw new Error(`Got unknown backend for test '${description}': ${suiteOptions.backend}`)
+            }
         })
     }
 
     return factory
+}
+
+export function createStorageTestSuite(description: string, suite: StorageTestSuite) {
+    const backends = selectSuiteBackends()
+    describe(description, () => {
+        if (backends.has('memory')) {
+            describe('In memory (Dexie)', () => {
+                suite({ it: createStorageTestFactory({ backend: 'memory' }) })
+            })
+        }
+        if (backends.has('firebase-emulator')) {
+            describe('Firebase emulator', () => {
+                suite({ it: createStorageTestFactory({ backend: 'firebase-emulator' }) })
+            })
+        }
+    })
+}
+
+function selectSuiteBackends(): Set<StorageTestBackend> {
+    const selectionString = process.env.STORAGE_TEST_BACKEND || 'memory'
+    const selection = selectionString.split(',')
+    for (const backend of selection) {
+        if (!(backend in STORAGE_TEST_BACKENDS)) {
+            throw new Error(`Unknown test backend passed as STORAGE_TEST_BACKEND`)
+        }
+    }
+    return new Set<StorageTestBackend>(selection as StorageTestBackend[])
 }

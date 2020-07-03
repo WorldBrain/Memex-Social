@@ -32,6 +32,7 @@
     "not op_mini all"
   ],
   "dependencies": {
+    "@firebase/testing": "^0.20.5",
     "@types/styled-components": "^5.1.0",
     "@worldbrain/storex": "^0.3.3",
     "@worldbrain/storex-backend-dexie": "^0.2.2",
@@ -44,7 +45,8 @@
     "blob-util": "^2.0.2",
     "classnames": "^2.2.6",
     "dauria": "^2.0.0",
-    "firebase": "^5.8.6",
+    "firebase": "^7.15.5",
+    "firebase-tools": "^8.4.3",
     "font-awesome": "^4.7.0",
     "immutability-helper": "^3.0.0",
     "js-levenshtein": "^1.1.6",

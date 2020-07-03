@@ -14,9 +14,8 @@ export default class FirebaseAuthService extends AuthServiceBase {
     private _firebase: typeof firebase
     private _user: User | null = null
 
-    constructor(firebaseRoot: typeof firebase, private options: {
+    constructor(firebaseRoot: typeof firebase, options: {
         storage: Storage,
-        services: Omit<Services, 'auth' | 'router'>
     }) {
         super()
 
@@ -59,8 +58,9 @@ export default class FirebaseAuthService extends AuthServiceBase {
         return this._user
     }
 
-    getCurrentUserID() {
-        return this._firebase.auth().currentUser?.uid ?? null
+    getCurrentUserReference() {
+        const id = this._firebase.auth().currentUser?.uid
+        return id ? { type: 'user-reference' as 'user-reference', id } : null
     }
 }
 

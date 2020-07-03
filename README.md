@@ -47,3 +47,11 @@ Because of the way the edge of the system is isolated, we can also show a scenar
 ## Coding guides
 
 As part of WorldBrain, this project adheres to the coding guidelines outline in the [WorldBrain engineering documentation](https://worldbrain.github.io/WorldBrain-Engineering/#/), where we explain things like Styled Component usage, having no mercy for any global or implicitly shared state, etc.
+
+## Some things to know about the Lerna setup
+
+This project uses Lerna to manage multiple packages and make development across them easier. Lerna takes care of creating symlinks between all `node_modules` directories so you don't have to. However, some things that are normally easy, are made harder.
+
+### Adding a new NPM package to one of the modules
+
+When you do `yarn add <package>` in one of the modules, the `node_modules` directory is automatically cleaned of any symlinks and it start to download old versions of the packages in `external/` from NPM. This will cause errors, because in order for things to work, we need the symlinks between packages to be preserved.

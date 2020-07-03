@@ -9,6 +9,7 @@ export type SharedListEntry =
     {
         createdWhen: number
         updatedWhen: number
-        title: string
-        url: string
+        entryTitle: string
+        normalizedUrl: string
+        originalUrl: string
     }

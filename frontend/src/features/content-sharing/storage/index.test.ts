@@ -1,22 +1,81 @@
+import sortBy from 'lodash/sortBy'
 import expect from 'expect'
-import { createStorageTestFactory } from '../../../tests/storage-tests'
+import { createStorageTestSuite } from '../../../tests/storage-tests'
 
-describe('Content sharing storage', () => {
-    const it = createStorageTestFactory()
-
-    it('should save lists and retrieve them', async ({ storage }) => {
+createStorageTestSuite('Content sharing storage', ({ it }) => {
+    it('should save lists and retrieve them', async ({ storage, services, auth }) => {
         const { contentSharing } = storage.serverModules
+        await auth.signInTestUser()
+        const userReference = services.auth.getCurrentUserReference()!
         const listReference = await contentSharing.createSharedList({
-            title: 'My list'
+            listData: {
+                title: 'My list'
+            },
+            userReference
         })
         const retrieved = await contentSharing.retrieveList(listReference)
         expect(retrieved).toEqual({
             sharedList: expect.objectContaining({
+                creator: userReference.id,
                 title: 'My list',
                 createdWhen: expect.any(Number),
                 updatedWhen: expect.any(Number),
             }),
             entries: []
+        })
+    })
+
+    it('should save list entries and retrieve them', async ({ storage, services, auth }) => {
+        const { contentSharing } = storage.serverModules
+        await auth.signInTestUser()
+        const userReference = services.auth.getCurrentUserReference()!
+        const listReference = await contentSharing.createSharedList({
+            listData: {
+                title: 'My list'
+            },
+            userReference
+        })
+        await contentSharing.createListEntries({
+            listReference,
+            listEntries: [
+                {
+                    entryTitle: 'Page 1',
+                    originalUrl: 'https://www.foo.com/page-1',
+                    normalizedUrl: 'foo.com/page-1',
+                },
+                {
+                    entryTitle: 'Page 2',
+                    originalUrl: 'https://www.bar.com/page-2',
+                    normalizedUrl: 'bar.com/page-2',
+                },
+            ],
+            userReference
+        })
+        const retrieved = (await contentSharing.retrieveList(listReference))!
+        retrieved.entries = sortBy(retrieved.entries, 'entryTitle')
+        expect(retrieved).toEqual({
+            sharedList: expect.objectContaining({
+                creator: userReference.id,
+                title: 'My list',
+                createdWhen: expect.any(Number),
+                updatedWhen: expect.any(Number),
+            }),
+            entries: [
+                expect.objectContaining({
+                    creator: userReference.id,
+                    sharedList: listReference,
+                    entryTitle: 'Page 1',
+                    originalUrl: 'https://www.foo.com/page-1',
+                    normalizedUrl: 'foo.com/page-1',
+                }),
+                expect.objectContaining({
+                    creator: userReference.id,
+                    sharedList: listReference,
+                    entryTitle: 'Page 2',
+                    originalUrl: 'https://www.bar.com/page-2',
+                    normalizedUrl: 'bar.com/page-2',
+                }),
+            ]
         })
     })
 })

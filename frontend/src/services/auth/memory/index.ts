@@ -1,7 +1,6 @@
 import { AuthProvider } from "../../../types/auth";
 import { User } from "../../../types/users";
 import { Storage } from "../../../storage/types";
-import { Services } from "../../types";
 import { AuthMethod, AuthLoginFlow, AuthRequest } from "../types";
 import { AuthServiceBase } from "../base";
 import USER_PICTURE_DATA_URLS from "./user-pictures.data";
@@ -9,7 +8,7 @@ import USER_PICTURE_DATA_URLS from "./user-pictures.data";
 export default class MemoryAuthService extends AuthServiceBase {
     private _user: User | null = null
 
-    constructor(private options: { storage: Storage, services: Omit<Services, 'auth' | 'router'> }) {
+    constructor(private options: { storage: Storage }) {
         super()
         this._user = null
     }
@@ -30,7 +29,7 @@ export default class MemoryAuthService extends AuthServiceBase {
             managementData: { provider },
         }
         this._user = user
-        await this.options.storage.serverModules.users.ensureUser(user, { type: 'user-reference', id: 1 })
+        await this.options.storage.serverModules.users.ensureUser(user, this.getCurrentUserReference()!)
 
         this.events.emit('changed')
 
@@ -51,7 +50,7 @@ export default class MemoryAuthService extends AuthServiceBase {
         return this._user
     }
 
-    getCurrentUserID() {
-        return this._user && 1
+    getCurrentUserReference() {
+        return this._user ? { type: 'user-reference' as 'user-reference', id: 'test-user-1' } : null
     }
 }

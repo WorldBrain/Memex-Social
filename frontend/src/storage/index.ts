@@ -14,14 +14,16 @@ import { checkAccountCollectionInfoMap } from './checks';
 import { ACCOUNT_COLLECTIONS } from './constants';
 import ContentSharingStorage from '../features/content-sharing/storage';
 
-export async function createStorage(options: { backend: BackendType }): Promise<Storage> {
+export async function createStorage(options: { backend: BackendType | StorageBackend }): Promise<Storage> {
     let storageBackend: StorageBackend
     if (options.backend === 'memory') {
         storageBackend = new DexieStorageBackend({ dbName: 'useful-media', idbImplementation: inMemory() })
     } else if (options.backend === 'firebase') {
-        storageBackend = new FirestoreStorageBackend({ firebase: firebase as any, firestore: firebase.firestore() })
-    } else {
+        storageBackend = new FirestoreStorageBackend({ firebase: firebase as any, firestore: firebase.firestore() as any })
+    } else if (typeof options.backend === 'string') {
         throw new Error(`Tried to create storage with unknown backend: ${options.backend}`)
+    } else {
+        storageBackend = options.backend
     }
     const storageManager = new StorageManager({ backend: storageBackend })
 

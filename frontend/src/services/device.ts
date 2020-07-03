@@ -1,16 +1,16 @@
 import { EventEmitter } from "events"
 
-type RectSize = {width : number, height : number}
+type RectSize = { width: number, height: number }
 
 export class DeviceService {
     events = new EventEmitter()
-    private cachedRootSize : RectSize
+    private cachedRootSize: RectSize
 
-    constructor(private options : { rootElement : Element }) {
+    constructor(private options: { rootElement: Element }) {
         this.cachedRootSize = this.calculateRootSize()
     }
 
-    get rootSize() : RectSize {
+    get rootSize(): RectSize {
         return this.cachedRootSize
     }
 
@@ -23,10 +23,10 @@ export class DeviceService {
         this.cachedRootSize = this.calculateRootSize()
     }
 
-    private calculateRootSize() : RectSize {
+    private calculateRootSize(): RectSize {
         return {
-            width: this.options.rootElement.clientWidth,
-            height: this.options.rootElement.clientHeight,
+            width: this.options.rootElement?.clientWidth,
+            height: this.options.rootElement?.clientHeight,
         }
     }
 }

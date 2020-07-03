@@ -1,22 +1,14 @@
 {
-    "version": "independent",
-    "npmClient": "yarn",
-    "command": {
-        "publish": {
-            "ignoreChanges": [
-                "ignored-file"
-            ],
-            "message": "chore(release): publish"
-        },
-        "bootstrap": {
-            "npmClientArgs": [
-                "--no-package-lock"
-            ]
-        }
+  "version": "independent",
+  "npmClient": "yarn",
+  "command": {
+    "publish": {
+      "ignoreChanges": ["ignored-file"],
+      "message": "chore(release): publish"
     },
-    "packages": [
-        "external/*",
-        "external/@worldbrain/*",
-        "frontend"
-    ]
+    "bootstrap": {
+      "npmClientArgs": ["--no-package-lock"]
+    }
+  },
+  "packages": ["external/*", "external/@worldbrain/*", "frontend"]
 }

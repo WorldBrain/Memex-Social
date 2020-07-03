@@ -19,29 +19,28 @@ export function createServices(options: {
     backend: BackendType, storage: Storage,
     history: History, uiMountPoint: Element,
     localStorage: LimitedWebStorage,
+    authService?: AuthService
     logLogicEvents?: boolean
 }): Services {
     const logicRegistry = new LogicRegistryService({ logEvents: options.logLogicEvents });
     const device = new DeviceService({ rootElement: options.uiMountPoint })
 
-    const limitedServices: Omit<Services, 'auth' | 'router'> = {
-        overlay: new OverlayService(),
-        logicRegistry,
-        device,
-    }
-
     let auth: AuthService
-    if (options.backend === 'firebase') {
-        auth = new FirebaseAuthService(firebase, { storage: options.storage, services: limitedServices })
+    if (options.authService) {
+        auth = options.authService
+    } else if (options.backend === 'firebase') {
+        auth = new FirebaseAuthService(firebase, { storage: options.storage })
     } else if (options.backend === 'memory') {
-        auth = new MemoryAuthService({ storage: options.storage, services: limitedServices })
+        auth = new MemoryAuthService({ storage: options.storage })
     } else {
         throw new Error(`Tried to create services with unknown backend: '${options.backend}'`)
     }
     const router = new RouterService({ routes: ROUTES, auth, history: options.history })
 
     const services: Services = {
-        ...limitedServices,
+        overlay: new OverlayService(),
+        logicRegistry,
+        device,
         auth,
         router,
     }

@@ -1,13 +1,13 @@
 import { EventEmitter } from "events";
 import { AuthProvider } from "../../types/auth"
-import { User } from "../../types/users"
+import { User, UserReference } from "../../types/users"
 
 export interface AuthService {
     events: EventEmitter
 
     loginWithProvider(provider: AuthProvider, options?: { request?: AuthRequest }): Promise<void>
     getCurrentUser(): User | null
-    getCurrentUserID(): string | number | null
+    getCurrentUserReference(): UserReference | null
     getSupportedMethods(options: { method: AuthMethod, provider?: AuthProvider }): AuthMethod[]
     getLoginFlow(options: { method: AuthMethod, provider?: AuthProvider }): AuthLoginFlow | null
 
