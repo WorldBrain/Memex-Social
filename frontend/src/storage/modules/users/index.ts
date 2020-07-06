@@ -17,13 +17,11 @@ export default class UserStorage extends StorageModule {
     getConfig(): StorageModuleConfig {
         return {
             collections: {
-                user: {
+                publicUserProfile: {
                     version: STORAGE_VERSIONS[0].date,
                     fields: {
-                        isActive: { type: 'boolean' },
                         displayName: { type: 'string', optional: true },
-                        picture: { type: 'media', optional: true }
-                    }
+                    },
                 },
                 userEmail: {
                     version: STORAGE_VERSIONS[0].date,
