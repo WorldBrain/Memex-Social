@@ -19,3 +19,12 @@
 [submodule "external/@worldbrain/storex-data-tools"]
 	path = external/@worldbrain/storex-data-tools
 	url = https://github.com/WorldBrain/storex-data-tools
+[submodule "external/@worldbrain/memex-common"]
+	path = external/@worldbrain/memex-common
+	url = https://github.com/WorldBrain/memex-common
+[submodule "external/@worldbrain/memex-storage"]
+	path = external/@worldbrain/memex-storage
+	url = https://github.com/WorldBrain/memex-storage
+[submodule "external/@worldbrain/storex-sync"]
+	path = external/@worldbrain/storex-sync
+	url = https://github.com/WorldBrain/storex-sync

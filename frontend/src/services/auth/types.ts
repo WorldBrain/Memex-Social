@@ -1,6 +1,6 @@
 import { EventEmitter } from "events";
+import { User, UserReference } from "@worldbrain/memex-common/lib/web-interface/types/users";
 import { AuthProvider } from "../../types/auth"
-import { User, UserReference } from "../../types/users"
 
 export interface AuthService {
     events: EventEmitter

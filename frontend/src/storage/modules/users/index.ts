@@ -1,7 +1,7 @@
 import StorageManager from "@worldbrain/storex";
 import { StorageModule, StorageModuleConfig, StorageModuleConstructorArgs } from "@worldbrain/storex-pattern-modules";
-import { STORAGE_VERSIONS } from "../../versions";
-import { User, UserReference } from "../../../types/users";
+import { STORAGE_VERSIONS } from "@worldbrain/memex-common/lib/web-interface/storage/versions";
+import { User, UserReference } from "@worldbrain/memex-common/lib/web-interface/types/users";
 import { collectAccountCollections } from "../../utils";
 import { ACCOUNT_COLLECTIONS } from "../../constants";
 
@@ -17,7 +17,7 @@ export default class UserStorage extends StorageModule {
     getConfig(): StorageModuleConfig {
         return {
             collections: {
-                publicUserProfile: {
+                user: {
                     version: STORAGE_VERSIONS[0].date,
                     fields: {
                         displayName: { type: 'string', optional: true },

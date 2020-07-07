@@ -41,6 +41,7 @@
     "@worldbrain/storex-media-middleware": "^0.0.1",
     "@worldbrain/storex-pattern-modules": "^0.3.0",
     "@worldbrain/storex-typescript-generation": "^0.1.0",
+    "@worldbrain/memex-common": "^0.0.1",
     "blob-to-buffer": "^1.2.8",
     "blob-util": "^2.0.2",
     "classnames": "^2.2.6",

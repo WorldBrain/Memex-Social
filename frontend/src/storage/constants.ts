@@ -1,9 +1,9 @@
-export type AccountCollectionInfoMap = {[collection : string] : AccountCollectionInfo}
+export type AccountCollectionInfoMap = { [collection: string]: AccountCollectionInfo }
 export interface AccountCollectionInfo {
     onAccountDelete: 'delete' | 'ignore'
 }
 
-export const ACCOUNT_COLLECTIONS : AccountCollectionInfoMap = {
+export const ACCOUNT_COLLECTIONS: AccountCollectionInfoMap = {
     userEmail: {
         onAccountDelete: 'delete',
     },
@@ -17,6 +17,12 @@ export const ACCOUNT_COLLECTIONS : AccountCollectionInfoMap = {
         onAccountDelete: 'delete',
     },
     projectMembership: {
+        onAccountDelete: 'delete',
+    },
+    sharedList: {
+        onAccountDelete: 'delete',
+    },
+    sharedListEntry: {
         onAccountDelete: 'delete',
     }
 }

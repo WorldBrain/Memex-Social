@@ -1,7 +1,7 @@
 import { EventEmitter } from "events";
 import { AuthProvider } from "../../types/auth"
 import { AuthService, AuthLoginFlow, AuthRequest, AuthMethod } from "./types";
-import { User, UserReference } from "../../types/users";
+import { User, UserReference } from "@worldbrain/memex-common/lib/web-interface/types/users";
 
 
 export abstract class AuthServiceBase implements AuthService {

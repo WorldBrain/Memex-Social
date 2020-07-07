@@ -1,10 +1,9 @@
+import { User } from '@worldbrain/memex-common/lib/web-interface/types/users';
 import * as firebase from 'firebase'
 import { EventEmitter } from "events";
 import { Storage } from '../../storage/types';
-import { User } from '../../types/users';
 import { AuthProvider } from '../../types/auth';
 import { AuthMethod, AuthLoginFlow } from "./types";
-import { Services } from '../types';
 import { UnsavedMediaObject } from '@worldbrain/storex-media-middleware/lib/types';
 import { AuthServiceBase } from './base';
 const blobToBuffer = require('blob-to-buffer')
@@ -67,7 +66,6 @@ export default class FirebaseAuthService extends AuthServiceBase {
 async function _ensureFirebaseUser(firebaseUser: firebase.User, userStorage: Storage['serverModules']['users']) {
     // const provider = firebaseUser.providerId as AuthProvider
     const user = await userStorage.ensureUser({
-        isActive: true,
     }, { type: 'user-reference', id: firebaseUser.uid })
     return user
 }

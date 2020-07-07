@@ -2,10 +2,10 @@
   "name": "website",
   "private": true,
   "scripts": {
-    "bootstrap": "yarn lerna bootstrap --ignore-scripts --force-local && yarn prepare-packages",
+    "bootstrap": "yarn && yarn install-dependencies && yarn prepare-packages",
     "prepare-packages": "for scope in `ts-node tools/ordered-packages.ts`; do lerna exec --scope $scope 'yarn prepare'; done",
     "update-packages": "git submodule update --remote",
-    "lerna": "lerna",
+    "install-dependencies": "lerna bootstrap --force-local --ignore-scripts",
     "test": "yarn lerna run test",
     "test:watch": "lerna run --parallel --stream test:watch -- --colors",
     "prepare:watch": "lerna run --parallel --stream prepare:watch"

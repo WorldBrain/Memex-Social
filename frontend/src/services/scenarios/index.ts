@@ -15,7 +15,10 @@ export function getDefaultScenarioModules() {
         if (!matches) {
             throw new Error(`Scenarios with weird path: ${path}`)
         }
-        const key = matches[1]
+        let key = matches[1]
+        if (key.startsWith('/')) {
+            key = key.substr(1)
+        }
         scenarios[key] = scenariosContext(path).SCENARIOS
     }
 

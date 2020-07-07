@@ -1,11 +1,11 @@
 import kebabCase from 'lodash/kebabCase'
 import * as fs from 'fs'
 import * as path from 'path'
-const glob = require('fast-glob')
 import StorageManager, { StorageRegistry } from '@worldbrain/storex';
 import { StorageModule } from '@worldbrain/storex-pattern-modules'
 import { generateTypescriptInterfaces } from '@worldbrain/storex-typescript-generation'
 import { createStorage } from '../src/storage'
+const glob = require('fast-glob')
 
 type StorageModuleInfoMap = { [className: string]: StorageModuleInfo }
 interface StorageModuleInfo {
@@ -15,7 +15,7 @@ interface StorageModuleInfo {
 }
 
 export async function main() {
-    const rootTypesPath = path.join(__dirname, '../src/types/storex-generated')
+    const rootTypesPath = path.join(__dirname, '../../external/@worldbrain/memex-common/ts/web-interface/types/storex-generated')
     if (!fs.existsSync(rootTypesPath)) {
         fs.mkdirSync(rootTypesPath)
     }
