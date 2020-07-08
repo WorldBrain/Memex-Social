@@ -8,7 +8,7 @@ import { registerModuleMapCollections } from "@worldbrain/storex-pattern-modules
 import { BackendType } from "../types";
 
 import { Storage } from "./types";
-import UserStorage from "./modules/users";
+import UserStorage from "../features/user-management/storage";
 import { StorageMiddleware } from "@worldbrain/storex/lib/types/middleware";
 import { checkAccountCollectionInfoMap } from './checks';
 import { ACCOUNT_COLLECTIONS } from './constants';

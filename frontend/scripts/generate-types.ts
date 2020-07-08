@@ -22,7 +22,7 @@ export async function main() {
 
     const storage = await createStorage({ backend: 'memory' })
     const storageModuleInfoMap = collectStorageModuleInfo()
-    for (const [storageModuleName, storageModule] of Object.entries(storage.serverModules)) {
+    for (const storageModule of Object.values(storage.serverModules)) {
         const className = Object.getPrototypeOf(storageModule).constructor.name
         const storageModuleInfo = storageModuleInfoMap[className]
         const types = generateTypesForStorageModule(storageModule, { storageModuleInfo, storageRegistry: storage.serverStorageManager.registry })

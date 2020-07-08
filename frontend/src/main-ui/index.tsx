@@ -9,6 +9,8 @@ import { Storage } from "../storage/types";
 import Routes from "./routes";
 import App from "./containers/app";
 import { OverlayContainer } from "./containers/overlay";
+
+import "typeface-poppins";
 import GlobalStyle from "./styles/global";
 import { theme } from "./styles/theme";
 

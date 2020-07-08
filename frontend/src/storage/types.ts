@@ -1,6 +1,5 @@
 import StorageManager from "@worldbrain/storex";
-import AuthStorage from "./modules/auth";
-import UserStorage from "./modules/users";
+import UserStorage from "../features/user-management/storage";
 import ContentSharingStorage from "../features/content-sharing/storage";
 
 export interface Storage {
@@ -9,7 +8,6 @@ export interface Storage {
 }
 
 export interface StorageModules {
-    // auth : AuthStorage
     users: UserStorage
     contentSharing: ContentSharingStorage
 }

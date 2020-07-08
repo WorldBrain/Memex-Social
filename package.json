@@ -5,7 +5,7 @@
     "bootstrap": "yarn && yarn install-dependencies && yarn prepare-packages",
     "prepare-packages": "for scope in `ts-node tools/ordered-packages.ts`; do lerna exec --scope $scope 'yarn prepare'; done",
     "update-packages": "git submodule update --remote",
-    "install-dependencies": "lerna bootstrap --force-local --ignore-scripts",
+    "install-dependencies": "lerna bootstrap --force-local --ignore-scripts && npm rebuild",
     "test": "yarn lerna run test",
     "test:watch": "lerna run --parallel --stream test:watch -- --colors",
     "prepare:watch": "lerna run --parallel --stream prepare:watch"

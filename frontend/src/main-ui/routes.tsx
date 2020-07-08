@@ -10,6 +10,7 @@ import ROUTES from "../routes";
 import UserHome from "./pages/user-home";
 import NotFound from "./pages/not-found";
 import LandingPage from "./pages/landing-page";
+import CollectionDetailsPage from "../features/content-sharing/ui/pages/collection-details";
 
 interface Props {
   history: history.History;
@@ -51,9 +52,13 @@ export default class Routes extends React.Component<Props> {
               }
             }}
           />
-          {/* <Route expact path={ROUTES.accountSettings.path} render={() => {
-                    return <AccountSettings storage={this.props.storage} services={this.props.services} />
-                }} /> */}
+          <Route
+            expact
+            path={ROUTES.collectionDetails.path}
+            render={() => {
+              return <CollectionDetailsPage services={this.props.services} />;
+            }}
+          />
           <Route component={NotFound} />
         </Switch>
       </Router>

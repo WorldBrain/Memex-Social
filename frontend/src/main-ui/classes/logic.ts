@@ -25,6 +25,7 @@ export abstract class UILogic<State, Event extends coreUILogic.UIEvent<{}>> exte
 
 export type UIEvent<State> = coreUILogic.UIEvent<State>
 export type UIMutation<State> = coreUILogic.UIMutation<State>
+export type UIEventHandler<State, Events extends coreUILogic.UIEvent<{}>, EventName extends keyof Events> = coreUILogic.UIEventHandler<State, Events, EventName>
 
 export async function loadInitial<State extends { loadState: UITaskState }>(logic: UILogic<State, any>, loader: () => Promise<any>): Promise<boolean> {
     return (await executeUITask(logic, 'loadState', loader))[0]
