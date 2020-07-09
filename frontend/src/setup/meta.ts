@@ -1,4 +1,4 @@
-import { History } from 'history'
+import { History, createMemoryHistory } from 'history'
 import { ProgramQueryParams } from './types';
 import runMetaUi from '../meta-ui';
 import { getDefaultScenarioModules, findScenario, parseScenarioIdentifier, filterScenarioSteps } from '../services/scenarios';
@@ -16,8 +16,10 @@ export async function metaProgram(options: { history: History, queryParams: Prog
     const startScenarioProgram = {
         description: 'Starting point',
         run: (mountPoint: Element) => {
+            const history = createMemoryHistory()
             mainProgram({
-                backend: 'memory', history: options.history, mountPoint,
+                backend: 'memory', history, mountPoint,
+                navigateToScenarioStart: true,
                 queryParams: {
                     scenario: `${scenarioIdentifier.pageName}.${scenarioIdentifier.scenarioName}.$start`,
                 }
@@ -25,10 +27,12 @@ export async function metaProgram(options: { history: History, queryParams: Prog
         }
     }
     const stepScenarioPrograms = filterScenarioSteps(scenario.steps, { untilStep }).map(step => {
+        const history = createMemoryHistory()
         return {
             description: step.description,
             run: (mountPoint: Element) => mainProgram({
-                backend: 'memory', history: options.history, mountPoint,
+                backend: 'memory', history, mountPoint,
+                navigateToScenarioStart: true,
                 queryParams: {
                     scenario: `${scenarioIdentifier.pageName}.${scenarioIdentifier.scenarioName}.${step.name}`
                 }

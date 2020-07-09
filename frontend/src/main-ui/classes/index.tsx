@@ -2,7 +2,6 @@ import mapValues from "lodash/mapValues";
 import * as reactUILogic from "ui-logic-react";
 import { Services } from "../../services/types";
 import * as logic from "./logic";
-import { capitalize } from "../../utils/string";
 import { EventHandlers } from "./events";
 
 type UIServices = "logicRegistry" | "device";

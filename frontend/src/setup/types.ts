@@ -6,8 +6,12 @@ import { BackendType } from '../types';
 
 export type DevQueryParams = { meta?: string, rpc?: string }
 export type ProgramQueryParams = DevQueryParams & ScenarioReplayQueryParams
-export type MainProgramOptions = {
-    backend: BackendType, history?: History, queryParams: ProgramQueryParams,
-    logLogicEvents?: boolean, mountPoint?: Element
+export interface MainProgramOptions {
+    backend: BackendType
+    queryParams: ProgramQueryParams
+    navigateToScenarioStart?: boolean
+    history?: History,
+    logLogicEvents?: boolean
+    mountPoint?: Element
 }
 export type MainProgramSetup = { storage: Storage, services: Services, stepWalkthrough?: () => void }

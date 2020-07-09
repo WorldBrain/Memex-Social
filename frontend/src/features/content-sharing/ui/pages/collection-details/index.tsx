@@ -10,7 +10,8 @@ interface CollectionDetailsProps extends CollectionDetailsDependencies {
   services: UIElementServices;
 }
 
-const middleWidth = "800px";
+const middleWidth = "80%";
+const middleMaxWidth = "800px";
 const StyledHeader = styled.div`
   font-family: ${(props) => props.theme.fonts.primary};
   width: 100%;
@@ -23,6 +24,7 @@ const HeaderLogoArea = styled.div`
 `;
 const HeaderMiddleArea = styled.div`
   width: ${middleWidth};
+  max-width: ${middleMaxWidth};
 `;
 const HeaderTitle = styled.div``;
 const HeaderSubtitle = styled.div``;
@@ -31,6 +33,7 @@ const HeaderCtaArea = styled.div``;
 const PageMiddleArea = styled.div`
   margin: 0 auto;
   width: ${middleWidth};
+  max-width: ${middleMaxWidth};
 `;
 
 const CollectionDescriptionBox = styled.div`
@@ -88,7 +91,9 @@ export default class CollectionDetailsPage extends UIElement<
           <HeaderLogoArea></HeaderLogoArea>
           <HeaderMiddleArea>
             <HeaderTitle>{data.list.title}</HeaderTitle>
-            <HeaderSubtitle></HeaderSubtitle>
+            {data.creatorDisplayName && (
+              <HeaderSubtitle>by {data.creatorDisplayName}</HeaderSubtitle>
+            )}
           </HeaderMiddleArea>
           <HeaderCtaArea>
             + <Trans>Share your online research</Trans>

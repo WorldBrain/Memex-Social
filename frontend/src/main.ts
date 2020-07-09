@@ -6,7 +6,7 @@ import { metaProgram } from "./setup/meta";
 import { ProgramQueryParams } from "./setup/types";
 import { runDevelopmentRpc } from "./rpc";
 
-export async function setup(options : { backend : BackendType, logLogicEvents? : boolean, queryParams: ProgramQueryParams }) {
+export async function setup(options: { backend: BackendType, logLogicEvents?: boolean, queryParams: ProgramQueryParams }) {
     const runMetaProgram = options.queryParams.meta === 'true'
     if (!(process.env.NODE_ENV === 'development' && runMetaProgram)) {
         const setup = await mainProgram(options)
@@ -19,7 +19,7 @@ export async function setup(options : { backend : BackendType, logLogicEvents? :
     serviceWorker.unregister()
 }
 
-export async function main(options : { backend : BackendType, logLogicEvents? : boolean, queryParams: ProgramQueryParams }) {
+export async function main(options: { backend: BackendType, logLogicEvents?: boolean, queryParams: ProgramQueryParams }) {
     if (process.env.NODE_ENV === 'development' && options.queryParams.rpc === 'true') {
         runDevelopmentRpc()
     } else {

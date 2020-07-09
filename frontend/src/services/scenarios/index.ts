@@ -41,6 +41,12 @@ export class ScenarioService {
         this.scenarioModules = options.scenarioModules || getDefaultScenarioModules()
     }
 
+    findScenario(scenarioIdentifierString: string): Scenario {
+        const scenarioIdentifier = parseScenarioIdentifier(scenarioIdentifierString)
+        const { scenario } = findScenario(this.scenarioModules, scenarioIdentifier)
+        return scenario
+    }
+
     async startScenarioReplay(scenarioIdentifierString: string, options: { walkthrough: boolean }) {
         const scenarioIdentifier = parseScenarioIdentifier(scenarioIdentifierString)
         const { scenario, untilStep } = findScenario(this.scenarioModules, scenarioIdentifier)

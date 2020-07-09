@@ -7,6 +7,7 @@ import { MainProgramOptions, MainProgramSetup } from './types';
 import { createStorage } from '../storage';
 import { getReplayOptionsFromQueryParams } from '../services/scenarios';
 import { MemoryLocalStorage } from "../utils/web-storage";
+import { RouteName } from "../routes";
 
 export async function mainProgram(options: MainProgramOptions): Promise<MainProgramSetup> {
     if (options.backend === 'firebase') {
@@ -31,6 +32,11 @@ export async function mainProgram(options: MainProgramOptions): Promise<MainProg
         services.device.processRootResize()
     }, 200))
 
+    if (services.scenarios && options.queryParams.scenario && options.navigateToScenarioStart) {
+        const scenario = services.scenarios.findScenario(options.queryParams.scenario)
+        const startUrlPath = services.router.getUrl(scenario.startRoute.route as RouteName, scenario.startRoute.params)
+        history.replace(startUrlPath)
+    }
     if (services.scenarios && options.queryParams.scenario) {
         await services.scenarios.startScenarioReplay(options.queryParams.scenario, getReplayOptionsFromQueryParams(options.queryParams))
     }

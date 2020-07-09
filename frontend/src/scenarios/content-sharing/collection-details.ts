@@ -7,6 +7,27 @@ export const SCENARIOS: ScenarioMap = {
         fixture: 'default-lists-with-user',
         startRoute: { route: 'collectionDetails', params: { id: 'default-list' } },
         steps: [
+        ]
+    })),
+    'no-entries': scenario<{ CollectionDetailsPage: CollectionDetailsEvent }>(({ step }) => ({
+        fixture: 'default-lists-with-user',
+        startRoute: { route: 'collectionDetails', params: { id: 'no-entries-list' } },
+        steps: []
+    })),
+    'no-description': scenario<{ CollectionDetailsPage: CollectionDetailsEvent }>(({ step }) => ({
+        fixture: 'default-lists-with-user',
+        startRoute: { route: 'collectionDetails', params: { id: 'no-description-list' } },
+        steps: []
+    })),
+    'short-description': scenario<{ CollectionDetailsPage: CollectionDetailsEvent }>(({ step }) => ({
+        fixture: 'default-lists-with-user',
+        startRoute: { route: 'collectionDetails', params: { id: 'short-description-list' } },
+        steps: []
+    })),
+    'toggle-long-description': scenario<{ CollectionDetailsPage: CollectionDetailsEvent }>(({ step }) => ({
+        fixture: 'default-lists-with-user',
+        startRoute: { route: 'collectionDetails', params: { id: 'default-list' } },
+        steps: [
             step({ name: 'first-description-toggle', target: 'CollectionDetailsPage', eventName: 'toggleDescriptionTruncation', eventArgs: {} }),
             step({ name: 'second-description-toggle', target: 'CollectionDetailsPage', eventName: 'toggleDescriptionTruncation', eventArgs: {} }),
         ]

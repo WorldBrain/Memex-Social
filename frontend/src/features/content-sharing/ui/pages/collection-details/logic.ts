@@ -10,6 +10,7 @@ const LIST_DESCRIPTION_CHAR_LIMIT = 200
 export interface CollectionDetailsState {
     loadState: UITaskState
     data?: {
+        creatorDisplayName?: string
         list: SharedList
         listEntries: SharedListEntry[]
         listDescriptionState: 'fits' | 'collapsed' | 'expanded'
@@ -31,16 +32,19 @@ export default class CollectionDetailsLogic extends UILogic<CollectionDetailsSta
 
     init: EventHandler<'init'> = async () => {
         await loadInitial<CollectionDetailsState>(this, async () => {
-            const contentSharing = this.dependencies.contentSharing
+            const { contentSharing, userManagement } = this.dependencies
             const listReference = contentSharing.getSharedListReferenceFromLinkID(this.dependencies.listID)
             const result = await contentSharing.retrieveList(listReference)
             if (result) {
+                const user = await userManagement.getUser(result.creator)
+
                 const listDescription = result.sharedList.description ?? ''
                 const listDescriptionFits = listDescription.length < LIST_DESCRIPTION_CHAR_LIMIT
 
                 this.emitMutation({
                     data: {
                         $set: {
+                            creatorDisplayName: user?.displayName,
                             list: result.sharedList,
                             listEntries: result.entries,
                             listDescriptionState: listDescriptionFits ? 'fits' : 'collapsed',

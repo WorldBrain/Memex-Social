@@ -33,6 +33,7 @@ export default class Routes extends React.Component<Props> {
   }
 
   render() {
+    const { serverModules } = this.props.storage;
     return (
       <Router history={this.props.history}>
         <Switch>
@@ -60,9 +61,8 @@ export default class Routes extends React.Component<Props> {
                 <CollectionDetailsPage
                   listID={route.match.params.id}
                   services={this.props.services}
-                  contentSharing={
-                    this.props.storage.serverModules.contentSharing
-                  }
+                  contentSharing={serverModules.contentSharing}
+                  userManagement={serverModules.users}
                 />
               );
             }}
