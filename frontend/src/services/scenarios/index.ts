@@ -67,7 +67,7 @@ export class ScenarioService {
             return
         }
 
-        const userID = this.options.services.auth.getCurrentUserReference()!.id
+        const userID = this.options.services.auth.getCurrentUserReference()?.id
         await this.options.services.fixtures.loadFixture(scenario.fixture, {
             context: {
                 auth: { currentUser: userID }

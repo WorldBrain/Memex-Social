@@ -1,0 +1,58 @@
+objects:
+  sharedLists:
+    - $store: default
+      id: default-list
+      creator: { $ref: users.default }
+      createdWhen: 1594225289914
+      updatedWhen: 1594225289914
+      title: "Productivity Tools: Networked Thoughts"
+      description: "A new breed of note-taking tools. Here is a collection of tools for networked thoughts. A new breed of note-taking tools. Here is a collection of tools for networked thoughts. A new breed of note-taking tools. Here is a collection of tools for networked thoughts. A new breed of note-taking tools. Here is a collection of tools for networked thoughts. A new breed of note-taking tools. Here is a collection of tools for networked thoughts. A new breed of note-taking tools. Here is a collection of tools for networked thoughts."
+    - $store: short-description-list
+      id: short-description-list
+      creator: { $ref: users.default }
+      createdWhen: 1594225289914
+      updatedWhen: 1594225289914
+      title: "Productivity Tools: Networked Thoughts (short description)"
+      description: "A new breed of note-taking tools."
+    - $store: no-description-list
+      id: no-description-list
+      creator: { $ref: users.default }
+      createdWhen: 1594225289914
+      updatedWhen: 1594225289914
+      title: "Productivity Tools: Networked Thoughts (no description)"
+    - $store: no-entries-list
+      id: no-entries-list
+      creator: { $ref: users.default }
+      createdWhen: 1594225289914
+      updatedWhen: 1594225289914
+      title: "Productivity Tools: Networked Thoughts (no entries)"
+      description: "A new breed of note-taking tools."
+  sharedListEntries:
+    - sharedList: { $ref: sharedLists.default }
+      creator: { $ref: users.default }
+      createdWhen: 1594225289914
+      updatedWhen: 1594225289914
+      entryTitle: "WorldBrain's Memex"
+      normalizedUrl: getmemex.com
+      originalUrl: "https://getmemex.com"
+    - sharedList: { $ref: sharedLists.default }
+      creator: { $ref: users.default }
+      createdWhen: 1594225289914
+      updatedWhen: 1594225289914
+      entryTitle: Notion
+      normalizedUrl: notion.so
+      originalUrl: "https://notion.so"
+    - sharedList: { $ref: sharedLists.short-description-list }
+      creator: { $ref: users.default }
+      createdWhen: 1594225289914
+      updatedWhen: 1594225289914
+      entryTitle: Notion
+      normalizedUrl: notion.so
+      originalUrl: "https://notion.so"
+    - sharedList: { $ref: sharedLists.no-description-list }
+      creator: { $ref: users.default }
+      createdWhen: 1594225289914
+      updatedWhen: 1594225289914
+      entryTitle: Notion
+      normalizedUrl: notion.so
+      originalUrl: "https://notion.so"

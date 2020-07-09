@@ -1,4 +1,0 @@
-objects:
-  userRights:
-    - user: {$ref: users.default}
-      canCreateProjects: true

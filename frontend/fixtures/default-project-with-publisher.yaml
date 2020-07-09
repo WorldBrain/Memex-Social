@@ -1,9 +1,0 @@
-extends:
-  - with-default-project
-  - with-default-user
-  - with-publisher-rights
-objects:
-  projectMemberships:
-    - user: { $ref: users.default }
-      project: { $ref: projects.default }
-      role: 1

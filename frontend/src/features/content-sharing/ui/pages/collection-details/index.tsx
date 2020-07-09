@@ -1,12 +1,12 @@
 import React from "react";
 import { Trans } from "react-i18next";
 import styled from "styled-components";
-import { Margin, Padding } from "styled-components-spacing";
+import { Margin } from "styled-components-spacing";
 import { UIElement, UIElementServices } from "../../../../../main-ui/classes";
 import Logic, { CollectionDetailsState } from "./logic";
-import { CollectionDetailsEvent } from "./types";
+import { CollectionDetailsEvent, CollectionDetailsDependencies } from "./types";
 
-interface CollectionDetailsProps {
+interface CollectionDetailsProps extends CollectionDetailsDependencies {
   services: UIElementServices;
 }
 
@@ -59,17 +59,35 @@ export default class CollectionDetailsPage extends UIElement<
   CollectionDetailsEvent
 > {
   constructor(props: CollectionDetailsProps) {
-    super(props, { logic: new Logic() });
+    super(props, { logic: new Logic(props) });
   }
 
   render() {
-    const state = this.state;
+    if (
+      this.state.loadState === "pristine" ||
+      this.state.loadState === "running"
+    ) {
+      return (
+        <>
+          <Trans>Loading</Trans>...
+        </>
+      );
+    }
+    if (this.state.loadState === "error") {
+      return <Trans>Error while loading list</Trans>;
+    }
+
+    const data = this.state.data;
+    if (!data) {
+      return <Trans>List not found</Trans>;
+    }
+
     return (
       <>
         <StyledHeader>
           <HeaderLogoArea></HeaderLogoArea>
           <HeaderMiddleArea>
-            <HeaderTitle>{state.list.title}</HeaderTitle>
+            <HeaderTitle>{data.list.title}</HeaderTitle>
             <HeaderSubtitle></HeaderSubtitle>
           </HeaderMiddleArea>
           <HeaderCtaArea>
@@ -79,17 +97,17 @@ export default class CollectionDetailsPage extends UIElement<
         <PageMiddleArea>
           <CollectionDescriptionBox>
             <CollectionDescriptionText>
-              {state.listDescriptionState === "collapsed"
-                ? state.listDescriptionTruncated
-                : state.list.description}
+              {data.listDescriptionState === "collapsed"
+                ? data.listDescriptionTruncated
+                : data.list.description}
             </CollectionDescriptionText>
-            {state.listDescriptionState !== "fits" && (
+            {data.listDescriptionState !== "fits" && (
               <CollectionDescriptionToggle
                 onClick={() =>
                   this.processEvent("toggleDescriptionTruncation", {})
                 }
               >
-                {state.listDescriptionState === "collapsed" ? (
+                {data.listDescriptionState === "collapsed" ? (
                   <Trans>Show more</Trans>
                 ) : (
                   <Trans>Show less</Trans>
@@ -98,7 +116,7 @@ export default class CollectionDetailsPage extends UIElement<
             )}
           </CollectionDescriptionBox>
           <PageInfoList>
-            {state.listEntries.map((entry) => (
+            {data.listEntries.map((entry) => (
               <Margin key={entry.normalizedUrl} vertical="medium">
                 <PageInfoBox>
                   <PageInfoBoxTitle>{entry.entryTitle}</PageInfoBoxTitle>

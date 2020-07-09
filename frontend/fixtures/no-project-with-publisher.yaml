@@ -1,4 +1,0 @@
-extends:
-  # - default-project-with-user-follow
-  - with-default-user
-  - with-publisher-rights
