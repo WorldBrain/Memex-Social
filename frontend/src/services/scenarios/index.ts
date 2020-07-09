@@ -179,10 +179,7 @@ export function stringifyScenarioIdentifier(scenarioIdentifier: ScenarioIdentifi
 export function findScenario(scenarioModules: ScenarioModuleMap, scenarioIdentifier: ScenarioIdentifier) {
     const scenarioString = stringifyScenarioIdentifier(scenarioIdentifier)
 
-    const pageScenarios = scenarioModules[scenarioIdentifier.pageName]
-    if (!pageScenarios) {
-        throw new Error(`No such scenario (could not find page scenarios): ${scenarioString}`);
-    }
+    const pageScenarios = findPageScenarios(scenarioModules, scenarioIdentifier)
     const scenario = pageScenarios[scenarioIdentifier.scenarioName]
     if (!scenario) {
         throw new Error(`No such scenario (not found in page scenarios): ${scenarioString}`);
@@ -200,6 +197,14 @@ export function findScenario(scenarioModules: ScenarioModuleMap, scenarioIdentif
     }
 
     return { scenario, untilStep }
+}
+
+export function findPageScenarios(scenarioModules: ScenarioModuleMap, scenarioIdentifier: Pick<ScenarioIdentifier, 'pageName'>) {
+    const pageScenarios = scenarioModules[scenarioIdentifier.pageName]
+    if (!pageScenarios) {
+        throw new Error(`No such scenario (could not find page scenarios): ${scenarioIdentifier.pageName}`);
+    }
+    return pageScenarios
 }
 
 export function filterScenarioSteps(steps: ScenarioStep[], options: { untilStep: UntilScenarioStep }) {
