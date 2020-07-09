@@ -9,6 +9,10 @@ export const SCENARIOS: ScenarioMap = {
         steps: [
         ]
     })),
+    'list-not-found': scenario<{ CollectionDetailsPage: CollectionDetailsEvent }>(({ step }) => ({
+        startRoute: { route: 'collectionDetails', params: { id: 'non-existing' } },
+        steps: []
+    })),
     'no-entries': scenario<{ CollectionDetailsPage: CollectionDetailsEvent }>(({ step }) => ({
         fixture: 'default-lists-with-user',
         startRoute: { route: 'collectionDetails', params: { id: 'no-entries-list' } },
