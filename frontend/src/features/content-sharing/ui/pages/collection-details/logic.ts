@@ -2,6 +2,7 @@ import { SharedList, SharedListEntry } from "@worldbrain/memex-common/lib/conten
 import { CollectionDetailsEvent, CollectionDetailsDependencies } from "./types"
 import { UILogic, UIEventHandler, loadInitial } from "../../../../../main-ui/classes/logic"
 import { UITaskState } from "../../../../../main-ui/types"
+import { UIMutation } from "ui-logic-core"
 const truncate = require('truncate')
 
 const LIST_DESCRIPTION_CHAR_LIMIT = 200
@@ -51,7 +52,10 @@ export default class CollectionDetailsLogic extends UILogic<CollectionDetailsSta
         })
     }
 
-    // toggleDescriptionTruncation: EventHandler<'toggleDescriptionTruncation'> = () => {
-    //     return { listDescriptionState: { $apply: state => state === 'collapsed' ? 'expanded' : 'collapsed' } }
-    // }
+    toggleDescriptionTruncation: EventHandler<'toggleDescriptionTruncation'> = () => {
+        const mutation: UIMutation<CollectionDetailsState> = {
+            data: { listDescriptionState: { $apply: state => state === 'collapsed' ? 'expanded' : 'collapsed' } }
+        }
+        return mutation
+    }
 }

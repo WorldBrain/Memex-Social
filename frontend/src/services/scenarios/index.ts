@@ -29,7 +29,6 @@ type ScenarioIdentifier = { pageName: string, scenarioName: string, stepName: '$
 type UntilScenarioStep = ScenarioStep | '$start' | '$end'
 
 export class ScenarioService {
-    private seenElements: Set<string> = new Set()
     private scenarioModules: ScenarioModuleMap
     private walkthroughResolve: () => void = () => { }
     private stepPromises: { [stepName: string]: Promise<void> } = {}
@@ -51,7 +50,6 @@ export class ScenarioService {
             await this.options.services.auth.loginWithProvider('google')
         }
 
-        this._startObservingElements()
         this._executeScenario(scenario, { ...options, untilStep })
     }
 
@@ -72,12 +70,6 @@ export class ScenarioService {
             context: {
                 auth: { currentUser: userID }
             }
-        })
-    }
-
-    private _startObservingElements() {
-        this.options.services.logicRegistry.events.on('registered', (event: { name: string }) => {
-            this._handleLogicRegistration(event)
         })
     }
 
@@ -108,24 +100,29 @@ export class ScenarioService {
     }
 
     async _waitForElement(name: string) {
-        if (this.seenElements.has(name)) {
-            return
-        }
-
-        return new Promise(resolve => {
-            const logicRegistry = this.options.services.logicRegistry;
-            const handler = (event: { name: string }) => {
-                if (event.name === name) {
-                    logicRegistry.events.off('registered', handler)
-                    resolve()
+        const { logicRegistry } = this.options.services
+        if (!logicRegistry.isRegistered(name)) {
+            await new Promise(resolve => {
+                const handler = (event: { name: string }) => {
+                    if (event.name === name) {
+                        logicRegistry.events.off('registered', handler)
+                        resolve()
+                    }
                 }
-            }
-            logicRegistry.events.on('registered', handler)
-        })
-    }
-
-    _handleLogicRegistration(event: { name: string }) {
-        this.seenElements.add(event.name)
+                logicRegistry.events.on('registered', handler)
+            })
+        }
+        if (!logicRegistry.getAttribute(name, 'initialized')) {
+            await new Promise(resolve => {
+                const handler = (event: { name: string, key: string }) => {
+                    if (event.name === name && event.key === 'initialized') {
+                        logicRegistry.events.off('attribute.changed', handler)
+                        resolve()
+                    }
+                }
+                logicRegistry.events.on('attribute.changed', handler)
+            })
+        }
     }
 
     async _executeStep(step: ScenarioStep) {

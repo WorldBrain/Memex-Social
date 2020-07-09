@@ -36,6 +36,15 @@ export abstract class UIElement<
   }
 
   componentDidMount() {
+    if (this.logic) {
+      this.logic.events.once("initialized", () =>
+        this.services.logicRegistry.setAttribute(
+          this.elementName,
+          "initialized",
+          true
+        )
+      );
+    }
     super.componentDidMount();
     if (this.logic) {
       if (this.services) {
@@ -44,7 +53,7 @@ export abstract class UIElement<
           eventProcessor: (eventName: string, eventArgs: any) =>
             this.processEvent(eventName as any, eventArgs),
           triggerOutput: (event: string, ...args: any[]) =>
-            (this.props as any)[`on${capitalize(event)}`](...args),
+            (this.props as any)[event](...args),
         });
       }
     }

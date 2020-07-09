@@ -6,7 +6,7 @@ export function scenario<Targets extends { [name: string]: UIEvent<{}> }>(builde
 }) => Scenario) {
     return builder({
         step: (options) => ({
-            name: '',
+            name: options.name,
             target: options.target as string,
             eventName: options.eventName as string,
             eventArgs: options.eventArgs
