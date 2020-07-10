@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { Margin } from "styled-components-spacing";
 import { UIElement, UIElementServices } from "../../../../../main-ui/classes";
 import Logic, { CollectionDetailsState } from "./logic";
+import LoadingIndictator from "../../../../../main-ui/components/loading-indicator";
 import { CollectionDetailsEvent, CollectionDetailsDependencies } from "./types";
 
 interface CollectionDetailsProps extends CollectionDetailsDependencies {
@@ -131,13 +132,31 @@ const PageInfoBox = styled.div`
 `;
 const PageInfoBoxTitle = styled.div`
   font-weight: 600;
-  font-size: ${props => props.theme.fontSize.listTitle}
+  font-size: ${props => props.theme.fontSize.listTitle};
+  text-overflow: ellipsis;
+  overflow-x: hidden;
+  overflow-wrap: break-word;
+  white-space: nowrap;
+  max-width: 100%;
 `;
 const PageInfoBoxUrl = styled.div`
     font-weight: 400;
     font-size: ${props => props.theme.fontSize.url};
-    color: ${props => props.theme.colors.subText}
+    color: ${props => props.theme.colors.subText};
+    text-overflow: ellipsis;
+    overflow-x: hidden;
+    overflow-wrap: break-word;
+    white-space: nowrap;
+    max-width: 100%;
 `;
+
+const LoadingScreen = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  width: 100%;
+`
 
 export default class CollectionDetailsPage extends UIElement<
   CollectionDetailsProps,
@@ -154,9 +173,9 @@ export default class CollectionDetailsPage extends UIElement<
       this.state.loadState === "running"
     ) {
       return (
-        <>
-          <Trans>Loading</Trans>...
-        </>
+        <LoadingScreen>
+          <LoadingIndictator/>
+        </LoadingScreen>
       );
     }
     if (this.state.loadState === "error") {
@@ -212,7 +231,7 @@ export default class CollectionDetailsPage extends UIElement<
               <Margin key={entry.normalizedUrl} vertical="small">
                 <PageInfoBox onClick={() => window.open(entry.originalUrl)}>
                   <PageInfoBoxTitle>{entry.entryTitle}</PageInfoBoxTitle>
-                  <PageInfoBoxUrl>{entry.originalUrl}</PageInfoBoxUrl>
+                  <PageInfoBoxUrl>{entry.normalizedUrl}</PageInfoBoxUrl>
                 </PageInfoBox>
               </Margin>
             ))}

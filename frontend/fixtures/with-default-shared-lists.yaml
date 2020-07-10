@@ -46,8 +46,8 @@ objects:
       creator: { $ref: users.default }
       createdWhen: 1594225289914
       updatedWhen: 1594225289914
-      entryTitle: Notion
-      normalizedUrl: notion.so
+      entryTitle: Notion long ass title with lots of characters so that you can see if the line properly cuts off enough so its really cutting off
+      normalizedUrl: notion.so/long-rul-with-lots-of-characters-so-that-you-can-see-if-the-line-properly-cuts-off-enough-so-its-really-cutting-off
       originalUrl: "https://notion.so"
     - sharedList: { $ref: sharedLists.default }
       creator: { $ref: users.default }
@@ -158,7 +158,7 @@ objects:
       creator: { $ref: users.default }
       createdWhen: 1594225289914
       updatedWhen: 1594225289914
-      entryTitle: Notion
+      entryTitle: Notion long ass title with lots of characters so that you can see if the line properly cuts off
       normalizedUrl: notion.so
       originalUrl: "https://notion.so"
     - sharedList: { $ref: sharedLists.short-description-list }
