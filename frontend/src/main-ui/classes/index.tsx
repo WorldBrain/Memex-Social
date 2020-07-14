@@ -19,7 +19,7 @@ export abstract class UIElement<
 > extends reactUILogic.UIElement<Props, State, Event> {
   private services: Pick<Services, UIServices>;
   private baseEventHandlers = new EventHandlers();
-  private usesStyleBreakpoints = false;
+  private needsViewportSize = false;
 
   constructor(
     props: Props,
@@ -68,15 +68,9 @@ export abstract class UIElement<
     this.baseEventHandlers.unsubscribeAll();
   }
 
-  getStyleBreakpoints<
-    BreakpointDefinitions extends {
-      [name: string]: number;
-    }
-  >(
-    breakpointDefinitions: BreakpointDefinitions
-  ): { [Key in keyof BreakpointDefinitions]: boolean } {
-    if (!this.usesStyleBreakpoints) {
-      this.usesStyleBreakpoints = true;
+  getViewportSize() {
+    if (!this.needsViewportSize) {
+      this.needsViewportSize = true;
       this.baseEventHandlers.subscribeTo(
         this.services.device.events,
         "rootResize",
@@ -86,7 +80,21 @@ export abstract class UIElement<
       );
     }
 
-    const rootSize = this.services.device.rootSize;
+    return this.services.device.rootSize;
+  }
+
+  getViewportWidth() {
+    return this.getViewportSize().width;
+  }
+
+  getStyleBreakpoints<
+    BreakpointDefinitions extends {
+      [name: string]: number;
+    }
+  >(
+    breakpointDefinitions: BreakpointDefinitions
+  ): { [Key in keyof BreakpointDefinitions]: boolean } {
+    const rootSize = this.getViewportSize();
     const breakpoints = mapValues(breakpointDefinitions, (sizeLimit) => {
       return rootSize.width <= sizeLimit;
     }) as { [Key in keyof BreakpointDefinitions]: boolean };

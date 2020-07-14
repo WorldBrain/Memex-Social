@@ -25,7 +25,7 @@ export default class RouteLink extends UIElement<Props, State, Event> {
             event.ctrlKey ||
             event.shiftKey ||
             event.metaKey ||
-            (event.button && event.button == 1)
+            (event.button && event.button === 1)
           ) {
             return;
           }
