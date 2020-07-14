@@ -168,6 +168,11 @@ export default class CollectionDetailsPage extends UIElement<
   }
 
   render() {
+    const small = this.getViewportWidth() < 500;
+    const large = this.getViewportWidth() > 1200;
+    const layout = !large ? "vertical" : "horizontal";
+    const horizontalMargin = small ? "none" : "normal";
+
     if (
       this.state.loadState === "pristine" ||
       this.state.loadState === "running"
