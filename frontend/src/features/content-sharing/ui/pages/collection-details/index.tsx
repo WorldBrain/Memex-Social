@@ -23,7 +23,7 @@ const StyledHeader = styled.div`
   position: fixed;
   background-color: #fff;
   margin-top: -20px;
-  z-index:2;
+  z-index: 2;
 `;
 const HeaderLogoArea = styled.div`
   display: flex;
@@ -38,9 +38,9 @@ const MemexLogo = styled.div`
   width: 100px;
   border: none;
   background-repeat: no-repeat;
-  background-image: url('https://getmemex.com/static/logo-memex-0d1fa6f00a7b0e7843b94854f3b6cb39.svg');
+  background-image: url("https://getmemex.com/static/logo-memex-0d1fa6f00a7b0e7843b94854f3b6cb39.svg");
   display: flex;
-`
+`;
 
 const HeaderMiddleArea = styled.div`
   width: ${middleWidth};
@@ -57,14 +57,14 @@ const HeaderTitle = styled.div`
   overflow-wrap: break-word;
   white-space: nowrap;
   max-width: 70%;
-  color: ${(props) => props.theme.colors.primary}
+  color: ${(props) => props.theme.colors.primary};
 `;
 const HeaderSubtitle = styled.div`
   margin-left: 10px;
   font-size: 15px;
   font-weight: 500;
   margin-top: 1px;
-  color: ${props => props.theme.colors.subText};
+  color: ${(props) => props.theme.colors.subText};
 `;
 const HeaderCtaArea = styled.div`
   flex: 1;
@@ -79,13 +79,13 @@ const SignUp = styled.div`
   font-weight: 500;
   background-color: #5cd9a6;
   border-radius: 3px;
-  background-color: ${props => props.theme.colors.secondary};
+  background-color: ${(props) => props.theme.colors.secondary};
   cursor: pointer;
 
   &:hover {
     opacity: 0.8;
   }
-`
+`;
 
 const PageMiddleArea = styled.div`
   margin: 0 auto;
@@ -109,16 +109,15 @@ const CollectionDescriptionToggle = styled.div`
   cursor: pointer;
   padding: 3px 5px;
   margin-left: -5px;
-  border-radius: ${props => props.theme.borderRadius.default};
-  color: ${props => props.theme.colors.subText};
+  border-radius: ${(props) => props.theme.borderRadius.default};
+  color: ${(props) => props.theme.colors.subText};
 
   &:hover {
-    background-color: ${props => props.theme.hoverBackground.primary};
+    background-color: ${(props) => props.theme.hoverBackground.primary};
   }
 `;
 
-const PageInfoList = styled.div`
-`;
+const PageInfoList = styled.div``;
 const PageInfoBox = styled.div`
   font-family: ${(props) => props.theme.fonts.primary};
   background: #ffffff;
@@ -131,12 +130,12 @@ const PageInfoBox = styled.div`
 `;
 const PageInfoBoxTitle = styled.div`
   font-weight: 600;
-  font-size: ${props => props.theme.fontSize.listTitle}
+  font-size: ${(props) => props.theme.fontSize.listTitle};
 `;
 const PageInfoBoxUrl = styled.div`
-    font-weight: 400;
-    font-size: ${props => props.theme.fontSize.url};
-    color: ${props => props.theme.colors.subText}
+  font-weight: 400;
+  font-size: ${(props) => props.theme.fontSize.url};
+  color: ${(props) => props.theme.colors.subText};
 `;
 
 export default class CollectionDetailsPage extends UIElement<
@@ -177,7 +176,7 @@ export default class CollectionDetailsPage extends UIElement<
       <>
         <StyledHeader>
           <HeaderLogoArea>
-              <MemexLogo/>
+            <MemexLogo />
           </HeaderLogoArea>
           <HeaderMiddleArea>
             <HeaderTitle title={data.list.title}>{data.list.title}</HeaderTitle>
@@ -186,9 +185,9 @@ export default class CollectionDetailsPage extends UIElement<
             )}
           </HeaderMiddleArea>
           <HeaderCtaArea>
-            <SignUp
-              onClick={()=>window.open('https://getmemex.com')}
-            >Share your research</SignUp>
+            <SignUp onClick={() => window.open("https://getmemex.com")}>
+              Share your research
+            </SignUp>
           </HeaderCtaArea>
         </StyledHeader>
         <PageMiddleArea>

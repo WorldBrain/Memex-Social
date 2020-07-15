@@ -15,12 +15,14 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
         })
         const retrieved = await contentSharing.retrieveList(listReference)
         expect(retrieved).toEqual({
-            sharedList: expect.objectContaining({
+            creator: userReference,
+            sharedList: {
+                id: expect.anything(),
                 creator: userReference.id,
-                title: 'My list',
                 createdWhen: expect.any(Number),
                 updatedWhen: expect.any(Number),
-            }),
+                title: 'My list',
+            },
             entries: []
         })
     })
@@ -54,27 +56,35 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
         const retrieved = (await contentSharing.retrieveList(listReference))!
         retrieved.entries = sortBy(retrieved.entries, 'entryTitle')
         expect(retrieved).toEqual({
-            sharedList: expect.objectContaining({
+            creator: userReference,
+            sharedList: {
+                id: expect.anything(),
                 creator: userReference.id,
-                title: 'My list',
                 createdWhen: expect.any(Number),
                 updatedWhen: expect.any(Number),
-            }),
+                title: 'My list',
+            },
             entries: [
-                expect.objectContaining({
+                {
+                    id: expect.anything(),
                     creator: userReference.id,
                     sharedList: listReference,
+                    createdWhen: expect.any(Number),
+                    updatedWhen: expect.any(Number),
                     entryTitle: 'Page 1',
                     originalUrl: 'https://www.foo.com/page-1',
                     normalizedUrl: 'foo.com/page-1',
-                }),
-                expect.objectContaining({
+                },
+                {
+                    id: expect.anything(),
                     creator: userReference.id,
                     sharedList: listReference,
+                    createdWhen: expect.any(Number),
+                    updatedWhen: expect.any(Number),
                     entryTitle: 'Page 2',
                     originalUrl: 'https://www.bar.com/page-2',
                     normalizedUrl: 'bar.com/page-2',
-                }),
+                },
             ]
         })
     })
