@@ -18,7 +18,7 @@ class UiConnection {
     // private resolveInitialize? : () => void
 
     constructor() {
-        this.socket = io('http://localhost:5000')
+        this.socket = io('http://localhost:5030')
 
         this.waitForUi = new Promise((resolve, reject) => {
             this.socket.on('registered', (event: any) => {

@@ -5,10 +5,10 @@ import jsYaml from 'js-yaml'
 import Koa from 'koa'
 const Router = require('koa-router')
 const IO = require('koa-socket-2');
- 
+
 interface Fixture {
-    extends? : string | string[]
-    objects : { [collection : string] : any[] }
+    extends?: string | string[]
+    objects: { [collection: string]: any[] }
 }
 
 export async function main() {
@@ -16,15 +16,15 @@ export async function main() {
     const router = new Router()
     const io = new IO()
 
-    router.get('/playground/fixture/:name', async (ctx : Koa.Context, next) => {
+    router.get('/playground/fixture/:name', async (ctx: Koa.Context, next) => {
         ctx.body = await loadFixture(ctx.params.name, { fixtureFetcher: loadSingleFixture })
     })
 
     io.attach(app)
- 
+
     const socketsByType = {}
-    const socketDataById : {[id : string] : { type : string }} = {}
-    const maybeSendTo = (targetType : string, eventName : string, eventData : any) => {
+    const socketDataById: { [id: string]: { type: string } } = {}
+    const maybeSendTo = (targetType: string, eventName: string, eventData: any) => {
         const target = socketsByType[targetType]
         if (target) {
             target.emit(eventName, eventData)
@@ -50,7 +50,7 @@ export async function main() {
         maybeSendTo('ui', 'rpc-request', data)
     })
     io.on('rpc-response', (ctx, data) => {
-//        console.log('sending data', data)
+        //        console.log('sending data', data)
         maybeSendTo('peer', 'rpc-response', data)
     })
     io.on('console.log', (ctx, data) => {
@@ -60,18 +60,18 @@ export async function main() {
     app
         .use(router.routes())
         .use(router.allowedMethods())
-        .listen(5000)
+        .listen(5030)
 }
 
-export async function loadFixture(name : string, options : { fixtureFetcher : (name : string) => Promise<Fixture> }) {
+export async function loadFixture(name: string, options: { fixtureFetcher: (name: string) => Promise<Fixture> }) {
     let fixture = await options.fixtureFetcher(name)
     while (fixture['extends']) {
-        const getBases = (fixture : Fixture) : string[] => typeof fixture.extends === 'string' ? [fixture.extends] : fixture.extends || []
-        const bases : string[] = getBases(fixture)
+        const getBases = (fixture: Fixture): string[] => typeof fixture.extends === 'string' ? [fixture.extends] : fixture.extends || []
+        const bases: string[] = getBases(fixture)
         const baseFixtures = await Promise.all(bases.map(
             base => options.fixtureFetcher(base)
         ))
-        
+
         const mergedExtends = flatten(baseFixtures.map(
             baseFixture => getBases(baseFixture)
         ))
@@ -83,10 +83,10 @@ export async function loadFixture(name : string, options : { fixtureFetcher : (n
     return fixture
 }
 
-export function loadSingleFixture(name : string) {
+export function loadSingleFixture(name: string) {
     return jsYaml.safeLoad(fs.readFileSync(path.join(__dirname, '../../fixtures', `${name}.yaml`).toString()).toString())
 }
 
-if(require.main === module) {
+if (require.main === module) {
     main()
 }

@@ -18,8 +18,14 @@ export async function createStorage(options: { backend: BackendType | StorageBac
     let storageBackend: StorageBackend
     if (options.backend === 'memory') {
         storageBackend = new DexieStorageBackend({ dbName: 'useful-media', idbImplementation: inMemory() })
-    } else if (options.backend === 'firebase') {
+    } else if (options.backend === 'firebase' || options.backend === 'firebase-emulator') {
         storageBackend = new FirestoreStorageBackend({ firebase: firebase as any, firestore: firebase.firestore() as any })
+        if (options.backend === 'firebase-emulator') {
+            firebase.firestore().settings({
+                host: "localhost:8080",
+                ssl: false
+            })
+        }
     } else if (typeof options.backend === 'string') {
         throw new Error(`Tried to create storage with unknown backend: ${options.backend}`)
     } else {

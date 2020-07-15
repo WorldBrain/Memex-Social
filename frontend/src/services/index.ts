@@ -28,7 +28,7 @@ export function createServices(options: {
     let auth: AuthService
     if (options.authService) {
         auth = options.authService
-    } else if (options.backend === 'firebase') {
+    } else if (options.backend === 'firebase' || options.backend === 'firebase-emulator') {
         auth = new FirebaseAuthService(firebase, { storage: options.storage })
     } else if (options.backend === 'memory') {
         auth = new MemoryAuthService({ storage: options.storage })
