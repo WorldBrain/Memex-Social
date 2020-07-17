@@ -2,3 +2,4 @@ node_modules
 *swp
 firebase/public
 .firebase/
+*-debug.log

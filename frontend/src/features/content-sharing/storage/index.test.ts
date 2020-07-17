@@ -11,19 +11,51 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
             listData: {
                 title: 'My list'
             },
+            localListId: 55,
             userReference
         })
         const retrieved = await contentSharing.retrieveList(listReference)
         expect(retrieved).toEqual({
             creator: userReference,
-            sharedList: {
+            sharedList: expect.objectContaining({
                 id: expect.anything(),
                 creator: userReference.id,
                 createdWhen: expect.any(Number),
                 updatedWhen: expect.any(Number),
                 title: 'My list',
-                description: null,
+            }),
+            entries: []
+        })
+        expect(await storage.serverStorageManager.collection('sharedListCreatorInfo').findObjects({})).toEqual([{
+            id: expect.anything(),
+            creator: userReference.id,
+            sharedList: (listReference as any).id,
+            localListId: 55,
+        }])
+    })
+
+    it('should update list titles', async ({ storage, services, auth }) => {
+        const { contentSharing } = storage.serverModules
+        await auth.signInTestUser()
+        const userReference = services.auth.getCurrentUserReference()!
+        const listReference = await contentSharing.createSharedList({
+            listData: {
+                title: 'My list'
             },
+            localListId: 55,
+            userReference
+        })
+        await contentSharing.updateListTitle(listReference, 'Updated list title')
+        const retrieved = await contentSharing.retrieveList(listReference)
+        expect(retrieved).toEqual({
+            creator: userReference,
+            sharedList: expect.objectContaining({
+                id: expect.anything(),
+                creator: userReference.id,
+                createdWhen: expect.any(Number),
+                updatedWhen: expect.any(Number),
+                title: 'Updated list title',
+            }),
             entries: []
         })
     })
@@ -36,6 +68,7 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
             listData: {
                 title: 'My list'
             },
+            localListId: 55,
             userReference
         })
         await contentSharing.createListEntries({
@@ -58,14 +91,13 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
         retrieved.entries = sortBy(retrieved.entries, 'entryTitle')
         expect(retrieved).toEqual({
             creator: userReference,
-            sharedList: {
+            sharedList: expect.objectContaining({
                 id: expect.anything(),
                 creator: userReference.id,
                 createdWhen: expect.any(Number),
                 updatedWhen: expect.any(Number),
                 title: 'My list',
-                description: null,
-            },
+            }),
             entries: [
                 {
                     id: expect.anything(),

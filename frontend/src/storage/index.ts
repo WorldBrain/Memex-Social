@@ -40,9 +40,7 @@ export async function createStorage(options: { backend: BackendType | StorageBac
             users: new UserStorage({ storageManager }),
             contentSharing: new ContentSharingStorage({
                 storageManager,
-                autoPkType: options.backend !== 'memory'
-                    ? (options.backend === 'firebase' || options.backend === 'firebase-emulator' ? 'string' : 'number')
-                    : 'number'
+                autoPkType: options.backend !== 'memory' ? 'string' : 'number'
             })
         }
     }
