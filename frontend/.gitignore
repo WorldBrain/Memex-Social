@@ -20,3 +20,4 @@
 
 *-debug.log*
 *-error.log*
+.env*.local
