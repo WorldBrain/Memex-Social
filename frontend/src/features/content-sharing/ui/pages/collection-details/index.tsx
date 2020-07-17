@@ -11,7 +11,6 @@ interface CollectionDetailsProps extends CollectionDetailsDependencies {
   services: UIElementServices;
 }
 
-const middleWidth = "80%";
 const middleMaxWidth = "800px";
 const StyledHeader = styled.div<{viewportWidth: 'mobile' | 'small' | 'normal' | 'big' }>`
   font-family: ${(props) => props.theme.fonts.primary};
@@ -144,20 +143,22 @@ const SignUp = styled.div<{viewportWidth: 'mobile' | 'small' | 'normal' | 'big' 
 `;
 
 const PageMiddleArea = styled.div<{viewportWidth: 'mobile' | 'small' | 'normal' | 'big' }>`
-  margin: 0 auto;
   max-width: ${middleMaxWidth};
   top: 50px;
   position: relative;
   padding-bottom: 100px;
+  margin: 20px auto 0;
 
   ${props => props.viewportWidth === 'small' && css`
       width: 95%;
       top: 70px;
+      margin: 20px auto 0;
   `
   }
    ${props => props.viewportWidth === 'mobile' && css`
       width: 95%;
       top: 60px;
+      margin: 20px auto 0;
   `
   }
 
@@ -166,10 +167,10 @@ const PageMiddleArea = styled.div<{viewportWidth: 'mobile' | 'small' | 'normal' 
 const CollectionDescriptionBox = styled.div<{viewportWidth: 'mobile' | 'small' | 'normal' | 'big' }>`
   font-family: ${(props) => props.theme.fonts.primary};
   font-size: 14px;
-  margin: ${props => (props.viewportWidth === 'small' || props.viewportWidth === 'mobile') ? '20px 5px' : '20px 0px'};
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  margin: ${props => (props.viewportWidth === 'small' || props.viewportWidth === 'mobile') ? '20px 5px' : '20px auto'};
 `;
 const CollectionDescriptionText = styled.div<{viewportWidth: 'mobile' | 'small' | 'normal' | 'big' }>``;
 const CollectionDescriptionToggle = styled.div<{viewportWidth: 'mobile' | 'small' | 'normal' | 'big' }>`
@@ -186,6 +187,11 @@ const CollectionDescriptionToggle = styled.div<{viewportWidth: 'mobile' | 'small
 
 const PageInfoList = styled.div<{viewportWidth: 'mobile' | 'small' | 'normal' | 'big' }>`
 `;
+
+const PageInfoBoxLink = styled.a`
+  text-decoration: none;
+`
+
 const PageInfoBox = styled.div<{viewportWidth: 'mobile' | 'small' | 'normal' | 'big' }>`
   font-family: ${(props) => props.theme.fonts.primary};
   background: #ffffff;
@@ -196,10 +202,18 @@ const PageInfoBox = styled.div<{viewportWidth: 'mobile' | 'small' | 'normal' | '
   padding: 15px 20px;
   cursor: pointer;
   margin-bottom: 5px;
+  text-decoration: none;
 `;
 const PageInfoBoxTitle = styled.div<{viewportWidth: 'mobile' | 'small' | 'normal' | 'big' }>`
   font-weight: 600;
+  color: ${(props) => props.theme.colors.primary};
+  text-decoration: none;
   font-size: ${(props) => props.theme.fontSize.listTitle};
+  text-overflow: ellipsis;
+  overflow-x: hidden;
+  text-decoration: none;
+  overflow-wrap: break-word;
+  white-space: nowrap;
 `;
 
 const PageInfoBoxUrl = styled.div<{viewportWidth: 'mobile' | 'small' | 'normal' | 'big' }>`
@@ -208,6 +222,7 @@ const PageInfoBoxUrl = styled.div<{viewportWidth: 'mobile' | 'small' | 'normal' 
     color: ${props => props.theme.colors.subText};
     text-overflow: ellipsis;
     overflow-x: hidden;
+    text-decoration: none;
     overflow-wrap: break-word;
     white-space: nowrap;
     max-width: 100%;
@@ -254,10 +269,10 @@ export default class CollectionDetailsPage extends UIElement<
   }
 
   render() {
-    const small = this.getViewportWidth() < 500;
-    const large = this.getViewportWidth() > 1200;
-    const layout = !large ? "vertical" : "horizontal";
-    const horizontalMargin = small ? "none" : "normal";
+    //const small = this.getViewportWidth() < 500;
+    //const large = this.getViewportWidth() > 1200;
+    //const layout = !large ? "vertical" : "horizontal";
+    //const horizontalMargin = small ? "none" : "normal";
     const viewportWidth = this.getBreakPoints()
 
     if (
@@ -278,6 +293,8 @@ export default class CollectionDetailsPage extends UIElement<
     if (!data) {
       return <Trans>List not found</Trans>;
     }
+
+    console.log(data.listEntries)
 
     return (
       <>
@@ -302,33 +319,38 @@ export default class CollectionDetailsPage extends UIElement<
           </HeaderCtaArea>
         </StyledHeader>
         <PageMiddleArea viewportWidth={viewportWidth}>
-          <CollectionDescriptionBox viewportWidth={viewportWidth}>
-            <CollectionDescriptionText viewportWidth={viewportWidth}>
-              {data.listDescriptionState === "collapsed"
-                ? data.listDescriptionTruncated
-                : data.list.description}
-            </CollectionDescriptionText>
-            {data.listDescriptionState !== "fits" && (
-              <CollectionDescriptionToggle
-                onClick={() =>
-                  this.processEvent("toggleDescriptionTruncation", {})
-                }
-               viewportWidth={viewportWidth}>
-                {data.listDescriptionState === "collapsed" ? (
-                  <Trans>▸ Show more</Trans>
-                ) : (
-                  <Trans>◂ Show less</Trans>
-                )}
-              </CollectionDescriptionToggle>
-            )}
-          </CollectionDescriptionBox>
+          {data.list.description && 
+            <CollectionDescriptionBox viewportWidth={viewportWidth}>
+              
+              <CollectionDescriptionText viewportWidth={viewportWidth}>
+                {data.listDescriptionState === "collapsed"
+                  ? data.listDescriptionTruncated
+                  : data.list.description}
+              </CollectionDescriptionText>
+              {data.listDescriptionState !== "fits" && (
+                <CollectionDescriptionToggle
+                  onClick={() =>
+                    this.processEvent("toggleDescriptionTruncation", {})
+                  }
+                 viewportWidth={viewportWidth}>
+                  {data.listDescriptionState === "collapsed" ? (
+                    <Trans>▸ Show more</Trans>
+                  ) : (
+                    <Trans>◂ Show less</Trans>
+                  )}
+                </CollectionDescriptionToggle>
+              )}
+            </CollectionDescriptionBox>
+          }
           <PageInfoList viewportWidth={viewportWidth}>
             {data.listEntries.map((entry) => (
               <Margin key={entry.normalizedUrl}>
-                <PageInfoBox onClick={() => window.open(entry.originalUrl)} viewportWidth={viewportWidth}>
-                  <PageInfoBoxTitle viewportWidth={viewportWidth}>{entry.entryTitle}</PageInfoBoxTitle>
-                  <PageInfoBoxUrl viewportWidth={viewportWidth}>{entry.normalizedUrl}</PageInfoBoxUrl>
-                </PageInfoBox>
+              <PageInfoBoxLink href={entry.originalUrl} target="_blank">
+                  <PageInfoBox viewportWidth={viewportWidth}>
+                    <PageInfoBoxTitle viewportWidth={viewportWidth}>{entry.entryTitle}</PageInfoBoxTitle>
+                    <PageInfoBoxUrl viewportWidth={viewportWidth}>{entry.normalizedUrl}</PageInfoBoxUrl>
+                  </PageInfoBox>
+              </PageInfoBoxLink>
               </Margin>
             ))}
           </PageInfoList>

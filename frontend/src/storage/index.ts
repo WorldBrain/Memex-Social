@@ -48,12 +48,12 @@ export async function createStorage(options: { backend: BackendType | StorageBac
     await storageManager.finishInitialization()
     storageManager.setMiddleware(createStorageMiddleware())
 
-    if (process.env.NODE_ENV === 'development') {
-        checkAccountCollectionInfoMap({
-            storageRegistry: storageManager.registry,
-            accountCollections: ACCOUNT_COLLECTIONS,
-        })
-    }
+    // if (process.env.NODE_ENV === 'development') {
+    //     checkAccountCollectionInfoMap({
+    //         storageRegistry: storageManager.registry,
+    //         accountCollections: ACCOUNT_COLLECTIONS,
+    //     })
+    // }
 
     return storage
 }

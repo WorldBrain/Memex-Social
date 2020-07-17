@@ -24,5 +24,5 @@ export const ACCOUNT_COLLECTIONS: AccountCollectionInfoMap = {
     },
     sharedListEntry: {
         onAccountDelete: 'delete',
-    }
+    },
 }
