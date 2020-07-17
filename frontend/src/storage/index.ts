@@ -38,7 +38,12 @@ export async function createStorage(options: { backend: BackendType | StorageBac
         serverModules: {
             // auth: new AuthStorage({ storageManager }),
             users: new UserStorage({ storageManager }),
-            contentSharing: new ContentSharingStorage({ storageManager })
+            contentSharing: new ContentSharingStorage({
+                storageManager,
+                autoPkType: options.backend !== 'memory'
+                    ? (options.backend === 'firebase' || options.backend === 'firebase-emulator' ? 'string' : 'number')
+                    : 'number'
+            })
         }
     }
     registerModuleMapCollections(storageManager.registry, storage.serverModules as any)

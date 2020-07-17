@@ -22,6 +22,7 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 createdWhen: expect.any(Number),
                 updatedWhen: expect.any(Number),
                 title: 'My list',
+                description: null,
             },
             entries: []
         })
@@ -63,6 +64,7 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 createdWhen: expect.any(Number),
                 updatedWhen: expect.any(Number),
                 title: 'My list',
+                description: null,
             },
             entries: [
                 {
