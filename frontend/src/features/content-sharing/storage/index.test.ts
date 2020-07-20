@@ -85,6 +85,7 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                     entryTitle: 'Page 2',
                     originalUrl: 'https://www.bar.com/page-2',
                     normalizedUrl: 'bar.com/page-2',
+                    createdWhen: 592,
                 },
             ],
             userReference
@@ -115,7 +116,7 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                     id: expect.anything(),
                     creator: userReference.id,
                     sharedList: listReference,
-                    createdWhen: expect.any(Number),
+                    createdWhen: 592,
                     updatedWhen: expect.any(Number),
                     entryTitle: 'Page 2',
                     originalUrl: 'https://www.bar.com/page-2',
