@@ -1,11 +1,9 @@
-import sortBy from 'lodash/sortBy'
 import expect from 'expect'
 import { createStorageTestSuite } from '../../../tests/storage-tests'
 
 createStorageTestSuite('User management storage', ({ it }) => {
-    it('should create a user profile for a new user', async ({ storage, services, auth }) => {
+    it('should create a user profile for a new user', { withTestUser: true }, async ({ storage, services, auth }) => {
         const { users } = storage.serverModules
-        await auth.signInTestUser()
         const userReference = services.auth.getCurrentUserReference()!
         await users.updateUser(userReference, {}, {
             displayName: 'Joe Doe'
@@ -17,9 +15,8 @@ createStorageTestSuite('User management storage', ({ it }) => {
         }))
     })
 
-    it('should create a user profile for a new user', async ({ storage, services, auth }) => {
+    it('should create a user profile for a new user', { withTestUser: true }, async ({ storage, services, auth }) => {
         const { users } = storage.serverModules
-        await auth.signInTestUser()
         const userReference = services.auth.getCurrentUserReference()!
         await users.updateUser(userReference, {}, {
             displayName: 'Joe Doe'

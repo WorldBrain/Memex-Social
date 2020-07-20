@@ -2,6 +2,8 @@ import * as firebase from '@firebase/testing'
 import { Storage } from "../storage/types"
 import { createStorage } from "../storage"
 import { FirestoreStorageBackend } from '@worldbrain/storex-backend-firestore'
+import { generateRulesAstFromStorageModules } from '@worldbrain/storex-backend-firestore/lib/security-rules'
+import { serializeRulesAST } from '@worldbrain/storex-backend-firestore/lib/security-rules/ast'
 import { createServices } from '../services'
 import { Services } from '../services/types'
 
@@ -15,6 +17,8 @@ export interface StorageTestContext {
 }
 export type StorageTest = (context: StorageTestContext) => Promise<void>
 export interface StorageTestOptions {
+    printProjectId?: boolean
+    withTestUser?: boolean
 }
 export type StorageTestFactory = (
     ((description: string, test: StorageTest) => void) &
@@ -57,26 +61,13 @@ export function createStorageTestFactory(suiteOptions: { backend: StorageTestBac
                 })
             } else if (suiteOptions.backend === 'firebase-emulator') {
                 const projectId = `unit-test-${Date.now()}`
-                // if (options.printProjectId) {
-                //     console.log(`Creating Firebase emulator project: ${projectId}`)
-                // }
+                if (testOptions.printProjectId) {
+                    console.log(`Creating Firebase emulator project: ${projectId}`)
+                }
 
-                // const userId: string | null = testOptions.auth ? ((testOptions.auth as { userId?: string }).userId || 'alice') : null
                 const firebaseApp = firebase.initializeTestApp({
                     projectId: projectId,
-                    // auth: userId ? { uid: userId } : {}
-                })
-                await firebase.loadFirestoreRules({
-                    projectId,
-                    rules: `
-                    service cloud.firestore {
-                        match /databases/{database}/documents {
-                            match /{document=**} {
-                                allow read, write; // or allow read, write: if true;
-                             }
-                        }
-                      }                      
-                    `
+                    auth: testOptions.withTestUser ? { uid: 'test-user-1' } : undefined
                 })
 
                 const firestore = firebaseApp.firestore()
@@ -86,28 +77,57 @@ export function createStorageTestFactory(suiteOptions: { backend: StorageTestBac
                     firestore: firestore as any
                 })
                 const storage = await createStorage({ backend: storageBackend })
-                // const authService = new FirebaseAuthService(firebaseApp as any, { storage })
+
+                // await firebase.loadFirestoreRules({
+                //     projectId,
+                //     rules: `
+                //     service cloud.firestore {
+                //         match /databases/{database}/documents {
+                //             match /{document=**} {
+                //                 allow read, write; // or allow read, write: if true;
+                //              }
+                //         }
+                //       }                      
+                //     `
+                // })
+                const ast = await generateRulesAstFromStorageModules(storage.serverModules as any, {
+                    storageRegistry: storage.serverStorageManager.registry,
+                })
+                const rules = serializeRulesAST(ast)
+                // console.log(rules)
+                await firebase.loadFirestoreRules({
+                    projectId,
+                    rules: rules,
+                })
 
                 const services = createServices({
                     backend: 'memory',
+                    firebase: firebaseApp as any,
                     storage,
                     history: null!,
                     uiMountPoint: null!,
                     localStorage: null!,
                 })
+                if (testOptions.withTestUser) {
+                    await services.auth.loginWithProvider('google')
+                }
 
-                await test({
-                    storage,
-                    services,
-                    auth: {
-                        signInTestUser: async () => {
-                            await services.auth.loginWithProvider('google')
-                        },
-                        signOutTestUser: async () => {
-                            await services.auth.logout()
+                try {
+                    await test({
+                        storage,
+                        services,
+                        auth: {
+                            signInTestUser: async () => {
+                                await services.auth.loginWithProvider('google')
+                            },
+                            signOutTestUser: async () => {
+                                await services.auth.logout()
+                            }
                         }
-                    }
-                })
+                    })
+                } finally {
+                    await firebaseApp.delete()
+                }
             } else {
                 throw new Error(`Got unknown backend for test '${description}': ${suiteOptions.backend}`)
             }

@@ -19,17 +19,15 @@ export function createServices(options: {
     backend: BackendType, storage: Storage,
     history: History, uiMountPoint: Element,
     localStorage: LimitedWebStorage,
-    authService?: AuthService
+    firebase?: typeof firebase
     logLogicEvents?: boolean
 }): Services {
     const logicRegistry = new LogicRegistryService({ logEvents: options.logLogicEvents });
     const device = new DeviceService({ rootElement: options.uiMountPoint })
 
     let auth: AuthService
-    if (options.authService) {
-        auth = options.authService
-    } else if (options.backend === 'firebase' || options.backend === 'firebase-emulator') {
-        auth = new FirebaseAuthService(firebase, { storage: options.storage })
+    if (options.backend === 'firebase' || options.backend === 'firebase-emulator') {
+        auth = new FirebaseAuthService(options.firebase ?? firebase, { storage: options.storage })
     } else if (options.backend === 'memory') {
         auth = new MemoryAuthService({ storage: options.storage })
     } else {

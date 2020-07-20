@@ -3,9 +3,8 @@ import expect from 'expect'
 import { createStorageTestSuite } from '../../../tests/storage-tests'
 
 createStorageTestSuite('Content sharing storage', ({ it }) => {
-    it('should save lists and retrieve them', async ({ storage, services, auth }) => {
+    it('should save lists and retrieve them', { withTestUser: true }, async ({ storage, services, auth }) => {
         const { contentSharing } = storage.serverModules
-        await auth.signInTestUser()
         const userReference = services.auth.getCurrentUserReference()!
         const listReference = await contentSharing.createSharedList({
             listData: {
@@ -36,9 +35,8 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
         }])
     })
 
-    it('should update list titles', async ({ storage, services, auth }) => {
+    it('should update list titles', { withTestUser: true }, async ({ storage, services, auth }) => {
         const { contentSharing } = storage.serverModules
-        await auth.signInTestUser()
         const userReference = services.auth.getCurrentUserReference()!
         const listReference = await contentSharing.createSharedList({
             listData: {
@@ -62,9 +60,8 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
         })
     })
 
-    it('should save list entries and retrieve them', async ({ storage, services, auth }) => {
+    it('should save list entries and retrieve them', { withTestUser: true }, async ({ storage, services, auth }) => {
         const { contentSharing } = storage.serverModules
-        await auth.signInTestUser()
         const userReference = services.auth.getCurrentUserReference()!
         const listReference = await contentSharing.createSharedList({
             listData: {
