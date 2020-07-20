@@ -26,7 +26,9 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
             }),
             entries: []
         })
-        expect(await storage.serverStorageManager.collection('sharedListCreatorInfo').findObjects({})).toEqual([{
+        expect(await storage.serverStorageManager.collection('sharedListCreatorInfo').findObjects({
+            creator: userReference.id,
+        })).toEqual([{
             id: expect.anything(),
             creator: userReference.id,
             sharedList: (listReference as any).id,
