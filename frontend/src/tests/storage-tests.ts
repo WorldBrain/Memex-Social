@@ -47,6 +47,9 @@ export function createStorageTestFactory(suiteOptions: { backend: StorageTestBac
                     uiMountPoint: null!,
                     localStorage: null!,
                 })
+                if (testOptions.withTestUser) {
+                    await services.auth.loginWithProvider('google')
+                }
                 await test({
                     storage,
                     services,

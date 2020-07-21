@@ -33,23 +33,22 @@ export type UIEvent<State> = coreUILogic.UIEvent<State>
 export type UIMutation<State> = coreUILogic.UIMutation<State>
 export type UIEventHandler<State, Events extends coreUILogic.UIEvent<{}>, EventName extends keyof Events> = coreUILogic.UIEventHandler<State, Events, EventName>
 
-export async function loadInitial<State extends { loadState: UITaskState }>(logic: UILogic<State, any>, loader: () => Promise<any>): Promise<boolean> {
-    return (await executeUITask(logic, 'loadState', loader))[0]
+export async function loadInitial<State extends { loadState: UITaskState }>(logic: UILogic<State, any>, loader: () => Promise<any>): Promise<void> {
+    return executeUITask(logic, 'loadState', loader)
 }
 
 export async function executeUITask<
     State,
     Key extends keyof State,
     ReturnValue
->(logic: UILogic<State, any>, key: Key, loader: () => Promise<ReturnValue>): Promise<[false] | [true, ReturnValue]> {
+>(logic: UILogic<State, any>, key: Key, loader: () => Promise<void>): Promise<void> {
     logic.emitMutation({ [key]: { $set: 'running' } } as any)
 
     try {
-        const returned = await loader()
+        await loader()
         logic.emitMutation({ [key]: { $set: 'success' } } as any)
-        return [true, returned]
     } catch (e) {
         logic.emitMutation({ [key]: { $set: 'error' } } as any)
-        return [false]
+        throw e
     }
 }

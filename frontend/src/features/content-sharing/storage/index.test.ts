@@ -3,7 +3,7 @@ import expect from 'expect'
 import { createStorageTestSuite } from '../../../tests/storage-tests'
 
 createStorageTestSuite('Content sharing storage', ({ it }) => {
-    it('should save lists and retrieve them', { withTestUser: true }, async ({ storage, services, auth }) => {
+    it('should save lists and retrieve them', { withTestUser: true }, async ({ storage, services }) => {
         const { contentSharing } = storage.serverModules
         const userReference = services.auth.getCurrentUserReference()!
         const listReference = await contentSharing.createSharedList({
@@ -35,7 +35,7 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
         }])
     })
 
-    it('should update list titles', { withTestUser: true }, async ({ storage, services, auth }) => {
+    it('should update list titles', { withTestUser: true }, async ({ storage, services }) => {
         const { contentSharing } = storage.serverModules
         const userReference = services.auth.getCurrentUserReference()!
         const listReference = await contentSharing.createSharedList({
@@ -60,7 +60,7 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
         })
     })
 
-    it('should save list entries and retrieve them', { withTestUser: true }, async ({ storage, services, auth }) => {
+    it('should save list entries and retrieve them', { withTestUser: true }, async ({ storage, services }) => {
         const { contentSharing } = storage.serverModules
         const userReference = services.auth.getCurrentUserReference()!
         const listReference = await contentSharing.createSharedList({
@@ -121,5 +121,57 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 },
             ]
         })
+    })
+
+    it('should remove list entries', { withTestUser: true }, async ({ storage, services }) => {
+        const { contentSharing } = storage.serverModules
+        const userReference = services.auth.getCurrentUserReference()!
+        const listReference = await contentSharing.createSharedList({
+            listData: {
+                title: 'My list'
+            },
+            localListId: 55,
+            userReference
+        })
+        await contentSharing.createListEntries({
+            listReference,
+            listEntries: [
+                {
+                    entryTitle: 'Page 1',
+                    originalUrl: 'https://www.foo.com/page-1',
+                    normalizedUrl: 'foo.com/page-1',
+                },
+                {
+                    entryTitle: 'Page 2',
+                    originalUrl: 'https://www.bar.com/page-2',
+                    normalizedUrl: 'bar.com/page-2',
+                    createdWhen: 592,
+                },
+            ],
+            userReference
+        })
+        await contentSharing.removeListEntries({
+            normalizedUrl: 'bar.com/page-2'
+        })
+
+        const retrieved = (await contentSharing.retrieveList(listReference))!
+        // expect(retrieved).toEqual({
+        //     creator: userReference,
+        //     sharedList: expect.objectContaining({
+        //         title: 'My list',
+        //     }),
+        //     entries: [
+        //         expect.objectContaining({
+        //             id: expect.anything(),
+        //             creator: userReference.id,
+        //             sharedList: listReference,
+        //             createdWhen: expect.any(Number),
+        //             updatedWhen: expect.any(Number),
+        //             entryTitle: 'Page 1',
+        //             originalUrl: 'https://www.foo.com/page-1',
+        //             normalizedUrl: 'foo.com/page-1',
+        //         }),
+        //     ]
+        // })
     })
 })
