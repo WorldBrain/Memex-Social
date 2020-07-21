@@ -151,27 +151,22 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
             userReference
         })
         await contentSharing.removeListEntries({
+            listReference,
             normalizedUrl: 'bar.com/page-2'
         })
 
         const retrieved = (await contentSharing.retrieveList(listReference))!
-        // expect(retrieved).toEqual({
-        //     creator: userReference,
-        //     sharedList: expect.objectContaining({
-        //         title: 'My list',
-        //     }),
-        //     entries: [
-        //         expect.objectContaining({
-        //             id: expect.anything(),
-        //             creator: userReference.id,
-        //             sharedList: listReference,
-        //             createdWhen: expect.any(Number),
-        //             updatedWhen: expect.any(Number),
-        //             entryTitle: 'Page 1',
-        //             originalUrl: 'https://www.foo.com/page-1',
-        //             normalizedUrl: 'foo.com/page-1',
-        //         }),
-        //     ]
-        // })
+        expect(retrieved).toEqual({
+            creator: userReference,
+            sharedList: expect.objectContaining({
+                title: 'My list',
+            }),
+            entries: [
+                expect.objectContaining({
+                    entryTitle: 'Page 1',
+                    normalizedUrl: 'foo.com/page-1',
+                }),
+            ]
+        })
     })
 })
