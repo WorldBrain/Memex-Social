@@ -1,0 +1,65 @@
+objects:
+  sharedLists:
+    - $store: default
+      id: default-list
+      creator: { $ref: users.default }
+      createdWhen: 1594225289914
+      updatedWhen: 1594225289914
+      title: "Productivity Tools: Networked Thoughts"
+      description: "A new breed of note-taking tools. Here is a collection of tools for networked thoughts. A new breed of note-taking tools. Here is a collection of tools for networked thoughts. A new breed of note-taking tools. Here is a collection of tools for networked thoughts. A new breed of note-taking tools. Here is a collection of tools for networked thoughts. A new breed of note-taking tools. Here is a collection of tools for networked thoughts. A new breed of note-taking tools. Here is a collection of tools for networked thoughts."
+  sharedListEntries:
+    - sharedList: { $ref: sharedLists.default }
+      creator: { $ref: users.default }
+      createdWhen: 1594225289914
+      updatedWhen: 1594225289914
+      entryTitle: "WorldBrain's Memex"
+      normalizedUrl: getmemex.com
+      originalUrl: "https://getmemex.com"
+    - sharedList: { $ref: sharedLists.default }
+      creator: { $ref: users.default }
+      createdWhen: 1594225289914
+      updatedWhen: 1594225289914
+      entryTitle: Notion
+      normalizedUrl: notion.so
+      originalUrl: "https://notion.so"
+  sharedAnnotations:
+    - $store: annotation-1
+      creator: { $ref: users.default }
+      createdWhen: 1594225289914
+      updatedWhen: 1594225289914
+      normalizedPageUrl: "foo.com/page-1"
+      body: "Body 1"
+      comment: "Comment 1"
+      selector: "Selector 1"
+    - $store: annotation-2
+      creator: { $ref: users.default }
+      createdWhen: 1594225289914
+      updatedWhen: 1594225289914
+      normalizedPageUrl: "foo.com/page-1"
+      body: "Body 2"
+      comment: "Comment 2"
+      selector: "Selector 2"
+    - $store: annotation-3
+      creator: { $ref: users.default }
+      createdWhen: 1594225289914
+      updatedWhen: 1594225289914
+      normalizedPageUrl: "bar.com/page-2"
+      body: "Body 3"
+      comment: "Comment 3"
+      selector: "Selector 3"
+  sharedAnnotationListEntries:
+    - creator: { $ref: users.default }
+      createdWhen: 1594225289914
+      updatedWhen: 1594225289914
+      normalizedPageUrl: "foo.com/page-1"
+      sharedAnnotation: { $ref: sharedAnnotations.annotation-1 }
+    - creator: { $ref: users.default }
+      createdWhen: 1594225289914
+      updatedWhen: 1594225289914
+      normalizedPageUrl: "foo.com/page-1"
+      sharedAnnotation: { $ref: sharedAnnotations.annotation-2 }
+    - creator: { $ref: users.default }
+      createdWhen: 1594225289914
+      updatedWhen: 1594225289914
+      normalizedPageUrl: "bar.com/page-2"
+      sharedAnnotation: { $ref: sharedAnnotations.annotation-3 }

@@ -36,4 +36,10 @@ export const SCENARIOS: ScenarioMap = {
             step({ name: 'second-description-toggle', target: 'CollectionDetailsPage', eventName: 'toggleDescriptionTruncation', eventArgs: {} }),
         ]
     })),
+    'with-annotations': scenario<{ CollectionDetailsPage: CollectionDetailsEvent }>(({ step }) => ({
+        fixture: 'annotated-list-with-user',
+        startRoute: { route: 'collectionDetails', params: { id: 'default-list' } },
+        steps: [
+        ]
+    })),
 }
