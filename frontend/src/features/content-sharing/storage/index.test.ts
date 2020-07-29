@@ -169,4 +169,109 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
             ]
         })
     })
+
+    it('should store and retrieve annotations', { withTestUser: true }, async ({ storage, services }) => {
+        const { contentSharing } = storage.serverModules
+        const userReference = services.auth.getCurrentUserReference()!
+        const listReference = await contentSharing.createSharedList({
+            listData: {
+                title: 'My list'
+            },
+            localListId: 55,
+            userReference
+        })
+        await contentSharing.createListEntries({
+            listReference,
+            listEntries: [
+                {
+                    entryTitle: 'Page 1',
+                    originalUrl: 'https://www.foo.com/page-1',
+                    normalizedUrl: 'foo.com/page-1',
+                },
+                {
+                    entryTitle: 'Page 2',
+                    originalUrl: 'https://www.bar.com/page-2',
+                    normalizedUrl: 'bar.com/page-2',
+                    createdWhen: 592,
+                },
+            ],
+            userReference
+        })
+        await contentSharing.createAnnotations({
+            listReferences: [listReference],
+            creator: userReference,
+            annotationsByPage: {
+                'foo.com/page-1': [
+                    {
+                        createdWhen: 500,
+                        body: 'Body 1',
+                        comment: 'Comment 1',
+                        selector: 'Selector 1',
+                    },
+                    {
+                        createdWhen: 1500,
+                        body: 'Body 2',
+                        comment: 'Comment 2',
+                        selector: 'Selector 2',
+                    },
+                ],
+                'bar.com/page-2': [
+                    {
+                        createdWhen: 2000,
+                        body: 'Body 3',
+                        comment: 'Comment 3',
+                        selector: 'Selector 3',
+                    },
+                ],
+            }
+        })
+        expect(await contentSharing.getAnnotationsForPagesInList({
+            listReference,
+            normalizedPageUrls: ['foo.com/page-1', 'bar.com/page-2']
+        })).toEqual({
+            "foo.com/page-1": [
+                {
+                    annotation: {
+                        id: expect.anything(),
+                        createdWhen: 500,
+                        uploadedWhen: expect.any(Number),
+                        updatedWhen: expect.any(Number),
+                        creator: userReference.id,
+                        normalizedPageUrl: "foo.com/page-1",
+                        body: "Body 1",
+                        comment: "Comment 1",
+                        selector: "Selector 1",
+                    },
+                },
+                {
+                    annotation: {
+                        id: expect.anything(),
+                        createdWhen: 1500,
+                        uploadedWhen: expect.any(Number),
+                        updatedWhen: expect.any(Number),
+                        creator: userReference.id,
+                        normalizedPageUrl: "foo.com/page-1",
+                        body: "Body 2",
+                        comment: "Comment 2",
+                        selector: "Selector 2",
+                    },
+                },
+            ],
+            'bar.com/page-2': [
+                {
+                    annotation: {
+                        id: expect.anything(),
+                        createdWhen: 2000,
+                        uploadedWhen: expect.any(Number),
+                        updatedWhen: expect.any(Number),
+                        creator: userReference.id,
+                        normalizedPageUrl: "bar.com/page-2",
+                        body: "Body 3",
+                        comment: "Comment 3",
+                        selector: "Selector 3",
+                    },
+                }
+            ],
+        })
+    })
 })
