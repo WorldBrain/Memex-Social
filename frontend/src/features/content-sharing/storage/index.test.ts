@@ -204,17 +204,26 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
     it('should store and retrieve annotations', { withTestUser: true }, async ({ storage, services }) => {
         const { contentSharing } = storage.serverModules
         const userReference = services.auth.getCurrentUserReference()!
-        const listReference = await contentSharing.createSharedList({
+        const listReference1 = await contentSharing.createSharedList({
             listData: {
                 title: 'My list'
             },
             localListId: 55,
             userReference
         })
-        await createTestListEntries({ contentSharing, listReference, userReference })
-        await createTestAnnotations({ contentSharing, listReference, userReference })
+        await createTestListEntries({ contentSharing, listReference: listReference1, userReference })
+        await createTestAnnotations({ contentSharing, listReference: listReference1, userReference })
+        const listReference2 = await contentSharing.createSharedList({
+            listData: {
+                title: 'My list 2'
+            },
+            localListId: 75,
+            userReference
+        })
+        await createTestListEntries({ contentSharing, listReference: listReference2, userReference })
+        await createTestAnnotations({ contentSharing, listReference: listReference2, userReference })
         expect(await contentSharing.getAnnotationsForPagesInList({
-            listReference,
+            listReference: listReference2,
             normalizedPageUrls: ['foo.com/page-1', 'bar.com/page-2']
         })).toEqual({
             "foo.com/page-1": [
@@ -261,5 +270,100 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 }
             ],
         })
+    })
+
+    it('should retrieve all annotation entries for a list and get those annotations', { withTestUser: true }, async ({ storage, services }) => {
+        const { contentSharing } = storage.serverModules
+        const userReference = services.auth.getCurrentUserReference()!
+        const listReference1 = await contentSharing.createSharedList({
+            listData: {
+                title: 'My list'
+            },
+            localListId: 55,
+            userReference
+        })
+        await createTestListEntries({ contentSharing, listReference: listReference1, userReference })
+        await createTestAnnotations({ contentSharing, listReference: listReference1, userReference })
+        const listReference2 = await contentSharing.createSharedList({
+            listData: {
+                title: 'My list 2'
+            },
+            localListId: 75,
+            userReference
+        })
+        await createTestListEntries({ contentSharing, listReference: listReference2, userReference })
+        await createTestAnnotations({ contentSharing, listReference: listReference2, userReference })
+
+        const entries = await contentSharing.getAnnotationListEntries({ listReference: listReference1 })
+        expect(entries).toEqual([
+            {
+                reference: expect.objectContaining({ type: 'shared-annotation-list-entry-reference' }),
+                creator: userReference,
+                sharedList: listReference1,
+                sharedAnnotation: expect.objectContaining({ type: 'shared-annotation-reference' }),
+                createdWhen: 2000,
+                uploadedWhen: expect.any(Number),
+                updatedWhen: expect.any(Number),
+                normalizedPageUrl: 'bar.com/page-2'
+            },
+            {
+                reference: expect.objectContaining({ type: 'shared-annotation-list-entry-reference' }),
+                creator: userReference,
+                sharedList: listReference1,
+                sharedAnnotation: expect.objectContaining({ type: 'shared-annotation-reference' }),
+                createdWhen: 1500,
+                uploadedWhen: expect.any(Number),
+                updatedWhen: expect.any(Number),
+                normalizedPageUrl: 'foo.com/page-1'
+            },
+            {
+                reference: expect.objectContaining({ type: 'shared-annotation-list-entry-reference' }),
+                creator: userReference,
+                sharedList: listReference1,
+                sharedAnnotation: expect.objectContaining({ type: 'shared-annotation-reference' }),
+                createdWhen: 500,
+                uploadedWhen: expect.any(Number),
+                updatedWhen: expect.any(Number),
+                normalizedPageUrl: 'foo.com/page-1'
+            },
+        ])
+
+        expect(await contentSharing.getAnnotations({
+            references: entries.map(entry => entry.reference)
+        })).toEqual([
+            {
+                reference: expect.objectContaining({ type: 'shared-annotation-reference' }),
+                creator: userReference,
+                normalizedPageUrl: 'foo.com/page-1',
+                createdWhen: 500,
+                uploadedWhen: expect.any(Number),
+                updatedWhen: expect.any(Number),
+                body: 'Body 1',
+                comment: 'Comment 1',
+                selector: 'Selector 1',
+            },
+            {
+                reference: expect.objectContaining({ type: 'shared-annotation-reference' }),
+                creator: userReference,
+                createdWhen: 1500,
+                uploadedWhen: expect.any(Number),
+                updatedWhen: expect.any(Number),
+                normalizedPageUrl: 'foo.com/page-1',
+                body: 'Body 2',
+                comment: 'Comment 2',
+                selector: 'Selector 2',
+            },
+            {
+                reference: expect.objectContaining({ type: 'shared-annotation-reference' }),
+                creator: userReference,
+                normalizedPageUrl: 'bar.com/page-2',
+                createdWhen: 2000,
+                uploadedWhen: expect.any(Number),
+                updatedWhen: expect.any(Number),
+                body: 'Body 3',
+                comment: 'Comment 3',
+                selector: 'Selector 3',
+            },
+        ])
     })
 })
