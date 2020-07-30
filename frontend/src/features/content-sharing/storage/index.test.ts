@@ -1,3 +1,4 @@
+import flatten from 'lodash/flatten'
 import sortBy from 'lodash/sortBy'
 import expect from 'expect'
 import { SharedListReference } from '@worldbrain/memex-common/lib/content-sharing/types'
@@ -295,43 +296,47 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
         await createTestAnnotations({ contentSharing, listReference: listReference2, userReference })
 
         const entries = await contentSharing.getAnnotationListEntries({ listReference: listReference1 })
-        expect(entries).toEqual([
-            {
-                reference: expect.objectContaining({ type: 'shared-annotation-list-entry-reference' }),
-                creator: userReference,
-                sharedList: listReference1,
-                sharedAnnotation: expect.objectContaining({ type: 'shared-annotation-reference' }),
-                createdWhen: 2000,
-                uploadedWhen: expect.any(Number),
-                updatedWhen: expect.any(Number),
-                normalizedPageUrl: 'bar.com/page-2'
-            },
-            {
-                reference: expect.objectContaining({ type: 'shared-annotation-list-entry-reference' }),
-                creator: userReference,
-                sharedList: listReference1,
-                sharedAnnotation: expect.objectContaining({ type: 'shared-annotation-reference' }),
-                createdWhen: 1500,
-                uploadedWhen: expect.any(Number),
-                updatedWhen: expect.any(Number),
-                normalizedPageUrl: 'foo.com/page-1'
-            },
-            {
-                reference: expect.objectContaining({ type: 'shared-annotation-list-entry-reference' }),
-                creator: userReference,
-                sharedList: listReference1,
-                sharedAnnotation: expect.objectContaining({ type: 'shared-annotation-reference' }),
-                createdWhen: 500,
-                uploadedWhen: expect.any(Number),
-                updatedWhen: expect.any(Number),
-                normalizedPageUrl: 'foo.com/page-1'
-            },
-        ])
+        expect(entries).toEqual({
+            'bar.com/page-2': [
+                {
+                    reference: expect.objectContaining({ type: 'shared-annotation-list-entry-reference' }),
+                    creator: userReference,
+                    sharedList: listReference1,
+                    sharedAnnotation: expect.objectContaining({ type: 'shared-annotation-reference' }),
+                    normalizedPageUrl: 'bar.com/page-2',
+                    createdWhen: 2000,
+                    uploadedWhen: expect.any(Number),
+                    updatedWhen: expect.any(Number),
+                }
+            ],
+            'foo.com/page-1': [
+                {
+                    reference: expect.objectContaining({ type: 'shared-annotation-list-entry-reference' }),
+                    creator: userReference,
+                    sharedList: listReference1,
+                    sharedAnnotation: expect.objectContaining({ type: 'shared-annotation-reference' }),
+                    normalizedPageUrl: 'foo.com/page-1',
+                    createdWhen: 1500,
+                    uploadedWhen: expect.any(Number),
+                    updatedWhen: expect.any(Number),
+                },
+                {
+                    reference: expect.objectContaining({ type: 'shared-annotation-list-entry-reference' }),
+                    creator: userReference,
+                    sharedList: listReference1,
+                    sharedAnnotation: expect.objectContaining({ type: 'shared-annotation-reference' }),
+                    normalizedPageUrl: 'foo.com/page-1',
+                    createdWhen: 500,
+                    uploadedWhen: expect.any(Number),
+                    updatedWhen: expect.any(Number),
+                },
+            ]
+        })
 
         expect(await contentSharing.getAnnotations({
-            references: entries.map(entry => entry.reference)
-        })).toEqual([
-            {
+            references: flatten(Object.values(entries).map(entries => entries.map(entry => entry.sharedAnnotation))),
+        })).toEqual({
+            [contentSharing.getSharedAnnotationLinkID(entries['foo.com/page-1'][1].sharedAnnotation)]: {
                 reference: expect.objectContaining({ type: 'shared-annotation-reference' }),
                 creator: userReference,
                 normalizedPageUrl: 'foo.com/page-1',
@@ -342,7 +347,7 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 comment: 'Comment 1',
                 selector: 'Selector 1',
             },
-            {
+            [contentSharing.getSharedAnnotationLinkID(entries['foo.com/page-1'][0].sharedAnnotation)]: {
                 reference: expect.objectContaining({ type: 'shared-annotation-reference' }),
                 creator: userReference,
                 createdWhen: 1500,
@@ -353,7 +358,7 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 comment: 'Comment 2',
                 selector: 'Selector 2',
             },
-            {
+            [contentSharing.getSharedAnnotationLinkID(entries['bar.com/page-2'][0].sharedAnnotation)]: {
                 reference: expect.objectContaining({ type: 'shared-annotation-reference' }),
                 creator: userReference,
                 normalizedPageUrl: 'bar.com/page-2',
@@ -364,6 +369,6 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 comment: 'Comment 3',
                 selector: 'Selector 3',
             },
-        ])
+        })
     })
 })

@@ -40,6 +40,7 @@ export const SCENARIOS: ScenarioMap = {
         fixture: 'annotated-list-with-user',
         startRoute: { route: 'collectionDetails', params: { id: 'default-list' } },
         steps: [
+            step({ name: 'first-annotations-toggle', target: 'CollectionDetailsPage', eventName: 'togglePageAnnotations', eventArgs: { normalizedUrl: 'getmemex.com' } })
         ]
     })),
 }

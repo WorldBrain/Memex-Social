@@ -37,11 +37,9 @@ export async function loadInitial<State extends { loadState: UITaskState }>(logi
     return executeUITask(logic, 'loadState', loader)
 }
 
-export async function executeUITask<
-    State,
-    Key extends keyof State,
-    ReturnValue
->(logic: UILogic<State, any>, key: Key, loader: () => Promise<void>): Promise<void> {
+export async function executeUITask<State>(
+    logic: UILogic<State, any>, key: keyof State, loader: () => Promise<void>
+): Promise<void> {
     logic.emitMutation({ [key]: { $set: 'running' } } as any)
 
     try {

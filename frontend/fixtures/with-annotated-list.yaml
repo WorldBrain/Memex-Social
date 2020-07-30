@@ -10,8 +10,8 @@ objects:
   sharedListEntries:
     - sharedList: { $ref: sharedLists.default }
       creator: { $ref: users.default }
-      createdWhen: 1594225289914
-      updatedWhen: 1594225289914
+      createdWhen: 1594225555555
+      updatedWhen: 1594225555555
       entryTitle: "WorldBrain's Memex"
       normalizedUrl: getmemex.com
       originalUrl: "https://getmemex.com"
@@ -22,44 +22,53 @@ objects:
       entryTitle: Notion
       normalizedUrl: notion.so
       originalUrl: "https://notion.so"
+    - sharedList: { $ref: sharedLists.default }
+      creator: { $ref: users.default }
+      createdWhen: 1594225289914
+      updatedWhen: 1594225289914
+      entryTitle: Page without notes with a title that is very very very very very very very very very very very long
+      normalizedUrl: verylong.so
+      originalUrl: "https://verylong.so"
   sharedAnnotations:
     - $store: annotation-1
       creator: { $ref: users.default }
       createdWhen: 1594225289914
       updatedWhen: 1594225289914
-      normalizedPageUrl: "foo.com/page-1"
-      body: "Body 1"
-      comment: "Comment 1"
+      normalizedPageUrl: "getmemex.com"
+      body: "Automatically indexes websites you visit. Instantly recover anything you've seen without upfront work."
+      comment: "I have been waiting for this forever!"
       selector: "Selector 1"
     - $store: annotation-2
       creator: { $ref: users.default }
       createdWhen: 1594225289914
       updatedWhen: 1594225289914
-      normalizedPageUrl: "foo.com/page-1"
-      body: "Body 2"
-      comment: "Comment 2"
+      normalizedPageUrl: "getmemex.com"
+      comment: "Memex is great and brings networked thoughts into online research. But it is missing sharing features. How else could I share what I find with my community?"
       selector: "Selector 2"
     - $store: annotation-3
       creator: { $ref: users.default }
       createdWhen: 1594225289914
       updatedWhen: 1594225289914
-      normalizedPageUrl: "bar.com/page-2"
+      normalizedPageUrl: "notion.so"
       body: "Body 3"
       comment: "Comment 3"
       selector: "Selector 3"
   sharedAnnotationListEntries:
     - creator: { $ref: users.default }
-      createdWhen: 1594225289914
-      updatedWhen: 1594225289914
-      normalizedPageUrl: "foo.com/page-1"
+      sharedList: { $ref: sharedLists.default }
       sharedAnnotation: { $ref: sharedAnnotations.annotation-1 }
-    - creator: { $ref: users.default }
       createdWhen: 1594225289914
       updatedWhen: 1594225289914
-      normalizedPageUrl: "foo.com/page-1"
+      normalizedPageUrl: "getmemex.com"
+    - creator: { $ref: users.default }
+      sharedList: { $ref: sharedLists.default }
       sharedAnnotation: { $ref: sharedAnnotations.annotation-2 }
-    - creator: { $ref: users.default }
       createdWhen: 1594225289914
       updatedWhen: 1594225289914
-      normalizedPageUrl: "bar.com/page-2"
+      normalizedPageUrl: "getmemex.com"
+    - creator: { $ref: users.default }
+      sharedList: { $ref: sharedLists.default }
       sharedAnnotation: { $ref: sharedAnnotations.annotation-3 }
+      createdWhen: 1594225289914
+      updatedWhen: 1594225289914
+      normalizedPageUrl: "notion.so"
