@@ -1,10 +1,12 @@
 import chunk from 'lodash/chunk'
-import { SharedList, SharedListEntry } from "@worldbrain/memex-common/lib/content-sharing/types"
+import fromPairs from 'lodash/fromPairs'
+import { SharedList, SharedListEntry, SharedAnnotationReference } from "@worldbrain/memex-common/lib/content-sharing/types"
 import { GetAnnotationListEntriesResult, GetAnnotationsResult } from "@worldbrain/memex-common/lib/content-sharing/storage/types"
 import { CollectionDetailsEvent, CollectionDetailsDependencies } from "./types"
 import { UILogic, UIEventHandler, loadInitial, executeUITask } from "../../../../../main-ui/classes/logic"
 import { UITaskState } from "../../../../../main-ui/types"
 import { UIMutation } from "ui-logic-core"
+import flatten from 'lodash/flatten'
 const truncate = require('truncate')
 
 const LIST_DESCRIPTION_CHAR_LIMIT = 200
@@ -20,7 +22,8 @@ export interface CollectionDetailsState {
         listDescriptionState: 'fits' | 'collapsed' | 'expanded'
         listDescriptionTruncated: string
     },
-    pageAnnotationsExpanded: { [normalizedPageUrl: string]: boolean }
+    allAnnotationExpanded: boolean
+    pageAnnotationsExpanded: { [normalizedPageUrl: string]: true }
     annotationEntryData?: GetAnnotationListEntriesResult
     annotations: GetAnnotationsResult
 }
@@ -39,6 +42,7 @@ export default class CollectionDetailsLogic extends UILogic<CollectionDetailsSta
             annotationEntriesLoadState: 'pristine',
             annotationLoadStates: {},
             annotations: {},
+            allAnnotationExpanded: false,
             pageAnnotationsExpanded: {}
         }
     }
@@ -85,57 +89,105 @@ export default class CollectionDetailsLogic extends UILogic<CollectionDetailsSta
     }
 
     togglePageAnnotations: EventHandler<'togglePageAnnotations'> = incoming => {
+        const state = incoming.previousState
+        const shouldBeExpanded = !state.pageAnnotationsExpanded[incoming.event.normalizedUrl]
+        const currentExpandedCount = Object.keys(state.pageAnnotationsExpanded).length
+        const nextExpandedCount = currentExpandedCount + (shouldBeExpanded ? 1 : -1)
+        const allAnnotationExpanded = nextExpandedCount === state.listData!.listEntries.length
+
         this.emitMutation({
-            pageAnnotationsExpanded: {
-                [incoming.event.normalizedUrl]: {
-                    $apply: state => !state
+            pageAnnotationsExpanded: shouldBeExpanded
+                ? {
+                    [incoming.event.normalizedUrl]: {
+                        $set: true
+                    }
                 }
-            }
+                : {
+                    $unset: [incoming.event.normalizedUrl]
+                },
+            allAnnotationExpanded: { $set: allAnnotationExpanded }
         })
-        this.loadPageAnnotations(incoming.previousState.annotationEntryData!, incoming.event.normalizedUrl)
+        if (shouldBeExpanded) {
+            this.loadPageAnnotations(state.annotationEntryData!, [incoming.event.normalizedUrl])
+        }
     }
 
-    loadPageAnnotations(annotationEntries: GetAnnotationListEntriesResult, normalizedPageUrl: string) {
-        if (this.pageAnnotationPromises[normalizedPageUrl]) {
-            return this.pageAnnotationPromises[normalizedPageUrl]
-        }
-
-        this.pageAnnotationPromises[normalizedPageUrl] = (async () => {
+    toggleAllAnnotations: EventHandler<'toggleAllAnnotations'> = incoming => {
+        const shouldBeExpanded = !incoming.previousState.allAnnotationExpanded
+        if (shouldBeExpanded) {
             this.emitMutation({
-                annotationLoadStates: {
-                    [normalizedPageUrl]: { $set: 'running' }
+                allAnnotationExpanded: { $set: true },
+                pageAnnotationsExpanded: {
+                    $set: fromPairs(incoming.previousState.listData!.listEntries.map(
+                        entry => [entry.normalizedUrl, true]
+                    ))
                 }
             })
-            try {
-                const { contentSharing } = this.dependencies
-                const entryChunks = chunk(annotationEntries[normalizedPageUrl] ?? [], 10)
-                const annotationChunks = await Promise.all(entryChunks.map(
-                    entryChunk => contentSharing.getAnnotations({
-                        references: entryChunk.map(entry => entry.sharedAnnotation)
-                    })
+        } else {
+            this.emitMutation({
+                allAnnotationExpanded: { $set: false },
+                pageAnnotationsExpanded: { $set: {} }
+            })
+        }
+        this.loadPageAnnotations(
+            incoming.previousState.annotationEntryData!,
+            incoming.previousState.listData!.listEntries.map(entry => entry.normalizedUrl)
+        )
+    }
+
+    loadPageAnnotations(annotationEntries: GetAnnotationListEntriesResult, normalizedPageUrls: string[]) {
+        const toFetch: Array<{ normalizedPageUrl: string, sharedAnnotation: SharedAnnotationReference }> = flatten(
+            normalizedPageUrls
+                .filter(normalizedPageUrl => !this.pageAnnotationPromises[normalizedPageUrl])
+                .map(normalizedPageUrl => (annotationEntries[normalizedPageUrl] ?? []).map(
+                    entry => ({ normalizedPageUrl, sharedAnnotation: entry.sharedAnnotation })
                 ))
+        )
 
-                const newAnnotations: UIMutation<CollectionDetailsState['annotations']> = {}
-                for (const annotationChunk of annotationChunks) {
-                    for (const [annotationId, annotation] of Object.entries(annotationChunk)) {
-                        newAnnotations[annotationId] = { $set: annotation }
-                    }
-                }
-
-                this.emitMutation({
-                    annotationLoadStates: { [normalizedPageUrl]: { $set: 'success' } },
-                    annotations: newAnnotations
-                })
-            } catch (e) {
-                this.emitMutation({
-                    annotationLoadStates: {
-                        [normalizedPageUrl]: { $set: 'error' }
-                    }
-                })
-                console.error(e)
+        const promisesByPage: { [normalizedUrl: string]: [Promise<GetAnnotationsResult>] } = {}
+        const annotationChunks: Promise<GetAnnotationsResult>[] = []
+        const { contentSharing } = this.dependencies
+        for (const entryChunk of chunk(toFetch, 10)) {
+            const pageUrlsInChuck = new Set(entryChunk.map(entry => entry.normalizedPageUrl))
+            const promise = contentSharing.getAnnotations({ references: entryChunk.map(entry => entry.sharedAnnotation) })
+            for (const normalizedPageUrl of pageUrlsInChuck) {
+                promisesByPage[normalizedPageUrl] = promisesByPage[normalizedPageUrl] ?? []
+                promisesByPage[normalizedPageUrl].push(promise)
             }
-        })()
+            annotationChunks.push(promise)
+        }
 
-        return this.pageAnnotationPromises[normalizedPageUrl]
+        for (const [normalizedPageUrl, pagePromises] of Object.entries(promisesByPage)) {
+            this.emitMutation({
+                annotationLoadStates: { [normalizedPageUrl]: { $set: 'running' } },
+            })
+            this.pageAnnotationPromises[normalizedPageUrl] = (async () => {
+                try {
+                    const annotationChunks = await Promise.all(pagePromises)
+                    const newAnnotations: UIMutation<CollectionDetailsState['annotations']> = {}
+                    for (const annotationChunk of annotationChunks) {
+                        for (const [annotationId, annotation] of Object.entries(annotationChunk)) {
+                            newAnnotations[annotationId] = { $set: annotation }
+                        }
+                    }
+
+                    this.emitMutation({
+                        annotationLoadStates: { [normalizedPageUrl]: { $set: 'success' } },
+                        annotations: newAnnotations
+                    })
+                } catch (e) {
+                    this.emitMutation({
+                        annotationLoadStates: {
+                            [normalizedPageUrl]: { $set: 'error' }
+                        }
+                    })
+                    console.error(e)
+                }
+            })()
+        }
+
+        return Promise.all(normalizedPageUrls.map(
+            normalizedPageUrl => this.pageAnnotationPromises[normalizedPageUrl]
+        ))
     }
 }

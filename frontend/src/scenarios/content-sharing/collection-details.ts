@@ -142,4 +142,32 @@ export const SCENARIOS: ScenarioMap = {
             }),
         ]
     })),
+    'toggle-all-annotations': scenario<{ CollectionDetailsPage: CollectionDetailsEvent }>(({ step, callModification }) => ({
+        fixture: 'annotated-list-with-user',
+        startRoute: { route: 'collectionDetails', params: { id: 'default-list' } },
+        setup: {
+            callModifications: ({ storage }) => [
+                callModification({
+                    name: 'annotation-loading',
+                    object: storage.serverModules.contentSharing, property: 'getAnnotations',
+                    modifier: 'block'
+                }),
+            ]
+        },
+        steps: [
+            step({
+                name: 'first-annotations-toggle',
+                target: 'CollectionDetailsPage',
+                eventName: 'toggleAllAnnotations',
+                eventArgs: {}
+            }),
+            step({
+                name: 'annotations-loaded',
+                callModifications: ({ storage }) => [{
+                    name: 'annotation-loading',
+                    modifier: 'undo',
+                }]
+            }),
+        ]
+    })),
 }

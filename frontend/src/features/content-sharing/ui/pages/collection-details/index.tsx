@@ -239,6 +239,11 @@ const CollectionDescriptionToggle = styled.div<{
   }
 `;
 
+const ToggleAllAnnotations = styled.div`
+  text-align: right;
+  font-weight: bold;
+`;
+
 const PageInfoList = styled.div<{
   viewportWidth: "mobile" | "small" | "normal" | "big";
 }>``;
@@ -437,7 +442,6 @@ export default class CollectionDetailsPage extends UIElement<
     return (
       <>
         <StyledHeader viewportWidth={viewportWidth}>
-          {}
           <HeaderLogoArea
             onClick={() => window.open("https://getmemex.com")}
             viewportWidth={viewportWidth}
@@ -491,6 +495,11 @@ export default class CollectionDetailsPage extends UIElement<
             "Loading annotation entries..."}
           {state.annotationEntriesLoadState === "error" &&
             "Error loading annotation entries  :("}
+          <Margin vertical="small">
+            <ToggleAllAnnotations>
+              {true ? "Hide all annotations" : "Show all annotations"}
+            </ToggleAllAnnotations>
+          </Margin>
           <PageInfoList viewportWidth={viewportWidth}>
             {data.listEntries.map((entry) => (
               <React.Fragment key={entry.normalizedUrl}>

@@ -3,6 +3,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import styled, { ThemeProvider } from "styled-components";
 import { theme } from "../main-ui/styles/theme";
+import { Margin } from "styled-components-spacing";
 
 export type MetaScenarios = Array<{
   description: string;
@@ -30,9 +31,8 @@ const StepContainer = styled.div`
   margin: 20px;
 `;
 
-const StepTitle = styled.a`
-  font-family: ${(props) => props.theme.fonts.primary}
-  margin-bottom: 10px;
+const StepTitle = styled.div`
+  font-family: ${(props) => props.theme.fonts.primary};
 `;
 
 const ProgramContainer = styled.div`
@@ -55,7 +55,9 @@ export default async function runMetaUi(options: {
           <StepsContainer key={scenarioIndex}>
             {scenario.steps.map((step, stepIndex) => (
               <StepContainer key={stepIndex}>
-                <StepTitle>{step.description || step.name}</StepTitle>
+                <Margin bottom="small">
+                  <StepTitle>{step.description || step.name}</StepTitle>
+                </Margin>
                 <ProgramContainer
                   style={{ width: "360px", height: "640px" }}
                   ref={(element) => {
