@@ -1,6 +1,7 @@
 import find from 'lodash/find'
+import createResolvable from '@josephg/resolvable'
 import { Services } from "../../services/types";
-import { Scenario, ScenarioStep, ScenarioModuleMap, ScenarioReplayQueryParams } from "./types";
+import { Scenario, ScenarioStep, ScenarioModuleMap, ScenarioReplayQueryParams, CallModificationStep, GetCallModifications } from "./types";
 import FixtureService from '../fixtures';
 const scenariosContext = typeof __webpack_require__ !== 'undefined'
     ? require.context('../../scenarios', true, /\.ts$/)
@@ -33,9 +34,11 @@ export class ScenarioService {
     private walkthroughResolve: () => void = () => { }
     private stepPromises: { [stepName: string]: Promise<void> } = {}
     private getNextStepPromise = Promise.resolve(Promise.resolve())
+    private scenarioStarted = createResolvable()
 
     constructor(private options: {
         services: Pick<Services, 'logicRegistry' | 'auth'> & { fixtures: FixtureService },
+        modifyCalls: (getModifications: GetCallModifications) => void
         scenarioModules?: ScenarioModuleMap
     }) {
         this.scenarioModules = options.scenarioModules || getDefaultScenarioModules()
@@ -57,6 +60,7 @@ export class ScenarioService {
         }
 
         this._executeScenario(scenario, { ...options, untilStep })
+        await this.scenarioStarted
     }
 
     async stepWalkthrough() {
@@ -81,6 +85,12 @@ export class ScenarioService {
 
     async _executeScenario(scenario: Scenario, options: { untilStep: UntilScenarioStep, walkthrough: boolean }) {
         const steps = filterScenarioSteps(scenario.steps, { untilStep: options.untilStep })
+
+        if (scenario.setup?.callModifications) {
+            this.options.modifyCalls(scenario.setup.callModifications)
+        }
+        this.scenarioStarted.resolve()
+
         for (const step of steps) {
             if (step.waitFor) {
                 const stepPromise = this.stepPromises[step.waitFor]
@@ -90,6 +100,7 @@ export class ScenarioService {
                 await stepPromise
             }
 
+
             let resolveNextStepPromise: (promise: Promise<void>) => void = () => { }
             this.getNextStepPromise = new Promise(resolve => {
                 resolveNextStepPromise = resolve
@@ -98,6 +109,9 @@ export class ScenarioService {
                 await new Promise(resolve => {
                     this.walkthroughResolve = resolve
                 })
+            }
+            if ('callModifications' in step) {
+                this.options.modifyCalls(step.callModifications)
             }
             const stepPromise = this._executeStep(step)
             resolveNextStepPromise(stepPromise)
@@ -141,6 +155,8 @@ export class ScenarioService {
             stepPromise = this.options.services.logicRegistry.logicUnits[step.target].eventProcessor(step.eventName, step.eventArgs)
         } else if ('output' in step) {
             stepPromise = this.options.services.logicRegistry.logicUnits[step.target].triggerOutput(step.output.event, step.output)
+        } else if ('callModifications' in step) {
+            stepPromise = Promise.resolve()
         } else if ('auth' in step) {
             stepPromise = this.options.services.auth.loginWithProvider('facebook')
         } else {

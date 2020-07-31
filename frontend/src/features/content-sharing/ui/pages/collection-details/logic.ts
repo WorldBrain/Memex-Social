@@ -1,5 +1,4 @@
 import chunk from 'lodash/chunk'
-import flatten from 'lodash/flatten'
 import { SharedList, SharedListEntry } from "@worldbrain/memex-common/lib/content-sharing/types"
 import { GetAnnotationListEntriesResult, GetAnnotationsResult } from "@worldbrain/memex-common/lib/content-sharing/storage/types"
 import { CollectionDetailsEvent, CollectionDetailsDependencies } from "./types"
@@ -85,7 +84,7 @@ export default class CollectionDetailsLogic extends UILogic<CollectionDetailsSta
         return mutation
     }
 
-    togglePageAnnotations: EventHandler<'togglePageAnnotations'> = async incoming => {
+    togglePageAnnotations: EventHandler<'togglePageAnnotations'> = incoming => {
         this.emitMutation({
             pageAnnotationsExpanded: {
                 [incoming.event.normalizedUrl]: {
@@ -93,7 +92,7 @@ export default class CollectionDetailsLogic extends UILogic<CollectionDetailsSta
                 }
             }
         })
-        await this.loadPageAnnotations(incoming.previousState.annotationEntryData!, incoming.event.normalizedUrl)
+        this.loadPageAnnotations(incoming.previousState.annotationEntryData!, incoming.event.normalizedUrl)
     }
 
     loadPageAnnotations(annotationEntries: GetAnnotationListEntriesResult, normalizedPageUrl: string) {
@@ -133,7 +132,7 @@ export default class CollectionDetailsLogic extends UILogic<CollectionDetailsSta
                         [normalizedPageUrl]: { $set: 'error' }
                     }
                 })
-                throw e
+                console.error(e)
             }
         })()
 

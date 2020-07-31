@@ -7,8 +7,9 @@ import { theme } from "../main-ui/styles/theme";
 export type MetaScenarios = Array<{
   description: string;
   steps: Array<{
-    run: (element: Element) => void;
+    name: string;
     description?: string;
+    run: (element: Element) => void;
   }>;
 }>;
 
@@ -29,7 +30,7 @@ const StepContainer = styled.div`
   margin: 20px;
 `;
 
-const StepTitle = styled.div`
+const StepTitle = styled.a`
   font-family: ${(props) => props.theme.fonts.primary}
   margin-bottom: 10px;
 `;
@@ -54,7 +55,7 @@ export default async function runMetaUi(options: {
           <StepsContainer key={scenarioIndex}>
             {scenario.steps.map((step, stepIndex) => (
               <StepContainer key={stepIndex}>
-                <StepTitle>{step.description || <span>&nbsp;</span>}</StepTitle>
+                <StepTitle>{step.description || step.name}</StepTitle>
                 <ProgramContainer
                   style={{ width: "360px", height: "640px" }}
                   ref={(element) => {

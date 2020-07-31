@@ -1910,6 +1910,11 @@
     "@types/istanbul-lib-coverage" "^1.1.0"
     "@types/yargs" "^12.0.9"
 
+"@josephg/resolvable@1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@josephg/resolvable/-/resolvable-1.0.0.tgz#cd75b09cfad18cd945de9221d403203aa07e3d0a"
+  integrity sha512-OfTtjoqB2doov5aTJxkyAMK8dXoo7CjCUQSYUEtiY34jbWduOGV7+168tmCT8COMsUEd5DMSFg/0iAOPCBTNAQ==
+
 "@mrmlnc/readdir-enhanced@^2.2.1":
   version "2.2.1"
   resolved "https://registry.yarnpkg.com/@mrmlnc/readdir-enhanced/-/readdir-enhanced-2.2.1.tgz#524af240d1a360527b730475ecfa1344aa540dde"

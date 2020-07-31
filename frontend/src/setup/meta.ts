@@ -22,6 +22,7 @@ export async function metaProgram(options: { history: History, queryParams: Prog
     for (const scenarioPair of pageScenarios) {
         (([scenarioName, scenario]) => {
             const startScenarioProgram = {
+                name: '$start',
                 description: 'Starting point',
                 run: (mountPoint: Element) => {
                     const history = createMemoryHistory()
@@ -37,6 +38,7 @@ export async function metaProgram(options: { history: History, queryParams: Prog
             const stepScenarioPrograms = filterScenarioSteps(scenario.steps, { untilStep: '$end' }).map(step => {
                 const history = createMemoryHistory()
                 return {
+                    name: step.name,
                     description: step.description,
                     run: (mountPoint: Element) => mainProgram({
                         backend: 'memory', history, mountPoint,

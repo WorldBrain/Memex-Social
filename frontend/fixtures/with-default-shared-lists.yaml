@@ -40,7 +40,7 @@ objects:
       createdWhen: 1594225289914
       updatedWhen: 1594225289914
       entryTitle: Notion
-      normalizedUrl: notion.so
+      normalizedUrl: notion.so/#1
       originalUrl: "https://notion.so"
     - sharedList: { $ref: sharedLists.default }
       creator: { $ref: users.default }
@@ -54,112 +54,112 @@ objects:
       createdWhen: 1594225289914
       updatedWhen: 1594225289914
       entryTitle: Notion
-      normalizedUrl: notion.so
+      normalizedUrl: notion.so/#2
       originalUrl: "https://notion.so"
     - sharedList: { $ref: sharedLists.default }
       creator: { $ref: users.default }
       createdWhen: 1594225289914
       updatedWhen: 1594225289914
       entryTitle: Notion
-      normalizedUrl: notion.so
+      normalizedUrl: notion.so/#3
       originalUrl: "https://notion.so"
     - sharedList: { $ref: sharedLists.default }
       creator: { $ref: users.default }
       createdWhen: 1594225289914
       updatedWhen: 1594225289914
       entryTitle: Notion
-      normalizedUrl: notion.so
+      normalizedUrl: notion.so/#4
       originalUrl: "https://notion.so"
     - sharedList: { $ref: sharedLists.default }
       creator: { $ref: users.default }
       createdWhen: 1594225289914
       updatedWhen: 1594225289914
       entryTitle: Notion
-      normalizedUrl: notion.so
+      normalizedUrl: notion.so/#5
       originalUrl: "https://notion.so"
     - sharedList: { $ref: sharedLists.default }
       creator: { $ref: users.default }
       createdWhen: 1594225289914
       updatedWhen: 1594225289914
       entryTitle: Notion
-      normalizedUrl: notion.so
+      normalizedUrl: notion.so/#6
       originalUrl: "https://notion.so"
     - sharedList: { $ref: sharedLists.default }
       creator: { $ref: users.default }
       createdWhen: 1594225289914
       updatedWhen: 1594225289914
       entryTitle: Notion
-      normalizedUrl: notion.so
+      normalizedUrl: notion.so/#7
       originalUrl: "https://notion.so"
     - sharedList: { $ref: sharedLists.default }
       creator: { $ref: users.default }
       createdWhen: 1594225289914
       updatedWhen: 1594225289914
       entryTitle: Notion
-      normalizedUrl: notion.so
+      normalizedUrl: notion.so/#8
       originalUrl: "https://notion.so"
     - sharedList: { $ref: sharedLists.default }
       creator: { $ref: users.default }
       createdWhen: 1594225289914
       updatedWhen: 1594225289914
       entryTitle: Notion
-      normalizedUrl: notion.so
+      normalizedUrl: notion.so/#9
       originalUrl: "https://notion.so"
     - sharedList: { $ref: sharedLists.default }
       creator: { $ref: users.default }
       createdWhen: 1594225289914
       updatedWhen: 1594225289914
       entryTitle: Notion
-      normalizedUrl: notion.so
+      normalizedUrl: notion.so/#10
       originalUrl: "https://notion.so"
     - sharedList: { $ref: sharedLists.default }
       creator: { $ref: users.default }
       createdWhen: 1594225289914
       updatedWhen: 1594225289914
       entryTitle: Notion
-      normalizedUrl: notion.so
+      normalizedUrl: notion.so/#11
       originalUrl: "https://notion.so"
     - sharedList: { $ref: sharedLists.default }
       creator: { $ref: users.default }
       createdWhen: 1594225289914
       updatedWhen: 1594225289914
       entryTitle: Notion
-      normalizedUrl: notion.so
+      normalizedUrl: notion.so/#12
       originalUrl: "https://notion.so"
     - sharedList: { $ref: sharedLists.default }
       creator: { $ref: users.default }
       createdWhen: 1594225289914
       updatedWhen: 1594225289914
       entryTitle: Notion
-      normalizedUrl: notion.so
+      normalizedUrl: notion.so/#13
       originalUrl: "https://notion.so"
     - sharedList: { $ref: sharedLists.default }
       creator: { $ref: users.default }
       createdWhen: 1594225289914
       updatedWhen: 1594225289914
       entryTitle: Notion
-      normalizedUrl: notion.so
+      normalizedUrl: notion.so/#14
       originalUrl: "https://notion.so"
     - sharedList: { $ref: sharedLists.default }
       creator: { $ref: users.default }
       createdWhen: 1594225289914
       updatedWhen: 1594225289914
       entryTitle: Notion
-      normalizedUrl: notion.so
+      normalizedUrl: notion.so/#15
       originalUrl: "https://notion.so"
     - sharedList: { $ref: sharedLists.default }
       creator: { $ref: users.default }
       createdWhen: 1594225289914
       updatedWhen: 1594225289914
       entryTitle: Notion
-      normalizedUrl: notion.so
+      normalizedUrl: notion.so/#16
       originalUrl: "https://notion.so"
     - sharedList: { $ref: sharedLists.default }
       creator: { $ref: users.default }
       createdWhen: 1594225289914
       updatedWhen: 1594225289914
       entryTitle: Notion long ass title with lots of characters so that you can see if the line properly cuts off
-      normalizedUrl: notion.so
+      normalizedUrl: notion.so/#17
       originalUrl: "https://notion.so"
     - sharedList: { $ref: sharedLists.short-description-list }
       creator: { $ref: users.default }

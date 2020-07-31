@@ -375,10 +375,11 @@ export default class CollectionDetailsPage extends UIElement<
       sharedAnnotation: SharedAnnotationReference;
     }
   ) {
+    const { state } = this;
     const annotationID = this.props.contentSharing.getSharedAnnotationLinkID(
       annotationEntry.sharedAnnotation
     );
-    const annotation = this.state.annotations[annotationID];
+    const annotation = state.annotations[annotationID];
     if (!annotation) {
       return null;
     }
@@ -394,7 +395,7 @@ export default class CollectionDetailsPage extends UIElement<
             </Margin>
             <Margin bottom="small">
               <AnnotationCreatorName>
-                {this.state.listData?.creatorDisplayName}
+                {state.listData?.creatorDisplayName}
               </AnnotationCreatorName>
             </Margin>
             <AnnotationDate>
@@ -413,9 +414,10 @@ export default class CollectionDetailsPage extends UIElement<
     //const horizontalMargin = small ? "none" : "normal";
     const viewportWidth = this.getBreakPoints();
 
+    const { state } = this;
     if (
-      this.state.listLoadState === "pristine" ||
-      this.state.listLoadState === "running"
+      state.listLoadState === "pristine" ||
+      state.listLoadState === "running"
     ) {
       return (
         <LoadingScreen viewportWidth={viewportWidth}>
@@ -423,11 +425,11 @@ export default class CollectionDetailsPage extends UIElement<
         </LoadingScreen>
       );
     }
-    if (this.state.listLoadState === "error") {
+    if (state.listLoadState === "error") {
       return <Trans>Error while loading list</Trans>;
     }
 
-    const data = this.state.listData;
+    const data = state.listData;
     if (!data) {
       return <Trans>List not found</Trans>;
     }
@@ -485,21 +487,25 @@ export default class CollectionDetailsPage extends UIElement<
               )}
             </CollectionDescriptionBox>
           )}
+          {state.annotationEntriesLoadState === "running" &&
+            "Loading annotation entries..."}
+          {state.annotationEntriesLoadState === "error" &&
+            "Error loading annotation entries  :("}
           <PageInfoList viewportWidth={viewportWidth}>
             {data.listEntries.map((entry) => (
               <React.Fragment key={entry.normalizedUrl}>
                 <Margin bottom={"smallest"}>
                   {this.renderPageEntry(entry)}
                 </Margin>
-                {this.state.pageAnnotationsExpanded[entry.normalizedUrl] && (
+                {state.pageAnnotationsExpanded[entry.normalizedUrl] && (
                   <Margin left={"small"} bottom={"small"}>
-                    {this.state.annotationLoadStates[entry.normalizedUrl] ===
+                    {state.annotationLoadStates[entry.normalizedUrl] ===
                       "running" && "running"}
-                    {this.state.annotationLoadStates[entry.normalizedUrl] ===
+                    {state.annotationLoadStates[entry.normalizedUrl] ===
                       "error" && "error"}
-                    {this.state.annotationLoadStates[entry.normalizedUrl] ===
+                    {state.annotationLoadStates[entry.normalizedUrl] ===
                       "success" &&
-                      this.state.annotationEntryData![
+                      state.annotationEntryData![
                         entry.normalizedUrl
                       ].map((annotationEntry) =>
                         this.renderAnnotationEntry(annotationEntry)
@@ -520,7 +526,7 @@ export default class CollectionDetailsPage extends UIElement<
 
     // return (
     //   <StyledFoo onClick={() => this.processEvent("toggle", {})}>
-    //     foo: {this.state.foo ? "true" : "false"}
+    //     foo: {state.foo ? "true" : "false"}
     //     <br />
     //     {/* breakPoints: {JSON.stringify(breakPoints)} */}
     //   </StyledFoo>

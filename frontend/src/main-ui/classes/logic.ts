@@ -46,7 +46,7 @@ export async function executeUITask<State>(
         await loader()
         logic.emitMutation({ [key]: { $set: 'success' } } as any)
     } catch (e) {
+        console.error(e)
         logic.emitMutation({ [key]: { $set: 'error' } } as any)
-        throw e
     }
 }
