@@ -58,26 +58,30 @@ export default class CollectionDetailsLogic extends UILogic<CollectionDetailsSta
                 const listDescription = result.sharedList.description ?? ''
                 const listDescriptionFits = listDescription.length < LIST_DESCRIPTION_CHAR_LIMIT
 
-                this.emitMutation({
-                    listData: {
-                        $set: {
-                            creatorDisplayName: user?.displayName,
-                            list: result.sharedList,
-                            listEntries: result.entries,
-                            listDescriptionState: listDescriptionFits ? 'fits' : 'collapsed',
-                            listDescriptionTruncated: truncate(listDescription, LIST_DESCRIPTION_CHAR_LIMIT)
+                return {
+                    mutation: {
+                        listData: {
+                            $set: {
+                                creatorDisplayName: user?.displayName,
+                                list: result.sharedList,
+                                listEntries: result.entries,
+                                listDescriptionState: listDescriptionFits ? 'fits' : 'collapsed',
+                                listDescriptionTruncated: truncate(listDescription, LIST_DESCRIPTION_CHAR_LIMIT)
+                            }
                         }
                     }
-                })
+                }
             }
         })
         await executeUITask<CollectionDetailsState>(this, 'annotationEntriesLoadState', async () => {
             const entries = await contentSharing.getAnnotationListEntries({
                 listReference,
             })
-            this.emitMutation({
-                annotationEntryData: { $set: entries }
-            })
+            return {
+                mutation: {
+                    annotationEntryData: { $set: entries }
+                }
+            }
         })
     }
 
@@ -144,7 +148,7 @@ export default class CollectionDetailsLogic extends UILogic<CollectionDetailsSta
                 ))
         )
 
-        const promisesByPage: { [normalizedUrl: string]: [Promise<GetAnnotationsResult>] } = {}
+        const promisesByPage: { [normalizedUrl: string]: Promise<GetAnnotationsResult>[] } = {}
         const annotationChunks: Promise<GetAnnotationsResult>[] = []
         const { contentSharing } = this.dependencies
         for (const entryChunk of chunk(toFetch, 10)) {

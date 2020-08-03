@@ -1,5 +1,6 @@
 import { UIEvent } from "../../main-ui/classes/logic";
-import { Scenario, ScenarioStep, CallModification, GetCallModifications } from "./types";
+import { Scenario, ScenarioStep } from "./types";
+import { GetCallModifications, CallModification } from "../../utils/call-modifier";
 
 export function scenario<Targets extends { [name: string]: UIEvent<{}> }>(builder: (options: {
     step: <Target extends keyof Targets, EventName extends keyof Targets[Target]>(options: (

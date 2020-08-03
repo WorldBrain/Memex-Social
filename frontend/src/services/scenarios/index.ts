@@ -1,8 +1,9 @@
 import find from 'lodash/find'
 import createResolvable from '@josephg/resolvable'
 import { Services } from "../../services/types";
-import { Scenario, ScenarioStep, ScenarioModuleMap, ScenarioReplayQueryParams, CallModificationStep, GetCallModifications } from "./types";
+import { Scenario, ScenarioStep, ScenarioModuleMap, ScenarioReplayQueryParams } from "./types";
 import FixtureService from '../fixtures';
+import { GetCallModifications } from '../../utils/call-modifier';
 const scenariosContext = typeof __webpack_require__ !== 'undefined'
     ? require.context('../../scenarios', true, /\.ts$/)
     // eslint-disable-next-line

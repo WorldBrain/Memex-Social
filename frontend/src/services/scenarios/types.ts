@@ -1,5 +1,6 @@
 import { Services } from "../types"
 import { Storage } from "../../storage/types"
+import { GetCallModifications, CallModification } from "../../utils/call-modifier"
 
 export type ScenarioReplayQueryParams = { scenario?: string, walkthrough?: string }
 
@@ -50,15 +51,3 @@ export interface AuthStep extends BaseScenarioStep {
 export interface CallModificationStep extends BaseScenarioStep {
     callModifications: GetCallModifications
 }
-
-export type GetCallModifications = (context: { services: Services, storage: Storage }) => CallModification[]
-
-export type CallModification<Object = any> = ({
-    name: string
-    object: Object
-    property: keyof Object
-    modifier: 'block' | 'sabotage'
-} | {
-    name: string
-    modifier: 'undo'
-})

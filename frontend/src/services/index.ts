@@ -1,5 +1,4 @@
 import { History } from "history";
-import createResolvable from '@josephg/resolvable'
 import * as firebase from 'firebase';
 import { Services } from "./types";
 import { BackendType } from "../types";
@@ -15,7 +14,7 @@ import MemoryAuthService from "./auth/memory";
 import { ScenarioService } from "./scenarios";
 import { DeviceService } from "./device";
 import { LimitedWebStorage } from "../utils/web-storage/types";
-import { GetCallModifications } from "./scenarios/types";
+import CallModifier from "../utils/call-modifier";
 
 export function createServices(options: {
     backend: BackendType, storage: Storage,
@@ -62,36 +61,3 @@ export function createServices(options: {
     return services
 }
 
-class CallModifier {
-    private modifiedCalls: { [name: string]: { undo: () => void } } = {}
-
-    modify(context: { storage: Storage, services: Services }, getModifications: GetCallModifications) {
-        const modifications = getModifications(context)
-        for (const modification of modifications) {
-            if (modification.modifier === 'undo') {
-                this.modifiedCalls[modification.name].undo()
-                continue
-            }
-
-            const { object, property } = modification
-            const blockPromise = createResolvable()
-            const origCall = object[property]
-            if (modification.modifier === 'sabotage') {
-                object[property] = async (...args: any[]) => {
-                    throw new Error(`Call '${String(property)}' was modified to throw an error`)
-                }
-            } else if (modification.modifier === 'block') {
-                object[property] = async (...args: any[]) => {
-                    await blockPromise
-                    return origCall.apply(object, args)
-                }
-            }
-            this.modifiedCalls[modification.name] = {
-                undo: () => {
-                    object[property] = origCall
-                    blockPromise.resolve()
-                }
-            }
-        }
-    }
-}

@@ -33,18 +33,20 @@ export type UIEvent<State> = coreUILogic.UIEvent<State>
 export type UIMutation<State> = coreUILogic.UIMutation<State>
 export type UIEventHandler<State, Events extends coreUILogic.UIEvent<{}>, EventName extends keyof Events> = coreUILogic.UIEventHandler<State, Events, EventName>
 
-export async function loadInitial<State extends { loadState: UITaskState }>(logic: UILogic<State, any>, loader: () => Promise<any>): Promise<void> {
-    return executeUITask(logic, 'loadState', loader)
+export async function loadInitial<State extends { loadState: UITaskState }>(logic: UILogic<State, any>, loader: () => Promise<void | { mutation: UIMutation<State> }>): Promise<void> {
+    return executeUITask<State>(logic, 'loadState', loader)
 }
 
 export async function executeUITask<State>(
-    logic: UILogic<State, any>, key: keyof State, loader: () => Promise<void>
+    logic: UILogic<State, any>, key: keyof State, loader: () => Promise<void | { mutation: UIMutation<State> }>
 ): Promise<void> {
     logic.emitMutation({ [key]: { $set: 'running' } } as any)
 
     try {
-        await loader()
-        logic.emitMutation({ [key]: { $set: 'success' } } as any)
+        const result = await loader()
+        const mutation: UIMutation<State> = (result && result.mutation) || ({}) as any
+        (mutation as any)[key] = { $set: 'success' } as any
+        logic.emitMutation(mutation)
     } catch (e) {
         console.error(e)
         logic.emitMutation({ [key]: { $set: 'error' } } as any)
