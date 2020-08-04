@@ -1,5 +1,6 @@
 import moment from "moment";
 import React from "react";
+import { Waypoint } from "react-waypoint";
 import { Trans } from "react-i18next";
 import styled, { css } from "styled-components";
 import { Margin } from "styled-components-spacing";
@@ -13,6 +14,7 @@ import {
   SharedAnnotationListEntry,
   SharedAnnotationReference,
 } from "@worldbrain/memex-common/lib/content-sharing/types";
+import { PAGE_SIZE } from "./constants";
 
 interface CollectionDetailsProps extends CollectionDetailsDependencies {
   services: UIElementServices;
@@ -350,28 +352,32 @@ export default class CollectionDetailsPage extends UIElement<
     const annotationEntries = this.state.annotationEntryData;
 
     return (
-      <PageInfoBoxLink href={entry.originalUrl} target="_blank">
-        <ItemBox>
-          <PageInfoBoxTop>
-            <PageInfoBoxTitle
-              title={entry.entryTitle}
-              viewportWidth={viewportWidth}
-            >
-              {entry.entryTitle}
-            </PageInfoBoxTitle>
-            {annotationEntries &&
-              annotationEntries[entry.normalizedUrl] &&
-              annotationEntries[entry.normalizedUrl].length && (
-                <PageInfoBoxActions>
-                  <PageInfoBoxAction></PageInfoBoxAction>
-                </PageInfoBoxActions>
-              )}
-          </PageInfoBoxTop>
-          <PageInfoBoxUrl viewportWidth={viewportWidth}>
-            {entry.normalizedUrl}
-          </PageInfoBoxUrl>
-        </ItemBox>
-      </PageInfoBoxLink>
+      <ItemBox>
+        <PageInfoBoxTop>
+          <PageInfoBoxTitle
+            title={entry.entryTitle}
+            viewportWidth={viewportWidth}
+          >
+            {entry.entryTitle}
+          </PageInfoBoxTitle>
+          {annotationEntries &&
+            annotationEntries[entry.normalizedUrl] &&
+            annotationEntries[entry.normalizedUrl].length && (
+              <PageInfoBoxActions>
+                <PageInfoBoxAction
+                  onClick={() =>
+                    this.processEvent("togglePageAnnotations", {
+                      normalizedUrl: entry.normalizedUrl,
+                    })
+                  }
+                />
+              </PageInfoBoxActions>
+            )}
+        </PageInfoBoxTop>
+        <PageInfoBoxUrl viewportWidth={viewportWidth}>
+          {entry.normalizedUrl}
+        </PageInfoBoxUrl>
+      </ItemBox>
     );
   }
 
@@ -496,18 +502,24 @@ export default class CollectionDetailsPage extends UIElement<
           {state.annotationEntriesLoadState === "error" &&
             "Error loading annotation entries  :("}
           <Margin vertical="small">
-            <ToggleAllAnnotations>
-              {true ? "Hide all annotations" : "Show all annotations"}
+            <ToggleAllAnnotations
+              onClick={() => this.processEvent("toggleAllAnnotations", {})}
+            >
+              {state.allAnnotationExpanded
+                ? "Hide all annotations"
+                : "Show all annotations"}
             </ToggleAllAnnotations>
           </Margin>
           <PageInfoList viewportWidth={viewportWidth}>
-            {data.listEntries.map((entry) => (
+            {[...data.listEntries.entries()].map(([entryIndex, entry]) => (
               <React.Fragment key={entry.normalizedUrl}>
                 <Margin bottom={"smallest"}>
                   {this.renderPageEntry(entry)}
                 </Margin>
                 {state.pageAnnotationsExpanded[entry.normalizedUrl] && (
                   <Margin left={"small"} bottom={"small"}>
+                    {!state.annotationLoadStates[entry.normalizedUrl] &&
+                      "pristine"}
                     {state.annotationLoadStates[entry.normalizedUrl] ===
                       "running" && "running"}
                     {state.annotationLoadStates[entry.normalizedUrl] ===
@@ -521,6 +533,18 @@ export default class CollectionDetailsPage extends UIElement<
                       )}
                   </Margin>
                 )}
+                {state.allAnnotationExpanded &&
+                  state.annotationEntriesLoadState === "success" &&
+                  entryIndex > 0 &&
+                  entryIndex % PAGE_SIZE === 0 && (
+                    <Waypoint
+                      onEnter={() => {
+                        this.processEvent("pageBreakpointHit", {
+                          entryIndex,
+                        });
+                      }}
+                    />
+                  )}
               </React.Fragment>
             ))}
           </PageInfoList>

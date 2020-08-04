@@ -11,4 +11,5 @@ export type CollectionDetailsEvent = UIEvent<{
     toggleDescriptionTruncation: {}
     togglePageAnnotations: { normalizedUrl: string }
     toggleAllAnnotations: {}
+    pageBreakpointHit: { entryIndex: number }
 }>

@@ -65,6 +65,12 @@ export const SCENARIOS: ScenarioMap = {
     'annotations': scenario<{ CollectionDetailsPage: CollectionDetailsEvent }>(({ step, callModification }) => ({
         fixture: 'annotated-list-with-user',
         startRoute: { route: 'collectionDetails', params: { id: 'default-list' } },
+        steps: [
+        ]
+    })),
+    'annotation-toggle': scenario<{ CollectionDetailsPage: CollectionDetailsEvent }>(({ step, callModification }) => ({
+        fixture: 'annotated-list-with-user',
+        startRoute: { route: 'collectionDetails', params: { id: 'default-list' } },
         setup: {
             callModifications: ({ storage }) => [
                 callModification({
@@ -148,7 +154,7 @@ export const SCENARIOS: ScenarioMap = {
         setup: {
             callModifications: ({ storage }) => [
                 callModification({
-                    name: 'annotation-loading',
+                    name: 'first-annotations-loading',
                     object: storage.serverModules.contentSharing, property: 'getAnnotations',
                     modifier: 'block'
                 }),
@@ -156,17 +162,39 @@ export const SCENARIOS: ScenarioMap = {
         },
         steps: [
             step({
-                name: 'first-annotations-toggle',
+                name: 'all-annotations-toggle',
                 target: 'CollectionDetailsPage',
                 eventName: 'toggleAllAnnotations',
                 eventArgs: {}
             }),
             step({
-                name: 'annotations-loaded',
-                callModifications: ({ storage }) => [{
-                    name: 'annotation-loading',
-                    modifier: 'undo',
-                }]
+                name: 'first-annotations-loaded',
+                callModifications: ({ storage }) => [
+                    {
+                        name: 'first-annotations-loading',
+                        modifier: 'undo',
+                    },
+                    {
+                        name: 'second-annotations-loading',
+                        object: storage.serverModules.contentSharing, property: 'getAnnotations',
+                        modifier: 'block'
+                    }
+                ]
+            }),
+            step({
+                name: 'first-waypoint-hit',
+                target: 'CollectionDetailsPage',
+                eventName: 'pageBreakpointHit',
+                eventArgs: { entryIndex: 10 }
+            }),
+            step({
+                name: 'second-annotations-loaded',
+                callModifications: ({ storage }) => [
+                    {
+                        name: 'second-annotations-loading',
+                        modifier: 'undo',
+                    },
+                ]
             }),
         ]
     })),

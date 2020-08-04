@@ -1,5 +1,6 @@
 import chunk from 'lodash/chunk'
 import fromPairs from 'lodash/fromPairs'
+import takeWhile from 'lodash/takeWhile'
 import { SharedList, SharedListEntry, SharedAnnotationReference } from "@worldbrain/memex-common/lib/content-sharing/types"
 import { GetAnnotationListEntriesResult, GetAnnotationsResult } from "@worldbrain/memex-common/lib/content-sharing/storage/types"
 import { CollectionDetailsEvent, CollectionDetailsDependencies } from "./types"
@@ -7,6 +8,7 @@ import { UILogic, UIEventHandler, loadInitial, executeUITask } from "../../../..
 import { UITaskState } from "../../../../../main-ui/types"
 import { UIMutation } from "ui-logic-core"
 import flatten from 'lodash/flatten'
+import { PAGE_SIZE } from './constants'
 const truncate = require('truncate')
 
 const LIST_DESCRIPTION_CHAR_LIMIT = 200
@@ -31,6 +33,7 @@ type EventHandler<EventName extends keyof CollectionDetailsEvent> = UIEventHandl
 
 export default class CollectionDetailsLogic extends UILogic<CollectionDetailsState, CollectionDetailsEvent> {
     pageAnnotationPromises: { [normalizedPageUrl: string]: Promise<void> } = {}
+    latestPageSeenIndex = 0
 
     constructor(private dependencies: CollectionDetailsDependencies) {
         super()
@@ -99,7 +102,7 @@ export default class CollectionDetailsLogic extends UILogic<CollectionDetailsSta
         const nextExpandedCount = currentExpandedCount + (shouldBeExpanded ? 1 : -1)
         const allAnnotationExpanded = nextExpandedCount === state.listData!.listEntries.length
 
-        this.emitMutation({
+        const mutation: UIMutation<CollectionDetailsState> = {
             pageAnnotationsExpanded: shouldBeExpanded
                 ? {
                     [incoming.event.normalizedUrl]: {
@@ -110,7 +113,8 @@ export default class CollectionDetailsLogic extends UILogic<CollectionDetailsSta
                     $unset: [incoming.event.normalizedUrl]
                 },
             allAnnotationExpanded: { $set: allAnnotationExpanded }
-        })
+        }
+        this.emitMutation(mutation)
         if (shouldBeExpanded) {
             this.loadPageAnnotations(state.annotationEntryData!, [incoming.event.normalizedUrl])
         }
@@ -133,10 +137,41 @@ export default class CollectionDetailsLogic extends UILogic<CollectionDetailsSta
                 pageAnnotationsExpanded: { $set: {} }
             })
         }
+        const { latestPageSeenIndex, normalizedPageUrls } = this.getFirstPagesWithoutLoadedAnnotations(incoming.previousState)
+        this.latestPageSeenIndex = latestPageSeenIndex
         this.loadPageAnnotations(
             incoming.previousState.annotationEntryData!,
-            incoming.previousState.listData!.listEntries.map(entry => entry.normalizedUrl)
+            normalizedPageUrls
+            // incoming.previousState.listData!.listEntries.map(entry => entry.normalizedUrl)
         )
+    }
+
+    pageBreakpointHit: EventHandler<'pageBreakpointHit'> = incoming => {
+        if (incoming.event.entryIndex < this.latestPageSeenIndex) {
+            return
+        }
+
+        const { latestPageSeenIndex, normalizedPageUrls } = this.getFirstPagesWithoutLoadedAnnotations(incoming.previousState)
+        this.latestPageSeenIndex = latestPageSeenIndex
+        this.loadPageAnnotations(incoming.previousState.annotationEntryData!, normalizedPageUrls)
+    }
+
+    getFirstPagesWithoutLoadedAnnotations(state: CollectionDetailsState) {
+        const normalizedPageUrls: string[] = []
+        let latestPageSeenIndex = 0
+        for (const [entryIndex, { normalizedUrl }] of state.listData!.listEntries.slice(this.latestPageSeenIndex).entries()) {
+            if (normalizedPageUrls.length >= PAGE_SIZE) {
+                break
+            }
+            if (
+                // state.annotationEntryData![normalizedUrl] &&
+                !this.pageAnnotationPromises[normalizedUrl]
+            ) {
+                normalizedPageUrls.push(normalizedUrl)
+            }
+            latestPageSeenIndex = entryIndex
+        }
+        return { normalizedPageUrls, latestPageSeenIndex }
     }
 
     loadPageAnnotations(annotationEntries: GetAnnotationListEntriesResult, normalizedPageUrls: string[]) {
@@ -168,6 +203,7 @@ export default class CollectionDetailsLogic extends UILogic<CollectionDetailsSta
             this.pageAnnotationPromises[normalizedPageUrl] = (async () => {
                 try {
                     const annotationChunks = await Promise.all(pagePromises)
+                    // await new Promise(resolve => setTimeout(resolve, 2000))
                     const newAnnotations: UIMutation<CollectionDetailsState['annotations']> = {}
                     for (const annotationChunk of annotationChunks) {
                         for (const [annotationId, annotation] of Object.entries(annotationChunk)) {

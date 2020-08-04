@@ -29,6 +29,104 @@ objects:
       entryTitle: Page without notes with a title that is very very very very very very very very very very very long
       normalizedUrl: verylong.so
       originalUrl: "https://verylong.so"
+    - sharedList: { $ref: sharedLists.default }
+      creator: { $ref: users.default }
+      createdWhen: 1594225289914
+      updatedWhen: 1594225289914
+      entryTitle: Bananas
+      normalizedUrl: bananas.so-1
+      originalUrl: "https://bananas.so"
+    - sharedList: { $ref: sharedLists.default }
+      creator: { $ref: users.default }
+      createdWhen: 1594225289914
+      updatedWhen: 1594225289914
+      entryTitle: Bananas
+      normalizedUrl: bananas.so-2
+      originalUrl: "https://bananas.so"
+    - sharedList: { $ref: sharedLists.default }
+      creator: { $ref: users.default }
+      createdWhen: 1594225289914
+      updatedWhen: 1594225289914
+      entryTitle: Bananas
+      normalizedUrl: bananas.so-3
+      originalUrl: "https://bananas.so"
+    - sharedList: { $ref: sharedLists.default }
+      creator: { $ref: users.default }
+      createdWhen: 1594225289914
+      updatedWhen: 1594225289914
+      entryTitle: Bananas
+      normalizedUrl: bananas.so-4
+      originalUrl: "https://bananas.so"
+    - sharedList: { $ref: sharedLists.default }
+      creator: { $ref: users.default }
+      createdWhen: 1594225289914
+      updatedWhen: 1594225289914
+      entryTitle: Bananas
+      normalizedUrl: bananas.so-5
+      originalUrl: "https://bananas.so"
+    - sharedList: { $ref: sharedLists.default }
+      creator: { $ref: users.default }
+      createdWhen: 1594225289914
+      updatedWhen: 1594225289914
+      entryTitle: Bananas
+      normalizedUrl: bananas.so-6
+      originalUrl: "https://bananas.so"
+    - sharedList: { $ref: sharedLists.default }
+      creator: { $ref: users.default }
+      createdWhen: 1594225289914
+      updatedWhen: 1594225289914
+      entryTitle: Bananas
+      normalizedUrl: bananas.so-7
+      originalUrl: "https://bananas.so"
+    - sharedList: { $ref: sharedLists.default }
+      creator: { $ref: users.default }
+      createdWhen: 1594225289914
+      updatedWhen: 1594225289914
+      entryTitle: Bananas
+      normalizedUrl: bananas.so-8
+      originalUrl: "https://bananas.so"
+    - sharedList: { $ref: sharedLists.default }
+      creator: { $ref: users.default }
+      createdWhen: 1594225289914
+      updatedWhen: 1594225289914
+      entryTitle: Bananas
+      normalizedUrl: bananas.so-9
+      originalUrl: "https://bananas.so"
+    - sharedList: { $ref: sharedLists.default }
+      creator: { $ref: users.default }
+      createdWhen: 1594225289914
+      updatedWhen: 1594225289914
+      entryTitle: Bananas
+      normalizedUrl: bananas.so-10
+      originalUrl: "https://bananas.so"
+    - sharedList: { $ref: sharedLists.default }
+      creator: { $ref: users.default }
+      createdWhen: 1594225289914
+      updatedWhen: 1594225289914
+      entryTitle: Bananas
+      normalizedUrl: bananas.so-11
+      originalUrl: "https://bananas.so"
+    - sharedList: { $ref: sharedLists.default }
+      creator: { $ref: users.default }
+      createdWhen: 1594225289914
+      updatedWhen: 1594225289914
+      entryTitle: Bananas
+      normalizedUrl: bananas.so-12
+      originalUrl: "https://bananas.so"
+    - sharedList: { $ref: sharedLists.default }
+      creator: { $ref: users.default }
+      createdWhen: 1594225289914
+      updatedWhen: 1594225289914
+      entryTitle: Bananas
+      normalizedUrl: bananas.so-13
+      originalUrl: "https://bananas.so"
+    - sharedList: { $ref: sharedLists.default }
+      creator: { $ref: users.default }
+      createdWhen: 1594225255555
+      updatedWhen: 1594225255555
+      entryTitle: Apples
+      normalizedUrl: apples.so
+      originalUrl: "https://apples.so"
   sharedAnnotations:
     - $store: annotation-1
       creator: { $ref: users.default }
