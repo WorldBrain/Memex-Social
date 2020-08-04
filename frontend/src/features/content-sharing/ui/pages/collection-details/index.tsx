@@ -6,7 +6,7 @@ import styled, { css } from "styled-components";
 import { Margin } from "styled-components-spacing";
 import { UIElement, UIElementServices } from "../../../../../main-ui/classes";
 import Logic, { CollectionDetailsState } from "./logic";
-import LoadingIndictator from "../../../../../main-ui/components/loading-indicator";
+import LoadingIndicator from "../../../../../main-ui/components/loading-indicator";
 import { CollectionDetailsEvent, CollectionDetailsDependencies } from "./types";
 import ItemBox from "../../../../../common-ui/components/item-box";
 import {
@@ -90,6 +90,14 @@ const MemexLogo = styled.div<{
       border: none;
     `}
 `;
+
+const MarginSmall = styled.div`
+  height: 10px;
+`
+
+const MarginSmallest = styled.div`
+  height: 5px;
+`
 
 const HeaderMiddleArea = styled.div<{
   viewportWidth: "mobile" | "small" | "normal" | "big";
@@ -194,6 +202,9 @@ const PageMiddleArea = styled.div<{
   position: relative;
   padding-bottom: 100px;
   margin: 20px auto 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 
   ${(props) =>
     props.viewportWidth === "small" &&
@@ -241,17 +252,73 @@ const CollectionDescriptionToggle = styled.div<{
   }
 `;
 
+const ToggleAllBox = styled.div<{
+  viewportWidth: "mobile" | "small" | "normal" | "big";
+}>`
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  position: sticky;
+  top: 35px;
+  z-index: 2;
+  border-radius: 5px;
+
+  ${(props) =>
+    props.viewportWidth === "small" &&
+    css`
+      top: 55px;
+    `}
+
+  ${(props) =>
+    props.viewportWidth === "mobile" &&
+    css`
+      top: 45px;
+    `}
+}
+`
+
 const ToggleAllAnnotations = styled.div`
   text-align: right;
   font-weight: bold;
+  font-family: 'Poppins';
+  color: ${(props) => props.theme.colors.primary};
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 12px;
+  width: fit-content;
+  background-color: #fff;
+  padding: 0 5px;
+  margin: 5px 0 10px;
+  border-radius: 5px;
 `;
+
+const PageBox = styled.div`
+  display: flex;
+`
 
 const PageInfoList = styled.div<{
   viewportWidth: "mobile" | "small" | "normal" | "big";
-}>``;
+}>`
+  width: 100%;
+`;
 
 const PageInfoBoxLink = styled.a`
   text-decoration: none;
+`;
+
+const PageInfoBoxRight = styled.div`
+  text-decoration: none;
+  padding: 15px 20px 15px 5px;
+  cursor: default;
+  min-width: 60px;
+`;
+
+const PageInfoBoxLeft = styled.div`
+  text-decoration: none;
+  padding: 15px 20px 15px 20px;
+  flex: 1;
+  width: 100%;
+  cursor: pointer;
 `;
 
 const PageInfoBoxTop = styled.div`
@@ -274,12 +341,16 @@ const PageInfoBoxTitle = styled.div<{
 const PageInfoBoxActions = styled.div`
   display: flex;
 `;
-const PageInfoBoxAction = styled.div`
+const PageInfoAnnotationToggle = styled.div`
   display: block;
   width: 20px;
   height: 20px;
-  background: black;
   margin-left: 10px;
+  cursor: pointer;
+  background-image: url("https://raw.githubusercontent.com/WorldBrain/Website/8841a59adb8d854396fe87582c51fa5a1ac04d3a/src/img/comment.svg");
+  background-size: contain;
+  background-position: center center;
+  background-repeat: no-repeat;
 `;
 
 const PageInfoBoxUrl = styled.div<{
@@ -296,15 +367,58 @@ const PageInfoBoxUrl = styled.div<{
   max-width: 100%;
 `;
 
+const AnnotationContainer = styled.div`
+  display: flex;
+  justify-content: center
+`
+
+const AnnotationLine = styled.span`
+    height: auto;
+    width: 6px;
+    background: #e0e0e0;
+    margin: -5px 10px 5px;
+`
+
+const AnnotationList = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  min-height: 50px;
+`
+
 const AnnotationBox = styled.div`
   font-family: ${(props) => props.theme.fonts.primary};
+  padding: 15px 20px;
 `;
-const AnnotationBody = styled.div`
+
+const AnnotationBody = styled.span`
   background-color: ${(props) => props.theme.colors.secondary};
+  white-space: pre-wrap; 
+  padding: 0 5px;
+  box-decoration-break: clone;
+  font-size: 14px;
+  color: ${(props) => props.theme.colors.primary};
 `;
-const AnnotationComment = styled.div``;
-const AnnotationCreatorName = styled.div``;
-const AnnotationDate = styled.div``;
+
+const AnnotationComment = styled.div`
+  font-size: 14px;
+  color: ${(props) => props.theme.colors.primary};
+`;
+const AnnotationCreatorName = styled.div`
+    font-family: 'Poppins';
+    color: ${(props) => props.theme.colors.primary};
+    font-weight: bold;
+    font-size: 12px;
+`;
+const AnnotationDate = styled.div`
+    font-family: 'Poppins';
+    font-weight: normal;
+    font-size: 12px;
+    color: ${(props) => props.theme.colors.primary};
+
+`;
 
 const LoadingScreen = styled.div<{
   viewportWidth: "mobile" | "small" | "normal" | "big";
@@ -350,33 +464,46 @@ export default class CollectionDetailsPage extends UIElement<
   renderPageEntry(entry: SharedListEntry) {
     const viewportWidth = this.getBreakPoints();
     const annotationEntries = this.state.annotationEntryData;
-
     return (
       <ItemBox>
-        <PageInfoBoxTop>
-          <PageInfoBoxTitle
-            title={entry.entryTitle}
-            viewportWidth={viewportWidth}
-          >
-            {entry.entryTitle}
-          </PageInfoBoxTitle>
-          {annotationEntries &&
-            annotationEntries[entry.normalizedUrl] &&
-            annotationEntries[entry.normalizedUrl].length && (
-              <PageInfoBoxActions>
-                <PageInfoBoxAction
-                  onClick={() =>
-                    this.processEvent("togglePageAnnotations", {
-                      normalizedUrl: entry.normalizedUrl,
-                    })
-                  }
-                />
-              </PageInfoBoxActions>
-            )}
-        </PageInfoBoxTop>
-        <PageInfoBoxUrl viewportWidth={viewportWidth}>
-          {entry.normalizedUrl}
-        </PageInfoBoxUrl>
+        <PageBox>
+          <PageInfoBoxLeft>
+            <PageInfoBoxLink href={entry.originalUrl} target="_blank">
+                <PageInfoBoxTop>
+                  <PageInfoBoxTitle
+                    title={entry.entryTitle}
+                    viewportWidth={viewportWidth}
+                  >
+                    {entry.entryTitle}
+                  </PageInfoBoxTitle>
+                </PageInfoBoxTop>
+                <Margin bottom="smallest">
+                <PageInfoBoxUrl viewportWidth={viewportWidth}>
+                  {entry.normalizedUrl}
+                </PageInfoBoxUrl>
+                </Margin>
+                <AnnotationDate>
+                      {moment(entry.createdWhen).format('LLL')}
+                </AnnotationDate>
+            </PageInfoBoxLink>
+          </PageInfoBoxLeft>
+              {annotationEntries &&
+                  annotationEntries[entry.normalizedUrl] &&
+                  annotationEntries[entry.normalizedUrl].length && (
+                    <PageInfoBoxRight>
+                    <PageInfoBoxActions>
+                      <PageInfoAnnotationToggle
+                        onClick={(event) => (
+                          this.processEvent("togglePageAnnotations", {
+                            normalizedUrl: entry.normalizedUrl,
+                          }))
+                        }
+                      />
+                    </PageInfoBoxActions>
+                  </PageInfoBoxRight>
+                  )
+                }
+        </PageBox>
       </ItemBox>
     );
   }
@@ -395,26 +522,24 @@ export default class CollectionDetailsPage extends UIElement<
       return null;
     }
     return (
-      <Margin key={annotationID} bottom="smallest">
-        <ItemBox>
-          <AnnotationBox>
-            <Margin bottom="small">
-              <AnnotationBody>{annotation.body}</AnnotationBody>
-            </Margin>
-            <Margin bottom="small">
-              <AnnotationComment>{annotation.comment}</AnnotationComment>
-            </Margin>
-            <Margin bottom="small">
-              <AnnotationCreatorName>
-                {state.listData?.creatorDisplayName}
-              </AnnotationCreatorName>
-            </Margin>
-            <AnnotationDate>
-              {moment(annotation.uploadedWhen).calendar()}
-            </AnnotationDate>
-          </AnnotationBox>
-        </ItemBox>
-      </Margin>
+        <>
+          <ItemBox>
+            <AnnotationBox key={annotationID}>
+              {annotation.body && (
+              <Margin bottom="small">
+                <AnnotationBody>{annotation.body}</AnnotationBody>
+              </Margin>
+              )}
+              <Margin bottom="small">
+                <AnnotationComment>{annotation.comment}</AnnotationComment>
+              </Margin>
+              <AnnotationDate>
+                {moment(annotation.createdWhen).format('LLL')}
+              </AnnotationDate>
+            </AnnotationBox>
+          </ItemBox>
+          <MarginSmallest/>
+        </>
     );
   }
 
@@ -432,7 +557,7 @@ export default class CollectionDetailsPage extends UIElement<
     ) {
       return (
         <LoadingScreen viewportWidth={viewportWidth}>
-          <LoadingIndictator />
+          <LoadingIndicator />
         </LoadingScreen>
       );
     }
@@ -501,7 +626,7 @@ export default class CollectionDetailsPage extends UIElement<
             "Loading annotation entries..."}
           {state.annotationEntriesLoadState === "error" &&
             "Error loading annotation entries  :("}
-          <Margin vertical="small">
+          <ToggleAllBox viewportWidth={viewportWidth}>  
             <ToggleAllAnnotations
               onClick={() => this.processEvent("toggleAllAnnotations", {})}
             >
@@ -509,7 +634,7 @@ export default class CollectionDetailsPage extends UIElement<
                 ? "Hide all annotations"
                 : "Show all annotations"}
             </ToggleAllAnnotations>
-          </Margin>
+          </ToggleAllBox>
           <PageInfoList viewportWidth={viewportWidth}>
             {[...data.listEntries.entries()].map(([entryIndex, entry]) => (
               <React.Fragment key={entry.normalizedUrl}>
@@ -518,19 +643,33 @@ export default class CollectionDetailsPage extends UIElement<
                 </Margin>
                 {state.pageAnnotationsExpanded[entry.normalizedUrl] && (
                   <Margin left={"small"} bottom={"small"}>
-                    {!state.annotationLoadStates[entry.normalizedUrl] &&
-                      "pristine"}
                     {state.annotationLoadStates[entry.normalizedUrl] ===
-                      "running" && "running"}
+                      "running" && (
+                        <AnnotationContainer>
+                          <AnnotationLine/>
+                          <AnnotationList>
+                            <LoadingIndicator/>
+                          </AnnotationList>
+                        </AnnotationContainer>
+                        )
+                    }
                     {state.annotationLoadStates[entry.normalizedUrl] ===
                       "error" && "error"}
                     {state.annotationLoadStates[entry.normalizedUrl] ===
-                      "success" &&
-                      state.annotationEntryData![
-                        entry.normalizedUrl
-                      ].map((annotationEntry) =>
-                        this.renderAnnotationEntry(annotationEntry)
-                      )}
+                      "success" && (
+                        <AnnotationContainer>
+                          <AnnotationLine/>
+                          <AnnotationList>
+                          <MarginSmallest/>
+                            {state.annotationEntryData![
+                              entry.normalizedUrl
+                            ].map((annotationEntry) =>
+                              this.renderAnnotationEntry(annotationEntry)
+                           )}
+                          </AnnotationList>
+                        </AnnotationContainer>
+                      )
+                    }
                   </Margin>
                 )}
                 {state.allAnnotationExpanded &&

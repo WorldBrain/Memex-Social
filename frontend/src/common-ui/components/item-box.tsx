@@ -8,9 +8,8 @@ const StyledItemBox = styled.div`
   box-sizing: border-box;
   box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.2);
   border-radius: 5px;
-  padding: 15px 20px;
-  cursor: pointer;
   text-decoration: none;
+  width: 100%;
 `;
 
 export default function ItemBox(props: { children: React.ReactNode }) {
