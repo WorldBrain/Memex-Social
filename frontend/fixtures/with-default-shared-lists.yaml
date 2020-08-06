@@ -39,7 +39,7 @@ objects:
       creator: { $ref: users.default }
       createdWhen: 1594225289914
       updatedWhen: 1594225289914
-      entryTitle: Notion
+      entryTitle: Page with notes with a title that is very very very very very very very very very very very long
       normalizedUrl: notion.so/#1
       originalUrl: "https://notion.so"
     - sharedList: { $ref: sharedLists.default }
@@ -172,6 +172,6 @@ objects:
       creator: { $ref: users.default }
       createdWhen: 1594225289914
       updatedWhen: 1594225289914
-      entryTitle: Notion
+      entryTitle: Page with notes with a title that is very very very very very very very very very very very long
       normalizedUrl: notion.so
       originalUrl: "https://notion.so"
