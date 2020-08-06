@@ -81,27 +81,30 @@ export function createStorageTestFactory(suiteOptions: { backend: StorageTestBac
                 })
                 const storage = await createStorage({ backend: storageBackend })
 
-                // await firebase.loadFirestoreRules({
-                //     projectId,
-                //     rules: `
-                //     service cloud.firestore {
-                //         match /databases/{database}/documents {
-                //             match /{document=**} {
-                //                 allow read, write; // or allow read, write: if true;
-                //              }
-                //         }
-                //       }                      
-                //     `
-                // })
-                const ast = await generateRulesAstFromStorageModules(storage.serverModules as any, {
-                    storageRegistry: storage.serverStorageManager.registry,
-                })
-                const rules = serializeRulesAST(ast)
-                // console.log(rules)
-                await firebase.loadFirestoreRules({
-                    projectId,
-                    rules: rules,
-                })
+                if (process.env.DISABLE_FIRESTORE_RULES === 'true') {
+                    await firebase.loadFirestoreRules({
+                        projectId,
+                        rules: `
+                    service cloud.firestore {
+                        match /databases/{database}/documents {
+                            match /{document=**} {
+                                allow read, write; // or allow read, write: if true;
+                             }
+                        }
+                      }                      
+                    `
+                    })
+                } else {
+                    const ast = await generateRulesAstFromStorageModules(storage.serverModules as any, {
+                        storageRegistry: storage.serverStorageManager.registry,
+                    })
+                    const rules = serializeRulesAST(ast)
+                    // console.log(rules)
+                    await firebase.loadFirestoreRules({
+                        projectId,
+                        rules: rules,
+                    })
+                }
 
                 const services = createServices({
                     backend: 'memory',

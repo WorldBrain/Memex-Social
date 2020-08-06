@@ -12,6 +12,10 @@ export async function setup(options: { backend: BackendType, logLogicEvents?: bo
         const setup = await mainProgram(options)
         Object.assign(window, setup)
     } else {
+        if (options.backend !== 'memory') {
+            throw new Error(`You tried to run the Meta UI without using the 'memory' backend. Killing myself to avert disaster, goodbye!`)
+        }
+
         const history = createBrowserHistory()
         metaProgram({ history, queryParams: options.queryParams })
     }
