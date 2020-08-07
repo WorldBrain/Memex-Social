@@ -164,6 +164,14 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
         })
         await data.createTestListEntries({ contentSharing, listReference: listReference2, userReference })
         const creationResult = await data.createTestAnnotations({ contentSharing, listReference: listReference2, userReference })
+        expect(creationResult).toEqual({
+            sharedAnnotationReferences: {
+                [data.TEST_ANNOTATIONS_BY_PAGE['foo.com/page-1'][0].localId]: expect.objectContaining({ type: 'shared-annotation-reference' }),
+                [data.TEST_ANNOTATIONS_BY_PAGE['foo.com/page-1'][1].localId]: expect.objectContaining({ type: 'shared-annotation-reference' }),
+                [data.TEST_ANNOTATIONS_BY_PAGE['bar.com/page-2'][0].localId]: expect.objectContaining({ type: 'shared-annotation-reference' }),
+            }
+        })
+
         const getRemoteId = <PageUrl extends keyof typeof data.TEST_ANNOTATIONS_BY_PAGE>(
 
             normalizedPageUrl: PageUrl,
@@ -174,13 +182,6 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 data.TEST_ANNOTATIONS_BY_PAGE[normalizedPageUrl][annotationIndex].localId
                 ] as any
             )
-        expect(creationResult).toEqual({
-            sharedAnnotationReferences: {
-                [data.TEST_ANNOTATIONS_BY_PAGE['foo.com/page-1'][0].localId]: expect.objectContaining({ type: 'shared-annotation-reference' }),
-                [data.TEST_ANNOTATIONS_BY_PAGE['foo.com/page-1'][1].localId]: expect.objectContaining({ type: 'shared-annotation-reference' }),
-                [data.TEST_ANNOTATIONS_BY_PAGE['bar.com/page-2'][0].localId]: expect.objectContaining({ type: 'shared-annotation-reference' }),
-            }
-        })
         expect(await contentSharing.getAnnotationsForPagesInList({
             listReference: listReference2,
             normalizedPageUrls: ['foo.com/page-1', 'bar.com/page-2']
@@ -327,6 +328,127 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 comment: 'Comment 3',
                 selector: 'Selector 3',
             },
+        })
+    })
+
+    it('should add an existing annotation to a new list', { withTestUser: true }, async ({ storage, services }) => {
+        const { contentSharing } = storage.serverModules
+        const userReference = services.auth.getCurrentUserReference()!
+        const listReference1 = await contentSharing.createSharedList({
+            listData: {
+                title: 'My list'
+            },
+            localListId: 55,
+            userReference
+        })
+        await data.createTestListEntries({ contentSharing, listReference: listReference1, userReference })
+        const { sharedAnnotationReferences } = await data.createTestAnnotations({ contentSharing, listReference: listReference1, userReference })
+        const listReference2 = await contentSharing.createSharedList({
+            listData: {
+                title: 'My list 2'
+            },
+            localListId: 75,
+            userReference
+        })
+        await data.createTestListEntries({ contentSharing, listReference: listReference2, userReference })
+        await contentSharing.addAnnotationsToLists({
+            creator: userReference,
+            sharedListReferences: [listReference2],
+            sharedAnnotations: Object.entries(sharedAnnotationReferences).map(([localId, reference]) => ({
+                reference,
+                normalizedPageUrl: data.TEST_ANNOTATION_PAGE_URLS_BY_LOCAL_ID[localId].normalizedPageUrl
+            })),
+        })
+
+        expect(await contentSharing.getAnnotationsForPagesInList({
+            listReference: listReference2,
+            normalizedPageUrls: ['foo.com/page-1', 'bar.com/page-2']
+        })).toEqual({
+            "foo.com/page-1": [
+                {
+                    annotation: {
+                        id: expect.anything(),
+                        createdWhen: 500,
+                        uploadedWhen: expect.any(Number),
+                        updatedWhen: expect.any(Number),
+                        creator: userReference.id,
+                        normalizedPageUrl: "foo.com/page-1",
+                        body: "Body 1",
+                        comment: "Comment 1",
+                        selector: "Selector 1",
+                    },
+                },
+                {
+                    annotation: {
+                        id: expect.anything(),
+                        createdWhen: 1500,
+                        uploadedWhen: expect.any(Number),
+                        updatedWhen: expect.any(Number),
+                        creator: userReference.id,
+                        normalizedPageUrl: "foo.com/page-1",
+                        body: "Body 2",
+                        comment: "Comment 2",
+                        selector: "Selector 2",
+                    },
+                },
+            ],
+            'bar.com/page-2': [
+                {
+                    annotation: {
+                        id: expect.anything(),
+                        createdWhen: 2000,
+                        uploadedWhen: expect.any(Number),
+                        updatedWhen: expect.any(Number),
+                        creator: userReference.id,
+                        normalizedPageUrl: "bar.com/page-2",
+                        body: "Body 3",
+                        comment: "Comment 3",
+                        selector: "Selector 3",
+                    },
+                }
+            ],
+        })
+    })
+
+    it('should remove an existing annotation from a list', { withTestUser: true }, async ({ storage, services }) => {
+        const { contentSharing } = storage.serverModules
+        const userReference = services.auth.getCurrentUserReference()!
+        const listReference1 = await contentSharing.createSharedList({
+            listData: {
+                title: 'My list'
+            },
+            localListId: 55,
+            userReference
+        })
+        await data.createTestListEntries({ contentSharing, listReference: listReference1, userReference })
+        const creationResult = await data.createTestAnnotations({ contentSharing, listReference: listReference1, userReference })
+        await contentSharing.removeAnnotationsFromLists({
+            sharedListReferences: [listReference1],
+            sharedAnnotationReferences: [
+                creationResult.sharedAnnotationReferences[data.TEST_ANNOTATIONS_BY_PAGE['bar.com/page-2'][0].localId],
+                creationResult.sharedAnnotationReferences[data.TEST_ANNOTATIONS_BY_PAGE['foo.com/page-1'][1].localId],
+            ]
+        })
+
+        expect(await contentSharing.getAnnotationsForPagesInList({
+            listReference: listReference1,
+            normalizedPageUrls: ['foo.com/page-1', 'bar.com/page-2']
+        })).toEqual({
+            "foo.com/page-1": [
+                {
+                    annotation: {
+                        id: expect.anything(),
+                        createdWhen: 500,
+                        uploadedWhen: expect.any(Number),
+                        updatedWhen: expect.any(Number),
+                        creator: userReference.id,
+                        normalizedPageUrl: "foo.com/page-1",
+                        body: "Body 1",
+                        comment: "Comment 1",
+                        selector: "Selector 1",
+                    },
+                },
+            ],
         })
     })
 })

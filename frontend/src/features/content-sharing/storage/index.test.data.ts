@@ -1,3 +1,5 @@
+import flatten from 'lodash/flatten'
+import fromPairs from 'lodash/fromPairs'
 import ContentSharingStorage from "."
 import { SharedListReference } from "@worldbrain/memex-common/lib/content-sharing/types"
 import { UserReference } from "@worldbrain/memex-common/lib/web-interface/types/users"
@@ -29,6 +31,11 @@ export const TEST_ANNOTATIONS_BY_PAGE = {
         },
     ],
 }
+export const TEST_ANNOTATION_PAGE_URLS_BY_LOCAL_ID = fromPairs(flatten(
+    Object.entries(TEST_ANNOTATIONS_BY_PAGE).map(([normalizedPageUrl, annotationDati]) =>
+        annotationDati.map(annotationData => [annotationData.localId, { normalizedPageUrl }])
+    )
+))
 
 export async function createTestListEntries(params: {
     contentSharing: ContentSharingStorage, listReference: SharedListReference, userReference: UserReference
