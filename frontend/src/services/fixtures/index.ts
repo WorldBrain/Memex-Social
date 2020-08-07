@@ -1,17 +1,14 @@
 // import * as jsYaml from 'js-yaml'
 import { loadFixtures } from '@worldbrain/storex-data-tools/lib/test-fixtures/loading'
 // import { dumpFixtures } from '@worldbrain/storex-data-tools/lib/test-fixtures/dumping'
-import { Storage } from "../storage/types";
-
-interface Fixture {
-    extends?: string | string[]
-    objects: { [collection: string]: any[] }
-}
+import { Storage } from "../../storage/types";
+import { FixtureFetcher, Fixture } from './types';
+export * from './types'
 
 export default class FixtureService {
     private loading = Promise.resolve()
 
-    constructor(private options: { storage: Storage, fixtureFetcher: (name: string) => Promise<Fixture> }) {
+    constructor(private options: { storage: Storage, fixtureFetcher: FixtureFetcher }) {
     }
 
     async loadFixture(name: string, options?: { context?: { [key: string]: any } }) {

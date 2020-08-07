@@ -6,7 +6,7 @@ import { Storage } from "../storage/types";
 import ROUTES from "../routes";
 import OverlayService from "./overlay";
 import LogicRegistryService from "./logic-registry";
-import FixtureService, { defaultFixtureFetcher } from "./fixtures";
+import FixtureService, { FixtureFetcher, defaultFixtureFetcher } from "./fixtures";
 import RouterService from "./router";
 import { AuthService } from "./auth/types";
 import FirebaseAuthService from "./auth/firebase";
@@ -18,13 +18,14 @@ import CallModifier from "../utils/call-modifier";
 
 export function createServices(options: {
     backend: BackendType, storage: Storage,
-    history: History, uiMountPoint: Element,
+    history: History, uiMountPoint?: Element,
     localStorage: LimitedWebStorage,
     firebase?: typeof firebase
     logLogicEvents?: boolean
+    fixtureFetcher?: FixtureFetcher
 }): Services {
     const logicRegistry = new LogicRegistryService({ logEvents: options.logLogicEvents });
-    const device = new DeviceService({ rootElement: options.uiMountPoint })
+    const device = new DeviceService({ rootElement: options.uiMountPoint ?? { clientWidth: 600, clientHeight: 800 } })
 
     let auth: AuthService
     if (options.backend === 'firebase' || options.backend === 'firebase-emulator') {
@@ -45,7 +46,7 @@ export function createServices(options: {
     }
 
     services.fixtures = process.env.NODE_ENV === 'development'
-        ? new FixtureService({ storage: options.storage, fixtureFetcher: defaultFixtureFetcher })
+        ? new FixtureService({ storage: options.storage, fixtureFetcher: options.fixtureFetcher ?? defaultFixtureFetcher })
         : undefined
 
     const callModifier = new CallModifier()

@@ -2,11 +2,16 @@ import fs from 'fs'
 import path from 'path'
 import makeDir from 'make-dir'
 import { Builder, By, Key, until } from 'selenium-webdriver'
+import { render, fireEvent, screen } from '@testing-library/react'
+import { createMemoryHistory } from 'history'
 import { DevelopmentRpcInterface, DevelopmentRpcRequest, DevelopmentRpcResponse } from '../rpc/types';
 import { getDefaultScenarioModules } from '../services/scenarios';
 import { Scenario } from '../services/scenarios/types';
 import RouterService from '../services/router';
 import ROUTES, { RouteName } from '../routes';
+import { mainProgram } from '../setup/main'
+import { renderMainUi } from '../main-ui'
+import { loadFixture, loadSingleFixture } from '../services/fixtures/utils'
 const io = require('socket.io-client')
 // import * as webdriver from 'selenium-webdriver'
 // import * as chrome from 'selenium-webdriver/chrome'
@@ -69,12 +74,12 @@ class UiConnection {
     }
 }
 
-describe('End to end scenario tests', () => {
+describe('Browser scenario tests', () => {
     let i = 0
     const router = new RouterService({ history: null as any, auth: null as any, routes: ROUTES })
 
     function maybeIt(description: string, test: () => void) {
-        if (process.env.TEST_E2E === 'true') {
+        if (process.env.TEST_BROWSER_E2E === 'true') {
             it(description, async function () {
                 this.timeout(10000)
                 await test()
@@ -118,12 +123,9 @@ describe('End to end scenario tests', () => {
     for (const [pageName, pageScenarios] of Object.entries(getDefaultScenarioModules())) {
         describe(`Page: ${pageName}`, () => {
             for (const [scenarioName, scenario] of Object.entries(pageScenarios)) {
-                if (scenarioName === 'new-user') {
-                    maybeIt(`Scenario: ${scenarioName}`, async () => {
-                        await runTest(scenario, { pageName, scenarioName })
-                    })
-                    break
-                }
+                maybeIt(`Scenario: ${scenarioName}`, async () => {
+                    await runTest(scenario, { pageName, scenarioName })
+                })
             }
         })
     }
@@ -131,4 +133,44 @@ describe('End to end scenario tests', () => {
     // maybeIt('should run', async function () {
 
     // })
+})
+
+describe('In-memory scenario tests', () => {
+    function maybeIt(description: string, test: () => void) {
+        if (process.env.TEST_MEMORY_E2E === 'true') {
+            it(description, async function () {
+                await test()
+            })
+        } else {
+            it.skip(description, test)
+        }
+    }
+
+    async function runTest(scenario: Scenario, options: { pageName: string, scenarioName: string }) {
+        const history = createMemoryHistory()
+        const main = await mainProgram({
+            queryParams: { scenario: `${options.pageName}/${options.scenarioName}`, walkthrough: 'true' },
+            backend: 'memory',
+            domUnavailable: true,
+            navigateToScenarioStart: true,
+            history,
+            uiRunner: async (options) => { render(renderMainUi(options)) },
+            fixtureFetcher: async name =>
+                loadFixture(name, { fixtureFetcher: loadSingleFixture })
+        })
+
+        for (const [stepIndex, step] of Object.entries(scenario.steps)) {
+            await main.stepWalkthrough?.()
+        }
+    }
+
+    for (const [pageName, pageScenarios] of Object.entries(getDefaultScenarioModules())) {
+        describe(`Page: ${pageName}`, () => {
+            for (const [scenarioName, scenario] of Object.entries(pageScenarios)) {
+                maybeIt(`Scenario: ${scenarioName}`, async () => {
+                    await runTest(scenario, { pageName, scenarioName })
+                })
+            }
+        })
+    }
 })

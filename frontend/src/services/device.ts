@@ -6,7 +6,7 @@ export class DeviceService {
     events = new EventEmitter()
     private cachedRootSize: RectSize
 
-    constructor(private options: { rootElement: Element }) {
+    constructor(private options: { rootElement: { clientWidth: number, clientHeight: number } }) {
         this.cachedRootSize = this.calculateRootSize()
     }
 

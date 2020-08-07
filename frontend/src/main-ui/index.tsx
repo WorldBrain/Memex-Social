@@ -13,14 +13,23 @@ import { OverlayContainer } from "./containers/overlay";
 import "typeface-poppins";
 import GlobalStyle from "./styles/global";
 import { theme } from "./styles/theme";
+import { UiRunner } from "./types";
 
-export default async function runMainUi(options: {
+async function runMainUi(options: {
   services: Services;
   storage: Storage;
   history: history.History;
   mountPoint: Element;
 }) {
-  ReactDOM.render(
+  ReactDOM.render(renderMainUi(options), options.mountPoint);
+}
+
+export function renderMainUi(options: {
+  services: Services;
+  storage: Storage;
+  history: history.History;
+}) {
+  return (
     <React.Fragment>
       <GlobalStyle />
       <ThemeProvider theme={theme}>
@@ -33,8 +42,7 @@ export default async function runMainUi(options: {
           />
         </App>
       </ThemeProvider>
-    </React.Fragment>,
-    options.mountPoint
+    </React.Fragment>
   );
 }
 
@@ -50,4 +58,8 @@ export function getUiMountpoint(mountPoint?: Element): Element {
   }
 
   return mountPoint;
+}
+
+export function getDefaultUiRunner(config: { mountPoint: Element }): UiRunner {
+  return (options) => runMainUi({ ...config, ...options });
 }
