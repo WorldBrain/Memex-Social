@@ -1,66 +1,8 @@
 import flatten from 'lodash/flatten'
 import sortBy from 'lodash/sortBy'
 import expect from 'expect'
-import { SharedListReference } from '@worldbrain/memex-common/lib/content-sharing/types'
-import { UserReference } from '@worldbrain/memex-common/lib/web-interface/types/users'
 import { createStorageTestSuite } from '../../../tests/storage-tests'
-import ContentSharingStorage from '.'
-
-async function createTestListEntries(params: {
-    contentSharing: ContentSharingStorage, listReference: SharedListReference, userReference: UserReference
-}) {
-    await params.contentSharing.createListEntries({
-        listReference: params.listReference,
-        listEntries: [
-            {
-                entryTitle: 'Page 1',
-                originalUrl: 'https://www.foo.com/page-1',
-                normalizedUrl: 'foo.com/page-1',
-            },
-            {
-                entryTitle: 'Page 2',
-                originalUrl: 'https://www.bar.com/page-2',
-                normalizedUrl: 'bar.com/page-2',
-                createdWhen: 592,
-            },
-        ],
-        userReference: params.userReference
-    })
-}
-
-async function createTestAnnotations(params: {
-    contentSharing: ContentSharingStorage, listReference: SharedListReference, userReference: UserReference
-}) {
-    await params.contentSharing.createAnnotations({
-        listReferences: [params.listReference],
-        creator: params.userReference,
-        annotationsByPage: {
-            'foo.com/page-1': [
-                {
-                    createdWhen: 500,
-                    body: 'Body 1',
-                    comment: 'Comment 1',
-                    selector: 'Selector 1',
-                },
-                {
-                    createdWhen: 1500,
-                    body: 'Body 2',
-                    comment: 'Comment 2',
-                    selector: 'Selector 2',
-                },
-            ],
-            'bar.com/page-2': [
-                {
-                    createdWhen: 2000,
-                    body: 'Body 3',
-                    comment: 'Comment 3',
-                    selector: 'Selector 3',
-                },
-            ],
-        }
-    })
-}
-
+import * as data from './index.test.data'
 
 createStorageTestSuite('Content sharing storage', ({ it }) => {
     it('should save lists and retrieve them', { withTestUser: true }, async ({ storage, services }) => {
@@ -130,11 +72,10 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
             localListId: 55,
             userReference
         })
-        await createTestListEntries({
+        await data.createTestListEntries({
             contentSharing, listReference, userReference
         })
         const retrieved = (await contentSharing.retrieveList(listReference))!
-        retrieved.entries = sortBy(retrieved.entries, 'entryTitle')
         expect(retrieved).toEqual({
             creator: userReference,
             sharedList: expect.objectContaining({
@@ -179,7 +120,7 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
             localListId: 55,
             userReference
         })
-        await createTestListEntries({
+        await data.createTestListEntries({
             contentSharing, listReference, userReference
         })
         await contentSharing.removeListEntries({
@@ -212,8 +153,8 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
             localListId: 55,
             userReference
         })
-        await createTestListEntries({ contentSharing, listReference: listReference1, userReference })
-        await createTestAnnotations({ contentSharing, listReference: listReference1, userReference })
+        await data.createTestListEntries({ contentSharing, listReference: listReference1, userReference })
+        await data.createTestAnnotations({ contentSharing, listReference: listReference1, userReference })
         const listReference2 = await contentSharing.createSharedList({
             listData: {
                 title: 'My list 2'
@@ -221,8 +162,25 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
             localListId: 75,
             userReference
         })
-        await createTestListEntries({ contentSharing, listReference: listReference2, userReference })
-        await createTestAnnotations({ contentSharing, listReference: listReference2, userReference })
+        await data.createTestListEntries({ contentSharing, listReference: listReference2, userReference })
+        const creationResult = await data.createTestAnnotations({ contentSharing, listReference: listReference2, userReference })
+        const getRemoteId = <PageUrl extends keyof typeof data.TEST_ANNOTATIONS_BY_PAGE>(
+
+            normalizedPageUrl: PageUrl,
+            annotationIndex: number
+        ) =>
+            contentSharing._idFromReference(
+                creationResult.sharedAnnotationReferences[
+                data.TEST_ANNOTATIONS_BY_PAGE[normalizedPageUrl][annotationIndex].localId
+                ] as any
+            )
+        expect(creationResult).toEqual({
+            sharedAnnotationReferences: {
+                [data.TEST_ANNOTATIONS_BY_PAGE['foo.com/page-1'][0].localId]: expect.objectContaining({ type: 'shared-annotation-reference' }),
+                [data.TEST_ANNOTATIONS_BY_PAGE['foo.com/page-1'][1].localId]: expect.objectContaining({ type: 'shared-annotation-reference' }),
+                [data.TEST_ANNOTATIONS_BY_PAGE['bar.com/page-2'][0].localId]: expect.objectContaining({ type: 'shared-annotation-reference' }),
+            }
+        })
         expect(await contentSharing.getAnnotationsForPagesInList({
             listReference: listReference2,
             normalizedPageUrls: ['foo.com/page-1', 'bar.com/page-2']
@@ -230,7 +188,7 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
             "foo.com/page-1": [
                 {
                     annotation: {
-                        id: expect.anything(),
+                        id: getRemoteId('foo.com/page-1', 0),
                         createdWhen: 500,
                         uploadedWhen: expect.any(Number),
                         updatedWhen: expect.any(Number),
@@ -243,7 +201,7 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 },
                 {
                     annotation: {
-                        id: expect.anything(),
+                        id: getRemoteId('foo.com/page-1', 1),
                         createdWhen: 1500,
                         uploadedWhen: expect.any(Number),
                         updatedWhen: expect.any(Number),
@@ -258,7 +216,7 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
             'bar.com/page-2': [
                 {
                     annotation: {
-                        id: expect.anything(),
+                        id: getRemoteId('bar.com/page-2', 0),
                         createdWhen: 2000,
                         uploadedWhen: expect.any(Number),
                         updatedWhen: expect.any(Number),
@@ -283,8 +241,8 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
             localListId: 55,
             userReference
         })
-        await createTestListEntries({ contentSharing, listReference: listReference1, userReference })
-        await createTestAnnotations({ contentSharing, listReference: listReference1, userReference })
+        await data.createTestListEntries({ contentSharing, listReference: listReference1, userReference })
+        await data.createTestAnnotations({ contentSharing, listReference: listReference1, userReference })
         const listReference2 = await contentSharing.createSharedList({
             listData: {
                 title: 'My list 2'
@@ -292,8 +250,8 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
             localListId: 75,
             userReference
         })
-        await createTestListEntries({ contentSharing, listReference: listReference2, userReference })
-        await createTestAnnotations({ contentSharing, listReference: listReference2, userReference })
+        await data.createTestListEntries({ contentSharing, listReference: listReference2, userReference })
+        await data.createTestAnnotations({ contentSharing, listReference: listReference2, userReference })
 
         const entries = await contentSharing.getAnnotationListEntries({ listReference: listReference1 })
         expect(entries).toEqual({

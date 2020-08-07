@@ -22,11 +22,12 @@ class TestDataFactory {
         }
     }
 
-    createAnnotation(): Omit<SharedAnnotation, 'normalizedPageUrl' | 'updatedWhen' | 'uploadedWhen'> {
+    createAnnotation(normalizedPageUrl: string): Omit<SharedAnnotation, 'normalizedPageUrl' | 'updatedWhen' | 'uploadedWhen'> & { localId: string } {
         const createdWhen = ++this.createdWhen;
         const number = this._getNextObjectNumber('listEntry')
         return {
             createdWhen: createdWhen,
+            localId: `${normalizedPageUrl}#${createdWhen}`,
             body: `Body ${number}`,
             comment: `Comment ${number}`,
             selector: `Selector ${number}`
@@ -64,7 +65,7 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
         await contentSharing.createAnnotations({
             creator: userReference,
             listReferences: [listReference],
-            annotationsByPage: { [firstListEntry.normalizedUrl]: range(15).map(() => testDataFactory.createAnnotation()) },
+            annotationsByPage: { [firstListEntry.normalizedUrl]: range(15).map(() => testDataFactory.createAnnotation(firstListEntry.normalizedUrl)) },
         })
         const logic = new CollectionDetailsLogic({
             contentSharing: storage.serverModules.contentSharing,
