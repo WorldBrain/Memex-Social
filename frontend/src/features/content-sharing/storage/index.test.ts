@@ -451,4 +451,55 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
             ],
         })
     })
+
+    it('should update the comment of a shared annotation', { withTestUser: true }, async ({ storage, services }) => {
+        const { contentSharing } = storage.serverModules
+        const userReference = services.auth.getCurrentUserReference()!
+        const listReference1 = await contentSharing.createSharedList({
+            listData: {
+                title: 'My list'
+            },
+            localListId: 55,
+            userReference
+        })
+        await data.createTestListEntries({ contentSharing, listReference: listReference1, userReference })
+        const creationResult = await data.createTestAnnotations({ contentSharing, listReference: listReference1, userReference })
+        const sharedAnnotationReference = creationResult.sharedAnnotationReferences[
+            data.TEST_ANNOTATIONS_BY_PAGE['foo.com/page-1'][1].localId
+        ]
+        await contentSharing.updateAnnotationComment({
+            sharedAnnotationReference,
+            updatedComment: 'Updated comment'
+        })
+        expect(await contentSharing.getAnnotationsForPagesInList({
+            listReference: listReference1,
+            normalizedPageUrls: ['foo.com/page-1', 'bar.com/page-2']
+        })).toEqual({
+            "foo.com/page-1": [
+                {
+                    annotation: expect.objectContaining({
+                        body: "Body 1",
+                        comment: "Comment 1",
+                        selector: "Selector 1",
+                    }),
+                },
+                {
+                    annotation: expect.objectContaining({
+                        body: "Body 2",
+                        comment: "Updated comment",
+                        selector: "Selector 2",
+                    }),
+                },
+            ],
+            "bar.com/page-2": [
+                {
+                    annotation: expect.objectContaining({
+                        body: "Body 3",
+                        comment: "Comment 3",
+                        selector: "Selector 3",
+                    }),
+                },
+            ],
+        })
+    })
 })

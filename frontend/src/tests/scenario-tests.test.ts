@@ -9,8 +9,8 @@ import { getDefaultScenarioModules } from '../services/scenarios';
 import { Scenario } from '../services/scenarios/types';
 import RouterService from '../services/router';
 import ROUTES, { RouteName } from '../routes';
-import { mainProgram } from '../setup/main'
-import { renderMainUi } from '../main-ui'
+// import { mainProgram } from '../setup/main'
+// import { renderMainUi } from '../main-ui'
 import { loadFixture, loadSingleFixture } from '../services/fixtures/utils'
 const io = require('socket.io-client')
 // import * as webdriver from 'selenium-webdriver'
@@ -148,20 +148,20 @@ describe('In-memory scenario tests', () => {
 
     async function runTest(scenario: Scenario, options: { pageName: string, scenarioName: string }) {
         const history = createMemoryHistory()
-        const main = await mainProgram({
-            queryParams: { scenario: `${options.pageName}/${options.scenarioName}`, walkthrough: 'true' },
-            backend: 'memory',
-            domUnavailable: true,
-            navigateToScenarioStart: true,
-            history,
-            uiRunner: async (options) => { render(renderMainUi(options)) },
-            fixtureFetcher: async name =>
-                loadFixture(name, { fixtureFetcher: loadSingleFixture })
-        })
+        // const main = await mainProgram({
+        //     queryParams: { scenario: `${options.pageName}/${options.scenarioName}`, walkthrough: 'true' },
+        //     backend: 'memory',
+        //     domUnavailable: true,
+        //     navigateToScenarioStart: true,
+        //     history,
+        //     uiRunner: async (options) => { render(renderMainUi(options)) },
+        //     fixtureFetcher: async name =>
+        //         loadFixture(name, { fixtureFetcher: loadSingleFixture })
+        // })
 
-        for (const [stepIndex, step] of Object.entries(scenario.steps)) {
-            await main.stepWalkthrough?.()
-        }
+        // for (const [stepIndex, step] of Object.entries(scenario.steps)) {
+        //     await main.stepWalkthrough?.()
+        // }
     }
 
     for (const [pageName, pageScenarios] of Object.entries(getDefaultScenarioModules())) {
