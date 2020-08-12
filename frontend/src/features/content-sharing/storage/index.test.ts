@@ -275,7 +275,7 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                     sharedList: listReference1,
                     sharedAnnotation: expect.objectContaining({ type: 'shared-annotation-reference' }),
                     normalizedPageUrl: 'foo.com/page-1',
-                    createdWhen: 1500,
+                    createdWhen: 500,
                     uploadedWhen: expect.any(Number),
                     updatedWhen: expect.any(Number),
                 },
@@ -285,7 +285,7 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                     sharedList: listReference1,
                     sharedAnnotation: expect.objectContaining({ type: 'shared-annotation-reference' }),
                     normalizedPageUrl: 'foo.com/page-1',
-                    createdWhen: 500,
+                    createdWhen: 1500,
                     uploadedWhen: expect.any(Number),
                     updatedWhen: expect.any(Number),
                 },
@@ -295,7 +295,7 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
         expect(await contentSharing.getAnnotations({
             references: flatten(Object.values(entries).map(entries => entries.map(entry => entry.sharedAnnotation))),
         })).toEqual({
-            [contentSharing.getSharedAnnotationLinkID(entries['foo.com/page-1'][1].sharedAnnotation)]: {
+            [contentSharing.getSharedAnnotationLinkID(entries['foo.com/page-1'][0].sharedAnnotation)]: {
                 reference: expect.objectContaining({ type: 'shared-annotation-reference' }),
                 creator: userReference,
                 normalizedPageUrl: 'foo.com/page-1',
@@ -306,7 +306,7 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 comment: 'Comment 1',
                 selector: 'Selector 1',
             },
-            [contentSharing.getSharedAnnotationLinkID(entries['foo.com/page-1'][0].sharedAnnotation)]: {
+            [contentSharing.getSharedAnnotationLinkID(entries['foo.com/page-1'][1].sharedAnnotation)]: {
                 reference: expect.objectContaining({ type: 'shared-annotation-reference' }),
                 creator: userReference,
                 createdWhen: 1500,
@@ -356,7 +356,8 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
             sharedListReferences: [listReference2],
             sharedAnnotations: Object.entries(sharedAnnotationReferences).map(([localId, reference]) => ({
                 reference,
-                normalizedPageUrl: data.TEST_ANNOTATION_PAGE_URLS_BY_LOCAL_ID[localId].normalizedPageUrl
+                normalizedPageUrl: data.TEST_ANNOTATION_PAGE_URLS_BY_LOCAL_ID[localId].normalizedPageUrl,
+                createdWhen: data.TEST_ANNOTATION_PAGE_URLS_BY_LOCAL_ID[localId].createdWhen,
             })),
         })
 

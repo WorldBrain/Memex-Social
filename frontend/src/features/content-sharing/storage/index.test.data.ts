@@ -33,7 +33,7 @@ export const TEST_ANNOTATIONS_BY_PAGE = {
 }
 export const TEST_ANNOTATION_PAGE_URLS_BY_LOCAL_ID = fromPairs(flatten(
     Object.entries(TEST_ANNOTATIONS_BY_PAGE).map(([normalizedPageUrl, annotationDati]) =>
-        annotationDati.map(annotationData => [annotationData.localId, { normalizedPageUrl }])
+        annotationDati.map(annotationData => [annotationData.localId, { normalizedPageUrl, ...annotationData }])
     )
 ))
 
