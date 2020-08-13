@@ -4,6 +4,8 @@ import { Waypoint } from "react-waypoint";
 import { Trans } from "react-i18next";
 import styled, { css } from "styled-components";
 import { Margin } from "styled-components-spacing";
+import logoImage from "../../../../../assets/img/memex-logo.svg";
+import commentImage from "../../../../../assets/img/comment.svg";
 import { UIElement, UIElementServices } from "../../../../../main-ui/classes";
 import Logic, { CollectionDetailsState } from "./logic";
 import LoadingIndicator from "../../../../../main-ui/components/loading-indicator";
@@ -78,7 +80,7 @@ const MemexLogo = styled.div<{
   cursor: pointer;
   margin-right: 20px;
   background-repeat: no-repeat;
-  background-image: url("https://getmemex.com/static/logo-memex-0d1fa6f00a7b0e7843b94854f3b6cb39.svg");
+  background-image: url(${logoImage});
   display: flex;
 
   ${(props) =>
@@ -93,11 +95,11 @@ const MemexLogo = styled.div<{
 
 const MarginSmall = styled.div`
   height: 10px;
-`
+`;
 
 const MarginSmallest = styled.div`
   height: 5px;
-`
+`;
 
 const HeaderMiddleArea = styled.div<{
   viewportWidth: "mobile" | "small" | "normal" | "big";
@@ -275,12 +277,12 @@ const ToggleAllBox = styled.div<{
       top: 45px;
     `}
 }
-`
+`;
 
 const ToggleAllAnnotations = styled.div`
   text-align: right;
   font-weight: bold;
-  font-family: 'Poppins';
+  font-family: "Poppins";
   color: ${(props) => props.theme.colors.primary};
   font-weight: bold;
   cursor: pointer;
@@ -296,8 +298,7 @@ const PageBox = styled.div`
   display: flex;
   width: 100%;
   justify-content: space-between;
-
-`
+`;
 
 const PageInfoList = styled.div<{
   viewportWidth: "mobile" | "small" | "normal" | "big";
@@ -309,7 +310,7 @@ const PageContentBox = styled.div`
   flex: 1;
   width: 80%;
   max-width: 96%;
-`
+`;
 
 const PageInfoBoxLink = styled.a`
   text-decoration: none;
@@ -353,7 +354,7 @@ const PageInfoAnnotationToggle = styled.div`
   width: 20px;
   height: 20px;
   cursor: pointer;
-  background-image: url("https://raw.githubusercontent.com/WorldBrain/Website/8841a59adb8d854396fe87582c51fa5a1ac04d3a/src/img/comment.svg");
+  background-image: url("${commentImage}");
   background-size: contain;
   background-position: center center;
   background-repeat: no-repeat;
@@ -375,15 +376,15 @@ const PageInfoBoxUrl = styled.div<{
 
 const AnnotationContainer = styled.div`
   display: flex;
-  justify-content: center
-`
+  justify-content: center;
+`;
 
 const AnnotationLine = styled.span`
-    height: auto;
-    width: 6px;
-    background: #e0e0e0;
-    margin: -8px 10px 5px;
-`
+  height: auto;
+  width: 6px;
+  background: #e0e0e0;
+  margin: -8px 10px 5px;
+`;
 
 const AnnotationList = styled.div`
   display: flex;
@@ -392,7 +393,7 @@ const AnnotationList = styled.div`
   justify-content: center;
   align-items: center;
   min-height: 50px;
-`
+`;
 
 const AnnotationBox = styled.div`
   font-family: ${(props) => props.theme.fonts.primary};
@@ -401,7 +402,7 @@ const AnnotationBox = styled.div`
 
 const AnnotationBody = styled.span`
   background-color: ${(props) => props.theme.colors.secondary};
-  white-space: pre-wrap; 
+  white-space: pre-wrap;
   padding: 0 5px;
   box-decoration-break: clone;
   font-size: 14px;
@@ -413,17 +414,16 @@ const AnnotationComment = styled.div`
   color: ${(props) => props.theme.colors.primary};
 `;
 const AnnotationCreatorName = styled.div`
-    font-family: 'Poppins';
-    color: ${(props) => props.theme.colors.primary};
-    font-weight: bold;
-    font-size: 12px;
+  font-family: "Poppins";
+  color: ${(props) => props.theme.colors.primary};
+  font-weight: bold;
+  font-size: 12px;
 `;
 const AnnotationDate = styled.div`
-    font-family: 'Poppins';
-    font-weight: normal;
-    font-size: 12px;
-    color: ${(props) => props.theme.colors.primary};
-
+  font-family: "Poppins";
+  font-weight: normal;
+  font-size: 12px;
+  color: ${(props) => props.theme.colors.primary};
 `;
 
 const LoadingScreen = styled.div<{
@@ -473,10 +473,9 @@ export default class CollectionDetailsPage extends UIElement<
     return (
       <ItemBox>
         <PageBox>
-        <PageContentBox>
-          <PageInfoBoxLink href={entry.originalUrl} target="_blank">
-            <PageInfoBoxLeft>
-            
+          <PageContentBox>
+            <PageInfoBoxLink href={entry.originalUrl} target="_blank">
+              <PageInfoBoxLeft>
                 <PageInfoBoxTop>
                   <PageInfoBoxTitle
                     title={entry.entryTitle}
@@ -486,32 +485,31 @@ export default class CollectionDetailsPage extends UIElement<
                   </PageInfoBoxTitle>
                 </PageInfoBoxTop>
                 <Margin bottom="smallest">
-                <PageInfoBoxUrl viewportWidth={viewportWidth}>
-                  {entry.normalizedUrl}
-                </PageInfoBoxUrl>
+                  <PageInfoBoxUrl viewportWidth={viewportWidth}>
+                    {entry.normalizedUrl}
+                  </PageInfoBoxUrl>
                 </Margin>
                 <AnnotationDate>
-                      {moment(entry.createdWhen).format('LLL')}
+                  {moment(entry.createdWhen).format("LLL")}
                 </AnnotationDate>
-            </PageInfoBoxLeft>
-          </PageInfoBoxLink>
+              </PageInfoBoxLeft>
+            </PageInfoBoxLink>
           </PageContentBox>
           {annotationEntries &&
-              annotationEntries[entry.normalizedUrl] &&
-              annotationEntries[entry.normalizedUrl].length && (
-                <PageInfoBoxRight>
+            annotationEntries[entry.normalizedUrl] &&
+            annotationEntries[entry.normalizedUrl].length && (
+              <PageInfoBoxRight>
                 <PageInfoBoxActions>
                   <PageInfoAnnotationToggle
-                    onClick={(event) => (
+                    onClick={(event) =>
                       this.processEvent("togglePageAnnotations", {
                         normalizedUrl: entry.normalizedUrl,
-                      }))
+                      })
                     }
                   />
                 </PageInfoBoxActions>
               </PageInfoBoxRight>
-              )
-            }
+            )}
         </PageBox>
       </ItemBox>
     );
@@ -531,24 +529,24 @@ export default class CollectionDetailsPage extends UIElement<
       return null;
     }
     return (
-        <>
-          <ItemBox>
-            <AnnotationBox key={annotationID}>
-              {annotation.body && (
+      <>
+        <ItemBox>
+          <AnnotationBox key={annotationID}>
+            {annotation.body && (
               <Margin bottom="small">
                 <AnnotationBody>{annotation.body}</AnnotationBody>
               </Margin>
-              )}
-              <Margin bottom="small">
-                <AnnotationComment>{annotation.comment}</AnnotationComment>
-              </Margin>
-              <AnnotationDate>
-                {moment(annotation.createdWhen).format('LLL')}
-              </AnnotationDate>
-            </AnnotationBox>
-          </ItemBox>
-          <MarginSmallest/>
-        </>
+            )}
+            <Margin bottom="small">
+              <AnnotationComment>{annotation.comment}</AnnotationComment>
+            </Margin>
+            <AnnotationDate>
+              {moment(annotation.createdWhen).format("LLL")}
+            </AnnotationDate>
+          </AnnotationBox>
+        </ItemBox>
+        <MarginSmallest />
+      </>
     );
   }
 
@@ -635,7 +633,7 @@ export default class CollectionDetailsPage extends UIElement<
             "Loading annotation entries..."}
           {state.annotationEntriesLoadState === "error" &&
             "Error loading annotation entries  :("}
-          <ToggleAllBox viewportWidth={viewportWidth}>  
+          <ToggleAllBox viewportWidth={viewportWidth}>
             <ToggleAllAnnotations
               onClick={() => this.processEvent("toggleAllAnnotations", {})}
             >
@@ -647,41 +645,37 @@ export default class CollectionDetailsPage extends UIElement<
           <PageInfoList viewportWidth={viewportWidth}>
             {[...data.listEntries.entries()].map(([entryIndex, entry]) => (
               <React.Fragment key={entry.normalizedUrl}>
-                <Margin bottom={"small"}>
-                  {this.renderPageEntry(entry)}
-                </Margin>
+                <Margin bottom={"small"}>{this.renderPageEntry(entry)}</Margin>
                 {state.pageAnnotationsExpanded[entry.normalizedUrl] && (
                   <Margin left={"small"}>
                     {state.annotationLoadStates[entry.normalizedUrl] ===
                       "running" && (
-                        <Margin bottom={"large"}>
-                          <AnnotationContainer>
-                            <AnnotationLine/>
-                            <AnnotationList>
-                              <LoadingIndicator/>
-                            </AnnotationList>
-                          </AnnotationContainer>
-                        </Margin>
-                        )
-                    }
+                      <Margin bottom={"large"}>
+                        <AnnotationContainer>
+                          <AnnotationLine />
+                          <AnnotationList>
+                            <LoadingIndicator />
+                          </AnnotationList>
+                        </AnnotationContainer>
+                      </Margin>
+                    )}
                     {state.annotationLoadStates[entry.normalizedUrl] ===
                       "error" && "error"}
                     {state.annotationLoadStates[entry.normalizedUrl] ===
                       "success" && (
-                        <Margin bottom={"large"}>
-                          <AnnotationContainer>
-                            <AnnotationLine/>
-                            <AnnotationList>
-                              {state.annotationEntryData![
-                                entry.normalizedUrl
-                              ].map((annotationEntry) =>
-                                this.renderAnnotationEntry(annotationEntry)
-                             )}
-                            </AnnotationList>
-                          </AnnotationContainer>
-                        </Margin>
-                      )
-                    }
+                      <Margin bottom={"large"}>
+                        <AnnotationContainer>
+                          <AnnotationLine />
+                          <AnnotationList>
+                            {state.annotationEntryData![
+                              entry.normalizedUrl
+                            ].map((annotationEntry) =>
+                              this.renderAnnotationEntry(annotationEntry)
+                            )}
+                          </AnnotationList>
+                        </AnnotationContainer>
+                      </Margin>
+                    )}
                   </Margin>
                 )}
                 {state.allAnnotationExpanded &&
