@@ -5,18 +5,16 @@
         ".read": true,
         ".write": true,
         ".validate": "data.child('created').val() != null || newData.child('created').val() == now",
-        ".indexOn": [
-          "updated"
-        ],
+        ".indexOn": ["updated"],
         "firstQueue": {
           "$message": {
             ".validate": "data.val() == null && newData.isString() && newData.val().length < 10240"
-          },
+          }
         },
         "secondQueue": {
           "$message": {
             ".validate": "data.val() == null && newData.isString() && newData.val().length < 10240"
-          },
+          }
         }
       }
     }

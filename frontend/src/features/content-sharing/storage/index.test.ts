@@ -453,6 +453,52 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
         })
     })
 
+    it('should remove an annotation and all its list entries', { withTestUser: true }, async ({ storage, services }) => {
+        const { contentSharing } = storage.serverModules
+        const userReference = services.auth.getCurrentUserReference()!
+        const listReference1 = await contentSharing.createSharedList({
+            listData: {
+                title: 'My list'
+            },
+            localListId: 55,
+            userReference
+        })
+        await data.createTestListEntries({ contentSharing, listReference: listReference1, userReference })
+        const creationResult = await data.createTestAnnotations({ contentSharing, listReference: listReference1, userReference })
+        await contentSharing.removeAnnotations({
+            sharedAnnotationReferences: [
+                creationResult.sharedAnnotationReferences[data.TEST_ANNOTATIONS_BY_PAGE['bar.com/page-2'][0].localId],
+                creationResult.sharedAnnotationReferences[data.TEST_ANNOTATIONS_BY_PAGE['foo.com/page-1'][1].localId],
+            ]
+        })
+
+        expect(await contentSharing.getAnnotationsForPagesInList({
+            listReference: listReference1,
+            normalizedPageUrls: ['foo.com/page-1', 'bar.com/page-2']
+        })).toEqual({
+            "foo.com/page-1": [
+                {
+                    annotation: {
+                        id: expect.anything(),
+                        createdWhen: 500,
+                        uploadedWhen: expect.any(Number),
+                        updatedWhen: expect.any(Number),
+                        creator: userReference.id,
+                        normalizedPageUrl: "foo.com/page-1",
+                        body: "Body 1",
+                        comment: "Comment 1",
+                        selector: "Selector 1",
+                    },
+                },
+            ],
+        })
+        expect(await storage.serverStorageManager.operation('findObjects', 'sharedAnnotation', {})).toEqual([
+            expect.objectContaining({
+                normalizedPageUrl: 'foo.com/page-1',
+            })
+        ])
+    })
+
     it('should update the comment of a shared annotation', { withTestUser: true }, async ({ storage, services }) => {
         const { contentSharing } = storage.serverModules
         const userReference = services.auth.getCurrentUserReference()!

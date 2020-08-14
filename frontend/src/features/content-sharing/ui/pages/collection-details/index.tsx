@@ -4,8 +4,6 @@ import { Waypoint } from "react-waypoint";
 import { Trans } from "react-i18next";
 import styled, { css } from "styled-components";
 import { Margin } from "styled-components-spacing";
-import logoImage from "../../../../../assets/img/memex-logo.svg";
-import commentImage from "../../../../../assets/img/comment.svg";
 import { UIElement, UIElementServices } from "../../../../../main-ui/classes";
 import Logic, { CollectionDetailsState } from "./logic";
 import LoadingIndicator from "../../../../../main-ui/components/loading-indicator";
@@ -17,6 +15,8 @@ import {
   SharedAnnotationReference,
 } from "@worldbrain/memex-common/lib/content-sharing/types";
 import { PAGE_SIZE } from "./constants";
+const logoImage = require("../../../../../assets/img/memex-logo.svg");
+const commentImage = require("../../../../../assets/img/comment.svg");
 
 interface CollectionDetailsProps extends CollectionDetailsDependencies {
   services: UIElementServices;
