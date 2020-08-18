@@ -468,6 +468,19 @@ const ListNotFoundText = styled.div`
   margin-bottom: 20px;
 `
 
+const EmptyListBox = styled.div`
+  font-family: ${(props) => props.theme.fonts.primary};
+  width: 100%;
+  padding: 20px 20px;
+  color: ${(props) => props.theme.colors.primary};
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  text-align: center;
+`
+
+
 export default class CollectionDetailsPage extends UIElement<
   CollectionDetailsProps,
   CollectionDetailsState,
@@ -497,10 +510,6 @@ export default class CollectionDetailsPage extends UIElement<
     }
 
     return "normal";
-  }
-
-  renderAnnotationButton() {
-
   }
 
   renderPageEntry(entry: SharedListEntry) {
@@ -627,8 +636,6 @@ export default class CollectionDetailsPage extends UIElement<
             >
               <MemexLogo viewportWidth={viewportWidth} />
             </HeaderLogoArea>
-            <HeaderMiddleArea viewportWidth={viewportWidth}>
-            </HeaderMiddleArea>
             <HeaderCtaArea viewportWidth={viewportWidth}>
               <SignUp
                 onClick={() => window.open("https://getmemex.com")}
@@ -713,7 +720,7 @@ export default class CollectionDetailsPage extends UIElement<
             </ErrorBox>
           }
           <ToggleAllBox viewportWidth={viewportWidth}>
-          {state.annotationEntriesLoadState === "success" && (
+          {state.annotationEntriesLoadState === "success" && data.listEntries.length > 0 && (
             <ToggleAllAnnotations
               onClick={() => this.processEvent("toggleAllAnnotations", {})}
             >
@@ -724,6 +731,19 @@ export default class CollectionDetailsPage extends UIElement<
           )}
           </ToggleAllBox>
           <PageInfoList viewportWidth={viewportWidth}>
+          {data.listEntries.length === 0 && (
+              <EmptyListBox>
+                  <ListNotFoundText>
+                    This collection has no entries.
+                  </ListNotFoundText>
+                  <SignUp
+                    onClick={() => window.open("https://getmemex.com")}
+                    viewportWidth={viewportWidth}
+                  >
+                    Create your first collection
+                  </SignUp>
+              </EmptyListBox>
+          )}
             {[...data.listEntries.entries()].map(([entryIndex, entry]) => (
               <React.Fragment key={entry.normalizedUrl}>
                 <Margin bottom={"small"}>{this.renderPageEntry(entry)}</Margin>
