@@ -622,7 +622,39 @@ export default class CollectionDetailsPage extends UIElement<
       );
     }
     if (state.listLoadState === "error") {
-      return <Trans>Error while loading list</Trans>;
+      return (
+        <>
+          <StyledHeader viewportWidth={viewportWidth}>
+            <HeaderLogoArea
+              onClick={() => window.open("https://getmemex.com")}
+              viewportWidth={viewportWidth}
+            >
+              <MemexLogo viewportWidth={viewportWidth} />
+            </HeaderLogoArea>
+            <HeaderCtaArea viewportWidth={viewportWidth}>
+              <SignUp
+                onClick={() => window.open("https://getmemex.com")}
+                viewportWidth={viewportWidth}
+              >
+                Share your research
+              </SignUp>
+            </HeaderCtaArea>
+          </StyledHeader>
+          <PageMiddleArea viewportWidth={viewportWidth}>
+              <ListNotFoundBox>
+                  <ErrorBox>
+                      Error loading this collection. <br/> Reload page to retry.
+                  </ErrorBox>
+                  <SignUp
+                    onClick={() => window.open("https://worldbrain.io/report-bugs")}
+                    viewportWidth={viewportWidth}
+                  >
+                    Report Problem
+                  </SignUp>
+              </ListNotFoundBox>          
+          </PageMiddleArea>
+        </>
+        )
     }
 
     const data = state.listData;
