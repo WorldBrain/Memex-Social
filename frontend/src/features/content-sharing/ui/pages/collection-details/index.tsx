@@ -451,6 +451,23 @@ const ErrorBox = styled.div`
   text-align: center;
 `
 
+const ListNotFoundBox = styled.div`
+  font-family: ${(props) => props.theme.fonts.primary};
+  width: 100%;
+  padding: 20px 20px;
+  color: ${(props) => props.theme.colors.primary};
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  margin: 30px;
+  text-align: center;
+`
+
+const ListNotFoundText = styled.div`
+  margin-bottom: 20px;
+`
+
 export default class CollectionDetailsPage extends UIElement<
   CollectionDetailsProps,
   CollectionDetailsState,
@@ -601,7 +618,41 @@ export default class CollectionDetailsPage extends UIElement<
 
     const data = state.listData;
     if (!data) {
-      return <Trans>List not found</Trans>;
+      return (
+        <>
+          <StyledHeader viewportWidth={viewportWidth}>
+            <HeaderLogoArea
+              onClick={() => window.open("https://getmemex.com")}
+              viewportWidth={viewportWidth}
+            >
+              <MemexLogo viewportWidth={viewportWidth} />
+            </HeaderLogoArea>
+            <HeaderMiddleArea viewportWidth={viewportWidth}>
+            </HeaderMiddleArea>
+            <HeaderCtaArea viewportWidth={viewportWidth}>
+              <SignUp
+                onClick={() => window.open("https://getmemex.com")}
+                viewportWidth={viewportWidth}
+              >
+                Share your research
+              </SignUp>
+            </HeaderCtaArea>
+          </StyledHeader>
+          <PageMiddleArea viewportWidth={viewportWidth}>
+              <ListNotFoundBox>
+                  <ListNotFoundText>
+                    You're trying to access a collection that does not exist (yet).
+                  </ListNotFoundText>
+                  <SignUp
+                    onClick={() => window.open("https://getmemex.com")}
+                    viewportWidth={viewportWidth}
+                  >
+                    Create your first collection
+                  </SignUp>
+              </ListNotFoundBox>          
+          </PageMiddleArea>
+        </>
+        )
     }
 
     return (
