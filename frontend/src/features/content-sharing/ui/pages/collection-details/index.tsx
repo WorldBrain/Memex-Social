@@ -33,7 +33,8 @@ const StyledHeader = styled.div<{
   border-bottom: 1px solid rgba(0, 0, 0, 0.2);
   justify-content: space-between;
   padding: 0 20px;
-  position: fixed;
+  position: sticky;
+  top: 0;
   background-color: #fff;
   margin-top: -20px;
   z-index: 2;
@@ -402,7 +403,7 @@ const AnnotationBox = styled.div`
 
 const AnnotationBody = styled.span`
   background-color: ${(props) => props.theme.colors.secondary};
-  white-space: pre-wrap;
+  white-space: normal;
   padding: 0 5px;
   box-decoration-break: clone;
   font-size: 14px;
