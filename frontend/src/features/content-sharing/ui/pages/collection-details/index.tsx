@@ -201,7 +201,7 @@ const PageMiddleArea = styled.div<{
   viewportWidth: "mobile" | "small" | "normal" | "big";
 }>`
   max-width: ${middleMaxWidth};
-  top: 50px;
+  top: 10px;
   position: relative;
   padding-bottom: 100px;
   margin: 20px auto 0;
@@ -437,6 +437,19 @@ const LoadingScreen = styled.div<{
   width: 100%;
 `;
 
+const ErrorBox = styled.div`
+  font-family: ${(props) => props.theme.fonts.primary};
+  width: 100%;
+  padding: 20px 20px;
+  border-radius: 5px;
+  box-shadow: rgba(15, 15, 15, 0.1) 0px 0px 0px 1px, rgba(15, 15, 15, 0.1) 0px 2px 4px;
+  background-color: #f29d9d;
+  color: white;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 30px;
+`
+
 export default class CollectionDetailsPage extends UIElement<
   CollectionDetailsProps,
   CollectionDetailsState,
@@ -468,9 +481,14 @@ export default class CollectionDetailsPage extends UIElement<
     return "normal";
   }
 
+  renderAnnotationButton() {
+
+  }
+
   renderPageEntry(entry: SharedListEntry) {
     const viewportWidth = this.getBreakPoints();
     const annotationEntries = this.state.annotationEntryData;
+    const { state } = this;
     return (
       <ItemBox>
         <PageBox>
@@ -496,21 +514,28 @@ export default class CollectionDetailsPage extends UIElement<
               </PageInfoBoxLeft>
             </PageInfoBoxLink>
           </PageContentBox>
-          {annotationEntries &&
-            annotationEntries[entry.normalizedUrl] &&
-            annotationEntries[entry.normalizedUrl].length && (
-              <PageInfoBoxRight>
-                <PageInfoBoxActions>
-                  <PageInfoAnnotationToggle
-                    onClick={(event) =>
-                      this.processEvent("togglePageAnnotations", {
-                        normalizedUrl: entry.normalizedUrl,
-                      })
-                    }
-                  />
-                </PageInfoBoxActions>
-              </PageInfoBoxRight>
-            )}
+          {state.annotationEntriesLoadState === "running" && (
+            <PageInfoBoxRight>
+              <PageInfoBoxActions>
+                <LoadingIndicator />
+             </PageInfoBoxActions>
+            </PageInfoBoxRight>
+          )}
+          {state.annotationEntriesLoadState === "success" && annotationEntries &&
+              annotationEntries[entry.normalizedUrl] &&
+              annotationEntries[entry.normalizedUrl].length && (
+                <PageInfoBoxRight>
+                  <PageInfoBoxActions>
+                    <PageInfoAnnotationToggle
+                      onClick={(event) =>
+                        this.processEvent("togglePageAnnotations", {
+                          normalizedUrl: entry.normalizedUrl,
+                        })
+                      }
+                    />
+                  </PageInfoBoxActions>
+                </PageInfoBoxRight>
+              )}
         </PageBox>
       </ItemBox>
     );
@@ -630,11 +655,13 @@ export default class CollectionDetailsPage extends UIElement<
               )}
             </CollectionDescriptionBox>
           )}
-          {state.annotationEntriesLoadState === "running" &&
-            "Loading annotation entries..."}
           {state.annotationEntriesLoadState === "error" &&
-            "Error loading annotation entries  :("}
+            <ErrorBox>
+              Error loading page notes. Reload page to retry.
+            </ErrorBox>
+          }
           <ToggleAllBox viewportWidth={viewportWidth}>
+          {state.annotationEntriesLoadState === "success" && (
             <ToggleAllAnnotations
               onClick={() => this.processEvent("toggleAllAnnotations", {})}
             >
@@ -642,6 +669,7 @@ export default class CollectionDetailsPage extends UIElement<
                 ? "Hide all annotations"
                 : "Show all annotations"}
             </ToggleAllAnnotations>
+          )}
           </ToggleAllBox>
           <PageInfoList viewportWidth={viewportWidth}>
             {[...data.listEntries.entries()].map(([entryIndex, entry]) => (
