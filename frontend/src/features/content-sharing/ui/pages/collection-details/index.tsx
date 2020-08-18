@@ -213,14 +213,14 @@ const PageMiddleArea = styled.div<{
     props.viewportWidth === "small" &&
     css`
       width: 95%;
-      top: 70px;
+      top: 10px;
       margin: 20px auto 0;
     `}
   ${(props) =>
     props.viewportWidth === "mobile" &&
     css`
       width: 95%;
-      top: 60px;
+      top: 10px;
       margin: 20px auto 0;
     `}
 `;
@@ -448,6 +448,7 @@ const ErrorBox = styled.div`
   display: flex;
   justify-content: center;
   margin-bottom: 30px;
+  text-align: center;
 `
 
 export default class CollectionDetailsPage extends UIElement<
