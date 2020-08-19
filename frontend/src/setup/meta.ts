@@ -21,6 +21,10 @@ export async function metaProgram(options: { history: History, queryParams: Prog
 
     for (const scenarioPair of pageScenarios) {
         (([scenarioName, scenario]) => {
+            if (scenario.excludeFromMetaUI) {
+                return
+            }
+
             const startScenarioProgram = {
                 name: '$start',
                 description: 'Starting point',

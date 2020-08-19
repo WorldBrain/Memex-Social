@@ -1,6 +1,7 @@
 import { Services } from "../types"
 import { Storage } from "../../storage/types"
 import { GetCallModifications, CallModification } from "../../utils/call-modifier"
+import { GenerateTestDataOptions } from "../fixtures/generation"
 
 export type ScenarioReplayQueryParams = { scenario?: string, walkthrough?: string }
 
@@ -13,7 +14,8 @@ export interface Scenario {
         callModifications?(context: { services: Services, storage: Storage }): CallModification[]
     }
     steps: ScenarioStep[]
-    fixture?: string
+    fixture?: string | GenerateTestDataOptions
+    excludeFromMetaUI?: boolean
 }
 
 export type ScenarioStep =

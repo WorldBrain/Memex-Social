@@ -3,12 +3,22 @@ import { loadFixtures } from '@worldbrain/storex-data-tools/lib/test-fixtures/lo
 // import { dumpFixtures } from '@worldbrain/storex-data-tools/lib/test-fixtures/dumping'
 import { Storage } from "../../storage/types";
 import { FixtureFetcher, Fixture } from './types';
+import { GenerateTestDataOptions, generateTestData } from './generation';
 export * from './types'
 
 export default class FixtureService {
     private loading = Promise.resolve()
 
     constructor(private options: { storage: Storage, fixtureFetcher: FixtureFetcher }) {
+    }
+
+    async generateAndLoadFixture(options: GenerateTestDataOptions) {
+        const testData = generateTestData(this.options.storage.serverStorageManager.registry, options)
+        for (const [collectionName, objects] of Object.entries(testData)) {
+            for (const object of objects) {
+                await this.options.storage.serverStorageManager.operation('createObject', collectionName, object)
+            }
+        }
     }
 
     async loadFixture(name: string, options?: { context?: { [key: string]: any } }) {

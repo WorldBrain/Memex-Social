@@ -77,11 +77,14 @@ export class ScenarioService {
         }
 
         const userID = this.options.services.auth.getCurrentUserReference()?.id
-        await this.options.services.fixtures.loadFixture(scenario.fixture, {
-            context: {
-                auth: { currentUser: userID }
-            }
-        })
+        const context = { auth: { currentUser: userID } }
+        if (typeof scenario.fixture === 'string') {
+            await this.options.services.fixtures.loadFixture(scenario.fixture, {
+                context: context
+            })
+        } else {
+            await this.options.services.fixtures.generateAndLoadFixture(scenario.fixture)
+        }
     }
 
     async _executeScenario(scenario: Scenario, options: { untilStep: UntilScenarioStep, walkthrough: boolean }) {

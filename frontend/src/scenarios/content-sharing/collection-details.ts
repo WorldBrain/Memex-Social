@@ -198,4 +198,19 @@ export const SCENARIOS: ScenarioMap = {
             }),
         ]
     })),
+    'large-data-set': scenario<{ CollectionDetailsPage: CollectionDetailsEvent }>(({ step }) => ({
+        excludeFromMetaUI: true,
+        fixture: {
+            seed: 5,
+            counts: {
+                user: 1,
+                sharedList: 1,
+                sharedListEntry: 200,
+                sharedAnnotation: 1000,
+                sharedAnnotationListEntry: 5000,
+            },
+        },
+        startRoute: { route: 'collectionDetails', params: { id: 'non-existing' } },
+        steps: []
+    })),
 }
