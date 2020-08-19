@@ -133,7 +133,7 @@ objects:
       createdWhen: 1594225289914
       updatedWhen: 1594225289914
       normalizedPageUrl: "getmemex.com"
-      body: "Automatically indexes websites you visit. Instantly recover anything you've seen without upfront work."
+      body: "Automatically indexes websites you visit. Instantly recover anything you've seen without upfront work. Automatically indexes websites you visit. Instantly recover anything you've seen without upfront work"
       comment: "I have been waiting for this forever!"
       selector: "Selector 1"
     - $store: annotation-2
