@@ -443,14 +443,15 @@ const ErrorBox = styled.div`
   width: 100%;
   padding: 20px 20px;
   border-radius: 5px;
-  box-shadow: rgba(15, 15, 15, 0.1) 0px 0px 0px 1px, rgba(15, 15, 15, 0.1) 0px 2px 4px;
+  box-shadow: rgba(15, 15, 15, 0.1) 0px 0px 0px 1px,
+    rgba(15, 15, 15, 0.1) 0px 2px 4px;
   background-color: #f29d9d;
   color: white;
   display: flex;
   justify-content: center;
   margin-bottom: 30px;
   text-align: center;
-`
+`;
 
 const ListNotFoundBox = styled.div`
   font-family: ${(props) => props.theme.fonts.primary};
@@ -463,11 +464,11 @@ const ListNotFoundBox = styled.div`
   flex-direction: column;
   margin: 30px;
   text-align: center;
-`
+`;
 
 const ListNotFoundText = styled.div`
   margin-bottom: 20px;
-`
+`;
 
 const EmptyListBox = styled.div`
   font-family: ${(props) => props.theme.fonts.primary};
@@ -479,8 +480,7 @@ const EmptyListBox = styled.div`
   align-items: center;
   flex-direction: column;
   text-align: center;
-`
-
+`;
 
 export default class CollectionDetailsPage extends UIElement<
   CollectionDetailsProps,
@@ -546,24 +546,25 @@ export default class CollectionDetailsPage extends UIElement<
             <PageInfoBoxRight>
               <PageInfoBoxActions>
                 <LoadingIndicator />
-             </PageInfoBoxActions>
+              </PageInfoBoxActions>
             </PageInfoBoxRight>
           )}
-          {state.annotationEntriesLoadState === "success" && annotationEntries &&
-              annotationEntries[entry.normalizedUrl] &&
-              annotationEntries[entry.normalizedUrl].length && (
-                <PageInfoBoxRight>
-                  <PageInfoBoxActions>
-                    <PageInfoAnnotationToggle
-                      onClick={(event) =>
-                        this.processEvent("togglePageAnnotations", {
-                          normalizedUrl: entry.normalizedUrl,
-                        })
-                      }
-                    />
-                  </PageInfoBoxActions>
-                </PageInfoBoxRight>
-              )}
+          {state.annotationEntriesLoadState === "success" &&
+            annotationEntries &&
+            annotationEntries[entry.normalizedUrl] &&
+            annotationEntries[entry.normalizedUrl].length && (
+              <PageInfoBoxRight>
+                <PageInfoBoxActions>
+                  <PageInfoAnnotationToggle
+                    onClick={(event) =>
+                      this.processEvent("togglePageAnnotations", {
+                        normalizedUrl: entry.normalizedUrl,
+                      })
+                    }
+                  />
+                </PageInfoBoxActions>
+              </PageInfoBoxRight>
+            )}
         </PageBox>
       </ItemBox>
     );
@@ -648,20 +649,20 @@ export default class CollectionDetailsPage extends UIElement<
             </HeaderCtaArea>
           </StyledHeader>
           <PageMiddleArea viewportWidth={viewportWidth}>
-              <ListNotFoundBox>
-                  <ErrorBox>
-                      Error loading this collection. <br/> Reload page to retry.
-                  </ErrorBox>
-                  <SignUp
-                    onClick={() => window.open("https://worldbrain.io/report-bugs")}
-                    viewportWidth={viewportWidth}
-                  >
-                    Report Problem
-                  </SignUp>
-              </ListNotFoundBox>          
+            <ListNotFoundBox>
+              <ErrorBox>
+                Error loading this collection. <br /> Reload page to retry.
+              </ErrorBox>
+              <SignUp
+                onClick={() => window.open("https://worldbrain.io/report-bugs")}
+                viewportWidth={viewportWidth}
+              >
+                Report Problem
+              </SignUp>
+            </ListNotFoundBox>
           </PageMiddleArea>
         </>
-        )
+      );
     }
 
     const data = state.listData;
@@ -685,20 +686,20 @@ export default class CollectionDetailsPage extends UIElement<
             </HeaderCtaArea>
           </StyledHeader>
           <PageMiddleArea viewportWidth={viewportWidth}>
-              <ListNotFoundBox>
-                  <ListNotFoundText>
-                    You're trying to access a collection that does not exist (yet).
-                  </ListNotFoundText>
-                  <SignUp
-                    onClick={() => window.open("https://getmemex.com")}
-                    viewportWidth={viewportWidth}
-                  >
-                    Create your first collection
-                  </SignUp>
-              </ListNotFoundBox>          
+            <ListNotFoundBox>
+              <ListNotFoundText>
+                You're trying to access a collection that does not exist (yet).
+              </ListNotFoundText>
+              <SignUp
+                onClick={() => window.open("https://getmemex.com")}
+                viewportWidth={viewportWidth}
+              >
+                Create your first collection
+              </SignUp>
+            </ListNotFoundBox>
           </PageMiddleArea>
         </>
-        )
+      );
     }
 
     return (
@@ -757,36 +758,35 @@ export default class CollectionDetailsPage extends UIElement<
               )}
             </CollectionDescriptionBox>
           )}
-          {state.annotationEntriesLoadState === "error" &&
-            <ErrorBox>
-              Error loading page notes. Reload page to retry.
-            </ErrorBox>
-          }
-          <ToggleAllBox viewportWidth={viewportWidth}>
-          {state.annotationEntriesLoadState === "success" && data.listEntries.length > 0 && (
-            <ToggleAllAnnotations
-              onClick={() => this.processEvent("toggleAllAnnotations", {})}
-            >
-              {state.allAnnotationExpanded
-                ? "Hide all annotations"
-                : "Show all annotations"}
-            </ToggleAllAnnotations>
+          {state.annotationEntriesLoadState === "error" && (
+            <ErrorBox>Error loading page notes. Reload page to retry.</ErrorBox>
           )}
+          <ToggleAllBox viewportWidth={viewportWidth}>
+            {state.annotationEntryData &&
+              Object.keys(state.annotationEntryData).length > 0 && (
+                <ToggleAllAnnotations
+                  onClick={() => this.processEvent("toggleAllAnnotations", {})}
+                >
+                  {state.allAnnotationExpanded
+                    ? "Hide all annotations"
+                    : "Show all annotations"}
+                </ToggleAllAnnotations>
+              )}
           </ToggleAllBox>
           <PageInfoList viewportWidth={viewportWidth}>
-          {data.listEntries.length === 0 && (
+            {data.listEntries.length === 0 && (
               <EmptyListBox>
-                  <ListNotFoundText>
-                    This collection has no entries.
-                  </ListNotFoundText>
-                  <SignUp
-                    onClick={() => window.open("https://getmemex.com")}
-                    viewportWidth={viewportWidth}
-                  >
-                    Create your first collection
-                  </SignUp>
+                <ListNotFoundText>
+                  This collection has no entries.
+                </ListNotFoundText>
+                <SignUp
+                  onClick={() => window.open("https://getmemex.com")}
+                  viewportWidth={viewportWidth}
+                >
+                  Create your first collection
+                </SignUp>
               </EmptyListBox>
-          )}
+            )}
             {[...data.listEntries.entries()].map(([entryIndex, entry]) => (
               <React.Fragment key={entry.normalizedUrl}>
                 <Margin bottom={"small"}>{this.renderPageEntry(entry)}</Margin>
