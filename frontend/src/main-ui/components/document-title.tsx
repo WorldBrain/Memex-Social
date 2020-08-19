@@ -31,7 +31,7 @@ export default class DocumentTitle extends PureComponent<DocumentTitleProps> {
   }
 
   _generateTitle(props: Omit<DocumentTitleProps, "documentTitle">) {
-    return `Memex Social - ${props.subTitle}`;
+    return `${props.subTitle}`;
   }
 
   render() {
