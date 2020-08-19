@@ -41,7 +41,7 @@ export async function mainProgram(options: MainProgramOptions): Promise<MainProg
         }, 200))
     }
 
-    if (services.scenarios && options.queryParams.scenario && options.navigateToScenarioStart) {
+    if (options.queryParams.scenario && options.navigateToScenarioStart) {
         const scenario = services.scenarios.findScenario(options.queryParams.scenario)
         const startUrlPath = services.router.getUrl(scenario.startRoute.route as RouteName, scenario.startRoute.params)
         history.replace(startUrlPath)
@@ -54,10 +54,24 @@ export async function mainProgram(options: MainProgramOptions): Promise<MainProg
     if (!uiRunner) {
         throw new Error(`Detected DOM is unavailable, but no UI runner was given`)
     }
-    await uiRunner({ services, storage, history })
+
+    let uiRunning = false
+    const runUi = async () => {
+        if (uiRunning) {
+            return
+        }
+        uiRunning = true
+        return uiRunner({ services, storage, history })
+    }
+    if (!options.dontRunUi) {
+        await runUi()
+    }
     return {
-        storage, services, stepWalkthrough: services.scenarios && (async () => {
+        storage,
+        services,
+        stepWalkthrough: services.scenarios && (async () => {
             await services.scenarios?.stepWalkthrough?.()
-        })
+        }),
+        runUi,
     }
 }

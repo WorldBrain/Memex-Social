@@ -1,6 +1,8 @@
 import fs from 'fs'
 import path from 'path'
 import makeDir from 'make-dir'
+import createResolvable from '@josephg/resolvable'
+import debounce from 'lodash/debounce'
 import { Builder, By, Key, until } from 'selenium-webdriver'
 import { render, fireEvent, screen } from '@testing-library/react'
 import { createMemoryHistory } from 'history'
@@ -104,7 +106,7 @@ describe('Browser scenario tests', () => {
         let driver = await new Builder().forBrowser('chrome').build()
         try {
             await driver.get(`http://localhost:3000${startUrlPath}?rpc=true`)
-            await uiConnection.methods.run({ queryParams: { scenario: `${options.pageName}/${options.scenarioName}`, walkthrough: 'true' } })
+            await uiConnection.methods.run({ queryParams: { scenario: `${options.pageName}.${options.scenarioName}`, walkthrough: 'true' } })
 
             const screenshot = await driver.takeScreenshot()
             writeScreenshot(screenshot, { ...options, stepIndex: 0, stepName: 'start' })
@@ -150,18 +152,37 @@ describe('In-memory scenario tests', () => {
     async function runTest(scenario: Scenario, options: { pageName: string, scenarioName: string }) {
         const history = createMemoryHistory()
         const main = await mainProgram({
-            queryParams: { scenario: `${options.pageName}/${options.scenarioName}`, walkthrough: 'true' },
+            queryParams: { scenario: `${options.pageName}.${options.scenarioName}`, walkthrough: 'true' },
             backend: 'memory',
             domUnavailable: true,
             navigateToScenarioStart: true,
             history,
             uiRunner: async (options) => { render(renderMainUi(options)) },
+            dontRunUi: true,
             fixtureFetcher: async name =>
                 loadFixture(name, { fixtureFetcher: loadSingleFixture })
         })
 
+        let eventExhaustionDetector = createEventExhaustionDetector({ timeoutInMs: 100 })
+        main.services.logicRegistry.events.addListener('registered', registeredEvent => {
+            // console.log('registered', registeredEvent)
+            eventExhaustionDetector.postpone()
+
+            registeredEvent.events.addListener('mutation', mutationEvent => {
+                console.log('mutation', mutationEvent)
+                eventExhaustionDetector.postpone()
+            })
+        })
+        await main.runUi()
+        await eventExhaustionDetector.wait()
+
         for (const [stepIndex, step] of Object.entries(scenario.steps)) {
+            console.log('stepping')
+            eventExhaustionDetector = createEventExhaustionDetector({ timeoutInMs: 100 })
+            console.log('created new detector')
             await main.stepWalkthrough?.()
+            console.log('waiting')
+            await eventExhaustionDetector.wait()
         }
     }
 
@@ -179,3 +200,24 @@ describe('In-memory scenario tests', () => {
         })
     }
 })
+
+// Creates a promise that resolves X miliseconds after the last received event
+function createEventExhaustionDetector(options: { timeoutInMs: number }) {
+    let resolved = false
+    const resolvable = createResolvable()
+    const delayedResolve = debounce(() => {
+        resolved = true
+        resolvable.resolve()
+    }, options.timeoutInMs)
+    const maybeResolve = () => {
+        if (resolved) {
+            throw new Error(`Event exhaustion detector postponed after exhaustion already triggered`)
+        }
+
+        delayedResolve()
+    }
+    return {
+        wait: async () => { await resolvable },
+        postpone: () => maybeResolve()
+    }
+}

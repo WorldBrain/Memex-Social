@@ -1,4 +1,5 @@
 import { EventEmitter } from "events";
+import TypedEmitter from 'typed-emitter'
 
 export interface LogicUnit {
     events: EventEmitter
@@ -8,7 +9,10 @@ export interface LogicUnit {
 export type LogicEventProcessor = (eventName: string, eventArgs: any) => Promise<void>
 export type EventProcessedArgs = { event: { type: string, [key: string]: any }, mutation: any, state: any }
 export default class LogicRegistryService {
-    events: EventEmitter = new EventEmitter()
+    events: TypedEmitter<{
+        registered: (event: { name: string } & LogicUnit) => void
+        'attribute.changed': (event: { name: string, key: string, value: any }) => void,
+    }> = new EventEmitter()
     logicUnits: { [name: string]: LogicUnit } = {}
     logicUnitAttributes: { [name: string]: { [key: string]: any } } = {}
     eventLoggers: { [logicUnit: string]: { [event: string]: (args: EventProcessedArgs) => void } } = {}
@@ -38,7 +42,7 @@ export default class LogicRegistryService {
     registerLogic(name: string, logicUnit: LogicUnit) {
         this.logicUnits[name] = logicUnit
         this.logicUnitAttributes[name] = {}
-        this.events.emit('registered', { name, eventProcessor: logicUnit.eventProcessor })
+        this.events.emit('registered', { name, ...logicUnit })
         if (this.options && this.options.logEvents) {
             console.log(`LOGIC/registered/${name}`)
 

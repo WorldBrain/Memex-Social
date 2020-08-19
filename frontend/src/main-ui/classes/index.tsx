@@ -4,7 +4,7 @@ import { Services } from "../../services/types";
 import * as logic from "./logic";
 import { EventHandlers } from "./events";
 
-type UIServices = "logicRegistry" | "device";
+type UIServices = "logicRegistry" | "device" | "documentTitle";
 export type UIElementServices<Wanted extends keyof Services = never> = Pick<
   Services,
   UIServices | Wanted

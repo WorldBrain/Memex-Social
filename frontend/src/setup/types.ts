@@ -17,6 +17,12 @@ export interface MainProgramOptions {
     mountPoint?: Element
     domUnavailable?: boolean // when running tests, don't use DOM
     uiRunner?: UiRunner
+    dontRunUi?: boolean
     fixtureFetcher?: FixtureFetcher
 }
-export type MainProgramSetup = { storage: Storage, services: Services, stepWalkthrough?: () => void }
+export interface MainProgramSetup {
+    storage: Storage
+    services: Services
+    stepWalkthrough?: () => void
+    runUi: () => Promise<void>
+}

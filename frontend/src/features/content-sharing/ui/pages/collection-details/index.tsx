@@ -15,6 +15,7 @@ import {
   SharedAnnotationReference,
 } from "@worldbrain/memex-common/lib/content-sharing/types";
 import { PAGE_SIZE } from "./constants";
+import DocumentTitle from "../../../../../main-ui/components/document-title";
 const logoImage = require("../../../../../assets/img/memex-logo.svg");
 const commentImage = require("../../../../../assets/img/comment.svg");
 
@@ -616,9 +617,15 @@ export default class CollectionDetailsPage extends UIElement<
       state.listLoadState === "running"
     ) {
       return (
-        <LoadingScreen viewportWidth={viewportWidth}>
-          <LoadingIndicator />
-        </LoadingScreen>
+        <>
+          <DocumentTitle
+            documentTitle={this.props.services.documentTitle}
+            subTitle="Loading list..."
+          />
+          <LoadingScreen viewportWidth={viewportWidth}>
+            <LoadingIndicator />
+          </LoadingScreen>
+        </>
       );
     }
     if (state.listLoadState === "error") {
@@ -696,6 +703,10 @@ export default class CollectionDetailsPage extends UIElement<
 
     return (
       <>
+        <DocumentTitle
+          documentTitle={this.props.services.documentTitle}
+          subTitle={data.list.title}
+        />
         <StyledHeader viewportWidth={viewportWidth}>
           <HeaderLogoArea
             onClick={() => window.open("https://getmemex.com")}

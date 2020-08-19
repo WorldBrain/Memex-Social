@@ -15,11 +15,13 @@ import { ScenarioService } from "./scenarios";
 import { DeviceService } from "./device";
 import { LimitedWebStorage } from "../utils/web-storage/types";
 import CallModifier from "../utils/call-modifier";
+import { DocumentTitleService } from "./document-title";
 
 export function createServices(options: {
     backend: BackendType, storage: Storage,
-    history: History, uiMountPoint?: Element,
+    history: History,
     localStorage: LimitedWebStorage,
+    uiMountPoint?: Element,
     firebase?: typeof firebase
     logLogicEvents?: boolean
     fixtureFetcher?: FixtureFetcher
@@ -37,27 +39,26 @@ export function createServices(options: {
     }
     const router = new RouterService({ routes: ROUTES, auth, history: options.history })
 
+    const callModifier = new CallModifier()
+    const fixtures = new FixtureService({ storage: options.storage, fixtureFetcher: options.fixtureFetcher ?? defaultFixtureFetcher });
     const services: Services = {
         overlay: new OverlayService(),
         logicRegistry,
         device,
         auth,
         router,
-    }
-
-    services.fixtures = process.env.NODE_ENV === 'development'
-        ? new FixtureService({ storage: options.storage, fixtureFetcher: options.fixtureFetcher ?? defaultFixtureFetcher })
-        : undefined
-
-    const callModifier = new CallModifier()
-    services.scenarios = services.fixtures
-        ? new ScenarioService({
-            services: { fixtures: services.fixtures, logicRegistry, auth },
+        fixtures,
+        scenarios: new ScenarioService({
+            services: { fixtures: fixtures, logicRegistry, auth },
             modifyCalls: getModifications => {
                 callModifier.modify({ storage: options.storage, services }, getModifications)
             }
+        }),
+        documentTitle: new DocumentTitleService({
+            set: title => { document.title = title },
+            get: () => document.title,
         })
-        : undefined
+    }
 
     return services
 }

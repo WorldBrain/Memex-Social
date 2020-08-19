@@ -5,6 +5,7 @@ import FixtureService from "./fixtures"
 import RouterService from "./router"
 import { ScenarioService } from "./scenarios"
 import { DeviceService } from "./device"
+import { DocumentTitleService } from "./document-title"
 
 export interface Services {
     router: RouterService
@@ -12,8 +13,7 @@ export interface Services {
     overlay: OverlayService
     logicRegistry: LogicRegistryService
     device: DeviceService
-
-    // only available when playground enabled
-    fixtures?: FixtureService
-    scenarios?: ScenarioService
+    fixtures: FixtureService
+    scenarios: ScenarioService
+    documentTitle: DocumentTitleService
 }

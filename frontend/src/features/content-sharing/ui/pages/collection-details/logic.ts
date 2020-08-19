@@ -1,10 +1,9 @@
 import chunk from 'lodash/chunk'
 import fromPairs from 'lodash/fromPairs'
-import takeWhile from 'lodash/takeWhile'
 import { SharedList, SharedListEntry, SharedAnnotationReference } from "@worldbrain/memex-common/lib/content-sharing/types"
 import { GetAnnotationListEntriesResult, GetAnnotationsResult } from "@worldbrain/memex-common/lib/content-sharing/storage/types"
 import { CollectionDetailsEvent, CollectionDetailsDependencies } from "./types"
-import { UILogic, UIEventHandler, loadInitial, executeUITask } from "../../../../../main-ui/classes/logic"
+import { UILogic, UIEventHandler, executeUITask } from "../../../../../main-ui/classes/logic"
 import { UITaskState } from "../../../../../main-ui/types"
 import { UIMutation } from "ui-logic-core"
 import flatten from 'lodash/flatten'
