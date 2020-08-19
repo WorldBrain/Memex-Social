@@ -24,6 +24,11 @@ interface CollectionDetailsProps extends CollectionDetailsDependencies {
 }
 
 const middleMaxWidth = "800px";
+
+const DocumentView = styled.div`
+  height: 100vh;
+`
+
 const StyledHeader = styled.div<{
   viewportWidth: "mobile" | "small" | "normal" | "big";
 }>`
@@ -434,7 +439,7 @@ const LoadingScreen = styled.div<{
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100vh;
+  height: 100%;
   width: 100%;
 `;
 
@@ -450,6 +455,21 @@ const ErrorBox = styled.div`
   display: flex;
   justify-content: center;
   margin-bottom: 30px;
+  text-align: center;
+`;
+
+const ErrorBoxAnnotation = styled.div`
+  font-family: ${(props) => props.theme.fonts.primary};
+  width: 100%;
+  padding: 20px 20px;
+  border-radius: 5px;
+  box-shadow: rgba(15, 15, 15, 0.1) 0px 0px 0px 1px,
+    rgba(15, 15, 15, 0.1) 0px 2px 4px;
+  background-color: #f29d9d;
+  color: white;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
   text-align: center;
 `;
 
@@ -618,7 +638,7 @@ export default class CollectionDetailsPage extends UIElement<
       state.listLoadState === "running"
     ) {
       return (
-        <>
+        <DocumentView>
           <DocumentTitle
             documentTitle={this.props.services.documentTitle}
             subTitle="Loading list..."
@@ -626,12 +646,12 @@ export default class CollectionDetailsPage extends UIElement<
           <LoadingScreen viewportWidth={viewportWidth}>
             <LoadingIndicator />
           </LoadingScreen>
-        </>
+        </DocumentView>
       );
     }
     if (state.listLoadState === "error") {
       return (
-        <>
+        <DocumentView>
           <StyledHeader viewportWidth={viewportWidth}>
             <HeaderLogoArea
               onClick={() => window.open("https://getmemex.com")}
@@ -661,7 +681,7 @@ export default class CollectionDetailsPage extends UIElement<
               </SignUp>
             </ListNotFoundBox>
           </PageMiddleArea>
-        </>
+        </DocumentView>
       );
     }
 
@@ -804,7 +824,16 @@ export default class CollectionDetailsPage extends UIElement<
                       </Margin>
                     )}
                     {state.annotationLoadStates[entry.normalizedUrl] ===
-                      "error" && "error"}
+                      "error" && (
+                        <Margin bottom={"large"}>
+                        <AnnotationContainer>
+                          <AnnotationLine />
+                            <ErrorBoxAnnotation>
+                            Error loading page notes. <br /> Reload page to retry.
+                          </ErrorBoxAnnotation>
+                        </AnnotationContainer>
+                      </Margin>
+                      )}
                     {state.annotationLoadStates[entry.normalizedUrl] ===
                       "success" && (
                       <Margin bottom={"large"}>
