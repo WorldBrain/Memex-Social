@@ -14,11 +14,15 @@ export type MetaScenarios = Array<{
   }>;
 }>;
 
+const scenarioBaseUrl = "http://localhost:3000/c/default-list?scenario=content-sharing/collection-details."
+
 // import { Services } from '../services/types';
 // import { Storage } from '../storage/types';
 
-const ScenarioTitle = styled.h1`
-  margin: 20px;
+const ScenarioTitle = styled.a`
+  margin: 100px 0 0 30px;
+  font-size: 30px;
+  font-weight: bold;
   font-family: ${(props) => props.theme.fonts.primary};
 `;
 
@@ -31,7 +35,7 @@ const StepContainer = styled.div`
   margin: 20px;
 `;
 
-const StepTitle = styled.div`
+const StepTitle = styled.a`
   font-family: ${(props) => props.theme.fonts.primary};
 `;
 
@@ -51,12 +55,12 @@ export default async function runMetaUi(options: {
     <ThemeProvider theme={theme}>
       {options.scenarios.map((scenario, scenarioIndex) => (
         <>
-          <ScenarioTitle>{scenario.description}</ScenarioTitle>
+          <ScenarioTitle href={scenarioBaseUrl + scenario.description} target='_blank'>{scenario.description}</ScenarioTitle>
           <StepsContainer key={scenarioIndex}>
             {scenario.steps.map((step, stepIndex) => (
               <StepContainer key={stepIndex}>
                 <Margin bottom="small">
-                  <StepTitle>{step.description || step.name}</StepTitle>
+                  <StepTitle href={scenarioBaseUrl + scenario.description + '.' + step.name} target='_blank'>{step.description || step.name}</StepTitle>
                 </Margin>
                 <ProgramContainer
                   style={{ width: "360px", height: "640px" }}
