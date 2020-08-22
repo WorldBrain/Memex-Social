@@ -32,9 +32,6 @@ type UntilScenarioStep = ScenarioStep | '$start' | '$end'
 
 export class ScenarioService {
     private scenarioModules: ScenarioModuleMap
-    private walkthroughResolve: () => void = () => { }
-    private stepPromises: { [stepName: string]: Promise<void> } = {}
-    private getNextStepPromise = Promise.resolve(Promise.resolve())
     private scenarioStarted = createResolvable()
 
     constructor(private options: {
@@ -65,10 +62,6 @@ export class ScenarioService {
     }
 
     async stepWalkthrough() {
-        const getNextStepPromise = this.getNextStepPromise
-        this.walkthroughResolve()
-        const stepPromise = await getNextStepPromise
-        await stepPromise
     }
 
     async _loadScenarioFixture(scenario: Scenario) {
@@ -96,30 +89,12 @@ export class ScenarioService {
         this.scenarioStarted.resolve()
 
         for (const step of steps) {
-            if (step.waitFor) {
-                const stepPromise = this.stepPromises[step.waitFor]
-                if (!stepPromise) {
-                    throw new Error(`Step ${step.name} wants to wait for step that is either non-existent or doesn't have noWait: ${step.waitFor}`)
-                }
-                await stepPromise
-            }
-
-
-            let resolveNextStepPromise: (promise: Promise<void>) => void = () => { }
-            this.getNextStepPromise = new Promise(resolve => {
-                resolveNextStepPromise = resolve
-            })
             if (options.walkthrough) {
-                await new Promise(resolve => {
-                    this.walkthroughResolve = resolve
-                })
             }
             if ('callModifications' in step) {
                 this.options.modifyCalls(step.callModifications)
             }
-            const stepPromise = this._executeStep(step)
-            resolveNextStepPromise(stepPromise)
-            await stepPromise
+            await this._executeStep(step)
         }
     }
 
@@ -166,11 +141,8 @@ export class ScenarioService {
         } else {
             throw new Error(`Invalid scenario step: ${JSON.stringify(step)}`)
         }
-        if (!step.dontWait) {
-            await stepPromise
-        } else {
-            this.stepPromises[step.name] = stepPromise
-        }
+
+        await stepPromise
     }
 }
 
