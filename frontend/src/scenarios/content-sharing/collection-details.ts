@@ -1,9 +1,16 @@
 import { ScenarioMap } from "../../services/scenarios/types";
 import { scenario } from "../../services/scenarios/utils";
-import { CollectionDetailsEvent } from "../../features/content-sharing/ui/pages/collection-details/types";
+import { CollectionDetailsEvent, CollectionDetailsSignal } from "../../features/content-sharing/ui/pages/collection-details/types";
 
-export const SCENARIOS: ScenarioMap = {
-    'default': scenario<{ CollectionDetailsPage: CollectionDetailsEvent }>(({ step, callModification }) => ({
+type Targets = {
+    CollectionDetailsPage: {
+        events: CollectionDetailsEvent;
+        signals: CollectionDetailsSignal;
+    };
+};
+
+export const SCENARIOS: ScenarioMap<Targets> = {
+    'default': scenario<Targets>(({ step, callModification }) => ({
         fixture: 'default-lists-with-user',
         startRoute: { route: 'collectionDetails', params: { id: 'default-list' } },
         setup: {
@@ -11,7 +18,8 @@ export const SCENARIOS: ScenarioMap = {
                 name: 'block-list-loading',
                 object: storage.serverModules.contentSharing, property: 'retrieveList',
                 modifier: 'block'
-            })]
+            })],
+            waitForSignal: { target: 'CollectionDetailsPage', signal: { type: 'loading-started' } }
         },
         steps: [
             step({
@@ -19,11 +27,12 @@ export const SCENARIOS: ScenarioMap = {
                 callModifications: ({ storage }) => [callModification({
                     name: 'block-list-loading',
                     modifier: 'undo'
-                })]
+                })],
+                waitForSignal: { type: 'loaded-list-data', success: true },
             })
         ]
     })),
-    'list-load-error': scenario<{ CollectionDetailsPage: CollectionDetailsEvent }>(({ step, callModification }) => ({
+    'list-load-error': scenario<Targets>(({ step, callModification }) => ({
         startRoute: { route: 'collectionDetails', params: { id: 'non-existing' } },
         setup: {
             callModifications: ({ storage }) => [callModification({
@@ -35,26 +44,26 @@ export const SCENARIOS: ScenarioMap = {
         },
         steps: []
     })),
-    'list-not-found': scenario<{ CollectionDetailsPage: CollectionDetailsEvent }>(({ step }) => ({
+    'list-not-found': scenario<Targets>(({ step }) => ({
         startRoute: { route: 'collectionDetails', params: { id: 'non-existing' } },
         steps: []
     })),
-    'no-entries': scenario<{ CollectionDetailsPage: CollectionDetailsEvent }>(({ step }) => ({
+    'no-entries': scenario<Targets>(({ step }) => ({
         fixture: 'default-lists-with-user',
         startRoute: { route: 'collectionDetails', params: { id: 'no-entries-list' } },
         steps: []
     })),
-    'no-description': scenario<{ CollectionDetailsPage: CollectionDetailsEvent }>(({ step }) => ({
+    'no-description': scenario<Targets>(({ step }) => ({
         fixture: 'default-lists-with-user',
         startRoute: { route: 'collectionDetails', params: { id: 'no-description-list' } },
         steps: []
     })),
-    'short-description': scenario<{ CollectionDetailsPage: CollectionDetailsEvent }>(({ step }) => ({
+    'short-description': scenario<Targets>(({ step }) => ({
         fixture: 'default-lists-with-user',
         startRoute: { route: 'collectionDetails', params: { id: 'short-description-list' } },
         steps: []
     })),
-    'toggle-long-description': scenario<{ CollectionDetailsPage: CollectionDetailsEvent }>(({ step }) => ({
+    'toggle-long-description': scenario<Targets>(({ step }) => ({
         fixture: 'default-lists-with-user',
         startRoute: { route: 'collectionDetails', params: { id: 'default-list' } },
         steps: [
@@ -62,13 +71,13 @@ export const SCENARIOS: ScenarioMap = {
             step({ name: 'second-description-toggle', target: 'CollectionDetailsPage', eventName: 'toggleDescriptionTruncation', eventArgs: {} }),
         ]
     })),
-    'annotations': scenario<{ CollectionDetailsPage: CollectionDetailsEvent }>(({ step, callModification }) => ({
+    'annotations': scenario<Targets>(({ step, callModification }) => ({
         fixture: 'annotated-list-with-user',
         startRoute: { route: 'collectionDetails', params: { id: 'default-list' } },
         steps: [
         ]
     })),
-    'annotation-toggle': scenario<{ CollectionDetailsPage: CollectionDetailsEvent }>(({ step, callModification }) => ({
+    'annotation-toggle': scenario<Targets>(({ step, callModification }) => ({
         fixture: 'annotated-list-with-user',
         startRoute: { route: 'collectionDetails', params: { id: 'default-list' } },
         setup: {
@@ -110,7 +119,7 @@ export const SCENARIOS: ScenarioMap = {
             }),
         ]
     })),
-    'annotations-entries-error': scenario<{ CollectionDetailsPage: CollectionDetailsEvent }>(({ step, callModification }) => ({
+    'annotations-entries-error': scenario<Targets>(({ step, callModification }) => ({
         fixture: 'annotated-list-with-user',
         startRoute: { route: 'collectionDetails', params: { id: 'default-list' } },
         setup: {
@@ -125,7 +134,7 @@ export const SCENARIOS: ScenarioMap = {
         steps: [
         ]
     })),
-    'annotations-error': scenario<{ CollectionDetailsPage: CollectionDetailsEvent }>(({ step, callModification }) => ({
+    'annotations-error': scenario<Targets>(({ step, callModification }) => ({
         fixture: 'annotated-list-with-user',
         startRoute: { route: 'collectionDetails', params: { id: 'default-list' } },
         setup: {
@@ -148,7 +157,7 @@ export const SCENARIOS: ScenarioMap = {
             }),
         ]
     })),
-    'toggle-all-annotations': scenario<{ CollectionDetailsPage: CollectionDetailsEvent }>(({ step, callModification }) => ({
+    'toggle-all-annotations': scenario<Targets>(({ step, callModification }) => ({
         fixture: 'annotated-list-with-user',
         startRoute: { route: 'collectionDetails', params: { id: 'default-list' } },
         setup: {
@@ -198,7 +207,7 @@ export const SCENARIOS: ScenarioMap = {
             }),
         ]
     })),
-    'large-data-set': scenario<{ CollectionDetailsPage: CollectionDetailsEvent }>(({ step }) => ({
+    'large-data-set': scenario<Targets>(({ step }) => ({
         excludeFromMetaUI: true,
         fixture: {
             seed: 5,

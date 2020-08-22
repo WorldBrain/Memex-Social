@@ -2,8 +2,14 @@ import { ScenarioMap } from "../services/scenarios/types";
 import { LandingPageEvent } from "../main-ui/pages/landing-page/types";
 import { scenario } from "../services/scenarios/utils";
 
-export const SCENARIOS: ScenarioMap = {
-    'default': scenario<{ LandingPage: LandingPageEvent }>(({ step }) => ({
+type Targets = {
+    LandingPage: {
+        events: LandingPageEvent;
+    };
+};
+
+export const SCENARIOS: ScenarioMap<Targets> = {
+    'default': scenario<Targets>(({ step }) => ({
         startRoute: { route: 'landingPage' },
         steps: [
             step({ name: 'first-toggle', target: 'LandingPage', eventName: 'toggle', eventArgs: {} }),

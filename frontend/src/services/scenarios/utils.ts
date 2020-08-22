@@ -1,14 +1,16 @@
-import { UIEvent } from "../../main-ui/classes/logic";
+import { UIEvent, UISignal } from "../../main-ui/classes/logic";
 import { Scenario, ScenarioStep } from "./types";
 import { GetCallModifications, CallModification } from "../../utils/call-modifier";
 
-export function scenario<Targets extends { [name: string]: UIEvent<{}> }>(builder: (options: {
-    step: <Target extends keyof Targets, EventName extends keyof Targets[Target]>(options: (
-        { name: string, target: Target, eventName: EventName, eventArgs: Targets[Target][EventName] } |
-        { name: string, callModifications: GetCallModifications }
+export function scenario<
+    Targets extends { [name: string]: { events: UIEvent<{}>, signals?: UISignal<any> } }
+>(builder: (options: {
+    step: <Target extends keyof Targets, EventName extends keyof Targets[Target]['events']>(options: (
+        { name: string, target: Target, eventName: EventName, eventArgs: Targets[Target]['events'][EventName] } |
+        { name: string, callModifications: GetCallModifications, waitForSignal?: Targets[Target]['signals'] }
     )) => ScenarioStep
     callModification: <Object>(modification: CallModification<Object>) => CallModification<Object>
-}) => Scenario) {
+}) => Scenario<Targets>) {
     return builder({
         step: (options) => {
             if ('target' in options) {

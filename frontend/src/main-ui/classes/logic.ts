@@ -14,6 +14,10 @@ export abstract class UILogic<State, Event extends coreUILogic.UIEvent<{}>> exte
         this.eventHandlers.unsubscribeAll()
     }
 
+    emitSignal<Signal>(signal: Signal) {
+        this.events.emit('signal', signal)
+    }
+
     async processUIEvent<EventName extends keyof Event>(eventName: EventName, options: coreUILogic.ProcessUIEventOptions<State, Event, EventName>) {
         if (eventName === 'cleanup') {
             this.unsubscribeFromServiceEvents()
@@ -32,14 +36,20 @@ export abstract class UILogic<State, Event extends coreUILogic.UIEvent<{}>> exte
 export type UIEvent<State> = coreUILogic.UIEvent<State>
 export type UIMutation<State> = coreUILogic.UIMutation<State>
 export type UIEventHandler<State, Events extends coreUILogic.UIEvent<{}>, EventName extends keyof Events> = coreUILogic.UIEventHandler<State, Events, EventName>
+export type UISignal<Signals extends { type: string }> = Signals
 
-export async function loadInitial<State extends { loadState: UITaskState }>(logic: UILogic<State, any>, loader: () => Promise<void | { mutation: UIMutation<State> }>): Promise<void> {
+export async function loadInitial<State extends { loadState: UITaskState }>(
+    logic: UILogic<State, any>,
+    loader: () => Promise<void | { mutation: UIMutation<State> }>
+): Promise<{ success: boolean }> {
     return executeUITask<State>(logic, 'loadState', loader)
 }
 
 export async function executeUITask<State>(
-    logic: UILogic<State, any>, key: keyof State, loader: () => Promise<void | { mutation: UIMutation<State> }>
-): Promise<void> {
+    logic: UILogic<State, any>,
+    key: keyof State,
+    loader: () => Promise<void | { mutation: UIMutation<State> }>
+): Promise<{ success: boolean }> {
     logic.emitMutation({ [key]: { $set: 'running' } } as any)
 
     try {
@@ -47,8 +57,10 @@ export async function executeUITask<State>(
         const mutation: UIMutation<State> = (result && result.mutation) || ({}) as any
         (mutation as any)[key] = { $set: 'success' } as any
         logic.emitMutation(mutation)
+        return { success: true }
     } catch (e) {
         console.error(e)
         logic.emitMutation({ [key]: { $set: 'error' } } as any)
+        return { success: false }
     }
 }

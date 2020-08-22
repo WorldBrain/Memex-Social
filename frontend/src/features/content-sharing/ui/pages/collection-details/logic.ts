@@ -2,7 +2,7 @@ import chunk from 'lodash/chunk'
 import fromPairs from 'lodash/fromPairs'
 import { SharedList, SharedListEntry, SharedAnnotationReference } from "@worldbrain/memex-common/lib/content-sharing/types"
 import { GetAnnotationListEntriesResult, GetAnnotationsResult } from "@worldbrain/memex-common/lib/content-sharing/storage/types"
-import { CollectionDetailsEvent, CollectionDetailsDependencies } from "./types"
+import { CollectionDetailsEvent, CollectionDetailsDependencies, CollectionDetailsSignal } from "./types"
 import { UILogic, UIEventHandler, executeUITask } from "../../../../../main-ui/classes/logic"
 import { UITaskState } from "../../../../../main-ui/types"
 import { UIMutation } from "ui-logic-core"
@@ -52,7 +52,9 @@ export default class CollectionDetailsLogic extends UILogic<CollectionDetailsSta
     init: EventHandler<'init'> = async () => {
         const { contentSharing, userManagement } = this.dependencies
         const listReference = contentSharing.getSharedListReferenceFromLinkID(this.dependencies.listID)
-        await executeUITask<CollectionDetailsState>(this, 'listLoadState', async () => {
+        const { success: listDataSuccess } = await executeUITask<CollectionDetailsState>(this, 'listLoadState', async () => {
+            this.emitSignal<CollectionDetailsSignal>({ type: 'loading-started' })
+
             const result = await contentSharing.retrieveList(listReference)
             if (result) {
                 const user = await userManagement.getUser(result.creator)
@@ -75,7 +77,8 @@ export default class CollectionDetailsLogic extends UILogic<CollectionDetailsSta
                 }
             }
         })
-        await executeUITask<CollectionDetailsState>(this, 'annotationEntriesLoadState', async () => {
+        this.emitSignal<CollectionDetailsSignal>({ type: 'loaded-list-data', success: listDataSuccess })
+        const { success: annotationEntriesSuccess } = await executeUITask<CollectionDetailsState>(this, 'annotationEntriesLoadState', async () => {
             const entries = await contentSharing.getAnnotationListEntries({
                 listReference,
             })
@@ -85,6 +88,7 @@ export default class CollectionDetailsLogic extends UILogic<CollectionDetailsSta
                 }
             }
         })
+        this.emitSignal<CollectionDetailsSignal>({ type: 'loaded-annotation-entries', success: annotationEntriesSuccess })
     }
 
     toggleDescriptionTruncation: EventHandler<'toggleDescriptionTruncation'> = () => {
@@ -173,7 +177,9 @@ export default class CollectionDetailsLogic extends UILogic<CollectionDetailsSta
         return { normalizedPageUrls, latestPageSeenIndex }
     }
 
-    loadPageAnnotations(annotationEntries: GetAnnotationListEntriesResult, normalizedPageUrls: string[]) {
+    async loadPageAnnotations(annotationEntries: GetAnnotationListEntriesResult, normalizedPageUrls: string[]) {
+        this.emitSignal<CollectionDetailsSignal>({ type: 'annotation-loading-started' })
+
         const toFetch: Array<{ normalizedPageUrl: string, sharedAnnotation: SharedAnnotationReference }> = flatten(
             normalizedPageUrls
                 .filter(normalizedPageUrl => !this.pageAnnotationPromises[normalizedPageUrl])
@@ -225,8 +231,13 @@ export default class CollectionDetailsLogic extends UILogic<CollectionDetailsSta
             })()
         }
 
-        return Promise.all(normalizedPageUrls.map(
-            normalizedPageUrl => this.pageAnnotationPromises[normalizedPageUrl]
-        ))
+        try {
+            const result = await Promise.all(normalizedPageUrls.map(normalizedPageUrl => this.pageAnnotationPromises[normalizedPageUrl]))
+            this.emitSignal<CollectionDetailsSignal>({ type: 'loaded-annotations', success: true })
+            return result
+        } catch (e) {
+            this.emitSignal<CollectionDetailsSignal>({ type: 'loaded-annotations', success: false })
+            throw e
+        }
     }
 }
