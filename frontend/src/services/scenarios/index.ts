@@ -132,8 +132,6 @@ export class ScenarioService {
         let stepPromise: Promise<void>
         if ('eventName' in step) {
             stepPromise = this.options.services.logicRegistry.logicUnits[step.target].eventProcessor(step.eventName, step.eventArgs)
-        } else if ('output' in step) {
-            stepPromise = this.options.services.logicRegistry.logicUnits[step.target].triggerOutput(step.output.event, step.output)
         } else if ('callModifications' in step) {
             stepPromise = Promise.resolve()
         } else if ('auth' in step) {

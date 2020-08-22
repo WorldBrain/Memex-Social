@@ -4,7 +4,6 @@ import TypedEmitter from 'typed-emitter'
 export interface LogicUnit {
     events: EventEmitter
     eventProcessor: LogicEventProcessor
-    triggerOutput: (event: string, ...args: any[]) => Promise<void>
 }
 export type LogicEventProcessor = (eventName: string, eventArgs: any) => Promise<void>
 export type EventProcessedArgs = { event: { type: string, [key: string]: any }, mutation: any, state: any }

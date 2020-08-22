@@ -51,8 +51,6 @@ export abstract class UIElement<
           events: this.logic.events,
           eventProcessor: (eventName: string, eventArgs: any) =>
             this.processEvent(eventName as any, eventArgs),
-          triggerOutput: (event: string, ...args: any[]) =>
-            (this.props as any)[event](...args),
         });
       }
     }
