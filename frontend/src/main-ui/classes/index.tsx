@@ -43,6 +43,9 @@ export abstract class UIElement<
           true
         )
       );
+      this.logic.events.on("signal", (signal) => {
+        this.services.logicRegistry.emitSignal(this.elementName, signal);
+      });
     }
     super.componentDidMount();
     if (this.logic) {

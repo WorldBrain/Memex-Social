@@ -88,6 +88,11 @@ export class ScenarioService {
         }
         this.scenarioStarted.resolve()
 
+        const waitForSignal = scenario.setup?.waitForSignal
+        if (waitForSignal) {
+            await this.options.services.logicRegistry.waitForSignal(waitForSignal.target, waitForSignal.signal)
+        }
+
         for (const step of steps) {
             if (options.walkthrough) {
             }
@@ -98,40 +103,16 @@ export class ScenarioService {
         }
     }
 
-    async _waitForElement(name: string) {
-        const { logicRegistry } = this.options.services
-        if (!logicRegistry.isRegistered(name)) {
-            await new Promise(resolve => {
-                const handler = (event: { name: string }) => {
-                    if (event.name === name) {
-                        logicRegistry.events.off('registered', handler)
-                        resolve()
-                    }
-                }
-                logicRegistry.events.on('registered', handler)
-            })
-        }
-        if (!logicRegistry.getAttribute(name, 'initialized')) {
-            await new Promise(resolve => {
-                const handler = (event: { name: string, key: string }) => {
-                    if (event.name === name && event.key === 'initialized') {
-                        logicRegistry.events.off('attribute.changed', handler)
-                        resolve()
-                    }
-                }
-                logicRegistry.events.on('attribute.changed', handler)
-            })
-        }
-    }
-
     async _executeStep(step: ScenarioStep) {
+        const { logicRegistry } = this.options.services
         if ('target' in step) {
-            await this._waitForElement(step.target)
+            await logicRegistry.waitForAttribute(step.target, 'initialized')
         }
 
         let stepPromise: Promise<void>
         if ('eventName' in step) {
-            stepPromise = this.options.services.logicRegistry.logicUnits[step.target].eventProcessor(step.eventName, step.eventArgs)
+            const eventPromise = logicRegistry.processEvent(step.target, step.eventName, step.eventArgs)
+            stepPromise = step.waitForSignal ? logicRegistry.waitForSignal(step.target, step.waitForSignal) : eventPromise
         } else if ('callModifications' in step) {
             stepPromise = Promise.resolve()
         } else if ('auth' in step) {
