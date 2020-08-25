@@ -16,174 +16,19 @@ import {
 } from "@worldbrain/memex-common/lib/content-sharing/types";
 import { PAGE_SIZE } from "./constants";
 import DocumentTitle from "../../../../../main-ui/components/document-title";
-const logoImage = require("../../../../../assets/img/memex-logo.svg");
+import DefaultPageLayout from "../../../../../common-ui/layouts/default-page-layout";
 const commentImage = require("../../../../../assets/img/comment.svg");
 
 interface CollectionDetailsProps extends CollectionDetailsDependencies {
   services: UIElementServices;
 }
 
-const middleMaxWidth = "800px";
-
 const DocumentView = styled.div`
   height: 100vh;
-`
-
-const StyledHeader = styled.div<{
-  viewportWidth: "mobile" | "small" | "normal" | "big";
-}>`
-  font-family: ${(props) => props.theme.fonts.primary};
-  width: 100%;
-  height: 50px;
-  display: flex;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
-  justify-content: space-between;
-  padding: 0 20px;
-  position: sticky;
-  top: 0;
-  background-color: #fff;
-  margin-top: -20px;
-  z-index: 2;
-  align-items: center;
-  height: 50px;
-
-  ${(props) =>
-    props.viewportWidth === "small" &&
-    css`
-      height: 70px;
-    `}
-
-  ${(props) =>
-    props.viewportWidth === "mobile" &&
-    css`
-      height: 60px;
-    `}
-`;
-const HeaderLogoArea = styled.div<{
-  viewportWidth: "mobile" | "small" | "normal" | "big";
-}>`
-  align-items: center;
-  flex: 1;
-
-  ${(props) =>
-    (props.viewportWidth === "small" || props.viewportWidth === "mobile") &&
-    css`
-      background-position: center left;
-      background-size: cover;
-      width: 40px;
-      border: none;
-      flex: none;
-    `}
-`;
-
-const MemexLogo = styled.div<{
-  viewportWidth: "mobile" | "small" | "normal" | "big";
-}>`
-  height: 24px;
-  background-position: center;
-  background-size: contain;
-  width: 100px;
-  border: none;
-  cursor: pointer;
-  margin-right: 20px;
-  background-repeat: no-repeat;
-  background-image: url(${logoImage});
-  display: flex;
-
-  ${(props) =>
-    (props.viewportWidth === "small" || props.viewportWidth === "mobile") &&
-    css`
-      background-position: center left;
-      background-size: cover;
-      width: 24px;
-      border: none;
-    `}
-`;
-
-const MarginSmall = styled.div`
-  height: 10px;
 `;
 
 const MarginSmallest = styled.div`
   height: 5px;
-`;
-
-const HeaderMiddleArea = styled.div<{
-  viewportWidth: "mobile" | "small" | "normal" | "big";
-}>`
-  width: ${(props) =>
-    props.viewportWidth === "small" || props.viewportWidth === "mobile"
-      ? "95%"
-      : "80%"};
-  max-width: ${middleMaxWidth};
-  display: flex;
-  padding-right: 20px;
-  align-items: ${(props) =>
-    props.viewportWidth === "small" || props.viewportWidth === "mobile"
-      ? "flex-start"
-      : "center"};
-  justify-content: flex-start;
-  flex-direction: ${(props) =>
-    props.viewportWidth === "small" || props.viewportWidth === "mobile"
-      ? "column"
-      : "row"};
-`;
-const HeaderTitle = styled.div<{
-  viewportWidth: "mobile" | "small" | "normal" | "big";
-}>`
-  font-weight: 600;
-  text-overflow: ellipsis;
-  overflow-x: hidden;
-  font-size: 16px;
-  overflow-wrap: break-word;
-  white-space: nowrap;
-  max-width: ${(props) =>
-    props.viewportWidth === "small" || props.viewportWidth === "mobile"
-      ? "100%"
-      : "70%"};
-  color: ${(props) => props.theme.colors.primary}
-    ${(props) =>
-      props.viewportWidth === "small" &&
-      css`
-        font-size: 14px;
-      `}
-    ${(props) =>
-      props.viewportWidth === "mobile" &&
-      css`
-        font-size: 14px;
-      `};
-`;
-const HeaderSubtitle = styled.div<{
-  viewportWidth: "mobile" | "small" | "normal" | "big";
-}>`
-  margin-left: ${(props) =>
-    props.viewportWidth === "small" || props.viewportWidth === "mobile"
-      ? "0px"
-      : "10px"};
-  font-weight: 500;
-  margin-top: 1px;
-  font-size: 14px;
-  color: ${(props) => props.theme.colors.subText};
-
-  ${(props) =>
-    props.viewportWidth === "small" &&
-    css`
-      font-size: 12px;
-    `}
-  ${(props) =>
-    props.viewportWidth === "mobile" &&
-    css`
-      font-size: 10px;
-    `}
-`;
-const HeaderCtaArea = styled.div<{
-  viewportWidth: "mobile" | "small" | "normal" | "big";
-}>`
-  flex: 1;
-  display: ${(props) => (props.viewportWidth === "mobile" ? "none" : "flex")};
-  align-items: center;
-  justify-content: flex-end;
-  white-space: nowrap;
 `;
 
 const SignUp = styled.div<{
@@ -201,34 +46,6 @@ const SignUp = styled.div<{
   &:hover {
     opacity: 0.8;
   }
-`;
-
-const PageMiddleArea = styled.div<{
-  viewportWidth: "mobile" | "small" | "normal" | "big";
-}>`
-  max-width: ${middleMaxWidth};
-  top: 10px;
-  position: relative;
-  padding-bottom: 100px;
-  margin: 20px auto 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-
-  ${(props) =>
-    props.viewportWidth === "small" &&
-    css`
-      width: 95%;
-      top: 10px;
-      margin: 20px auto 0;
-    `}
-  ${(props) =>
-    props.viewportWidth === "mobile" &&
-    css`
-      width: 95%;
-      top: 10px;
-      margin: 20px auto 0;
-    `}
 `;
 
 const CollectionDescriptionBox = styled.div<{
@@ -419,12 +236,6 @@ const AnnotationBody = styled.span`
 const AnnotationComment = styled.div`
   font-size: 14px;
   color: ${(props) => props.theme.colors.primary};
-`;
-const AnnotationCreatorName = styled.div`
-  font-family: "Poppins";
-  color: ${(props) => props.theme.colors.primary};
-  font-weight: bold;
-  font-size: 12px;
 `;
 const AnnotationDate = styled.div`
   font-family: "Poppins";
@@ -652,23 +463,7 @@ export default class CollectionDetailsPage extends UIElement<
     if (state.listLoadState === "error") {
       return (
         <DocumentView>
-          <StyledHeader viewportWidth={viewportWidth}>
-            <HeaderLogoArea
-              onClick={() => window.open("https://getmemex.com")}
-              viewportWidth={viewportWidth}
-            >
-              <MemexLogo viewportWidth={viewportWidth} />
-            </HeaderLogoArea>
-            <HeaderCtaArea viewportWidth={viewportWidth}>
-              <SignUp
-                onClick={() => window.open("https://getmemex.com")}
-                viewportWidth={viewportWidth}
-              >
-                Share your research
-              </SignUp>
-            </HeaderCtaArea>
-          </StyledHeader>
-          <PageMiddleArea viewportWidth={viewportWidth}>
+          <DefaultPageLayout viewportWidth={viewportWidth}>
             <ListNotFoundBox>
               <ErrorBox>
                 Error loading this collection. <br /> Reload page to retry.
@@ -680,7 +475,7 @@ export default class CollectionDetailsPage extends UIElement<
                 Report Problem
               </SignUp>
             </ListNotFoundBox>
-          </PageMiddleArea>
+          </DefaultPageLayout>
         </DocumentView>
       );
     }
@@ -688,37 +483,19 @@ export default class CollectionDetailsPage extends UIElement<
     const data = state.listData;
     if (!data) {
       return (
-        <>
-          <StyledHeader viewportWidth={viewportWidth}>
-            <HeaderLogoArea
+        <DefaultPageLayout viewportWidth={viewportWidth}>
+          <ListNotFoundBox>
+            <ListNotFoundText>
+              You're trying to access a collection that does not exist (yet).
+            </ListNotFoundText>
+            <SignUp
               onClick={() => window.open("https://getmemex.com")}
               viewportWidth={viewportWidth}
             >
-              <MemexLogo viewportWidth={viewportWidth} />
-            </HeaderLogoArea>
-            <HeaderCtaArea viewportWidth={viewportWidth}>
-              <SignUp
-                onClick={() => window.open("https://getmemex.com")}
-                viewportWidth={viewportWidth}
-              >
-                Share your research
-              </SignUp>
-            </HeaderCtaArea>
-          </StyledHeader>
-          <PageMiddleArea viewportWidth={viewportWidth}>
-            <ListNotFoundBox>
-              <ListNotFoundText>
-                You're trying to access a collection that does not exist (yet).
-              </ListNotFoundText>
-              <SignUp
-                onClick={() => window.open("https://getmemex.com")}
-                viewportWidth={viewportWidth}
-              >
-                Create your first collection
-              </SignUp>
-            </ListNotFoundBox>
-          </PageMiddleArea>
-        </>
+              Create your first collection
+            </SignUp>
+          </ListNotFoundBox>
+        </DefaultPageLayout>
       );
     }
 
@@ -728,33 +505,13 @@ export default class CollectionDetailsPage extends UIElement<
           documentTitle={this.props.services.documentTitle}
           subTitle={data.list.title}
         />
-        <StyledHeader viewportWidth={viewportWidth}>
-          <HeaderLogoArea
-            onClick={() => window.open("https://getmemex.com")}
-            viewportWidth={viewportWidth}
-          >
-            <MemexLogo viewportWidth={viewportWidth} />
-          </HeaderLogoArea>
-          <HeaderMiddleArea viewportWidth={viewportWidth}>
-            <HeaderTitle title={data.list.title} viewportWidth={viewportWidth}>
-              {data.list.title}
-            </HeaderTitle>
-            {data.creatorDisplayName && (
-              <HeaderSubtitle viewportWidth={viewportWidth}>
-                by {data.creatorDisplayName}
-              </HeaderSubtitle>
-            )}
-          </HeaderMiddleArea>
-          <HeaderCtaArea viewportWidth={viewportWidth}>
-            <SignUp
-              onClick={() => window.open("https://getmemex.com")}
-              viewportWidth={viewportWidth}
-            >
-              Share your research
-            </SignUp>
-          </HeaderCtaArea>
-        </StyledHeader>
-        <PageMiddleArea viewportWidth={viewportWidth}>
+        <DefaultPageLayout
+          viewportWidth={viewportWidth}
+          headerTitle={data.list.title}
+          headerSubtitle={
+            data.creatorDisplayName && `by ${data.creatorDisplayName}`
+          }
+        >
           {data.list.description && (
             <CollectionDescriptionBox viewportWidth={viewportWidth}>
               <CollectionDescriptionText viewportWidth={viewportWidth}>
@@ -825,15 +582,16 @@ export default class CollectionDetailsPage extends UIElement<
                     )}
                     {state.annotationLoadStates[entry.normalizedUrl] ===
                       "error" && (
-                        <Margin bottom={"large"}>
+                      <Margin bottom={"large"}>
                         <AnnotationContainer>
                           <AnnotationLine />
-                            <ErrorBoxAnnotation>
-                            Error loading page notes. <br /> Reload page to retry.
+                          <ErrorBoxAnnotation>
+                            Error loading page notes. <br /> Reload page to
+                            retry.
                           </ErrorBoxAnnotation>
                         </AnnotationContainer>
                       </Margin>
-                      )}
+                    )}
                     {state.annotationLoadStates[entry.normalizedUrl] ===
                       "success" && (
                       <Margin bottom={"large"}>
@@ -866,7 +624,7 @@ export default class CollectionDetailsPage extends UIElement<
               </React.Fragment>
             ))}
           </PageInfoList>
-        </PageMiddleArea>
+        </DefaultPageLayout>
       </>
     );
     // const breakPoints = this.getStyleBreakpoints({

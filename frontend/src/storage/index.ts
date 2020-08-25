@@ -10,8 +10,8 @@ import { BackendType } from "../types";
 import { Storage } from "./types";
 import UserStorage from "../features/user-management/storage";
 import { StorageMiddleware } from "@worldbrain/storex/lib/types/middleware";
-import { checkAccountCollectionInfoMap } from './checks';
-import { ACCOUNT_COLLECTIONS } from './constants';
+// import { checkAccountCollectionInfoMap } from './checks';
+// import { ACCOUNT_COLLECTIONS } from './constants';
 import ContentSharingStorage from '../features/content-sharing/storage';
 
 export async function createStorage(options: { backend: BackendType | StorageBackend }): Promise<Storage> {
