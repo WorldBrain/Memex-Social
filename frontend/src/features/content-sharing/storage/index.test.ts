@@ -232,6 +232,57 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
         })
     })
 
+    it('should retrieve a random user list entry for a normalized page URL', { withTestUser: true }, async ({ storage, services }) => {
+        const { contentSharing } = storage.serverModules
+        const userReference = services.auth.getCurrentUserReference()!
+        const listReference1 = await contentSharing.createSharedList({
+            listData: {
+                title: 'My list'
+            },
+            localListId: 55,
+            userReference
+        })
+        await data.createTestListEntries({ contentSharing, listReference: listReference1, userReference })
+        const retrievedEntry = await contentSharing.getRandomUserListEntryForUrl({
+            creatorReference: userReference,
+            normalizedUrl: 'bar.com/page-2'
+        })
+        expect(retrievedEntry).toEqual({
+            entry: {
+                entryTitle: 'Page 2',
+                originalUrl: 'https://www.bar.com/page-2',
+                normalizedUrl: 'bar.com/page-2',
+                createdWhen: 592,
+                updatedWhen: expect.any(Number),
+            },
+        })
+    })
+
+    it('should retrieve single annotations', { withTestUser: true }, async ({ storage, services }) => {
+        const { contentSharing } = storage.serverModules
+        const userReference = services.auth.getCurrentUserReference()!
+        const listReference1 = await contentSharing.createSharedList({
+            listData: {
+                title: 'My list'
+            },
+            localListId: 55,
+            userReference
+        })
+        await data.createTestListEntries({ contentSharing, listReference: listReference1, userReference })
+        const creationResult = await data.createTestAnnotations({ contentSharing, listReference: listReference1, userReference })
+        const annotationReference = creationResult.sharedAnnotationReferences[data.TEST_ANNOTATIONS_BY_PAGE['bar.com/page-2'][0].localId]
+        const retrievedAnnotation = await contentSharing.getAnnotation({ reference: annotationReference })
+        expect(retrievedAnnotation).toEqual({
+            annotation: {
+                ...data.TEST_ANNOTATIONS_BY_PAGE['bar.com/page-2'][0],
+                normalizedPageUrl: 'bar.com/page-2',
+                uploadedWhen: expect.any(Number),
+                updatedWhen: expect.any(Number),
+            },
+            creator: userReference
+        })
+    })
+
     it('should retrieve all annotation entries for a list and get those annotations', { withTestUser: true }, async ({ storage, services }) => {
         const { contentSharing } = storage.serverModules
         const userReference = services.auth.getCurrentUserReference()!
