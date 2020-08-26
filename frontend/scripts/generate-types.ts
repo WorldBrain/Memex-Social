@@ -28,6 +28,7 @@ export async function main() {
         const types = generateTypesForStorageModule(storageModule, { storageModuleInfo, storageRegistry: storage.serverStorageManager.registry })
 
         const moduleTypesPath = path.join(rootTypesPath, `${storageModuleInfo.baseNameWithoutExt}.ts`)
+        console.log(`Writing types to ${moduleTypesPath}...`)
         fs.writeFileSync(moduleTypesPath, types)
     }
 }
