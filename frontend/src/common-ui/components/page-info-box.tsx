@@ -123,9 +123,10 @@ export default function PageInfoBox(props: {
         {props.actions && (
           <PageInfoBoxRight>
             <PageInfoBoxActions>
-              {props.actions.map((action) =>
+              {props.actions.map((action, actionIndex) =>
                 "image" in action ? (
                   <PageInfoBoxAction
+                    key={actionIndex}
                     image={action.image}
                     onClick={action.onClick}
                   />

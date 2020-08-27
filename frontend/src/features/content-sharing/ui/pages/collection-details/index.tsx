@@ -1,6 +1,5 @@
 import React from "react";
 import { Waypoint } from "react-waypoint";
-import { Trans } from "react-i18next";
 import styled, { css } from "styled-components";
 import { Margin } from "styled-components-spacing";
 import { UIElement, UIElementServices } from "../../../../../main-ui/classes";
@@ -168,7 +167,7 @@ export default class CollectionDetailsPage extends UIElement<
       state.annotationEntriesLoadState === "pristine" ||
       state.annotationEntriesLoadState === "running"
     ) {
-      return [{ node: <LoadingIndicator /> }];
+      return [{ node: <LoadingIndicator key="loading" /> }];
     }
 
     const shouldShowAnnotationsButton =
@@ -285,11 +284,9 @@ export default class CollectionDetailsPage extends UIElement<
                   }
                   viewportWidth={viewportBreakpoint}
                 >
-                  {data.listDescriptionState === "collapsed" ? (
-                    <Trans>▸ Show more</Trans>
-                  ) : (
-                    <Trans>◂ Show less</Trans>
-                  )}
+                  {data.listDescriptionState === "collapsed"
+                    ? "▸ Show more"
+                    : "◂ Show less"}
                 </CollectionDescriptionToggle>
               )}
             </CollectionDescriptionBox>

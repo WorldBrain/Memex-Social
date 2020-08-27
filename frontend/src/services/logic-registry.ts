@@ -5,6 +5,7 @@ import TypedEmitter from 'typed-emitter'
 export interface LogicUnit {
     events: EventEmitter
     eventProcessor: LogicEventProcessor
+    getState(): any
 }
 interface LogicUnitData {
     attributes: {
