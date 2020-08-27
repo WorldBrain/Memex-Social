@@ -1,5 +1,6 @@
 import React from "react";
 import styled, { css } from "styled-components";
+import { ViewportWidth } from "../../main-ui/styles/types";
 const logoImage = require("../../assets/img/memex-logo.svg");
 
 const middleMaxWidth = "800px";
@@ -201,7 +202,7 @@ const PageMiddleArea = styled.div<{
 export default function DefaultPageLayout(props: {
   headerTitle?: string;
   headerSubtitle?: string;
-  viewportWidth: "mobile" | "small" | "big" | "normal";
+  viewportWidth: ViewportWidth;
   children: React.ReactNode;
 }) {
   const { viewportWidth } = props;

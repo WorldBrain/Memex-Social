@@ -2,19 +2,19 @@ import UserStorage from "../../../../user-management/storage";
 import { UIEvent, UISignal } from "../../../../../main-ui/classes/logic";
 import ContentSharingStorage from "../../../storage";
 
-export interface AnnotationDetailsDependencies {
-    annotationID: string
+export interface PageDetailsDependencies {
+    pageID: string
     contentSharing: ContentSharingStorage
     userManagement: UserStorage
 }
 
-export type AnnotationDetailsEvent = UIEvent<{
+export type PageDetailsEvent = UIEvent<{
     toggleDescriptionTruncation: {}
     togglePageAnnotations: { normalizedUrl: string }
     toggleAllAnnotations: {}
     pageBreakpointHit: { entryIndex: number }
 }>
 
-export type AnnotationDetailsSignal = UISignal<
+export type PageDetailsSignal = UISignal<
     { type: 'nothing-yet' }
 >

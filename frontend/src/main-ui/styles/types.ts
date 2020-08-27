@@ -1,0 +1,1 @@
+export type ViewportWidth = "mobile" | "small" | "big" | "normal"

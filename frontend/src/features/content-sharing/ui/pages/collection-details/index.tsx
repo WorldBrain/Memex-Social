@@ -17,6 +17,10 @@ import {
 import { PAGE_SIZE } from "./constants";
 import DocumentTitle from "../../../../../main-ui/components/document-title";
 import DefaultPageLayout from "../../../../../common-ui/layouts/default-page-layout";
+import PageInfoBox, {
+  PageInfoBoxAction,
+} from "../../../../../common-ui/components/page-info-box";
+import { ViewportWidth } from "../../../../../main-ui/styles/types";
 const commentImage = require("../../../../../assets/img/comment.svg");
 
 interface CollectionDetailsProps extends CollectionDetailsDependencies {
@@ -32,7 +36,7 @@ const MarginSmallest = styled.div`
 `;
 
 const SignUp = styled.div<{
-  viewportWidth: "mobile" | "small" | "normal" | "big";
+  viewportWidth: ViewportWidth;
 }>`
   padding: 3px 10px;
   font-size: 12px;
@@ -49,7 +53,7 @@ const SignUp = styled.div<{
 `;
 
 const CollectionDescriptionBox = styled.div<{
-  viewportWidth: "mobile" | "small" | "normal" | "big";
+  viewportWidth: ViewportWidth;
 }>`
   font-family: ${(props) => props.theme.fonts.primary};
   font-size: 14px;
@@ -62,10 +66,10 @@ const CollectionDescriptionBox = styled.div<{
       : "20px auto"};
 `;
 const CollectionDescriptionText = styled.div<{
-  viewportWidth: "mobile" | "small" | "normal" | "big";
+  viewportWidth: ViewportWidth;
 }>``;
 const CollectionDescriptionToggle = styled.div<{
-  viewportWidth: "mobile" | "small" | "normal" | "big";
+  viewportWidth: ViewportWidth;
 }>`
   cursor: pointer;
   padding: 3px 5px;
@@ -79,7 +83,7 @@ const CollectionDescriptionToggle = styled.div<{
 `;
 
 const ToggleAllBox = styled.div<{
-  viewportWidth: "mobile" | "small" | "normal" | "big";
+  viewportWidth: ViewportWidth;
 }>`
   display: flex;
   justify-content: flex-end;
@@ -118,26 +122,10 @@ const ToggleAllAnnotations = styled.div`
   border-radius: 5px;
 `;
 
-const PageBox = styled.div`
-  display: flex;
-  width: 100%;
-  justify-content: space-between;
-`;
-
 const PageInfoList = styled.div<{
-  viewportWidth: "mobile" | "small" | "normal" | "big";
+  viewportWidth: ViewportWidth;
 }>`
   width: 100%;
-`;
-
-const PageContentBox = styled.div`
-  flex: 1;
-  width: 80%;
-  max-width: 96%;
-`;
-
-const PageInfoBoxLink = styled.a`
-  text-decoration: none;
 `;
 
 const PageInfoBoxRight = styled.div`
@@ -147,29 +135,6 @@ const PageInfoBoxRight = styled.div`
   width: 50px;
 `;
 
-const PageInfoBoxLeft = styled.div`
-  text-decoration: none;
-  padding: 15px 0px 15px 20px;
-  cursor: pointer;
-`;
-
-const PageInfoBoxTop = styled.div`
-  display: flex;
-`;
-const PageInfoBoxTitle = styled.div<{
-  viewportWidth: "mobile" | "small" | "normal" | "big";
-}>`
-  flex-grow: 2;
-  font-weight: 600;
-  color: ${(props) => props.theme.colors.primary};
-  text-decoration: none;
-  font-size: ${(props) => props.theme.fontSize.listTitle};
-  text-overflow: ellipsis;
-  overflow-x: hidden;
-  text-decoration: none;
-  overflow-wrap: break-word;
-  white-space: nowrap;
-`;
 const PageInfoBoxActions = styled.div`
   display: flex;
 `;
@@ -182,20 +147,6 @@ const PageInfoAnnotationToggle = styled.div`
   background-size: contain;
   background-position: center center;
   background-repeat: no-repeat;
-`;
-
-const PageInfoBoxUrl = styled.div<{
-  viewportWidth: "mobile" | "small" | "normal" | "big";
-}>`
-  font-weight: 400;
-  font-size: ${(props) => props.theme.fontSize.url};
-  color: ${(props) => props.theme.colors.subText};
-  text-overflow: ellipsis;
-  overflow-x: hidden;
-  text-decoration: none;
-  overflow-wrap: break-word;
-  white-space: nowrap;
-  max-width: 100%;
 `;
 
 const AnnotationContainer = styled.div`
@@ -245,7 +196,7 @@ const AnnotationDate = styled.div`
 `;
 
 const LoadingScreen = styled.div<{
-  viewportWidth: "mobile" | "small" | "normal" | "big";
+  viewportWidth: ViewportWidth;
 }>`
   display: flex;
   align-items: center;
@@ -322,11 +273,7 @@ export default class CollectionDetailsPage extends UIElement<
     super(props, { logic: new Logic(props) });
   }
 
-  getScreenWidth() {
-    return this.getViewportWidth();
-  }
-
-  getBreakPoints() {
+  getBreakPoints(): ViewportWidth {
     let viewPortWidth = this.getViewportWidth();
 
     if (viewPortWidth <= 500) {
@@ -346,59 +293,49 @@ export default class CollectionDetailsPage extends UIElement<
 
   renderPageEntry(entry: SharedListEntry) {
     const viewportWidth = this.getBreakPoints();
-    const annotationEntries = this.state.annotationEntryData;
-    const { state } = this;
+
     return (
-      <ItemBox>
-        <PageBox>
-          <PageContentBox>
-            <PageInfoBoxLink href={entry.originalUrl} target="_blank">
-              <PageInfoBoxLeft>
-                <PageInfoBoxTop>
-                  <PageInfoBoxTitle
-                    title={entry.entryTitle}
-                    viewportWidth={viewportWidth}
-                  >
-                    {entry.entryTitle}
-                  </PageInfoBoxTitle>
-                </PageInfoBoxTop>
-                <Margin bottom="smallest">
-                  <PageInfoBoxUrl viewportWidth={viewportWidth}>
-                    {entry.normalizedUrl}
-                  </PageInfoBoxUrl>
-                </Margin>
-                <AnnotationDate>
-                  {moment(entry.createdWhen).format("LLL")}
-                </AnnotationDate>
-              </PageInfoBoxLeft>
-            </PageInfoBoxLink>
-          </PageContentBox>
-          {state.annotationEntriesLoadState === "running" && (
-            <PageInfoBoxRight>
-              <PageInfoBoxActions>
-                <LoadingIndicator />
-              </PageInfoBoxActions>
-            </PageInfoBoxRight>
-          )}
-          {state.annotationEntriesLoadState === "success" &&
-            annotationEntries &&
-            annotationEntries[entry.normalizedUrl] &&
-            annotationEntries[entry.normalizedUrl].length && (
-              <PageInfoBoxRight>
-                <PageInfoBoxActions>
-                  <PageInfoAnnotationToggle
-                    onClick={(event) =>
-                      this.processEvent("togglePageAnnotations", {
-                        normalizedUrl: entry.normalizedUrl,
-                      })
-                    }
-                  />
-                </PageInfoBoxActions>
-              </PageInfoBoxRight>
-            )}
-        </PageBox>
-      </ItemBox>
+      <PageInfoBox
+        viewportWidth={viewportWidth}
+        pageInfo={{
+          ...entry,
+          fullTitle: entry.entryTitle,
+        }}
+        actions={this.getPageEntryActions(entry)}
+      />
     );
+  }
+
+  getPageEntryActions(
+    entry: SharedListEntry
+  ): Array<PageInfoBoxAction> | undefined {
+    const { state } = this;
+    const annotationEntries = this.state.annotationEntryData;
+
+    if (
+      state.annotationEntriesLoadState === "pristine" ||
+      state.annotationEntriesLoadState === "running"
+    ) {
+      return [{ node: <LoadingIndicator /> }];
+    }
+
+    const shouldShowAnnotationsButton =
+      state.annotationEntriesLoadState === "success" &&
+      annotationEntries &&
+      annotationEntries[entry.normalizedUrl] &&
+      annotationEntries[entry.normalizedUrl].length;
+
+    if (shouldShowAnnotationsButton) {
+      return [
+        {
+          image: commentImage,
+          onClick: () =>
+            this.processEvent("togglePageAnnotations", {
+              normalizedUrl: entry.normalizedUrl,
+            }),
+        },
+      ];
+    }
   }
 
   renderAnnotationEntry(
@@ -554,7 +491,7 @@ export default class CollectionDetailsPage extends UIElement<
             {data.listEntries.length === 0 && (
               <EmptyListBox>
                 <ListNotFoundText>
-                  This collection has no entries.
+                  This collection has no pages in it (yet).
                 </ListNotFoundText>
                 <SignUp
                   onClick={() => window.open("https://getmemex.com")}
@@ -627,18 +564,5 @@ export default class CollectionDetailsPage extends UIElement<
         </DefaultPageLayout>
       </>
     );
-    // const breakPoints = this.getStyleBreakpoints({
-    //   small: 160,
-    //   medium: 640,
-    //   large: 860,
-    // });
-
-    // return (
-    //   <StyledFoo onClick={() => this.processEvent("toggle", {})}>
-    //     foo: {state.foo ? "true" : "false"}
-    //     <br />
-    //     {/* breakPoints: {JSON.stringify(breakPoints)} */}
-    //   </StyledFoo>
-    // );
   }
 }

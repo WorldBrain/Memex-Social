@@ -38,7 +38,7 @@ export default class AnnotationDetailsLogic extends UILogic<AnnotationDetailsSta
         await executeUITask<AnnotationDetailsState>(this, 'annotationLoadState', async () => {
             const result = await contentSharing.getAnnotation({ reference: annotationReference })
             annotation = result?.annotation ?? null
-            creatorReference = result?.creator ?? null
+            creatorReference = result?.creatorReference ?? null
 
             return {
                 mutation: {
