@@ -9,7 +9,7 @@ const ROUTES: RouteMap = {
     landingPage: { path: '/', ifAuth: false },
     userHome: { path: '/', ifAuth: true },
     collectionDetails: { path: '/c/:id' },
-    pageDetails: { path: '/a/:id' },
+    pageDetails: { path: '/p/:id' },
     annotationDetails: { path: '/a/:id' },
 }
 

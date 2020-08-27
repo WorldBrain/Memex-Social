@@ -1,1 +1,1 @@
-export type ViewportWidth = "mobile" | "small" | "big" | "normal"
+export type ViewportBreakpoint = "mobile" | "small" | "big" | "normal"

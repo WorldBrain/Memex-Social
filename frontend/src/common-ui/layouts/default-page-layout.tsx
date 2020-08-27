@@ -1,6 +1,6 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { ViewportWidth } from "../../main-ui/styles/types";
+import { ViewportBreakpoint } from "../../main-ui/styles/types";
 const logoImage = require("../../assets/img/memex-logo.svg");
 
 const middleMaxWidth = "800px";
@@ -202,10 +202,10 @@ const PageMiddleArea = styled.div<{
 export default function DefaultPageLayout(props: {
   headerTitle?: string;
   headerSubtitle?: string;
-  viewportWidth: ViewportWidth;
+  viewportBreakpoint: ViewportBreakpoint;
   children: React.ReactNode;
 }) {
-  const { viewportWidth } = props;
+  const { viewportBreakpoint: viewportWidth } = props;
   return (
     <>
       <StyledHeader viewportWidth={viewportWidth}>

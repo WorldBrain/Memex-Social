@@ -4,7 +4,6 @@ import styled from "styled-components";
 import { Margin } from "styled-components-spacing";
 import { SharedPageInfo } from "@worldbrain/memex-common/lib/content-sharing/types";
 import ItemBox from "../components/item-box";
-import { ViewportWidth } from "../../main-ui/styles/types";
 
 const PageBox = styled.div`
   display: flex;
@@ -31,9 +30,7 @@ const PageInfoBoxLeft = styled.div`
 const PageInfoBoxTop = styled.div`
   display: flex;
 `;
-const PageInfoBoxTitle = styled.div<{
-  viewportWidth: ViewportWidth;
-}>`
+const PageInfoBoxTitle = styled.div`
   flex-grow: 2;
   font-weight: 600;
   color: ${(props) => props.theme.colors.primary};
@@ -46,9 +43,7 @@ const PageInfoBoxTitle = styled.div<{
   white-space: nowrap;
 `;
 
-const PageInfoBoxUrl = styled.div<{
-  viewportWidth: ViewportWidth;
-}>`
+const PageInfoBoxUrl = styled.div`
   font-weight: 400;
   font-size: ${(props) => props.theme.fontSize.url};
   color: ${(props) => props.theme.colors.subText};
@@ -96,7 +91,6 @@ export type PageInfoBoxAction =
   | { node: React.ReactNode };
 
 export default function PageInfoBox(props: {
-  viewportWidth: ViewportWidth;
   pageInfo: Pick<
     SharedPageInfo,
     "fullTitle" | "createdWhen" | "originalUrl" | "normalizedUrl"
@@ -104,7 +98,7 @@ export default function PageInfoBox(props: {
   actions?: Array<PageInfoBoxAction>;
   children?: React.ReactNode;
 }) {
-  const { viewportWidth, pageInfo } = props;
+  const { pageInfo } = props;
 
   return (
     <ItemBox>
@@ -113,17 +107,12 @@ export default function PageInfoBox(props: {
           <PageInfoBoxLink href={pageInfo.originalUrl} target="_blank">
             <PageInfoBoxLeft>
               <PageInfoBoxTop>
-                <PageInfoBoxTitle
-                  title={pageInfo.fullTitle}
-                  viewportWidth={viewportWidth}
-                >
+                <PageInfoBoxTitle title={pageInfo.fullTitle}>
                   {pageInfo.fullTitle}
                 </PageInfoBoxTitle>
               </PageInfoBoxTop>
               <Margin bottom="smallest">
-                <PageInfoBoxUrl viewportWidth={viewportWidth}>
-                  {pageInfo.normalizedUrl}
-                </PageInfoBoxUrl>
+                <PageInfoBoxUrl>{pageInfo.normalizedUrl}</PageInfoBoxUrl>
               </Margin>
               <CreatedWhenDate>
                 {moment(pageInfo.createdWhen).format("LLL")}

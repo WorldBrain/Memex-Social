@@ -1,11 +1,27 @@
 import moment from "moment";
 import React from "react";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 import { UIElement, UIElementServices } from "../../../../../main-ui/classes";
 import Logic, { PageDetailsState } from "./logic";
 import { PageDetailsEvent, PageDetailsDependencies } from "./types";
 import DocumentTitle from "../../../../../main-ui/components/document-title";
 import DefaultPageLayout from "../../../../../common-ui/layouts/default-page-layout";
+import LoadingScreen from "../../../../../common-ui/components/loading-screen";
+import ErrorBox from "../../../../../common-ui/components/error-box";
+import { Margin } from "styled-components-spacing";
+import SmallButton from "../../../../../common-ui/components/small-button";
+import PageInfoBox from "../../../../../common-ui/components/page-info-box";
+import AnnotationsInPage from "../../../../../common-ui/components/annotations-in-page";
+import LoadingIndicator from "../../../../../main-ui/components/loading-indicator";
+
+const PageInfoList = styled.div`
+  width: 100%;
+`;
+
+const AnnotationsLoading = styled.div`
+  display: flex;
+  justify-content: center;
+`;
 
 interface PageDetailsProps extends PageDetailsDependencies {
   services: UIElementServices;
@@ -40,41 +56,58 @@ export default class PageDetailsPage extends UIElement<
 
   render() {
     const viewportWidth = this.getBreakPoints();
-
     const { state } = this;
 
     if (
-      state.annotationLoadState === "pristine" ||
-      state.annotationLoadState === "running"
+      state.pageInfoLoadState === "pristine" ||
+      state.pageInfoLoadState === "running"
     ) {
       return (
         <DefaultPageLayout
-          viewportWidth={viewportWidth}
-          headerTitle={"Annotation"}
+          viewportBreakpoint={viewportWidth}
+          headerTitle={"Loading page..."}
         >
-          Annotations loading...
+          <DocumentTitle
+            documentTitle={this.props.services.documentTitle}
+            subTitle="Loading page..."
+          />
+          <LoadingScreen />
         </DefaultPageLayout>
       );
     }
-    if (state.annotationLoadState === "error") {
+    if (state.pageInfoLoadState === "error") {
       return (
         <DefaultPageLayout
-          viewportWidth={viewportWidth}
-          headerTitle={"Annotation"}
+          viewportBreakpoint={viewportWidth}
+          headerTitle={"Could not load page"}
         >
-          Error loading annotations
+          <DocumentTitle
+            documentTitle={this.props.services.documentTitle}
+            subTitle="Error loading page  :("
+          />
+          <Margin bottom={"large"}>
+            <ErrorBox>
+              Error loading page contents. <br /> Reload page to retry.
+            </ErrorBox>
+          </Margin>
+          <SmallButton
+            onClick={() => window.open("https://worldbrain.io/report-bugs")}
+          >
+            Report Problem
+          </SmallButton>
         </DefaultPageLayout>
       );
     }
 
     const { annotations, creator, pageInfo } = state;
-    if (!annotations || !annotations?.length) {
+    if (!pageInfo) {
       return (
         <DefaultPageLayout
-          viewportWidth={viewportWidth}
+          viewportBreakpoint={viewportWidth}
           headerTitle={"Annotation"}
         >
-          No annotations...
+          Did not find the page you were looking for. Maybe somebody shared it,
+          but then removed it again?
         </DefaultPageLayout>
       );
     }
@@ -83,44 +116,65 @@ export default class PageDetailsPage extends UIElement<
       <>
         <DocumentTitle
           documentTitle={this.props.services.documentTitle}
-          subTitle={`Shared note${creator ? ` by ${creator.displayName}` : ""}`}
+          subTitle={`Shared page${creator ? ` by ${creator.displayName}` : ""}`}
         />
         <DefaultPageLayout
-          viewportWidth={viewportWidth}
-          headerTitle={"Annotation"}
+          viewportBreakpoint={viewportWidth}
+          headerTitle={this.getHeaderTitle()}
+          headerSubtitle={this.getHeaderSubtitle()}
         >
-          {state.pageInfoLoadState === "error" && (
-            <div>Could not load page URL and title</div>
-          )}
-          {state.pageInfoLoadState === "running" && (
-            <div>Loading page URL and title</div>
-          )}
-          {state.pageInfoLoadState === "success" && (
-            <div>
-              {!pageInfo && <div>Could not find page URL and title</div>}
-              {pageInfo && (
-                <>
-                  <div>{pageInfo.originalUrl}</div>
-                  <div>{pageInfo.fullTitle}</div>
-                </>
+          <PageInfoList>
+            <Margin bottom={"small"}>
+              <PageInfoBox pageInfo={pageInfo} />
+            </Margin>
+            <Margin left={"small"} bottom="large">
+              {(state.annotationLoadState === "pristine" ||
+                state.annotationLoadState === "running") && (
+                <Margin vertical="medium">
+                  <AnnotationsLoading>
+                    <LoadingIndicator />
+                  </AnnotationsLoading>
+                </Margin>
               )}
-            </div>
-          )}
-
-          {state.creatorLoadState === "error" && (
-            <div>Could not load information about annotation creator</div>
-          )}
-          {state.creatorLoadState === "running" && (
-            <div>Loading information about annotation creator</div>
-          )}
-          {state.creatorLoadState === "success" && (
-            <div>
-              {creator && creator.displayName}
-              {!creator && "Could not information about annotation creator"}
-            </div>
-          )}
+              {state.annotationLoadState === "success" &&
+                !annotations?.length &&
+                "This page doesn't have any notes"}
+              {state.annotationLoadState === "success" &&
+                annotations?.length && (
+                  <AnnotationsInPage
+                    loadState={state.annotationLoadState}
+                    annotations={annotations}
+                  />
+                )}
+              {state.annotationLoadState === "error" && (
+                <AnnotationsInPage
+                  loadState={state.annotationLoadState}
+                  annotations={annotations}
+                />
+              )}
+            </Margin>
+          </PageInfoList>
         </DefaultPageLayout>
       </>
     );
+  }
+
+  getHeaderTitle(): string {
+    const { pageInfoLoadState, pageInfo } = this.state;
+    if (pageInfoLoadState === "success") {
+      if (!pageInfo) {
+        return "Page not found";
+      }
+      return `Shared on ${moment(pageInfo.createdWhen).format("LLL")}`;
+    }
+    if (pageInfoLoadState === "pristine" || pageInfoLoadState === "running") {
+      return "Loading...";
+    }
+    return "Error";
+  }
+
+  getHeaderSubtitle(): string | undefined {
+    const { creator } = this.state;
+    return creator ? ` by ${creator.displayName}` : undefined;
   }
 }

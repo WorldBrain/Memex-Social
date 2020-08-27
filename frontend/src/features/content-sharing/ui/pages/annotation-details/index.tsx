@@ -1,6 +1,5 @@
 import moment from "moment";
 import React from "react";
-import styled, { css } from "styled-components";
 import { UIElement, UIElementServices } from "../../../../../main-ui/classes";
 import Logic, { AnnotationDetailsState } from "./logic";
 import { AnnotationDetailsEvent, AnnotationDetailsDependencies } from "./types";
@@ -49,7 +48,7 @@ export default class AnnotationDetailsPage extends UIElement<
     ) {
       return (
         <DefaultPageLayout
-          viewportWidth={viewportWidth}
+          viewportBreakpoint={viewportWidth}
           headerTitle={"Annotation"}
         >
           Annotation loading...
@@ -59,7 +58,7 @@ export default class AnnotationDetailsPage extends UIElement<
     if (state.annotationLoadState === "error") {
       return (
         <DefaultPageLayout
-          viewportWidth={viewportWidth}
+          viewportBreakpoint={viewportWidth}
           headerTitle={"Annotation"}
         >
           Error loading annotation
@@ -71,7 +70,7 @@ export default class AnnotationDetailsPage extends UIElement<
     if (!annotation) {
       return (
         <DefaultPageLayout
-          viewportWidth={viewportWidth}
+          viewportBreakpoint={viewportWidth}
           headerTitle={"Annotation"}
         >
           Could not find annotation
@@ -86,7 +85,7 @@ export default class AnnotationDetailsPage extends UIElement<
           subTitle={`Shared note${creator ? ` by ${creator.displayName}` : ""}`}
         />
         <DefaultPageLayout
-          viewportWidth={viewportWidth}
+          viewportBreakpoint={viewportWidth}
           headerTitle={"Annotation"}
         >
           <div>{annotation.body}</div>

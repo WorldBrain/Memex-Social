@@ -1,6 +1,5 @@
 import { User, UserReference } from "@worldbrain/memex-common/lib/web-interface/types/users"
 import { SharedAnnotation } from "@worldbrain/memex-common/lib/content-sharing/types"
-import { SharedListEntry } from "@worldbrain/memex-common/lib/web-interface/types/storex-generated/content-sharing"
 import { UILogic, UIEventHandler, executeUITask } from "../../../../../main-ui/classes/logic"
 import { UITaskState } from "../../../../../main-ui/types"
 import { AnnotationDetailsEvent, AnnotationDetailsDependencies } from "./types"

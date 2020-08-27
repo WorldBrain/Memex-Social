@@ -1,4 +1,3 @@
-import moment from "moment";
 import React from "react";
 import { Waypoint } from "react-waypoint";
 import { Trans } from "react-i18next";
@@ -8,7 +7,6 @@ import { UIElement, UIElementServices } from "../../../../../main-ui/classes";
 import Logic, { CollectionDetailsState } from "./logic";
 import LoadingIndicator from "../../../../../main-ui/components/loading-indicator";
 import { CollectionDetailsEvent, CollectionDetailsDependencies } from "./types";
-import ItemBox from "../../../../../common-ui/components/item-box";
 import {
   SharedListEntry,
   SharedAnnotationListEntry,
@@ -20,7 +18,12 @@ import DefaultPageLayout from "../../../../../common-ui/layouts/default-page-lay
 import PageInfoBox, {
   PageInfoBoxAction,
 } from "../../../../../common-ui/components/page-info-box";
-import { ViewportWidth } from "../../../../../main-ui/styles/types";
+import { ViewportBreakpoint } from "../../../../../main-ui/styles/types";
+import LoadingScreen from "../../../../../common-ui/components/loading-screen";
+import { getViewportBreakpoint } from "../../../../../main-ui/styles/utils";
+import ErrorBox from "../../../../../common-ui/components/error-box";
+import SmallButton from "../../../../../common-ui/components/small-button";
+import AnnotationsInPage from "../../../../../common-ui/components/annotations-in-page";
 const commentImage = require("../../../../../assets/img/comment.svg");
 
 interface CollectionDetailsProps extends CollectionDetailsDependencies {
@@ -31,29 +34,8 @@ const DocumentView = styled.div`
   height: 100vh;
 `;
 
-const MarginSmallest = styled.div`
-  height: 5px;
-`;
-
-const SignUp = styled.div<{
-  viewportWidth: ViewportWidth;
-}>`
-  padding: 3px 10px;
-  font-size: 12px;
-  font-weight: 500;
-  background-color: #5cd9a6;
-  border-radius: 3px;
-  background-color: ${(props) => props.theme.colors.secondary};
-  cursor: pointer;
-  white-space: nowrap;
-
-  &:hover {
-    opacity: 0.8;
-  }
-`;
-
 const CollectionDescriptionBox = styled.div<{
-  viewportWidth: ViewportWidth;
+  viewportWidth: ViewportBreakpoint;
 }>`
   font-family: ${(props) => props.theme.fonts.primary};
   font-size: 14px;
@@ -66,10 +48,10 @@ const CollectionDescriptionBox = styled.div<{
       : "20px auto"};
 `;
 const CollectionDescriptionText = styled.div<{
-  viewportWidth: ViewportWidth;
+  viewportWidth: ViewportBreakpoint;
 }>``;
 const CollectionDescriptionToggle = styled.div<{
-  viewportWidth: ViewportWidth;
+  viewportWidth: ViewportBreakpoint;
 }>`
   cursor: pointer;
   padding: 3px 5px;
@@ -83,7 +65,7 @@ const CollectionDescriptionToggle = styled.div<{
 `;
 
 const ToggleAllBox = styled.div<{
-  viewportWidth: ViewportWidth;
+  viewportWidth: ViewportBreakpoint;
 }>`
   display: flex;
   justify-content: flex-end;
@@ -122,117 +104,8 @@ const ToggleAllAnnotations = styled.div`
   border-radius: 5px;
 `;
 
-const PageInfoList = styled.div<{
-  viewportWidth: ViewportWidth;
-}>`
+const PageInfoList = styled.div`
   width: 100%;
-`;
-
-const PageInfoBoxRight = styled.div`
-  text-decoration: none;
-  padding: 15px 0px 15px 10px;
-  cursor: default;
-  width: 50px;
-`;
-
-const PageInfoBoxActions = styled.div`
-  display: flex;
-`;
-const PageInfoAnnotationToggle = styled.div`
-  display: block;
-  width: 20px;
-  height: 20px;
-  cursor: pointer;
-  background-image: url("${commentImage}");
-  background-size: contain;
-  background-position: center center;
-  background-repeat: no-repeat;
-`;
-
-const AnnotationContainer = styled.div`
-  display: flex;
-  justify-content: center;
-`;
-
-const AnnotationLine = styled.span`
-  height: auto;
-  width: 6px;
-  background: #e0e0e0;
-  margin: -8px 10px 5px;
-`;
-
-const AnnotationList = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  justify-content: center;
-  align-items: center;
-  min-height: 50px;
-`;
-
-const AnnotationBox = styled.div`
-  font-family: ${(props) => props.theme.fonts.primary};
-  padding: 15px 20px;
-`;
-
-const AnnotationBody = styled.span`
-  background-color: ${(props) => props.theme.colors.secondary};
-  white-space: normal;
-  padding: 0 5px;
-  box-decoration-break: clone;
-  font-size: 14px;
-  color: ${(props) => props.theme.colors.primary};
-`;
-
-const AnnotationComment = styled.div`
-  font-size: 14px;
-  color: ${(props) => props.theme.colors.primary};
-`;
-const AnnotationDate = styled.div`
-  font-family: "Poppins";
-  font-weight: normal;
-  font-size: 12px;
-  color: ${(props) => props.theme.colors.primary};
-`;
-
-const LoadingScreen = styled.div<{
-  viewportWidth: ViewportWidth;
-}>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  width: 100%;
-`;
-
-const ErrorBox = styled.div`
-  font-family: ${(props) => props.theme.fonts.primary};
-  width: 100%;
-  padding: 20px 20px;
-  border-radius: 5px;
-  box-shadow: rgba(15, 15, 15, 0.1) 0px 0px 0px 1px,
-    rgba(15, 15, 15, 0.1) 0px 2px 4px;
-  background-color: #f29d9d;
-  color: white;
-  display: flex;
-  justify-content: center;
-  margin-bottom: 30px;
-  text-align: center;
-`;
-
-const ErrorBoxAnnotation = styled.div`
-  font-family: ${(props) => props.theme.fonts.primary};
-  width: 100%;
-  padding: 20px 20px;
-  border-radius: 5px;
-  box-shadow: rgba(15, 15, 15, 0.1) 0px 0px 0px 1px,
-    rgba(15, 15, 15, 0.1) 0px 2px 4px;
-  background-color: #f29d9d;
-  color: white;
-  display: flex;
-  justify-content: center;
-  margin-bottom: 10px;
-  text-align: center;
 `;
 
 const ListNotFoundBox = styled.div`
@@ -273,30 +146,9 @@ export default class CollectionDetailsPage extends UIElement<
     super(props, { logic: new Logic(props) });
   }
 
-  getBreakPoints(): ViewportWidth {
-    let viewPortWidth = this.getViewportWidth();
-
-    if (viewPortWidth <= 500) {
-      return "mobile";
-    }
-
-    if (viewPortWidth >= 500 && viewPortWidth <= 850) {
-      return "small";
-    }
-
-    if (viewPortWidth > 850) {
-      return "big";
-    }
-
-    return "normal";
-  }
-
   renderPageEntry(entry: SharedListEntry) {
-    const viewportWidth = this.getBreakPoints();
-
     return (
       <PageInfoBox
-        viewportWidth={viewportWidth}
         pageInfo={{
           ...entry,
           fullTitle: entry.entryTitle,
@@ -338,7 +190,7 @@ export default class CollectionDetailsPage extends UIElement<
     }
   }
 
-  renderAnnotationEntry(
+  getAnnotation(
     annotationEntry: SharedAnnotationListEntry & {
       sharedAnnotation: SharedAnnotationReference;
     }
@@ -348,37 +200,11 @@ export default class CollectionDetailsPage extends UIElement<
       annotationEntry.sharedAnnotation
     );
     const annotation = state.annotations[annotationID];
-    if (!annotation) {
-      return null;
-    }
-    return (
-      <>
-        <ItemBox>
-          <AnnotationBox key={annotationID}>
-            {annotation.body && (
-              <Margin bottom="small">
-                <AnnotationBody>{annotation.body}</AnnotationBody>
-              </Margin>
-            )}
-            <Margin bottom="small">
-              <AnnotationComment>{annotation.comment}</AnnotationComment>
-            </Margin>
-            <AnnotationDate>
-              {moment(annotation.createdWhen).format("LLL")}
-            </AnnotationDate>
-          </AnnotationBox>
-        </ItemBox>
-        <MarginSmallest />
-      </>
-    );
+    return annotation ?? null;
   }
 
   render() {
-    //const small = this.getViewportWidth() < 500;
-    //const large = this.getViewportWidth() > 1200;
-    //const layout = !large ? "vertical" : "horizontal";
-    //const horizontalMargin = small ? "none" : "normal";
-    const viewportWidth = this.getBreakPoints();
+    const viewportBreakpoint = getViewportBreakpoint(this.getViewportWidth());
 
     const { state } = this;
     if (
@@ -391,26 +217,25 @@ export default class CollectionDetailsPage extends UIElement<
             documentTitle={this.props.services.documentTitle}
             subTitle="Loading list..."
           />
-          <LoadingScreen viewportWidth={viewportWidth}>
-            <LoadingIndicator />
-          </LoadingScreen>
+          <LoadingScreen />
         </DocumentView>
       );
     }
     if (state.listLoadState === "error") {
       return (
         <DocumentView>
-          <DefaultPageLayout viewportWidth={viewportWidth}>
+          <DefaultPageLayout viewportBreakpoint={viewportBreakpoint}>
             <ListNotFoundBox>
-              <ErrorBox>
-                Error loading this collection. <br /> Reload page to retry.
-              </ErrorBox>
-              <SignUp
+              <Margin bottom={"large"}>
+                <ErrorBox>
+                  Error loading this collection. <br /> Reload page to retry.
+                </ErrorBox>
+              </Margin>
+              <SmallButton
                 onClick={() => window.open("https://worldbrain.io/report-bugs")}
-                viewportWidth={viewportWidth}
               >
                 Report Problem
-              </SignUp>
+              </SmallButton>
             </ListNotFoundBox>
           </DefaultPageLayout>
         </DocumentView>
@@ -420,17 +245,14 @@ export default class CollectionDetailsPage extends UIElement<
     const data = state.listData;
     if (!data) {
       return (
-        <DefaultPageLayout viewportWidth={viewportWidth}>
+        <DefaultPageLayout viewportBreakpoint={viewportBreakpoint}>
           <ListNotFoundBox>
             <ListNotFoundText>
               You're trying to access a collection that does not exist (yet).
             </ListNotFoundText>
-            <SignUp
-              onClick={() => window.open("https://getmemex.com")}
-              viewportWidth={viewportWidth}
-            >
+            <SmallButton onClick={() => window.open("https://getmemex.com")}>
               Create your first collection
-            </SignUp>
+            </SmallButton>
           </ListNotFoundBox>
         </DefaultPageLayout>
       );
@@ -443,15 +265,15 @@ export default class CollectionDetailsPage extends UIElement<
           subTitle={data.list.title}
         />
         <DefaultPageLayout
-          viewportWidth={viewportWidth}
+          viewportBreakpoint={viewportBreakpoint}
           headerTitle={data.list.title}
           headerSubtitle={
             data.creatorDisplayName && `by ${data.creatorDisplayName}`
           }
         >
           {data.list.description && (
-            <CollectionDescriptionBox viewportWidth={viewportWidth}>
-              <CollectionDescriptionText viewportWidth={viewportWidth}>
+            <CollectionDescriptionBox viewportWidth={viewportBreakpoint}>
+              <CollectionDescriptionText viewportWidth={viewportBreakpoint}>
                 {data.listDescriptionState === "collapsed"
                   ? data.listDescriptionTruncated
                   : data.list.description}
@@ -461,7 +283,7 @@ export default class CollectionDetailsPage extends UIElement<
                   onClick={() =>
                     this.processEvent("toggleDescriptionTruncation", {})
                   }
-                  viewportWidth={viewportWidth}
+                  viewportWidth={viewportBreakpoint}
                 >
                   {data.listDescriptionState === "collapsed" ? (
                     <Trans>▸ Show more</Trans>
@@ -473,9 +295,13 @@ export default class CollectionDetailsPage extends UIElement<
             </CollectionDescriptionBox>
           )}
           {state.annotationEntriesLoadState === "error" && (
-            <ErrorBox>Error loading page notes. Reload page to retry.</ErrorBox>
+            <Margin bottom={"large"}>
+              <ErrorBox>
+                Error loading page notes. Reload page to retry.
+              </ErrorBox>
+            </Margin>
           )}
-          <ToggleAllBox viewportWidth={viewportWidth}>
+          <ToggleAllBox viewportWidth={viewportBreakpoint}>
             {state.annotationEntryData &&
               Object.keys(state.annotationEntryData).length > 0 && (
                 <ToggleAllAnnotations
@@ -487,18 +313,17 @@ export default class CollectionDetailsPage extends UIElement<
                 </ToggleAllAnnotations>
               )}
           </ToggleAllBox>
-          <PageInfoList viewportWidth={viewportWidth}>
+          <PageInfoList>
             {data.listEntries.length === 0 && (
               <EmptyListBox>
                 <ListNotFoundText>
                   This collection has no pages in it (yet).
                 </ListNotFoundText>
-                <SignUp
+                <SmallButton
                   onClick={() => window.open("https://getmemex.com")}
-                  viewportWidth={viewportWidth}
                 >
                   Create your first collection
-                </SignUp>
+                </SmallButton>
               </EmptyListBox>
             )}
             {[...data.listEntries.entries()].map(([entryIndex, entry]) => (
@@ -506,44 +331,23 @@ export default class CollectionDetailsPage extends UIElement<
                 <Margin bottom={"small"}>{this.renderPageEntry(entry)}</Margin>
                 {state.pageAnnotationsExpanded[entry.normalizedUrl] && (
                   <Margin left={"small"}>
-                    {state.annotationLoadStates[entry.normalizedUrl] ===
-                      "running" && (
-                      <Margin bottom={"large"}>
-                        <AnnotationContainer>
-                          <AnnotationLine />
-                          <AnnotationList>
-                            <LoadingIndicator />
-                          </AnnotationList>
-                        </AnnotationContainer>
-                      </Margin>
-                    )}
-                    {state.annotationLoadStates[entry.normalizedUrl] ===
-                      "error" && (
-                      <Margin bottom={"large"}>
-                        <AnnotationContainer>
-                          <AnnotationLine />
-                          <ErrorBoxAnnotation>
-                            Error loading page notes. <br /> Reload page to
-                            retry.
-                          </ErrorBoxAnnotation>
-                        </AnnotationContainer>
-                      </Margin>
-                    )}
-                    {state.annotationLoadStates[entry.normalizedUrl] ===
-                      "success" && (
-                      <Margin bottom={"large"}>
-                        <AnnotationContainer>
-                          <AnnotationLine />
-                          <AnnotationList>
-                            {state.annotationEntryData![
-                              entry.normalizedUrl
-                            ].map((annotationEntry) =>
-                              this.renderAnnotationEntry(annotationEntry)
-                            )}
-                          </AnnotationList>
-                        </AnnotationContainer>
-                      </Margin>
-                    )}
+                    <Margin bottom={"large"}>
+                      <AnnotationsInPage
+                        loadState={
+                          state.annotationLoadStates[entry.normalizedUrl]
+                        }
+                        annotations={
+                          state.annotationEntryData &&
+                          state.annotationEntryData[entry.normalizedUrl] &&
+                          state.annotationEntryData &&
+                          state.annotationEntryData[
+                            entry.normalizedUrl
+                          ].map((annotationEntry) =>
+                            this.getAnnotation(annotationEntry)
+                          )
+                        }
+                      />
+                    </Margin>
                   </Margin>
                 )}
                 {state.allAnnotationExpanded &&

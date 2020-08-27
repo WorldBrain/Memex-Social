@@ -34,14 +34,14 @@ export default class PageDetailsLogic extends UILogic<PageDetailsState, PageDeta
         const pageInfoReference = contentSharing.getSharedPageInfoReferenceFromLinkID(this.dependencies.pageID)
         let creatorReference: UserReference | null
         let pageInfo: SharedPageInfo | null
-        await executeUITask<PageDetailsState>(this, 'pageInfo', async () => {
+        await executeUITask<PageDetailsState>(this, 'pageInfoLoadState', async () => {
             const result = await contentSharing.getPageInfo(pageInfoReference)
             creatorReference = result?.creatorReference ?? null
             pageInfo = result?.pageInfo ?? null
 
             return {
                 mutation: {
-                    pageInfo: { $set: result.pageInfo }
+                    pageInfo: { $set: pageInfo }
                 }
             }
         })
