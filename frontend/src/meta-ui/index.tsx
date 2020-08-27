@@ -4,20 +4,19 @@ import ReactDOM from "react-dom";
 import styled, { ThemeProvider } from "styled-components";
 import { theme } from "../main-ui/styles/theme";
 import { Margin } from "styled-components-spacing";
+import Routes from "../services/router/routes";
+import ROUTES, { RouteName } from "../routes";
+import { Scenario } from "../services/scenarios/types";
 
-export type MetaScenarios = Array<{
-  description: string;
-  steps: Array<{
-    name: string;
-    description?: string;
-    run: (element: Element) => void;
-  }>;
-}>;
-
-const scenarioBaseUrl = "http://localhost:3000/c/default-list?scenario=content-sharing/collection-details."
-
-// import { Services } from '../services/types';
-// import { Storage } from '../storage/types';
+export type MetaScenarios = Array<MetaScenario>;
+export interface MetaScenario {
+  scenario: Scenario;
+  pageName: string;
+  scenarioName: string;
+  stepPrograms: {
+    [name: string]: (element: Element) => void;
+  };
+}
 
 const ScenarioTitle = styled.a`
   margin: 100px 0 0 30px;
@@ -51,16 +50,57 @@ export default async function runMetaUi(options: {
   history: history.History;
   scenarios: MetaScenarios;
 }) {
+  const routes = new Routes({
+    routes: ROUTES,
+    isAuthenticated: () => false,
+  });
+  const getScenarioUrl = (options: {
+    metaScenario: MetaScenario;
+    stepName?: string;
+  }) => {
+    let url =
+      routes.getUrl(
+        options.metaScenario.scenario.startRoute.route as RouteName,
+        options.metaScenario.scenario.startRoute.params
+      ) +
+      `?scenario=${options.metaScenario.pageName}.${options.metaScenario.scenarioName}`;
+    if (options.stepName) {
+      url = `${url}.${options.stepName}`;
+    }
+    return url;
+  };
+
+  const iterateSteps = (scenario: Scenario) => {
+    const steps: Array<{
+      name: string;
+      description?: string;
+    }> = [{ name: "$start", description: "Start" }, ...scenario.steps];
+    return steps;
+  };
+
   ReactDOM.render(
     <ThemeProvider theme={theme}>
-      {options.scenarios.map((scenario, scenarioIndex) => (
+      {options.scenarios.map((metaScenario, scenarioIndex) => (
         <>
-          <ScenarioTitle href={scenarioBaseUrl + scenario.description} target='_blank'>{scenario.description}</ScenarioTitle>
+          <ScenarioTitle
+            href={getScenarioUrl({ metaScenario })}
+            target="_blank"
+          >
+            {metaScenario.scenario.description}
+          </ScenarioTitle>
           <StepsContainer key={scenarioIndex}>
-            {scenario.steps.map((step, stepIndex) => (
+            {iterateSteps(metaScenario.scenario).map((step, stepIndex) => (
               <StepContainer key={stepIndex}>
                 <Margin bottom="small">
-                  <StepTitle href={scenarioBaseUrl + scenario.description + '.' + step.name} target='_blank'>{step.description || step.name}</StepTitle>
+                  <StepTitle
+                    href={getScenarioUrl({
+                      metaScenario,
+                      stepName: step.name,
+                    })}
+                    target="_blank"
+                  >
+                    {step.description || step.name}
+                  </StepTitle>
                 </Margin>
                 <ProgramContainer
                   style={{ width: "360px", height: "640px" }}
@@ -70,7 +110,7 @@ export default async function runMetaUi(options: {
                         `React didn't give an element for program container`
                       );
                     }
-                    step.run(element);
+                    metaScenario.stepPrograms[step.name](element);
                   }}
                 />
               </StepContainer>

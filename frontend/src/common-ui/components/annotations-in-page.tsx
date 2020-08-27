@@ -65,9 +65,9 @@ export default function AnnotationsInPage(props: {
       <AnnotationLine />
       <AnnotationList>
         {props.annotations.map(
-          (annotation) =>
+          (annotation, annotationIndex) =>
             annotation && (
-              <Margin bottom={"smallest"}>
+              <Margin key={annotationIndex} bottom={"smallest"}>
                 <AnnotationBox annotation={annotation} />
               </Margin>
             )

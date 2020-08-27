@@ -1,18 +1,17 @@
-import { History } from "history";
-import { RouteMap, RouteName } from "../routes"
-import { AuthService } from "./auth/types";
-const Routes = require('routes')
+import { RouteMap, RouteName } from "../../routes"
 
-export default class RouterService {
-    private router: any = new Routes()
+const RoutesExternal = require('routes')
 
-    constructor(private options: { history: History, routes: RouteMap, auth: AuthService }) {
+export default class Routes {
+    private router: any = new RoutesExternal()
+
+    constructor(private options: { routes: RouteMap, isAuthenticated: () => boolean }) {
         const byRoute: { [path: string]: { route?: string, authDependentRoutes?: { true?: string, false?: string } } } = {}
         const resolver = (path: string) => {
             return () => {
                 const routeEntry = byRoute[path]
                 if (routeEntry.authDependentRoutes) {
-                    const isAuthenticated = !!options.auth.getCurrentUser()
+                    const isAuthenticated = options.isAuthenticated()
                     return routeEntry.authDependentRoutes[isAuthenticated ? 'true' : 'false']
                 } else {
                     return routeEntry.route
@@ -35,10 +34,6 @@ export default class RouterService {
         }
     }
 
-    goTo(route: RouteName, params: { [key: string]: string } = {}, options?: {}) {
-        this.options.history.push(this.getUrl(route, params))
-    }
-
     getUrl(route: RouteName, params: { [key: string]: string } = {}, options?: {}): string {
         const routeConfig = this.options.routes[route]
         if (!routeConfig) {
@@ -51,14 +46,6 @@ export default class RouterService {
         }
 
         return url
-    }
-
-    matchCurrentUrl(): { route: RouteName, params: { [key: string]: string } } {
-        const parsed = this.matchUrl(window.location.href)
-        if (!parsed) {
-            throw new Error(`Tried to parse current URL, both are no routes matching current URL`)
-        }
-        return parsed
     }
 
     matchUrl(url: string): { route: RouteName, params: { [key: string]: string } } | null {

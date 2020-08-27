@@ -13,6 +13,7 @@ export type ScenarioSignal<Targets extends { [Target: string]: { signals?: UISig
     signal: Targets[Target]['signals']
 }
 export interface Scenario<Targets extends { [Target: string]: { signals?: UISignal<any> } } = {}> {
+    description?: string
     startRoute: { route: string, params?: { [key: string]: string } }
     authenticated?: boolean
     setup?: {
