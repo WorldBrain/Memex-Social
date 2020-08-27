@@ -6,7 +6,7 @@ import styled, { css } from "styled-components";
 import { Margin } from "styled-components-spacing";
 import { UIElement, UIElementServices } from "../../../../../main-ui/classes";
 import Logic, { CollectionDetailsState } from "./logic";
-import LoadingIndicator from "../../../../../main-ui/components/loading-indicator";
+import LoadingIndicator from "../../../../../common-ui/components/loading-indicator";
 import { CollectionDetailsEvent, CollectionDetailsDependencies } from "./types";
 import ItemBox from "../../../../../common-ui/components/item-box";
 import {

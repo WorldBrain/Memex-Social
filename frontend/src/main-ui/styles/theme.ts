@@ -16,6 +16,8 @@ export const theme = {
         primary: '#3a2f45',
         subText: '#aeaeae',
         secondary: '#5cd9a6',
+        grey: '#e0e0e0',
+        black: '000',
     },
     fonts: {
         primary: '"Poppins", sans-serif',
