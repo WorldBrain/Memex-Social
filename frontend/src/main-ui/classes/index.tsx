@@ -46,16 +46,15 @@ export abstract class UIElement<
       this.logic.events.on("signal", (signal) => {
         this.services.logicRegistry.emitSignal(this.elementName, signal);
       });
+      this.services.logicRegistry.registerLogic(this.elementName, {
+        events: this.logic.events,
+        eventProcessor: (eventName: string, eventArgs: any) =>
+          this.processEvent(eventName as any, eventArgs),
+        getState: () => this.state,
+      });
     }
     super.componentDidMount();
     if (this.logic) {
-      if (this.services) {
-        this.services.logicRegistry.registerLogic(this.elementName, {
-          events: this.logic.events,
-          eventProcessor: (eventName: string, eventArgs: any) =>
-            this.processEvent(eventName as any, eventArgs),
-        });
-      }
     }
   }
 

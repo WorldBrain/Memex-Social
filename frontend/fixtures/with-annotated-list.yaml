@@ -127,6 +127,21 @@ objects:
       entryTitle: Apples
       normalizedUrl: apples.so
       originalUrl: "https://apples.so"
+  sharedPageInfo:
+    - id: default-page
+      creator: { $ref: users.default }
+      createdWhen: 1594225555555
+      updatedWhen: 1594225555555
+      entryTitle: "WorldBrain's Memex"
+      normalizedUrl: getmemex.com
+      originalUrl: "https://getmemex.com"
+    - id: empty-page
+      creator: { $ref: users.default }
+      createdWhen: 1594225555555
+      updatedWhen: 1594225555555
+      entryTitle: Apples
+      normalizedUrl: apples.so
+      originalUrl: "https://apples.so"
   sharedAnnotations:
     - $store: annotation-1
       id: default-annotation

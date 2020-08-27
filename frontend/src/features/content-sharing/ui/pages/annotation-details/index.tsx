@@ -1,6 +1,5 @@
 import moment from "moment";
 import React from "react";
-import styled, { css } from "styled-components";
 import { UIElement, UIElementServices } from "../../../../../main-ui/classes";
 import Logic, { AnnotationDetailsState } from "./logic";
 import { AnnotationDetailsEvent, AnnotationDetailsDependencies } from "./types";
@@ -8,6 +7,8 @@ import DocumentTitle from "../../../../../main-ui/components/document-title";
 import DefaultPageLayout from "../../../../../common-ui/layouts/default-page-layout";
 import LoadingIndicator from "../../../../../common-ui/components/loading-indicator";
 const logoImage = require("../../../../../assets/img/memex-logo.svg");
+import styled, { css } from "styled-components";
+
 
 interface AnnotationDetailsProps extends AnnotationDetailsDependencies {
   services: UIElementServices;
@@ -58,7 +59,7 @@ export default class AnnotationDetailsPage extends UIElement<
     if (state.annotationLoadState === "error") {
       return (
         <DefaultPageLayout
-          viewportWidth={viewportWidth}
+          viewportBreakpoint={viewportWidth}
           headerTitle={"Annotation"}
         >
           Error loading annotation
@@ -70,7 +71,7 @@ export default class AnnotationDetailsPage extends UIElement<
     if (!annotation) {
       return (
         <DefaultPageLayout
-          viewportWidth={viewportWidth}
+          viewportBreakpoint={viewportWidth}
           headerTitle={"Annotation"}
         >
           Could not find annotation

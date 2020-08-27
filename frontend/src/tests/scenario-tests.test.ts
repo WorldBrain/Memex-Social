@@ -162,27 +162,15 @@ describe('In-memory scenario tests', () => {
             fixtureFetcher: async name =>
                 loadFixture(name, { fixtureFetcher: loadSingleFixture })
         })
-
-        // let eventExhaustionDetector = createEventExhaustionDetector({ timeoutInMs: 100 })
-        // main.services.logicRegistry.events.addListener('registered', registeredEvent => {
-        //     // console.log('registered', registeredEvent)
-        //     eventExhaustionDetector.postpone()
-
-        //     registeredEvent.events.addListener('mutation', mutationEvent => {
-        //         console.log('mutation', mutationEvent)
-        //         eventExhaustionDetector.postpone()
-        //     })
-        // })
+        main.services.logicRegistry.events.addListener('registered', registeredEvent => {
+            registeredEvent.events.addListener('mutation', mutationEvent => {
+                console.log('mutation', mutationEvent)
+            })
+        })
         await main.runUi()
-        // await eventExhaustionDetector.wait()
 
         for (const [stepIndex, step] of Object.entries(scenario.steps)) {
-            console.log('stepping')
-            // eventExhaustionDetector = createEventExhaustionDetector({ timeoutInMs: 100 })
-            // console.log('created new detector')
-            await main.stepWalkthrough?.()
-            // console.log('waiting')
-            // await eventExhaustionDetector.wait()
+            await main.services.scenarios.stepWalkthrough()
         }
     }
 

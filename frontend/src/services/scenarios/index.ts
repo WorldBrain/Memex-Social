@@ -33,6 +33,9 @@ type UntilScenarioStep = ScenarioStep | '$start' | '$end'
 export class ScenarioService {
     private scenarioModules: ScenarioModuleMap
     private scenarioStarted = createResolvable()
+    private startStepCompleted = createResolvable()
+    private walkthroughPausePromise = createResolvable()
+    private stepCompletedPromise = createResolvable()
 
     constructor(private options: {
         services: Pick<Services, 'logicRegistry' | 'auth'> & { fixtures: FixtureService },
@@ -61,7 +64,15 @@ export class ScenarioService {
         await this.scenarioStarted
     }
 
+    async waitForStartStep() {
+        return this.startStepCompleted
+    }
+
     async stepWalkthrough() {
+        const walkthroughPausePromise = this.walkthroughPausePromise
+        this.walkthroughPausePromise = createResolvable()
+        walkthroughPausePromise.resolve()
+        await this.stepCompletedPromise
     }
 
     async _loadScenarioFixture(scenario: Scenario) {
@@ -92,14 +103,20 @@ export class ScenarioService {
         if (waitForSignal) {
             await this.options.services.logicRegistry.waitForSignal(waitForSignal.target, waitForSignal.signal)
         }
+        this.startStepCompleted.resolve()
 
         for (const step of steps) {
             if (options.walkthrough) {
+                await this.walkthroughPausePromise
             }
             if ('callModifications' in step) {
                 this.options.modifyCalls(step.callModifications)
             }
             await this._executeStep(step)
+
+            const stepCompletedPromise = this.stepCompletedPromise
+            this.stepCompletedPromise = createResolvable()
+            stepCompletedPromise.resolve()
         }
     }
 

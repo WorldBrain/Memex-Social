@@ -1,0 +1,1 @@
+export type ViewportBreakpoint = "mobile" | "small" | "big" | "normal"

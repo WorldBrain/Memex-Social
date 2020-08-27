@@ -37,24 +37,26 @@ export const TEST_ANNOTATION_PAGE_URLS_BY_LOCAL_ID = fromPairs(flatten(
     )
 ))
 
+export const TEST_LIST_ENTRIES = [
+    {
+        entryTitle: 'Page 1',
+        originalUrl: 'https://www.foo.com/page-1',
+        normalizedUrl: 'foo.com/page-1',
+    },
+    {
+        entryTitle: 'Page 2',
+        originalUrl: 'https://www.bar.com/page-2',
+        normalizedUrl: 'bar.com/page-2',
+        createdWhen: 592,
+    },
+]
+
 export async function createTestListEntries(params: {
     contentSharing: ContentSharingStorage, listReference: SharedListReference, userReference: UserReference
 }) {
     await params.contentSharing.createListEntries({
         listReference: params.listReference,
-        listEntries: [
-            {
-                entryTitle: 'Page 1',
-                originalUrl: 'https://www.foo.com/page-1',
-                normalizedUrl: 'foo.com/page-1',
-            },
-            {
-                entryTitle: 'Page 2',
-                originalUrl: 'https://www.bar.com/page-2',
-                normalizedUrl: 'bar.com/page-2',
-                createdWhen: 592,
-            },
-        ],
+        listEntries: TEST_LIST_ENTRIES,
         userReference: params.userReference
     })
 }

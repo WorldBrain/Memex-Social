@@ -25,10 +25,9 @@ export async function metaProgram(options: { history: History, queryParams: Prog
                 return
             }
 
-            const startScenarioProgram = {
-                name: '$start',
-                description: 'Starting point',
-                run: (mountPoint: Element) => {
+            scenario.description = scenario.description ?? scenarioName
+            const stepPrograms: { [stepName: string]: (mountPoint: Element) => void } = {
+                '$start': (mountPoint: Element) => {
                     const history = createMemoryHistory()
                     mainProgram({
                         backend: 'memory', history, mountPoint,
@@ -39,12 +38,11 @@ export async function metaProgram(options: { history: History, queryParams: Prog
                     })
                 }
             }
-            const stepScenarioPrograms = filterScenarioSteps(scenario.steps, { untilStep: '$end' }).map(step => {
-                const history = createMemoryHistory()
-                return {
-                    name: step.name,
-                    description: step.description,
-                    run: (mountPoint: Element) => mainProgram({
+
+            for (const step of filterScenarioSteps(scenario.steps, { untilStep: '$end' })) {
+                stepPrograms[step.name] = (mountPoint: Element) => {
+                    const history = createMemoryHistory()
+                    mainProgram({
                         backend: 'memory', history, mountPoint,
                         navigateToScenarioStart: true,
                         queryParams: {
@@ -52,11 +50,13 @@ export async function metaProgram(options: { history: History, queryParams: Prog
                         }
                     })
                 }
-            })
+            }
 
             scenarios.push({
-                description: scenarioName,
-                steps: [startScenarioProgram, ...stepScenarioPrograms]
+                scenario,
+                pageName: scenarioIdentifier.pageName,
+                scenarioName,
+                stepPrograms
             })
         })(scenarioPair)
     }

@@ -1,4 +1,5 @@
 import flatten from 'lodash/flatten'
+import omit from 'lodash/omit'
 import sortBy from 'lodash/sortBy'
 import expect from 'expect'
 import { createStorageTestSuite } from '../../../tests/storage-tests'
@@ -143,6 +144,55 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
         })
     })
 
+    it('should store and retrieve page info', { withTestUser: true }, async ({ storage, services }) => {
+        const { contentSharing } = storage.serverModules
+        const userReference = services.auth.getCurrentUserReference()!
+        const pageInfo = {
+            ...data.TEST_LIST_ENTRIES[0],
+            fullTitle: data.TEST_LIST_ENTRIES[0].entryTitle,
+        }
+        delete pageInfo.entryTitle
+        const originalPageReference = await contentSharing.createPageInfo({
+            pageInfo,
+            creatorReference: userReference
+        })
+        const linkId = contentSharing.getSharedPageInfoLinkID(originalPageReference)
+        expect(linkId).toEqual(expect.any(String))
+        const pageReferenceFromId = contentSharing.getSharedPageInfoReferenceFromLinkID(linkId)
+        expect(pageReferenceFromId).toEqual(originalPageReference)
+        expect(await contentSharing.getPageInfo(pageReferenceFromId)).toEqual({
+            reference: originalPageReference,
+            pageInfo: {
+                ...pageInfo,
+                createdWhen: expect.any(Number),
+                updatedWhen: expect.any(Number),
+            },
+            creatorReference: userReference,
+        })
+    })
+
+    it('should ensure page info objects', { withTestUser: true }, async ({ storage, services }) => {
+        const { contentSharing } = storage.serverModules
+        const userReference = services.auth.getCurrentUserReference()!
+        const pageInfo = {
+            ...data.TEST_LIST_ENTRIES[0],
+            fullTitle: data.TEST_LIST_ENTRIES[0].entryTitle,
+        }
+        delete pageInfo.entryTitle
+        const firstPageReference = await contentSharing.ensurePageInfo({
+            pageInfo,
+            creatorReference: userReference
+        })
+        const secondPageReference = await contentSharing.ensurePageInfo({
+            pageInfo,
+            creatorReference: userReference
+        })
+        expect(firstPageReference).toEqual(secondPageReference)
+        expect(await storage.serverStorageManager.collection('sharedPageInfo').findObjects({})).toEqual([
+            expect.objectContaining({ normalizedUrl: data.TEST_LIST_ENTRIES[0].normalizedUrl })
+        ])
+    })
+
     it('should store and retrieve annotations', { withTestUser: true }, async ({ storage, services }) => {
         const { contentSharing } = storage.serverModules
         const userReference = services.auth.getCurrentUserReference()!
@@ -278,9 +328,52 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 normalizedPageUrl: 'bar.com/page-2',
                 uploadedWhen: expect.any(Number),
                 updatedWhen: expect.any(Number),
+                localId: undefined
             },
-            creator: userReference
+            creatorReference: userReference
         })
+    })
+
+    it('should retrieve all annotations by creator and URL', { withTestUser: true }, async ({ storage, services }) => {
+        const { contentSharing } = storage.serverModules
+        const userReference = services.auth.getCurrentUserReference()!
+        const listReference = await contentSharing.createSharedList({
+            listData: {
+                title: 'My list'
+            },
+            localListId: 55,
+            userReference
+        })
+        await data.createTestListEntries({ contentSharing, listReference: listReference, userReference })
+        await data.createTestAnnotations({ contentSharing, listReference: listReference, userReference })
+        const retrievedAnnotations = await contentSharing.getAnnotationsByCreatorAndPageUrl({
+            creatorReference: userReference,
+            normalizedPageUrl: 'foo.com/page-1'
+        })
+        expect(retrievedAnnotations).toEqual([
+            {
+                reference: expect.objectContaining({ type: 'shared-annotation-reference' }),
+                creator: userReference,
+                normalizedPageUrl: 'foo.com/page-1',
+                createdWhen: 500,
+                uploadedWhen: expect.any(Number),
+                updatedWhen: expect.any(Number),
+                body: 'Body 1',
+                comment: 'Comment 1',
+                selector: 'Selector 1',
+            },
+            {
+                reference: expect.objectContaining({ type: 'shared-annotation-reference' }),
+                creator: userReference,
+                createdWhen: 1500,
+                uploadedWhen: expect.any(Number),
+                updatedWhen: expect.any(Number),
+                normalizedPageUrl: 'foo.com/page-1',
+                body: 'Body 2',
+                comment: 'Comment 2',
+                selector: 'Selector 2',
+            },
+        ])
     })
 
     it('should retrieve all annotation entries for a list and get those annotations', { withTestUser: true }, async ({ storage, services }) => {
