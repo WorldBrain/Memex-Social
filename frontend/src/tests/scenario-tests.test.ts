@@ -163,6 +163,12 @@ describe('In-memory scenario tests', () => {
                 loadFixture(name, { fixtureFetcher: loadSingleFixture })
         })
         main.services.logicRegistry.events.addListener('registered', registeredEvent => {
+            registeredEvent.events.addListener('eventIncoming', eventIncomingEvent => {
+                console.log('eventIncoming', eventIncomingEvent)
+            })
+            registeredEvent.events.addListener('eventProcessed', eventProcessedEvent => {
+                console.log('eventProcessed', eventProcessedEvent)
+            })
             registeredEvent.events.addListener('mutation', mutationEvent => {
                 console.log('mutation', mutationEvent)
             })

@@ -1,35 +1,7 @@
 import isMatch from 'lodash/isMatch'
 import { EventEmitter } from "events";
 import TypedEmitter from 'typed-emitter'
-
-export interface LogicUnit {
-    events: EventEmitter
-    eventProcessor: LogicEventProcessor
-    getState(): any
-}
-interface LogicUnitData {
-    attributes: {
-        [key: string]: any;
-    };
-    emittedSignals: any[];
-}
-
-export type LogicEventProcessor = (eventName: string, eventArgs: any) => Promise<void>
-export type EventProcessedArgs = { event: { type: string, [key: string]: any }, mutation: any, state: any }
-export interface LogicRegistryEvents {
-    registered: (event: {
-        name: string;
-    } & LogicUnit) => void;
-    signal: (event: {
-        name: string;
-        signal: any;
-    }) => void;
-    'attribute.changed': (event: {
-        name: string;
-        key: string;
-        value: any;
-    }) => void;
-}
+import { LogicRegistryEvents, LogicUnit, LogicUnitData, EventProcessedArgs } from './types';
 
 export default class LogicRegistryService {
     events: TypedEmitter<LogicRegistryEvents> = new EventEmitter()
@@ -73,9 +45,9 @@ export default class LogicRegistryService {
                     console.log(`LOGIC/processed/${elementName}/${args.event.type}`, args)
                 },
             }
-            for (const [eventName, eventHandler] of Object.entries(this.eventLoggers[elementName])) {
-                logicUnit.events.on(eventName, eventHandler)
-            }
+            // for (const [eventName, eventHandler] of Object.entries(this.eventLoggers[elementName])) {
+            //     logicUnit.events.on(eventName, eventHandler)
+            // }
         }
     }
 
@@ -149,10 +121,10 @@ export default class LogicRegistryService {
         if (this.options && this.options.logEvents) {
             console.log(`LOGIC/unregistered/${elementName}`)
 
-            const logicUnit = this._logicUnits[elementName]
-            for (const [eventName, eventHandler] of Object.entries(this.eventLoggers[elementName])) {
-                logicUnit.events.off(eventName, eventHandler)
-            }
+            // const logicUnit = this._logicUnits[elementName]
+            // for (const [eventName, eventHandler] of Object.entries(this.eventLoggers[elementName])) {
+            //     logicUnit.events.off(eventName, eventHandler)
+            // }
         }
         delete this._logicUnits[elementName]
     }

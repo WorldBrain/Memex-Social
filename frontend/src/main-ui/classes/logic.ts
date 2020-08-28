@@ -23,7 +23,11 @@ export abstract class UILogic<State, Event extends coreUILogic.UIEvent<{}>> exte
             this.unsubscribeFromServiceEvents()
         }
 
+        this.events.emit('eventIncoming', { eventName, oldState: options.previousState })
+
         const toReturn = await super.processUIEvent(eventName, options)
+
+        this.events.emit('eventIncoming', { eventName, oldState: options.previousState })
 
         if (eventName === 'init') {
             this.events.emit('initialized')

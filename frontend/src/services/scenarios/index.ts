@@ -137,7 +137,6 @@ export class ScenarioService {
         } else {
             throw new Error(`Invalid scenario step: ${JSON.stringify(step)}`)
         }
-
         await stepPromise
     }
 }
