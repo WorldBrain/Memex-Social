@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import LoadingIndicator from "../../main-ui/components/loading-indicator";
+import LoadingIndicator from "./loading-indicator";
 
 const StyledLoadingScreen = styled.div`
   display: flex;

@@ -12,7 +12,7 @@ import { Margin } from "styled-components-spacing";
 import SmallButton from "../../../../../common-ui/components/small-button";
 import PageInfoBox from "../../../../../common-ui/components/page-info-box";
 import AnnotationsInPage from "../../../../../common-ui/components/annotations-in-page";
-import LoadingIndicator from "../../../../../main-ui/components/loading-indicator";
+import LoadingIndicator from "../../../../../common-ui/components/loading-indicator";
 
 const PageInfoList = styled.div`
   width: 100%;

@@ -6,9 +6,8 @@ import { AnnotationDetailsEvent, AnnotationDetailsDependencies } from "./types";
 import DocumentTitle from "../../../../../main-ui/components/document-title";
 import DefaultPageLayout from "../../../../../common-ui/layouts/default-page-layout";
 import LoadingIndicator from "../../../../../common-ui/components/loading-indicator";
+import styled from "styled-components";
 const logoImage = require("../../../../../assets/img/memex-logo.svg");
-import styled, { css } from "styled-components";
-
 
 interface AnnotationDetailsProps extends AnnotationDetailsDependencies {
   services: UIElementServices;
@@ -52,7 +51,7 @@ export default class AnnotationDetailsPage extends UIElement<
     ) {
       return (
         <LoadingScreen viewportWidth={viewportWidth}>
-            <LoadingIndicator />
+          <LoadingIndicator />
         </LoadingScreen>
       );
     }
@@ -87,77 +86,68 @@ export default class AnnotationDetailsPage extends UIElement<
         />
         <AnnotationPage>
           <IntroArea>
-            <LogoLinkArea
-              href={'https://getmemex.com'}
-            >
+            <LogoLinkArea href={"https://getmemex.com"}>
               <MemexLogo />
             </LogoLinkArea>
-            <IntroText>
-              Someone wants to share this note with you
-            </IntroText>
+            <IntroText>Someone wants to share this note with you</IntroText>
           </IntroArea>
           <AnnotationContainer>
             <AnnotationContentBox>
-              <AnnotationBody>
-                {annotation.body}
-              </AnnotationBody>
-              <AnnotationComment>
-                {annotation.comment}
-              </AnnotationComment>
+              <AnnotationBody>{annotation.body}</AnnotationBody>
+              <AnnotationComment>{annotation.comment}</AnnotationComment>
               <AnnotationAuthorBox>
                 <AnnotationAuthorName>
-                    {state.creatorLoadState === "success" && (
-                      <div>
-                        {creator && creator.displayName}
-                        {!creator && ""}
-                      </div>
-                    )}
+                  {state.creatorLoadState === "success" && (
+                    <div>
+                      {creator && creator.displayName}
+                      {!creator && ""}
+                    </div>
+                  )}
                 </AnnotationAuthorName>
                 <AnnotationAuthorUploadDate>
-                    {moment(annotation.createdWhen).format("LLL")}
-                </AnnotationAuthorUploadDate>  
+                  {moment(annotation.createdWhen).format("LLL")}
+                </AnnotationAuthorUploadDate>
               </AnnotationAuthorBox>
             </AnnotationContentBox>
             <AnnotationFooter>
               {state.pageInfoLoadState === "error" && (
-                    <AnnotationFooterError>Could not load page URL and title</AnnotationFooterError>
+                <AnnotationFooterError>
+                  Could not load page URL and title
+                </AnnotationFooterError>
               )}
               {state.pageInfoLoadState === "running" && (
-                  <LoadingIndicatorBox>
-                    <LoadingIndicator/>
-                  </LoadingIndicatorBox>
+                <LoadingIndicatorBox>
+                  <LoadingIndicator />
+                </LoadingIndicatorBox>
               )}
               {state.pageInfoLoadState === "success" && (
                 <>
-                    {!pageInfo && 
-                      <div>Could not find page URL and title</div>
-                    }
-                    {pageInfo && (
-                      <>
-                        <AnnotationFooterLeft>
-                          <AnnotationPageTitle>
-                            {pageInfo.pageTitle}
-                          </AnnotationPageTitle>
-                          <AnnotationPageUrl>
-                            {pageInfo.originalUrl}
-                          </AnnotationPageUrl>
-                        </AnnotationFooterLeft>
-                        <AnnotationFooterRight>
-                          <GoToAnnotationButton
-                            href={pageInfo.originalUrl}
-                            target="_blank"
-                          >
-                              Go to Page
-                          </GoToAnnotationButton>
-                        </AnnotationFooterRight>
-                      </>
-                    )}
+                  {!pageInfo && <div>Could not find page URL and title</div>}
+                  {pageInfo && (
+                    <>
+                      <AnnotationFooterLeft>
+                        <AnnotationPageTitle>
+                          {pageInfo.pageTitle}
+                        </AnnotationPageTitle>
+                        <AnnotationPageUrl>
+                          {pageInfo.originalUrl}
+                        </AnnotationPageUrl>
+                      </AnnotationFooterLeft>
+                      <AnnotationFooterRight>
+                        <GoToAnnotationButton
+                          href={pageInfo.originalUrl}
+                          target="_blank"
+                        >
+                          Go to Page
+                        </GoToAnnotationButton>
+                      </AnnotationFooterRight>
+                    </>
+                  )}
                 </>
               )}
             </AnnotationFooter>
           </AnnotationContainer>
-          <OutroArea>
-          </OutroArea>
+          <OutroArea></OutroArea>
         </AnnotationPage>
       </>
     );
@@ -170,8 +160,8 @@ const IntroArea = styled.div`
   margin: -30px 15px 15px 30px;
   flex-direction: column;
   align-items: center;
-`
-const IntroText= styled.div`
+`;
+const IntroText = styled.div`
   display: flex;
   justify-content: center;
   text-align: center;
@@ -183,11 +173,9 @@ const IntroText= styled.div`
   box-decoration-break: clone;
   font-size: 16px;
   color: ${(props) => props.theme.colors.primary};
-`
+`;
 
-const LogoLinkArea = styled.a`
-  
-`
+const LogoLinkArea = styled.a``;
 
 const MemexLogo = styled.div`
   height: 24px;
@@ -200,7 +188,7 @@ const MemexLogo = styled.div`
   background-repeat: no-repeat;
   background-image: url(${logoImage});
   display: flex;
-`
+`;
 
 const AnnotationPage = styled.div`
   display: flex;
@@ -212,21 +200,21 @@ const AnnotationPage = styled.div`
   & div {
     font-family: ${(props) => props.theme.fonts.primary};
   }
-`
+`;
 
 const AnnotationContainer = styled.div`
   width: 90%;
   max-width: 550px;
 
-  background: #FFFFFF;
+  background: #ffffff;
   border: 1.72269px solid rgba(0, 0, 0, 0.1);
   box-sizing: border-box;
   box-shadow: 0px 3.72px 27px rgba(0, 0, 0, 0.1);
   border-radius: 8.61345px;
-`
+`;
 const AnnotationContentBox = styled.div`
   padding: 25px 25px 10px 25px;
-`
+`;
 
 const AnnotationBody = styled.span`
   font-family: ${(props) => props.theme.fonts.primary};
@@ -239,8 +227,7 @@ const AnnotationBody = styled.span`
   box-decoration-break: clone;
   font-size: 16px;
   color: ${(props) => props.theme.colors.primary};
-
-`
+`;
 const AnnotationComment = styled.div`
   font-family: ${(props) => props.theme.fonts.primary};
   font-weight: normal;
@@ -251,7 +238,7 @@ const AnnotationComment = styled.div`
   box-decoration-break: clone;
   font-size: 16px;
   color: ${(props) => props.theme.colors.primary};
-`
+`;
 const AnnotationAuthorBox = styled.div`
   display: flex;
   flex-direction: row;
@@ -259,19 +246,19 @@ const AnnotationAuthorBox = styled.div`
   font-family: ${(props) => props.theme.fonts.primary};
   padding: 0 5px;
   margin-top: 15px;
-`
+`;
 const AnnotationAuthorName = styled.div`
   color: ${(props) => props.theme.colors.primary};
   font-size: 12px;
-  font-weight: bold;  
+  font-weight: bold;
   height: 24px;
-`
+`;
 
 const AnnotationAuthorUploadDate = styled.div`
   color: ${(props) => props.theme.colors.primary};
   font-size: 12px;
-  font-weight: normal;  
-`
+  font-weight: normal;
+`;
 const AnnotationFooter = styled.div`
   border-top: 1px solid ${(props) => props.theme.colors.grey};
   padding: 15px 30px;
@@ -279,23 +266,23 @@ const AnnotationFooter = styled.div`
   align-items: center;
   justify-content: space-between;
   height: 70px;
-`
+`;
 
 const LoadingIndicatorBox = styled.div`
   display: flex;
   justify-content: center;
   width: 100%;
-`
+`;
 
 const AnnotationFooterRight = styled.div`
   width: fit-content;
-`
+`;
 const AnnotationFooterLeft = styled.div`
-    flex: 1;
-    width: 50%;
-    padding-right: 20px;
-`
-const AnnotationFooterError = styled.div``
+  flex: 1;
+  width: 50%;
+  padding-right: 20px;
+`;
+const AnnotationFooterError = styled.div``;
 
 const AnnotationPageTitle = styled.div`
   font-family: ${(props) => props.theme.fonts.primary};
@@ -306,7 +293,7 @@ const AnnotationPageTitle = styled.div`
   text-overflow: ellipsis;
   overflow-wrap: break-word;
   overflow-x: hidden;
-`
+`;
 
 const AnnotationPageUrl = styled.div`
   font-family: ${(props) => props.theme.fonts.primary};
@@ -316,7 +303,7 @@ const AnnotationPageUrl = styled.div`
   text-overflow: ellipsis;
   overflow-wrap: break-word;
   overflow-x: hidden;
-`
+`;
 
 const GoToAnnotationButton = styled.a`
   border-radius: 5px;
@@ -332,11 +319,11 @@ const GoToAnnotationButton = styled.a`
   font-size: 14px;
   font-weight: bold;
   text-decoration: none;
-`
+`;
 const OutroArea = styled.div`
   display: flex;
   justify-content: center;
-`
+`;
 
 const LoadingScreen = styled.div<{
   viewportWidth: "mobile" | "small" | "normal" | "big";

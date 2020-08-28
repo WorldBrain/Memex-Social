@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { UITaskState } from "../../main-ui/types";
-import LoadingIndicator from "../../main-ui/components/loading-indicator";
+import LoadingIndicator from "./loading-indicator";
 import ErrorBox from "./error-box";
 import { Margin } from "styled-components-spacing";
 import { SharedAnnotation } from "@worldbrain/memex-common/lib/content-sharing/types";
