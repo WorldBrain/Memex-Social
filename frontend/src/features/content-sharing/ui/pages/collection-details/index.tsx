@@ -20,10 +20,9 @@ import PageInfoBox, {
 import { ViewportBreakpoint } from "../../../../../main-ui/styles/types";
 import LoadingScreen from "../../../../../common-ui/components/loading-screen";
 import { getViewportBreakpoint } from "../../../../../main-ui/styles/utils";
-import ErrorBox from "../../../../../common-ui/components/error-box";
-import SmallButton from "../../../../../common-ui/components/small-button";
 import AnnotationsInPage from "../../../../../common-ui/components/annotations-in-page";
 import ErrorBoxWithAction from "../../../../../common-ui/components/error-with-action";
+import ErrorBox from "../../../../../common-ui/components/error-box";
 const commentImage = require("../../../../../assets/img/comment.svg");
 
 interface CollectionDetailsProps extends CollectionDetailsDependencies {
@@ -106,23 +105,6 @@ const ToggleAllAnnotations = styled.div`
 
 const PageInfoList = styled.div`
   width: 100%;
-`;
-
-const ListNotFoundBox = styled.div`
-  font-family: ${(props) => props.theme.fonts.primary};
-  width: 100%;
-  padding: 20px 20px;
-  color: ${(props) => props.theme.colors.primary};
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  margin: 30px 0;
-  text-align: center;
-`;
-
-const ListNotFoundText = styled.div`
-  margin-bottom: 20px;
 `;
 
 const EmptyListBox = styled.div`
@@ -286,9 +268,9 @@ export default class CollectionDetailsPage extends UIElement<
           )}
           {state.annotationEntriesLoadState === "error" && (
             <Margin bottom={"large"}>
-              <ErrorBox>
+              <ErrorBoxWithAction errorType="internal-error">
                 Error loading page notes. Reload page to retry.
-              </ErrorBox>
+              </ErrorBoxWithAction>
             </Margin>
           )}
           <ToggleAllBox viewportWidth={viewportBreakpoint}>
@@ -306,14 +288,7 @@ export default class CollectionDetailsPage extends UIElement<
           <PageInfoList>
             {data.listEntries.length === 0 && (
               <EmptyListBox>
-                <ListNotFoundText>
-                  This collection has no pages in it (yet).
-                </ListNotFoundText>
-                <SmallButton
-                  onClick={() => window.open("https://getmemex.com")}
-                >
-                  Create your first collection
-                </SmallButton>
+                <ErrorBox>This collection has no pages in it (yet).</ErrorBox>
               </EmptyListBox>
             )}
             {[...data.listEntries.entries()].map(([entryIndex, entry]) => (
