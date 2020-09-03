@@ -105,8 +105,8 @@ export default class AnnotationDetailsPage extends UIElement<
           </IntroArea>
           <AnnotationContainer>
             <AnnotationContentBox>
-              <AnnotationBody>{annotation.body}</AnnotationBody>
-              <AnnotationComment>{annotation.comment}</AnnotationComment>
+              {annotation.body && (<AnnotationBody>{annotation.body}</AnnotationBody>)}
+              {annotation.comment && (<AnnotationComment>{annotation.comment}</AnnotationComment>)}
               <AnnotationAuthorBox>
                 <AnnotationAuthorName>
                   {state.creatorLoadState === "success" && (
