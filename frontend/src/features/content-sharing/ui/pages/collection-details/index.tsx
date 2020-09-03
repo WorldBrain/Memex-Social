@@ -116,7 +116,7 @@ const ListNotFoundBox = styled.div`
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  margin: 30px;
+  margin: 30px 0;
   text-align: center;
 `;
 

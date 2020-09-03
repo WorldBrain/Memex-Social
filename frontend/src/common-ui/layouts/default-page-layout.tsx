@@ -179,9 +179,6 @@ const PageMiddleArea = styled.div<{
   position: relative;
   padding-bottom: 100px;
   margin: 20px auto 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
 
   ${(props) =>
     props.viewportWidth === "small" &&
