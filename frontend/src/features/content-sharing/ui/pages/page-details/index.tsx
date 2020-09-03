@@ -13,6 +13,7 @@ import SmallButton from "../../../../../common-ui/components/small-button";
 import PageInfoBox from "../../../../../common-ui/components/page-info-box";
 import AnnotationsInPage from "../../../../../common-ui/components/annotations-in-page";
 import LoadingIndicator from "../../../../../common-ui/components/loading-indicator";
+import ErrorBoxWithAction from "../../../../../common-ui/components/error-with-action";
 
 const PageInfoList = styled.div`
   width: 100%;
@@ -85,16 +86,9 @@ export default class PageDetailsPage extends UIElement<
             documentTitle={this.props.services.documentTitle}
             subTitle="Error loading page  :("
           />
-          <Margin bottom={"large"}>
-            <ErrorBox>
-              Error loading page contents. <br /> Reload page to retry.
-            </ErrorBox>
-          </Margin>
-          <SmallButton
-            onClick={() => window.open("https://worldbrain.io/report-bugs")}
-          >
-            Report Problem
-          </SmallButton>
+          <ErrorBoxWithAction errorType="internal-error">
+            Error loading page contents. <br /> Reload page to retry.
+          </ErrorBoxWithAction>
         </DefaultPageLayout>
       );
     }
@@ -106,8 +100,16 @@ export default class PageDetailsPage extends UIElement<
           viewportBreakpoint={viewportWidth}
           headerTitle={"Annotation"}
         >
-          Did not find the page you were looking for. Maybe somebody shared it,
-          but then removed it again?
+          <ErrorBoxWithAction
+            errorType="not-found"
+            action={{
+              label: "Create your first collection",
+              url: "https://getmemex.com",
+            }}
+          >
+            Could not find the page you were looking for. Maybe somebody shared
+            it, but then removed it again?
+          </ErrorBoxWithAction>
         </DefaultPageLayout>
       );
     }
@@ -136,11 +138,12 @@ export default class PageDetailsPage extends UIElement<
                   </AnnotationsLoading>
                 </Margin>
               )}
+              {/* Modify the next line to show something if the page doesn't have any annotations */}
               {state.annotationLoadState === "success" &&
                 !annotations?.length &&
-                "This page doesn't have any notes"}
+                " "}
               {state.annotationLoadState === "success" &&
-                annotations?.length && (
+                !!annotations?.length && (
                   <AnnotationsInPage
                     loadState={state.annotationLoadState}
                     annotations={annotations}

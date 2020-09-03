@@ -23,6 +23,7 @@ import { getViewportBreakpoint } from "../../../../../main-ui/styles/utils";
 import ErrorBox from "../../../../../common-ui/components/error-box";
 import SmallButton from "../../../../../common-ui/components/small-button";
 import AnnotationsInPage from "../../../../../common-ui/components/annotations-in-page";
+import ErrorBoxWithAction from "../../../../../common-ui/components/error-with-action";
 const commentImage = require("../../../../../assets/img/comment.svg");
 
 interface CollectionDetailsProps extends CollectionDetailsDependencies {
@@ -224,18 +225,9 @@ export default class CollectionDetailsPage extends UIElement<
       return (
         <DocumentView>
           <DefaultPageLayout viewportBreakpoint={viewportBreakpoint}>
-            <ListNotFoundBox>
-              <Margin bottom={"large"}>
-                <ErrorBox>
-                  Error loading this collection. <br /> Reload page to retry.
-                </ErrorBox>
-              </Margin>
-              <SmallButton
-                onClick={() => window.open("https://worldbrain.io/report-bugs")}
-              >
-                Report Problem
-              </SmallButton>
-            </ListNotFoundBox>
+            <ErrorBoxWithAction errorType="internal-error">
+              Error loading this collection. <br /> Reload page to retry.
+            </ErrorBoxWithAction>
           </DefaultPageLayout>
         </DocumentView>
       );
@@ -245,14 +237,15 @@ export default class CollectionDetailsPage extends UIElement<
     if (!data) {
       return (
         <DefaultPageLayout viewportBreakpoint={viewportBreakpoint}>
-          <ListNotFoundBox>
-            <ListNotFoundText>
-              You're trying to access a collection that does not exist (yet).
-            </ListNotFoundText>
-            <SmallButton onClick={() => window.open("https://getmemex.com")}>
-              Create your first collection
-            </SmallButton>
-          </ListNotFoundBox>
+          <ErrorBoxWithAction
+            errorType="not-found"
+            action={{
+              label: "Create your first collection",
+              url: "https://getmemex.com",
+            }}
+          >
+            You're trying to access a collection that does not exist (yet).
+          </ErrorBoxWithAction>
         </DefaultPageLayout>
       );
     }
