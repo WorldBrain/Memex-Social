@@ -1,6 +1,7 @@
 import React from "react";
 import styled, { css } from "styled-components";
 import { ViewportBreakpoint } from "../../main-ui/styles/types";
+import SmallButton from "../components/small-button";
 const logoImage = require("../../assets/img/memex-logo.svg");
 
 const middleMaxWidth = "800px";
@@ -154,23 +155,6 @@ const HeaderCtaArea = styled.div<{
   white-space: nowrap;
 `;
 
-const SignUp = styled.div<{
-  viewportWidth: "mobile" | "small" | "normal" | "big";
-}>`
-  padding: 3px 10px;
-  font-size: 12px;
-  font-weight: 500;
-  background-color: #5cd9a6;
-  border-radius: 3px;
-  background-color: ${(props) => props.theme.colors.secondary};
-  cursor: pointer;
-  white-space: nowrap;
-
-  &:hover {
-    opacity: 0.8;
-  }
-`;
-
 const PageMiddleArea = styled.div<{
   viewportWidth: "mobile" | "small" | "normal" | "big";
 }>`
@@ -228,12 +212,9 @@ export default function DefaultPageLayout(props: {
           )}
         </HeaderMiddleArea>
         <HeaderCtaArea viewportWidth={viewportWidth}>
-          <SignUp
-            onClick={() => window.open("https://getmemex.com")}
-            viewportWidth={viewportWidth}
-          >
+          <SmallButton externalHref="https://getmemex.com">
             Share your research
-          </SignUp>
+          </SmallButton>
         </HeaderCtaArea>
       </StyledHeader>
       <PageMiddleArea viewportWidth={viewportWidth}>

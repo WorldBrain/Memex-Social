@@ -41,14 +41,12 @@ export default function ErrorWithAction(
         {props.errorType === "not-found" && props.children}
       </Margin>
       {props.errorType === "internal-error" && (
-        <SmallButton
-          onClick={() => window.open("https://worldbrain.io/report-bugs")}
-        >
+        <SmallButton externalHref="https://worldbrain.io/report-bugs">
           Report Problem
         </SmallButton>
       )}
       {props.errorType === "not-found" && (
-        <SmallButton onClick={() => window.open(props.action.url)}>
+        <SmallButton externalHref={props.action.url}>
           {props.action.label}
         </SmallButton>
       )}
