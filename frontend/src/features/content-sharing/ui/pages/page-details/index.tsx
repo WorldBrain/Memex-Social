@@ -11,7 +11,7 @@ import { Margin } from "styled-components-spacing";
 import PageInfoBox from "../../../../../common-ui/components/page-info-box";
 import AnnotationsInPage from "../../../../../common-ui/components/annotations-in-page";
 import LoadingIndicator from "../../../../../common-ui/components/loading-indicator";
-import ErrorBoxWithAction from "../../../../../common-ui/components/error-with-action";
+import ErrorWithAction from "../../../../../common-ui/components/error-with-action";
 
 const PageInfoList = styled.div`
   width: 100%;
@@ -84,9 +84,9 @@ export default class PageDetailsPage extends UIElement<
             documentTitle={this.props.services.documentTitle}
             subTitle="Error loading page  :("
           />
-          <ErrorBoxWithAction errorType="internal-error">
+          <ErrorWithAction errorType="internal-error">
             Error loading page contents. <br /> Reload page to retry.
-          </ErrorBoxWithAction>
+          </ErrorWithAction>
         </DefaultPageLayout>
       );
     }
@@ -98,7 +98,7 @@ export default class PageDetailsPage extends UIElement<
           viewportBreakpoint={viewportWidth}
           headerTitle={"Annotation"}
         >
-          <ErrorBoxWithAction
+          <ErrorWithAction
             errorType="not-found"
             action={{
               label: "Create your first collection",
@@ -107,7 +107,7 @@ export default class PageDetailsPage extends UIElement<
           >
             Could not find the page you were looking for. Maybe somebody shared
             it, but then removed it again?
-          </ErrorBoxWithAction>
+          </ErrorWithAction>
         </DefaultPageLayout>
       );
     }

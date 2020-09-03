@@ -7,7 +7,7 @@ import DocumentTitle from "../../../../../main-ui/components/document-title";
 import DefaultPageLayout from "../../../../../common-ui/layouts/default-page-layout";
 import LoadingIndicator from "../../../../../common-ui/components/loading-indicator";
 import styled from "styled-components";
-import ErrorBoxWithAction from "../../../../../common-ui/components/error-with-action";
+import ErrorWithAction from "../../../../../common-ui/components/error-with-action";
 const logoImage = require("../../../../../assets/img/memex-logo.svg");
 
 interface AnnotationDetailsProps extends AnnotationDetailsDependencies {
@@ -62,9 +62,9 @@ export default class AnnotationDetailsPage extends UIElement<
           viewportBreakpoint={viewportWidth}
           headerTitle={"Annotation"}
         >
-          <ErrorBoxWithAction errorType="internal-error">
+          <ErrorWithAction errorType="internal-error">
             Error loading note. <br /> Reload page to retry.
-          </ErrorBoxWithAction>
+          </ErrorWithAction>
         </DefaultPageLayout>
       );
     }
@@ -76,7 +76,7 @@ export default class AnnotationDetailsPage extends UIElement<
           viewportBreakpoint={viewportWidth}
           headerTitle={"Annotation"}
         >
-          <ErrorBoxWithAction
+          <ErrorWithAction
             errorType="not-found"
             action={{
               label: "Create your first collection",
@@ -85,7 +85,7 @@ export default class AnnotationDetailsPage extends UIElement<
           >
             Could not find the not you were looking for. Maybe somebody shared
             it, but then removed it again?
-          </ErrorBoxWithAction>
+          </ErrorWithAction>
         </DefaultPageLayout>
       );
     }

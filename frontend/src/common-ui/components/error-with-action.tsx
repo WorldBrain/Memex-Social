@@ -16,7 +16,7 @@ const ListNotFoundBox = styled.div`
   text-align: center;
 `;
 
-export default function ErrorBoxWithAction(
+export default function ErrorWithAction(
   props: {
     children: React.ReactNode;
   } & (

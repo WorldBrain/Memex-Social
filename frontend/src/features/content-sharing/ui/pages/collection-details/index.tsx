@@ -21,7 +21,7 @@ import { ViewportBreakpoint } from "../../../../../main-ui/styles/types";
 import LoadingScreen from "../../../../../common-ui/components/loading-screen";
 import { getViewportBreakpoint } from "../../../../../main-ui/styles/utils";
 import AnnotationsInPage from "../../../../../common-ui/components/annotations-in-page";
-import ErrorBoxWithAction from "../../../../../common-ui/components/error-with-action";
+import ErrorWithAction from "../../../../../common-ui/components/error-with-action";
 import ErrorBox from "../../../../../common-ui/components/error-box";
 const commentImage = require("../../../../../assets/img/comment.svg");
 
@@ -207,9 +207,9 @@ export default class CollectionDetailsPage extends UIElement<
       return (
         <DocumentView>
           <DefaultPageLayout viewportBreakpoint={viewportBreakpoint}>
-            <ErrorBoxWithAction errorType="internal-error">
+            <ErrorWithAction errorType="internal-error">
               Error loading this collection. <br /> Reload page to retry.
-            </ErrorBoxWithAction>
+            </ErrorWithAction>
           </DefaultPageLayout>
         </DocumentView>
       );
@@ -219,7 +219,7 @@ export default class CollectionDetailsPage extends UIElement<
     if (!data) {
       return (
         <DefaultPageLayout viewportBreakpoint={viewportBreakpoint}>
-          <ErrorBoxWithAction
+          <ErrorWithAction
             errorType="not-found"
             action={{
               label: "Create your first collection",
@@ -227,7 +227,7 @@ export default class CollectionDetailsPage extends UIElement<
             }}
           >
             You're trying to access a collection that does not exist (yet).
-          </ErrorBoxWithAction>
+          </ErrorWithAction>
         </DefaultPageLayout>
       );
     }
@@ -268,9 +268,9 @@ export default class CollectionDetailsPage extends UIElement<
           )}
           {state.annotationEntriesLoadState === "error" && (
             <Margin bottom={"large"}>
-              <ErrorBoxWithAction errorType="internal-error">
+              <ErrorWithAction errorType="internal-error">
                 Error loading page notes. Reload page to retry.
-              </ErrorBoxWithAction>
+              </ErrorWithAction>
             </Margin>
           )}
           <ToggleAllBox viewportWidth={viewportBreakpoint}>
