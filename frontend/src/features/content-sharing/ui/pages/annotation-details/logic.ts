@@ -1,5 +1,5 @@
 import { User, UserReference } from "@worldbrain/memex-common/lib/web-interface/types/users"
-import { SharedAnnotation } from "@worldbrain/memex-common/lib/content-sharing/types"
+import { SharedAnnotation, SharedPageInfo } from "@worldbrain/memex-common/lib/content-sharing/types"
 import { UILogic, UIEventHandler, executeUITask } from "../../../../../main-ui/classes/logic"
 import { UITaskState } from "../../../../../main-ui/types"
 import { AnnotationDetailsEvent, AnnotationDetailsDependencies } from "./types"
@@ -9,7 +9,7 @@ export interface AnnotationDetailsState {
     annotation?: SharedAnnotation | null
 
     pageInfoLoadState: UITaskState
-    pageInfo?: { originalUrl: string, pageTitle: string } | null
+    pageInfo?: SharedPageInfo | null
 
     creatorLoadState: UITaskState
     creator?: User | null
@@ -51,17 +51,14 @@ export default class AnnotationDetailsLogic extends UILogic<AnnotationDetailsSta
                     return
                 }
 
-                const entry = (await contentSharing.getRandomUserListEntryForUrl({
+                const result = (await contentSharing.getPageInfoByCreatorAndUrl({
                     creatorReference,
                     normalizedUrl: annotation.normalizedPageUrl
-                }))?.entry
+                }))
                 return {
                     mutation: {
                         pageInfo: {
-                            $set: entry && {
-                                originalUrl: entry.originalUrl,
-                                pageTitle: entry.entryTitle,
-                            },
+                            $set: result?.pageInfo,
                         }
                     }
                 }

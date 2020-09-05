@@ -22,7 +22,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                 }),
                 callModification({
                     name: 'page-info-loading',
-                    object: storage.serverModules.contentSharing, property: 'getRandomUserListEntryForUrl',
+                    object: storage.serverModules.contentSharing, property: 'getPageInfoByCreatorAndUrl',
                     modifier: 'block'
                 }),
                 callModification({
@@ -85,7 +85,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
             callModifications: ({ storage }) => [
                 callModification({
                     name: 'annotation-entries-loading',
-                    object: storage.serverModules.contentSharing, property: 'getRandomUserListEntryForUrl',
+                    object: storage.serverModules.contentSharing, property: 'getPageInfoByCreatorAndUrl',
                     modifier: 'sabotage'
                 }),
             ]
