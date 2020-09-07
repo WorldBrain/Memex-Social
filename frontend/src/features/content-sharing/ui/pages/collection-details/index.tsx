@@ -296,7 +296,7 @@ export default class CollectionDetailsPage extends UIElement<
                 <Margin bottom={"small"}>{this.renderPageEntry(entry)}</Margin>
                 {state.pageAnnotationsExpanded[entry.normalizedUrl] && (
                   <Margin left={"small"}>
-                    <Margin bottom={"large"}>
+                    <Margin bottom={"smallest"}>
                       <AnnotationsInPage
                         loadState={
                           state.annotationLoadStates[entry.normalizedUrl]

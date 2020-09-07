@@ -20,7 +20,12 @@ const AnnotationLine = styled.span`
 `;
 
 const AnnotationList = styled.div`
-  min-height: 50px;
+  min-height: 60px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 `;
 
 const CenteredContent = styled.div`
@@ -28,6 +33,7 @@ const CenteredContent = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  width: 100%;
 `;
 
 export default function AnnotationsInPage(props: {
@@ -51,13 +57,13 @@ export default function AnnotationsInPage(props: {
     return (
       <AnnotationContainer>
         <AnnotationLine />
-        <Margin bottom={"medium"}>
-          <CenteredContent>
-            <ErrorBox>
-              Error loading page notes. <br /> Reload page to retry.
-            </ErrorBox>
-          </CenteredContent>
-        </Margin>
+        <CenteredContent>
+          <Margin bottom={"medium"}>
+              <ErrorBox>
+                Error loading page notes. <br /> Reload page to retry.
+              </ErrorBox>
+          </Margin>
+        </CenteredContent>
       </AnnotationContainer>
     );
   }
