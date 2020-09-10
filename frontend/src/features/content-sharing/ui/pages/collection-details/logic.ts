@@ -201,11 +201,12 @@ export default class CollectionDetailsLogic extends UILogic<CollectionDetailsSta
             annotationChunks.push(promise)
         }
 
-        for (const [normalizedPageUrl, pagePromises] of Object.entries(promisesByPage)) {
-            this.emitMutation({
-                annotationLoadStates: { [normalizedPageUrl]: { $set: 'running' } },
-            })
-            this.pageAnnotationPromises[normalizedPageUrl] = (async () => {
+        for (const promisesByPageEntry of Object.entries(promisesByPage)) {
+            this.pageAnnotationPromises[promisesByPageEntry[0]] = (async ([normalizedPageUrl, pagePromises]: [string, Promise<GetAnnotationsResult>[]]) => {
+                this.emitMutation({
+                    annotationLoadStates: { [normalizedPageUrl]: { $set: 'running' } },
+                })
+
                 try {
                     const annotationChunks = await Promise.all(pagePromises)
                     // await new Promise(resolve => setTimeout(resolve, 2000))
@@ -228,7 +229,7 @@ export default class CollectionDetailsLogic extends UILogic<CollectionDetailsSta
                     })
                     console.error(e)
                 }
-            })()
+            })(promisesByPageEntry)
         }
 
         try {
