@@ -98,6 +98,10 @@ export default class PageDetailsPage extends UIElement<
           viewportBreakpoint={viewportWidth}
           headerTitle={"Annotation"}
         >
+          <DocumentTitle
+            documentTitle={this.props.services.documentTitle}
+            subTitle="Shared page not found"
+          />
           <ErrorWithAction
             errorType="not-found"
             action={{
@@ -105,8 +109,8 @@ export default class PageDetailsPage extends UIElement<
               url: "https://getmemex.com",
             }}
           >
-            Could not find the page you were looking for. Maybe somebody shared
-            it, but then removed it again?
+            Could not find the shared page you were looking for. Maybe somebody
+            shared it, but then removed it again?
           </ErrorWithAction>
         </DefaultPageLayout>
       );
