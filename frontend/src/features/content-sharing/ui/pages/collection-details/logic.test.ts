@@ -42,6 +42,9 @@ class TestDataFactory {
     }
 }
 
+// just for code formatting purposes
+const description = (s: string) => s
+
 createStorageTestSuite('Collection details logic', ({ it }) => {
     it('should load all annotations for a page', { withTestUser: true }, async ({ storage, services }) => {
         const contentSharing = storage.serverModules.contentSharing;
@@ -102,6 +105,68 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
         }))
 
         getAnnotationModification.unblockOldest()
+        await logic.pageAnnotationPromises[firstListEntry.normalizedUrl]
+        expect(container.state).toEqual(expect.objectContaining({
+            pageAnnotationsExpanded: {
+                [firstListEntry.normalizedUrl]: true,
+            },
+            annotationLoadStates: {
+                [firstListEntry.normalizedUrl]: 'success',
+            },
+        }))
+        expect({ annotationCount: Object.keys(container.state.annotations).length }).toEqual({
+            annotationCount: 15
+        })
+    })
+
+    it(description(
+        `should load all annotations for a page also when` +
+        `multiple annotation entries exist for the same annotation`
+    ), { withTestUser: true }, async ({ storage, services }) => {
+        const contentSharing = storage.serverModules.contentSharing;
+        const userReference = (services.auth.getCurrentUserReference()!);
+        const listReference = await contentSharing.createSharedList({
+            userReference,
+            localListId: 33,
+            listData: { title: 'Test list' },
+        })
+
+        const testDataFactory = new TestDataFactory()
+        const firstListEntry = testDataFactory.createListEntry();
+        await contentSharing.createListEntries({
+            userReference,
+            listReference,
+            listEntries: [
+                firstListEntry,
+                testDataFactory.createListEntry(),
+            ],
+        })
+
+        const testAnnotations = range(15).map(() => testDataFactory.createAnnotation(firstListEntry.normalizedUrl));
+        const { sharedAnnotationReferences } = await contentSharing.createAnnotations({
+            creator: userReference,
+            listReferences: [listReference],
+            annotationsByPage: { [firstListEntry.normalizedUrl]: testAnnotations },
+        })
+        await contentSharing.addAnnotationsToLists({
+            creator: userReference,
+            sharedAnnotations: [{
+                createdWhen: Date.now(),
+                normalizedPageUrl: firstListEntry.normalizedUrl,
+                reference: sharedAnnotationReferences[testAnnotations[0].localId]
+            }],
+            sharedListReferences: [listReference]
+        })
+
+        const logic = new CollectionDetailsLogic({
+            contentSharing: storage.serverModules.contentSharing,
+            userManagement: storage.serverModules.users,
+            listID: storage.serverModules.contentSharing.getSharedListLinkID(listReference),
+        });
+        const container = new TestLogicContainer<CollectionDetailsState, CollectionDetailsEvent>(logic)
+        await container.init()
+        await container.processEvent('togglePageAnnotations', { normalizedUrl: firstListEntry.normalizedUrl })
+
         await logic.pageAnnotationPromises[firstListEntry.normalizedUrl]
         expect(container.state).toEqual(expect.objectContaining({
             pageAnnotationsExpanded: {

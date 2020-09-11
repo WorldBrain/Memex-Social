@@ -1,3 +1,4 @@
+import orderBy from 'lodash/orderBy'
 import { User, UserReference } from "@worldbrain/memex-common/lib/web-interface/types/users"
 import { SharedAnnotation, SharedPageInfo } from "@worldbrain/memex-common/lib/content-sharing/types"
 import { UILogic, UIEventHandler, executeUITask } from "../../../../../main-ui/classes/logic"
@@ -54,10 +55,10 @@ export default class PageDetailsLogic extends UILogic<PageDetailsState, PageDeta
                 return {
                     mutation: {
                         annotations: {
-                            $set: await contentSharing.getAnnotationsByCreatorAndPageUrl({
+                            $set: orderBy(await contentSharing.getAnnotationsByCreatorAndPageUrl({
                                 creatorReference,
                                 normalizedPageUrl: pageInfo.normalizedUrl,
-                            })
+                            }), ['createdWhen', 'desc'])
                         }
                     }
                 }

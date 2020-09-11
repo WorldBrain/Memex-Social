@@ -105,8 +105,8 @@ export default class AnnotationDetailsPage extends UIElement<
           </IntroArea>
           <AnnotationContainer>
             <AnnotationContentBox>
-              <AnnotationBody>{annotation.body}</AnnotationBody>
-              <AnnotationComment>{annotation.comment}</AnnotationComment>
+              {annotation.body && (<AnnotationBody>{annotation.body}</AnnotationBody>)}
+              {annotation.comment && (<AnnotationComment>{annotation.comment}</AnnotationComment>)}
               <AnnotationAuthorBox>
                 <AnnotationAuthorName>
                   {state.creatorLoadState === "success" && (
@@ -204,10 +204,11 @@ const MemexLogo = styled.div`
 
 const AnnotationPage = styled.div`
   display: flex;
-  justify-content: center;
   align-items: center;
   height: 100vh;
   flex-direction: column;
+  justify-content: flex-start;
+  padding: 25vh 0;
 
   & div {
     font-family: ${(props) => props.theme.fonts.primary};
@@ -217,6 +218,7 @@ const AnnotationPage = styled.div`
 const AnnotationContainer = styled.div`
   width: 90%;
   max-width: 550px;
+  margin-bottom: 25vh;
 
   background: #ffffff;
   border: 1.72269px solid rgba(0, 0, 0, 0.1);
