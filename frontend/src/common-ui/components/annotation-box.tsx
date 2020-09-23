@@ -39,7 +39,7 @@ const DOM_PURIFY_CONFIG: DOMPurify.Config = {
 const preserveLinebreaks = (s: string | undefined) =>
   s
     ? (DOMPurify.sanitize(
-        s.replace(/\n/g, "<br>"),
+        s.trim().replace(/\n/g, "<br>"),
         DOM_PURIFY_CONFIG
       ) as string)
     : "";
