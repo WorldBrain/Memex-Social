@@ -1,3 +1,4 @@
+import DOMPurify from "dompurify";
 import moment from "moment";
 import React from "react";
 import styled from "styled-components";
@@ -30,10 +31,22 @@ const AnnotationDate = styled.div`
   color: ${(props) => props.theme.colors.primary};
 `;
 
+const DOM_PURIFY_CONFIG: DOMPurify.Config = {
+  ALLOWED_TAGS: ["p", "br", "#text"],
+  ALLOWED_ATTR: [],
+};
+
+const preserveLinebreaks = (s: string) =>
+  DOMPurify.sanitize(s.replace(/\n/g, "<br>"), DOM_PURIFY_CONFIG) as string;
+
 export default function AnnotationBox(props: {
   annotation: Pick<SharedAnnotation, "body" | "comment" | "createdWhen">;
 }) {
   const { annotation } = props;
+  console.log({
+    orig: annotation.comment,
+    preserved: annotation.comment && preserveLinebreaks(annotation.comment),
+  });
   return (
     <ItemBox>
       <StyledAnnotationBox>
@@ -43,7 +56,13 @@ export default function AnnotationBox(props: {
           </Margin>
         )}
         <Margin bottom="small">
-          <AnnotationComment>{annotation.comment}</AnnotationComment>
+          <AnnotationComment
+            dangerouslySetInnerHTML={{
+              __html: annotation.comment
+                ? preserveLinebreaks(annotation.comment)
+                : "",
+            }}
+          />
         </Margin>
         <AnnotationDate>
           {moment(annotation.createdWhen).format("LLL")}
