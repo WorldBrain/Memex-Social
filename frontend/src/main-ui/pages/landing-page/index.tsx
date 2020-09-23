@@ -6,7 +6,7 @@ import Logic, { LandingPageState } from "./logic";
 import { LandingPageEvent } from "./types";
 
 interface LandingPageProps {
-  services: UIElementServices<"auth">;
+  services: UIElementServices<"auth" | "router">;
 }
 
 export default class LandingPage extends UIElement<
@@ -18,7 +18,11 @@ export default class LandingPage extends UIElement<
     super(props, { logic: new Logic() });
   }
 
+  componentDidMount() {
+    this.props.services.router.goToExternalUrl("https://getmemex.com");
+  }
+
   render() {
-    return <Trans>Landing page</Trans>;
+    return <Trans>Redirecting...</Trans>;
   }
 }

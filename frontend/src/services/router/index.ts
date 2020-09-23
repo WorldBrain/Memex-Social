@@ -17,6 +17,12 @@ export default class RouterService {
         this.options.history.push(this.getUrl(route, params))
     }
 
+    goToExternalUrl(url: string) {
+        if (typeof window !== 'undefined') {
+            window.location.href = url
+        }
+    }
+
     getUrl(route: RouteName, params: { [key: string]: string } = {}, options?: {}): string {
         return this.routes.getUrl(route, params)
     }
