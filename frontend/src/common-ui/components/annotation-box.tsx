@@ -36,31 +36,34 @@ const DOM_PURIFY_CONFIG: DOMPurify.Config = {
   ALLOWED_ATTR: [],
 };
 
-const preserveLinebreaks = (s: string) =>
-  DOMPurify.sanitize(s.replace(/\n/g, "<br>"), DOM_PURIFY_CONFIG) as string;
+const preserveLinebreaks = (s: string | undefined) =>
+  s
+    ? (DOMPurify.sanitize(
+        s.replace(/\n/g, "<br>"),
+        DOM_PURIFY_CONFIG
+      ) as string)
+    : "";
 
 export default function AnnotationBox(props: {
   annotation: Pick<SharedAnnotation, "body" | "comment" | "createdWhen">;
 }) {
   const { annotation } = props;
-  console.log({
-    orig: annotation.comment,
-    preserved: annotation.comment && preserveLinebreaks(annotation.comment),
-  });
   return (
     <ItemBox>
       <StyledAnnotationBox>
         {annotation.body && (
           <Margin bottom="small">
-            <AnnotationBody>{annotation.body}</AnnotationBody>
+            <AnnotationBody
+              dangerouslySetInnerHTML={{
+                __html: preserveLinebreaks(annotation.body),
+              }}
+            />
           </Margin>
         )}
         <Margin bottom="small">
           <AnnotationComment
             dangerouslySetInnerHTML={{
-              __html: annotation.comment
-                ? preserveLinebreaks(annotation.comment)
-                : "",
+              __html: preserveLinebreaks(annotation.comment),
             }}
           />
         </Margin>
