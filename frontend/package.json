@@ -118,6 +118,7 @@
     "expect": "^24.5.0",
     "fake-indexeddb": "^2.1.0",
     "fast-glob": "^3.2.4",
+    "husky": "^4.3.0",
     "js-yaml": "^3.13.1",
     "jsdom": "^16.4.0",
     "jsdom-global": "^3.0.2",
