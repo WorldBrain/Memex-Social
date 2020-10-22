@@ -149,6 +149,28 @@ export default class PageDetailsPage extends UIElement<
                   <AnnotationsInPage
                     loadState={state.annotationLoadState}
                     annotations={annotations}
+                    annotationCreator={state.creator}
+                    annotationConversations={state.conversations}
+                    onToggleReplies={(annotationReference) =>
+                      this.processEvent("toggleAnnotationReplies", {
+                        annotationReference,
+                      })
+                    }
+                    onReplyInitiate={(annotationReference) =>
+                      this.processEvent("initiateReplyToAnnotation", {
+                        annotationReference,
+                      })
+                    }
+                    onReplyCancel={(annotationReference) =>
+                      this.processEvent("cancelReplyToAnnotation", {
+                        annotationReference,
+                      })
+                    }
+                    onReplyConfirm={(annotationReference) =>
+                      this.processEvent("confirmReplyToAnnotation", {
+                        annotationReference,
+                      })
+                    }
                   />
                 )}
               {state.annotationLoadState === "error" && (

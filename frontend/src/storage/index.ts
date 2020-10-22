@@ -13,6 +13,7 @@ import { StorageMiddleware } from "@worldbrain/storex/lib/types/middleware";
 // import { checkAccountCollectionInfoMap } from './checks';
 // import { ACCOUNT_COLLECTIONS } from './constants';
 import ContentSharingStorage from '../features/content-sharing/storage';
+import ContentConversationStorage from '../features/content-conversations/storage';
 
 export async function createStorage(options: { backend: BackendType | StorageBackend }): Promise<Storage> {
     let storageBackend: StorageBackend
@@ -39,6 +40,10 @@ export async function createStorage(options: { backend: BackendType | StorageBac
             // auth: new AuthStorage({ storageManager }),
             users: new UserStorage({ storageManager }),
             contentSharing: new ContentSharingStorage({
+                storageManager,
+                autoPkType: options.backend !== 'memory' ? 'string' : 'number'
+            }),
+            contentConversations: new ContentConversationStorage({
                 storageManager,
                 autoPkType: options.backend !== 'memory' ? 'string' : 'number'
             })

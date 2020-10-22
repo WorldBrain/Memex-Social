@@ -1,6 +1,8 @@
 import { ScenarioMap } from "../../services/scenarios/types";
 import { scenario } from "../../services/scenarios/utils";
 import { PageDetailsEvent, PageDetailsSignal } from "../../features/content-sharing/ui/pages/page-details/types";
+import { autoPkReferenceFromLinkId } from "@worldbrain/memex-common/lib/storage/references";
+import { SharedAnnotationReference } from "@worldbrain/memex-common/lib/content-sharing/types";
 
 type Targets = {
     PageDetailsPage: {
@@ -53,6 +55,43 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                     name: 'creator-loading',
                     modifier: 'undo',
                 }]
+            }),
+        ]
+    })),
+    'cancel-new-conversation': scenario<Targets>(({ step, callModification }) => ({
+        fixture: 'annotated-list-with-user',
+        startRoute: { route: 'pageDetails', params: { id: 'default-page' } },
+        steps: [
+            step({
+                name: 'initiate-reply',
+                target: 'PageDetailsPage',
+                eventName: 'initiateReplyToAnnotation',
+                eventArgs: { annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference }
+            }),
+            step({
+                name: 'cancel-reply',
+                target: 'PageDetailsPage',
+                eventName: 'cancelReplyToAnnotation',
+                eventArgs: { annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference }
+            }),
+        ]
+    })),
+    'confirm-new-conversation': scenario<Targets>(({ step, callModification }) => ({
+        fixture: 'annotated-list-with-user',
+        authenticated: true,
+        startRoute: { route: 'pageDetails', params: { id: 'default-page' } },
+        steps: [
+            step({
+                name: 'initiate-reply',
+                target: 'PageDetailsPage',
+                eventName: 'initiateReplyToAnnotation',
+                eventArgs: { annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference }
+            }),
+            step({
+                name: 'cancel-reply',
+                target: 'PageDetailsPage',
+                eventName: 'confirmReplyToAnnotation',
+                eventArgs: { annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference }
             }),
         ]
     })),

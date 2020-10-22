@@ -1,19 +1,24 @@
 import orderBy from 'lodash/orderBy'
 import { User, UserReference } from "@worldbrain/memex-common/lib/web-interface/types/users"
-import { SharedAnnotation, SharedPageInfo } from "@worldbrain/memex-common/lib/content-sharing/types"
-import { UILogic, UIEventHandler, executeUITask } from "../../../../../main-ui/classes/logic"
+import { SharedAnnotation, SharedPageInfo, SharedAnnotationReference } from "@worldbrain/memex-common/lib/content-sharing/types"
+import { UILogic, UIEventHandler, executeUITask, UIMutation } from "../../../../../main-ui/classes/logic"
 import { UITaskState } from "../../../../../main-ui/types"
 import { PageDetailsEvent, PageDetailsDependencies } from "./types"
+import { AnnotationConversationStates, AnnotationConversationState } from '../../../../content-conversations/ui/types'
+import fromPairs from 'lodash/fromPairs'
+import { getInitialAnnotationConversationStates } from '../../../../content-conversations/ui/utils'
 
 export interface PageDetailsState {
     annotationLoadState: UITaskState
-    annotations?: SharedAnnotation[] | null
+    annotations?: Array<SharedAnnotation & { reference: SharedAnnotationReference, linkId: string }> | null
 
     pageInfoLoadState: UITaskState
     pageInfo?: SharedPageInfo | null
 
     creatorLoadState: UITaskState
     creator?: User | null
+
+    conversations: AnnotationConversationStates
 }
 type EventHandler<EventName extends keyof PageDetailsEvent> = UIEventHandler<PageDetailsState, PageDetailsEvent, EventName>
 
@@ -27,6 +32,7 @@ export default class PageDetailsLogic extends UILogic<PageDetailsState, PageDeta
             creatorLoadState: 'pristine',
             annotationLoadState: 'pristine',
             pageInfoLoadState: 'pristine',
+            conversations: {},
         }
     }
 
@@ -52,13 +58,22 @@ export default class PageDetailsLogic extends UILogic<PageDetailsState, PageDeta
                     return
                 }
 
+                const annotations = (await contentSharing.getAnnotationsByCreatorAndPageUrl({
+                    creatorReference,
+                    normalizedPageUrl: pageInfo.normalizedUrl,
+                })).map(annotation => ({
+                    ...annotation,
+                    linkId: contentSharing.getSharedAnnotationLinkID(annotation.reference)
+                }))
                 return {
                     mutation: {
                         annotations: {
-                            $set: orderBy(await contentSharing.getAnnotationsByCreatorAndPageUrl({
-                                creatorReference,
-                                normalizedPageUrl: pageInfo.normalizedUrl,
-                            }), ['createdWhen', 'desc'])
+                            $set: orderBy(annotations, ['createdWhen', 'desc'])
+                        },
+                        conversations: {
+                            $set: getInitialAnnotationConversationStates(
+                                annotations,
+                            )
                         }
                     }
                 }
@@ -77,5 +92,24 @@ export default class PageDetailsLogic extends UILogic<PageDetailsState, PageDeta
                 }
             })
         ])
+    }
+
+    toggleAnnotationReplies: EventHandler<'toggleAnnotationReplies'> = async ({ event }) => {
+    }
+
+    initiateReplyToAnnotation: EventHandler<'initiateReplyToAnnotation'> = ({ event }) => {
+        const annotationId = this.dependencies.contentSharing.getSharedAnnotationLinkID(event.annotationReference)
+        const mutation: UIMutation<AnnotationConversationState> = { editing: { $set: true } }
+        return { conversations: { [annotationId]: mutation } }
+    }
+
+    cancelReplyToAnnotation: EventHandler<'cancelReplyToAnnotation'> = ({ event }) => {
+        const annotationId = this.dependencies.contentSharing.getSharedAnnotationLinkID(event.annotationReference)
+        const mutation: UIMutation<AnnotationConversationState> = { editing: { $set: false } }
+        return { conversations: { [annotationId]: mutation } }
+    }
+
+    confirmReplyToAnnotation: EventHandler<'confirmReplyToAnnotation'> = async ({ event }) => {
+
     }
 }

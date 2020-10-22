@@ -4,8 +4,13 @@ import { UITaskState } from "../../main-ui/types";
 import LoadingIndicator from "./loading-indicator";
 import ErrorBox from "./error-box";
 import { Margin } from "styled-components-spacing";
-import { SharedAnnotation } from "@worldbrain/memex-common/lib/content-sharing/types";
+import {
+  SharedAnnotation,
+  SharedAnnotationReference,
+} from "@worldbrain/memex-common/lib/content-sharing/types";
 import AnnotationBox from "./annotation-box";
+import { AnnotationConversationStates } from "../../features/content-conversations/ui/types";
+import { User } from "@worldbrain/memex-common/lib/web-interface/types/users";
 
 const AnnotationContainer = styled.div`
   display: flex;
@@ -32,9 +37,42 @@ const CenteredContent = styled.div`
   width: 100%;
 `;
 
+const NewReplyTextArea = styled.textarea`
+  width: 100%;
+  height: 150px;
+  border: 0;
+  background: ${(props) => props.theme.colors.grey};
+  border-radius: 3px;
+`;
+
+const NewReplyActions = styled.div`
+  display: flex;
+  font-family: ${(props) => props.theme.fonts.primary};
+`;
+
+const NewReplyConfirm = styled.div`
+  cursor: pointer;
+`;
+
+const NewReplyCancel = styled.div`
+  color: ${(props) => props.theme.colors.warning};
+  cursor: pointer;
+`;
+
+type SharedAnnotationInPage = SharedAnnotation & {
+  reference: SharedAnnotationReference;
+  linkId: string;
+};
+
 export default function AnnotationsInPage(props: {
   loadState: UITaskState;
-  annotations?: SharedAnnotation[] | null;
+  annotations?: Array<SharedAnnotationInPage> | null;
+  annotationConversations?: AnnotationConversationStates | null;
+  annotationCreator?: Pick<User, "displayName"> | null;
+  onToggleReplies?(annotationReference: SharedAnnotationReference): void;
+  onReplyInitiate?(annotationReference: SharedAnnotationReference): void;
+  onReplyConfirm?(annotationReference: SharedAnnotationReference): void;
+  onReplyCancel?(annotationReference: SharedAnnotationReference): void;
 }) {
   if (props.loadState === "pristine" || props.loadState === "running") {
     return (
@@ -68,17 +106,51 @@ export default function AnnotationsInPage(props: {
     return null;
   }
 
+  const renderAnnotation = (annotation: SharedAnnotationInPage) => {
+    const conversation = props.annotationConversations?.[annotation.linkId];
+    return (
+      <Margin key={annotation.linkId} bottom={"smallest"}>
+        <AnnotationBox
+          annotation={annotation}
+          creator={props.annotationCreator}
+          onInitiateReply={() => props.onReplyInitiate?.(annotation.reference)}
+          onToggleReplies={() => props.onToggleReplies?.(annotation.reference)}
+        />
+        {conversation && (
+          <>
+            {conversation.editing && (
+              <Margin top="small">
+                <NewReplyTextArea></NewReplyTextArea>
+                <NewReplyActions>
+                  <NewReplyCancel
+                    onClick={() => props.onReplyCancel?.(annotation.reference)}
+                  >
+                    Cancel
+                  </NewReplyCancel>
+                  <Margin left="medium">
+                    <NewReplyConfirm
+                      onClick={() =>
+                        props.onReplyConfirm?.(annotation.reference)
+                      }
+                    >
+                      Save
+                    </NewReplyConfirm>
+                  </Margin>
+                </NewReplyActions>
+              </Margin>
+            )}
+          </>
+        )}
+      </Margin>
+    );
+  };
+
   return (
     <AnnotationContainer>
       <AnnotationLine />
       <AnnotationList>
         {props.annotations.map(
-          (annotation, annotationIndex) =>
-            annotation && (
-              <Margin key={annotationIndex} bottom={"smallest"}>
-                <AnnotationBox annotation={annotation} />
-              </Margin>
-            )
+          (annotation) => annotation && renderAnnotation(annotation)
         )}
       </AnnotationList>
     </AnnotationContainer>
