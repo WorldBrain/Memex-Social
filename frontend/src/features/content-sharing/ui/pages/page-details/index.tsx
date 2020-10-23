@@ -1,7 +1,7 @@
 import moment from "moment";
 import React from "react";
 import styled from "styled-components";
-import { UIElement, UIElementServices } from "../../../../../main-ui/classes";
+import { UIElement } from "../../../../../main-ui/classes";
 import Logic, { PageDetailsState } from "./logic";
 import { PageDetailsEvent, PageDetailsDependencies } from "./types";
 import DocumentTitle from "../../../../../main-ui/components/document-title";
@@ -22,16 +22,12 @@ const AnnotationsLoading = styled.div`
   justify-content: center;
 `;
 
-interface PageDetailsProps extends PageDetailsDependencies {
-  services: UIElementServices;
-}
-
 export default class PageDetailsPage extends UIElement<
-  PageDetailsProps,
+  PageDetailsDependencies,
   PageDetailsState,
   PageDetailsEvent
 > {
-  constructor(props: PageDetailsProps) {
+  constructor(props: PageDetailsDependencies) {
     super(props, { logic: new Logic(props) });
   }
 
@@ -151,25 +147,20 @@ export default class PageDetailsPage extends UIElement<
                     annotations={annotations}
                     annotationCreator={state.creator}
                     annotationConversations={state.conversations}
-                    onToggleReplies={(annotationReference) =>
-                      this.processEvent("toggleAnnotationReplies", {
-                        annotationReference,
-                      })
+                    onToggleReplies={(event) =>
+                      this.processEvent("toggleAnnotationReplies", event)
                     }
-                    onReplyInitiate={(annotationReference) =>
-                      this.processEvent("initiateReplyToAnnotation", {
-                        annotationReference,
-                      })
+                    onNewReplyInitiate={(event) =>
+                      this.processEvent("initiateNewReplyToAnnotation", event)
                     }
-                    onReplyCancel={(annotationReference) =>
-                      this.processEvent("cancelReplyToAnnotation", {
-                        annotationReference,
-                      })
+                    onNewReplyEdit={(event) =>
+                      this.processEvent("editNewReplyToAnnotation", event)
                     }
-                    onReplyConfirm={(annotationReference) =>
-                      this.processEvent("confirmReplyToAnnotation", {
-                        annotationReference,
-                      })
+                    onNewReplyCancel={(event) =>
+                      this.processEvent("cancelNewReplyToAnnotation", event)
+                    }
+                    onNewReplyConfirm={(event) =>
+                      this.processEvent("confirmNewReplyToAnnotation", event)
                     }
                   />
                 )}

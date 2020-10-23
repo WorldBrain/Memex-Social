@@ -45,23 +45,32 @@ export type UISignal<Signals extends { type: string }> = Signals
 export async function loadInitial<State extends { loadState: UITaskState }>(
     logic: UILogic<State, any>,
     loader: () => Promise<void | { mutation: UIMutation<State> }>
-): Promise<{ success: boolean }> {
+): Promise<{ success?: boolean }> {
     return executeUITask<State>(logic, 'loadState', loader)
 }
 
-export async function executeUITask<State>(
+export async function executeUITask<State extends {}>(
     logic: UILogic<State, any>,
     key: keyof State,
-    loader: () => Promise<void | { mutation: UIMutation<State> }>
+    loader: () => Promise<void | { mutation?: UIMutation<State>, status?: UITaskState }>
 ): Promise<{ success: boolean }> {
     logic.emitMutation({ [key]: { $set: 'running' } } as any)
 
+    const mutation: UIMutation<State> = {} as any
     try {
         const result = await loader()
-        const mutation: UIMutation<State> = (result && result.mutation) || ({}) as any
-        (mutation as any)[key] = { $set: 'success' } as any
+        let newStatus = 'success'
+        if (result) {
+            if (result.mutation) {
+                Object.assign(mutation, result.mutation)
+            }
+            if (result.status) {
+                newStatus = result.status
+            }
+        }
+        (mutation as any)[key] = { $set: newStatus } as any
         logic.emitMutation(mutation)
-        return { success: true }
+        return { success: newStatus !== 'error' }
     } catch (e) {
         console.error(e)
         logic.emitMutation({ [key]: { $set: 'error' } } as any)

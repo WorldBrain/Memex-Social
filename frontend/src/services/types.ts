@@ -6,6 +6,7 @@ import RouterService from "./router"
 import { ScenarioService } from "./scenarios"
 import { DeviceService } from "./device"
 import { DocumentTitleService } from "./document-title"
+import ContentConversationsService from "../features/content-conversations/services/content-conversations"
 
 export interface Services {
     router: RouterService
@@ -16,4 +17,5 @@ export interface Services {
     fixtures: FixtureService
     scenarios: ScenarioService
     documentTitle: DocumentTitleService
+    contentConversations: ContentConversationsService
 }

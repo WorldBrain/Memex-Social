@@ -1,16 +1,20 @@
-import { ConversationThread, ConversationReply } from '@worldbrain/memex-common/lib/content-conversations/types'
+import { ConversationThread, ConversationReply, ConversationReplyReference } from '@worldbrain/memex-common/lib/content-conversations/types'
 import { UITaskState } from "../../../main-ui/types";
+import { User } from '@worldbrain/memex-common/lib/web-interface/types/users';
 
 export interface AnnotationConversationState {
     expanded: boolean
-    editing: boolean
     loadState: UITaskState
-    conversation?: AnnotationConversationStateData
-}
-
-export interface AnnotationConversationStateData {
-    thread: ConversationThread;
-    replies: ConversationReply[];
+    thread?: ConversationThread
+    replies: Array<{
+        reference: ConversationReplyReference
+        reply: ConversationReply
+        creator?: Pick<User, 'displayName'>
+    }>
+    newReply: {
+        editing: boolean
+        content: string
+    }
 }
 
 export type AnnotationConversationStates = { [sharedAnnotationId: string]: AnnotationConversationState }

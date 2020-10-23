@@ -9,8 +9,12 @@ import {
   SharedAnnotationReference,
 } from "@worldbrain/memex-common/lib/content-sharing/types";
 import AnnotationBox from "./annotation-box";
-import { AnnotationConversationStates } from "../../features/content-conversations/ui/types";
+import {
+  AnnotationConversationStates,
+  AnnotationConversationState,
+} from "../../features/content-conversations/ui/types";
 import { User } from "@worldbrain/memex-common/lib/web-interface/types/users";
+import AnnotationReply from "./annotation-reply";
 
 const AnnotationContainer = styled.div`
   display: flex;
@@ -69,10 +73,22 @@ export default function AnnotationsInPage(props: {
   annotations?: Array<SharedAnnotationInPage> | null;
   annotationConversations?: AnnotationConversationStates | null;
   annotationCreator?: Pick<User, "displayName"> | null;
-  onToggleReplies?(annotationReference: SharedAnnotationReference): void;
-  onReplyInitiate?(annotationReference: SharedAnnotationReference): void;
-  onReplyConfirm?(annotationReference: SharedAnnotationReference): void;
-  onReplyCancel?(annotationReference: SharedAnnotationReference): void;
+  onToggleReplies?(event: {
+    annotationReference: SharedAnnotationReference;
+  }): void;
+  onNewReplyInitiate?(event: {
+    annotationReference: SharedAnnotationReference;
+  }): void;
+  onNewReplyEdit?(event: {
+    annotationReference: SharedAnnotationReference;
+    content: string;
+  }): void;
+  onNewReplyConfirm?(event: {
+    annotationReference: SharedAnnotationReference;
+  }): void;
+  onNewReplyCancel?(event: {
+    annotationReference: SharedAnnotationReference;
+  }): void;
 }) {
   if (props.loadState === "pristine" || props.loadState === "running") {
     return (
@@ -113,30 +129,27 @@ export default function AnnotationsInPage(props: {
         <AnnotationBox
           annotation={annotation}
           creator={props.annotationCreator}
-          onInitiateReply={() => props.onReplyInitiate?.(annotation.reference)}
-          onToggleReplies={() => props.onToggleReplies?.(annotation.reference)}
+          onInitiateReply={() =>
+            props.onNewReplyInitiate?.({
+              annotationReference: annotation.reference,
+            })
+          }
+          onToggleReplies={() =>
+            props.onToggleReplies?.({
+              annotationReference: annotation.reference,
+            })
+          }
         />
         {conversation && (
           <>
-            {conversation.editing && (
-              <Margin top="small">
-                <NewReplyTextArea></NewReplyTextArea>
-                <NewReplyActions>
-                  <NewReplyCancel
-                    onClick={() => props.onReplyCancel?.(annotation.reference)}
-                  >
-                    Cancel
-                  </NewReplyCancel>
-                  <Margin left="medium">
-                    <NewReplyConfirm
-                      onClick={() =>
-                        props.onReplyConfirm?.(annotation.reference)
-                      }
-                    >
-                      Save
-                    </NewReplyConfirm>
-                  </Margin>
-                </NewReplyActions>
+            {conversation.replies?.map?.((replyData) => (
+              <Margin key={replyData.reference.id} top="small" left="medium">
+                <AnnotationReply {...replyData} />
+              </Margin>
+            ))}
+            {conversation.newReply.editing && (
+              <Margin top="small" left="medium">
+                {renderNewReply(annotation, conversation)}
               </Margin>
             )}
           </>
@@ -144,6 +157,45 @@ export default function AnnotationsInPage(props: {
       </Margin>
     );
   };
+
+  const renderNewReply = (
+    annotation: SharedAnnotationInPage,
+    conversation: AnnotationConversationState
+  ) => (
+    <>
+      <NewReplyTextArea
+        value={conversation.newReply.content}
+        onChange={(e) =>
+          props.onNewReplyEdit?.({
+            annotationReference: annotation.reference,
+            content: e.target.value,
+          })
+        }
+      />
+      <NewReplyActions>
+        <NewReplyCancel
+          onClick={() =>
+            props.onNewReplyCancel?.({
+              annotationReference: annotation.reference,
+            })
+          }
+        >
+          Cancel
+        </NewReplyCancel>
+        <Margin left="medium">
+          <NewReplyConfirm
+            onClick={() =>
+              props.onNewReplyConfirm?.({
+                annotationReference: annotation.reference,
+              })
+            }
+          >
+            Save
+          </NewReplyConfirm>
+        </Margin>
+      </NewReplyActions>
+    </>
+  );
 
   return (
     <AnnotationContainer>

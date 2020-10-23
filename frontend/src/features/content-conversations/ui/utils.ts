@@ -1,10 +1,17 @@
 import { AnnotationConversationState, AnnotationConversationStates } from "./types";
 import { SharedAnnotation } from "@worldbrain/memex-common/lib/content-sharing/types";
 import fromPairs from "lodash/fromPairs";
-import ContentSharingStorage from "../../content-sharing/storage";
 
 export function getInitialAnnotationConversationState(): AnnotationConversationState {
-    return { expanded: false, editing: false, loadState: 'pristine' }
+    return {
+        loadState: 'pristine',
+        expanded: false,
+        newReply: {
+            editing: false,
+            content: ''
+        },
+        replies: [],
+    }
 }
 
 export function getInitialAnnotationConversationStates(

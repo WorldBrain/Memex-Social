@@ -34,18 +34,20 @@ export async function createStorage(options: { backend: BackendType | StorageBac
     }
     const storageManager = new StorageManager({ backend: storageBackend })
 
+    const contentSharing = new ContentSharingStorage({
+        storageManager,
+        autoPkType: options.backend !== 'memory' ? 'string' : 'number'
+    })
     const storage: Storage = {
         serverStorageManager: storageManager,
         serverModules: {
             // auth: new AuthStorage({ storageManager }),
             users: new UserStorage({ storageManager }),
-            contentSharing: new ContentSharingStorage({
-                storageManager,
-                autoPkType: options.backend !== 'memory' ? 'string' : 'number'
-            }),
+            contentSharing,
             contentConversations: new ContentConversationStorage({
                 storageManager,
-                autoPkType: options.backend !== 'memory' ? 'string' : 'number'
+                autoPkType: options.backend !== 'memory' ? 'string' : 'number',
+                contentSharing,
             })
         }
     }

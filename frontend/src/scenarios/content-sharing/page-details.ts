@@ -1,7 +1,6 @@
 import { ScenarioMap } from "../../services/scenarios/types";
 import { scenario } from "../../services/scenarios/utils";
 import { PageDetailsEvent, PageDetailsSignal } from "../../features/content-sharing/ui/pages/page-details/types";
-import { autoPkReferenceFromLinkId } from "@worldbrain/memex-common/lib/storage/references";
 import { SharedAnnotationReference } from "@worldbrain/memex-common/lib/content-sharing/types";
 
 type Targets = {
@@ -65,13 +64,28 @@ export const SCENARIOS: ScenarioMap<Targets> = {
             step({
                 name: 'initiate-reply',
                 target: 'PageDetailsPage',
-                eventName: 'initiateReplyToAnnotation',
+                eventName: 'initiateNewReplyToAnnotation',
                 eventArgs: { annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference }
+            }),
+            step({
+                name: 'edit-reply',
+                target: 'PageDetailsPage',
+                eventName: 'editNewReplyToAnnotation',
+                eventArgs: {
+                    annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference,
+                    content: 'this is a new reply'
+                }
             }),
             step({
                 name: 'cancel-reply',
                 target: 'PageDetailsPage',
-                eventName: 'cancelReplyToAnnotation',
+                eventName: 'cancelNewReplyToAnnotation',
+                eventArgs: { annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference }
+            }),
+            step({
+                name: 'second-initiate-reply',
+                target: 'PageDetailsPage',
+                eventName: 'initiateNewReplyToAnnotation',
                 eventArgs: { annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference }
             }),
         ]
@@ -84,13 +98,28 @@ export const SCENARIOS: ScenarioMap<Targets> = {
             step({
                 name: 'initiate-reply',
                 target: 'PageDetailsPage',
-                eventName: 'initiateReplyToAnnotation',
+                eventName: 'initiateNewReplyToAnnotation',
                 eventArgs: { annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference }
             }),
             step({
-                name: 'cancel-reply',
+                name: 'edit-reply',
                 target: 'PageDetailsPage',
-                eventName: 'confirmReplyToAnnotation',
+                eventName: 'editNewReplyToAnnotation',
+                eventArgs: {
+                    annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference,
+                    content: 'this is a new reply'
+                }
+            }),
+            step({
+                name: 'confirm-reply',
+                target: 'PageDetailsPage',
+                eventName: 'confirmNewReplyToAnnotation',
+                eventArgs: { annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference }
+            }),
+            step({
+                name: 'second-initiate-reply',
+                target: 'PageDetailsPage',
+                eventName: 'initiateNewReplyToAnnotation',
                 eventArgs: { annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference }
             }),
         ]

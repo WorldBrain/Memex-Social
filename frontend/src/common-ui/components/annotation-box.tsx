@@ -1,12 +1,12 @@
 import DOMPurify from "dompurify";
-import moment from "moment";
 import React from "react";
 import styled from "styled-components";
 import { Margin } from "styled-components-spacing";
 import { SharedAnnotation } from "@worldbrain/memex-common/lib/content-sharing/types";
 import ItemBox from "../components/item-box";
-import UserAvatar from "./user-avatar";
 import { User } from "@worldbrain/memex-common/lib/web-interface/types/users";
+import CreationInfo from "./creation-info";
+import ItemBoxBottom from "./item-box-bottom";
 
 const commentImage = require("../../assets/img/comment.svg");
 const replyImage = require("../../assets/img/reply.svg");
@@ -27,43 +27,6 @@ const AnnotationBody = styled.span`
 
 const AnnotationComment = styled.div`
   font-size: 14px;
-  color: ${(props) => props.theme.colors.primary};
-`;
-
-const AnnotationBottom = styled.div`
-  display: flex;
-`;
-const AnnotationAvatarHolder = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-`;
-
-const AnnotationCreationInfo = styled.div`
-  display: flex;
-`;
-const AnnotationActions = styled.div`
-  display: flex;
-  flex-grow: 2;
-  align-items: flex-end;
-  justify-content: flex-end;
-`;
-const AnnotationAction = styled.div<{ image: string }>`
-  display: block;
-  width: 20px;
-  height: 20px;
-  cursor: pointer;
-  background-image: url("${(props) => props.image}");
-  background-size: contain;
-  background-position: center center;
-  background-repeat: no-repeat;
-`;
-const AnnotationCreationInfoDetails = styled.div``;
-const AnnotationCreator = styled.div``;
-const AnnotationDate = styled.div`
-  font-family: "Poppins";
-  font-weight: normal;
-  font-size: 12px;
   color: ${(props) => props.theme.colors.primary};
 `;
 
@@ -108,39 +71,25 @@ export default function AnnotationBox(props: {
             }}
           />
         </Margin>
-        <AnnotationBottom>
-          <AnnotationCreationInfo>
-            <AnnotationAvatarHolder>
-              <Margin right="small">
-                <UserAvatar loading={!props.creator} />
-              </Margin>
-            </AnnotationAvatarHolder>
-            <AnnotationCreationInfoDetails>
-              <AnnotationCreator>
-                {props.creator?.displayName ?? <span>&nbsp;</span>}
-              </AnnotationCreator>
-              <AnnotationDate>
-                {moment(annotation.createdWhen).format("LLL")}
-              </AnnotationDate>
-            </AnnotationCreationInfoDetails>
-          </AnnotationCreationInfo>
-          <AnnotationActions>
-            {props.hasReplies && props.onToggleReplies && (
-              <Margin right="small">
-                <AnnotationAction
-                  image={commentImage}
-                  onClick={() => props.onToggleReplies?.()}
-                />
-              </Margin>
-            )}
-            {props.onInitiateReply && (
-              <AnnotationAction
-                image={replyImage}
-                onClick={() => props.onInitiateReply?.()}
-              />
-            )}
-          </AnnotationActions>
-        </AnnotationBottom>
+        <ItemBoxBottom
+          creationInfo={{
+            createdWhen: annotation.createdWhen,
+            creator: props.creator,
+          }}
+          actions={[
+            props.hasReplies &&
+              props.onToggleReplies && {
+                key: "toggle-replies",
+                image: commentImage,
+                onClick: props.onToggleReplies,
+              },
+            props.onInitiateReply && {
+              key: "new-reply",
+              image: replyImage,
+              onClick: props.onInitiateReply,
+            },
+          ]}
+        />
       </StyledAnnotationBox>
     </ItemBox>
   );
