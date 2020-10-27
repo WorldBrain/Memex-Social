@@ -23,10 +23,16 @@ const AnnotationContainer = styled.div`
 
 const AnnotationLine = styled.span`
   height: auto;
-  width: 6px;
+  width: 4px;
   background: #e0e0e0;
-  margin: -8px 10px 5px;
+  margin: -8px 10px 4px;
 `;
+
+const AnnotationReplyContainer = styled.div`
+  padding-top: 0.5rem;
+  border-left: 4px solid #e0e0e0;
+  padding-left: 10px;
+`
 
 const AnnotationList = styled.div`
   min-height: 60px;
@@ -43,10 +49,14 @@ const CenteredContent = styled.div`
 
 const NewReplyTextArea = styled.textarea<{ editing: boolean }>`
   width: 100%;
-  height: ${(props) => (props.editing ? "150px" : "25px")};
+  height: ${(props) => (props.editing ? "150px" : "40px")};
   border: 0;
   background: ${(props) => props.theme.colors.grey};
   border-radius: 3px;
+  padding: 10px;
+  font-family: ${(props) => props.theme.fonts.primary};
+  font-size: 14px;
+  outline: none;
 `;
 
 const NewReplyActions = styled.div`
@@ -56,11 +66,23 @@ const NewReplyActions = styled.div`
 
 const NewReplyConfirm = styled.div`
   cursor: pointer;
+  border-radius: 3px;
+  padding: 3px 6px;
+
+  &:hover {
+    background-color: #e0e0e0;
+  }
 `;
 
 const NewReplyCancel = styled.div`
   color: ${(props) => props.theme.colors.warning};
   cursor: pointer;
+  border-radius: 3px;
+  padding: 3px 6px;
+
+  &:hover {
+    background-color: #e0e0e0;
+  }
 `;
 
 type SharedAnnotationInPage = SharedAnnotation & {
@@ -125,7 +147,7 @@ export default function AnnotationsInPage(props: {
   const renderAnnotation = (annotation: SharedAnnotationInPage) => {
     const conversation = props.annotationConversations?.[annotation.linkId];
     return (
-      <Margin key={annotation.linkId} bottom={"smallest"}>
+      <Margin key={annotation.linkId} bottom={"medium"}>
         <AnnotationBox
           annotation={annotation}
           creator={props.annotationCreator}
@@ -139,18 +161,23 @@ export default function AnnotationsInPage(props: {
               annotationReference: annotation.reference,
             })
           }
+          replyCount={conversation?.replies.length}
         />
         {conversation && (
           <>
             {conversation.expanded &&
               conversation.replies?.map?.((replyData) => (
-                <Margin key={replyData.reference.id} top="small" left="medium">
-                  <AnnotationReply {...replyData} />
+                <Margin key={replyData.reference.id} left="small">
+                  <AnnotationReplyContainer>
+                    <AnnotationReply {...replyData} />
+                  </AnnotationReplyContainer>
                 </Margin>
               ))}
             {conversation.expanded && (
-              <Margin top="small" left="medium">
-                {renderNewReply(annotation, conversation)}
+              <Margin left="small">
+                <AnnotationReplyContainer>
+                  {renderNewReply(annotation, conversation)}
+                </AnnotationReplyContainer>
               </Margin>
             )}
           </>
@@ -165,6 +192,7 @@ export default function AnnotationsInPage(props: {
   ) => (
     <>
       <NewReplyTextArea
+        autoFocus
         value={
           conversation.newReply.editing ? conversation.newReply.content : ""
         }
@@ -200,7 +228,6 @@ export default function AnnotationsInPage(props: {
           >
             Cancel
           </NewReplyCancel>
-          <Margin left="medium">
             <NewReplyConfirm
               onClick={() =>
                 props.onNewReplyConfirm?.({
@@ -210,7 +237,6 @@ export default function AnnotationsInPage(props: {
             >
               Save
             </NewReplyConfirm>
-          </Margin>
         </NewReplyActions>
       )}
     </>

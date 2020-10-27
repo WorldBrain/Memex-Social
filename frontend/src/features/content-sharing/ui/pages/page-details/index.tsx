@@ -127,7 +127,7 @@ export default class PageDetailsPage extends UIElement<
             <Margin bottom={"small"}>
               <PageInfoBox pageInfo={pageInfo} />
             </Margin>
-            <Margin left={"small"} bottom="large">
+            <Margin bottom="large">
               {(state.annotationLoadState === "pristine" ||
                 state.annotationLoadState === "running") && (
                 <Margin vertical="medium">

@@ -16,7 +16,11 @@ const AvatarHolder = styled.div`
 `;
 
 const Details = styled.div``;
-const Creator = styled.div``;
+const Creator = styled.div`
+  font-weight: 600;
+  color: ${(props) => props.theme.colors.primary};
+  font-size: 12px;
+`;
 const CreationDate = styled.div`
   font-family: "Poppins";
   font-weight: normal;

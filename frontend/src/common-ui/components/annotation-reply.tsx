@@ -11,6 +11,13 @@ const StyledAnnotationBox = styled.div`
   padding: 15px 20px;
 `;
 
+const ReplyContent = styled.div`
+  font-size: 14px;
+  color: 
+  font-family: ${(props) => props.theme.fonts.primary};
+  color: ${(props) => props.theme.colors.primary};
+`
+
 export default function AnnotationReply(props: {
   user?: Pick<User, "displayName"> | null;
   reply?: ConversationReply;
@@ -18,7 +25,11 @@ export default function AnnotationReply(props: {
   return (
     <ItemBox>
       <StyledAnnotationBox>
-        <Margin bottom="small">{props.reply?.content}</Margin>
+        <Margin bottom="small">
+          <ReplyContent>
+            {props.reply?.content}
+          </ReplyContent>
+          </Margin>
         <ItemBoxBottom
           creationInfo={{
             createdWhen: props.reply?.createdWhen,
