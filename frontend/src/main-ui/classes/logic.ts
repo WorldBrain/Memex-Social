@@ -1,3 +1,4 @@
+import merge from 'lodash/merge'
 import * as coreUILogic from "ui-logic-core";
 import { EventEmitter } from "events";
 import { EventHandlers, EventHandler } from './events';
@@ -51,29 +52,37 @@ export async function loadInitial<State extends { loadState: UITaskState }>(
 
 export async function executeUITask<State extends {}>(
     logic: UILogic<State, any>,
-    key: keyof State,
+    keyOrMutation: keyof State | ((taskState: UITaskState) => UIMutation<State>),
     loader: () => Promise<void | { mutation?: UIMutation<State>, status?: UITaskState }>
 ): Promise<{ success: boolean }> {
-    logic.emitMutation({ [key]: { $set: 'running' } } as any)
+    const taskStateMutation = (taskState: UITaskState): UIMutation<State> => {
+        if (typeof keyOrMutation === 'function') {
+            return keyOrMutation(taskState)
+        }
+        return { [keyOrMutation]: { $set: taskState } } as any
+    }
+    logic.emitMutation(taskStateMutation('pristine'))
 
-    const mutation: UIMutation<State> = {} as any
     try {
         const result = await loader()
-        let newStatus = 'success'
+        let newTaskState: UITaskState = 'success'
+        let resultMutation: UIMutation<State> = {} as any
         if (result) {
-            if (result.mutation) {
-                Object.assign(mutation, result.mutation)
-            }
             if (result.status) {
-                newStatus = result.status
+                newTaskState = result.status
+            }
+            if (result.mutation) {
+                resultMutation = result.mutation
             }
         }
-        (mutation as any)[key] = { $set: newStatus } as any
-        logic.emitMutation(mutation)
-        return { success: newStatus !== 'error' }
+        logic.emitMutation(merge(
+            taskStateMutation(newTaskState),
+            resultMutation
+        ))
+        return { success: newTaskState !== 'error' }
     } catch (e) {
         console.error(e)
-        logic.emitMutation({ [key]: { $set: 'error' } } as any)
+        logic.emitMutation(taskStateMutation('error'))
         return { success: false }
     }
 }

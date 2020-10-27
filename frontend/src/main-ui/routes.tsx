@@ -77,7 +77,10 @@ export default class Routes extends React.Component<Props> {
                 <PageDetailsPage
                   pageID={route.match.params.id}
                   services={this.props.services}
-                  contentSharing={serverModules.contentSharing}
+                  storage={{
+                    contentSharing: serverModules.contentSharing,
+                    contentConversations: serverModules.contentConversations,
+                  }}
                   userManagement={serverModules.users}
                 />
               );

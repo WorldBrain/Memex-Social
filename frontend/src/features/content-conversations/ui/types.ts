@@ -9,7 +9,7 @@ export interface AnnotationConversationState {
     replies: Array<{
         reference: ConversationReplyReference
         reply: ConversationReply
-        creator?: Pick<User, 'displayName'>
+        user?: Pick<User, 'displayName'> | null
     }>
     newReply: {
         editing: boolean

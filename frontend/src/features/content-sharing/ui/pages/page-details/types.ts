@@ -2,13 +2,16 @@ import { SharedAnnotationReference } from "@worldbrain/memex-common/lib/content-
 import UserStorage from "../../../../user-management/storage";
 import { UIEvent, UISignal } from "../../../../../main-ui/classes/logic";
 import ContentSharingStorage from "../../../storage";
-import ContentConversationsService from "../../../../content-conversations/services/content-conversations";
 import { UIElementServices } from "../../../../../main-ui/classes";
+import ContentConversationStorage from "../../../../content-conversations/storage";
 
 export interface PageDetailsDependencies {
     services: UIElementServices<'contentConversations' | 'auth'>;
+    storage: {
+        contentSharing: ContentSharingStorage,
+        contentConversations: ContentConversationStorage
+    }
     pageID: string
-    contentSharing: ContentSharingStorage
     userManagement: UserStorage
 }
 

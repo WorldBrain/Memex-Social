@@ -5,7 +5,6 @@ import { Margin } from "styled-components-spacing";
 import { SharedAnnotation } from "@worldbrain/memex-common/lib/content-sharing/types";
 import ItemBox from "../components/item-box";
 import { User } from "@worldbrain/memex-common/lib/web-interface/types/users";
-import CreationInfo from "./creation-info";
 import ItemBoxBottom from "./item-box-bottom";
 
 const commentImage = require("../../assets/img/comment.svg");
@@ -44,7 +43,10 @@ const preserveLinebreaks = (s: string | undefined) =>
     : "";
 
 export default function AnnotationBox(props: {
-  annotation: Pick<SharedAnnotation, "body" | "comment" | "createdWhen">;
+  annotation: Pick<
+    SharedAnnotation,
+    "body" | "comment" | "createdWhen" | "hasConversation"
+  >;
   creator?: Pick<User, "displayName"> | null;
   hasReplies?: boolean;
   areRepliesExpanded?: boolean;
@@ -77,7 +79,7 @@ export default function AnnotationBox(props: {
             creator: props.creator,
           }}
           actions={[
-            props.hasReplies &&
+            annotation.hasConversation &&
               props.onToggleReplies && {
                 key: "toggle-replies",
                 image: commentImage,

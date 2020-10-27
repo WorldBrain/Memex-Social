@@ -1,10 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { Margin } from "styled-components-spacing";
-import { SharedAnnotation } from "@worldbrain/memex-common/lib/content-sharing/types";
-import { User } from "@worldbrain/memex-common/lib/web-interface/types/users";
 import CreationInfo, { CreationInfoProps } from "./creation-info";
-import { ConversationReply } from "@worldbrain/memex-common/lib/content-conversations/types";
 
 const AnnotationBottom = styled.div`
   display: flex;

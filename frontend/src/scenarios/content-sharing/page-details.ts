@@ -124,6 +124,48 @@ export const SCENARIOS: ScenarioMap<Targets> = {
             }),
         ]
     })),
+    'existing-conversation': scenario<Targets>(({ step, callModification }) => ({
+        authenticated: true,
+        fixture: 'annotation-coversation-with-user',
+        startRoute: { route: 'pageDetails', params: { id: 'default-page' } },
+        steps: [
+            step({
+                name: 'toggle-replies',
+                target: 'PageDetailsPage',
+                eventName: 'toggleAnnotationReplies',
+                eventArgs: {
+                    annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference,
+                }
+            }),
+            step({
+                name: 'initiate-reply',
+                target: 'PageDetailsPage',
+                eventName: 'initiateNewReplyToAnnotation',
+                eventArgs: { annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference }
+            }),
+            step({
+                name: 'edit-reply',
+                target: 'PageDetailsPage',
+                eventName: 'editNewReplyToAnnotation',
+                eventArgs: {
+                    annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference,
+                    content: 'this is a new reply'
+                }
+            }),
+            step({
+                name: 'confirm-reply',
+                target: 'PageDetailsPage',
+                eventName: 'confirmNewReplyToAnnotation',
+                eventArgs: { annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference }
+            }),
+            step({
+                name: 'second-initiate-reply',
+                target: 'PageDetailsPage',
+                eventName: 'initiateNewReplyToAnnotation',
+                eventArgs: { annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference }
+            }),
+        ]
+    })),
     'not-found': scenario<Targets>(({ step, callModification }) => ({
         startRoute: { route: 'pageDetails', params: { id: 'default-page' } },
         setup: {

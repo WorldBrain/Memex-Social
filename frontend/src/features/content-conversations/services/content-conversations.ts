@@ -1,4 +1,4 @@
-import { SharedAnnotationReference } from "@worldbrain/memex-common/lib/content-sharing/types";
+import { SharedAnnotationReference, SharedPageInfoReference } from "@worldbrain/memex-common/lib/content-sharing/types";
 import ContentConversationStorage from "../storage";
 import { AuthService } from "../../../services/auth/types";
 import { ConversationReplyReference, ConversationReply } from "@worldbrain/memex-common/lib/content-conversations/types";
@@ -12,6 +12,7 @@ export default class ContentConversationsService {
     }
 
     async submitReply(params: {
+        pageInfoReference: SharedPageInfoReference,
         annotationReference: SharedAnnotationReference,
         normalizedPageUrl: string,
         reply: Omit<ConversationReply, 'createdWhen' | 'normalizedPageUrl'>

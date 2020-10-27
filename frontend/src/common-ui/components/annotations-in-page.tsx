@@ -41,9 +41,9 @@ const CenteredContent = styled.div`
   width: 100%;
 `;
 
-const NewReplyTextArea = styled.textarea`
+const NewReplyTextArea = styled.textarea<{ editing: boolean }>`
   width: 100%;
-  height: 150px;
+  height: ${(props) => (props.editing ? "150px" : "25px")};
   border: 0;
   background: ${(props) => props.theme.colors.grey};
   border-radius: 3px;
@@ -142,12 +142,13 @@ export default function AnnotationsInPage(props: {
         />
         {conversation && (
           <>
-            {conversation.replies?.map?.((replyData) => (
-              <Margin key={replyData.reference.id} top="small" left="medium">
-                <AnnotationReply {...replyData} />
-              </Margin>
-            ))}
-            {conversation.newReply.editing && (
+            {conversation.expanded &&
+              conversation.replies?.map?.((replyData) => (
+                <Margin key={replyData.reference.id} top="small" left="medium">
+                  <AnnotationReply {...replyData} />
+                </Margin>
+              ))}
+            {conversation.expanded && (
               <Margin top="small" left="medium">
                 {renderNewReply(annotation, conversation)}
               </Margin>
@@ -164,36 +165,54 @@ export default function AnnotationsInPage(props: {
   ) => (
     <>
       <NewReplyTextArea
-        value={conversation.newReply.content}
+        value={
+          conversation.newReply.editing ? conversation.newReply.content : ""
+        }
+        editing={conversation.newReply.editing}
+        placeholder={"Add a new reply"}
+        onClick={() => {
+          props.onNewReplyInitiate?.({
+            annotationReference: annotation.reference,
+          });
+        }}
         onChange={(e) =>
           props.onNewReplyEdit?.({
             annotationReference: annotation.reference,
             content: e.target.value,
           })
         }
-      />
-      <NewReplyActions>
-        <NewReplyCancel
-          onClick={() =>
-            props.onNewReplyCancel?.({
+        onKeyDown={(e) => {
+          if (e.keyCode === 13 && e.ctrlKey) {
+            props.onNewReplyConfirm?.({
               annotationReference: annotation.reference,
-            })
+            });
           }
-        >
-          Cancel
-        </NewReplyCancel>
-        <Margin left="medium">
-          <NewReplyConfirm
+        }}
+      />
+      {conversation.newReply.editing && (
+        <NewReplyActions>
+          <NewReplyCancel
             onClick={() =>
-              props.onNewReplyConfirm?.({
+              props.onNewReplyCancel?.({
                 annotationReference: annotation.reference,
               })
             }
           >
-            Save
-          </NewReplyConfirm>
-        </Margin>
-      </NewReplyActions>
+            Cancel
+          </NewReplyCancel>
+          <Margin left="medium">
+            <NewReplyConfirm
+              onClick={() =>
+                props.onNewReplyConfirm?.({
+                  annotationReference: annotation.reference,
+                })
+              }
+            >
+              Save
+            </NewReplyConfirm>
+          </Margin>
+        </NewReplyActions>
+      )}
     </>
   );
 
