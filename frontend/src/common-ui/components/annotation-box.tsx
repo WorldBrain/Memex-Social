@@ -81,14 +81,18 @@ export default function AnnotationBox(props: {
             creator: props.creator,
           }}
           actions={[
+            annotation.hasConversation &&
+              props.onToggleReplies && {
+                key: "toggle-replies",
+                image: commentImage,
+                onClick: props.onToggleReplies,
+              },
             props.onInitiateReply && {
               key: "new-reply",
               image: replyImage,
               onClick: props.onInitiateReply,
             },
           ]}
-          replyCount = {props.replyCount}
-          toggleReplies= {props.onToggleReplies}
         />
       </StyledAnnotationBox>
     </ItemBox>

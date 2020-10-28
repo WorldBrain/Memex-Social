@@ -14,7 +14,7 @@ const AnnotationActions = styled.div`
   justify-content: flex-end;
 `;
 const AnnotationAction = styled.div<{ image: string }>`
-  display: flex;
+  display: block;
   width: 20px;
   height: 20px;
   cursor: pointer;
@@ -22,41 +22,19 @@ const AnnotationAction = styled.div<{ image: string }>`
   background-size: contain;
   background-position: center center;
   background-repeat: no-repeat;
-  align-items: center; 
-`;
-
-const ReplyCountPill = styled.div`
-  border-radius: 30px;
-  background-color: #5cd9a6;
-  padding: 2px 6px;
-  font-size: 12px;
-  width: 30px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
 `;
 
 export default function ItemBoxBottom(props: {
   creationInfo: CreationInfoProps;
   replyCount?: number;
-  toggleReplies?(): void;
   actions?: Array<
     { key: string; image: string; onClick?(): void } | null | false | undefined
   >;
 }) {
-
-  const replyCount = props.replyCount ?? ''
-
   return (
     <AnnotationBottom>
       <CreationInfo {...props.creationInfo} />
       <AnnotationActions>
-          {replyCount > 0 && 
-              <ReplyCountPill onClick={props.toggleReplies}>
-                 {props.replyCount}
-              </ReplyCountPill>
-          }
         {props.actions?.map?.(
           (actionProps) =>
             actionProps && (
@@ -64,10 +42,8 @@ export default function ItemBoxBottom(props: {
                 <AnnotationAction {...actionProps} />
               </Margin>
             )
-        )}  
-        
+        )}
       </AnnotationActions>
-      
     </AnnotationBottom>
   );
 }
