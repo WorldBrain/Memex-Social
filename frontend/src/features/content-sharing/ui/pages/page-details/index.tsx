@@ -2,8 +2,12 @@ import moment from "moment";
 import React from "react";
 import styled from "styled-components";
 import { UIElement } from "../../../../../main-ui/classes";
-import Logic, { PageDetailsState } from "./logic";
-import { PageDetailsEvent, PageDetailsDependencies } from "./types";
+import Logic from "./logic";
+import {
+  PageDetailsEvent,
+  PageDetailsDependencies,
+  PageDetailsState,
+} from "./types";
 import DocumentTitle from "../../../../../main-ui/components/document-title";
 import DefaultPageLayout from "../../../../../common-ui/layouts/default-page-layout";
 import LoadingScreen from "../../../../../common-ui/components/loading-screen";

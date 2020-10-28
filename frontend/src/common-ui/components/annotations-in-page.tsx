@@ -32,7 +32,7 @@ const AnnotationReplyContainer = styled.div`
   padding-top: 0.5rem;
   border-left: 4px solid #e0e0e0;
   padding-left: 10px;
-`
+`;
 
 const AnnotationList = styled.div`
   min-height: 60px;
@@ -192,7 +192,7 @@ export default function AnnotationsInPage(props: {
   ) => (
     <>
       <NewReplyTextArea
-        autoFocus
+        autoFocus={conversation.newReply.editing}
         value={
           conversation.newReply.editing ? conversation.newReply.content : ""
         }
@@ -228,15 +228,15 @@ export default function AnnotationsInPage(props: {
           >
             Cancel
           </NewReplyCancel>
-            <NewReplyConfirm
-              onClick={() =>
-                props.onNewReplyConfirm?.({
-                  annotationReference: annotation.reference,
-                })
-              }
-            >
-              Save
-            </NewReplyConfirm>
+          <NewReplyConfirm
+            onClick={() =>
+              props.onNewReplyConfirm?.({
+                annotationReference: annotation.reference,
+              })
+            }
+          >
+            Save
+          </NewReplyConfirm>
         </NewReplyActions>
       )}
     </>

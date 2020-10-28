@@ -1,6 +1,7 @@
 import { ScenarioMap } from "../../services/scenarios/types";
 import { scenario } from "../../services/scenarios/utils";
 import { CollectionDetailsEvent, CollectionDetailsSignal } from "../../features/content-sharing/ui/pages/collection-details/types";
+import { SharedAnnotationReference } from "@worldbrain/memex-common/lib/content-sharing/types";
 
 type Targets = {
     CollectionDetailsPage: {
@@ -211,33 +212,42 @@ export const SCENARIOS: ScenarioMap<Targets> = {
         fixture: 'annotated-list-with-user',
         startRoute: { route: 'collectionDetails', params: { id: 'default-list' } },
         steps: [
-            // step({
-            //     name: 'initiate-reply',
-            //     target: 'CollectionDetailsPage',
-            //     eventName: 'initiateNewReplyToAnnotation',
-            //     eventArgs: { annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference }
-            // }),
-            // step({
-            //     name: 'edit-reply',
-            //     target: 'CollectionDetailsPage',
-            //     eventName: 'editNewReplyToAnnotation',
-            //     eventArgs: {
-            //         annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference,
-            //         content: 'this is a new reply'
-            //     }
-            // }),
-            // step({
-            //     name: 'cancel-reply',
-            //     target: 'CollectionDetailsPage',
-            //     eventName: 'cancelNewReplyToAnnotation',
-            //     eventArgs: { annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference }
-            // }),
-            // step({
-            //     name: 'second-initiate-reply',
-            //     target: 'CollectionDetailsPage',
-            //     eventName: 'initiateNewReplyToAnnotation',
-            //     eventArgs: { annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference }
-            // }),
+            step({
+                name: 'first-annotations-toggle',
+                target: 'CollectionDetailsPage',
+                waitForSignal: { type: 'loaded-annotations', success: true },
+                eventName: 'togglePageAnnotations',
+                eventArgs: {
+                    normalizedUrl: 'getmemex.com'
+                }
+            }),
+            step({
+                name: 'initiate-reply',
+                target: 'CollectionDetailsPage',
+                eventName: 'initiateNewReplyToAnnotation',
+                eventArgs: { annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference }
+            }),
+            step({
+                name: 'edit-reply',
+                target: 'CollectionDetailsPage',
+                eventName: 'editNewReplyToAnnotation',
+                eventArgs: {
+                    annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference,
+                    content: 'this is a new reply'
+                }
+            }),
+            step({
+                name: 'cancel-reply',
+                target: 'CollectionDetailsPage',
+                eventName: 'cancelNewReplyToAnnotation',
+                eventArgs: { annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference }
+            }),
+            step({
+                name: 'second-initiate-reply',
+                target: 'CollectionDetailsPage',
+                eventName: 'initiateNewReplyToAnnotation',
+                eventArgs: { annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference }
+            }),
         ]
     })),
     'confirm-new-conversation': scenario<Targets>(({ step, callModification }) => ({
@@ -245,33 +255,42 @@ export const SCENARIOS: ScenarioMap<Targets> = {
         authenticated: true,
         startRoute: { route: 'collectionDetails', params: { id: 'default-list' } },
         steps: [
-            //     step({
-            //         name: 'initiate-reply',
-            //         target: 'CollectionDetailsPage',
-            //         eventName: 'initiateNewReplyToAnnotation',
-            //         eventArgs: { annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference }
-            //     }),
-            //     step({
-            //         name: 'edit-reply',
-            //         target: 'CollectionDetailsPage',
-            //         eventName: 'editNewReplyToAnnotation',
-            //         eventArgs: {
-            //             annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference,
-            //             content: 'this is a new reply'
-            //         }
-            //     }),
-            //     step({
-            //         name: 'confirm-reply',
-            //         target: 'CollectionDetailsPage',
-            //         eventName: 'confirmNewReplyToAnnotation',
-            //         eventArgs: { annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference }
-            //     }),
-            //     step({
-            //         name: 'second-initiate-reply',
-            //         target: 'CollectionDetailsPage',
-            //         eventName: 'initiateNewReplyToAnnotation',
-            //         eventArgs: { annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference }
-            //     }),
+            step({
+                name: 'first-annotations-toggle',
+                target: 'CollectionDetailsPage',
+                waitForSignal: { type: 'loaded-annotations', success: true },
+                eventName: 'togglePageAnnotations',
+                eventArgs: {
+                    normalizedUrl: 'getmemex.com'
+                }
+            }),
+            step({
+                name: 'initiate-reply',
+                target: 'CollectionDetailsPage',
+                eventName: 'initiateNewReplyToAnnotation',
+                eventArgs: { annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference }
+            }),
+            step({
+                name: 'edit-reply',
+                target: 'CollectionDetailsPage',
+                eventName: 'editNewReplyToAnnotation',
+                eventArgs: {
+                    annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference,
+                    content: 'this is a new reply'
+                }
+            }),
+            step({
+                name: 'confirm-reply',
+                target: 'CollectionDetailsPage',
+                eventName: 'confirmNewReplyToAnnotation',
+                eventArgs: { annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference }
+            }),
+            step({
+                name: 'second-initiate-reply',
+                target: 'CollectionDetailsPage',
+                eventName: 'initiateNewReplyToAnnotation',
+                eventArgs: { annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference }
+            }),
         ]
     })),
     'existing-conversation': scenario<Targets>(({ step, callModification }) => ({
@@ -279,41 +298,50 @@ export const SCENARIOS: ScenarioMap<Targets> = {
         fixture: 'annotation-coversation-with-user',
         startRoute: { route: 'collectionDetails', params: { id: 'default-list' } },
         steps: [
-            // step({
-            //     name: 'toggle-replies',
-            //     target: 'CollectionDetailsPage',
-            //     eventName: 'toggleAnnotationReplies',
-            //     eventArgs: {
-            //         annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference,
-            //     }
-            // }),
-            // step({
-            //     name: 'initiate-reply',
-            //     target: 'CollectionDetailsPage',
-            //     eventName: 'initiateNewReplyToAnnotation',
-            //     eventArgs: { annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference }
-            // }),
-            // step({
-            //     name: 'edit-reply',
-            //     target: 'CollectionDetailsPage',
-            //     eventName: 'editNewReplyToAnnotation',
-            //     eventArgs: {
-            //         annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference,
-            //         content: 'this is a new reply'
-            //     }
-            // }),
-            // step({
-            //     name: 'confirm-reply',
-            //     target: 'CollectionDetailsPage',
-            //     eventName: 'confirmNewReplyToAnnotation',
-            //     eventArgs: { annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference }
-            // }),
-            // step({
-            //     name: 'second-initiate-reply',
-            //     target: 'CollectionDetailsPage',
-            //     eventName: 'initiateNewReplyToAnnotation',
-            //     eventArgs: { annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference }
-            // }),
+            step({
+                name: 'first-annotations-toggle',
+                target: 'CollectionDetailsPage',
+                waitForSignal: { type: 'loaded-annotations', success: true },
+                eventName: 'togglePageAnnotations',
+                eventArgs: {
+                    normalizedUrl: 'getmemex.com'
+                }
+            }),
+            step({
+                name: 'toggle-replies',
+                target: 'CollectionDetailsPage',
+                eventName: 'toggleAnnotationReplies',
+                eventArgs: {
+                    annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference,
+                }
+            }),
+            step({
+                name: 'initiate-reply',
+                target: 'CollectionDetailsPage',
+                eventName: 'initiateNewReplyToAnnotation',
+                eventArgs: { annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference }
+            }),
+            step({
+                name: 'edit-reply',
+                target: 'CollectionDetailsPage',
+                eventName: 'editNewReplyToAnnotation',
+                eventArgs: {
+                    annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference,
+                    content: 'this is a new reply'
+                }
+            }),
+            step({
+                name: 'confirm-reply',
+                target: 'CollectionDetailsPage',
+                eventName: 'confirmNewReplyToAnnotation',
+                eventArgs: { annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference }
+            }),
+            step({
+                name: 'second-initiate-reply',
+                target: 'CollectionDetailsPage',
+                eventName: 'initiateNewReplyToAnnotation',
+                eventArgs: { annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference }
+            }),
         ]
     })),
     'large-data-set': scenario<Targets>(({ step }) => ({

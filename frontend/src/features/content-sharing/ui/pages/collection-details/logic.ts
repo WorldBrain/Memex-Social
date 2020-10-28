@@ -1,41 +1,42 @@
 import chunk from 'lodash/chunk'
 import fromPairs from 'lodash/fromPairs'
-import { SharedList, SharedListEntry, SharedAnnotationReference } from "@worldbrain/memex-common/lib/content-sharing/types"
+import { SharedAnnotationReference } from "@worldbrain/memex-common/lib/content-sharing/types"
 import { GetAnnotationListEntriesResult, GetAnnotationsResult } from "@worldbrain/memex-common/lib/content-sharing/storage/types"
-import { CollectionDetailsEvent, CollectionDetailsDependencies, CollectionDetailsSignal } from "./types"
+import { CollectionDetailsEvent, CollectionDetailsDependencies, CollectionDetailsSignal, CollectionDetailsState } from "./types"
 import { UILogic, UIEventHandler, executeUITask } from "../../../../../main-ui/classes/logic"
-import { UITaskState } from "../../../../../main-ui/types"
 import { UIMutation } from "ui-logic-core"
 import flatten from 'lodash/flatten'
 import { PAGE_SIZE } from './constants'
+import { annotationConversationInitialState, annotationConversationEventHandlers } from '../../../../content-conversations/ui/logic'
+import { UserReference, User } from '@worldbrain/memex-common/lib/web-interface/types/users'
+import { getInitialAnnotationConversationStates } from '../../../../content-conversations/ui/utils'
+import mapValues from 'lodash/mapValues'
 const truncate = require('truncate')
 
 const LIST_DESCRIPTION_CHAR_LIMIT = 200
 
-export interface CollectionDetailsState {
-    listLoadState: UITaskState
-    annotationEntriesLoadState: UITaskState
-    annotationLoadStates: { [normalizedPageUrl: string]: UITaskState }
-    listData?: {
-        creatorDisplayName?: string
-        list: SharedList
-        listEntries: SharedListEntry[]
-        listDescriptionState: 'fits' | 'collapsed' | 'expanded'
-        listDescriptionTruncated: string
-    },
-    allAnnotationExpanded: boolean
-    pageAnnotationsExpanded: { [normalizedPageUrl: string]: true }
-    annotationEntryData?: GetAnnotationListEntriesResult
-    annotations: GetAnnotationsResult
-}
 type EventHandler<EventName extends keyof CollectionDetailsEvent> = UIEventHandler<CollectionDetailsState, CollectionDetailsEvent, EventName>
 
 export default class CollectionDetailsLogic extends UILogic<CollectionDetailsState, CollectionDetailsEvent> {
     pageAnnotationPromises: { [normalizedPageUrl: string]: Promise<void> } = {}
     latestPageSeenIndex = 0
+    users: { [id: string]: Promise<User | null> } = {}
 
     constructor(private dependencies: CollectionDetailsDependencies) {
         super()
+
+        Object.assign(this, annotationConversationEventHandlers<CollectionDetailsState>(this as any, {
+            ...this.dependencies,
+            getAnnotation: (state, reference) => {
+                const annotationId = this.dependencies.storage.contentSharing.getSharedAnnotationLinkID(reference)
+                const annotation = state.annotations[annotationId]
+                if (!annotation) {
+                    return null
+                }
+                return { annotation, pageCreatorReference: annotation.creator, }
+            },
+            loadUser: this._loadUser,
+        }))
     }
 
     getInitialState(): CollectionDetailsState {
@@ -45,12 +46,13 @@ export default class CollectionDetailsLogic extends UILogic<CollectionDetailsSta
             annotationLoadStates: {},
             annotations: {},
             allAnnotationExpanded: false,
-            pageAnnotationsExpanded: {}
+            pageAnnotationsExpanded: {},
+            ...annotationConversationInitialState(),
         }
     }
 
     init: EventHandler<'init'> = async () => {
-        const { contentSharing, userManagement } = this.dependencies
+        const { contentSharing, userManagement } = this.dependencies.storage
         const listReference = contentSharing.getSharedListReferenceFromLinkID(this.dependencies.listID)
         const { success: listDataSuccess } = await executeUITask<CollectionDetailsState>(this, 'listLoadState', async () => {
             this.emitSignal<CollectionDetailsSignal>({ type: 'loading-started' })
@@ -66,13 +68,14 @@ export default class CollectionDetailsLogic extends UILogic<CollectionDetailsSta
                     mutation: {
                         listData: {
                             $set: {
-                                creatorDisplayName: user?.displayName,
+                                creatorReference: result.creator,
+                                creator: user,
                                 list: result.sharedList,
                                 listEntries: result.entries,
                                 listDescriptionState: listDescriptionFits ? 'fits' : 'collapsed',
                                 listDescriptionTruncated: truncate(listDescription, LIST_DESCRIPTION_CHAR_LIMIT)
                             }
-                        }
+                        },
                     }
                 }
             }
@@ -190,7 +193,7 @@ export default class CollectionDetailsLogic extends UILogic<CollectionDetailsSta
 
         const promisesByPage: { [normalizedUrl: string]: Promise<GetAnnotationsResult>[] } = {}
         const annotationChunks: Promise<GetAnnotationsResult>[] = []
-        const { contentSharing } = this.dependencies
+        const { contentSharing } = this.dependencies.storage
         for (const entryChunk of chunk(toFetch, 10)) {
             const pageUrlsInChuck = new Set(entryChunk.map(entry => entry.normalizedPageUrl))
             const promise = contentSharing.getAnnotations({ references: entryChunk.map(entry => entry.sharedAnnotation) })
@@ -210,17 +213,19 @@ export default class CollectionDetailsLogic extends UILogic<CollectionDetailsSta
                 try {
                     const annotationChunks = await Promise.all(pagePromises)
                     // await new Promise(resolve => setTimeout(resolve, 2000))
-                    const newAnnotations: UIMutation<CollectionDetailsState['annotations']> = {}
+                    const newAnnotations: CollectionDetailsState['annotations'] = {}
                     for (const annotationChunk of annotationChunks) {
                         for (const [annotationId, annotation] of Object.entries(annotationChunk)) {
-                            newAnnotations[annotationId] = { $set: annotation }
+                            newAnnotations[annotationId] = annotation
                         }
                     }
 
-                    this.emitMutation({
+                    const mutation = {
                         annotationLoadStates: { [normalizedPageUrl]: { $set: 'success' } },
-                        annotations: newAnnotations
-                    })
+                        annotations: mapValues(newAnnotations, newAnnotation => ({ $set: newAnnotation })),
+                        conversations: { $merge: getInitialAnnotationConversationStates(Object.values(newAnnotations)) },
+                    }
+                    this.emitMutation(mutation as any)
                 } catch (e) {
                     this.emitMutation({
                         annotationLoadStates: {
@@ -240,5 +245,15 @@ export default class CollectionDetailsLogic extends UILogic<CollectionDetailsSta
             this.emitSignal<CollectionDetailsSignal>({ type: 'loaded-annotations', success: false })
             throw e
         }
+    }
+
+    _loadUser = async (userReference: UserReference): Promise<User | null> => {
+        if (this.users[userReference.id]) {
+            return this.users[userReference.id]
+        }
+
+        const user = this.dependencies.storage.userManagement.getUser(userReference)
+        this.users[userReference.id] = user
+        return user
     }
 }

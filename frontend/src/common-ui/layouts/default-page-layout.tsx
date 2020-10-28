@@ -182,7 +182,7 @@ const PageMiddleArea = styled.div<{
 
 export default function DefaultPageLayout(props: {
   headerTitle?: string;
-  headerSubtitle?: string;
+  headerSubtitle?: string | null;
   viewportBreakpoint: ViewportBreakpoint;
   children: React.ReactNode;
 }) {

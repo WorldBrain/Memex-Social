@@ -1,22 +1,31 @@
 import { AnnotationConversationsState, AnnotationConversationEvent, AnnotationConversationsHandlers } from "./types";
-import { UILogic, UIEventHandler, executeUITask } from "../../../main-ui/classes/logic";
+import { UILogic, executeUITask } from "../../../main-ui/classes/logic";
 import { UIElementServices } from "../../../main-ui/classes";
 import ContentSharingStorage from "../../content-sharing/storage";
 import ContentConversationStorage from "../storage";
 import { UserReference, User } from "@worldbrain/memex-common/lib/web-interface/types/users";
 import { SharedAnnotationReference, SharedAnnotation } from "@worldbrain/memex-common/lib/content-sharing/types";
 
+export function annotationConversationInitialState(): AnnotationConversationsState {
+    return {
+        conversations: {},
+        conversationReplySubmitState: 'pristine',
+    }
+}
+
 export function annotationConversationEventHandlers<State extends AnnotationConversationsState>(
     logic: UILogic<AnnotationConversationsState, AnnotationConversationEvent>,
     dependencies: {
-        pageID: string
         services: UIElementServices<'contentConversations' | 'auth'>;
         storage: {
             contentSharing: ContentSharingStorage,
             contentConversations: ContentConversationStorage
         },
         loadUser(reference: UserReference): Promise<User | null>
-        getAnnotation(state: State, reference: SharedAnnotationReference): Pick<SharedAnnotation, 'normalizedPageUrl'> | null
+        getAnnotation(state: State, reference: SharedAnnotationReference): {
+            pageCreatorReference?: UserReference | null,
+            annotation: Pick<SharedAnnotation, 'normalizedPageUrl'>
+        } | null
     }
 ): AnnotationConversationsHandlers {
     return {
@@ -72,10 +81,14 @@ export function annotationConversationEventHandlers<State extends AnnotationConv
         },
         confirmNewReplyToAnnotation: async ({ event, previousState }) => {
             const annotationId = dependencies.storage.contentSharing.getSharedAnnotationLinkID(event.annotationReference)
-            const annotation = dependencies.getAnnotation(previousState as any, event.annotationReference)
+            const annotationData = dependencies.getAnnotation(previousState as any, event.annotationReference)
             const conversation = previousState.conversations[annotationId]
             const user = await dependencies.services.auth.getCurrentUser()
-            if (!annotation) {
+            if (!annotationData) {
+                throw new Error(`Could not find annotation to sumbit reply to`)
+            }
+            const { pageCreatorReference } = annotationData
+            if (!pageCreatorReference) {
                 throw new Error(`Could not find annotation to sumbit reply to`)
             }
             if (!conversation) {
@@ -85,12 +98,11 @@ export function annotationConversationEventHandlers<State extends AnnotationConv
                 throw new Error(`Tried to submit a reply without being authenticated`)
             }
 
-            const pageInfoReference = dependencies.storage.contentSharing.getSharedPageInfoReferenceFromLinkID(dependencies.pageID)
             await executeUITask<AnnotationConversationsState>(logic, 'conversationReplySubmitState', async () => {
                 const result = await dependencies.services.contentConversations.submitReply({
-                    pageInfoReference: pageInfoReference,
                     annotationReference: event.annotationReference,
-                    normalizedPageUrl: annotation.normalizedPageUrl,
+                    normalizedPageUrl: annotationData.annotation.normalizedPageUrl,
+                    pageCreatorReference,
                     reply: { content: conversation.newReply.content }
                 })
                 if (result.status === 'not-authenticated') {
@@ -105,7 +117,7 @@ export function annotationConversationEventHandlers<State extends AnnotationConv
                                     reference: result.replyReference,
                                     reply: {
                                         createdWhen: Date.now(),
-                                        normalizedPageUrl: annotation.normalizedPageUrl,
+                                        normalizedPageUrl: annotationData.annotation.normalizedPageUrl,
                                         content: conversation.newReply.content,
                                     },
                                     user: user,

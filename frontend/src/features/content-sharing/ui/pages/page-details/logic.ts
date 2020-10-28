@@ -1,28 +1,11 @@
 import orderBy from 'lodash/orderBy'
 import { User, UserReference } from "@worldbrain/memex-common/lib/web-interface/types/users"
-import { SharedAnnotation, SharedPageInfo, SharedAnnotationReference, SharedPageInfoReference } from "@worldbrain/memex-common/lib/content-sharing/types"
-import { UILogic, UIEventHandler, executeUITask, UIMutation } from "../../../../../main-ui/classes/logic"
-import { UITaskState } from "../../../../../main-ui/types"
-import { PageDetailsEvent, PageDetailsDependencies } from "./types"
-import { AnnotationConversationStates, AnnotationConversationState } from '../../../../content-conversations/ui/types'
+import { SharedPageInfo } from "@worldbrain/memex-common/lib/content-sharing/types"
+import { UILogic, UIEventHandler, executeUITask } from "../../../../../main-ui/classes/logic"
+import { PageDetailsEvent, PageDetailsDependencies, PageDetailsState } from "./types"
 import { getInitialAnnotationConversationStates } from '../../../../content-conversations/ui/utils'
-import { annotationConversationEventHandlers } from '../../../../content-conversations/ui/logic'
+import { annotationConversationEventHandlers, annotationConversationInitialState } from '../../../../content-conversations/ui/logic'
 
-export interface PageDetailsState {
-    annotationLoadState: UITaskState
-    annotations?: Array<SharedAnnotation & { reference: SharedAnnotationReference, linkId: string }> | null
-
-    pageInfoLoadState: UITaskState
-    pageInfoReference?: SharedPageInfoReference | null
-    pageInfo?: SharedPageInfo | null
-
-    creatorLoadState: UITaskState
-    creator?: User | null
-    creatorReference?: UserReference | null
-
-    conversations: AnnotationConversationStates
-    conversationReplySubmitState: UITaskState
-}
 type EventHandler<EventName extends keyof PageDetailsEvent> = UIEventHandler<PageDetailsState, PageDetailsEvent, EventName>
 
 export default class PageDetailsLogic extends UILogic<PageDetailsState, PageDetailsEvent> {
@@ -35,7 +18,11 @@ export default class PageDetailsLogic extends UILogic<PageDetailsState, PageDeta
             ...this.dependencies,
             getAnnotation: (state, reference) => {
                 const annotationId = this.dependencies.storage.contentSharing.getSharedAnnotationLinkID(reference)
-                return state.annotations!.find(annotation => annotation.linkId === annotationId) ?? null
+                const annotation = state.annotations!.find(annotation => annotation.linkId === annotationId)
+                if (!annotation) {
+                    return null
+                }
+                return { annotation, pageCreatorReference: state.creatorReference }
             },
             loadUser: this._loadUser,
         }))
@@ -46,9 +33,7 @@ export default class PageDetailsLogic extends UILogic<PageDetailsState, PageDeta
             creatorLoadState: 'pristine',
             annotationLoadState: 'pristine',
             pageInfoLoadState: 'pristine',
-
-            conversations: {},
-            conversationReplySubmitState: 'pristine',
+            ...annotationConversationInitialState(),
         }
     }
 

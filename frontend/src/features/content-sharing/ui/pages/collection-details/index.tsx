@@ -2,10 +2,14 @@ import React from "react";
 import { Waypoint } from "react-waypoint";
 import styled, { css } from "styled-components";
 import { Margin } from "styled-components-spacing";
-import { UIElement, UIElementServices } from "../../../../../main-ui/classes";
-import Logic, { CollectionDetailsState } from "./logic";
+import { UIElement } from "../../../../../main-ui/classes";
+import Logic from "./logic";
 import LoadingIndicator from "../../../../../common-ui/components/loading-indicator";
-import { CollectionDetailsEvent, CollectionDetailsDependencies } from "./types";
+import {
+  CollectionDetailsEvent,
+  CollectionDetailsDependencies,
+  CollectionDetailsState,
+} from "./types";
 import {
   SharedListEntry,
   SharedAnnotationListEntry,
@@ -24,10 +28,6 @@ import AnnotationsInPage from "../../../../../common-ui/components/annotations-i
 import ErrorWithAction from "../../../../../common-ui/components/error-with-action";
 import ErrorBox from "../../../../../common-ui/components/error-box";
 const commentImage = require("../../../../../assets/img/comment.svg");
-
-interface CollectionDetailsProps extends CollectionDetailsDependencies {
-  services: UIElementServices;
-}
 
 const DocumentView = styled.div`
   height: 100vh;
@@ -120,11 +120,11 @@ const EmptyListBox = styled.div`
 `;
 
 export default class CollectionDetailsPage extends UIElement<
-  CollectionDetailsProps,
+  CollectionDetailsDependencies,
   CollectionDetailsState,
   CollectionDetailsEvent
 > {
-  constructor(props: CollectionDetailsProps) {
+  constructor(props: CollectionDetailsDependencies) {
     super(props, { logic: new Logic(props) });
   }
 
@@ -178,7 +178,7 @@ export default class CollectionDetailsPage extends UIElement<
     }
   ) {
     const { state } = this;
-    const annotationID = this.props.contentSharing.getSharedAnnotationLinkID(
+    const annotationID = this.props.storage.contentSharing.getSharedAnnotationLinkID(
       annotationEntry.sharedAnnotation
     );
     const annotation = state.annotations[annotationID];
@@ -241,9 +241,7 @@ export default class CollectionDetailsPage extends UIElement<
         <DefaultPageLayout
           viewportBreakpoint={viewportBreakpoint}
           headerTitle={data.list.title}
-          headerSubtitle={
-            data.creatorDisplayName && `by ${data.creatorDisplayName}`
-          }
+          headerSubtitle={data.creator && `by ${data.creator.displayName}`}
         >
           {data.list.description && (
             <CollectionDescriptionBox viewportWidth={viewportBreakpoint}>
@@ -310,6 +308,29 @@ export default class CollectionDetailsPage extends UIElement<
                           ].map((annotationEntry) =>
                             this.getAnnotation(annotationEntry)
                           )
+                        }
+                        annotationConversations={this.state.conversations}
+                        annotationCreator={this.state.listData?.creator}
+                        onNewReplyInitiate={(event) =>
+                          this.processEvent(
+                            "initiateNewReplyToAnnotation",
+                            event
+                          )
+                        }
+                        onNewReplyCancel={(event) =>
+                          this.processEvent("cancelNewReplyToAnnotation", event)
+                        }
+                        onNewReplyConfirm={(event) =>
+                          this.processEvent(
+                            "confirmNewReplyToAnnotation",
+                            event
+                          )
+                        }
+                        onNewReplyEdit={(event) =>
+                          this.processEvent("editNewReplyToAnnotation", event)
+                        }
+                        onToggleReplies={(event) =>
+                          this.processEvent("toggleAnnotationReplies", event)
                         }
                       />
                     </Margin>
