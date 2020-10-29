@@ -1,11 +1,12 @@
 import { EventEmitter } from "events";
 import { AuthProvider } from "../../types/auth"
-import { AuthService, AuthLoginFlow, AuthRequest, AuthMethod } from "./types";
+import { AuthService, AuthLoginFlow, AuthRequest, AuthMethod, AuthEvents } from "./types";
 import { User, UserReference } from "@worldbrain/memex-common/lib/web-interface/types/users";
+import TypedEventEmitter from "typed-emitter";
 
 
 export abstract class AuthServiceBase implements AuthService {
-    events: EventEmitter = new EventEmitter()
+    events: TypedEventEmitter<AuthEvents> = new EventEmitter()
 
     abstract loginWithProvider(provider: AuthProvider, options?: { request?: AuthRequest }): Promise<void>
     abstract getCurrentUser(): User | null

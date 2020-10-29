@@ -17,5 +17,7 @@ export interface Services {
     fixtures: FixtureService
     scenarios: ScenarioService
     documentTitle: DocumentTitleService
+
+    // Feature specific services
     contentConversations: ContentConversationsService
 }

@@ -11,7 +11,7 @@ import ContentConversationStorage from "../../../../content-conversations/storag
 
 export interface CollectionDetailsDependencies {
     listID: string
-    services: UIElementServices<'auth' | 'contentConversations'>
+    services: UIElementServices<'auth' | 'overlay' | 'contentConversations'>
     storage: {
         contentSharing: ContentSharingStorage
         contentConversations: ContentConversationStorage

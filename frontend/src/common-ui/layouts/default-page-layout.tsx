@@ -2,6 +2,8 @@ import React from "react";
 import styled, { css } from "styled-components";
 import { ViewportBreakpoint } from "../../main-ui/styles/types";
 import SmallButton from "../components/small-button";
+import { UIElementServices } from "../../main-ui/classes";
+import AuthHeader from "../../features/user-management/ui/containers/auth-header";
 const logoImage = require("../../assets/img/memex-logo.svg");
 
 const middleMaxWidth = "800px";
@@ -145,11 +147,11 @@ const HeaderSubtitle = styled.div<{
       font-size: 10px;
     `}
 `;
-const HeaderCtaArea = styled.div<{
+const HeaderAuthArea = styled.div<{
   viewportWidth: "mobile" | "small" | "normal" | "big";
 }>`
   flex: 1;
-  display: ${(props) => (props.viewportWidth === "mobile" ? "none" : "flex")};
+  display: flex;
   align-items: center;
   justify-content: flex-end;
   white-space: nowrap;
@@ -181,6 +183,7 @@ const PageMiddleArea = styled.div<{
 `;
 
 export default function DefaultPageLayout(props: {
+  services: UIElementServices<"auth" | "overlay">;
   headerTitle?: string;
   headerSubtitle?: string | null;
   viewportBreakpoint: ViewportBreakpoint;
@@ -211,11 +214,9 @@ export default function DefaultPageLayout(props: {
             </HeaderSubtitle>
           )}
         </HeaderMiddleArea>
-        <HeaderCtaArea viewportWidth={viewportWidth}>
-          <SmallButton externalHref="https://getmemex.com">
-            Share your research
-          </SmallButton>
-        </HeaderCtaArea>
+        <HeaderAuthArea viewportWidth={viewportWidth}>
+          <AuthHeader services={props.services} />
+        </HeaderAuthArea>
       </StyledHeader>
       <PageMiddleArea viewportWidth={viewportWidth}>
         {props.children}

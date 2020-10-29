@@ -10,16 +10,12 @@ import styled from "styled-components";
 import ErrorWithAction from "../../../../../common-ui/components/error-with-action";
 const logoImage = require("../../../../../assets/img/memex-logo.svg");
 
-interface AnnotationDetailsProps extends AnnotationDetailsDependencies {
-  services: UIElementServices;
-}
-
 export default class AnnotationDetailsPage extends UIElement<
-  AnnotationDetailsProps,
+  AnnotationDetailsDependencies,
   AnnotationDetailsState,
   AnnotationDetailsEvent
 > {
-  constructor(props: AnnotationDetailsProps) {
+  constructor(props: AnnotationDetailsDependencies) {
     super(props, { logic: new Logic(props) });
   }
 
@@ -59,6 +55,7 @@ export default class AnnotationDetailsPage extends UIElement<
     if (state.annotationLoadState === "error") {
       return (
         <DefaultPageLayout
+          services={this.props.services}
           viewportBreakpoint={viewportWidth}
           headerTitle={"Annotation"}
         >
@@ -73,6 +70,7 @@ export default class AnnotationDetailsPage extends UIElement<
     if (!annotation) {
       return (
         <DefaultPageLayout
+          services={this.props.services}
           viewportBreakpoint={viewportWidth}
           headerTitle={"Annotation"}
         >
@@ -105,8 +103,12 @@ export default class AnnotationDetailsPage extends UIElement<
           </IntroArea>
           <AnnotationContainer>
             <AnnotationContentBox>
-              {annotation.body && (<AnnotationBody>{annotation.body}</AnnotationBody>)}
-              {annotation.comment && (<AnnotationComment>{annotation.comment}</AnnotationComment>)}
+              {annotation.body && (
+                <AnnotationBody>{annotation.body}</AnnotationBody>
+              )}
+              {annotation.comment && (
+                <AnnotationComment>{annotation.comment}</AnnotationComment>
+              )}
               <AnnotationAuthorBox>
                 <AnnotationAuthorName>
                   {state.creatorLoadState === "success" && (

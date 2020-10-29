@@ -16,6 +16,7 @@ import PageInfoBox from "../../../../../common-ui/components/page-info-box";
 import AnnotationsInPage from "../../../../annotations/ui/components/annotations-in-page";
 import LoadingIndicator from "../../../../../common-ui/components/loading-indicator";
 import ErrorWithAction from "../../../../../common-ui/components/error-with-action";
+import Overlay from "../../../../../main-ui/containers/overlay";
 
 const PageInfoList = styled.div`
   width: 100%;
@@ -63,6 +64,7 @@ export default class PageDetailsPage extends UIElement<
     ) {
       return (
         <DefaultPageLayout
+          services={this.props.services}
           viewportBreakpoint={viewportWidth}
           headerTitle={"Loading page..."}
         >
@@ -77,6 +79,7 @@ export default class PageDetailsPage extends UIElement<
     if (state.pageInfoLoadState === "error") {
       return (
         <DefaultPageLayout
+          services={this.props.services}
           viewportBreakpoint={viewportWidth}
           headerTitle={"Could not load page"}
         >
@@ -95,6 +98,7 @@ export default class PageDetailsPage extends UIElement<
     if (!pageInfo) {
       return (
         <DefaultPageLayout
+          services={this.props.services}
           viewportBreakpoint={viewportWidth}
           headerTitle={"Annotation"}
         >
@@ -123,6 +127,7 @@ export default class PageDetailsPage extends UIElement<
           subTitle={`Shared page${creator ? ` by ${creator.displayName}` : ""}`}
         />
         <DefaultPageLayout
+          services={this.props.services}
           viewportBreakpoint={viewportWidth}
           headerTitle={this.getHeaderTitle()}
           headerSubtitle={this.getHeaderSubtitle()}

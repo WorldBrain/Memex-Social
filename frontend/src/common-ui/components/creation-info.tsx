@@ -38,7 +38,7 @@ export default function CreationInfo(props: CreationInfoProps) {
     <StyledCreationInfo>
       <AvatarHolder>
         <Margin right="small">
-          <UserAvatar userName={props.creator?.displayName} loading={!props.creator} />
+          <UserAvatar user={props.creator} loading={!props.creator} />
         </Margin>
       </AvatarHolder>
       <Details>

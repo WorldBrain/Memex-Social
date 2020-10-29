@@ -1,9 +1,10 @@
 import { EventEmitter } from "events";
 import { User, UserReference } from "@worldbrain/memex-common/lib/web-interface/types/users";
 import { AuthProvider } from "../../types/auth"
+import TypedEventEmitter from "typed-emitter";
 
 export interface AuthService {
-    events: EventEmitter
+    events: TypedEventEmitter<AuthEvents>
 
     loginWithProvider(provider: AuthProvider, options?: { request?: AuthRequest }): Promise<void>
     getCurrentUser(): User | null
@@ -13,6 +14,11 @@ export interface AuthService {
 
     requestAuth(options?: Omit<AuthRequest, 'onSuccess' | 'onFail'>): Promise<void>
     logout(): Promise<void>
+}
+
+export interface AuthEvents {
+    changed(): void;
+    authRequested(request: AuthRequest): void;
 }
 
 export type AuthMethod = 'passwordless' | 'external-provider'

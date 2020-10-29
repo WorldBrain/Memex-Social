@@ -206,7 +206,10 @@ export default class CollectionDetailsPage extends UIElement<
     if (state.listLoadState === "error") {
       return (
         <DocumentView>
-          <DefaultPageLayout viewportBreakpoint={viewportBreakpoint}>
+          <DefaultPageLayout
+            services={this.props.services}
+            viewportBreakpoint={viewportBreakpoint}
+          >
             <ErrorWithAction errorType="internal-error">
               Error loading this collection. <br /> Reload page to retry.
             </ErrorWithAction>
@@ -218,7 +221,10 @@ export default class CollectionDetailsPage extends UIElement<
     const data = state.listData;
     if (!data) {
       return (
-        <DefaultPageLayout viewportBreakpoint={viewportBreakpoint}>
+        <DefaultPageLayout
+          services={this.props.services}
+          viewportBreakpoint={viewportBreakpoint}
+        >
           <ErrorWithAction
             errorType="not-found"
             action={{
@@ -239,6 +245,7 @@ export default class CollectionDetailsPage extends UIElement<
           subTitle={data.list.title}
         />
         <DefaultPageLayout
+          services={this.props.services}
           viewportBreakpoint={viewportBreakpoint}
           headerTitle={data.list.title}
           headerSubtitle={data.creator && `by ${data.creator.displayName}`}

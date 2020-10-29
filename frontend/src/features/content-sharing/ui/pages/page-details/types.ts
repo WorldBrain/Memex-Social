@@ -9,7 +9,7 @@ import { UITaskState } from "../../../../../main-ui/types";
 import { User, UserReference } from "@worldbrain/memex-common/lib/web-interface/types/users";
 
 export interface PageDetailsDependencies {
-    services: UIElementServices<'contentConversations' | 'auth'>;
+    services: UIElementServices<'contentConversations' | 'auth' | 'overlay'>;
     storage: {
         contentSharing: ContentSharingStorage,
         contentConversations: ContentConversationStorage
