@@ -7,7 +7,7 @@ import { UILogic, UIEventHandler, executeUITask } from "../../../../../main-ui/c
 import { UIMutation } from "ui-logic-core"
 import flatten from 'lodash/flatten'
 import { PAGE_SIZE } from './constants'
-import { annotationConversationInitialState, annotationConversationEventHandlers } from '../../../../content-conversations/ui/logic'
+import { annotationConversationInitialState, annotationConversationEventHandlers, detectAnnotationConversationsThreads } from '../../../../content-conversations/ui/logic'
 import { UserReference, User } from '@worldbrain/memex-common/lib/web-interface/types/users'
 import { getInitialAnnotationConversationStates } from '../../../../content-conversations/ui/utils'
 import mapValues from 'lodash/mapValues'
@@ -19,6 +19,7 @@ type EventHandler<EventName extends keyof CollectionDetailsEvent> = UIEventHandl
 
 export default class CollectionDetailsLogic extends UILogic<CollectionDetailsState, CollectionDetailsEvent> {
     pageAnnotationPromises: { [normalizedPageUrl: string]: Promise<void> } = {}
+    conversationThreadPromises: { [normalizePageUrl: string]: Promise<void> } = {}
     latestPageSeenIndex = 0
     users: { [id: string]: Promise<User | null> } = {}
 
@@ -235,6 +236,15 @@ export default class CollectionDetailsLogic extends UILogic<CollectionDetailsSta
                     console.error(e)
                 }
             })(promisesByPageEntry)
+        }
+
+        const conversationThreadPromise = detectAnnotationConversationsThreads(this as any, [...normalizedPageUrls].filter(
+            normalizedPageUrl => !this.conversationThreadPromises[normalizedPageUrl]
+        ), {
+            storage: this.dependencies.storage,
+        }).catch(() => { })
+        for (const normalizedPageUrl of normalizedPageUrls) {
+            this.conversationThreadPromises[normalizedPageUrl] = conversationThreadPromise
         }
 
         try {

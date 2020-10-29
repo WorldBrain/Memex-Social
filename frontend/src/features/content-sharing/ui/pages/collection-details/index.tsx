@@ -24,7 +24,7 @@ import PageInfoBox, {
 import { ViewportBreakpoint } from "../../../../../main-ui/styles/types";
 import LoadingScreen from "../../../../../common-ui/components/loading-screen";
 import { getViewportBreakpoint } from "../../../../../main-ui/styles/utils";
-import AnnotationsInPage from "../../../../../common-ui/components/annotations-in-page";
+import AnnotationsInPage from "../../../../annotations/ui/components/annotations-in-page";
 import ErrorWithAction from "../../../../../common-ui/components/error-with-action";
 import ErrorBox from "../../../../../common-ui/components/error-box";
 const commentImage = require("../../../../../assets/img/comment.svg");

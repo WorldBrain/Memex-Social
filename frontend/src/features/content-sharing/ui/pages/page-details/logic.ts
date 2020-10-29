@@ -4,7 +4,7 @@ import { SharedPageInfo } from "@worldbrain/memex-common/lib/content-sharing/typ
 import { UILogic, UIEventHandler, executeUITask } from "../../../../../main-ui/classes/logic"
 import { PageDetailsEvent, PageDetailsDependencies, PageDetailsState } from "./types"
 import { getInitialAnnotationConversationStates } from '../../../../content-conversations/ui/utils'
-import { annotationConversationEventHandlers, annotationConversationInitialState } from '../../../../content-conversations/ui/logic'
+import { annotationConversationEventHandlers, annotationConversationInitialState, detectAnnotationConversationsThreads } from '../../../../content-conversations/ui/logic'
 
 type EventHandler<EventName extends keyof PageDetailsEvent> = UIEventHandler<PageDetailsState, PageDetailsEvent, EventName>
 
@@ -80,6 +80,13 @@ export default class PageDetailsLogic extends UILogic<PageDetailsState, PageDeta
                         }
                     }
                 }
+            }).then(() => {
+                if (!pageInfo) {
+                    return
+                }
+                detectAnnotationConversationsThreads(this as any, [pageInfo.normalizedUrl], {
+                    storage: this.dependencies.storage
+                }).catch(() => { })
             }),
             executeUITask<PageDetailsState>(this, 'creatorLoadState', async () => {
                 if (!creatorReference) {

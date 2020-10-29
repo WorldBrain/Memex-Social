@@ -13,7 +13,7 @@ import DefaultPageLayout from "../../../../../common-ui/layouts/default-page-lay
 import LoadingScreen from "../../../../../common-ui/components/loading-screen";
 import { Margin } from "styled-components-spacing";
 import PageInfoBox from "../../../../../common-ui/components/page-info-box";
-import AnnotationsInPage from "../../../../../common-ui/components/annotations-in-page";
+import AnnotationsInPage from "../../../../annotations/ui/components/annotations-in-page";
 import LoadingIndicator from "../../../../../common-ui/components/loading-indicator";
 import ErrorWithAction from "../../../../../common-ui/components/error-with-action";
 

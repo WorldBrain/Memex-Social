@@ -1,3 +1,4 @@
+import fromPairs from "lodash/fromPairs";
 import { AnnotationConversationsState, AnnotationConversationEvent, AnnotationConversationsHandlers } from "./types";
 import { UILogic, executeUITask } from "../../../main-ui/classes/logic";
 import { UIElementServices } from "../../../main-ui/classes";
@@ -11,6 +12,26 @@ export function annotationConversationInitialState(): AnnotationConversationsSta
         conversations: {},
         conversationReplySubmitState: 'pristine',
     }
+}
+
+export async function detectAnnotationConversationsThreads(
+    logic: UILogic<AnnotationConversationsState, AnnotationConversationEvent>,
+    normalizedPageUrls: string[],
+    dependencies: {
+        storage: {
+            contentConversations: ContentConversationStorage
+        },
+    }
+) {
+    const threads = await dependencies.storage.contentConversations.getThreadsForPages({
+        normalizedPageUrls,
+    })
+    logic.emitMutation({
+        conversations: fromPairs(threads.map(threadData => [
+            threadData.sharedAnnotation.id,
+            { thread: { $set: threadData.thread } }
+        ]))
+    })
 }
 
 export function annotationConversationEventHandlers<State extends AnnotationConversationsState>(

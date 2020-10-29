@@ -2,13 +2,13 @@ import DOMPurify from "dompurify";
 import React from "react";
 import styled from "styled-components";
 import { Margin } from "styled-components-spacing";
-import { SharedAnnotation } from "@worldbrain/memex-common/lib/content-sharing/types";
-import ItemBox from "../components/item-box";
 import { User } from "@worldbrain/memex-common/lib/web-interface/types/users";
-import ItemBoxBottom from "./item-box-bottom";
+import { SharedAnnotation } from "@worldbrain/memex-common/lib/content-sharing/types";
+import ItemBox from "../../../../common-ui/components/item-box";
+import ItemBoxBottom from "../../../../common-ui/components/item-box-bottom";
 
-const commentImage = require("../../assets/img/comment.svg");
-const replyImage = require("../../assets/img/reply.svg");
+const commentImage = require("../../../../assets/img/comment.svg");
+const replyImage = require("../../../../assets/img/reply.svg");
 
 const StyledAnnotationBox = styled.div`
   font-family: ${(props) => props.theme.fonts.primary};
@@ -43,16 +43,12 @@ const preserveLinebreaks = (s: string | undefined) =>
     : "";
 
 export default function AnnotationBox(props: {
-  annotation: Pick<
-    SharedAnnotation,
-    "body" | "comment" | "createdWhen" | "hasConversation"
-  >;
+  annotation: Pick<SharedAnnotation, "body" | "comment" | "createdWhen">;
   creator?: Pick<User, "displayName"> | null;
   hasReplies?: boolean;
   areRepliesExpanded?: boolean;
   onInitiateReply?(): void;
   onToggleReplies?(): void;
-  replyCount?: number;
 }) {
   const { annotation } = props;
 
@@ -81,7 +77,7 @@ export default function AnnotationBox(props: {
             creator: props.creator,
           }}
           actions={[
-            annotation.hasConversation &&
+            props.hasReplies &&
               props.onToggleReplies && {
                 key: "toggle-replies",
                 image: commentImage,

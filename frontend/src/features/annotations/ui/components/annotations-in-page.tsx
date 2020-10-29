@@ -1,8 +1,8 @@
 import React from "react";
 import styled from "styled-components";
-import { UITaskState } from "../../main-ui/types";
-import LoadingIndicator from "./loading-indicator";
-import ErrorBox from "./error-box";
+import { UITaskState } from "../../../../main-ui/types";
+import LoadingIndicator from "../../../../common-ui/components/loading-indicator";
+import ErrorBox from "../../../../common-ui/components/error-box";
 import { Margin } from "styled-components-spacing";
 import {
   SharedAnnotation,
@@ -12,9 +12,9 @@ import AnnotationBox from "./annotation-box";
 import {
   AnnotationConversationStates,
   AnnotationConversationState,
-} from "../../features/content-conversations/ui/types";
+} from "../../../content-conversations/ui/types";
 import { User } from "@worldbrain/memex-common/lib/web-interface/types/users";
-import AnnotationReply from "./annotation-reply";
+import AnnotationReply from "../../../content-conversations/ui/components/annotation-reply";
 
 const AnnotationContainer = styled.div`
   display: flex;
@@ -151,6 +151,7 @@ export default function AnnotationsInPage(props: {
         <AnnotationBox
           annotation={annotation}
           creator={props.annotationCreator}
+          hasReplies={!!conversation?.thread}
           onInitiateReply={() =>
             props.onNewReplyInitiate?.({
               annotationReference: annotation.reference,
@@ -161,7 +162,6 @@ export default function AnnotationsInPage(props: {
               annotationReference: annotation.reference,
             })
           }
-          replyCount={conversation?.replies.length}
         />
         {conversation && (
           <>
