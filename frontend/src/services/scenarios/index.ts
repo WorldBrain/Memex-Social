@@ -133,7 +133,7 @@ export class ScenarioService {
         } else if ('callModifications' in step) {
             stepPromise = Promise.resolve()
         } else if ('auth' in step) {
-            stepPromise = this.options.services.auth.loginWithProvider('facebook')
+            stepPromise = this.options.services.auth.loginWithProvider('facebook').then(() => { })
         } else {
             throw new Error(`Invalid scenario step: ${JSON.stringify(step)}`)
         }

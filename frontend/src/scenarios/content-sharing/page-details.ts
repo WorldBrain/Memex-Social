@@ -78,7 +78,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                 eventArgs: null
             }),
             step({
-                name: 'click-login',
+                name: 'sign-in',
                 target: 'AuthDialog',
                 eventName: 'socialSignIn',
                 eventArgs: { provider: 'github' }
@@ -116,6 +116,24 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                 eventName: 'initiateNewReplyToAnnotation',
                 eventArgs: { annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference }
             }),
+        ]
+    })),
+    'unauthenticated-new-conversation': scenario<Targets>(({ step, callModification }) => ({
+        fixture: 'annotated-list-with-user',
+        startRoute: { route: 'pageDetails', params: { id: 'default-page' } },
+        steps: [
+            step({
+                name: 'initiate-reply',
+                target: 'PageDetailsPage',
+                eventName: 'initiateNewReplyToAnnotation',
+                eventArgs: { annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference }
+            }),
+            // step({
+            //     name: 'sign-in',
+            //     target: 'AuthDialog',
+            //     eventName: 'socialSignIn',
+            //     eventArgs: { provider: 'github' }
+            // }),
         ]
     })),
     'confirm-new-conversation': scenario<Targets>(({ step, callModification }) => ({

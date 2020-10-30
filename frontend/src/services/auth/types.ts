@@ -6,19 +6,19 @@ import TypedEventEmitter from "typed-emitter";
 export interface AuthService {
     events: TypedEventEmitter<AuthEvents>
 
-    loginWithProvider(provider: AuthProvider, options?: { request?: AuthRequest }): Promise<void>
+    loginWithProvider(provider: AuthProvider, options?: { request?: AuthRequest }): Promise<{ result: AuthResult }>
     getCurrentUser(): User | null
     getCurrentUserReference(): UserReference | null
     getSupportedMethods(options: { method: AuthMethod, provider?: AuthProvider }): AuthMethod[]
     getLoginFlow(options: { method: AuthMethod, provider?: AuthProvider }): AuthLoginFlow | null
 
-    requestAuth(options?: Omit<AuthRequest, 'onSuccess' | 'onFail'>): Promise<void>
+    requestAuth(options?: AuthRequest): Promise<{ result: AuthResult }>
     logout(): Promise<void>
 }
 
 export interface AuthEvents {
     changed(): void;
-    authRequested(request: AuthRequest): void;
+    authRequested(request: AuthRequest & { emitResult(result: AuthResult): void }): void;
 }
 
 export type AuthMethod = 'passwordless' | 'external-provider'
@@ -29,6 +29,11 @@ export type AuthLoginFlow =
     'direct-with-confirm' // We'll get a direct response back whether the account was created, but the user needs to confirm their account
 export interface AuthRequest {
     reason?: string
-    onSuccess?: () => void
-    onFail?: () => void
+}
+export type AuthResult = {
+    status: 'authenticated' | 'cancelled'
+} | {
+    status: 'error'
+    reason: 'popup-blocked' | 'unknown'
+    internalReason?: string
 }

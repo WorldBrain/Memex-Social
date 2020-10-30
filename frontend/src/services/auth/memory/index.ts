@@ -1,7 +1,7 @@
 import { User, UserReference } from "@worldbrain/memex-common/lib/web-interface/types/users";
 import { AuthProvider } from "../../../types/auth";
 import { Storage } from "../../../storage/types";
-import { AuthMethod, AuthLoginFlow, AuthRequest } from "../types";
+import { AuthMethod, AuthLoginFlow, AuthRequest, AuthResult } from "../types";
 import { AuthServiceBase } from "../base";
 
 export default class MemoryAuthService extends AuthServiceBase {
@@ -20,7 +20,7 @@ export default class MemoryAuthService extends AuthServiceBase {
         return options.method === 'external-provider' ? 'direct' : null
     }
 
-    async loginWithProvider(provider: AuthProvider, options?: { request?: AuthRequest }) {
+    async loginWithProvider(provider: AuthProvider, options?: { request?: AuthRequest }): Promise<{ result: AuthResult }> {
         const user: User = {
             displayName: 'John Doe',
         }
@@ -29,12 +29,7 @@ export default class MemoryAuthService extends AuthServiceBase {
 
         this.events.emit('changed')
 
-        if (options && options.request) {
-            const request = options.request
-            if (request.onSuccess) {
-                request.onSuccess()
-            }
-        }
+        return { result: { status: 'authenticated' } }
     }
 
     async logout(): Promise<void> {

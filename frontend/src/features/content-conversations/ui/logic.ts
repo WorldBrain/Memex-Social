@@ -81,7 +81,15 @@ export function annotationConversationEventHandlers<State extends AnnotationConv
                 }
             })
         },
-        initiateNewReplyToAnnotation: ({ event }) => {
+        initiateNewReplyToAnnotation: async ({ event }) => {
+            const user = await dependencies.services.auth.getCurrentUser()
+            if (!user) {
+                const { result } = await dependencies.services.auth.requestAuth()
+                if (result.status !== 'authenticated') {
+                    return {}
+                }
+            }
+
             const annotationId = dependencies.storage.contentSharing.getSharedAnnotationLinkID(event.annotationReference)
             return {
                 conversations: {
