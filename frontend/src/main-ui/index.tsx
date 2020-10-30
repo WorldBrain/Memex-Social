@@ -33,6 +33,7 @@ export function renderMainUi(options: {
     <React.Fragment>
       <GlobalStyle />
       <ThemeProvider theme={theme}>
+        <OverlayContainer services={options.services} />
         <App services={options.services}>
           <Routes
             history={options.history}
@@ -40,7 +41,6 @@ export function renderMainUi(options: {
             storage={options.storage}
           />
         </App>
-        <OverlayContainer services={options.services} />
       </ThemeProvider>
     </React.Fragment>
   );

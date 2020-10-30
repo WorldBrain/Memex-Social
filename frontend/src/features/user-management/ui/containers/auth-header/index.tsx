@@ -10,10 +10,12 @@ import styled from "styled-components";
 import UserAvatar from "../../../../../common-ui/components/user-avatar";
 import { Margin } from "styled-components-spacing";
 import { Closable } from "../../../../../common-ui/components/closable";
-import AuthMenu from "./components/auth-menu";
+import AuthMenu from "../../components/auth-menu";
 
 const StyledAuthHeader = styled.div``;
-const LoginAction = styled.div``;
+const LoginAction = styled.div`
+  cursor: pointer;
+`;
 const UserInfo = styled.div`
   display: flex;
   flex-direction: row-reverse;
@@ -33,7 +35,7 @@ const MenuContainerInner = styled.div`
   right: 0;
 `;
 
-export default class AnnotationDetailsPage extends UIElement<
+export default class AuthHeader extends UIElement<
   AuthHeaderDependencies,
   AuthHeaderState,
   AuthHeaderEvent
@@ -44,7 +46,11 @@ export default class AnnotationDetailsPage extends UIElement<
 
   render() {
     if (!this.state.user) {
-      return <LoginAction>Login</LoginAction>;
+      return (
+        <LoginAction onClick={() => this.processEvent("login", null)}>
+          Login
+        </LoginAction>
+      );
     }
 
     return (

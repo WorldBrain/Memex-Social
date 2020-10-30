@@ -5,11 +5,14 @@ import React, { useCallback, useEffect, useRef } from "react";
 export const Closable: React.FC<{ onClose: any }> = ({ onClose, children }) => {
   const ref = useRef(null);
 
-  const escapeListener = useCallback((e: KeyboardEvent) => {
-    if (e.key === "Escape") {
-      onClose();
-    }
-  }, []);
+  const escapeListener = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    },
+    [onClose]
+  );
 
   const clickListener = useCallback(
     (e: MouseEvent) => {
@@ -17,7 +20,7 @@ export const Closable: React.FC<{ onClose: any }> = ({ onClose, children }) => {
         onClose?.();
       }
     },
-    [ref.current]
+    [onClose]
   );
 
   useEffect(() => {
@@ -28,6 +31,6 @@ export const Closable: React.FC<{ onClose: any }> = ({ onClose, children }) => {
       document.removeEventListener("click", clickListener);
       document.removeEventListener("keyup", escapeListener);
     };
-  }, []);
+  }, [clickListener, escapeListener]);
   return <div ref={ref}>{children}</div>;
 };

@@ -16,7 +16,6 @@ import PageInfoBox from "../../../../../common-ui/components/page-info-box";
 import AnnotationsInPage from "../../../../annotations/ui/components/annotations-in-page";
 import LoadingIndicator from "../../../../../common-ui/components/loading-indicator";
 import ErrorWithAction from "../../../../../common-ui/components/error-with-action";
-import Overlay from "../../../../../main-ui/containers/overlay";
 
 const PageInfoList = styled.div`
   width: 100%;

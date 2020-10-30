@@ -2,7 +2,7 @@ import React from "react";
 import { Margin } from "styled-components-spacing";
 import styled from "styled-components";
 import ErrorBox from "./error-box";
-import SmallButton from "./small-button";
+import Button from "./button";
 
 const ListNotFoundBox = styled.div`
   font-family: ${(props) => props.theme.fonts.primary};
@@ -41,14 +41,14 @@ export default function ErrorWithAction(
         {props.errorType === "not-found" && props.children}
       </Margin>
       {props.errorType === "internal-error" && (
-        <SmallButton externalHref="https://worldbrain.io/report-bugs">
+        <Button type="small" externalHref="https://worldbrain.io/report-bugs">
           Report Problem
-        </SmallButton>
+        </Button>
       )}
       {props.errorType === "not-found" && (
-        <SmallButton externalHref={props.action.url}>
+        <Button type="small" externalHref={props.action.url}>
           {props.action.label}
-        </SmallButton>
+        </Button>
       )}
     </ListNotFoundBox>
   );

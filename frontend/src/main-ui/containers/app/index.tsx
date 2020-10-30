@@ -1,6 +1,7 @@
 import React from "react";
 import { UIElement, UIElementServices } from "../../classes";
 import { EventHandlers } from "../../classes/events";
+import AuthDialog from "../../../features/user-management/ui/containers/auth-dialog";
 // import ROUTES from "../../../routes";
 
 interface Props {
@@ -27,7 +28,12 @@ class App extends UIElement<Props> {
     // const currentRoute = this.props.services.router.matchCurrentUrl();
     // const routeInfo = currentRoute && ROUTES[currentRoute.route];
 
-    return <div>{this.props.children}</div>;
+    return (
+      <div>
+        {this.props.children}
+        <AuthDialog services={this.props.services} />
+      </div>
+    );
   }
 }
 

@@ -1,7 +1,6 @@
 import React from "react";
 import styled, { css } from "styled-components";
 import { ViewportBreakpoint } from "../../main-ui/styles/types";
-import SmallButton from "../components/small-button";
 import { UIElementServices } from "../../main-ui/classes";
 import AuthHeader from "../../features/user-management/ui/containers/auth-header";
 const logoImage = require("../../assets/img/memex-logo.svg");

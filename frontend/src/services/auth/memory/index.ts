@@ -1,4 +1,4 @@
-import { User } from "@worldbrain/memex-common/lib/web-interface/types/users";
+import { User, UserReference } from "@worldbrain/memex-common/lib/web-interface/types/users";
 import { AuthProvider } from "../../../types/auth";
 import { Storage } from "../../../storage/types";
 import { AuthMethod, AuthLoginFlow, AuthRequest } from "../types";
@@ -22,7 +22,7 @@ export default class MemoryAuthService extends AuthServiceBase {
 
     async loginWithProvider(provider: AuthProvider, options?: { request?: AuthRequest }) {
         const user: User = {
-            displayName: 'Joe Doe',
+            displayName: 'John Doe',
         }
         this._user = user
         await this.options.storage.serverModules.users.ensureUser(user, this.getCurrentUserReference()!)
@@ -46,7 +46,7 @@ export default class MemoryAuthService extends AuthServiceBase {
         return this._user
     }
 
-    getCurrentUserReference() {
-        return this._user ? { type: 'user-reference' as 'user-reference', id: 'test-user-1' } : null
+    getCurrentUserReference(): UserReference | null {
+        return this._user ? { type: 'user-reference', id: 'default-user' } : null
     }
 }

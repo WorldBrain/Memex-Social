@@ -15,6 +15,7 @@ export type AuthHeaderEvent = UIEvent<{
     toggleMenu: null
     hideMenu: null
     showSettings: null
+    login: null
     logout: null
 }>
 

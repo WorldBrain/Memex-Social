@@ -2,12 +2,22 @@ import { ScenarioMap } from "../../services/scenarios/types";
 import { scenario } from "../../services/scenarios/utils";
 import { PageDetailsEvent, PageDetailsSignal } from "../../features/content-sharing/ui/pages/page-details/types";
 import { SharedAnnotationReference } from "@worldbrain/memex-common/lib/content-sharing/types";
+import { AuthHeaderEvent, AuthHeaderSignal } from "../../features/user-management/ui/containers/auth-header/types";
+import { AuthDialogEvent, AuthDialogSignal } from "../../features/user-management/ui/containers/auth-dialog/types";
 
 type Targets = {
     PageDetailsPage: {
         events: PageDetailsEvent;
         signals: PageDetailsSignal;
     };
+    AuthHeader: {
+        events: AuthHeaderEvent;
+        signals: AuthHeaderSignal;
+    },
+    AuthDialog: {
+        events: AuthDialogEvent;
+        signals: AuthDialogSignal;
+    },
 };
 
 export const SCENARIOS: ScenarioMap<Targets> = {
@@ -54,6 +64,24 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                     name: 'creator-loading',
                     modifier: 'undo',
                 }]
+            }),
+        ]
+    })),
+    'user-sign-in': scenario<Targets>(({ step, callModification }) => ({
+        fixture: 'annotated-list-with-user',
+        startRoute: { route: 'pageDetails', params: { id: 'default-page' } },
+        steps: [
+            step({
+                name: 'click-login',
+                target: 'AuthHeader',
+                eventName: 'login',
+                eventArgs: null
+            }),
+            step({
+                name: 'click-login',
+                target: 'AuthDialog',
+                eventName: 'socialSignIn',
+                eventArgs: { provider: 'github' }
             }),
         ]
     })),

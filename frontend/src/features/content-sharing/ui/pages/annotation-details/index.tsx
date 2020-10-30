@@ -1,6 +1,6 @@
 import moment from "moment";
 import React from "react";
-import { UIElement, UIElementServices } from "../../../../../main-ui/classes";
+import { UIElement } from "../../../../../main-ui/classes";
 import Logic, { AnnotationDetailsState } from "./logic";
 import { AnnotationDetailsEvent, AnnotationDetailsDependencies } from "./types";
 import DocumentTitle from "../../../../../main-ui/components/document-title";
