@@ -6,6 +6,7 @@ import { User } from "@worldbrain/memex-common/lib/web-interface/types/users";
 import { SharedAnnotation } from "@worldbrain/memex-common/lib/content-sharing/types";
 import ItemBox from "../../../../common-ui/components/item-box";
 import ItemBoxBottom from "../../../../common-ui/components/item-box-bottom";
+import Markdown from "../../../../common-ui/components/markdown";
 
 const commentImage = require("../../../../assets/img/comment.svg");
 const replyImage = require("../../../../assets/img/reply.svg");
@@ -65,11 +66,9 @@ export default function AnnotationBox(props: {
           </Margin>
         )}
         <Margin bottom="small">
-          <AnnotationComment
-            dangerouslySetInnerHTML={{
-              __html: preserveLinebreaks(annotation.comment),
-            }}
-          />
+          <AnnotationComment>
+            <Markdown>{annotation.comment}</Markdown>
+          </AnnotationComment>
         </Margin>
         <ItemBoxBottom
           creationInfo={{

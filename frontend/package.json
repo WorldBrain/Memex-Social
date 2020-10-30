@@ -71,6 +71,7 @@
     "react-click-outside": "^3.0.1",
     "react-dom": "^16.8.4",
     "react-i18next": "^11.7.0",
+    "react-markdown": "^4.3.1",
     "react-router-dom": "^4.3.1",
     "react-scripts": "^3.4.1",
     "react-waypoint": "^9.0.3",

@@ -201,7 +201,15 @@ objects:
       createdWhen: 1594225289914
       normalizedPageUrl: getmemex.com
       fullTitle: "WorldBrain's Memex"
-      content: First comment!
+      content: |
+        First **comment** with *markdown*!
+
+        * one
+        * two
+
+        -----------------
+
+        <i>should ignore html</i>
     - user: { $ref: users.default }
       sharedAnnotation: { $ref: sharedAnnotations.annotation-1 }
       createdWhen: 1594225289914

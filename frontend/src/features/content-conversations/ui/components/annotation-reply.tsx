@@ -5,6 +5,7 @@ import ItemBox from "../../../../common-ui/components/item-box";
 import { User } from "@worldbrain/memex-common/lib/web-interface/types/users";
 import { ConversationReply } from "@worldbrain/memex-common/lib/content-conversations/types";
 import ItemBoxBottom from "../../../../common-ui/components/item-box-bottom";
+import Markdown from "../../../../common-ui/components/markdown";
 
 const StyledAnnotationBox = styled.div`
   font-family: ${(props) => props.theme.fonts.primary};
@@ -26,7 +27,9 @@ export default function AnnotationReply(props: {
     <ItemBox>
       <StyledAnnotationBox>
         <Margin bottom="small">
-          <ReplyContent>{props.reply?.content}</ReplyContent>
+          <ReplyContent>
+            <Markdown>{props.reply?.content}</Markdown>
+          </ReplyContent>
         </Margin>
         <ItemBoxBottom
           creationInfo={{
