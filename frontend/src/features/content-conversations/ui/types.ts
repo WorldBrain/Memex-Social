@@ -28,6 +28,7 @@ export type AnnotationConversationEvent = {
     confirmNewReplyToAnnotation: { annotationReference: SharedAnnotationReference }
     toggleAnnotationReplies: { annotationReference: SharedAnnotationReference }
 }
+export type AnnotationConversationSignal = { type: 'auth-requested' }
 
 export interface AnnotationConversationsState {
     conversations: AnnotationConversationStates

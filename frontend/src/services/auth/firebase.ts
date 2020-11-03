@@ -3,7 +3,7 @@ import * as firebase from 'firebase'
 import { EventEmitter } from "events";
 import { Storage } from '../../storage/types';
 import { AuthProvider } from '../../types/auth';
-import { AuthMethod, AuthLoginFlow, AuthResult } from "./types";
+import { AuthMethod, AuthLoginFlow, AuthResult, RegistrationResult, EmailPasswordCredentials, LoginResult } from "./types";
 import { UnsavedMediaObject } from '@worldbrain/storex-media-middleware/lib/types';
 import { AuthServiceBase } from './base';
 const blobToBuffer = require('blob-to-buffer')
@@ -13,7 +13,7 @@ export default class FirebaseAuthService extends AuthServiceBase {
     private _firebase: typeof firebase
     private _user: User | null = null
 
-    constructor(firebaseRoot: typeof firebase, options: {
+    constructor(firebaseRoot: typeof firebase, private options: {
         storage: Storage,
     }) {
         super()
@@ -21,14 +21,8 @@ export default class FirebaseAuthService extends AuthServiceBase {
         this._firebase = firebaseRoot
         this._user = null
 
-        this._firebase.auth().onAuthStateChanged(async (user: firebase.User | null) => {
-            this._user = user && await _ensureFirebaseUser(user, options.storage.serverModules.users)
-
-            if (user) {
-                _fetchUserPicture(user)
-            }
-
-            this.events.emit('changed')
+        this._firebase.auth().onAuthStateChanged(async () => {
+            await this.refreshCurrentUser()
         })
     }
 
@@ -61,6 +55,44 @@ export default class FirebaseAuthService extends AuthServiceBase {
         }
     }
 
+    async loginWithEmailPassword(options: EmailPasswordCredentials): Promise<{ result: LoginResult }> {
+        try {
+            await this._firebase.auth().signInWithEmailAndPassword(options.email, options.password)
+            return { result: { status: 'authenticated' } }
+        } catch (e) {
+            const firebaseError: firebase.FirebaseError = e
+            if (firebaseError.code === 'auth/invalid-email') {
+                return { result: { status: 'error', reason: 'invalid-email' } }
+            }
+            if (firebaseError.code === 'auth/user-not-found') {
+                return { result: { status: 'error', reason: 'user-not-found' } }
+            }
+            if (firebaseError.code === 'auth/wrong-password') {
+                return { result: { status: 'error', reason: 'wrong-password' } }
+            }
+            return { result: { status: 'error', reason: 'unknown' } }
+        }
+    }
+
+    async registerWithEmailPassword(options: EmailPasswordCredentials): Promise<{ result: RegistrationResult }> {
+        try {
+            await this._firebase.auth().signInWithEmailAndPassword(options.email, options.password)
+            return { result: { status: 'registered-and-authenticated' } }
+        } catch (e) {
+            const firebaseError: firebase.FirebaseError = e
+            if (firebaseError.code === 'auth/invalid-email') {
+                return { result: { status: 'error', reason: 'invalid-email' } }
+            }
+            if (firebaseError.code === 'auth/email-already-in-use') {
+                return { result: { status: 'error', reason: 'email-exists' } }
+            }
+            if (firebaseError.code === 'auth/weak-password') {
+                return { result: { status: 'error', reason: 'weak-password' } }
+            }
+            return { result: { status: 'error', reason: 'unknown' } }
+        }
+    }
+
     async logout() {
         this._firebase.auth().signOut()
     }
@@ -72,6 +104,17 @@ export default class FirebaseAuthService extends AuthServiceBase {
     getCurrentUserReference() {
         const id = this._firebase.auth().currentUser?.uid
         return id ? { type: 'user-reference' as 'user-reference', id } : null
+    }
+
+    async refreshCurrentUser(): Promise<void> {
+        const user = this._firebase.auth().currentUser
+        this._user = user && await _ensureFirebaseUser(user, this.options.storage.serverModules.users)
+
+        if (user) {
+            _fetchUserPicture(user)
+        }
+
+        this.events.emit('changed')
     }
 }
 

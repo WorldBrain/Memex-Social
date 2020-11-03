@@ -67,6 +67,54 @@ export const SCENARIOS: ScenarioMap<Targets> = {
             }),
         ]
     })),
+    'user-register': scenario<Targets>(({ step, callModification }) => ({
+        fixture: 'annotated-list-with-user',
+        startRoute: { route: 'pageDetails', params: { id: 'default-page' } },
+        steps: [
+            step({
+                name: 'click-login',
+                target: 'AuthHeader',
+                eventName: 'login',
+                eventArgs: null
+            }),
+            step({
+                name: 'switch-mode',
+                target: 'AuthDialog',
+                eventName: 'toggleMode',
+                eventArgs: null
+            }),
+            step({
+                name: 'email',
+                target: 'AuthDialog',
+                eventName: 'editEmail',
+                eventArgs: { value: 'john@doe.com' }
+            }),
+            step({
+                name: 'password',
+                target: 'AuthDialog',
+                eventName: 'editPassword',
+                eventArgs: { value: 'VeryStrongPassword' }
+            }),
+            step({
+                name: 'confirm-credentials',
+                target: 'AuthDialog',
+                eventName: 'emailPasswordConfirm',
+                eventArgs: null,
+            }),
+            step({
+                name: 'display-name',
+                target: 'AuthDialog',
+                eventName: 'editDisplayName',
+                eventArgs: { value: 'This is me!' }
+            }),
+            step({
+                name: 'confirm-profile',
+                target: 'AuthDialog',
+                eventName: 'confirmDisplayName',
+                eventArgs: null,
+            }),
+        ]
+    })),
     'user-sign-in': scenario<Targets>(({ step, callModification }) => ({
         fixture: 'annotated-list-with-user',
         startRoute: { route: 'pageDetails', params: { id: 'default-page' } },
@@ -82,6 +130,36 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                 target: 'AuthDialog',
                 eventName: 'socialSignIn',
                 eventArgs: { provider: 'github' }
+            }),
+        ]
+    })),
+    'user-sign-in-error': scenario<Targets>(({ step, callModification }) => ({
+        fixture: 'annotated-list-with-user',
+        startRoute: { route: 'pageDetails', params: { id: 'default-page' } },
+        steps: [
+            step({
+                name: 'click-login',
+                target: 'AuthHeader',
+                eventName: 'login',
+                eventArgs: null
+            }),
+            step({
+                name: 'email',
+                target: 'AuthDialog',
+                eventName: 'editEmail',
+                eventArgs: { value: 'invalid-email' }
+            }),
+            step({
+                name: 'email',
+                target: 'AuthDialog',
+                eventName: 'editPassword',
+                eventArgs: { value: '12345' }
+            }),
+            step({
+                name: 'email',
+                target: 'AuthDialog',
+                eventName: 'emailPasswordConfirm',
+                eventArgs: null,
             }),
         ]
     })),
@@ -125,15 +203,10 @@ export const SCENARIOS: ScenarioMap<Targets> = {
             step({
                 name: 'initiate-reply',
                 target: 'PageDetailsPage',
+                waitForSignal: { type: 'auth-requested' },
                 eventName: 'initiateNewReplyToAnnotation',
-                eventArgs: { annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference }
+                eventArgs: { annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference },
             }),
-            // step({
-            //     name: 'sign-in',
-            //     target: 'AuthDialog',
-            //     eventName: 'socialSignIn',
-            //     eventArgs: { provider: 'github' }
-            // }),
         ]
     })),
     'confirm-new-conversation': scenario<Targets>(({ step, callModification }) => ({

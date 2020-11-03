@@ -1,5 +1,5 @@
 import fromPairs from "lodash/fromPairs";
-import { AnnotationConversationsState, AnnotationConversationEvent, AnnotationConversationsHandlers } from "./types";
+import { AnnotationConversationsState, AnnotationConversationEvent, AnnotationConversationsHandlers, AnnotationConversationSignal } from "./types";
 import { UILogic, executeUITask } from "../../../main-ui/classes/logic";
 import { UIElementServices } from "../../../main-ui/classes";
 import ContentSharingStorage from "../../content-sharing/storage";
@@ -85,7 +85,8 @@ export function annotationConversationEventHandlers<State extends AnnotationConv
             const user = await dependencies.services.auth.getCurrentUser()
             if (!user) {
                 const { result } = await dependencies.services.auth.requestAuth()
-                if (result.status !== 'authenticated') {
+                logic.emitSignal<AnnotationConversationSignal>({ type: 'auth-requested' })
+                if (result.status !== 'authenticated' && result.status !== 'registered-and-authenticated') {
                     return {}
                 }
             }

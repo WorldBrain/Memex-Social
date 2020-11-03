@@ -34,7 +34,10 @@ export function renderMainUi(options: {
       <GlobalStyle />
       <ThemeProvider theme={theme}>
         <OverlayContainer services={options.services} />
-        <App services={options.services}>
+        <App
+          services={options.services}
+          storage={options.storage.serverModules}
+        >
           <Routes
             history={options.history}
             services={options.services}

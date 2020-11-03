@@ -4,7 +4,7 @@ import { UIEvent, UISignal } from "../../../../../main-ui/classes/logic";
 import ContentSharingStorage from "../../../storage";
 import { UIElementServices } from "../../../../../main-ui/classes";
 import ContentConversationStorage from "../../../../content-conversations/storage";
-import { AnnotationConversationEvent, AnnotationConversationStates, AnnotationConversationsState } from "../../../../content-conversations/ui/types";
+import { AnnotationConversationEvent, AnnotationConversationStates, AnnotationConversationsState, AnnotationConversationSignal } from "../../../../content-conversations/ui/types";
 import { UITaskState } from "../../../../../main-ui/types";
 import { User, UserReference } from "@worldbrain/memex-common/lib/web-interface/types/users";
 
@@ -34,5 +34,5 @@ export type PageDetailsState = AnnotationConversationsState & {
 export type PageDetailsEvent = UIEvent<AnnotationConversationEvent>
 
 export type PageDetailsSignal = UISignal<
-    { type: 'nothing-yet' }
+    AnnotationConversationSignal
 >

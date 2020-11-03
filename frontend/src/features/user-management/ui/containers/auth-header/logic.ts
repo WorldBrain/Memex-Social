@@ -39,7 +39,7 @@ export default class AuthHeaderLogic extends UILogic<AuthHeaderState, AuthHeader
     }
 
     login: EventHandler<'login'> = async () => {
-        this.dependencies.services.auth.requestAuth()
+        this.dependencies.services.auth.requestAuth({ reason: 'login-requested' })
     }
 
     logout: EventHandler<'logout'> = async () => {

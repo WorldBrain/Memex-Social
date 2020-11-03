@@ -18,6 +18,7 @@ const StyledOverlayContainer = styled.div`
 
 const OverlayContent = styled.div`
   background-color: ${(props) => props.theme.colors.overlay.dialog};
+  max-width: 90%;
   top: 50%;
   padding: 20px;
 `;

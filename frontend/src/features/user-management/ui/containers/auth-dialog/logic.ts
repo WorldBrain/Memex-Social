@@ -1,6 +1,6 @@
-import { UILogic, UIEventHandler } from "../../../../../main-ui/classes/logic"
-import { AuthDialogEvent, AuthDialogDependencies, AuthDialogState } from "./types"
-import { AuthResult } from "../../../../../services/auth/types"
+import { UILogic, UIEventHandler, executeUITask } from "../../../../../main-ui/classes/logic"
+import { AuthDialogEvent, AuthDialogDependencies, AuthDialogState, AuthDialogMode } from "./types"
+import { AuthResult, EmailPasswordCredentials } from "../../../../../services/auth/types"
 
 type EventHandler<EventName extends keyof AuthDialogEvent> = UIEventHandler<AuthDialogState, AuthDialogEvent, EventName>
 
@@ -11,20 +11,19 @@ export default class AuthDialogLogic extends UILogic<AuthDialogState, AuthDialog
         super()
 
         const { auth } = this.dependencies.services
-        auth.events.on('changed', () => {
-            if (auth.getCurrentUser()) {
-                this._reset()
-            }
-        })
         auth.events.on('authRequested', (event) => {
             this.emitAuthResult = event.emitResult
-            this._show()
+            this._setMode(event.reason === 'login-requested' ? 'login' : 'register')
         })
     }
 
     getInitialState(): AuthDialogState {
         return {
-            isShown: false
+            saveState: 'pristine',
+            mode: 'hidden',
+            email: '',
+            password: '',
+            displayName: '',
         }
     }
 
@@ -32,16 +31,46 @@ export default class AuthDialogLogic extends UILogic<AuthDialogState, AuthDialog
 
     }
 
-    show: EventHandler<'show'> = async () => {
-        this._show()
-    }
-
     close: EventHandler<'close'> = async () => {
-        this._reset()
         this._result({ status: 'cancelled' })
     }
 
-    emailPasswordSignIn: EventHandler<'emailPasswordSignIn'> = async () => {
+    toggleMode: EventHandler<'toggleMode'> = async ({ previousState }) => {
+        if (previousState.mode !== 'register' && previousState.mode !== 'login') {
+            return
+        }
+
+        this._setMode(previousState.mode === 'register' ? 'login' : 'register')
+    }
+
+    editEmail: EventHandler<'editEmail'> = ({ event }) => {
+        return { email: { $set: event.value } }
+    }
+
+    editPassword: EventHandler<'editPassword'> = ({ event }) => {
+        return { password: { $set: event.value } }
+    }
+
+    emailPasswordConfirm: EventHandler<'emailPasswordConfirm'> = async ({ previousState }) => {
+        const credentials: EmailPasswordCredentials = {
+            email: previousState.email,
+            password: previousState.password,
+        }
+        await executeUITask<AuthDialogState>(this, 'saveState', async () => {
+            if (previousState.mode === 'register') {
+                const { result } = await this.dependencies.services.auth.registerWithEmailPassword(credentials)
+                if (result.status === 'error') {
+                    this.emitMutation({ error: { $set: result.reason } })
+                } else {
+                    this._setMode('profile')
+                }
+            } else if (previousState.mode === 'login') {
+                const { result } = await this.dependencies.services.auth.loginWithEmailPassword(credentials)
+                if (result.status === 'error') {
+                    this.emitMutation({ error: { $set: result.reason } })
+                }
+            }
+        })
     }
 
     socialSignIn: EventHandler<'socialSignIn'> = async ({ event }) => {
@@ -49,15 +78,30 @@ export default class AuthDialogLogic extends UILogic<AuthDialogState, AuthDialog
         this._result(result)
     }
 
-    _show() {
-        this.emitMutation({ isShown: { $set: true } })
+    editDisplayName: EventHandler<'editDisplayName'> = ({ event }) => {
+        return { displayName: { $set: event.value } }
     }
 
-    _reset() {
-        this.emitMutation({ isShown: { $set: false } })
+    confirmDisplayName: EventHandler<'confirmDisplayName'> = async ({ previousState }) => {
+        await executeUITask<AuthDialogState>(this, 'saveState', async () => {
+            const userReference = await this.dependencies.services.auth.getCurrentUserReference()
+            if (!userReference) {
+                throw new Error(`Cannot set up profile without user being authenticated`)
+            }
+            await this.dependencies.storage.users.updateUser(userReference, {}, {
+                displayName: previousState.displayName,
+            })
+            await this.dependencies.services.auth.refreshCurrentUser()
+        })
+        this._result({ status: 'registered-and-authenticated' })
+    }
+
+    _setMode(mode: AuthDialogMode) {
+        this.emitMutation({ mode: { $set: mode } })
     }
 
     _result(result: AuthResult) {
+        this._setMode('hidden')
         this.emitAuthResult?.(result)
         delete this.emitAuthResult
     }
