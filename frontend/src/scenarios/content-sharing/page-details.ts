@@ -232,6 +232,31 @@ export const SCENARIOS: ScenarioMap<Targets> = {
             }),
         ]
     })),
+    'user-sign-out': scenario<Targets>(({ step, callModification }) => ({
+        fixture: 'annotated-list-with-user',
+        authenticated: true,
+        startRoute: { route: 'pageDetails', params: { id: 'default-page' } },
+        setup: {
+            waitForSignal: {
+                target: 'PageDetailsPage',
+                signal: { type: 'loaded' }
+            }
+        },
+        steps: [
+            step({
+                name: 'toggle-menu',
+                target: 'AuthHeader',
+                eventName: 'toggleMenu',
+                eventArgs: null
+            }),
+            step({
+                name: 'click-logout',
+                target: 'AuthHeader',
+                eventName: 'logout',
+                eventArgs: null
+            }),
+        ]
+    })),
     'cancel-new-conversation': scenario<Targets>(({ step, callModification }) => ({
         fixture: 'annotated-list-with-user',
         authenticated: true,

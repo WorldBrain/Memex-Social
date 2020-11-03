@@ -69,9 +69,7 @@ export default class AuthHeader extends UIElement<
                   onSettingsRequested={() =>
                     this.processEvent("showSettings", null)
                   }
-                  onLogoutRequested={() =>
-                    this.processEvent("showSettings", null)
-                  }
+                  onLogoutRequested={() => this.processEvent("logout", null)}
                 />
               </MenuContainerInner>
             </MenuContainerOuter>

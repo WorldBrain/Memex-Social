@@ -2,7 +2,7 @@ import orderBy from 'lodash/orderBy'
 import { User, UserReference } from "@worldbrain/memex-common/lib/web-interface/types/users"
 import { SharedPageInfo } from "@worldbrain/memex-common/lib/content-sharing/types"
 import { UILogic, UIEventHandler, executeUITask } from "../../../../../main-ui/classes/logic"
-import { PageDetailsEvent, PageDetailsDependencies, PageDetailsState } from "./types"
+import { PageDetailsEvent, PageDetailsDependencies, PageDetailsState, PageDetailsSignal } from "./types"
 import { getInitialAnnotationConversationStates } from '../../../../content-conversations/ui/utils'
 import { annotationConversationEventHandlers, annotationConversationInitialState, detectAnnotationConversationsThreads } from '../../../../content-conversations/ui/logic'
 
@@ -102,6 +102,7 @@ export default class PageDetailsLogic extends UILogic<PageDetailsState, PageDeta
                 }
             })
         ])
+        this.emitSignal<PageDetailsSignal>({ type: 'loaded' })
     }
 
     _loadUser = async (userReference: UserReference): Promise<User | null> => {

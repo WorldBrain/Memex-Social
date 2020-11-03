@@ -43,6 +43,7 @@ export default class AuthHeaderLogic extends UILogic<AuthHeaderState, AuthHeader
     }
 
     logout: EventHandler<'logout'> = async () => {
-
+        this.emitMutation({ showMenu: { $set: false } })
+        await this.dependencies.services.auth.logout()
     }
 }

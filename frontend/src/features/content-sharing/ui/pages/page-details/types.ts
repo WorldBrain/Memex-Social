@@ -34,5 +34,6 @@ export type PageDetailsState = AnnotationConversationsState & {
 export type PageDetailsEvent = UIEvent<AnnotationConversationEvent>
 
 export type PageDetailsSignal = UISignal<
+    { type: 'loaded' } |
     AnnotationConversationSignal
 >
