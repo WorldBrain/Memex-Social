@@ -34,5 +34,5 @@ export type AuthDialogEvent = UIEvent<{
 }>
 
 export type AuthDialogSignal = UISignal<
-    { type: 'nothing-yet' }
+    { type: 'auth-running' }
 >

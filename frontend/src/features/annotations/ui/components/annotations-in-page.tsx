@@ -85,6 +85,11 @@ const NewReplyCancel = styled.div`
   }
 `;
 
+const NewReplyRunning = styled.div`
+  display: flex;
+  justify-content: center;
+`;
+
 type SharedAnnotationInPage = SharedAnnotation & {
   reference: SharedAnnotationReference;
   linkId: string;
@@ -189,58 +194,77 @@ export default function AnnotationsInPage(props: {
   const renderNewReply = (
     annotation: SharedAnnotationInPage,
     conversation: AnnotationConversationState
-  ) => (
-    <>
-      <NewReplyTextArea
-        autoFocus={conversation.newReply.editing}
-        value={
-          conversation.newReply.editing ? conversation.newReply.content : ""
-        }
-        editing={conversation.newReply.editing}
-        placeholder={"Add a new reply"}
-        onClick={() => {
-          props.onNewReplyInitiate?.({
-            annotationReference: annotation.reference,
-          });
-        }}
-        onChange={(e) =>
-          props.onNewReplyEdit?.({
-            annotationReference: annotation.reference,
-            content: e.target.value,
-          })
-        }
-        onKeyDown={(e) => {
-          if (e.keyCode === 13 && e.ctrlKey) {
-            props.onNewReplyConfirm?.({
+  ) => {
+    if (conversation.newReply.saveState === "running") {
+      return (
+        <NewReplyRunning>
+          <Margin vertical="medium">
+            <LoadingIndicator />
+          </Margin>
+        </NewReplyRunning>
+      );
+    }
+
+    return (
+      <>
+        {conversation.newReply.saveState === "error" && (
+          <Margin bottom="small">
+            <ErrorBox>
+              Something went wrong saving your reply. Please try again later.
+            </ErrorBox>
+          </Margin>
+        )}
+        <NewReplyTextArea
+          autoFocus={conversation.newReply.editing}
+          value={
+            conversation.newReply.editing ? conversation.newReply.content : ""
+          }
+          editing={conversation.newReply.editing}
+          placeholder={"Add a new reply"}
+          onClick={() => {
+            props.onNewReplyInitiate?.({
               annotationReference: annotation.reference,
             });
+          }}
+          onChange={(e) =>
+            props.onNewReplyEdit?.({
+              annotationReference: annotation.reference,
+              content: e.target.value,
+            })
           }
-        }}
-      />
-      {conversation.newReply.editing && (
-        <NewReplyActions>
-          <NewReplyCancel
-            onClick={() =>
-              props.onNewReplyCancel?.({
-                annotationReference: annotation.reference,
-              })
-            }
-          >
-            Cancel
-          </NewReplyCancel>
-          <NewReplyConfirm
-            onClick={() =>
+          onKeyDown={(e) => {
+            if (e.keyCode === 13 && e.ctrlKey) {
               props.onNewReplyConfirm?.({
                 annotationReference: annotation.reference,
-              })
+              });
             }
-          >
-            Save
-          </NewReplyConfirm>
-        </NewReplyActions>
-      )}
-    </>
-  );
+          }}
+        />
+        {conversation.newReply.editing && (
+          <NewReplyActions>
+            <NewReplyCancel
+              onClick={() =>
+                props.onNewReplyCancel?.({
+                  annotationReference: annotation.reference,
+                })
+              }
+            >
+              Cancel
+            </NewReplyCancel>
+            <NewReplyConfirm
+              onClick={() =>
+                props.onNewReplyConfirm?.({
+                  annotationReference: annotation.reference,
+                })
+              }
+            >
+              Save
+            </NewReplyConfirm>
+          </NewReplyActions>
+        )}
+      </>
+    );
+  };
 
   return (
     <AnnotationContainer>

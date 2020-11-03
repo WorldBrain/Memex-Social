@@ -14,6 +14,7 @@ export interface AnnotationConversationState {
         user?: Pick<User, 'displayName'> | null
     }>
     newReply: {
+        saveState: UITaskState
         editing: boolean
         content: string
     }
@@ -28,11 +29,10 @@ export type AnnotationConversationEvent = {
     confirmNewReplyToAnnotation: { annotationReference: SharedAnnotationReference }
     toggleAnnotationReplies: { annotationReference: SharedAnnotationReference }
 }
-export type AnnotationConversationSignal = { type: 'auth-requested' }
+export type AnnotationConversationSignal = { type: 'auth-requested' } | { type: 'reply-submitting' }
 
 export interface AnnotationConversationsState {
     conversations: AnnotationConversationStates
-    conversationReplySubmitState: UITaskState
 }
 
 export type AnnotationConversationsHandlers = {

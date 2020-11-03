@@ -91,7 +91,33 @@ export default class AuthDialog extends UIElement<
     super(props, { logic: new Logic(props) });
   }
 
+  renderAuthError() {
+    const error = (text: string) => {
+      return (
+        <Margin vertical={"medium"}>
+          <EmailPasswordError>{text}</EmailPasswordError>
+        </Margin>
+      );
+    };
+
+    if (this.state.error) {
+      return error(FRIENDLY_ERRORS[this.state.error]);
+    }
+
+    if (this.state.saveState === "error") {
+      const action = this.state.mode === "login" ? "log you in" : "sign you up";
+      return error(
+        `Something went wrong trying to ${action}. Please try again later.`
+      );
+    }
+
+    return null;
+  }
+
   renderAuthForm() {
+    // const onSocialLogin = (event: { provider: AuthProvider }) =>
+    //   this.processEvent("socialSignIn", event);
+
     return (
       <StyledAuthDialog>
         <Margin bottom="medium">
@@ -122,13 +148,7 @@ export default class AuthDialog extends UIElement<
                 }
               />
             </Margin>
-            {this.state.error && (
-              <Margin vertical={"medium"}>
-                <EmailPasswordError>
-                  {FRIENDLY_ERRORS[this.state.error]}
-                </EmailPasswordError>
-              </Margin>
-            )}
+            {this.renderAuthError()}
             <Margin top={"medium"}>
               <Button
                 type="primary-action"
@@ -196,23 +216,24 @@ export default class AuthDialog extends UIElement<
     );
   }
 
-  render() {
+  renderOverlayContent() {
     if (this.state.saveState === "running") {
       return <LoadingScreen />;
     }
+    if (this.state.mode === "profile") {
+      return this.renderProfileForm();
+    }
+    return this.renderAuthForm();
+  }
 
-    // const onSocialLogin = (event: { provider: AuthProvider }) =>
-    //   this.processEvent("socialSignIn", event);
-
-    const { mode } = this.state;
+  render() {
     return (
       this.state.mode !== "hidden" && (
         <Overlay
           services={this.props.services}
           onCloseRequested={() => this.processEvent("close", null)}
         >
-          {mode !== "profile" && this.renderAuthForm()}
-          {mode === "profile" && this.renderProfileForm()}
+          {this.renderOverlayContent()}
         </Overlay>
       )
     );

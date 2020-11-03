@@ -10,7 +10,6 @@ import { SharedAnnotationReference, SharedAnnotation } from "@worldbrain/memex-c
 export function annotationConversationInitialState(): AnnotationConversationsState {
     return {
         conversations: {},
-        conversationReplySubmitState: 'pristine',
     }
 }
 
@@ -128,7 +127,10 @@ export function annotationConversationEventHandlers<State extends AnnotationConv
                 throw new Error(`Tried to submit a reply without being authenticated`)
             }
 
-            await executeUITask<AnnotationConversationsState>(logic, 'conversationReplySubmitState', async () => {
+            await executeUITask<AnnotationConversationsState>(logic, taskState => ({
+                conversations: { [annotationId]: { newReply: { saveState: { $set: taskState } } } }
+            }), async () => {
+                logic.emitSignal<AnnotationConversationSignal>({ type: 'reply-submitting' })
                 const result = await dependencies.services.contentConversations.submitReply({
                     annotationReference: event.annotationReference,
                     normalizedPageUrl: annotationData.annotation.normalizedPageUrl,
@@ -141,7 +143,7 @@ export function annotationConversationEventHandlers<State extends AnnotationConv
                 logic.emitMutation({
                     conversations: {
                         [annotationId]: {
-                            newReply: { $set: { editing: false, content: '' } },
+                            newReply: { $set: { saveState: 'pristine', editing: false, content: '' } },
                             replies: {
                                 $push: [{
                                     reference: result.replyReference,

@@ -61,7 +61,7 @@ export async function executeUITask<State extends {}>(
         }
         return { [keyOrMutation]: { $set: taskState } } as any
     }
-    logic.emitMutation(taskStateMutation('pristine'))
+    logic.emitMutation(taskStateMutation('running'))
 
     try {
         const result = await loader()

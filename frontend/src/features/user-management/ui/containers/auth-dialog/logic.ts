@@ -1,5 +1,5 @@
 import { UILogic, UIEventHandler, executeUITask } from "../../../../../main-ui/classes/logic"
-import { AuthDialogEvent, AuthDialogDependencies, AuthDialogState, AuthDialogMode } from "./types"
+import { AuthDialogEvent, AuthDialogDependencies, AuthDialogState, AuthDialogMode, AuthDialogSignal } from "./types"
 import { AuthResult, EmailPasswordCredentials } from "../../../../../services/auth/types"
 
 type EventHandler<EventName extends keyof AuthDialogEvent> = UIEventHandler<AuthDialogState, AuthDialogEvent, EventName>
@@ -68,6 +68,8 @@ export default class AuthDialogLogic extends UILogic<AuthDialogState, AuthDialog
                 const { result } = await this.dependencies.services.auth.loginWithEmailPassword(credentials)
                 if (result.status === 'error') {
                     this.emitMutation({ error: { $set: result.reason } })
+                } else {
+                    this._result({ status: 'authenticated' })
                 }
             }
         })

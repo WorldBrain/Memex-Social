@@ -69,6 +69,16 @@ export default async function runMetaUi(options: {
     }
     return url;
   };
+  const getScenarioMetaUrl = (options: {
+    metaScenario: MetaScenario;
+    stepName?: string;
+  }) => {
+    let url = `/?meta=true&scenario=${options.metaScenario.pageName}.${options.metaScenario.scenarioName}`;
+    if (options.stepName) {
+      url = `${url}.${options.stepName}`;
+    }
+    return url;
+  };
 
   const iterateSteps = (scenario: Scenario) => {
     const steps: Array<{
@@ -88,6 +98,7 @@ export default async function runMetaUi(options: {
           >
             {metaScenario.scenario.description}
           </ScenarioTitle>
+          (<a href={getScenarioMetaUrl({ metaScenario })}>meta</a>)
           <StepsContainer key={scenarioIndex}>
             {iterateSteps(metaScenario.scenario).map((step, stepIndex) => (
               <StepContainer key={stepIndex}>

@@ -70,6 +70,20 @@ export const SCENARIOS: ScenarioMap<Targets> = {
     'user-register': scenario<Targets>(({ step, callModification }) => ({
         fixture: 'annotated-list-with-user',
         startRoute: { route: 'pageDetails', params: { id: 'default-page' } },
+        setup: {
+            callModifications: ({ services }) => [
+                callModification({
+                    name: 'register-running',
+                    object: services.auth, property: 'registerWithEmailPassword',
+                    modifier: 'block'
+                }),
+                callModification({
+                    name: 'refresh-running',
+                    object: services.auth, property: 'refreshCurrentUser',
+                    modifier: 'block'
+                }),
+            ]
+        },
         steps: [
             step({
                 name: 'click-login',
@@ -100,6 +114,14 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                 target: 'AuthDialog',
                 eventName: 'emailPasswordConfirm',
                 eventArgs: null,
+                waitForSignal: { type: 'auth-running' }
+            }),
+            step({
+                name: 'register-done',
+                callModifications: ({ storage }) => [{
+                    name: 'register-running',
+                    modifier: 'undo',
+                }]
             }),
             step({
                 name: 'display-name',
@@ -118,6 +140,15 @@ export const SCENARIOS: ScenarioMap<Targets> = {
     'user-sign-in': scenario<Targets>(({ step, callModification }) => ({
         fixture: 'annotated-list-with-user',
         startRoute: { route: 'pageDetails', params: { id: 'default-page' } },
+        setup: {
+            callModifications: ({ services }) => [
+                callModification({
+                    name: 'login-running',
+                    object: services.auth, property: 'loginWithEmailPassword',
+                    modifier: 'block'
+                }),
+            ]
+        },
         steps: [
             step({
                 name: 'click-login',
@@ -126,11 +157,30 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                 eventArgs: null
             }),
             step({
-                name: 'sign-in',
+                name: 'email',
                 target: 'AuthDialog',
-                eventName: 'socialSignIn',
-                eventArgs: { provider: 'github' }
+                eventName: 'editEmail',
+                eventArgs: { value: 'john@doe.com' }
             }),
+            step({
+                name: 'password',
+                target: 'AuthDialog',
+                eventName: 'editPassword',
+                eventArgs: { value: 'VeryStrongPassword' }
+            }),
+            step({
+                name: 'confirm-credentials',
+                target: 'AuthDialog',
+                eventName: 'emailPasswordConfirm',
+                eventArgs: null,
+            }),
+            step({
+                name: 'login-done',
+                callModifications: ({ storage }) => [{
+                    name: 'login-running',
+                    modifier: 'undo',
+                }]
+            })
         ]
     })),
     'user-sign-in-error': scenario<Targets>(({ step, callModification }) => ({
@@ -150,13 +200,32 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                 eventArgs: { value: 'invalid-email' }
             }),
             step({
-                name: 'email',
+                name: 'password',
                 target: 'AuthDialog',
                 eventName: 'editPassword',
                 eventArgs: { value: '12345' }
             }),
             step({
-                name: 'email',
+                name: 'confirm',
+                target: 'AuthDialog',
+                eventName: 'emailPasswordConfirm',
+                eventArgs: null,
+            }),
+            step({
+                name: 'second-email',
+                target: 'AuthDialog',
+                eventName: 'editEmail',
+                eventArgs: { value: 'my@email.com' },
+                callModifications: ({ services }) => [
+                    callModification({
+                        name: 'login-error',
+                        object: services.auth, property: 'loginWithEmailPassword',
+                        modifier: 'sabotage'
+                    }),
+                ]
+            }),
+            step({
+                name: 'second-confirm',
                 target: 'AuthDialog',
                 eventName: 'emailPasswordConfirm',
                 eventArgs: null,
@@ -165,6 +234,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
     })),
     'cancel-new-conversation': scenario<Targets>(({ step, callModification }) => ({
         fixture: 'annotated-list-with-user',
+        authenticated: true,
         startRoute: { route: 'pageDetails', params: { id: 'default-page' } },
         steps: [
             step({
@@ -213,6 +283,15 @@ export const SCENARIOS: ScenarioMap<Targets> = {
         fixture: 'annotated-list-with-user',
         authenticated: true,
         startRoute: { route: 'pageDetails', params: { id: 'default-page' } },
+        setup: {
+            callModifications: ({ storage }) => [
+                callModification({
+                    name: 'reply-running',
+                    object: storage.serverModules.contentConversations, property: 'createReply',
+                    modifier: 'block'
+                }),
+            ]
+        },
         steps: [
             step({
                 name: 'initiate-reply',
@@ -233,7 +312,16 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                 name: 'confirm-reply',
                 target: 'PageDetailsPage',
                 eventName: 'confirmNewReplyToAnnotation',
-                eventArgs: { annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference }
+                eventArgs: { annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference },
+                waitForSignal: { type: 'reply-submitting' }
+            }),
+            step({
+                name: 'reply-done',
+                callModifications: () => [{
+                    name: 'reply-running',
+                    modifier: 'undo',
+                }],
+                waitForStep: 'confirm-reply',
             }),
             step({
                 name: 'second-initiate-reply',
@@ -241,7 +329,44 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                 eventName: 'initiateNewReplyToAnnotation',
                 eventArgs: { annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference }
             }),
-        ]
+        ],
+    })),
+    'new-conversation-error': scenario<Targets>(({ step, callModification }) => ({
+        fixture: 'annotated-list-with-user',
+        authenticated: true,
+        startRoute: { route: 'pageDetails', params: { id: 'default-page' } },
+        setup: {
+            callModifications: ({ storage }) => [
+                callModification({
+                    name: 'reply-running',
+                    object: storage.serverModules.contentConversations, property: 'createReply',
+                    modifier: 'sabotage'
+                }),
+            ]
+        },
+        steps: [
+            step({
+                name: 'initiate-reply',
+                target: 'PageDetailsPage',
+                eventName: 'initiateNewReplyToAnnotation',
+                eventArgs: { annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference }
+            }),
+            step({
+                name: 'edit-reply',
+                target: 'PageDetailsPage',
+                eventName: 'editNewReplyToAnnotation',
+                eventArgs: {
+                    annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference,
+                    content: 'this is a new reply'
+                }
+            }),
+            step({
+                name: 'confirm-reply',
+                target: 'PageDetailsPage',
+                eventName: 'confirmNewReplyToAnnotation',
+                eventArgs: { annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' } as SharedAnnotationReference },
+            }),
+        ],
     })),
     'existing-conversation': scenario<Targets>(({ step, callModification }) => ({
         authenticated: true,

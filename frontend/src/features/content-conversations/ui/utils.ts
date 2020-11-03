@@ -7,8 +7,9 @@ export function getInitialAnnotationConversationState(): AnnotationConversationS
         loadState: 'pristine',
         expanded: false,
         newReply: {
+            saveState: 'pristine',
             editing: false,
-            content: ''
+            content: '',
         },
         replies: [],
     }
