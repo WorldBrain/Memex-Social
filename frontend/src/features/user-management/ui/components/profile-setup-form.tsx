@@ -33,6 +33,7 @@ export default function ProfileSetupForm(props: {
             placeholder={placeholder}
             value={props.displayName}
             onChange={(e) => props.onDisplayNameChange(e.target.value)}
+            onConfirm={props.onConfirm}
           />
         </DisplayName>
       </Margin>

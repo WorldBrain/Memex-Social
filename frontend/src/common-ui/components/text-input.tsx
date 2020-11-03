@@ -11,7 +11,20 @@ const StyledInput = styled.input`
 `;
 
 export default function TextInput(
-  props: InputHTMLAttributes<HTMLInputElement>
+  props: InputHTMLAttributes<HTMLInputElement> & {
+    onConfirm?(): void;
+  }
 ) {
-  return <StyledInput type="text" {...props} />;
+  return (
+    <StyledInput
+      type="text"
+      {...props}
+      onKeyDown={(event) => {
+        if (props.onConfirm && event.keyCode === 13) {
+          return props.onConfirm();
+        }
+        props.onKeyDown?.(event);
+      }}
+    />
+  );
 }

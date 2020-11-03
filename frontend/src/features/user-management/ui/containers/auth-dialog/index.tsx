@@ -135,6 +135,9 @@ export default class AuthDialog extends UIElement<
               onChange={(e) =>
                 this.processEvent("editEmail", { value: e.target.value })
               }
+              onConfirm={() => {
+                this.processEvent("emailPasswordConfirm", null);
+              }}
             />
             <Margin vertical={"medium"}>
               <TextInput
@@ -146,6 +149,9 @@ export default class AuthDialog extends UIElement<
                     value: e.target.value,
                   })
                 }
+                onConfirm={() => {
+                  this.processEvent("emailPasswordConfirm", null);
+                }}
               />
             </Margin>
             {this.renderAuthError()}
