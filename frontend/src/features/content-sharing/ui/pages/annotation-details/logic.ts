@@ -30,7 +30,7 @@ export default class AnnotationDetailsLogic extends UILogic<AnnotationDetailsSta
     }
 
     init: EventHandler<'init'> = async () => {
-        const { contentSharing, userManagement } = this.dependencies
+        const { contentSharing, users } = this.dependencies.storage
         const annotationReference = contentSharing.getSharedAnnotationReferenceFromLinkID(this.dependencies.annotationID)
         let annotation: SharedAnnotation | null
         let creatorReference: UserReference | null
@@ -71,7 +71,7 @@ export default class AnnotationDetailsLogic extends UILogic<AnnotationDetailsSta
                 return {
                     mutation: {
                         creator: {
-                            $set: await userManagement.getUser(creatorReference),
+                            $set: await users.getUser(creatorReference),
                         }
                     }
                 }

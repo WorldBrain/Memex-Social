@@ -208,6 +208,7 @@ export default class CollectionDetailsPage extends UIElement<
         <DocumentView>
           <DefaultPageLayout
             services={this.props.services}
+            storage={this.props.storage}
             viewportBreakpoint={viewportBreakpoint}
           >
             <ErrorWithAction errorType="internal-error">
@@ -223,6 +224,7 @@ export default class CollectionDetailsPage extends UIElement<
       return (
         <DefaultPageLayout
           services={this.props.services}
+          storage={this.props.storage}
           viewportBreakpoint={viewportBreakpoint}
         >
           <ErrorWithAction
@@ -246,6 +248,7 @@ export default class CollectionDetailsPage extends UIElement<
         />
         <DefaultPageLayout
           services={this.props.services}
+          storage={this.props.storage}
           viewportBreakpoint={viewportBreakpoint}
           headerTitle={data.list.title}
           headerSubtitle={data.creator && `by ${data.creator.displayName}`}

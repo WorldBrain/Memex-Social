@@ -64,6 +64,7 @@ export default class PageDetailsPage extends UIElement<
       return (
         <DefaultPageLayout
           services={this.props.services}
+          storage={this.props.storage}
           viewportBreakpoint={viewportWidth}
           headerTitle={"Loading page..."}
         >
@@ -79,6 +80,7 @@ export default class PageDetailsPage extends UIElement<
       return (
         <DefaultPageLayout
           services={this.props.services}
+          storage={this.props.storage}
           viewportBreakpoint={viewportWidth}
           headerTitle={"Could not load page"}
         >
@@ -98,6 +100,7 @@ export default class PageDetailsPage extends UIElement<
       return (
         <DefaultPageLayout
           services={this.props.services}
+          storage={this.props.storage}
           viewportBreakpoint={viewportWidth}
           headerTitle={"Annotation"}
         >
@@ -127,6 +130,7 @@ export default class PageDetailsPage extends UIElement<
         />
         <DefaultPageLayout
           services={this.props.services}
+          storage={this.props.storage}
           viewportBreakpoint={viewportWidth}
           headerTitle={this.getHeaderTitle()}
           headerSubtitle={this.getHeaderSubtitle()}

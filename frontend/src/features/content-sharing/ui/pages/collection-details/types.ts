@@ -1,22 +1,16 @@
-import UserStorage from "../../../../user-management/storage";
 import { UIEvent, UISignal } from "../../../../../main-ui/classes/logic";
-import ContentSharingStorage from "../../../storage";
 import { AnnotationConversationEvent, AnnotationConversationsState } from "../../../../content-conversations/ui/types";
 import { GetAnnotationsResult, GetAnnotationListEntriesResult } from "@worldbrain/memex-common/lib/content-sharing/storage/types";
 import { SharedListEntry, SharedList } from "@worldbrain/memex-common/lib/content-sharing/types";
 import { UITaskState } from "../../../../../main-ui/types";
 import { UserReference, User } from "@worldbrain/memex-common/lib/web-interface/types/users";
 import { UIElementServices } from "../../../../../main-ui/classes";
-import ContentConversationStorage from "../../../../content-conversations/storage";
+import { StorageModules } from "../../../../../storage/types";
 
 export interface CollectionDetailsDependencies {
     listID: string
     services: UIElementServices<'auth' | 'overlay' | 'contentConversations'>
-    storage: {
-        contentSharing: ContentSharingStorage
-        contentConversations: ContentConversationStorage
-        userManagement: UserStorage
-    }
+    storage: Pick<StorageModules, 'contentSharing' | 'contentConversations' | 'users'>
 }
 
 export type CollectionDetailsState = AnnotationConversationsState & {

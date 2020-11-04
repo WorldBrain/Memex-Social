@@ -8,7 +8,6 @@ import {
 } from "./types";
 import styled from "styled-components";
 import Overlay from "../../../../../main-ui/containers/overlay";
-import { AuthProvider } from "../../../../../types/auth";
 import Button from "../../../../../common-ui/components/button";
 import TextInput from "../../../../../common-ui/components/text-input";
 import { Margin } from "styled-components-spacing";
@@ -57,21 +56,21 @@ const EmailPasswordError = styled.div`
   text-align: center;
 `;
 
-const SocialLogins = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-`;
-const SocialLoginButton = styled.div`
-  padding: 10px 30px;
-  background: grey;
-  font-size: 12px;
-  width: 200px;
-  cursor: pointer;
-`;
-const SocialLoginIcon = styled.div<{ image: string }>``;
-const SocialLoginLabel = styled.div``;
+// const SocialLogins = styled.div`
+//   display: flex;
+//   flex-direction: column;
+//   justify-content: center;
+//   align-items: center;
+// `;
+// const SocialLoginButton = styled.div`
+//   padding: 10px 30px;
+//   background: grey;
+//   font-size: 12px;
+//   width: 200px;
+//   cursor: pointer;
+// `;
+// const SocialLoginIcon = styled.div<{ image: string }>``;
+// const SocialLoginLabel = styled.div``;
 
 const Footer = styled.div`
   text-align: center;
@@ -246,22 +245,22 @@ export default class AuthDialog extends UIElement<
   }
 }
 
-function SocialLogin(props: {
-  icon: string;
-  provider: AuthProvider;
-  onClick(event: { provider: AuthProvider }): void;
-}) {
-  return (
-    <Margin vertical="smallest">
-      <SocialLoginButton
-        onClick={() => props.onClick({ provider: props.provider })}
-      >
-        <SocialLoginIcon image={props.icon} />
-        <SocialLoginLabel>
-          Login with{" "}
-          {props.provider.charAt(0).toUpperCase() + props.provider.slice(1)}
-        </SocialLoginLabel>
-      </SocialLoginButton>
-    </Margin>
-  );
-}
+// function SocialLogin(props: {
+//   icon: string;
+//   provider: AuthProvider;
+//   onClick(event: { provider: AuthProvider }): void;
+// }) {
+//   return (
+//     <Margin vertical="smallest">
+//       <SocialLoginButton
+//         onClick={() => props.onClick({ provider: props.provider })}
+//       >
+//         <SocialLoginIcon image={props.icon} />
+//         <SocialLoginLabel>
+//           Login with{" "}
+//           {props.provider.charAt(0).toUpperCase() + props.provider.slice(1)}
+//         </SocialLoginLabel>
+//       </SocialLoginButton>
+//     </Margin>
+//   );
+// }

@@ -63,11 +63,7 @@ export default class Routes extends React.Component<Props> {
                 <CollectionDetailsPage
                   listID={route.match.params.id}
                   services={this.props.services}
-                  storage={{
-                    contentConversations: serverModules.contentConversations,
-                    contentSharing: serverModules.contentSharing,
-                    userManagement: serverModules.users,
-                  }}
+                  storage={serverModules}
                 />
               );
             }}
@@ -80,10 +76,7 @@ export default class Routes extends React.Component<Props> {
                 <PageDetailsPage
                   pageID={route.match.params.id}
                   services={this.props.services}
-                  storage={{
-                    contentSharing: serverModules.contentSharing,
-                    contentConversations: serverModules.contentConversations,
-                  }}
+                  storage={serverModules}
                   userManagement={serverModules.users}
                 />
               );
@@ -97,8 +90,7 @@ export default class Routes extends React.Component<Props> {
                 <AnnotationDetailsPage
                   annotationID={route.match.params.id}
                   services={this.props.services}
-                  contentSharing={serverModules.contentSharing}
-                  userManagement={serverModules.users}
+                  storage={serverModules}
                 />
               );
             }}

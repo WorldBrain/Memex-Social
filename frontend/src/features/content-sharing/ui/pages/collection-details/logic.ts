@@ -53,14 +53,14 @@ export default class CollectionDetailsLogic extends UILogic<CollectionDetailsSta
     }
 
     init: EventHandler<'init'> = async () => {
-        const { contentSharing, userManagement } = this.dependencies.storage
+        const { contentSharing, users } = this.dependencies.storage
         const listReference = contentSharing.getSharedListReferenceFromLinkID(this.dependencies.listID)
         const { success: listDataSuccess } = await executeUITask<CollectionDetailsState>(this, 'listLoadState', async () => {
             this.emitSignal<CollectionDetailsSignal>({ type: 'loading-started' })
 
             const result = await contentSharing.retrieveList(listReference)
             if (result) {
-                const user = await userManagement.getUser(result.creator)
+                const user = await users.getUser(result.creator)
 
                 const listDescription = result.sharedList.description ?? ''
                 const listDescriptionFits = listDescription.length < LIST_DESCRIPTION_CHAR_LIMIT
@@ -262,7 +262,7 @@ export default class CollectionDetailsLogic extends UILogic<CollectionDetailsSta
             return this.users[userReference.id]
         }
 
-        const user = this.dependencies.storage.userManagement.getUser(userReference)
+        const user = this.dependencies.storage.users.getUser(userReference)
         this.users[userReference.id] = user
         return user
     }

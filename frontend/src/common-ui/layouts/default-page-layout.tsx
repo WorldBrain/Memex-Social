@@ -3,6 +3,7 @@ import styled, { css } from "styled-components";
 import { ViewportBreakpoint } from "../../main-ui/styles/types";
 import { UIElementServices } from "../../main-ui/classes";
 import AuthHeader from "../../features/user-management/ui/containers/auth-header";
+import { StorageModules } from "../../storage/types";
 const logoImage = require("../../assets/img/memex-logo.svg");
 
 const middleMaxWidth = "800px";
@@ -183,6 +184,7 @@ const PageMiddleArea = styled.div<{
 
 export default function DefaultPageLayout(props: {
   services: UIElementServices<"auth" | "overlay">;
+  storage: Pick<StorageModules, "users">;
   headerTitle?: string;
   headerSubtitle?: string | null;
   viewportBreakpoint: ViewportBreakpoint;
@@ -214,7 +216,7 @@ export default function DefaultPageLayout(props: {
           )}
         </HeaderMiddleArea>
         <HeaderAuthArea viewportWidth={viewportWidth}>
-          <AuthHeader services={props.services} />
+          <AuthHeader services={props.services} storage={props.storage} />
         </HeaderAuthArea>
       </StyledHeader>
       <PageMiddleArea viewportWidth={viewportWidth}>

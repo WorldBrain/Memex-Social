@@ -11,6 +11,7 @@ import UserAvatar from "../../../../../common-ui/components/user-avatar";
 import { Margin } from "styled-components-spacing";
 import { Closable } from "../../../../../common-ui/components/closable";
 import AuthMenu from "../../components/auth-menu";
+import AccountSettings from "../account-settings-dialog";
 
 const StyledAuthHeader = styled.div``;
 const LoginAction = styled.div`
@@ -54,28 +55,37 @@ export default class AuthHeader extends UIElement<
     }
 
     return (
-      <StyledAuthHeader>
-        <UserInfo onClick={() => this.processEvent("toggleMenu", null)}>
-          <UserAvatar user={this.state.user} />
-          <Margin right={"medium"}>
-            <DisplayName>{this.state.user.displayName}</DisplayName>
-          </Margin>
-        </UserInfo>
-        {this.state.showMenu && (
-          <Closable onClose={() => this.processEvent("hideMenu", null)}>
-            <MenuContainerOuter>
-              <MenuContainerInner>
-                <AuthMenu
-                  onSettingsRequested={() =>
-                    this.processEvent("showSettings", null)
-                  }
-                  onLogoutRequested={() => this.processEvent("logout", null)}
-                />
-              </MenuContainerInner>
-            </MenuContainerOuter>
-          </Closable>
+      <>
+        <StyledAuthHeader>
+          <UserInfo onClick={() => this.processEvent("toggleMenu", null)}>
+            <UserAvatar user={this.state.user} />
+            <Margin right={"medium"}>
+              <DisplayName>{this.state.user.displayName}</DisplayName>
+            </Margin>
+          </UserInfo>
+          {this.state.showMenu && (
+            <Closable onClose={() => this.processEvent("hideMenu", null)}>
+              <MenuContainerOuter>
+                <MenuContainerInner>
+                  <AuthMenu
+                    onSettingsRequested={() =>
+                      this.processEvent("showSettings", null)
+                    }
+                    onLogoutRequested={() => this.processEvent("logout", null)}
+                  />
+                </MenuContainerInner>
+              </MenuContainerOuter>
+            </Closable>
+          )}
+        </StyledAuthHeader>
+        {this.state.showSettings && (
+          <AccountSettings
+            services={this.props.services}
+            storage={this.props.storage}
+            onCloseRequested={() => this.processEvent("hideSettings", null)}
+          />
         )}
-      </StyledAuthHeader>
+      </>
     );
   }
 }

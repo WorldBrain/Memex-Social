@@ -56,6 +56,7 @@ export default class AnnotationDetailsPage extends UIElement<
       return (
         <DefaultPageLayout
           services={this.props.services}
+          storage={this.props.storage}
           viewportBreakpoint={viewportWidth}
           headerTitle={"Annotation"}
         >
@@ -71,6 +72,7 @@ export default class AnnotationDetailsPage extends UIElement<
       return (
         <DefaultPageLayout
           services={this.props.services}
+          storage={this.props.storage}
           viewportBreakpoint={viewportWidth}
           headerTitle={"Annotation"}
         >
