@@ -17,6 +17,8 @@ import { LimitedWebStorage } from "../utils/web-storage/types";
 import CallModifier from "../utils/call-modifier";
 import { DocumentTitleService } from "./document-title";
 import ContentConversationsService from "../features/content-conversations/services/content-conversations";
+import FirebaseFunctionsActivityStreamsService from "@worldbrain/memex-common/lib/activity-streams/firebase-functions/client";
+import MemoryStreamsService from "@worldbrain/memex-common/lib/activity-streams/memory";
 
 export function createServices(options: {
     backend: BackendType, storage: Storage,
@@ -58,6 +60,15 @@ export function createServices(options: {
         documentTitle: new DocumentTitleService({
             set: title => { document.title = title },
             get: () => document.title,
+        }),
+        activityStreams: options.backend === 'memory' ? new MemoryStreamsService({
+            getCurrentUserId: async () => services.auth.getCurrentUserReference()?.id
+        }) : new FirebaseFunctionsActivityStreamsService({
+            executeCall: async (name, params) => {
+                const functions = (options.firebase ?? firebase)!.functions()
+                const result = await functions.httpsCallable(name)(params)
+                return result.data
+            }
         }),
         contentConversations: new ContentConversationsService({
             storage: options.storage.serverModules.contentConversations,

@@ -22,14 +22,14 @@
     }
   },
   "database": {
-    "rules": "firebase/database.rules.json"
+    "rules": "database.rules.json"
   },
   "firestore": {
-    "rules": "firebase/firestore.rules",
-    "indexes": "firebase/firestore.indexes.json"
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
   },
   "hosting": {
-    "public": "firebase/public",
+    "public": "public",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [
       {
@@ -39,6 +39,6 @@
     ]
   },
   "storage": {
-    "rules": "firebase/storage.rules"
+    "rules": "storage.rules"
   }
 }

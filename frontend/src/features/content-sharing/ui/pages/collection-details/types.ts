@@ -9,7 +9,7 @@ import { StorageModules } from "../../../../../storage/types";
 
 export interface CollectionDetailsDependencies {
     listID: string
-    services: UIElementServices<'auth' | 'overlay' | 'contentConversations'>
+    services: UIElementServices<'auth' | 'overlay' | 'contentConversations' | 'activityStreams'>
     storage: Pick<StorageModules, 'contentSharing' | 'contentConversations' | 'users'>
 }
 

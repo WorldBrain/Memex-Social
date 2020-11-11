@@ -36,7 +36,7 @@ export async function detectAnnotationConversationsThreads(
 export function annotationConversationEventHandlers<State extends AnnotationConversationsState>(
     logic: UILogic<AnnotationConversationsState, AnnotationConversationEvent>,
     dependencies: {
-        services: UIElementServices<'contentConversations' | 'auth'>;
+        services: UIElementServices<'contentConversations' | 'auth' | 'activityStreams'>;
         storage: {
             contentSharing: ContentSharingStorage,
             contentConversations: ContentConversationStorage
@@ -139,6 +139,15 @@ export function annotationConversationEventHandlers<State extends AnnotationConv
                 })
                 if (result.status === 'not-authenticated') {
                     return { status: 'pristine' }
+                }
+                try {
+                    await dependencies.services.activityStreams.followEntity({
+                        entityType: 'annotation',
+                        entity: event.annotationReference,
+                        feeds: { user: true, notification: false },
+                    })
+                } catch (err) {
+                    console.error(err)
                 }
                 logic.emitMutation({
                     conversations: {

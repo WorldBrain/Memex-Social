@@ -60,6 +60,7 @@
     "firebase": "^7.17.2",
     "firebase-tools": "^8.7.0",
     "font-awesome": "^4.7.0",
+    "getstream": "^6.1.4",
     "i18next": "^19.5.4",
     "immutability-helper": "^3.0.0",
     "js-levenshtein": "^1.1.6",
