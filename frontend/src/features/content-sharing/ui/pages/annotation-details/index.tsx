@@ -319,6 +319,7 @@ const AnnotationPageTitle = styled.div`
 const AnnotationPageUrl = styled.div`
   font-family: ${(props) => props.theme.fonts.primary};
   color: ${(props) => props.theme.colors.primary};
+  width: 355px;
   font-size: 12px;
   white-space: nowrap;
   text-overflow: ellipsis;
