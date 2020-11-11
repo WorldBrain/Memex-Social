@@ -1,25 +1,11 @@
-import * as firebase from 'firebase-admin'
+import * as admin from 'firebase-admin'
 import * as functions from 'firebase-functions';
-import { activityStreamFunction, ActivityStreamServiceMethod } from '@worldbrain/memex-common/lib/activity-streams/firebase-functions'
+import { activityStreamFunctions } from '@worldbrain/memex-common/lib/activity-streams/firebase-functions/server'
 
 import { runningInEmulator, emulatedConfig } from './constants';
-firebase.initializeApp((runningInEmulator) ? emulatedConfig : undefined);
+admin.initializeApp((runningInEmulator) ? emulatedConfig : undefined);
 
-
-function activityStreamFunctionWithKey(method: ActivityStreamServiceMethod) {
-    return {
-        [method]: activityStreamFunction({
-            firebase: firebase as any,
-            functions,
-            method,
-        })
-    }
-}
-
-module.exports = {
-    activityStreams: {
-        ...activityStreamFunctionWithKey('addActivity'),
-        ...activityStreamFunctionWithKey('followEntity'),
-        ...activityStreamFunctionWithKey('getNotifications'),
-    }
-}
+export const activityStreams = activityStreamFunctions({
+    firebase: admin as any,
+    functions,
+})
