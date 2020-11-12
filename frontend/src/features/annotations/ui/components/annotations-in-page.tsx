@@ -233,14 +233,26 @@ export default function AnnotationsInPage(props: {
             })
           }
           onKeyDown={(e) => {
-            if (e.keyCode === 13 && e.ctrlKey) {
+            if (e.keyCode === 13 && e.ctrlKey && conversation.newReply.content.length > 0) {
               props.onNewReplyConfirm?.({
                 annotationReference: annotation.reference,
               });
             }
+
+            if (e.key === 'Escape') {
+              props.onNewReplyCancel?.({
+                    annotationReference: annotation.reference,
+              })
+            }
+
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && conversation.newReply.content.length > 0) {
+                props.onNewReplyConfirm?.({
+                      annotationReference: annotation.reference,
+                    })
+            }
           }}
         />
-        {conversation.newReply.editing && (
+        {conversation.newReply.editing && conversation.newReply.content.length > 0 && (
           <NewReplyActions>
             <NewReplyCancel
               onClick={() =>

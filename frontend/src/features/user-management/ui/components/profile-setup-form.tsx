@@ -8,11 +8,11 @@ import { Margin } from "styled-components-spacing";
 const StyledProfileSetupForm = styled.div``;
 const Header = styled.div`
   text-align: center;
+  font-family: ${(props) => props.theme.fonts.primary};
+  font-size: 14px;
+  font-weight: bold;
 `;
 const DisplayName = styled.div`
-  text-align: center;
-`;
-const ExampleHeader = styled.div`
   text-align: center;
 `;
 
@@ -24,8 +24,8 @@ export default function ProfileSetupForm(props: {
   const placeholder = "John Doe";
   return (
     <StyledProfileSetupForm>
-      <Margin bottom="small">
-        <Header>Display Name</Header>
+      <Margin bottom="medium">
+        <Header>Set up your display name</Header>
       </Margin>
       <Margin bottom="medium">
         <DisplayName>
@@ -37,8 +37,8 @@ export default function ProfileSetupForm(props: {
           />
         </DisplayName>
       </Margin>
-      <Margin bottom="small">
-        <ExampleHeader>Example</ExampleHeader>
+      <Margin bottom="medium">
+        <Header>Example</Header>
       </Margin>
       <Margin bottom="small">
         <AnnotationReply

@@ -28,6 +28,10 @@ const AnnotationBody = styled.span`
 const AnnotationComment = styled.div`
   font-size: 14px;
   color: ${(props) => props.theme.colors.primary};
+
+  & p:first-child {
+    margin-top: 0;
+  }
 `;
 
 const DOM_PURIFY_CONFIG: DOMPurify.Config = {

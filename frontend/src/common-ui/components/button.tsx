@@ -10,7 +10,7 @@ const VARIATIONS: {
 } = {
   "primary-action": css`
     padding: 10px 10px;
-    font-size: 13px;
+    font-size: 14px;
   `,
   small: css`
     padding: 3px 10px;
@@ -21,6 +21,7 @@ const VARIATIONS: {
 const StyledButton = (props: StyledButtonProps) => css`
   ${VARIATIONS[props.type]}
   display: block;
+  font-family: ${(props) => props.theme.fonts.primary};
   padding: ${props.type === "primary-action" ? "10px" : "3px"} 10px;
   text-align: center;
   font-weight: 500;

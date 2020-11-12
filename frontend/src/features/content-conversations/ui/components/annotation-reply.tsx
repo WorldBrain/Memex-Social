@@ -14,9 +14,12 @@ const StyledAnnotationBox = styled.div`
 
 const ReplyContent = styled.div`
   font-size: 14px;
-  color: 
   font-family: ${(props) => props.theme.fonts.primary};
   color: ${(props) => props.theme.colors.primary};
+
+  & p:first-child {
+    margin-top: 0;
+  }
 `;
 
 export default function AnnotationReply(props: {

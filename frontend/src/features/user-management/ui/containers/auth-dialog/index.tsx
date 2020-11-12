@@ -30,10 +30,14 @@ const StyledAuthDialog = styled.div`
 `;
 const Header = styled.div`
   text-align: center;
+  font-size: 16px;
+  font-weight: bold;
 `;
 const AuthenticationMethods = styled.div`
   display: flex;
-  height: 500px;
+  height: 260px;
+  align-items: flex-start;
+  }
 
   & > div {
     width: 350px;
@@ -125,6 +129,7 @@ export default class AuthDialog extends UIElement<
             {this.state.mode === "register" && "Sign up"}
           </Header>
         </Margin>
+        <Margin top="large">
         <AuthenticationMethods>
           <EmailPasswordLogin>
             <TextInput
@@ -153,7 +158,6 @@ export default class AuthDialog extends UIElement<
                 }}
               />
             </Margin>
-            {this.renderAuthError()}
             <Margin top={"medium"}>
               <Button
                 type="primary-action"
@@ -163,6 +167,7 @@ export default class AuthDialog extends UIElement<
                 {this.state.mode === "register" && "Register"}
               </Button>
             </Margin>
+            {this.renderAuthError()}
           </EmailPasswordLogin>
           {/* <SocialLogins>
                 <SocialLogin
@@ -187,6 +192,7 @@ export default class AuthDialog extends UIElement<
                 />
               </SocialLogins> */}
         </AuthenticationMethods>
+        </Margin>
         <Footer>
           {this.state.mode === "login" && (
             <>
