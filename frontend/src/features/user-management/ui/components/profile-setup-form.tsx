@@ -37,7 +37,7 @@ export default function ProfileSetupForm(props: {
           />
         </DisplayName>
       </Margin>
-      <Margin bottom="medium">
+      <Margin bottom="small">
         <Header>Example</Header>
       </Margin>
       <Margin bottom="small">
@@ -48,7 +48,7 @@ export default function ProfileSetupForm(props: {
           }}
           reply={{
             content:
-              "This is what it looks like when you give feedback to somebody",
+              "This is what a reply to someone's note looks like with your name attached",
             createdWhen: Date.now(),
             normalizedPageUrl: "something",
           }}
