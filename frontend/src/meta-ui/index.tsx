@@ -44,6 +44,7 @@ const ProgramContainer = styled.div`
   box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.2);
   border-radius: 5px;
   overflow-y: auto;
+  transform: translateZ(0);
 `;
 
 export default async function runMetaUi(options: {
