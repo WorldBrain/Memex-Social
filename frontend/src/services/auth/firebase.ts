@@ -76,7 +76,7 @@ export default class FirebaseAuthService extends AuthServiceBase {
 
     async registerWithEmailPassword(options: EmailPasswordCredentials): Promise<{ result: RegistrationResult }> {
         try {
-            await this._firebase.auth().signInWithEmailAndPassword(options.email, options.password)
+            await this._firebase.auth().createUserWithEmailAndPassword(options.email, options.password)
             return { result: { status: 'registered-and-authenticated' } }
         } catch (e) {
             const firebaseError: firebase.FirebaseError = e
