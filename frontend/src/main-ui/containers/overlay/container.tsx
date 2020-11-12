@@ -21,6 +21,7 @@ const OverlayContent = styled.div`
   max-width: 90%;
   top: 50%;
   padding: 20px;
+  border-radius: 5px;
 `;
 
 interface OverlayContainerProps {
