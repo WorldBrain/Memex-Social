@@ -137,7 +137,71 @@ export const SCENARIOS: ScenarioMap<Targets> = {
             }),
         ]
     })),
-    'user-sign-in': scenario<Targets>(({ step, callModification }) => ({
+    'user-register-profile-cancel': scenario<Targets>(({ step, callModification }) => ({
+        fixture: 'annotated-list-with-user',
+        startRoute: { route: 'pageDetails', params: { id: 'default-page' } },
+        setup: {
+            callModifications: ({ services }) => [
+                callModification({
+                    name: 'register-running',
+                    object: services.auth, property: 'registerWithEmailPassword',
+                    modifier: 'block'
+                }),
+                callModification({
+                    name: 'refresh-running',
+                    object: services.auth, property: 'refreshCurrentUser',
+                    modifier: 'block'
+                }),
+            ]
+        },
+        steps: [
+            step({
+                name: 'click-login',
+                target: 'AuthHeader',
+                eventName: 'login',
+                eventArgs: null
+            }),
+            step({
+                name: 'switch-mode',
+                target: 'AuthDialog',
+                eventName: 'toggleMode',
+                eventArgs: null
+            }),
+            step({
+                name: 'email',
+                target: 'AuthDialog',
+                eventName: 'editEmail',
+                eventArgs: { value: 'john@doe.com' }
+            }),
+            step({
+                name: 'password',
+                target: 'AuthDialog',
+                eventName: 'editPassword',
+                eventArgs: { value: 'VeryStrongPassword' }
+            }),
+            step({
+                name: 'confirm-credentials',
+                target: 'AuthDialog',
+                eventName: 'emailPasswordConfirm',
+                eventArgs: null,
+                waitForSignal: { type: 'auth-running' }
+            }),
+            step({
+                name: 'register-done',
+                callModifications: ({ storage }) => [{
+                    name: 'register-running',
+                    modifier: 'undo',
+                }]
+            }),
+            step({
+                name: 'profile-cancel',
+                target: 'AuthDialog',
+                eventName: 'close',
+                eventArgs: null
+            }),
+        ]
+    })),
+    'existing-user-sign-in': scenario<Targets>(({ step, callModification }) => ({
         fixture: 'annotated-list-with-user',
         startRoute: { route: 'pageDetails', params: { id: 'default-page' } },
         setup: {
@@ -160,7 +224,53 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                 name: 'email',
                 target: 'AuthDialog',
                 eventName: 'editEmail',
-                eventArgs: { value: 'john@doe.com' }
+                eventArgs: { value: 'default-user' }
+            }),
+            step({
+                name: 'password',
+                target: 'AuthDialog',
+                eventName: 'editPassword',
+                eventArgs: { value: 'VeryStrongPassword' }
+            }),
+            step({
+                name: 'confirm-credentials',
+                target: 'AuthDialog',
+                eventName: 'emailPasswordConfirm',
+                eventArgs: null,
+            }),
+            step({
+                name: 'login-done',
+                callModifications: ({ storage }) => [{
+                    name: 'login-running',
+                    modifier: 'undo',
+                }]
+            })
+        ]
+    })),
+    'new-user-sign-in': scenario<Targets>(({ step, callModification }) => ({
+        fixture: 'annotated-list-with-user',
+        startRoute: { route: 'pageDetails', params: { id: 'default-page' } },
+        setup: {
+            callModifications: ({ services }) => [
+                callModification({
+                    name: 'login-running',
+                    object: services.auth, property: 'loginWithEmailPassword',
+                    modifier: 'block'
+                }),
+            ]
+        },
+        steps: [
+            step({
+                name: 'click-login',
+                target: 'AuthHeader',
+                eventName: 'login',
+                eventArgs: null
+            }),
+            step({
+                name: 'email',
+                target: 'AuthDialog',
+                eventName: 'editEmail',
+                eventArgs: { value: 'new-user' }
             }),
             step({
                 name: 'password',

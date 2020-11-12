@@ -4,8 +4,13 @@ import { Storage } from "../../../storage/types";
 import { AuthMethod, AuthLoginFlow, AuthRequest, EmailPasswordCredentials, RegistrationResult, LoginResult } from "../types";
 import { AuthServiceBase } from "../base";
 
+interface AuthenticatedUser {
+    user: User;
+    id: number | string;
+}
+
 export default class MemoryAuthService extends AuthServiceBase {
-    private _user: User | null = null
+    private _user: AuthenticatedUser | null = null
 
     constructor(private options: { storage: Storage }) {
         super()
@@ -21,12 +26,7 @@ export default class MemoryAuthService extends AuthServiceBase {
     }
 
     async loginWithProvider(provider: AuthProvider, options?: { request?: AuthRequest }): Promise<{ result: LoginResult }> {
-        const user: User = {
-        }
-        this._user = user
-
-        await this.refreshCurrentUser()
-
+        await this._login({ id: 'default-user', user: {} })
         return { result: { status: 'authenticated' } }
     }
 
@@ -40,7 +40,8 @@ export default class MemoryAuthService extends AuthServiceBase {
         if (options.password === 'wrong-password') {
             return { result: { status: 'error', reason: 'wrong-password' } }
         }
-        return this.loginWithProvider('github')
+        await this._login({ id: options.email, user: {} })
+        return { result: { status: 'authenticated' } }
     }
 
     async registerWithEmailPassword(options: EmailPasswordCredentials): Promise<{ result: RegistrationResult }> {
@@ -54,8 +55,14 @@ export default class MemoryAuthService extends AuthServiceBase {
             return { result: { status: 'error', reason: 'weak-password' } }
         }
 
-        await this.loginWithProvider('github')
+        await this._login({ id: options.email, user: {} })
         return { result: { status: 'registered-and-authenticated' } }
+    }
+
+    async _login(user: AuthenticatedUser) {
+        this._user = user
+
+        await this.refreshCurrentUser()
     }
 
     async logout(): Promise<void> {
@@ -64,16 +71,16 @@ export default class MemoryAuthService extends AuthServiceBase {
     }
 
     getCurrentUser() {
-        return this._user
+        return this._user?.user ?? null
     }
 
     getCurrentUserReference(): UserReference | null {
-        return this._user ? { type: 'user-reference', id: 'default-user' } : null
+        return this._user ? { type: 'user-reference', id: this._user.id } : null
     }
 
     async refreshCurrentUser(): Promise<void> {
         if (this._user) {
-            this._user = await this.options.storage.serverModules.users.ensureUser(this._user, this.getCurrentUserReference()!)
+            this._user.user = await this.options.storage.serverModules.users.ensureUser(this._user.user, this.getCurrentUserReference()!)
         }
         this.events.emit('changed')
     }

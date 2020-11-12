@@ -6,6 +6,7 @@ type EventHandler<EventName extends keyof AuthDialogEvent> = UIEventHandler<Auth
 
 export default class AuthDialogLogic extends UILogic<AuthDialogState, AuthDialogEvent> {
     emitAuthResult?: (result: AuthResult) => void
+    action?: 'login' | 'register'
 
     constructor(private dependencies: AuthDialogDependencies) {
         super()
@@ -32,6 +33,7 @@ export default class AuthDialogLogic extends UILogic<AuthDialogState, AuthDialog
     }
 
     close: EventHandler<'close'> = async () => {
+        await this.dependencies.services.auth.logout()
         this._result({ status: 'cancelled' })
     }
 
@@ -57,19 +59,25 @@ export default class AuthDialogLogic extends UILogic<AuthDialogState, AuthDialog
             password: previousState.password,
         }
         await executeUITask<AuthDialogState>(this, 'saveState', async () => {
+            const auth = this.dependencies.services.auth
+            this.action = previousState.mode as 'login' | 'register'
             if (previousState.mode === 'register') {
-                const { result } = await this.dependencies.services.auth.registerWithEmailPassword(credentials)
+                const { result } = await auth.registerWithEmailPassword(credentials)
                 if (result.status === 'error') {
                     this.emitMutation({ error: { $set: result.reason } })
                 } else {
                     this._setMode('profile')
                 }
             } else if (previousState.mode === 'login') {
-                const { result } = await this.dependencies.services.auth.loginWithEmailPassword(credentials)
+                const { result } = await auth.loginWithEmailPassword(credentials)
                 if (result.status === 'error') {
                     this.emitMutation({ error: { $set: result.reason } })
                 } else {
-                    this._result({ status: 'authenticated' })
+                    if ((await auth.getCurrentUser())?.displayName) {
+                        this._result({ status: 'authenticated' })
+                    } else {
+                        this._setMode('profile')
+                    }
                 }
             }
         })
@@ -95,7 +103,7 @@ export default class AuthDialogLogic extends UILogic<AuthDialogState, AuthDialog
             })
             await this.dependencies.services.auth.refreshCurrentUser()
         })
-        this._result({ status: 'registered-and-authenticated' })
+        this._result({ status: this.action === 'register' ? 'registered-and-authenticated' : 'authenticated' })
     }
 
     _setMode(mode: AuthDialogMode) {

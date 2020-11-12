@@ -133,7 +133,6 @@ export class ScenarioService {
             if (step.waitForSignal) {
                 stepPromise = logicRegistry.waitForSignal(step.target, step.waitForSignal)
                 this.stepPromises[step.name] = eventPromise
-                console.log('save', this.stepPromises)
             } else if (step.waitForStep) {
                 stepPromise = this.stepPromises[step.name]
             } else {
