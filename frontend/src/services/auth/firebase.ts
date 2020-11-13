@@ -57,7 +57,9 @@ export default class FirebaseAuthService extends AuthServiceBase {
 
     async loginWithEmailPassword(options: EmailPasswordCredentials): Promise<{ result: LoginResult }> {
         try {
+            const waitForChange = new Promise(resolve => this.events.once('changed', () => resolve()))
             await this._firebase.auth().signInWithEmailAndPassword(options.email, options.password)
+            await waitForChange
             return { result: { status: 'authenticated' } }
         } catch (e) {
             const firebaseError: firebase.FirebaseError = e
