@@ -72,12 +72,12 @@ export default class AuthDialogLogic extends UILogic<AuthDialogState, AuthDialog
                 const { result } = await auth.loginWithEmailPassword(credentials)
                 if (result.status === 'error') {
                     this.emitMutation({ error: { $set: result.reason } })
+                    return
+                }
+                if ((await auth.getCurrentUser())?.displayName) {
+                    this._result({ status: 'authenticated' })
                 } else {
-                    if ((await auth.getCurrentUser())?.displayName) {
-                        this._result({ status: 'authenticated' })
-                    } else {
-                        this._setMode('profile')
-                    }
+                    this._setMode('profile')
                 }
             }
         })

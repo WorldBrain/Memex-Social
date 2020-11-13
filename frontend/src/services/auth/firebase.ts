@@ -4,14 +4,13 @@ import { EventEmitter } from "events";
 import { Storage } from '../../storage/types';
 import { AuthProvider } from '../../types/auth';
 import { AuthMethod, AuthLoginFlow, AuthResult, RegistrationResult, EmailPasswordCredentials, LoginResult } from "./types";
-import { UnsavedMediaObject } from '@worldbrain/storex-media-middleware/lib/types';
 import { AuthServiceBase } from './base';
-const blobToBuffer = require('blob-to-buffer')
 
 export default class FirebaseAuthService extends AuthServiceBase {
     events = new EventEmitter()
     private _firebase: typeof firebase
     private _user: User | null = null
+    private _initialized = false
 
     constructor(firebaseRoot: typeof firebase, private options: {
         storage: Storage,
@@ -22,6 +21,7 @@ export default class FirebaseAuthService extends AuthServiceBase {
         this._user = null
 
         this._firebase.auth().onAuthStateChanged(async () => {
+            // this will get once on load, and then for every change
             await this.refreshCurrentUser()
         })
     }
@@ -107,11 +107,15 @@ export default class FirebaseAuthService extends AuthServiceBase {
     }
 
     async refreshCurrentUser(): Promise<void> {
+        const alreadyInitialized = this._initialized
+        this._initialized = true
+
         const user = this._firebase.auth().currentUser
         this._user = user && await _ensureFirebaseUser(user, this.options.storage.serverModules.users)
-
-        if (user) {
-            _fetchUserPicture(user)
+        if (!alreadyInitialized && !this._user?.displayName) {
+            this._user = null
+            this._firebase.auth().signOut()
+            return
         }
 
         this.events.emit('changed')
@@ -123,24 +127,4 @@ async function _ensureFirebaseUser(firebaseUser: firebase.User, userStorage: Sto
     const user = await userStorage.ensureUser({
     }, { type: 'user-reference', id: firebaseUser.uid })
     return user
-}
-
-async function _fetchUserPicture(firebaseUser: firebase.User): Promise<UnsavedMediaObject | null> {
-    if (!firebaseUser.photoURL) {
-        return null
-    }
-
-    const photoResponse = await fetch(firebaseUser.photoURL)
-    const photoBlob = await photoResponse.blob()
-    const buffer = await new Promise((resolve: (buffer: Buffer) => void, reject) => {
-        blobToBuffer(photoBlob, (err: Error, buffer: Buffer) => {
-            if (err) {
-                reject(err)
-            } else {
-                resolve(buffer)
-            }
-        })
-    })
-
-    return { data: buffer, mimetype: photoBlob.type }
 }
