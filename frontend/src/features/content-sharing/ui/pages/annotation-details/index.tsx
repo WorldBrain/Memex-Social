@@ -1,13 +1,14 @@
 import moment from "moment";
 import React from "react";
+import styled from "styled-components";
 import { UIElement } from "../../../../../main-ui/classes";
 import Logic, { AnnotationDetailsState } from "./logic";
 import { AnnotationDetailsEvent, AnnotationDetailsDependencies } from "./types";
 import DocumentTitle from "../../../../../main-ui/components/document-title";
 import DefaultPageLayout from "../../../../../common-ui/layouts/default-page-layout";
 import LoadingIndicator from "../../../../../common-ui/components/loading-indicator";
-import styled from "styled-components";
 import ErrorWithAction from "../../../../../common-ui/components/error-with-action";
+import Markdown from "../../../../../common-ui/components/markdown";
 const logoImage = require("../../../../../assets/img/memex-logo.svg");
 
 export default class AnnotationDetailsPage extends UIElement<
@@ -109,7 +110,9 @@ export default class AnnotationDetailsPage extends UIElement<
                 <AnnotationBody>{annotation.body}</AnnotationBody>
               )}
               {annotation.comment && (
-                <AnnotationComment>{annotation.comment}</AnnotationComment>
+                <AnnotationComment>
+                  <Markdown>{annotation.comment}</Markdown>
+                </AnnotationComment>
               )}
               <AnnotationAuthorBox>
                 <AnnotationAuthorName>
