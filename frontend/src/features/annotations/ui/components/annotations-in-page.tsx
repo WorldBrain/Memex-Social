@@ -233,47 +233,56 @@ export default function AnnotationsInPage(props: {
             })
           }
           onKeyDown={(e) => {
-            if (e.keyCode === 13 && e.ctrlKey && conversation.newReply.content.length > 0) {
-              props.onNewReplyConfirm?.({
+            if (
+              e.keyCode === 13 &&
+              e.ctrlKey &&
+              conversation.newReply.content.length > 0
+            ) {
+              return props.onNewReplyConfirm?.({
                 annotationReference: annotation.reference,
               });
             }
 
-            if (e.key === 'Escape') {
-              props.onNewReplyCancel?.({
-                    annotationReference: annotation.reference,
-              })
+            if (e.key === "Escape") {
+              return props.onNewReplyCancel?.({
+                annotationReference: annotation.reference,
+              });
             }
 
-            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && conversation.newReply.content.length > 0) {
-                props.onNewReplyConfirm?.({
-                      annotationReference: annotation.reference,
-                    })
+            if (
+              (e.ctrlKey || e.metaKey) &&
+              e.key === "Enter" &&
+              conversation.newReply.content.length > 0
+            ) {
+              return props.onNewReplyConfirm?.({
+                annotationReference: annotation.reference,
+              });
             }
           }}
         />
-        {conversation.newReply.editing && conversation.newReply.content.length > 0 && (
-          <NewReplyActions>
-            <NewReplyCancel
-              onClick={() =>
-                props.onNewReplyCancel?.({
-                  annotationReference: annotation.reference,
-                })
-              }
-            >
-              Cancel
-            </NewReplyCancel>
-            <NewReplyConfirm
-              onClick={() =>
-                props.onNewReplyConfirm?.({
-                  annotationReference: annotation.reference,
-                })
-              }
-            >
-              Save
-            </NewReplyConfirm>
-          </NewReplyActions>
-        )}
+        {conversation.newReply.editing &&
+          conversation.newReply.content.length > 0 && (
+            <NewReplyActions>
+              <NewReplyCancel
+                onClick={() =>
+                  props.onNewReplyCancel?.({
+                    annotationReference: annotation.reference,
+                  })
+                }
+              >
+                Cancel
+              </NewReplyCancel>
+              <NewReplyConfirm
+                onClick={() =>
+                  props.onNewReplyConfirm?.({
+                    annotationReference: annotation.reference,
+                  })
+                }
+              >
+                Save
+              </NewReplyConfirm>
+            </NewReplyActions>
+          )}
       </>
     );
   };
