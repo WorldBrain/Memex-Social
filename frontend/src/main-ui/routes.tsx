@@ -13,6 +13,7 @@ import LandingPage from "./pages/landing-page";
 import CollectionDetailsPage from "../features/content-sharing/ui/pages/collection-details";
 import AnnotationDetailsPage from "../features/content-sharing/ui/pages/annotation-details";
 import PageDetailsPage from "../features/content-sharing/ui/pages/page-details";
+import NotificationCenterPage from "../features/notifications/ui/pages/notification-center";
 
 interface Props {
   history: history.History;
@@ -53,6 +54,18 @@ export default class Routes extends React.Component<Props> {
               } else {
                 return <LandingPage services={this.props.services} />;
               }
+            }}
+          />
+          <Route
+            exact
+            path={ROUTES.notificationCenter.path}
+            render={() => {
+              return (
+                <NotificationCenterPage
+                  services={this.props.services}
+                  storage={serverModules}
+                />
+              );
             }}
           />
           <Route

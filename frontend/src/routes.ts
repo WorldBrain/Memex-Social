@@ -1,4 +1,4 @@
-export type RouteName = 'landingPage' | 'userHome' | 'collectionDetails' | 'pageDetails' | 'annotationDetails'
+export type RouteName = 'landingPage' | 'userHome' | 'collectionDetails' | 'pageDetails' | 'annotationDetails' | 'notificationCenter'
 export type RouteMap = { [Name in RouteName]: Route }
 export interface Route {
     path: string,
@@ -8,6 +8,7 @@ export interface Route {
 const ROUTES: RouteMap = {
     landingPage: { path: '/', ifAuth: false },
     userHome: { path: '/', ifAuth: true },
+    notificationCenter: { path: '/notifications' },
     collectionDetails: { path: '/c/:id' },
     pageDetails: { path: '/p/:id' },
     annotationDetails: { path: '/a/:id' },
