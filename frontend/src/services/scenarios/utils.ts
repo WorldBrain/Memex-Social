@@ -6,8 +6,20 @@ export function scenario<
     Targets extends { [name: string]: { events: UIEvent<{}>, signals?: UISignal<any> } }
 >(builder: (options: {
     step: <Target extends keyof Targets, EventName extends keyof Targets[Target]['events']>(options: (
-        { name: string, target: Target, eventName: EventName, eventArgs: Targets[Target]['events'][EventName] } |
-        { name: string, callModifications: GetCallModifications, waitForSignal?: Targets[Target]['signals'] }
+        {
+            name: string,
+            target: Target,
+            eventName: EventName,
+            eventArgs: Targets[Target]['events'][EventName],
+            waitForSignal?: Targets[Target]['signals'],
+            waitForStep?: string
+        } |
+        {
+            name: string,
+            callModifications: GetCallModifications,
+            waitForSignal?: Targets[Target]['signals'],
+            waitForStep?: string
+        }
     )) => ScenarioStep
     callModification: <Object>(modification: CallModification<Object>) => CallModification<Object>
 }) => Scenario<Targets>) {
@@ -19,12 +31,16 @@ export function scenario<
                     target: options.target as string,
                     eventName: options.eventName as string,
                     eventArgs: options.eventArgs,
+                    waitForSignal: options.waitForSignal,
+                    waitForStep: options.waitForStep,
                     // callModifications: options.callModifications
                 }
             } else {
                 return {
                     name: options.name,
-                    callModifications: options.callModifications
+                    callModifications: options.callModifications,
+                    waitForSignal: options.waitForSignal,
+                    waitForStep: options.waitForStep,
                 }
             }
         },

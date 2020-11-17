@@ -34,6 +34,7 @@ interface BaseScenarioStep {
     name: string
     description?: string
     waitForSignal?: any
+    waitForStep?: string
 }
 
 interface ElementScenarioStep extends BaseScenarioStep {

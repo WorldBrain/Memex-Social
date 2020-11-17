@@ -1,25 +1,22 @@
 import moment from "moment";
 import React from "react";
-import { UIElement, UIElementServices } from "../../../../../main-ui/classes";
+import styled from "styled-components";
+import { UIElement } from "../../../../../main-ui/classes";
 import Logic, { AnnotationDetailsState } from "./logic";
 import { AnnotationDetailsEvent, AnnotationDetailsDependencies } from "./types";
 import DocumentTitle from "../../../../../main-ui/components/document-title";
 import DefaultPageLayout from "../../../../../common-ui/layouts/default-page-layout";
 import LoadingIndicator from "../../../../../common-ui/components/loading-indicator";
-import styled from "styled-components";
 import ErrorWithAction from "../../../../../common-ui/components/error-with-action";
+import Markdown from "../../../../../common-ui/components/markdown";
 const logoImage = require("../../../../../assets/img/memex-logo.svg");
 
-interface AnnotationDetailsProps extends AnnotationDetailsDependencies {
-  services: UIElementServices;
-}
-
 export default class AnnotationDetailsPage extends UIElement<
-  AnnotationDetailsProps,
+  AnnotationDetailsDependencies,
   AnnotationDetailsState,
   AnnotationDetailsEvent
 > {
-  constructor(props: AnnotationDetailsProps) {
+  constructor(props: AnnotationDetailsDependencies) {
     super(props, { logic: new Logic(props) });
   }
 
@@ -59,6 +56,8 @@ export default class AnnotationDetailsPage extends UIElement<
     if (state.annotationLoadState === "error") {
       return (
         <DefaultPageLayout
+          services={this.props.services}
+          storage={this.props.storage}
           viewportBreakpoint={viewportWidth}
           headerTitle={"Annotation"}
         >
@@ -73,6 +72,8 @@ export default class AnnotationDetailsPage extends UIElement<
     if (!annotation) {
       return (
         <DefaultPageLayout
+          services={this.props.services}
+          storage={this.props.storage}
           viewportBreakpoint={viewportWidth}
           headerTitle={"Annotation"}
         >
@@ -105,8 +106,14 @@ export default class AnnotationDetailsPage extends UIElement<
           </IntroArea>
           <AnnotationContainer>
             <AnnotationContentBox>
-              {annotation.body && (<AnnotationBody>{annotation.body}</AnnotationBody>)}
-              {annotation.comment && (<AnnotationComment>{annotation.comment}</AnnotationComment>)}
+              {annotation.body && (
+                <AnnotationBody>{annotation.body}</AnnotationBody>
+              )}
+              {annotation.comment && (
+                <AnnotationComment>
+                  <Markdown>{annotation.comment}</Markdown>
+                </AnnotationComment>
+              )}
               <AnnotationAuthorBox>
                 <AnnotationAuthorName>
                   {state.creatorLoadState === "success" && (

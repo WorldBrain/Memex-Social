@@ -6,6 +6,8 @@ import RouterService from "./router"
 import { ScenarioService } from "./scenarios"
 import { DeviceService } from "./device"
 import { DocumentTitleService } from "./document-title"
+import ContentConversationsService from "../features/content-conversations/services/content-conversations"
+import { ActivityStreamsService } from "@worldbrain/memex-common/lib/activity-streams/types"
 
 export interface Services {
     router: RouterService
@@ -16,4 +18,8 @@ export interface Services {
     fixtures: FixtureService
     scenarios: ScenarioService
     documentTitle: DocumentTitleService
+    activityStreams: ActivityStreamsService
+
+    // Feature specific services
+    contentConversations: ContentConversationsService
 }

@@ -44,6 +44,7 @@ const ProgramContainer = styled.div`
   box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.2);
   border-radius: 5px;
   overflow-y: auto;
+  transform: translateZ(0);
 `;
 
 export default async function runMetaUi(options: {
@@ -69,6 +70,16 @@ export default async function runMetaUi(options: {
     }
     return url;
   };
+  const getScenarioMetaUrl = (options: {
+    metaScenario: MetaScenario;
+    stepName?: string;
+  }) => {
+    let url = `/?meta=true&scenario=${options.metaScenario.pageName}.${options.metaScenario.scenarioName}`;
+    if (options.stepName) {
+      url = `${url}.${options.stepName}`;
+    }
+    return url;
+  };
 
   const iterateSteps = (scenario: Scenario) => {
     const steps: Array<{
@@ -88,6 +99,7 @@ export default async function runMetaUi(options: {
           >
             {metaScenario.scenario.description}
           </ScenarioTitle>
+          (<a href={getScenarioMetaUrl({ metaScenario })}>meta</a>)
           <StepsContainer key={scenarioIndex}>
             {iterateSteps(metaScenario.scenario).map((step, stepIndex) => (
               <StepContainer key={stepIndex}>

@@ -1,25 +1,31 @@
 import orderBy from 'lodash/orderBy'
 import { User, UserReference } from "@worldbrain/memex-common/lib/web-interface/types/users"
-import { SharedAnnotation, SharedPageInfo } from "@worldbrain/memex-common/lib/content-sharing/types"
+import { SharedPageInfo } from "@worldbrain/memex-common/lib/content-sharing/types"
 import { UILogic, UIEventHandler, executeUITask } from "../../../../../main-ui/classes/logic"
-import { UITaskState } from "../../../../../main-ui/types"
-import { PageDetailsEvent, PageDetailsDependencies } from "./types"
+import { PageDetailsEvent, PageDetailsDependencies, PageDetailsState, PageDetailsSignal } from "./types"
+import { getInitialAnnotationConversationStates } from '../../../../content-conversations/ui/utils'
+import { annotationConversationEventHandlers, annotationConversationInitialState, detectAnnotationConversationsThreads } from '../../../../content-conversations/ui/logic'
 
-export interface PageDetailsState {
-    annotationLoadState: UITaskState
-    annotations?: SharedAnnotation[] | null
-
-    pageInfoLoadState: UITaskState
-    pageInfo?: SharedPageInfo | null
-
-    creatorLoadState: UITaskState
-    creator?: User | null
-}
 type EventHandler<EventName extends keyof PageDetailsEvent> = UIEventHandler<PageDetailsState, PageDetailsEvent, EventName>
 
 export default class PageDetailsLogic extends UILogic<PageDetailsState, PageDetailsEvent> {
+    users: { [id: string]: Promise<User | null> } = {}
+
     constructor(private dependencies: PageDetailsDependencies) {
         super()
+
+        Object.assign(this, annotationConversationEventHandlers<PageDetailsState>(this as any, {
+            ...this.dependencies,
+            getAnnotation: (state, reference) => {
+                const annotationId = this.dependencies.storage.contentSharing.getSharedAnnotationLinkID(reference)
+                const annotation = state.annotations!.find(annotation => annotation.linkId === annotationId)
+                if (!annotation) {
+                    return null
+                }
+                return { annotation, pageCreatorReference: state.creatorReference }
+            },
+            loadUser: this._loadUser,
+        }))
     }
 
     getInitialState(): PageDetailsState {
@@ -27,22 +33,25 @@ export default class PageDetailsLogic extends UILogic<PageDetailsState, PageDeta
             creatorLoadState: 'pristine',
             annotationLoadState: 'pristine',
             pageInfoLoadState: 'pristine',
+            ...annotationConversationInitialState(),
         }
     }
 
     init: EventHandler<'init'> = async () => {
-        const { contentSharing, userManagement } = this.dependencies
-        const pageInfoReference = contentSharing.getSharedPageInfoReferenceFromLinkID(this.dependencies.pageID)
+        const { storage, userManagement } = this.dependencies
+        const pageInfoReference = storage.contentSharing.getSharedPageInfoReferenceFromLinkID(this.dependencies.pageID)
         let creatorReference: UserReference | null
         let pageInfo: SharedPageInfo | null
         await executeUITask<PageDetailsState>(this, 'pageInfoLoadState', async () => {
-            const result = await contentSharing.getPageInfo(pageInfoReference)
+            const result = await storage.contentSharing.getPageInfo(pageInfoReference)
             creatorReference = result?.creatorReference ?? null
             pageInfo = result?.pageInfo ?? null
 
             return {
                 mutation: {
-                    pageInfo: { $set: pageInfo }
+                    pageInfo: { $set: pageInfo },
+                    pageInfoReference: { $set: result.reference },
+                    creatorReference: { $set: creatorReference },
                 }
             }
         })
@@ -52,16 +61,32 @@ export default class PageDetailsLogic extends UILogic<PageDetailsState, PageDeta
                     return
                 }
 
+                const annotations = (await storage.contentSharing.getAnnotationsByCreatorAndPageUrl({
+                    creatorReference,
+                    normalizedPageUrl: pageInfo.normalizedUrl,
+                })).map(annotation => ({
+                    ...annotation,
+                    linkId: storage.contentSharing.getSharedAnnotationLinkID(annotation.reference)
+                }))
                 return {
                     mutation: {
                         annotations: {
-                            $set: orderBy(await contentSharing.getAnnotationsByCreatorAndPageUrl({
-                                creatorReference,
-                                normalizedPageUrl: pageInfo.normalizedUrl,
-                            }), ['createdWhen', 'desc'])
+                            $set: orderBy(annotations, ['createdWhen', 'desc'])
+                        },
+                        conversations: {
+                            $set: getInitialAnnotationConversationStates(
+                                annotations,
+                            )
                         }
                     }
                 }
+            }).then(() => {
+                if (!pageInfo) {
+                    return
+                }
+                detectAnnotationConversationsThreads(this as any, [pageInfo.normalizedUrl], {
+                    storage: this.dependencies.storage
+                }).catch(() => { })
             }),
             executeUITask<PageDetailsState>(this, 'creatorLoadState', async () => {
                 if (!creatorReference) {
@@ -77,5 +102,16 @@ export default class PageDetailsLogic extends UILogic<PageDetailsState, PageDeta
                 }
             })
         ])
+        this.emitSignal<PageDetailsSignal>({ type: 'loaded' })
+    }
+
+    _loadUser = async (userReference: UserReference): Promise<User | null> => {
+        if (this.users[userReference.id]) {
+            return this.users[userReference.id]
+        }
+
+        const user = this.dependencies.userManagement.getUser(userReference)
+        this.users[userReference.id] = user
+        return user
     }
 }

@@ -36,6 +36,7 @@ export class ScenarioService {
     private startStepCompleted = createResolvable()
     private walkthroughPausePromise = createResolvable()
     private stepCompletedPromise = createResolvable()
+    private stepPromises: { [name: string]: Promise<void> } = {}
 
     constructor(private options: {
         services: Pick<Services, 'logicRegistry' | 'auth'> & { fixtures: FixtureService },
@@ -129,11 +130,22 @@ export class ScenarioService {
         let stepPromise: Promise<void>
         if ('eventName' in step) {
             const eventPromise = logicRegistry.processEvent(step.target, step.eventName, step.eventArgs)
-            stepPromise = step.waitForSignal ? logicRegistry.waitForSignal(step.target, step.waitForSignal) : eventPromise
+            if (step.waitForSignal) {
+                stepPromise = logicRegistry.waitForSignal(step.target, step.waitForSignal)
+                this.stepPromises[step.name] = eventPromise
+            } else if (step.waitForStep) {
+                stepPromise = this.stepPromises[step.name]
+            } else {
+                stepPromise = eventPromise
+            }
         } else if ('callModifications' in step) {
-            stepPromise = Promise.resolve()
+            if (step.waitForStep) {
+                stepPromise = this.stepPromises[step.name]
+            } else {
+                stepPromise = Promise.resolve()
+            }
         } else if ('auth' in step) {
-            stepPromise = this.options.services.auth.loginWithProvider('facebook')
+            stepPromise = this.options.services.auth.loginWithProvider('facebook').then(() => { })
         } else {
             throw new Error(`Invalid scenario step: ${JSON.stringify(step)}`)
         }

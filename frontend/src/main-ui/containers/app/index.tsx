@@ -1,11 +1,14 @@
 import React from "react";
 import { UIElement, UIElementServices } from "../../classes";
 import { EventHandlers } from "../../classes/events";
+import AuthDialog from "../../../features/user-management/ui/containers/auth-dialog";
+import { StorageModules } from "../../../storage/types";
 // import ROUTES from "../../../routes";
 
 interface Props {
   children: React.ReactNode;
   services: UIElementServices<"auth" | "overlay" | "router">;
+  storage: Pick<StorageModules, "users">;
 }
 
 class App extends UIElement<Props> {
@@ -27,7 +30,15 @@ class App extends UIElement<Props> {
     // const currentRoute = this.props.services.router.matchCurrentUrl();
     // const routeInfo = currentRoute && ROUTES[currentRoute.route];
 
-    return <div>{this.props.children}</div>;
+    return (
+      <div>
+        {this.props.children}
+        <AuthDialog
+          services={this.props.services}
+          storage={this.props.storage}
+        />
+      </div>
+    );
   }
 }
 

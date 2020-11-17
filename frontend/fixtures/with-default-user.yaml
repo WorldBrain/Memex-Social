@@ -2,4 +2,4 @@ objects:
   users:
     - $store: default
       id: default-user
-      displayName: "Vincent den Boer"
+      displayName: "John Doe"

@@ -12,12 +12,17 @@ const spacing: { [Key in SpacingValue]: string } = {
 export const theme = {
     spacing,
     colors: {
+        background: 'white',
         warning: 'red',
         primary: '#3a2f45',
         subText: '#aeaeae',
         secondary: '#5cd9a6',
         grey: '#e0e0e0',
         black: '000',
+        overlay: {
+            background: 'rgba(0, 0, 0, 0.1)',
+            dialog: 'white',
+        }
     },
     fonts: {
         primary: '"Poppins", sans-serif',
@@ -32,4 +37,7 @@ export const theme = {
         listTitle: '16px',
         url: '14px',
     },
+    zIndices: {
+        overlay: 50,
+    }
 }

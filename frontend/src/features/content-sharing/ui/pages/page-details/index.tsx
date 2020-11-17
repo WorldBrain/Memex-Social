@@ -1,15 +1,19 @@
 import moment from "moment";
 import React from "react";
 import styled from "styled-components";
-import { UIElement, UIElementServices } from "../../../../../main-ui/classes";
-import Logic, { PageDetailsState } from "./logic";
-import { PageDetailsEvent, PageDetailsDependencies } from "./types";
+import { UIElement } from "../../../../../main-ui/classes";
+import Logic from "./logic";
+import {
+  PageDetailsEvent,
+  PageDetailsDependencies,
+  PageDetailsState,
+} from "./types";
 import DocumentTitle from "../../../../../main-ui/components/document-title";
 import DefaultPageLayout from "../../../../../common-ui/layouts/default-page-layout";
 import LoadingScreen from "../../../../../common-ui/components/loading-screen";
 import { Margin } from "styled-components-spacing";
 import PageInfoBox from "../../../../../common-ui/components/page-info-box";
-import AnnotationsInPage from "../../../../../common-ui/components/annotations-in-page";
+import AnnotationsInPage from "../../../../annotations/ui/components/annotations-in-page";
 import LoadingIndicator from "../../../../../common-ui/components/loading-indicator";
 import ErrorWithAction from "../../../../../common-ui/components/error-with-action";
 
@@ -22,16 +26,12 @@ const AnnotationsLoading = styled.div`
   justify-content: center;
 `;
 
-interface PageDetailsProps extends PageDetailsDependencies {
-  services: UIElementServices;
-}
-
 export default class PageDetailsPage extends UIElement<
-  PageDetailsProps,
+  PageDetailsDependencies,
   PageDetailsState,
   PageDetailsEvent
 > {
-  constructor(props: PageDetailsProps) {
+  constructor(props: PageDetailsDependencies) {
     super(props, { logic: new Logic(props) });
   }
 
@@ -63,6 +63,8 @@ export default class PageDetailsPage extends UIElement<
     ) {
       return (
         <DefaultPageLayout
+          services={this.props.services}
+          storage={this.props.storage}
           viewportBreakpoint={viewportWidth}
           headerTitle={"Loading page..."}
         >
@@ -77,6 +79,8 @@ export default class PageDetailsPage extends UIElement<
     if (state.pageInfoLoadState === "error") {
       return (
         <DefaultPageLayout
+          services={this.props.services}
+          storage={this.props.storage}
           viewportBreakpoint={viewportWidth}
           headerTitle={"Could not load page"}
         >
@@ -95,6 +99,8 @@ export default class PageDetailsPage extends UIElement<
     if (!pageInfo) {
       return (
         <DefaultPageLayout
+          services={this.props.services}
+          storage={this.props.storage}
           viewportBreakpoint={viewportWidth}
           headerTitle={"Annotation"}
         >
@@ -123,6 +129,8 @@ export default class PageDetailsPage extends UIElement<
           subTitle={`Shared page${creator ? ` by ${creator.displayName}` : ""}`}
         />
         <DefaultPageLayout
+          services={this.props.services}
+          storage={this.props.storage}
           viewportBreakpoint={viewportWidth}
           headerTitle={this.getHeaderTitle()}
           headerSubtitle={this.getHeaderSubtitle()}
@@ -131,7 +139,7 @@ export default class PageDetailsPage extends UIElement<
             <Margin bottom={"small"}>
               <PageInfoBox pageInfo={pageInfo} />
             </Margin>
-            <Margin left={"small"} bottom="large">
+            <Margin bottom="large">
               {(state.annotationLoadState === "pristine" ||
                 state.annotationLoadState === "running") && (
                 <Margin vertical="medium">
@@ -149,6 +157,23 @@ export default class PageDetailsPage extends UIElement<
                   <AnnotationsInPage
                     loadState={state.annotationLoadState}
                     annotations={annotations}
+                    annotationCreator={state.creator}
+                    annotationConversations={state.conversations}
+                    onToggleReplies={(event) =>
+                      this.processEvent("toggleAnnotationReplies", event)
+                    }
+                    onNewReplyInitiate={(event) =>
+                      this.processEvent("initiateNewReplyToAnnotation", event)
+                    }
+                    onNewReplyEdit={(event) =>
+                      this.processEvent("editNewReplyToAnnotation", event)
+                    }
+                    onNewReplyCancel={(event) =>
+                      this.processEvent("cancelNewReplyToAnnotation", event)
+                    }
+                    onNewReplyConfirm={(event) =>
+                      this.processEvent("confirmNewReplyToAnnotation", event)
+                    }
                   />
                 )}
               {state.annotationLoadState === "error" && (

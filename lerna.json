@@ -10,5 +10,10 @@
       "npmClientArgs": ["--no-package-lock"]
     }
   },
-  "packages": ["external/*", "external/@worldbrain/*", "frontend"]
+  "packages": [
+    "external/*",
+    "external/@worldbrain/*",
+    "frontend",
+    "firebase/functions"
+  ]
 }
