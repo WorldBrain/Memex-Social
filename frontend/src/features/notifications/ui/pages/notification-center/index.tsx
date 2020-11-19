@@ -1,4 +1,5 @@
 import React from "react";
+import styled from "styled-components";
 import { UIElement } from "../../../../../main-ui/classes";
 import Logic from "./logic";
 import {
@@ -17,6 +18,25 @@ import AnnotationsInPage from "../../../../annotations/ui/components/annotations
 import { SharedAnnotationInPage } from "../../../../annotations/ui/components/types";
 import pick from "lodash/pick";
 import ItemBox from "../../../../../common-ui/components/item-box";
+
+const ReplyBoxContainer = styled.div`
+  position: relative;
+`;
+
+const UndreadDot = styled.div`
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  cursor: pointer;
+
+  width: 13px;
+  height: 12px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+  box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+`;
 
 export default class NotificationCenterPage extends UIElement<
   NotificationCenterDependencies,
@@ -116,7 +136,10 @@ export default class NotificationCenterPage extends UIElement<
               return state.users[reply.creatorReference.id];
             }}
             renderReplyBox={(props) => (
-              <ItemBox {...props} variant="new-item" />
+              <ReplyBoxContainer>
+                <UndreadDot title="Mark as read" />
+                <ItemBox {...props} variant="new-item" />
+              </ReplyBoxContainer>
             )}
             hideNewReplyIfNotEditing={true}
             onNewReplyInitiate={(event) =>
