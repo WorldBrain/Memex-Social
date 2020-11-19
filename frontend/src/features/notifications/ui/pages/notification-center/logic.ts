@@ -3,7 +3,7 @@ import { NotificationCenterEvent, NotificationCenterDependencies, NotificationCe
 import { AnnotationReplyActivity, NotificationStream } from "@worldbrain/memex-common/lib/activity-streams/types"
 import orderBy from "lodash/orderBy"
 import { getInitialAnnotationConversationStates } from "../../../../content-conversations/ui/utils"
-import { annotationConversationInitialState } from "../../../../content-conversations/ui/logic"
+import { annotationConversationInitialState, annotationConversationEventHandlers } from "../../../../content-conversations/ui/logic"
 import UserProfileCache from "../../../../user-management/utils/user-profile-cache"
 import { UserReference } from "@worldbrain/memex-common/lib/web-interface/types/users"
 import flatten from "lodash/flatten"
@@ -17,6 +17,18 @@ export default class NotificationCenterLogic extends UILogic<NotificationCenterS
         super()
 
         this._users = new UserProfileCache(dependencies)
+
+        Object.assign(this, annotationConversationEventHandlers<NotificationCenterState>(this as any, {
+            ...this.dependencies,
+            getAnnotation: (state, reference) => {
+                const annotation = state.annotations[reference.id]
+                if (!annotation) {
+                    return null
+                }
+                return { annotation, pageCreatorReference: annotation.creatorReference }
+            },
+            loadUser: reference => this._users.loadUser(reference),
+        }))
     }
 
     getInitialState(): NotificationCenterState {
@@ -107,6 +119,7 @@ export function organizeNotifications(notifications: NotificationStream): {
             data.annotations[activity.annotationReference.id] = {
                 linkId: activity.annotationReference.id as string,
                 creatorReference: activity.annotationCreator,
+                normalizedPageUrl: activity.normalizedPageUrl,
                 ...activity.annotation
             }
 

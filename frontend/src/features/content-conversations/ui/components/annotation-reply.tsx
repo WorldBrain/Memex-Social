@@ -25,22 +25,29 @@ const ReplyContent = styled.div`
 export default function AnnotationReply(props: {
   user?: Pick<User, "displayName"> | null;
   reply?: ConversationReply;
+  renderItemBox?: (props: { children: React.ReactNode }) => React.ReactNode;
 }) {
+  const renderItemBox =
+    props.renderItemBox ?? ((props) => <ItemBox {...props} />);
   return (
-    <ItemBox>
-      <StyledAnnotationBox>
-        <Margin bottom="small">
-          <ReplyContent>
-            <Markdown>{props.reply?.content}</Markdown>
-          </ReplyContent>
-        </Margin>
-        <ItemBoxBottom
-          creationInfo={{
-            createdWhen: props.reply?.createdWhen,
-            creator: props.user,
-          }}
-        />
-      </StyledAnnotationBox>
-    </ItemBox>
+    <>
+      {renderItemBox({
+        children: (
+          <StyledAnnotationBox>
+            <Margin bottom="small">
+              <ReplyContent>
+                <Markdown>{props.reply?.content}</Markdown>
+              </ReplyContent>
+            </Margin>
+            <ItemBoxBottom
+              creationInfo={{
+                createdWhen: props.reply?.createdWhen,
+                creator: props.user,
+              }}
+            />
+          </StyledAnnotationBox>
+        ),
+      })}
+    </>
   );
 }

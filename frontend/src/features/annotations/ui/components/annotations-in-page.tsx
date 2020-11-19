@@ -54,6 +54,7 @@ export default function AnnotationsInPage(
     loadState: UITaskState;
     annotations?: Array<SharedAnnotationInPage> | null;
     annotationConversations?: AnnotationConversationStates | null;
+    hideNewReplyIfNotEditing?: boolean;
     getAnnotationCreator?: (
       annotationReference: SharedAnnotationReference
     ) => Pick<User, "displayName"> | null | undefined;
@@ -61,6 +62,7 @@ export default function AnnotationsInPage(
       annotationReference: SharedAnnotationReference,
       replyReference: ConversationReplyReference
     ) => Pick<User, "displayName"> | null | undefined;
+    renderReplyBox?: (props: { children: React.ReactNode }) => React.ReactNode;
     onToggleReplies?(event: {
       annotationReference: SharedAnnotationReference;
     }): void;
@@ -107,6 +109,8 @@ export default function AnnotationsInPage(
           annotation={annotation}
           annotationCreator={props.getAnnotationCreator?.(annotation.reference)}
           conversation={conversation}
+          renderReplyBox={props.renderReplyBox}
+          hideNewReplyIfNotEditing={props.hideNewReplyIfNotEditing}
         />
       </Margin>
     );
@@ -129,6 +133,7 @@ export function AnnotationWithReplies(
     annotation: SharedAnnotationInPage;
     annotationCreator?: Pick<User, "displayName"> | null;
     conversation?: AnnotationConversationState;
+    hideNewReplyIfNotEditing?: boolean;
     getReplyCreator?: (
       annotationReference: SharedAnnotationReference,
       replyReference: ConversationReplyReference
@@ -136,6 +141,7 @@ export function AnnotationWithReplies(
     onToggleReplies?(event: {
       annotationReference: SharedAnnotationReference;
     }): void;
+    renderReplyBox?: (props: { children: React.ReactNode }) => React.ReactNode;
   } & NewAnnotationReplyEventHandlers
 ) {
   const { annotation, conversation } = props;
@@ -170,17 +176,20 @@ export function AnnotationWithReplies(
                         replyData.reference
                       ) ?? replyData.user
                     }
+                    renderItemBox={props.renderReplyBox}
                   />
                 </AnnotationReplyContainer>
               </Margin>
             ))}
-          {conversation.expanded && (
-            <Margin left="small">
-              <AnnotationReplyContainer>
-                <NewAnnotationReply conversation={conversation} {...props} />
-              </AnnotationReplyContainer>
-            </Margin>
-          )}
+          {conversation.expanded &&
+            (conversation.newReply.editing ||
+              !props.hideNewReplyIfNotEditing) && (
+              <Margin left="small">
+                <AnnotationReplyContainer>
+                  <NewAnnotationReply conversation={conversation} {...props} />
+                </AnnotationReplyContainer>
+              </Margin>
+            )}
         </>
       )}
     </>

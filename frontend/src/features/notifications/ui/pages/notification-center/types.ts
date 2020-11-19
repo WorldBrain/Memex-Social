@@ -45,7 +45,7 @@ export interface AnnotationNotificationItem {
 
 export interface NotificationData {
     pageInfo: { [normalizedPageUrl: string]: Pick<SharedPageInfo, 'fullTitle' | 'originalUrl'> }
-    annotations: { [annotationId: string]: Pick<SharedAnnotation, 'body' | 'comment' | 'updatedWhen'> & { linkId: string, creatorReference: UserReference } }
+    annotations: { [annotationId: string]: Pick<SharedAnnotation, 'body' | 'comment' | 'normalizedPageUrl' | 'updatedWhen'> & { linkId: string, creatorReference: UserReference } }
     replies: {
         [annotationId: string]: {
             [replyId: string]: {

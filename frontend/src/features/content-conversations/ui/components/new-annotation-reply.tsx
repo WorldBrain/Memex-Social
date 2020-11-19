@@ -123,7 +123,7 @@ export default function NewAnnotationReply(
           }
         }}
       />
-      {newReply.editing && newReply.content.length > 0 && (
+      {newReply.editing && (
         <NewReplyActions>
           <NewReplyCancel
             onClick={() =>
@@ -134,15 +134,17 @@ export default function NewAnnotationReply(
           >
             Cancel
           </NewReplyCancel>
-          <NewReplyConfirm
-            onClick={() =>
-              props.onNewReplyConfirm?.({
-                annotationReference: annotation.reference,
-              })
-            }
-          >
-            Save
-          </NewReplyConfirm>
+          {newReply.content.length > 0 && (
+            <NewReplyConfirm
+              onClick={() =>
+                props.onNewReplyConfirm?.({
+                  annotationReference: annotation.reference,
+                })
+              }
+            >
+              Save
+            </NewReplyConfirm>
+          )}
         </NewReplyActions>
       )}
     </>

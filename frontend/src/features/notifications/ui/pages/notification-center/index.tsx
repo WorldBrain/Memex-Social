@@ -16,6 +16,7 @@ import PageInfoBox from "../../../../../common-ui/components/page-info-box";
 import AnnotationsInPage from "../../../../annotations/ui/components/annotations-in-page";
 import { SharedAnnotationInPage } from "../../../../annotations/ui/components/types";
 import pick from "lodash/pick";
+import ItemBox from "../../../../../common-ui/components/item-box";
 
 export default class NotificationCenterPage extends UIElement<
   NotificationCenterDependencies,
@@ -114,6 +115,25 @@ export default class NotificationCenterPage extends UIElement<
                 state.replies[annotationReference.id][replyReference.id];
               return state.users[reply.creatorReference.id];
             }}
+            renderReplyBox={(props) => (
+              <ItemBox {...props} variant="new-item" />
+            )}
+            hideNewReplyIfNotEditing={true}
+            onNewReplyInitiate={(event) =>
+              this.processEvent("initiateNewReplyToAnnotation", event)
+            }
+            onNewReplyCancel={(event) =>
+              this.processEvent("cancelNewReplyToAnnotation", event)
+            }
+            onNewReplyConfirm={(event) =>
+              this.processEvent("confirmNewReplyToAnnotation", event)
+            }
+            onNewReplyEdit={(event) =>
+              this.processEvent("editNewReplyToAnnotation", event)
+            }
+            onToggleReplies={(event) =>
+              this.processEvent("toggleAnnotationReplies", event)
+            }
           />
         </Margin>
       </Margin>
@@ -121,7 +141,6 @@ export default class NotificationCenterPage extends UIElement<
   }
 
   render() {
-    console.log(this.state);
     const viewportWidth = this.getBreakPoints();
 
     return (
