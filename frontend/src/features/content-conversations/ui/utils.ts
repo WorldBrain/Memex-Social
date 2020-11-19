@@ -1,5 +1,4 @@
 import { AnnotationConversationState, AnnotationConversationStates } from "./types";
-import { SharedAnnotation } from "@worldbrain/memex-common/lib/content-sharing/types";
 import fromPairs from "lodash/fromPairs";
 
 export function getInitialAnnotationConversationState(): AnnotationConversationState {
@@ -16,7 +15,7 @@ export function getInitialAnnotationConversationState(): AnnotationConversationS
 }
 
 export function getInitialAnnotationConversationStates(
-    annotations: Array<SharedAnnotation & { linkId: string }>,
+    annotations: Array<{ linkId: string }>,
 ): AnnotationConversationStates {
     return fromPairs(annotations.map(annotation => [
         annotation.linkId,

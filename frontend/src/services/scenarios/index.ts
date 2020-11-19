@@ -4,6 +4,7 @@ import { Services } from "../../services/types";
 import { Scenario, ScenarioStep, ScenarioModuleMap, ScenarioReplayQueryParams } from "./types";
 import FixtureService from '../fixtures';
 import { GetCallModifications } from '../../utils/call-modifier';
+import { Storage } from '../../storage/types';
 const scenariosContext = typeof __webpack_require__ !== 'undefined'
     ? require.context('../../scenarios', true, /\.ts$/)
     // eslint-disable-next-line
@@ -41,6 +42,7 @@ export class ScenarioService {
     constructor(private options: {
         services: Pick<Services, 'logicRegistry' | 'auth'> & { fixtures: FixtureService },
         modifyCalls: (getModifications: GetCallModifications) => void
+        executeWithContext: (f: (context: { services: Services, storage: Storage }) => Promise<void>) => Promise<void>
         scenarioModules?: ScenarioModuleMap
     }) {
         this.scenarioModules = options.scenarioModules || getDefaultScenarioModules()
@@ -95,6 +97,9 @@ export class ScenarioService {
     async _executeScenario(scenario: Scenario, options: { untilStep: UntilScenarioStep, walkthrough: boolean }) {
         const steps = filterScenarioSteps(scenario.steps, { untilStep: options.untilStep })
 
+        if (scenario.setup?.execute) {
+            await this.options.executeWithContext(scenario.setup.execute)
+        }
         if (scenario.setup?.callModifications) {
             this.options.modifyCalls(scenario.setup.callModifications)
         }

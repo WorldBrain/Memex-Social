@@ -11,6 +11,7 @@ import { annotationConversationInitialState, annotationConversationEventHandlers
 import { UserReference, User } from '@worldbrain/memex-common/lib/web-interface/types/users'
 import { getInitialAnnotationConversationStates } from '../../../../content-conversations/ui/utils'
 import mapValues from 'lodash/mapValues'
+import UserProfileCache from '../../../../user-management/utils/user-profile-cache'
 const truncate = require('truncate')
 
 const LIST_DESCRIPTION_CHAR_LIMIT = 200
@@ -21,10 +22,12 @@ export default class CollectionDetailsLogic extends UILogic<CollectionDetailsSta
     pageAnnotationPromises: { [normalizedPageUrl: string]: Promise<void> } = {}
     conversationThreadPromises: { [normalizePageUrl: string]: Promise<void> } = {}
     latestPageSeenIndex = 0
-    users: { [id: string]: Promise<User | null> } = {}
+    _users: UserProfileCache
 
     constructor(private dependencies: CollectionDetailsDependencies) {
         super()
+
+        this._users = new UserProfileCache(dependencies)
 
         Object.assign(this, annotationConversationEventHandlers<CollectionDetailsState>(this as any, {
             ...this.dependencies,
@@ -36,7 +39,7 @@ export default class CollectionDetailsLogic extends UILogic<CollectionDetailsSta
                 }
                 return { annotation, pageCreatorReference: annotation.creator, }
             },
-            loadUser: this._loadUser,
+            loadUser: reference => this._users.loadUser(reference),
         }))
     }
 
@@ -255,15 +258,5 @@ export default class CollectionDetailsLogic extends UILogic<CollectionDetailsSta
             this.emitSignal<CollectionDetailsSignal>({ type: 'loaded-annotations', success: false })
             throw e
         }
-    }
-
-    _loadUser = async (userReference: UserReference): Promise<User | null> => {
-        if (this.users[userReference.id]) {
-            return this.users[userReference.id]
-        }
-
-        const user = this.dependencies.storage.users.getUser(userReference)
-        this.users[userReference.id] = user
-        return user
     }
 }

@@ -4,10 +4,7 @@ import { UITaskState } from "../../../../main-ui/types";
 import LoadingIndicator from "../../../../common-ui/components/loading-indicator";
 import ErrorBox from "../../../../common-ui/components/error-box";
 import { Margin } from "styled-components-spacing";
-import {
-  SharedAnnotation,
-  SharedAnnotationReference,
-} from "@worldbrain/memex-common/lib/content-sharing/types";
+import { SharedAnnotationReference } from "@worldbrain/memex-common/lib/content-sharing/types";
 import AnnotationBox from "./annotation-box";
 import {
   AnnotationConversationStates,
@@ -15,6 +12,11 @@ import {
 } from "../../../content-conversations/ui/types";
 import { User } from "@worldbrain/memex-common/lib/web-interface/types/users";
 import AnnotationReply from "../../../content-conversations/ui/components/annotation-reply";
+import NewAnnotationReply, {
+  NewAnnotationReplyEventHandlers,
+} from "../../../content-conversations/ui/components/new-annotation-reply";
+import { SharedAnnotationInPage } from "./types";
+import { ConversationReplyReference } from "@worldbrain/memex-common/lib/content-conversations/types";
 
 const AnnotationContainer = styled.div`
   display: flex;
@@ -47,76 +49,23 @@ const CenteredContent = styled.div`
   width: 100%;
 `;
 
-const NewReplyTextArea = styled.textarea<{ editing: boolean }>`
-  width: 100%;
-  height: ${(props) => (props.editing ? "150px" : "40px")};
-  border: 0;
-  background: ${(props) => props.theme.colors.grey};
-  border-radius: 3px;
-  padding: 10px;
-  font-family: ${(props) => props.theme.fonts.primary};
-  font-size: 14px;
-  outline: none;
-`;
-
-const NewReplyActions = styled.div`
-  display: flex;
-  font-family: ${(props) => props.theme.fonts.primary};
-`;
-
-const NewReplyConfirm = styled.div`
-  cursor: pointer;
-  border-radius: 3px;
-  padding: 3px 6px;
-
-  &:hover {
-    background-color: #e0e0e0;
-  }
-`;
-
-const NewReplyCancel = styled.div`
-  color: ${(props) => props.theme.colors.warning};
-  cursor: pointer;
-  border-radius: 3px;
-  padding: 3px 6px;
-
-  &:hover {
-    background-color: #e0e0e0;
-  }
-`;
-
-const NewReplyRunning = styled.div`
-  display: flex;
-  justify-content: center;
-`;
-
-type SharedAnnotationInPage = SharedAnnotation & {
-  reference: SharedAnnotationReference;
-  linkId: string;
-};
-
-export default function AnnotationsInPage(props: {
-  loadState: UITaskState;
-  annotations?: Array<SharedAnnotationInPage> | null;
-  annotationConversations?: AnnotationConversationStates | null;
-  annotationCreator?: Pick<User, "displayName"> | null;
-  onToggleReplies?(event: {
-    annotationReference: SharedAnnotationReference;
-  }): void;
-  onNewReplyInitiate?(event: {
-    annotationReference: SharedAnnotationReference;
-  }): void;
-  onNewReplyEdit?(event: {
-    annotationReference: SharedAnnotationReference;
-    content: string;
-  }): void;
-  onNewReplyConfirm?(event: {
-    annotationReference: SharedAnnotationReference;
-  }): void;
-  onNewReplyCancel?(event: {
-    annotationReference: SharedAnnotationReference;
-  }): void;
-}) {
+export default function AnnotationsInPage(
+  props: {
+    loadState: UITaskState;
+    annotations?: Array<SharedAnnotationInPage> | null;
+    annotationConversations?: AnnotationConversationStates | null;
+    getAnnotationCreator?: (
+      annotationReference: SharedAnnotationReference
+    ) => Pick<User, "displayName"> | null | undefined;
+    getReplyCreator?: (
+      annotationReference: SharedAnnotationReference,
+      replyReference: ConversationReplyReference
+    ) => Pick<User, "displayName"> | null | undefined;
+    onToggleReplies?(event: {
+      annotationReference: SharedAnnotationReference;
+    }): void;
+  } & NewAnnotationReplyEventHandlers
+) {
   if (props.loadState === "pristine" || props.loadState === "running") {
     return (
       <AnnotationContainer>
@@ -153,137 +102,13 @@ export default function AnnotationsInPage(props: {
     const conversation = props.annotationConversations?.[annotation.linkId];
     return (
       <Margin key={annotation.linkId} bottom={"medium"}>
-        <AnnotationBox
+        <AnnotationWithReplies
+          {...props}
           annotation={annotation}
-          creator={props.annotationCreator}
-          hasReplies={!!conversation?.thread}
-          onInitiateReply={() =>
-            props.onNewReplyInitiate?.({
-              annotationReference: annotation.reference,
-            })
-          }
-          onToggleReplies={() =>
-            props.onToggleReplies?.({
-              annotationReference: annotation.reference,
-            })
-          }
+          annotationCreator={props.getAnnotationCreator?.(annotation.reference)}
+          conversation={conversation}
         />
-        {conversation && (
-          <>
-            {conversation.expanded &&
-              conversation.replies?.map?.((replyData) => (
-                <Margin key={replyData.reference.id} left="small">
-                  <AnnotationReplyContainer>
-                    <AnnotationReply {...replyData} />
-                  </AnnotationReplyContainer>
-                </Margin>
-              ))}
-            {conversation.expanded && (
-              <Margin left="small">
-                <AnnotationReplyContainer>
-                  {renderNewReply(annotation, conversation)}
-                </AnnotationReplyContainer>
-              </Margin>
-            )}
-          </>
-        )}
       </Margin>
-    );
-  };
-
-  const renderNewReply = (
-    annotation: SharedAnnotationInPage,
-    conversation: AnnotationConversationState
-  ) => {
-    if (conversation.newReply.saveState === "running") {
-      return (
-        <NewReplyRunning>
-          <Margin vertical="medium">
-            <LoadingIndicator />
-          </Margin>
-        </NewReplyRunning>
-      );
-    }
-
-    return (
-      <>
-        {conversation.newReply.saveState === "error" && (
-          <Margin bottom="small">
-            <ErrorBox>
-              Something went wrong saving your reply. Please try again later.
-            </ErrorBox>
-          </Margin>
-        )}
-        <NewReplyTextArea
-          autoFocus={conversation.newReply.editing}
-          value={
-            conversation.newReply.editing ? conversation.newReply.content : ""
-          }
-          editing={conversation.newReply.editing}
-          placeholder={"Add a new reply"}
-          onClick={() => {
-            props.onNewReplyInitiate?.({
-              annotationReference: annotation.reference,
-            });
-          }}
-          onChange={(e) =>
-            props.onNewReplyEdit?.({
-              annotationReference: annotation.reference,
-              content: e.target.value,
-            })
-          }
-          onKeyDown={(e) => {
-            if (
-              e.keyCode === 13 &&
-              e.ctrlKey &&
-              conversation.newReply.content.length > 0
-            ) {
-              return props.onNewReplyConfirm?.({
-                annotationReference: annotation.reference,
-              });
-            }
-
-            if (e.key === "Escape") {
-              return props.onNewReplyCancel?.({
-                annotationReference: annotation.reference,
-              });
-            }
-
-            if (
-              (e.ctrlKey || e.metaKey) &&
-              e.key === "Enter" &&
-              conversation.newReply.content.length > 0
-            ) {
-              return props.onNewReplyConfirm?.({
-                annotationReference: annotation.reference,
-              });
-            }
-          }}
-        />
-        {conversation.newReply.editing &&
-          conversation.newReply.content.length > 0 && (
-            <NewReplyActions>
-              <NewReplyCancel
-                onClick={() =>
-                  props.onNewReplyCancel?.({
-                    annotationReference: annotation.reference,
-                  })
-                }
-              >
-                Cancel
-              </NewReplyCancel>
-              <NewReplyConfirm
-                onClick={() =>
-                  props.onNewReplyConfirm?.({
-                    annotationReference: annotation.reference,
-                  })
-                }
-              >
-                Save
-              </NewReplyConfirm>
-            </NewReplyActions>
-          )}
-      </>
     );
   };
 
@@ -296,5 +121,68 @@ export default function AnnotationsInPage(props: {
         )}
       </AnnotationList>
     </AnnotationContainer>
+  );
+}
+
+export function AnnotationWithReplies(
+  props: {
+    annotation: SharedAnnotationInPage;
+    annotationCreator?: Pick<User, "displayName"> | null;
+    conversation?: AnnotationConversationState;
+    getReplyCreator?: (
+      annotationReference: SharedAnnotationReference,
+      replyReference: ConversationReplyReference
+    ) => Pick<User, "displayName"> | null | undefined;
+    onToggleReplies?(event: {
+      annotationReference: SharedAnnotationReference;
+    }): void;
+  } & NewAnnotationReplyEventHandlers
+) {
+  const { annotation, conversation } = props;
+  return (
+    <>
+      <AnnotationBox
+        annotation={annotation}
+        creator={props.annotationCreator}
+        hasReplies={!!conversation?.thread}
+        onInitiateReply={() =>
+          props.onNewReplyInitiate?.({
+            annotationReference: annotation.reference,
+          })
+        }
+        onToggleReplies={() =>
+          props.onToggleReplies?.({
+            annotationReference: annotation.reference,
+          })
+        }
+      />
+      {conversation && (
+        <>
+          {conversation.expanded &&
+            conversation.replies?.map?.((replyData) => (
+              <Margin key={replyData.reference.id} left="small">
+                <AnnotationReplyContainer>
+                  <AnnotationReply
+                    {...replyData}
+                    user={
+                      props.getReplyCreator?.(
+                        annotation.reference,
+                        replyData.reference
+                      ) ?? replyData.user
+                    }
+                  />
+                </AnnotationReplyContainer>
+              </Margin>
+            ))}
+          {conversation.expanded && (
+            <Margin left="small">
+              <AnnotationReplyContainer>
+                <NewAnnotationReply conversation={conversation} {...props} />
+              </AnnotationReplyContainer>
+            </Margin>
+          )}
+        </>
+      )}
+    </>
   );
 }

@@ -19,6 +19,7 @@ export interface Scenario<Targets extends { [Target: string]: { signals?: UISign
     setup?: {
         callModifications?(context: { services: Services, storage: Storage }): CallModification[]
         waitForSignal?: ScenarioSignal<Targets, keyof Targets>
+        execute?(context: { services: Services, storage: Storage }): Promise<void>
     }
     steps: ScenarioStep[]
     fixture?: string | GenerateTestDataOptions

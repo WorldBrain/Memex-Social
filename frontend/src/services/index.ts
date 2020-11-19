@@ -44,6 +44,16 @@ export function createServices(options: {
 
     const callModifier = new CallModifier()
     const fixtures = new FixtureService({ storage: options.storage, fixtureFetcher: options.fixtureFetcher ?? defaultFixtureFetcher });
+    const activityStreams = options.backend === 'memory' ? new MemoryStreamsService({
+        storage: options.storage.serverModules,
+        getCurrentUserId: async () => services.auth.getCurrentUserReference()?.id
+    }) : new FirebaseFunctionsActivityStreamsService({
+        executeCall: async (name, params) => {
+            const functions = (options.firebase ?? firebase)!.functions()
+            const result = await functions.httpsCallable(name)(params)
+            return result.data
+        }
+    })
     const services: Services = {
         overlay: new OverlayService(),
         logicRegistry,
@@ -55,23 +65,19 @@ export function createServices(options: {
             services: { fixtures: fixtures, logicRegistry, auth },
             modifyCalls: getModifications => {
                 callModifier.modify({ storage: options.storage, services }, getModifications)
+            },
+            executeWithContext: async (f) => {
+                return f({ storage: options.storage, services })
             }
         }),
         documentTitle: new DocumentTitleService({
             set: title => { document.title = title },
             get: () => document.title,
         }),
-        activityStreams: options.backend === 'memory' ? new MemoryStreamsService({
-            getCurrentUserId: async () => services.auth.getCurrentUserReference()?.id
-        }) : new FirebaseFunctionsActivityStreamsService({
-            executeCall: async (name, params) => {
-                const functions = (options.firebase ?? firebase)!.functions()
-                const result = await functions.httpsCallable(name)(params)
-                return result.data
-            }
-        }),
+        activityStreams,
         contentConversations: new ContentConversationsService({
             storage: options.storage.serverModules.contentConversations,
+            services: { activityStreams },
             auth,
         })
     }
