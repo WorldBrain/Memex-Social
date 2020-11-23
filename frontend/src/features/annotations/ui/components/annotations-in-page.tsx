@@ -216,9 +216,6 @@ export default function AnnotationsInPage(props: {
         )}
         <NewReplyTextArea
           autoFocus={conversation.newReply.editing}
-          value={
-            conversation.newReply.editing ? conversation.newReply.content : ""
-          }
           editing={conversation.newReply.editing}
           placeholder={"Add a new reply"}
           onClick={() => {

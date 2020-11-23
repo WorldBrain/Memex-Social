@@ -16,7 +16,7 @@ export const Closable: React.FC<{ onClose: any }> = ({ onClose, children }) => {
 
   const clickListener = useCallback(
     (e: MouseEvent) => {
-      if (!(ref.current! as any).contains(e.target)) {
+      if (!(ref?.current as any)?.contains?.(e.target)) {
         onClose?.();
       }
     },

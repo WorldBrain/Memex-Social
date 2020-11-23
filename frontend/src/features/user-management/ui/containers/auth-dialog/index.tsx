@@ -130,46 +130,46 @@ export default class AuthDialog extends UIElement<
           </Header>
         </Margin>
         <Margin top="large">
-        <AuthenticationMethods>
-          <EmailPasswordLogin>
-            <TextInput
-              type="email"
-              placeholder="E-mail"
-              value={this.state.email}
-              onChange={(e) =>
-                this.processEvent("editEmail", { value: e.target.value })
-              }
-              onConfirm={() => {
-                this.processEvent("emailPasswordConfirm", null);
-              }}
-            />
-            <Margin vertical={"medium"}>
+          <AuthenticationMethods>
+            <EmailPasswordLogin>
               <TextInput
-                type="password"
-                placeholder="Password"
-                value={this.state.password}
+                type="email"
+                placeholder="E-mail"
                 onChange={(e) =>
-                  this.processEvent("editPassword", {
-                    value: e.target.value,
-                  })
+                  this.processEvent("editEmail", { value: e.target.value })
                 }
                 onConfirm={() => {
                   this.processEvent("emailPasswordConfirm", null);
                 }}
               />
-            </Margin>
-            <Margin top={"medium"}>
-              <Button
-                type="primary-action"
-                onClick={() => this.processEvent("emailPasswordConfirm", null)}
-              >
-                {this.state.mode === "login" && "Log in"}
-                {this.state.mode === "register" && "Register"}
-              </Button>
-            </Margin>
-            {this.renderAuthError()}
-          </EmailPasswordLogin>
-          {/* <SocialLogins>
+              <Margin vertical={"medium"}>
+                <TextInput
+                  type="password"
+                  placeholder="Password"
+                  onChange={(e) =>
+                    this.processEvent("editPassword", {
+                      value: e.target.value,
+                    })
+                  }
+                  onConfirm={() => {
+                    this.processEvent("emailPasswordConfirm", null);
+                  }}
+                />
+              </Margin>
+              <Margin top={"medium"}>
+                <Button
+                  type="primary-action"
+                  onClick={() =>
+                    this.processEvent("emailPasswordConfirm", null)
+                  }
+                >
+                  {this.state.mode === "login" && "Log in"}
+                  {this.state.mode === "register" && "Register"}
+                </Button>
+              </Margin>
+              {this.renderAuthError()}
+            </EmailPasswordLogin>
+            {/* <SocialLogins>
                 <SocialLogin
                   icon={"path to icon"}
                   provider="facebook"
@@ -191,7 +191,7 @@ export default class AuthDialog extends UIElement<
                   onClick={onSocialLogin}
                 />
               </SocialLogins> */}
-        </AuthenticationMethods>
+          </AuthenticationMethods>
         </Margin>
         <Footer>
           {this.state.mode === "login" && (
