@@ -8,7 +8,6 @@ import { UIMutation } from "ui-logic-core"
 import flatten from 'lodash/flatten'
 import { PAGE_SIZE } from './constants'
 import { annotationConversationInitialState, annotationConversationEventHandlers, detectAnnotationConversationsThreads } from '../../../../content-conversations/ui/logic'
-import { UserReference, User } from '@worldbrain/memex-common/lib/web-interface/types/users'
 import { getInitialAnnotationConversationStates } from '../../../../content-conversations/ui/utils'
 import mapValues from 'lodash/mapValues'
 import UserProfileCache from '../../../../user-management/utils/user-profile-cache'

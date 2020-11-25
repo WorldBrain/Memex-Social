@@ -3583,11 +3583,6 @@
   resolved "https://registry.yarnpkg.com/@xtuc/long/-/long-4.2.2.tgz#d291c6a4e97989b5c61d9acf396ae4fe133a718d"
   integrity sha512-NuHqBY1PB/D8xU6s/thBgOAiAP7HOYDQ32+BFZILJ8ivkUkAHQnWfn6WhL79Owj1qmUnoN/YPhktdIoucipkAQ==
 
-Base64@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/Base64/-/Base64-1.1.0.tgz#810ef21afa8357df92ad7b5389188c446b9cb956"
-  integrity sha512-qeacf8dvGpf+XAT27ESHMh7z84uRzj/ua2pQdJg483m3bEXv/kVFtDnMgvf70BQGqzbZhR9t6BmASzKvqfJf3Q==
-
 JSONStream@^1.2.1:
   version "1.3.5"
   resolved "https://registry.yarnpkg.com/JSONStream/-/JSONStream-1.3.5.tgz#3208c1f08d3a4d99261ab64f92302bc15e111ca0"
@@ -8721,16 +8716,15 @@ getpass@^0.1.1:
   dependencies:
     assert-plus "^1.0.0"
 
-getstream@^6.1.4:
-  version "6.2.1"
-  resolved "https://registry.yarnpkg.com/getstream/-/getstream-6.2.1.tgz#943cd871f5b29b840a2538e33ff916f596523bcc"
-  integrity sha512-sB+ruk0Pkip1U4zN9GX5H/5obB0TEkQNQAJ9rS4s/fR6h2vvOrGk/89LkJQxVcj4laWQvc0wcA5fUFey/P0wYw==
+getstream@^7.0.0:
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/getstream/-/getstream-7.0.0.tgz#beda6a179428a69688856ada591fc94f6ab1e151"
+  integrity sha512-zUinbF/EUfnFXraOa1lD+Jrezg7oajanXQnyDZ3VqbQDJ0TPIZQzMTHNdCr4VSPo2ijKyX720KQqU6aQ4zwZzA==
   dependencies:
     "@babel/runtime" "^7.11.2"
     "@types/jsonwebtoken" "^8.5.0"
     "@types/jwt-decode" "^2.2.1"
     "@types/qs" "^6.9.4"
-    Base64 "^1.1.0"
     axios "^0.20.0"
     faye "^1.4.0"
     form-data "^3.0.0"

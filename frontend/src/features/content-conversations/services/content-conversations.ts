@@ -23,13 +23,22 @@ export default class ContentConversationsService {
             ...params
         })
         await this.options.services.activityStreams.addActivity({
-            entityType: 'annotation',
+            entityType: 'sharedAnnotation',
             entity: params.annotationReference,
-            activityType: 'reply',
+            activityType: 'conversationReply',
             activity: {
-                replyReference
+                replyReference,
             }
         })
+        try {
+            await this.options.services.activityStreams.followEntity({
+                entityType: 'sharedAnnotation',
+                entity: params.annotationReference,
+                feeds: { user: true, notification: true },
+            })
+        } catch (err) {
+            console.error(err)
+        }
         return { status: 'success', replyReference }
     }
 }

@@ -140,15 +140,6 @@ export function annotationConversationEventHandlers<State extends AnnotationConv
                 if (result.status === 'not-authenticated') {
                     return { status: 'pristine' }
                 }
-                try {
-                    await dependencies.services.activityStreams.followEntity({
-                        entityType: 'annotation',
-                        entity: event.annotationReference,
-                        feeds: { user: true, notification: false },
-                    })
-                } catch (err) {
-                    console.error(err)
-                }
                 logic.emitMutation({
                     conversations: {
                         [annotationId]: {

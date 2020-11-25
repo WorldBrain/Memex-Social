@@ -35,6 +35,14 @@ export function createServices(options: {
     let auth: AuthService
     if (options.backend === 'firebase' || options.backend === 'firebase-emulator') {
         auth = new FirebaseAuthService(options.firebase ?? firebase, { storage: options.storage })
+        if (process.env.NODE_ENV === 'development') {
+            if (process.env.REACT_APP_USE_FUNCTIONS_EMULATOR === 'true') {
+                console.log('Using *emulated* Firebase Functions')
+                firebase.functions().useFunctionsEmulator("http://localhost:5001")
+            } else {
+                console.log('Using *real* Firebase Functions')
+            }
+        }
     } else if (options.backend === 'memory') {
         auth = new MemoryAuthService({ storage: options.storage })
     } else {

@@ -1,6 +1,5 @@
 import { ScenarioMap } from "../services/scenarios/types";
 import { scenario } from "../services/scenarios/utils";
-import { AnnotationDetailsEvent, AnnotationDetailsSignal } from "../features/content-sharing/ui/pages/annotation-details/types";
 import { NotificationCenterEvent, NotificationCenterSignal } from "../features/notifications/ui/pages/notification-center/types";
 
 type Targets = {
@@ -21,7 +20,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                     password: 'bling'
                 })
                 await services.activityStreams.followEntity({
-                    entityType: 'annotation',
+                    entityType: 'sharedAnnotation',
                     entity: { type: 'shared-annotation-reference', id: 'default-annotation' },
                     feeds: { user: true, notification: true },
                 })

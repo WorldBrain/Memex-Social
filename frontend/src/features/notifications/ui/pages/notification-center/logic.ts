@@ -1,12 +1,12 @@
+import flatten from "lodash/flatten"
+import orderBy from "lodash/orderBy"
+import { AnnotationReplyActivity, NotificationStream, AnnotationActivityStream } from "@worldbrain/memex-common/lib/activity-streams/types"
 import { UILogic, UIEventHandler, loadInitial } from "../../../../../main-ui/classes/logic"
 import { NotificationCenterEvent, NotificationCenterDependencies, NotificationCenterState, PageNotificationItem, AnnotationNotificationItem, NotificationItem, NotificationData } from "./types"
-import { AnnotationReplyActivity, NotificationStream } from "@worldbrain/memex-common/lib/activity-streams/types"
-import orderBy from "lodash/orderBy"
 import { getInitialAnnotationConversationStates } from "../../../../content-conversations/ui/utils"
 import { annotationConversationInitialState, annotationConversationEventHandlers } from "../../../../content-conversations/ui/logic"
 import UserProfileCache from "../../../../user-management/utils/user-profile-cache"
-import { UserReference } from "@worldbrain/memex-common/lib/web-interface/types/users"
-import flatten from "lodash/flatten"
+import { SharedAnnotationReference } from "@worldbrain/memex-common/lib/content-sharing/types"
 
 type EventHandler<EventName extends keyof NotificationCenterEvent> = UIEventHandler<NotificationCenterState, NotificationCenterEvent, EventName>
 
@@ -112,23 +112,23 @@ export function organizeNotifications(notifications: NotificationStream): {
     }
 
     for (const notification of notifications) {
-        if (notification.entityType === 'annotation' && notification.activityType === 'reply') {
+        if (notification.entityType === 'sharedAnnotation' && notification.activityType === 'conversationReply') {
+            const annotationReference = notification.entity as SharedAnnotationReference
             const activity: AnnotationReplyActivity['result'] = notification.activity
 
             data.pageInfo[activity.normalizedPageUrl] = activity.pageInfo
-            data.annotations[activity.annotationReference.id] = {
-                linkId: activity.annotationReference.id as string,
-                creatorReference: activity.annotationCreator,
-                normalizedPageUrl: activity.normalizedPageUrl,
+            data.annotations[annotationReference.id] = {
+                linkId: annotationReference.id as string,
+                creatorReference: activity.annotationCreator.reference,
                 ...activity.annotation
             }
 
-            if (!data.replies[activity.annotationReference.id]) {
-                data.replies[activity.annotationReference.id] = {}
+            if (!data.replies[annotationReference.id]) {
+                data.replies[annotationReference.id] = {}
             }
-            data.replies[activity.annotationReference.id][activity.replyReference.id] = {
-                reference: activity.replyReference,
-                creatorReference: activity.replyCreator,
+            data.replies[annotationReference.id][activity.reply.reference.id] = {
+                reference: activity.reply.reference,
+                creatorReference: activity.replyCreator.reference,
                 reply: {
                     ...activity.reply,
                     normalizedPageUrl: activity.normalizedPageUrl,
@@ -140,15 +140,15 @@ export function organizeNotifications(notifications: NotificationStream): {
                 normalizedPageUrl: activity.normalizedPageUrl,
                 annotations: []
             }))
-            const annotationItem = ensureItem<AnnotationNotificationItem>(annotationItems, activity.annotationReference.id as string, () => ({
+            const annotationItem = ensureItem<AnnotationNotificationItem>(annotationItems, annotationReference.id as string, () => ({
                 type: 'annotation-item',
-                reference: activity.annotationReference,
+                reference: annotationReference,
                 replies: []
             }))
 
             pageItem.annotations.push(annotationItem)
             annotationItem.replies.push({
-                reference: activity.replyReference
+                reference: activity.reply.reference
             })
         }
     }

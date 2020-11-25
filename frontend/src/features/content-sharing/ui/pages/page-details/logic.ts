@@ -1,5 +1,5 @@
 import orderBy from 'lodash/orderBy'
-import { User, UserReference } from "@worldbrain/memex-common/lib/web-interface/types/users"
+import { UserReference } from "@worldbrain/memex-common/lib/web-interface/types/users"
 import { SharedPageInfo } from "@worldbrain/memex-common/lib/content-sharing/types"
 import { UILogic, UIEventHandler, executeUITask } from "../../../../../main-ui/classes/logic"
 import { PageDetailsEvent, PageDetailsDependencies, PageDetailsState, PageDetailsSignal } from "./types"
