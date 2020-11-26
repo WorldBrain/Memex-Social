@@ -18,17 +18,19 @@ import AnnotationsInPage from "../../../../annotations/ui/components/annotations
 import { SharedAnnotationInPage } from "../../../../annotations/ui/components/types";
 import pick from "lodash/pick";
 import ItemBox from "../../../../../common-ui/components/item-box";
+import LoadingIndicator from "../../../../../common-ui/components/loading-indicator";
 
 const ReplyBoxContainer = styled.div`
   position: relative;
 `;
 
-const UndreadDot = styled.div`
+const UnreadDotContainer = styled.div`
   position: absolute;
   top: 20px;
   right: 20px;
-  cursor: pointer;
+`;
 
+const UnreadDot = styled.div`
   width: 13px;
   height: 12px;
   background: #ffffff;
@@ -36,6 +38,7 @@ const UndreadDot = styled.div`
   box-sizing: border-box;
   box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.2);
   border-radius: 10px;
+  cursor: pointer;
 `;
 
 export default class NotificationCenterPage extends UIElement<
@@ -135,12 +138,33 @@ export default class NotificationCenterPage extends UIElement<
                 state.replies[annotationReference.id][replyReference.id];
               return state.users[reply.creatorReference.id];
             }}
-            renderReplyBox={(props) => (
-              <ReplyBoxContainer>
-                <UndreadDot title="Mark as read" />
-                <ItemBox {...props} variant="new-item" />
-              </ReplyBoxContainer>
-            )}
+            renderReplyBox={(props) => {
+              const replies = this.state.replies[props.annotationReference.id];
+              const reply = replies[props.replyReference.id];
+              return (
+                <ReplyBoxContainer>
+                  {!reply.read && (
+                    <UnreadDotContainer>
+                      {reply.markAsReadState !== "running" && (
+                        <UnreadDot
+                          title="Mark as read"
+                          onClick={() => {
+                            this.processEvent("markAsRead", props);
+                          }}
+                        />
+                      )}
+                      {reply.markAsReadState === "running" && (
+                        <LoadingIndicator />
+                      )}
+                    </UnreadDotContainer>
+                  )}
+                  <ItemBox
+                    {...props}
+                    variant={!reply.read ? "new-item" : undefined}
+                  />
+                </ReplyBoxContainer>
+              );
+            }}
             hideNewReplyIfNotEditing={true}
             onNewReplyInitiate={(event) =>
               this.processEvent("initiateNewReplyToAnnotation", event)

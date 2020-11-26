@@ -62,7 +62,11 @@ export default function AnnotationsInPage(
       annotationReference: SharedAnnotationReference,
       replyReference: ConversationReplyReference
     ) => Pick<User, "displayName"> | null | undefined;
-    renderReplyBox?: (props: { children: React.ReactNode }) => React.ReactNode;
+    renderReplyBox?: (props: {
+      annotationReference: SharedAnnotationReference;
+      replyReference: ConversationReplyReference;
+      children: React.ReactNode;
+    }) => React.ReactNode;
     onToggleReplies?(event: {
       annotationReference: SharedAnnotationReference;
     }): void;
@@ -141,7 +145,11 @@ export function AnnotationWithReplies(
     onToggleReplies?(event: {
       annotationReference: SharedAnnotationReference;
     }): void;
-    renderReplyBox?: (props: { children: React.ReactNode }) => React.ReactNode;
+    renderReplyBox?: (props: {
+      annotationReference: SharedAnnotationReference;
+      replyReference: ConversationReplyReference;
+      children: React.ReactNode;
+    }) => React.ReactNode;
   } & NewAnnotationReplyEventHandlers
 ) {
   const { annotation, conversation } = props;
@@ -176,7 +184,15 @@ export function AnnotationWithReplies(
                         replyData.reference
                       ) ?? replyData.user
                     }
-                    renderItemBox={props.renderReplyBox}
+                    renderItemBox={
+                      props.renderReplyBox &&
+                      ((boxProps) =>
+                        props.renderReplyBox?.({
+                          annotationReference: annotation.reference,
+                          replyReference: replyData.reference,
+                          ...boxProps,
+                        }))
+                    }
                   />
                 </AnnotationReplyContainer>
               </Margin>

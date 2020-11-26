@@ -21,7 +21,9 @@ export type NotificationCenterState = {
     users: { [userId: string]: Pick<User, 'displayName'> | null }
 } & AnnotationConversationsState
 
-export type NotificationCenterEvent = UIEvent<AnnotationConversationEvent>
+export type NotificationCenterEvent = UIEvent<AnnotationConversationEvent & {
+    markAsRead: { annotationReference: SharedAnnotationReference, replyReference: ConversationReplyReference }
+}>
 
 export type NotificationCenterSignal = UISignal<
     { type: 'not-yet' }
@@ -49,9 +51,13 @@ export interface NotificationData {
     replies: {
         [annotationId: string]: {
             [replyId: string]: {
+                notificationId: string | number
                 reference: ConversationReplyReference
                 creatorReference: UserReference
                 reply: Pick<ConversationReply, 'content' | 'createdWhen' | 'normalizedPageUrl'>
+                seen: boolean,
+                read: boolean,
+                markAsReadState: UITaskState
             }
         }
     }

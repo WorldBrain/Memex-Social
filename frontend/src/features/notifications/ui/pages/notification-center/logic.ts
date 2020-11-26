@@ -1,7 +1,7 @@
 import flatten from "lodash/flatten"
 import orderBy from "lodash/orderBy"
 import { AnnotationReplyActivity, NotificationStream, AnnotationActivityStream } from "@worldbrain/memex-common/lib/activity-streams/types"
-import { UILogic, UIEventHandler, loadInitial } from "../../../../../main-ui/classes/logic"
+import { UILogic, UIEventHandler, loadInitial, executeUITask } from "../../../../../main-ui/classes/logic"
 import { NotificationCenterEvent, NotificationCenterDependencies, NotificationCenterState, PageNotificationItem, AnnotationNotificationItem, NotificationItem, NotificationData } from "./types"
 import { getInitialAnnotationConversationStates } from "../../../../content-conversations/ui/utils"
 import { annotationConversationInitialState, annotationConversationEventHandlers } from "../../../../content-conversations/ui/logic"
@@ -46,7 +46,7 @@ export default class NotificationCenterLogic extends UILogic<NotificationCenterS
     init: EventHandler<'init'> = async () => {
         let notificationData: NotificationData | undefined
         await loadInitial<NotificationCenterState>(this, async () => {
-            const notifications = await this.dependencies.services.activityStreams.getNotifications()
+            const notifications = await this.dependencies.services.activityStreams.getNotifications({ markAsSeen: true })
             const organized = organizeNotifications(notifications)
             notificationData = organized.data
 
@@ -86,6 +86,20 @@ export default class NotificationCenterLogic extends UILogic<NotificationCenterS
                 })
             })
         ])
+    }
+
+    markAsRead: EventHandler<'markAsRead'> = async ({ event, previousState }) => {
+        await executeUITask<NotificationCenterState>(this, (taskState) => ({
+            replies: { [event.annotationReference.id]: { [event.replyReference.id]: { markAsReadState: { $set: taskState } } } }
+        }), async () => {
+            await this.dependencies.services.activityStreams.markNotifications({
+                ids: [previousState.replies[event.annotationReference.id][event.replyReference.id].notificationId],
+                read: true,
+            })
+            this.emitMutation({
+                replies: { [event.annotationReference.id]: { [event.replyReference.id]: { read: { $set: true } } } }
+            })
+        })
     }
 }
 
@@ -127,12 +141,16 @@ export function organizeNotifications(notifications: NotificationStream): {
                 data.replies[annotationReference.id] = {}
             }
             data.replies[annotationReference.id][activity.reply.reference.id] = {
+                notificationId: notification.id,
                 reference: activity.reply.reference,
                 creatorReference: activity.replyCreator.reference,
                 reply: {
                     ...activity.reply,
                     normalizedPageUrl: activity.normalizedPageUrl,
-                }
+                },
+                seen: notification.seen,
+                read: notification.read,
+                markAsReadState: 'pristine',
             }
 
             const pageItem = ensureItem<PageNotificationItem>(pageItems, activity.normalizedPageUrl, () => ({
@@ -140,13 +158,16 @@ export function organizeNotifications(notifications: NotificationStream): {
                 normalizedPageUrl: activity.normalizedPageUrl,
                 annotations: []
             }))
+            const annotationIsNew = !annotationItems[annotationReference.id]
             const annotationItem = ensureItem<AnnotationNotificationItem>(annotationItems, annotationReference.id as string, () => ({
                 type: 'annotation-item',
                 reference: annotationReference,
                 replies: []
             }))
 
-            pageItem.annotations.push(annotationItem)
+            if (annotationIsNew) {
+                pageItem.annotations.push(annotationItem)
+            }
             annotationItem.replies.push({
                 reference: activity.reply.reference
             })
