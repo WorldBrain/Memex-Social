@@ -1,3 +1,4 @@
+import last from 'lodash/last'
 import flatten from "lodash/flatten"
 import orderBy from "lodash/orderBy"
 import { AnnotationReplyActivity, NotificationStream, AnnotationActivityStream } from "@worldbrain/memex-common/lib/activity-streams/types"
@@ -51,12 +52,14 @@ export default class NotificationCenterLogic extends UILogic<NotificationCenterS
             notificationData = organized.data
 
             const conversations = getInitialAnnotationConversationStates(Object.values(organized.data.annotations))
-            for (const [annotationId, annotationReplies] of Object.entries(organized.data.replies)) {
+            for (const annotationId of Object.keys(organized.data.replies)) {
                 conversations[annotationId] = {
                     ...conversations[annotationId],
                     loadState: 'success',
                     expanded: true,
-                    replies: orderBy(annotationReplies, 'createdWhen', 'desc')
+                    replies: notificationData.annotationItems[annotationId].replies.map(replyItem => (
+                        notificationData?.replies[annotationId]?.[replyItem.reference.id]!
+                    )).filter(reply => !!reply)
                 }
             }
 
@@ -109,12 +112,11 @@ export function organizeNotifications(notifications: NotificationStream): {
 } {
     const data: NotificationData = {
         pageInfo: {},
+        pageItems: {},
         annotations: {},
+        annotationItems: {},
         replies: {},
     }
-
-    const pageItems: { [normalizedPageUrl: string]: PageNotificationItem } = {}
-    const annotationItems: { [annotationId: string]: AnnotationNotificationItem } = {}
 
     const ensureItem = <T>(items: { [key: string]: T }, key: string, createNew: () => T) => {
         const existing = items[key]
@@ -153,13 +155,13 @@ export function organizeNotifications(notifications: NotificationStream): {
                 markAsReadState: 'pristine',
             }
 
-            const pageItem = ensureItem<PageNotificationItem>(pageItems, activity.normalizedPageUrl, () => ({
+            const pageItem = ensureItem<PageNotificationItem>(data.pageItems, activity.normalizedPageUrl, () => ({
                 type: 'page-item',
                 normalizedPageUrl: activity.normalizedPageUrl,
                 annotations: []
             }))
-            const annotationIsNew = !annotationItems[annotationReference.id]
-            const annotationItem = ensureItem<AnnotationNotificationItem>(annotationItems, annotationReference.id as string, () => ({
+            const annotationIsNew = !data.annotationItems[annotationReference.id]
+            const annotationItem = ensureItem<AnnotationNotificationItem>(data.annotationItems, annotationReference.id as string, () => ({
                 type: 'annotation-item',
                 reference: annotationReference,
                 replies: []
@@ -174,19 +176,24 @@ export function organizeNotifications(notifications: NotificationStream): {
         }
     }
 
-    for (const annotationItem of Object.values(annotationItems)) {
-        annotationItem.replies = orderBy(annotationItem.replies, (replyItem => data.replies[replyItem.reference.id]?.createdWhen), 'desc')
+    for (const annotationItem of Object.values(data.annotationItems)) {
+        annotationItem.replies = orderBy(annotationItem.replies, replyItem => {
+            const replyData = data.replies[annotationItem.reference.id]?.[replyItem.reference.id]
+            return replyData?.reply?.createdWhen
+        }, 'asc')
     }
-    for (const pageItem of Object.values(pageItems)) {
+    for (const pageItem of Object.values(data.pageItems)) {
         pageItem.annotations = orderBy(pageItem.annotations, annotationItem => {
-            const firstReply = data.replies[annotationItem.reference.id]?.[annotationItem.replies[0]?.reference?.id]
-            return firstReply?.reply?.createdWhen
+            const lastReplyItem = last(annotationItem.replies)!
+            const lastReply = data.replies[annotationItem.reference.id]?.[lastReplyItem?.reference?.id]
+            return lastReply?.reply?.createdWhen
         }, 'desc')
     }
-    const notificationItmes = orderBy(Object.values(pageItems), pageItem => {
+    const notificationItmes = orderBy(Object.values(data.pageItems), pageItem => {
         const firstAnnotation = pageItem.annotations[0]
-        const firstReply = data.replies[firstAnnotation.reference.id]?.[firstAnnotation.replies[0]?.reference?.id]
-        return firstReply?.reply?.createdWhen
+        const lastReplyItem = last(firstAnnotation.replies)!
+        const lastReply = data.replies[firstAnnotation.reference.id]?.[lastReplyItem?.reference?.id]
+        return lastReply?.reply?.createdWhen
     }, 'desc')
 
     return {
