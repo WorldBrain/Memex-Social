@@ -6,6 +6,7 @@ import ContentSharingStorage from "../../content-sharing/storage";
 import ContentConversationStorage from "../storage";
 import { UserReference, User } from "@worldbrain/memex-common/lib/web-interface/types/users";
 import { SharedAnnotationReference, SharedAnnotation } from "@worldbrain/memex-common/lib/content-sharing/types";
+import { Services } from "../../../services/types";
 
 export function annotationConversationInitialState(): AnnotationConversationsState {
     return {
@@ -36,7 +37,7 @@ export async function detectAnnotationConversationsThreads(
 export function annotationConversationEventHandlers<State extends AnnotationConversationsState>(
     logic: UILogic<AnnotationConversationsState, AnnotationConversationEvent>,
     dependencies: {
-        services: UIElementServices<'contentConversations' | 'auth' | 'activityStreams'>;
+        services: Pick<Services, 'contentConversations' | 'auth' | 'activityStreams'>;
         storage: {
             contentSharing: ContentSharingStorage,
             contentConversations: ContentConversationStorage

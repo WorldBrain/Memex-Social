@@ -48,7 +48,11 @@ export function createServices(options: {
     } else {
         throw new Error(`Tried to create services with unknown backend: '${options.backend}'`)
     }
-    const router = new RouterService({ routes: ROUTES, auth, history: options.history })
+    const router = new RouterService({
+        routes: ROUTES, auth, history: options.history, setBeforeLeaveHandler: (handler) => {
+            window.onbeforeunload = handler
+        }
+    })
 
     const callModifier = new CallModifier()
     const fixtures = new FixtureService({ storage: options.storage, fixtureFetcher: options.fixtureFetcher ?? defaultFixtureFetcher });
@@ -85,7 +89,7 @@ export function createServices(options: {
         activityStreams,
         contentConversations: new ContentConversationsService({
             storage: options.storage.serverModules.contentConversations,
-            services: { activityStreams },
+            services: { activityStreams, router },
             auth,
         })
     }
