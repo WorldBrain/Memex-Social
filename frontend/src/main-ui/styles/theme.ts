@@ -1,46 +1,42 @@
-import { SpacingValue } from "styled-components-spacing";
-
-import { Theme } from "./types";
-
-const spacing: { [Key in SpacingValue]: string } = {
-  none: "0",
-  smallest: "0.25rem",
-  small: "0.5rem",
-  medium: "1rem",
-  large: "1.5rem",
-  largest: "3rem",
-};
+import { Theme } from './types'
 
 export const theme: Theme = {
-  spacing,
+  spacings: {
+    none: '0',
+    smallest: '0.25rem',
+    small: '0.5rem',
+    medium: '1rem',
+    large: '1.5rem',
+    largest: '3rem',
+  },
   colors: {
-    background: "white",
-    warning: "red",
-    primary: "#3a2f45",
-    subText: "#aeaeae",
-    secondary: "#5cd9a6",
-    grey: "#e0e0e0",
-    black: "000",
+    background: 'white',
+    warning: 'red',
+    primary: '#3a2f45',
+    subText: '#aeaeae',
+    secondary: '#5cd9a6',
+    grey: '#e0e0e0',
+    black: '000',
     overlay: {
-      background: "rgba(0, 0, 0, 0.1)",
-      dialog: "white",
+      background: 'rgba(0, 0, 0, 0.1)',
+      dialog: 'white',
     },
   },
   fonts: {
     primary: '"Poppins", sans-serif',
     secondary: '"Poppins", sans-serif',
   },
-  hoverBackground: {
-    primary: "#e0e0e0",
+  hoverBackgrounds: {
+    primary: '#e0e0e0',
   },
-  borderRadius: {
-    default: "3px",
+  borderRadii: {
+    default: '3px',
   },
-  fontSize: {
-    listTitle: "16px",
-    url: "14px",
+  fontSizes: {
+    listTitle: '16px',
+    url: '14px',
   },
   zIndices: {
     overlay: 50,
   },
-};
+}
