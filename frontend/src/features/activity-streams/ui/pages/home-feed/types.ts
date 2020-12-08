@@ -7,37 +7,36 @@ import { SharedAnnotationReference, SharedPageInfo, SharedAnnotation } from "@wo
 import { ConversationReplyReference, ConversationReply } from "@worldbrain/memex-common/lib/content-conversations/types";
 import { UserReference, User } from "@worldbrain/memex-common/lib/web-interface/types/users";
 
-export interface NotificationCenterDependencies {
+export interface HomeFeedDependencies {
     services: UIElementServices<'contentConversations' | 'auth' | 'overlay' | 'activityStreams'>;
     storage: Pick<StorageModules, 'contentSharing' | 'contentConversations' | 'users'>
 }
 
-export type NotificationCenterState = {
+export type HomeFeedState = {
     loadState: UITaskState
-    notificationItems: Array<NotificationItem>
-    pageInfo: NotificationData['pageInfo']
-    annotations: NotificationData['annotations']
-    replies: NotificationData['replies']
+    activityItems: Array<ActivityItem>
+    pageInfo: ActivityData['pageInfo']
+    annotations: ActivityData['annotations']
+    replies: ActivityData['replies']
     users: { [userId: string]: Pick<User, 'displayName'> | null }
 } & AnnotationConversationsState
 
-export type NotificationCenterEvent = UIEvent<AnnotationConversationEvent & {
-    markAsRead: { annotationReference: SharedAnnotationReference, replyReference: ConversationReplyReference }
-}>
+export type HomeFeedEvent = UIEvent<AnnotationConversationEvent>
 
-export type NotificationCenterSignal = UISignal<
+export type HomeFeedSignal = UISignal<
     { type: 'not-yet' }
 >
 
-export type NotificationItem = PageNotificationItem
+export type ActivityItem = PageActivityItem
 
-export interface PageNotificationItem {
+export interface PageActivityItem {
     type: 'page-item'
+    reason: 'new-replies'
     normalizedPageUrl: string
-    annotations: Array<AnnotationNotificationItem>
+    annotations: Array<AnnotationActivityItem>
 }
 
-export interface AnnotationNotificationItem {
+export interface AnnotationActivityItem {
     type: 'annotation-item'
     reference: SharedAnnotationReference;
     replies: Array<{
@@ -45,21 +44,17 @@ export interface AnnotationNotificationItem {
     }>;
 }
 
-export interface NotificationData {
+export interface ActivityData {
     pageInfo: { [normalizedPageUrl: string]: Pick<SharedPageInfo, 'fullTitle' | 'originalUrl'> }
-    pageItems: { [normalizedPageUrl: string]: PageNotificationItem }
+    pageItems: { [normalizedPageUrl: string]: PageActivityItem }
     annotations: { [annotationId: string]: Pick<SharedAnnotation, 'body' | 'comment' | 'normalizedPageUrl' | 'updatedWhen'> & { linkId: string, creatorReference: UserReference } }
-    annotationItems: { [annotationId: string]: AnnotationNotificationItem }
+    annotationItems: { [annotationId: string]: AnnotationActivityItem }
     replies: {
         [annotationId: string]: {
             [replyId: string]: {
-                notificationId: string | number
                 reference: ConversationReplyReference
                 creatorReference: UserReference
-                reply: Pick<ConversationReply, 'content' | 'createdWhen' | 'normalizedPageUrl'>
-                seen: boolean,
-                read: boolean,
-                markAsReadState: UITaskState
+                reply: Pick<ConversationReply, 'content' | 'createdWhen' | 'normalizedPageUrl'>,
             }
         }
     }

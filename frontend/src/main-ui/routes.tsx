@@ -13,7 +13,7 @@ import LandingPage from "./pages/landing-page";
 import CollectionDetailsPage from "../features/content-sharing/ui/pages/collection-details";
 import AnnotationDetailsPage from "../features/content-sharing/ui/pages/annotation-details";
 import PageDetailsPage from "../features/content-sharing/ui/pages/page-details";
-import NotificationCenterPage from "../features/notifications/ui/pages/notification-center";
+import HomeFeedPage from "../features/activity-streams/ui/pages/home-feed";
 
 interface Props {
   history: history.History;
@@ -58,10 +58,10 @@ export default class Routes extends React.Component<Props> {
           />
           <Route
             exact
-            path={ROUTES.notificationCenter.path}
+            path={ROUTES.homeFeed.path}
             render={() => {
               return (
-                <NotificationCenterPage
+                <HomeFeedPage
                   services={this.props.services}
                   storage={serverModules}
                 />

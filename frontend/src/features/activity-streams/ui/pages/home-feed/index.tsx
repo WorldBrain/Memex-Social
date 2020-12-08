@@ -1,13 +1,13 @@
+import pick from "lodash/pick";
 import React from "react";
-import styled from "styled-components";
 import { UIElement } from "../../../../../main-ui/classes";
 import Logic from "./logic";
 import {
-  NotificationCenterEvent,
-  NotificationCenterDependencies,
-  NotificationCenterState,
-  NotificationItem,
-  PageNotificationItem,
+  HomeFeedEvent,
+  HomeFeedDependencies,
+  HomeFeedState,
+  ActivityItem,
+  PageActivityItem,
 } from "./types";
 import DocumentTitle from "../../../../../main-ui/components/document-title";
 import DefaultPageLayout from "../../../../../common-ui/layouts/default-page-layout";
@@ -16,37 +16,13 @@ import { Margin } from "styled-components-spacing";
 import PageInfoBox from "../../../../../common-ui/components/page-info-box";
 import AnnotationsInPage from "../../../../annotations/ui/components/annotations-in-page";
 import { SharedAnnotationInPage } from "../../../../annotations/ui/components/types";
-import pick from "lodash/pick";
-import ItemBox from "../../../../../common-ui/components/item-box";
-import LoadingIndicator from "../../../../../common-ui/components/loading-indicator";
 
-const ReplyBoxContainer = styled.div`
-  position: relative;
-`;
-
-const UnreadDotContainer = styled.div`
-  position: absolute;
-  top: 20px;
-  right: 20px;
-`;
-
-const UnreadDot = styled.div`
-  width: 13px;
-  height: 12px;
-  background: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  box-sizing: border-box;
-  box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.2);
-  border-radius: 10px;
-  cursor: pointer;
-`;
-
-export default class NotificationCenterPage extends UIElement<
-  NotificationCenterDependencies,
-  NotificationCenterState,
-  NotificationCenterEvent
+export default class HomeFeedPage extends UIElement<
+  HomeFeedDependencies,
+  HomeFeedState,
+  HomeFeedEvent
 > {
-  constructor(props: NotificationCenterDependencies) {
+  constructor(props: HomeFeedDependencies) {
     super(props, { logic: new Logic(props) });
   }
 
@@ -76,18 +52,18 @@ export default class NotificationCenterPage extends UIElement<
     if (state.loadState === "error") {
       return "Error";
     }
-    return this.renderNotifications(this.state.notificationItems!);
+    return this.renderNotifications(this.state.activityItems!);
   }
 
-  renderNotifications(notifications: NotificationItem[]) {
+  renderNotifications(notifications: ActivityItem[]) {
     return notifications.map((item) => this.renderPageItem(item));
   }
 
-  renderPageItem(pageItem: PageNotificationItem) {
+  renderPageItem(pageItem: PageActivityItem) {
     const pageInfo = this.state.pageInfo[pageItem.normalizedPageUrl];
     return (
-      <React.Fragment key={pageItem.normalizedPageUrl}>
-        <Margin bottom="small">
+      <React.Fragment key={pageItem.annotations[0].reference.id}>
+        <Margin bottom="medium">
           <PageInfoBox
             pageInfo={{
               createdWhen: Date.now(),
@@ -103,7 +79,7 @@ export default class NotificationCenterPage extends UIElement<
     );
   }
 
-  renderAnnotationItems(pageItem: PageNotificationItem) {
+  renderAnnotationItems(pageItem: PageActivityItem) {
     const { state } = this;
     return (
       <Margin left={"small"}>
@@ -138,33 +114,33 @@ export default class NotificationCenterPage extends UIElement<
                 state.replies[annotationReference.id][replyReference.id];
               return state.users[reply.creatorReference.id];
             }}
-            renderReplyBox={(props) => {
-              const replies = this.state.replies[props.annotationReference.id];
-              const reply = replies[props.replyReference.id];
-              return (
-                <ReplyBoxContainer>
-                  {!reply.read && (
-                    <UnreadDotContainer>
-                      {reply.markAsReadState !== "running" && (
-                        <UnreadDot
-                          title="Mark as read"
-                          onClick={() => {
-                            this.processEvent("markAsRead", props);
-                          }}
-                        />
-                      )}
-                      {reply.markAsReadState === "running" && (
-                        <LoadingIndicator />
-                      )}
-                    </UnreadDotContainer>
-                  )}
-                  <ItemBox
-                    {...props}
-                    variant={!reply.read ? "new-item" : undefined}
-                  />
-                </ReplyBoxContainer>
-              );
-            }}
+            // renderReplyBox={(props) => {
+            //   const replies = this.state.replies[props.annotationReference.id];
+            //   const reply = replies[props.replyReference.id];
+            //   return (
+            //     <ReplyBoxContainer>
+            //       {!reply.read && (
+            //         <UnreadDotContainer>
+            //           {reply.markAsReadState !== "running" && (
+            //             <UnreadDot
+            //               title="Mark as read"
+            //               onClick={() => {
+            //                 this.processEvent("markAsRead", props);
+            //               }}
+            //             />
+            //           )}
+            //           {reply.markAsReadState === "running" && (
+            //             <LoadingIndicator />
+            //           )}
+            //         </UnreadDotContainer>
+            //       )}
+            //       <ItemBox
+            //         {...props}
+            //         variant={!reply.read ? "new-item" : undefined}
+            //       />
+            //     </ReplyBoxContainer>
+            //   );
+            // }}
             hideNewReplyIfNotEditing={true}
             onNewReplyInitiate={(event) =>
               this.processEvent("initiateNewReplyToAnnotation", event)

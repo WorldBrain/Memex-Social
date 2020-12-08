@@ -36,7 +36,7 @@ export default class ContentConversationsService {
                     activity: {
                         replyReference,
                     },
-                    follow: { user: true, notification: true },
+                    follow: { home: true },
                 })
             } catch (err) {
                 console.error(err)
