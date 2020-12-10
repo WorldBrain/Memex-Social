@@ -4,7 +4,7 @@ import { StorageModules } from "../../../../../storage/types";
 
 export interface AnnotationDetailsDependencies {
     annotationID: string
-    services: UIElementServices<'auth' | 'overlay'>
+    services: UIElementServices<'auth' | 'overlay' | 'router'>
     storage: Pick<StorageModules, 'users' | 'contentSharing'>
 }
 

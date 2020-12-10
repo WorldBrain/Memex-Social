@@ -21,6 +21,16 @@ const setupActivities = async ({ services, storage }: { services: Services, stor
         entity: { type: 'shared-annotation-reference', id: 'default-annotation' },
         feeds: { home: true },
     })
+    await services.activityStreams.followEntity({
+        entityType: 'sharedAnnotation',
+        entity: { type: 'shared-annotation-reference', id: 'second-annotation' },
+        feeds: { home: true },
+    })
+    await services.activityStreams.followEntity({
+        entityType: 'sharedAnnotation',
+        entity: { type: 'shared-annotation-reference', id: 'third-annotation' },
+        feeds: { home: true },
+    })
     await services.auth.logout()
 
     await services.auth.loginWithEmailPassword({
@@ -44,6 +54,22 @@ const setupActivities = async ({ services, storage }: { services: Services, stor
         normalizedPageUrl: 'getmemex.com',
         reply: { content: 'Test reply two' }
     })
+    await services.contentConversations.submitReply({
+        pageCreatorReference: { type: 'user-reference', id: 'default-user' },
+        annotationReference: { type: 'shared-annotation-reference', id: 'second-annotation' },
+        normalizedPageUrl: 'getmemex.com',
+        reply: { content: 'Test reply three' }
+    })
+    await storage.serverModules.activityStreams.updateHomeFeedTimestamp({
+        user: { type: 'user-reference', id: 'default-user' },
+        timestamp: Date.now(),
+    })
+    await services.contentConversations.submitReply({
+        pageCreatorReference: { type: 'user-reference', id: 'default-user' },
+        annotationReference: { type: 'shared-annotation-reference', id: 'third-annotation' },
+        normalizedPageUrl: 'notion.so',
+        reply: { content: 'Test reply four' }
+    })
     await services.auth.logout()
 
     await services.auth.loginWithEmailPassword({
@@ -55,10 +81,16 @@ const setupActivities = async ({ services, storage }: { services: Services, stor
 export const SCENARIOS: ScenarioMap<Targets> = {
     'default': scenario<Targets>(({ step, callModification }) => ({
         fixture: 'annotated-list-with-user',
-        startRoute: { route: 'notificationCenter', params: {} },
+        startRoute: { route: 'homeFeed', params: {} },
         setup: {
             execute: setupActivities,
         },
+        steps: []
+    })),
+    'no-activities': scenario<Targets>(({ step, callModification }) => ({
+        fixture: 'annotated-list-with-user',
+        authenticated: true,
+        startRoute: { route: 'homeFeed', params: {} },
         steps: []
     })),
 }

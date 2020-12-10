@@ -4,6 +4,8 @@ import { ViewportBreakpoint } from "../../main-ui/styles/types";
 import { UIElementServices } from "../../main-ui/classes";
 import AuthHeader from "../../features/user-management/ui/containers/auth-header";
 import { StorageModules } from "../../storage/types";
+import { Margin } from "styled-components-spacing";
+import RouteLink from "../components/route-link";
 const logoImage = require("../../assets/img/memex-logo.svg");
 
 const middleMaxWidth = "800px";
@@ -38,11 +40,18 @@ const StyledHeader = styled.div<{
       height: 60px;
     `}
 `;
+
+const LogoAndFeed = styled.div<{
+  viewportWidth: "mobile" | "small" | "normal" | "big";
+}>`
+  display: flex;
+  flex: 1;
+`;
+
 const HeaderLogoArea = styled.div<{
   viewportWidth: "mobile" | "small" | "normal" | "big";
 }>`
   align-items: center;
-  flex: 1;
 
   ${(props) =>
     (props.viewportWidth === "small" || props.viewportWidth === "mobile") &&
@@ -78,6 +87,10 @@ const MemexLogo = styled.div<{
       border: none;
     `}
 `;
+
+const FeedArea = styled.div``;
+
+const FeedLink = styled(RouteLink)``;
 
 const HeaderMiddleArea = styled.div<{
   viewportWidth: "mobile" | "small" | "normal" | "big";
@@ -183,7 +196,7 @@ const PageMiddleArea = styled.div<{
 `;
 
 export default function DefaultPageLayout(props: {
-  services: UIElementServices<"auth" | "overlay">;
+  services: UIElementServices<"auth" | "overlay" | "router">;
   storage: Pick<StorageModules, "users">;
   headerTitle?: string;
   headerSubtitle?: string | null;
@@ -194,12 +207,21 @@ export default function DefaultPageLayout(props: {
   return (
     <>
       <StyledHeader viewportWidth={viewportWidth}>
-        <HeaderLogoArea
-          onClick={() => window.open("https://getmemex.com")}
-          viewportWidth={viewportWidth}
-        >
-          <MemexLogo viewportWidth={viewportWidth} />
-        </HeaderLogoArea>
+        <LogoAndFeed viewportWidth={viewportWidth}>
+          <HeaderLogoArea
+            onClick={() => window.open("https://getmemex.com")}
+            viewportWidth={viewportWidth}
+          >
+            <MemexLogo viewportWidth={viewportWidth} />
+          </HeaderLogoArea>
+          <Margin right="medium">
+            <FeedArea>
+              <FeedLink services={props.services} route="homeFeed" params={{}}>
+                Feed
+              </FeedLink>
+            </FeedArea>
+          </Margin>
+        </LogoAndFeed>
         <HeaderMiddleArea viewportWidth={viewportWidth}>
           {props.headerTitle && (
             <HeaderTitle

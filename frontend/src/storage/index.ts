@@ -14,6 +14,7 @@ import { StorageMiddleware } from "@worldbrain/storex/lib/types/middleware";
 // import { ACCOUNT_COLLECTIONS } from './constants';
 import ContentSharingStorage from '../features/content-sharing/storage';
 import ContentConversationStorage from '../features/content-conversations/storage';
+import StorexActivityStreamsStorage from "@worldbrain/memex-common/lib/activity-streams/storage"
 
 export async function createStorage(options: { backend: BackendType | StorageBackend }): Promise<Storage> {
     let storageBackend: StorageBackend
@@ -48,7 +49,8 @@ export async function createStorage(options: { backend: BackendType | StorageBac
                 storageManager,
                 autoPkType: options.backend !== 'memory' ? 'string' : 'number',
                 contentSharing,
-            })
+            }),
+            activityStreams: new StorexActivityStreamsStorage({ storageManager })
         }
     }
     registerModuleMapCollections(storageManager.registry, storage.serverModules as any)

@@ -1,5 +1,6 @@
 import pick from "lodash/pick";
 import React from "react";
+import styled from "styled-components";
 import { UIElement } from "../../../../../main-ui/classes";
 import Logic from "./logic";
 import {
@@ -16,6 +17,49 @@ import { Margin } from "styled-components-spacing";
 import PageInfoBox from "../../../../../common-ui/components/page-info-box";
 import AnnotationsInPage from "../../../../annotations/ui/components/annotations-in-page";
 import { SharedAnnotationInPage } from "../../../../annotations/ui/components/types";
+import MessageBox from "../../../../../common-ui/components/message-box";
+
+const commentImage = require("../../../../../assets/img/comment.svg");
+
+const StyledActivityReason = styled.div`
+  display: flex;
+  align-items: center;
+`;
+const ActivityReasonIcon = styled.img`
+  max-width: 15 px;
+  max-height: 15px;
+`;
+
+const ActivitityReasonLabel = styled.div`
+  font-family: ${(props) => props.theme.fonts.primary};
+  font-weight: bold;
+  font-size: ${(props) => props.theme.fontSize.listTitle}
+  color: ${(props) => props.theme.colors.primary};
+`;
+
+const StyledLastSeenLine = styled.div`
+  display: flex;
+  position: relative;
+  width: 100%;
+  justify-content: center;
+`;
+const LastSeenLineBackground = styled.div`
+  position: absolute;
+  background: rgba(0, 0, 0, 20%);
+  top: 50%;
+  left: 50%;
+  height: 2px;
+  width: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  z-index: 1;
+`;
+const LastSeenLineLabel = styled.div`
+  font-family: ${(props) => props.theme.fonts.primary};
+  text-align: center;
+  background: white;
+  padding: 0 20px;
+  z-index: 2;
+`;
 
 export default class HomeFeedPage extends UIElement<
   HomeFeedDependencies,
@@ -52,31 +96,73 @@ export default class HomeFeedPage extends UIElement<
     if (state.loadState === "error") {
       return "Error";
     }
-    return this.renderNotifications(this.state.activityItems!);
+    if (!this.state.activityItems?.length) {
+      return this.renderNoActivities();
+    }
+    return this.renderActivities(this.state.activityItems);
   }
 
-  renderNotifications(notifications: ActivityItem[]) {
-    return notifications.map((item) => this.renderPageItem(item));
+  renderNoActivities() {
+    return (
+      <Margin vertical="largest">
+        <MessageBox title="Nothing to see (yet)">
+          Follow collections to see updates or start a conversation by replying
+          to someone’s notes and highlights
+        </MessageBox>
+      </Margin>
+    );
+  }
+
+  renderActivities(activities: ActivityItem[]) {
+    const lastSeenLine = new LastSeenLineState(
+      this.state.lastSeenTimestamp ?? null
+    );
+    return activities.map((item) => {
+      const { key, rendered } = this.renderPageItem(item);
+      return (
+        <React.Fragment key={key}>
+          {lastSeenLine.shouldRenderBeforeItem(item) && (
+            <Margin vertical="medium">
+              <LastSeenLine />
+            </Margin>
+          )}
+          {rendered}
+        </React.Fragment>
+      );
+    });
+  }
+
+  renderActivityReason(activityItem: Pick<ActivityItem, "reason">) {
+    if (activityItem.reason === "new-replies") {
+      return <ActivityReason icon={commentImage} label="New replies" />;
+    }
+    return null;
   }
 
   renderPageItem(pageItem: PageActivityItem) {
     const pageInfo = this.state.pageInfo[pageItem.normalizedPageUrl];
-    return (
-      <React.Fragment key={pageItem.annotations[0].reference.id}>
-        <Margin bottom="medium">
-          <PageInfoBox
-            pageInfo={{
-              createdWhen: Date.now(),
-              fullTitle: pageInfo?.fullTitle,
-              normalizedUrl: pageItem?.normalizedPageUrl,
-              originalUrl: pageInfo?.originalUrl,
-            }}
-            actions={[]}
-          />
+    return {
+      key: pageItem.annotations[0].reference.id,
+      rendered: (
+        <Margin bottom="large">
+          <Margin bottom="small">
+            <Margin bottom="small">
+              {this.renderActivityReason(pageItem)}
+            </Margin>
+            <PageInfoBox
+              pageInfo={{
+                createdWhen: Date.now(),
+                fullTitle: pageInfo?.fullTitle,
+                normalizedUrl: pageItem?.normalizedPageUrl,
+                originalUrl: pageInfo?.originalUrl,
+              }}
+              actions={[]}
+            />
+          </Margin>
+          {this.renderAnnotationItems(pageItem)}
         </Margin>
-        {this.renderAnnotationItems(pageItem)}
-      </React.Fragment>
-    );
+      ),
+    };
   }
 
   renderAnnotationItems(pageItem: PageActivityItem) {
@@ -114,34 +200,6 @@ export default class HomeFeedPage extends UIElement<
                 state.replies[annotationReference.id][replyReference.id];
               return state.users[reply.creatorReference.id];
             }}
-            // renderReplyBox={(props) => {
-            //   const replies = this.state.replies[props.annotationReference.id];
-            //   const reply = replies[props.replyReference.id];
-            //   return (
-            //     <ReplyBoxContainer>
-            //       {!reply.read && (
-            //         <UnreadDotContainer>
-            //           {reply.markAsReadState !== "running" && (
-            //             <UnreadDot
-            //               title="Mark as read"
-            //               onClick={() => {
-            //                 this.processEvent("markAsRead", props);
-            //               }}
-            //             />
-            //           )}
-            //           {reply.markAsReadState === "running" && (
-            //             <LoadingIndicator />
-            //           )}
-            //         </UnreadDotContainer>
-            //       )}
-            //       <ItemBox
-            //         {...props}
-            //         variant={!reply.read ? "new-item" : undefined}
-            //       />
-            //     </ReplyBoxContainer>
-            //   );
-            // }}
-            hideNewReplyIfNotEditing={true}
             onNewReplyInitiate={(event) =>
               this.processEvent("initiateNewReplyToAnnotation", event)
             }
@@ -170,17 +228,58 @@ export default class HomeFeedPage extends UIElement<
       <>
         <DocumentTitle
           documentTitle={this.props.services.documentTitle}
-          subTitle={`Notifications`}
+          subTitle={`Collaboration Feed`}
         />
         <DefaultPageLayout
           services={this.props.services}
           storage={this.props.storage}
           viewportBreakpoint={viewportWidth}
-          headerTitle={"Notifications"}
+          headerTitle={"Collaboration Feed"}
         >
           {this.renderContent()}
         </DefaultPageLayout>
       </>
     );
   }
+}
+
+const ActivityReason = (props: { icon: string; label: string }) => {
+  return (
+    <StyledActivityReason>
+      <Margin right="small">
+        <ActivityReasonIcon src={props.icon} />
+      </Margin>
+      <ActivitityReasonLabel>{props.label}</ActivitityReasonLabel>
+    </StyledActivityReason>
+  );
+};
+
+class LastSeenLineState {
+  alreadyRenderedLine = false;
+
+  constructor(private lastSeenTimestamp: number | null) {}
+
+  shouldRenderBeforeItem(activityItem: Pick<ActivityItem, "notifiedWhen">) {
+    if (!this.lastSeenTimestamp) {
+      return false;
+    }
+    if (this.alreadyRenderedLine) {
+      return false;
+    }
+
+    const shouldRenderLine = activityItem.notifiedWhen < this.lastSeenTimestamp;
+    if (shouldRenderLine) {
+      this.alreadyRenderedLine = true;
+    }
+    return this.alreadyRenderedLine;
+  }
+}
+
+function LastSeenLine() {
+  return (
+    <StyledLastSeenLine>
+      <LastSeenLineBackground />
+      <LastSeenLineLabel>Seen</LastSeenLineLabel>
+    </StyledLastSeenLine>
+  );
 }

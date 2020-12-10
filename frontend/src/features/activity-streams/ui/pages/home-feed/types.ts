@@ -1,15 +1,15 @@
-import { UIEvent, UISignal } from "../../../../../main-ui/classes/logic";
-import { UIElementServices } from "../../../../../main-ui/classes";
-import { AnnotationConversationEvent, AnnotationConversationsState, AnnotationConversationSignal } from "../../../../content-conversations/ui/types";
-import { StorageModules } from "../../../../../storage/types";
-import { UITaskState } from "../../../../../main-ui/types";
 import { SharedAnnotationReference, SharedPageInfo, SharedAnnotation } from "@worldbrain/memex-common/lib/content-sharing/types";
 import { ConversationReplyReference, ConversationReply } from "@worldbrain/memex-common/lib/content-conversations/types";
 import { UserReference, User } from "@worldbrain/memex-common/lib/web-interface/types/users";
+import { UIEvent, UISignal } from "../../../../../main-ui/classes/logic";
+import { UIElementServices } from "../../../../../main-ui/classes";
+import { AnnotationConversationEvent, AnnotationConversationsState } from "../../../../content-conversations/ui/types";
+import { StorageModules } from "../../../../../storage/types";
+import { UITaskState } from "../../../../../main-ui/types";
 
 export interface HomeFeedDependencies {
-    services: UIElementServices<'contentConversations' | 'auth' | 'overlay' | 'activityStreams'>;
-    storage: Pick<StorageModules, 'contentSharing' | 'contentConversations' | 'users'>
+    services: UIElementServices<'contentConversations' | 'auth' | 'overlay' | 'activityStreams' | 'router'>;
+    storage: Pick<StorageModules, 'contentSharing' | 'contentConversations' | 'users' | 'activityStreams'>
 }
 
 export type HomeFeedState = {
@@ -19,6 +19,7 @@ export type HomeFeedState = {
     annotations: ActivityData['annotations']
     replies: ActivityData['replies']
     users: { [userId: string]: Pick<User, 'displayName'> | null }
+    lastSeenTimestamp?: number | null
 } & AnnotationConversationsState
 
 export type HomeFeedEvent = UIEvent<AnnotationConversationEvent>
@@ -32,6 +33,7 @@ export type ActivityItem = PageActivityItem
 export interface PageActivityItem {
     type: 'page-item'
     reason: 'new-replies'
+    notifiedWhen: number
     normalizedPageUrl: string
     annotations: Array<AnnotationActivityItem>
 }

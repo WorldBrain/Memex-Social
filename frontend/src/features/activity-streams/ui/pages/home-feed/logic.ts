@@ -45,6 +45,11 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
     }
 
     init: EventHandler<'init'> = async () => {
+        const userReference = this.dependencies.services.auth.getCurrentUserReference()
+        if (!userReference) {
+            return
+        }
+
         let activityData: ActivityData | undefined
         await loadInitial<HomeFeedState>(this, async () => {
             const { activityGroups } = await this.dependencies.services.activityStreams.getHomeActivities({ offset: 0, limit: 50 })
@@ -87,6 +92,12 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
                 this.emitMutation({
                     users: { [creatorReference.id]: { $set: await this._users.loadUser(creatorReference) } }
                 })
+            }),
+            this.dependencies.storage.activityStreams.updateHomeFeedTimestamp({
+                user: userReference,
+                timestamp: Date.now(),
+            }).then(({ previousTimestamp }) => {
+                this.emitMutation({ lastSeenTimestamp: { $set: previousTimestamp } })
             })
         ])
     }
@@ -120,6 +131,7 @@ export function organizeActivities(notifications: Array<ActivityStreamResultGrou
                 type: 'page-item',
                 reason: 'new-replies',
                 normalizedPageUrl: replyActivityGroup.activities[0].activity.normalizedPageUrl,
+                notifiedWhen: 0,
                 annotations: [annotationItem],
             }
             data.pageItems[pageItem.normalizedPageUrl] = pageItem
@@ -150,6 +162,7 @@ export function organizeActivities(notifications: Array<ActivityStreamResultGrou
                 annotationItem.replies.push({
                     reference: replyActivity.reply.reference,
                 })
+                pageItem.notifiedWhen = replyActivity.reply.createdWhen
             }
         }
     }
