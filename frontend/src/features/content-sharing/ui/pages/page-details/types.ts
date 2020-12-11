@@ -9,7 +9,7 @@ import { StorageModules } from "../../../../../storage/types";
 
 export interface PageDetailsDependencies {
     services: UIElementServices<'contentConversations' | 'auth' | 'overlay' | 'activityStreams' | 'router'>;
-    storage: Pick<StorageModules, 'contentSharing' | 'contentConversations' | 'users'>
+    storage: Pick<StorageModules, 'contentSharing' | 'contentConversations' | 'users' | 'activityStreams'>
     pageID: string
     userManagement: UserStorage
 }

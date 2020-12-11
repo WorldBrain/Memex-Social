@@ -9,8 +9,8 @@ import { StorageModules } from "../../../../../storage/types";
 
 export interface CollectionDetailsDependencies {
     listID: string
-    services: UIElementServices<'auth' | 'overlay' | 'contentConversations' | 'activityStreams' | 'router'>
-    storage: Pick<StorageModules, 'contentSharing' | 'contentConversations' | 'users'>
+    services: UIElementServices<'auth' | 'overlay' | 'contentConversations' | 'activityStreams' | 'router' | 'activityStreams'>
+    storage: Pick<StorageModules, 'contentSharing' | 'contentConversations' | 'users' | 'activityStreams'>
 }
 
 export type CollectionDetailsState = AnnotationConversationsState & {

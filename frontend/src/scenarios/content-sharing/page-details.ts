@@ -4,6 +4,7 @@ import { PageDetailsEvent, PageDetailsSignal } from "../../features/content-shar
 import { SharedAnnotationReference } from "@worldbrain/memex-common/lib/content-sharing/types";
 import { AuthHeaderEvent, AuthHeaderSignal } from "../../features/user-management/ui/containers/auth-header/types";
 import { AuthDialogEvent, AuthDialogSignal } from "../../features/user-management/ui/containers/auth-dialog/types";
+import { setupTestActivities } from "../utils/activities";
 
 type Targets = {
     PageDetailsPage: {
@@ -628,6 +629,39 @@ export const SCENARIOS: ScenarioMap<Targets> = {
             ]
         },
         steps: [
+        ]
+    })),
+    'unseen-activities': scenario<Targets>(({ step, callModification }) => ({
+        fixture: 'annotated-list-with-user',
+        startRoute: { route: 'pageDetails', params: { id: 'default-page' } },
+        setup: {
+            execute: setupTestActivities,
+        },
+        steps: [
+        ]
+    })),
+    'logout-with-unseen-activities': scenario<Targets>(({ step, callModification }) => ({
+        fixture: 'annotated-list-with-user',
+        startRoute: { route: 'pageDetails', params: { id: 'default-page' } },
+        setup: {
+            execute: async context => {
+                await setupTestActivities(context)
+                await new Promise(resolve => setTimeout(resolve, 500))
+            }
+        },
+        steps: [
+            step({
+                name: 'toggle-menu',
+                target: 'AuthHeader',
+                eventName: 'toggleMenu',
+                eventArgs: null
+            }),
+            step({
+                name: 'click-logout',
+                target: 'AuthHeader',
+                eventName: 'logout',
+                eventArgs: null
+            }),
         ]
     })),
 }

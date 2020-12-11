@@ -4,8 +4,8 @@ import { StorageModules } from "../../../../../storage/types";
 
 export interface AnnotationDetailsDependencies {
     annotationID: string
-    services: UIElementServices<'auth' | 'overlay' | 'router'>
-    storage: Pick<StorageModules, 'users' | 'contentSharing'>
+    services: UIElementServices<'auth' | 'overlay' | 'router' | 'activityStreams'>
+    storage: Pick<StorageModules, 'users' | 'contentSharing' | 'activityStreams'>
 }
 
 export type AnnotationDetailsEvent = UIEvent<{

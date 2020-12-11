@@ -52,7 +52,7 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
 
         let activityData: ActivityData | undefined
         await loadInitial<HomeFeedState>(this, async () => {
-            const { activityGroups } = await this.dependencies.services.activityStreams.getHomeActivities({ offset: 0, limit: 50 })
+            const { activityGroups } = await this.dependencies.services.activityStreams.getHomeFeedActivities({ offset: 0, limit: 50 })
             const organized = organizeActivities(activityGroups)
             activityData = organized.data
 

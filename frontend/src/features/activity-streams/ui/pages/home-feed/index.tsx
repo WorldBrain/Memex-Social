@@ -235,6 +235,7 @@ export default class HomeFeedPage extends UIElement<
           storage={this.props.storage}
           viewportBreakpoint={viewportWidth}
           headerTitle={"Collaboration Feed"}
+          hideActivityIndicator
         >
           {this.renderContent()}
         </DefaultPageLayout>
