@@ -1,4 +1,3 @@
-import createResolvable, { Resolvable } from '@josephg/resolvable'
 import { UILogic, UIEventHandler, loadInitial } from "../../../../../main-ui/classes/logic"
 import { UnseenActivityIndicatorEvent, UnseenActivityIndicatorDependencies, UnseenActivityIndicatorState } from "./types"
 import { UserReference } from '@worldbrain/memex-common/lib/web-interface/types/users'
@@ -12,7 +11,6 @@ export default class UnseenActivityIndicatorLogic extends UILogic<UnseenActivity
         super()
 
         this.subscribeToServiceEvent(this.dependencies.services.auth, 'changed', () => {
-            console.log('auth change')
             this._update()
         })
     }

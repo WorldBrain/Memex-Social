@@ -640,7 +640,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
         steps: [
         ]
     })),
-    'logout-with-unseen-activities': scenario<Targets>(({ step, callModification }) => ({
+    'logout-login-with-unseen-activities': scenario<Targets>(({ step, callModification }) => ({
         fixture: 'annotated-list-with-user',
         startRoute: { route: 'pageDetails', params: { id: 'default-page' } },
         setup: {
@@ -662,6 +662,30 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                 eventName: 'logout',
                 eventArgs: null
             }),
+            step({
+                name: 'click-login',
+                target: 'AuthHeader',
+                eventName: 'login',
+                eventArgs: null
+            }),
+            step({
+                name: 'email',
+                target: 'AuthDialog',
+                eventName: 'editEmail',
+                eventArgs: { value: 'default-user' }
+            }),
+            step({
+                name: 'password',
+                target: 'AuthDialog',
+                eventName: 'editPassword',
+                eventArgs: { value: 'VeryStrongPassword' }
+            }),
+            step({
+                name: 'confirm-credentials',
+                target: 'AuthDialog',
+                eventName: 'emailPasswordConfirm',
+                eventArgs: null,
+            })
         ]
     })),
 }
