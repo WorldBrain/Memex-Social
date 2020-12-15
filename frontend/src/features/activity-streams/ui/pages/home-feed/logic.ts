@@ -1,13 +1,10 @@
-import last from 'lodash/last'
 import flatten from "lodash/flatten"
-import orderBy from "lodash/orderBy"
-import { AnnotationReplyActivity, ActivitiyStreamResults, ActivityStreamResultGroup, ActivityStream } from "@worldbrain/memex-common/lib/activity-streams/types"
-import { UILogic, UIEventHandler, loadInitial, executeUITask } from "../../../../../main-ui/classes/logic"
+import { ActivityStreamResultGroup, ActivityStream } from "@worldbrain/memex-common/lib/activity-streams/types"
+import { UILogic, UIEventHandler, loadInitial } from "../../../../../main-ui/classes/logic"
 import { HomeFeedEvent, HomeFeedDependencies, HomeFeedState, PageActivityItem, AnnotationActivityItem, ActivityItem, ActivityData } from "./types"
 import { getInitialAnnotationConversationStates } from "../../../../content-conversations/ui/utils"
 import { annotationConversationInitialState, annotationConversationEventHandlers } from "../../../../content-conversations/ui/logic"
 import UserProfileCache from "../../../../user-management/utils/user-profile-cache"
-import { SharedAnnotationReference } from "@worldbrain/memex-common/lib/content-sharing/types"
 
 type EventHandler<EventName extends keyof HomeFeedEvent> = UIEventHandler<HomeFeedState, HomeFeedEvent, EventName>
 
@@ -45,7 +42,16 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
     }
 
     init: EventHandler<'init'> = async () => {
-        const userReference = this.dependencies.services.auth.getCurrentUserReference()
+        let userReference = this.dependencies.services.auth.getCurrentUserReference()
+        if (!userReference) {
+            // Firebase auth doesn't immediately detect authenticated users, so wait if needed
+            await new Promise(resolve => {
+                this.dependencies.services.auth.events.once('changed', () => {
+                    resolve()
+                })
+            })
+            userReference = this.dependencies.services.auth.getCurrentUserReference()
+        }
         if (!userReference) {
             return
         }
@@ -62,6 +68,7 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
                     ...conversations[annotationId],
                     loadState: 'success',
                     expanded: true,
+                    // eslint-disable-next-line
                     replies: activityData.annotationItems[annotationId].replies.map(replyItem => (
                         activityData?.replies[annotationId]?.[replyItem.reference.id]!
                     )).filter(reply => !!reply)

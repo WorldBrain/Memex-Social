@@ -29,7 +29,7 @@ export default class UnseenActivityIndicatorLogic extends UILogic<UnseenActivity
 
     async _update() {
         const user = this.dependencies.services.auth.getCurrentUserReference()
-        if (this._user?.id == user?.id) {
+        if (this._user?.id === user?.id) {
             return // there was no change in user
         }
         this._user = user

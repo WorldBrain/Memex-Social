@@ -1,7 +1,6 @@
 import fromPairs from "lodash/fromPairs";
 import { AnnotationConversationsState, AnnotationConversationEvent, AnnotationConversationsHandlers, AnnotationConversationSignal } from "./types";
 import { UILogic, executeUITask } from "../../../main-ui/classes/logic";
-import { UIElementServices } from "../../../main-ui/classes";
 import ContentSharingStorage from "../../content-sharing/storage";
 import ContentConversationStorage from "../storage";
 import { UserReference, User } from "@worldbrain/memex-common/lib/web-interface/types/users";

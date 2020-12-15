@@ -6,7 +6,7 @@ import AuthHeader from "../../features/user-management/ui/containers/auth-header
 import { StorageModules } from "../../storage/types";
 import { Margin } from "styled-components-spacing";
 import RouteLink from "../components/route-link";
-import UnseenActivityIndicator from "../../features/annotations/ui/containers/unseen-activity-indicator";
+import UnseenActivityIndicator from "../../features/activity-streams/ui/containers/unseen-activity-indicator";
 const logoImage = require("../../assets/img/memex-logo.svg");
 
 const middleMaxWidth = "800px";
@@ -97,6 +97,7 @@ const FeedArea = styled(Margin)`
 const FeedLink = styled(RouteLink)`
   display: flex;
   align-items: center;
+  color: ${(props) => props.theme.colors.primary};
 `;
 
 const FeedLabel = styled.div`
