@@ -6,6 +6,13 @@ export const setupTestActivities = async ({ services, storage }: { services: Ser
         email: 'default-user',
         password: 'bling'
     })
+    await services.contentConversations.submitReply({
+        pageCreatorReference: { type: 'user-reference', id: 'default-user' },
+        annotationReference: { type: 'shared-annotation-reference', id: 'third-annotation' },
+        normalizedPageUrl: 'notion.so',
+        isFirstReply: true,
+        reply: { content: 'Replying to myself' }
+    })
     await services.activityStreams.followEntity({
         entityType: 'sharedAnnotation',
         entity: { type: 'shared-annotation-reference', id: 'default-annotation' },
@@ -36,18 +43,21 @@ export const setupTestActivities = async ({ services, storage }: { services: Ser
         pageCreatorReference: { type: 'user-reference', id: 'default-user' },
         annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' },
         normalizedPageUrl: 'getmemex.com',
+        isFirstReply: true,
         reply: { content: 'Test reply one' }
     })
     await services.contentConversations.submitReply({
         pageCreatorReference: { type: 'user-reference', id: 'default-user' },
         annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' },
         normalizedPageUrl: 'getmemex.com',
+        isFirstReply: true,
         reply: { content: 'Test reply two' }
     })
     await services.contentConversations.submitReply({
         pageCreatorReference: { type: 'user-reference', id: 'default-user' },
         annotationReference: { type: 'shared-annotation-reference', id: 'second-annotation' },
         normalizedPageUrl: 'getmemex.com',
+        isFirstReply: true,
         reply: { content: 'Test reply three' }
     })
     await storage.serverModules.activityStreams.updateHomeFeedTimestamp({
@@ -58,6 +68,7 @@ export const setupTestActivities = async ({ services, storage }: { services: Ser
         pageCreatorReference: { type: 'user-reference', id: 'default-user' },
         annotationReference: { type: 'shared-annotation-reference', id: 'third-annotation' },
         normalizedPageUrl: 'notion.so',
+        isFirstReply: false,
         reply: { content: 'Test reply four' }
     })
     await services.auth.logout()

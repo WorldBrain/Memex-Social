@@ -20,9 +20,16 @@ export type HomeFeedState = {
     replies: ActivityData['replies']
     users: { [userId: string]: Pick<User, 'displayName'> | null }
     lastSeenTimestamp?: number | null
+    moreRepliesLoadStates: { [groupId: string]: UITaskState }
 } & AnnotationConversationsState
 
-export type HomeFeedEvent = UIEvent<AnnotationConversationEvent>
+export type HomeFeedEvent = UIEvent<AnnotationConversationEvent & {
+    waypointHit: null
+    loadMoreReplies: {
+        groupId: string
+        annotationReference: SharedAnnotationReference
+    }
+}>
 
 export type HomeFeedSignal = UISignal<
     { type: 'not-yet' }
@@ -32,6 +39,7 @@ export type ActivityItem = PageActivityItem
 
 export interface PageActivityItem {
     type: 'page-item'
+    groupId: string
     reason: 'new-replies'
     notifiedWhen: number
     normalizedPageUrl: string
@@ -41,6 +49,7 @@ export interface PageActivityItem {
 export interface AnnotationActivityItem {
     type: 'annotation-item'
     reference: SharedAnnotationReference;
+    hasEarlierReplies: boolean
     replies: Array<{
         reference: ConversationReplyReference;
     }>;
@@ -48,11 +57,11 @@ export interface AnnotationActivityItem {
 
 export interface ActivityData {
     pageInfo: { [normalizedPageUrl: string]: Pick<SharedPageInfo, 'fullTitle' | 'originalUrl'> }
-    pageItems: { [normalizedPageUrl: string]: PageActivityItem }
+    // pageItems: { [normalizedPageUrl: string]: PageActivityItem }
     annotations: { [annotationId: string]: Pick<SharedAnnotation, 'body' | 'comment' | 'normalizedPageUrl' | 'updatedWhen'> & { linkId: string, creatorReference: UserReference } }
-    annotationItems: { [annotationId: string]: AnnotationActivityItem }
+    annotationItems: { [groupId: string]: AnnotationActivityItem }
     replies: {
-        [annotationId: string]: {
+        [groupId: string]: {
             [replyId: string]: {
                 reference: ConversationReplyReference
                 creatorReference: UserReference

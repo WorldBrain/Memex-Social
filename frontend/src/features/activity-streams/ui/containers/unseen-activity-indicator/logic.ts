@@ -1,14 +1,22 @@
+import { UserReference } from '@worldbrain/memex-common/lib/web-interface/types/users'
+import { UnseenActivityTracker } from '@worldbrain/memex-common/lib/activity-streams/utils'
 import { UILogic, UIEventHandler, loadInitial } from "../../../../../main-ui/classes/logic"
 import { UnseenActivityIndicatorEvent, UnseenActivityIndicatorDependencies, UnseenActivityIndicatorState } from "./types"
-import { UserReference } from '@worldbrain/memex-common/lib/web-interface/types/users'
 
 type EventHandler<EventName extends keyof UnseenActivityIndicatorEvent> = UIEventHandler<UnseenActivityIndicatorState, UnseenActivityIndicatorEvent, EventName>
 
 export default class UnseenActivityIndicatorLogic extends UILogic<UnseenActivityIndicatorState, UnseenActivityIndicatorEvent> {
-    _user: UserReference | null = null
+    tracker: UnseenActivityTracker
 
     constructor(private dependencies: UnseenActivityIndicatorDependencies) {
         super()
+
+        this.tracker = new UnseenActivityTracker({
+            getLatestActivityTimestamp: () => this.dependencies.services.activityStreams.getHomeFeedInfo().then(info => info.latestActivityTimestamp),
+            getHomeFeedTimestamp: (user: UserReference) => this.dependencies.storage.activityStreams.retrieveHomeFeedTimestamp({
+                user: user,
+            }).then((result) => result?.timestamp ?? null)
+        })
 
         this.subscribeToServiceEvent(this.dependencies.services.auth, 'changed', () => {
             this._update()
@@ -29,42 +37,18 @@ export default class UnseenActivityIndicatorLogic extends UILogic<UnseenActivity
 
     async _update() {
         const user = this.dependencies.services.auth.getCurrentUserReference()
-        if (this._user?.id === user?.id) {
-            return // there was no change in user
+        if (!this.tracker.needsUpdate(user)) {
+            return
         }
-        this._user = user
 
         this.emitMutation({
             isAuthenticated: { $set: !!user },
             $unset: ['hasUnseen']
         })
-        if (!user) {
-            delete this._user
-            return // TODO: Reset indicator
-        }
 
-        const [latestActivityTimestamp, homeFeedTimestamp] = await Promise.all([
-            this.dependencies.services.activityStreams.getHomeFeedInfo().then(info => info.latestActivityTimestamp),
-            this.dependencies.storage.activityStreams.retrieveHomeFeedTimestamp({
-                user: user,
-            }).then((result) => result?.timestamp ?? null)
-        ])
-
+        const { hasUnseen } = await this.tracker.update(user)
         this.emitMutation({
-            hasUnseen: { $set: hasUnseenActivities({ latestActivityTimestamp, homeFeedTimestamp }) },
+            hasUnseen: { $set: hasUnseen },
         })
     }
-}
-
-function hasUnseenActivities(params: {
-    latestActivityTimestamp: number | null,
-    homeFeedTimestamp: number | null,
-}) {
-    if (!params.latestActivityTimestamp) {
-        return false
-    }
-    if (!params.homeFeedTimestamp) {
-        return true
-    }
-    return params.latestActivityTimestamp > params.homeFeedTimestamp
 }

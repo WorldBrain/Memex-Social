@@ -135,6 +135,7 @@ export function annotationConversationEventHandlers<State extends AnnotationConv
                     annotationReference: event.annotationReference,
                     normalizedPageUrl: annotationData.annotation.normalizedPageUrl,
                     pageCreatorReference,
+                    isFirstReply: !conversation.replies.length,
                     reply: { content: conversation.newReply.content }
                 })
                 if (result.status === 'not-authenticated') {

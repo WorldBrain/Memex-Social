@@ -54,6 +54,9 @@ export default function AnnotationsInPage(
     loadState: UITaskState;
     annotations?: Array<SharedAnnotationInPage> | null;
     annotationConversations?: AnnotationConversationStates | null;
+    getAnnotationConversation?: (
+      annotationReference: SharedAnnotationReference
+    ) => AnnotationConversationState | null;
     hideNewReplyIfNotEditing?: boolean;
     getAnnotationCreator?: (
       annotationReference: SharedAnnotationReference
@@ -62,6 +65,9 @@ export default function AnnotationsInPage(
       annotationReference: SharedAnnotationReference,
       replyReference: ConversationReplyReference
     ) => Pick<User, "displayName"> | null | undefined;
+    renderBeforeReplies?: (
+      annotationReference: SharedAnnotationReference
+    ) => React.ReactNode;
     renderReplyBox?: (props: {
       annotationReference: SharedAnnotationReference;
       replyReference: ConversationReplyReference;
@@ -105,7 +111,9 @@ export default function AnnotationsInPage(
   }
 
   const renderAnnotation = (annotation: SharedAnnotationInPage) => {
-    const conversation = props.annotationConversations?.[annotation.linkId];
+    const conversation =
+      props.getAnnotationConversation?.(annotation.reference) ??
+      props.annotationConversations?.[annotation.linkId];
     return (
       <Margin key={annotation.linkId} bottom={"medium"}>
         <AnnotationWithReplies
@@ -145,6 +153,9 @@ export function AnnotationWithReplies(
     onToggleReplies?(event: {
       annotationReference: SharedAnnotationReference;
     }): void;
+    renderBeforeReplies?: (
+      annotationReference: SharedAnnotationReference
+    ) => React.ReactNode;
     renderReplyBox?: (props: {
       annotationReference: SharedAnnotationReference;
       replyReference: ConversationReplyReference;
@@ -172,40 +183,52 @@ export function AnnotationWithReplies(
       />
       {conversation && (
         <>
-          {conversation.expanded &&
-            conversation.replies?.map?.((replyData) => (
-              <Margin key={replyData.reference.id} left="small">
-                <AnnotationReplyContainer>
-                  <AnnotationReply
-                    {...replyData}
-                    user={
-                      props.getReplyCreator?.(
-                        annotation.reference,
-                        replyData.reference
-                      ) ?? replyData.user
-                    }
-                    renderItemBox={
-                      props.renderReplyBox &&
-                      ((boxProps) =>
-                        props.renderReplyBox?.({
-                          annotationReference: annotation.reference,
-                          replyReference: replyData.reference,
-                          ...boxProps,
-                        }))
-                    }
-                  />
-                </AnnotationReplyContainer>
-              </Margin>
-            ))}
-          {conversation.expanded &&
-            (conversation.newReply.editing ||
-              !props.hideNewReplyIfNotEditing) && (
-              <Margin left="small">
-                <AnnotationReplyContainer>
-                  <NewAnnotationReply conversation={conversation} {...props} />
-                </AnnotationReplyContainer>
-              </Margin>
-            )}
+          {conversation.expanded && (
+            <>
+              {props.renderBeforeReplies && (
+                <Margin left="small">
+                  <AnnotationReplyContainer>
+                    {props.renderBeforeReplies(annotation.reference)}
+                  </AnnotationReplyContainer>
+                </Margin>
+              )}
+              {conversation.replies?.map?.((replyData) => (
+                <Margin key={replyData.reference.id} left="small">
+                  <AnnotationReplyContainer>
+                    <AnnotationReply
+                      {...replyData}
+                      user={
+                        props.getReplyCreator?.(
+                          annotation.reference,
+                          replyData.reference
+                        ) ?? replyData.user
+                      }
+                      renderItemBox={
+                        props.renderReplyBox &&
+                        ((boxProps) =>
+                          props.renderReplyBox?.({
+                            annotationReference: annotation.reference,
+                            replyReference: replyData.reference,
+                            ...boxProps,
+                          }))
+                      }
+                    />
+                  </AnnotationReplyContainer>
+                </Margin>
+              ))}
+              {(conversation.newReply.editing ||
+                !props.hideNewReplyIfNotEditing) && (
+                <Margin left="small">
+                  <AnnotationReplyContainer>
+                    <NewAnnotationReply
+                      conversation={conversation}
+                      {...props}
+                    />
+                  </AnnotationReplyContainer>
+                </Margin>
+              )}
+            </>
+          )}
         </>
       )}
     </>

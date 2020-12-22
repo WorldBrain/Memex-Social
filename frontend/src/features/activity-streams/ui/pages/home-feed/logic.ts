@@ -1,6 +1,6 @@
 import flatten from "lodash/flatten"
 import { ActivityStreamResultGroup, ActivityStream } from "@worldbrain/memex-common/lib/activity-streams/types"
-import { UILogic, UIEventHandler, loadInitial } from "../../../../../main-ui/classes/logic"
+import { UILogic, UIEventHandler, loadInitial, executeUITask, UIMutation } from "../../../../../main-ui/classes/logic"
 import { HomeFeedEvent, HomeFeedDependencies, HomeFeedState, PageActivityItem, AnnotationActivityItem, ActivityItem, ActivityData } from "./types"
 import { getInitialAnnotationConversationStates } from "../../../../content-conversations/ui/utils"
 import { annotationConversationInitialState, annotationConversationEventHandlers } from "../../../../content-conversations/ui/logic"
@@ -9,12 +9,15 @@ import UserProfileCache from "../../../../user-management/utils/user-profile-cac
 type EventHandler<EventName extends keyof HomeFeedEvent> = UIEventHandler<HomeFeedState, HomeFeedEvent, EventName>
 
 export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent> {
-    _users: UserProfileCache
+    pageSize = 50
+    itemOffset = 0
+    hasMore = true
+    users: UserProfileCache
 
     constructor(private dependencies: HomeFeedDependencies) {
         super()
 
-        this._users = new UserProfileCache(dependencies)
+        this.users = new UserProfileCache(dependencies)
 
         Object.assign(this, annotationConversationEventHandlers<HomeFeedState>(this as any, {
             ...this.dependencies,
@@ -25,7 +28,7 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
                 }
                 return { annotation, pageCreatorReference: annotation.creatorReference }
             },
-            loadUser: reference => this._users.loadUser(reference),
+            loadUser: reference => this.users.loadUser(reference),
         }))
     }
 
@@ -37,12 +40,13 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
             annotations: {},
             replies: {},
             users: {},
+            moreRepliesLoadStates: {},
             ...annotationConversationInitialState(),
         }
     }
 
     init: EventHandler<'init'> = async () => {
-        let userReference = this.dependencies.services.auth.getCurrentUserReference()
+        const userReference = this.dependencies.services.auth.getCurrentUserReference()
         if (!userReference) {
             // Firebase auth doesn't immediately detect authenticated users, so wait if needed
             await new Promise(resolve => {
@@ -50,40 +54,114 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
                     resolve()
                 })
             })
-            userReference = this.dependencies.services.auth.getCurrentUserReference()
         }
-        if (!userReference) {
-            return
+        await this.loadNextActivities({ isInitial: true })
+    }
+
+    waypointHit: EventHandler<'waypointHit'> = async () => {
+        if (this.hasMore) {
+            await this.loadNextActivities()
         }
+    }
 
-        let activityData: ActivityData | undefined
-        await loadInitial<HomeFeedState>(this, async () => {
-            const { activityGroups } = await this.dependencies.services.activityStreams.getHomeFeedActivities({ offset: 0, limit: 50 })
-            const organized = organizeActivities(activityGroups)
-            activityData = organized.data
+    loadMoreReplies: EventHandler<'loadMoreReplies'> = async (incoming) => {
+        const { groupId } = incoming.event
 
-            const conversations = getInitialAnnotationConversationStates(Object.values(organized.data.annotations))
-            for (const annotationId of Object.keys(organized.data.replies)) {
-                conversations[annotationId] = {
-                    ...conversations[annotationId],
-                    loadState: 'success',
-                    expanded: true,
-                    // eslint-disable-next-line
-                    replies: activityData.annotationItems[annotationId].replies.map(replyItem => (
-                        activityData?.replies[annotationId]?.[replyItem.reference.id]!
-                    )).filter(reply => !!reply)
+        await executeUITask<HomeFeedState>(this, (taskState) => ({
+            moreRepliesLoadStates: { [groupId]: { $set: taskState } }
+        }), async () => {
+            const replies = (await this.dependencies.storage.contentConversations.getRepliesByAnnotation({
+                annotationReference: incoming.event.annotationReference,
+            })).filter(replyData => (
+                // don't process already loaded replies
+                !incoming.previousState.replies[groupId][replyData.reference.id]
+            ))
+            const conversationsMutations: UIMutation<HomeFeedState['conversations']> = {}
+            conversationsMutations[groupId] = {
+                replies: {
+                    $unshift: await Promise.all(replies.map(async replyData => ({
+                        reference: replyData.reference,
+                        user: await this.users.loadUser(replyData.userReference),
+                        reply: replyData.reply,
+                    })))
+                }
+            }
+
+            const repliesMutation: UIMutation<HomeFeedState['replies']> = {}
+            for (const replyData of replies) {
+                repliesMutation[groupId] = repliesMutation[groupId] ?? {}
+                repliesMutation[groupId] = {
+                    ...repliesMutation[groupId],
+                    [replyData.reference.id]: {
+                        $set: {
+                            reference: replyData.reference,
+                            creatorReference: replyData.userReference,
+                            reply: replyData.reply,
+                        }
+                    }
                 }
             }
 
             return {
                 mutation: {
-                    activityItems: { $set: organized.activityItems },
-                    pageInfo: { $set: organized.data.pageInfo },
-                    annotations: { $set: organized.data.annotations },
-                    replies: { $set: organized.data.replies },
-                    conversations: { $set: conversations }
+                    conversations: conversationsMutations,
+                    replies: repliesMutation
                 }
             }
+        })
+    }
+
+    async loadNextActivities(options?: { isInitial?: boolean }) {
+        const userReference = this.dependencies.services.auth.getCurrentUserReference()
+        if (!userReference) {
+            return
+        }
+
+        const loader = async (f: () => Promise<void>) => {
+            if (options?.isInitial) {
+                await loadInitial<HomeFeedState>(this, async () => {
+                    await f()
+                })
+            } else {
+                await f()
+            }
+        }
+
+        let activityData: ActivityData | undefined
+        await loader(async () => {
+            const { activityGroups, hasMore } = await this.dependencies.services.activityStreams.getHomeFeedActivities({ offset: this.itemOffset, limit: this.pageSize })
+            this.itemOffset += this.pageSize
+            if (!activityGroups.length) {
+                this.hasMore = false
+                return
+            }
+            this.hasMore = hasMore
+
+            const organized = organizeActivities(activityGroups)
+            activityData = organized.data
+
+            const conversations = getInitialAnnotationConversationStates(organized.activityItems.map((activityItem) => ({
+                linkId: activityItem.groupId,
+            })))
+            for (const groupId of Object.keys(organized.data.replies)) {
+                const annotationReplies = activityData.annotationItems[groupId].replies
+                conversations[groupId] = {
+                    ...conversations[groupId],
+                    loadState: 'success',
+                    expanded: true,
+                    replies: annotationReplies.map(replyItem => {
+                        return activityData?.replies[groupId]?.[replyItem.reference.id]!
+                    }).filter(reply => !!reply)
+                }
+            }
+
+            this.emitMutation({
+                activityItems: { $push: organized.activityItems },
+                pageInfo: { $merge: organized.data.pageInfo },
+                annotations: { $merge: organized.data.annotations },
+                replies: { $merge: organized.data.replies },
+                conversations: { $merge: conversations }
+            })
         })
 
         const allReplies = flatten(Object.values(activityData?.replies ?? {}).map(
@@ -92,56 +170,57 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
         await Promise.all([
             ...Object.values(activityData?.annotations ?? {}).map(async ({ creatorReference }) => {
                 this.emitMutation({
-                    users: { [creatorReference.id]: { $set: await this._users.loadUser(creatorReference) } }
+                    users: { [creatorReference.id]: { $set: await this.users.loadUser(creatorReference) } }
                 })
             }),
             ...allReplies.map(async ({ creatorReference }) => {
                 this.emitMutation({
-                    users: { [creatorReference.id]: { $set: await this._users.loadUser(creatorReference) } }
+                    users: { [creatorReference.id]: { $set: await this.users.loadUser(creatorReference) } }
                 })
             }),
-            this.dependencies.storage.activityStreams.updateHomeFeedTimestamp({
+            ...(options?.isInitial ? [this.dependencies.storage.activityStreams.updateHomeFeedTimestamp({
                 user: userReference,
                 timestamp: Date.now(),
             }).then(({ previousTimestamp }) => {
                 this.emitMutation({ lastSeenTimestamp: { $set: previousTimestamp } })
-            })
+            })] : [])
         ])
     }
 }
 
-export function organizeActivities(notifications: Array<ActivityStreamResultGroup<keyof ActivityStream>>): {
+export function organizeActivities(activities: Array<ActivityStreamResultGroup<keyof ActivityStream>>): {
     activityItems: Array<ActivityItem>
     data: ActivityData
 } {
     const data: ActivityData = {
         pageInfo: {},
-        pageItems: {},
         annotations: {},
-        annotationItems: {},
         replies: {},
+        annotationItems: {},
     }
 
     const activityItems: ActivityItem[] = []
-    for (const activityGroup of notifications) {
+    for (const activityGroup of activities) {
         if (activityGroup.entityType === 'sharedAnnotation' && activityGroup.activityType === 'conversationReply') {
             const replyActivityGroup = activityGroup as ActivityStreamResultGroup<'sharedAnnotation', 'conversationReply'>
 
             const annotationItem: AnnotationActivityItem = {
                 type: 'annotation-item',
                 reference: replyActivityGroup.activities[0].activity.annotation.reference,
+                hasEarlierReplies: !replyActivityGroup.activities[0].activity.isFirstReply,
                 replies: []
             }
-            data.annotationItems[annotationItem.reference.id] = annotationItem
+            data.annotationItems[activityGroup.id] = annotationItem
 
             const pageItem: PageActivityItem = {
                 type: 'page-item',
+                groupId: activityGroup.id,
                 reason: 'new-replies',
                 normalizedPageUrl: replyActivityGroup.activities[0].activity.normalizedPageUrl,
                 notifiedWhen: 0,
                 annotations: [annotationItem],
             }
-            data.pageItems[pageItem.normalizedPageUrl] = pageItem
+            // data.pageItems[pageItem.normalizedPageUrl] = pageItem
             activityItems.push(pageItem)
 
             for (const activityInGroup of replyActivityGroup.activities) {
@@ -154,10 +233,10 @@ export function organizeActivities(notifications: Array<ActivityStreamResultGrou
                     ...replyActivity.annotation
                 }
 
-                if (!data.replies[annotationReference.id]) {
-                    data.replies[annotationReference.id] = {}
+                if (!data.replies[activityGroup.id]) {
+                    data.replies[activityGroup.id] = {}
                 }
-                data.replies[annotationReference.id][replyActivity.reply.reference.id] = {
+                data.replies[activityGroup.id][replyActivity.reply.reference.id] = {
                     reference: replyActivity.reply.reference,
                     creatorReference: replyActivity.replyCreator.reference,
                     reply: {

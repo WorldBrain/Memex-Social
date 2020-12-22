@@ -16,7 +16,7 @@ export default class ContentConversationsService {
 
     }
 
-    async submitReply(params: Omit<CreateConversationReplyParams, 'userReference'>): Promise<{ status: 'success', replyReference: ConversationReplyReference } | { status: 'not-authenticated' }> {
+    async submitReply(params: Omit<CreateConversationReplyParams, 'userReference'> & { isFirstReply: boolean }): Promise<{ status: 'success', replyReference: ConversationReplyReference } | { status: 'not-authenticated' }> {
         const userReference = this.options.auth.getCurrentUserReference()
         if (!userReference) {
             return { status: 'not-authenticated' }
@@ -35,6 +35,7 @@ export default class ContentConversationsService {
                     activityType: 'conversationReply',
                     activity: {
                         replyReference,
+                        isFirstReply: params.isFirstReply,
                     },
                     follow: { home: true },
                 })

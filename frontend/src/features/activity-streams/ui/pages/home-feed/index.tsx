@@ -1,5 +1,6 @@
 import pick from "lodash/pick";
 import React from "react";
+import { Waypoint } from "react-waypoint";
 import styled from "styled-components";
 import { UIElement } from "../../../../../main-ui/classes";
 import Logic from "./logic";
@@ -18,6 +19,7 @@ import PageInfoBox from "../../../../../common-ui/components/page-info-box";
 import AnnotationsInPage from "../../../../annotations/ui/components/annotations-in-page";
 import { SharedAnnotationInPage } from "../../../../annotations/ui/components/types";
 import MessageBox from "../../../../../common-ui/components/message-box";
+import LoadingIndicator from "../../../../../common-ui/components/loading-indicator";
 
 const commentImage = require("../../../../../assets/img/comment.svg");
 
@@ -61,6 +63,15 @@ const LastSeenLineLabel = styled.div`
   z-index: 2;
 `;
 
+const LoadMoreReplies = styled.div`
+  display: flex;
+  justify-content: center;
+  font-family: ${(props) => props.theme.fonts.primary};
+  background: white;
+  font-size: 10pt;
+  cursor: pointer;
+`;
+
 export default class HomeFeedPage extends UIElement<
   HomeFeedDependencies,
   HomeFeedState,
@@ -99,7 +110,12 @@ export default class HomeFeedPage extends UIElement<
     if (!this.state.activityItems?.length) {
       return this.renderNoActivities();
     }
-    return this.renderActivities(this.state.activityItems);
+    return (
+      <>
+        {this.renderActivities(this.state.activityItems)}
+        <Waypoint onEnter={() => this.processEvent("waypointHit", null)} />
+      </>
+    );
   }
 
   renderNoActivities() {
@@ -142,7 +158,7 @@ export default class HomeFeedPage extends UIElement<
   renderPageItem(pageItem: PageActivityItem) {
     const pageInfo = this.state.pageInfo[pageItem.normalizedPageUrl];
     return {
-      key: pageItem.annotations[0].reference.id,
+      key: pageItem.annotations[0].replies[0].reference.id,
       rendered: (
         <Margin bottom="large">
           <Margin bottom="small">
@@ -194,11 +210,52 @@ export default class HomeFeedPage extends UIElement<
                 state.annotations[annotationReference.id].creatorReference.id
               ]
             }
-            annotationConversations={this.state.conversations}
+            getAnnotationConversation={() => {
+              return this.state.conversations[pageItem.groupId];
+            }}
             getReplyCreator={(annotationReference, replyReference) => {
-              const reply =
-                state.replies[annotationReference.id][replyReference.id];
+              const reply = state.replies[pageItem.groupId][replyReference.id];
               return state.users[reply.creatorReference.id];
+            }}
+            renderBeforeReplies={(annotationReference) => {
+              const annotationItem = pageItem.annotations.find(
+                (annotationItem) =>
+                  annotationItem.reference.id === annotationReference.id
+              );
+              if (!annotationItem || !annotationItem.hasEarlierReplies) {
+                return null;
+              }
+              const loadState =
+                state.moreRepliesLoadStates[pageItem.groupId] ?? "pristine";
+              if (loadState === "success") {
+                return null;
+              }
+              if (loadState === "running") {
+                return (
+                  <LoadMoreReplies>
+                    <LoadingIndicator />
+                  </LoadMoreReplies>
+                );
+              }
+              if (loadState === "error") {
+                return (
+                  <LoadMoreReplies>
+                    Error loading earlier replies
+                  </LoadMoreReplies>
+                );
+              }
+              return (
+                <LoadMoreReplies
+                  onClick={() =>
+                    this.processEvent("loadMoreReplies", {
+                      groupId: pageItem.groupId,
+                      annotationReference,
+                    })
+                  }
+                >
+                  Load more
+                </LoadMoreReplies>
+              );
             }}
             onNewReplyInitiate={(event) =>
               this.processEvent("initiateNewReplyToAnnotation", event)
