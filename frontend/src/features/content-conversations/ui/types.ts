@@ -20,14 +20,14 @@ export interface AnnotationConversationState {
     }
 }
 
-export type AnnotationConversationStates = { [sharedAnnotationId: string]: AnnotationConversationState }
+export type AnnotationConversationStates = { [conversationId: string]: AnnotationConversationState }
 
 export type AnnotationConversationEvent = {
-    initiateNewReplyToAnnotation: { annotationReference: SharedAnnotationReference }
-    editNewReplyToAnnotation: { annotationReference: SharedAnnotationReference, content: string }
-    cancelNewReplyToAnnotation: { annotationReference: SharedAnnotationReference }
-    confirmNewReplyToAnnotation: { annotationReference: SharedAnnotationReference }
-    toggleAnnotationReplies: { annotationReference: SharedAnnotationReference }
+    initiateNewReplyToAnnotation: { annotationReference: SharedAnnotationReference, conversationId?: string }
+    editNewReplyToAnnotation: { annotationReference: SharedAnnotationReference, conversationId?: string, content: string }
+    cancelNewReplyToAnnotation: { annotationReference: SharedAnnotationReference, conversationId?: string }
+    confirmNewReplyToAnnotation: { annotationReference: SharedAnnotationReference, conversationId?: string }
+    toggleAnnotationReplies: { annotationReference: SharedAnnotationReference, conversationId?: string }
 }
 export type AnnotationConversationSignal = { type: 'auth-requested' } | { type: 'reply-submitting' }
 

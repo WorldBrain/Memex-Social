@@ -13,6 +13,13 @@ export const setupTestActivities = async ({ services, storage }: { services: Ser
         isFirstReply: true,
         reply: { content: 'Replying to myself' }
     })
+    await services.contentConversations.submitReply({
+        pageCreatorReference: { type: 'user-reference', id: 'default-user' },
+        annotationReference: { type: 'shared-annotation-reference', id: 'third-annotation' },
+        normalizedPageUrl: 'notion.so',
+        isFirstReply: false,
+        reply: { content: 'Another reply to myself' }
+    })
     await services.activityStreams.followEntity({
         entityType: 'sharedAnnotation',
         entity: { type: 'shared-annotation-reference', id: 'default-annotation' },

@@ -214,8 +214,17 @@ export default class HomeFeedPage extends UIElement<
               return this.state.conversations[pageItem.groupId];
             }}
             getReplyCreator={(annotationReference, replyReference) => {
-              const reply = state.replies[pageItem.groupId][replyReference.id];
-              return state.users[reply.creatorReference.id];
+              const groupReplies = state.replies[pageItem.groupId];
+              const reply = groupReplies?.[replyReference.id]
+
+              // When the reply is newly submitted, it's not in state.replies yet
+              if (reply) {
+                  return state.users[reply.creatorReference.id];
+              }
+
+              return (state.conversations[pageItem.groupId]?.replies ?? []).find(
+                reply => reply.reference.id === replyReference.id
+              )?.user;
             }}
             renderBeforeReplies={(annotationReference) => {
               const annotationItem = pageItem.annotations.find(
@@ -258,19 +267,34 @@ export default class HomeFeedPage extends UIElement<
               );
             }}
             onNewReplyInitiate={(event) =>
-              this.processEvent("initiateNewReplyToAnnotation", event)
+              this.processEvent("initiateNewReplyToAnnotation", {
+                ...event,
+                conversationId: pageItem.groupId,
+              })
             }
             onNewReplyCancel={(event) =>
-              this.processEvent("cancelNewReplyToAnnotation", event)
+              this.processEvent("cancelNewReplyToAnnotation", {
+                ...event,
+                conversationId: pageItem.groupId,
+              })
             }
             onNewReplyConfirm={(event) =>
-              this.processEvent("confirmNewReplyToAnnotation", event)
+              this.processEvent("confirmNewReplyToAnnotation", {
+                ...event,
+                conversationId: pageItem.groupId,
+              })
             }
             onNewReplyEdit={(event) =>
-              this.processEvent("editNewReplyToAnnotation", event)
+              this.processEvent("editNewReplyToAnnotation", {
+                ...event,
+                conversationId: pageItem.groupId,
+              })
             }
             onToggleReplies={(event) =>
-              this.processEvent("toggleAnnotationReplies", event)
+              this.processEvent("toggleAnnotationReplies", {
+                ...event,
+                conversationId: pageItem.groupId,
+              })
             }
           />
         </Margin>

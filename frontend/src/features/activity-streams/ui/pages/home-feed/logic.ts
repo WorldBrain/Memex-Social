@@ -1,4 +1,5 @@
 import flatten from "lodash/flatten"
+import sortBy from "lodash/sortBy"
 import { ActivityStreamResultGroup, ActivityStream } from "@worldbrain/memex-common/lib/activity-streams/types"
 import { UILogic, UIEventHandler, loadInitial, executeUITask, UIMutation } from "../../../../../main-ui/classes/logic"
 import { HomeFeedEvent, HomeFeedDependencies, HomeFeedState, PageActivityItem, AnnotationActivityItem, ActivityItem, ActivityData } from "./types"
@@ -203,6 +204,7 @@ export function organizeActivities(activities: Array<ActivityStreamResultGroup<k
     for (const activityGroup of activities) {
         if (activityGroup.entityType === 'sharedAnnotation' && activityGroup.activityType === 'conversationReply') {
             const replyActivityGroup = activityGroup as ActivityStreamResultGroup<'sharedAnnotation', 'conversationReply'>
+            replyActivityGroup.activities = sortBy(replyActivityGroup.activities, ({ activity }) => activity.reply.createdWhen)
 
             const annotationItem: AnnotationActivityItem = {
                 type: 'annotation-item',
