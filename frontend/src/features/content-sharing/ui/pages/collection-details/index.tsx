@@ -55,11 +55,11 @@ const CollectionDescriptionToggle = styled.div<{
   cursor: pointer;
   padding: 3px 5px;
   margin-left: -5px;
-  border-radius: ${(props) => props.theme.borderRadius.default};
+  border-radius: ${(props) => props.theme.borderRadii.default};
   color: ${(props) => props.theme.colors.subText};
 
   &:hover {
-    background-color: ${(props) => props.theme.hoverBackground.primary};
+    background-color: ${(props) => props.theme.hoverBackgrounds.primary};
   }
 `;
 
