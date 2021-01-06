@@ -5,8 +5,9 @@ Memex Social features span across the Memex browser extension, and the web UI al
 ## Getting started
 
 ```
-$ git clone git clone git@github.com:WorldBrain/Memex-Social
+$ git clone --recurse git@github.com:WorldBrain/Memex-Social
 $ cd Memex-Social
+$ git checkout <branch-to-work on>
 $ yarn bootstrap
 $ cd frontend
 $ REACT_APP_BACKEND=memory yarn start
@@ -50,8 +51,18 @@ As part of WorldBrain, this project adheres to the coding guidelines outline in 
 
 ## Some things to know about the Lerna setup
 
-This project uses Lerna to manage multiple packages and make development across them easier. Lerna takes care of creating symlinks between all `node_modules` directories so you don't have to. However, some things that are normally easy, are made harder.
+This project uses Lerna to manage multiple packages and make development across them easier. Lerna takes care of creating symlinks between all `node_modules` directories so you don't have to. However, there are some things to keep in mind.
 
 ### Adding a new NPM package to one of the modules
 
 When you do `yarn add <package>` in one of the modules, the `node_modules` directory is automatically cleaned of any symlinks and it start to download old versions of the packages in `external/` from NPM. This will cause errors, because in order for things to work, we need the symlinks between packages to be preserved.
+
+Instead, edit the `package.json` of the module you want to install the new dependency by hand to include the new dependency (Visual Studio code autocompletes package names and version) and then in the root `Memex-Social` directory run this:
+
+```
+yarn lerna bootstrap --force-local --ignore-scripts
+```
+
+### Working across multiple modules
+
+Lerna works by creating symlinks between the modules in their `node_modules`. This means when you requires `@worldbrain/memex-common`, it looks inside its `lib/` directory for the compiled code, not the original TypesScript code. This means that if you're editing a module, like `@worldbrain/memex-common`, you'll have to start the TypeScript watching compiler for that module (typically by going to that directory in another terminal, then running `yarn prepare:watch`.)
