@@ -60,9 +60,24 @@ When you do `yarn add <package>` in one of the modules, the `node_modules` direc
 Instead, edit the `package.json` of the module you want to install the new dependency by hand to include the new dependency (Visual Studio code autocompletes package names and version) and then in the root `Memex-Social` directory run this:
 
 ```
-yarn lerna bootstrap --force-local --ignore-scripts
+$ yarn lerna bootstrap --force-local --ignore-scripts
 ```
+
+### Updating and/or editing modules
+
+If you want to use a later version and/or edit a module, you'll first have to check out a branch instead of a specific commit which may have happened though either the `git clone --recurse` or `git submodule update` commands. That means going to the module and running `git checkout develop` or `git checkout` master (or creating your own branch off of one of those) and running `yarn prepare`. That way, once you commit changes, you won't be commiting them outside of a branch.
+
+Typically, all submodules use the `develop` branch. But some don't have them yet at time of writing, such as `@worldbrain/memex-common`, so use the `master` branch instead.
 
 ### Working across multiple modules
 
 Lerna works by creating symlinks between the modules in their `node_modules`. This means when you requires `@worldbrain/memex-common`, it looks inside its `lib/` directory for the compiled code, not the original TypesScript code. This means that if you're editing a module, like `@worldbrain/memex-common`, you'll have to start the TypeScript watching compiler for that module (typically by going to that directory in another terminal, then running `yarn prepare:watch`.)
+
+### Switching branches
+
+After switching branches, you'll also have to update the submodules and recompile them. Do this by running this in the top-level directory:
+
+```
+$ git submodule update
+$ yarn bootstrap
+```
