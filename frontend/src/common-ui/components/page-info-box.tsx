@@ -35,7 +35,7 @@ const PageInfoBoxTitle = styled.div`
   font-weight: 600;
   color: ${(props) => props.theme.colors.primary};
   text-decoration: none;
-  font-size: ${(props) => props.theme.fontSize.listTitle};
+  font-size: ${(props) => props.theme.fontSizes.listTitle};
   text-overflow: ellipsis;
   overflow-x: hidden;
   text-decoration: none;
@@ -45,7 +45,7 @@ const PageInfoBoxTitle = styled.div`
 
 const PageInfoBoxUrl = styled.div`
   font-weight: 400;
-  font-size: ${(props) => props.theme.fontSize.url};
+  font-size: ${(props) => props.theme.fontSizes.url};
   color: ${(props) => props.theme.colors.subText};
   text-overflow: ellipsis;
   overflow-x: hidden;

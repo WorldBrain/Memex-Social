@@ -35,7 +35,7 @@ const ActivityReasonIcon = styled.img`
 const ActivitityReasonLabel = styled.div`
   font-family: ${(props) => props.theme.fonts.primary};
   font-weight: bold;
-  font-size: ${(props) => props.theme.fontSize.listTitle}
+  font-size: ${(props) => props.theme.fontSizes.listTitle}
   color: ${(props) => props.theme.colors.primary};
 `;
 
