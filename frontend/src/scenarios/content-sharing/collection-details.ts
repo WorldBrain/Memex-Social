@@ -210,6 +210,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
     })),
     'cancel-new-conversation': scenario<Targets>(({ step, callModification }) => ({
         fixture: 'annotated-list-with-user',
+        authenticated: true,
         startRoute: { route: 'collectionDetails', params: { id: 'default-list' } },
         steps: [
             step({

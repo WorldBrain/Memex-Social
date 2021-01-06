@@ -5,8 +5,12 @@ import Routes from "./routes";
 
 export default class RouterService {
     private routes: Routes
+    private blockLeaveMessage: string | null = null
 
-    constructor(private options: { history: History, routes: RouteMap, auth: AuthService }) {
+    constructor(private options: {
+        history: History, routes: RouteMap, auth: AuthService
+        setBeforeLeaveHandler(handler: null | (() => string)): void
+    }) {
         this.routes = new Routes({
             routes: options.routes,
             isAuthenticated: () => !!options.auth.getCurrentUser()
@@ -37,5 +41,18 @@ export default class RouterService {
 
     matchUrl(url: string): { route: RouteName, params: { [key: string]: string } } | null {
         return this.routes.matchUrl(url)
+    }
+
+    blockLeave(message: string) {
+        if (this.blockLeaveMessage) {
+            throw new Error(`Tried to block user from leaving, but this is already blocked with this message: ${this.blockLeaveMessage}`)
+        }
+
+        this.blockLeaveMessage = message
+        this.options.setBeforeLeaveHandler(() => message)
+        return () => {
+            this.blockLeaveMessage = null
+            this.options.setBeforeLeaveHandler(null)
+        }
     }
 }

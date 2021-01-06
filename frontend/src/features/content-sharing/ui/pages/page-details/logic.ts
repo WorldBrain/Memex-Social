@@ -1,18 +1,21 @@
 import orderBy from 'lodash/orderBy'
-import { User, UserReference } from "@worldbrain/memex-common/lib/web-interface/types/users"
+import { UserReference } from "@worldbrain/memex-common/lib/web-interface/types/users"
 import { SharedPageInfo } from "@worldbrain/memex-common/lib/content-sharing/types"
 import { UILogic, UIEventHandler, executeUITask } from "../../../../../main-ui/classes/logic"
 import { PageDetailsEvent, PageDetailsDependencies, PageDetailsState, PageDetailsSignal } from "./types"
 import { getInitialAnnotationConversationStates } from '../../../../content-conversations/ui/utils'
 import { annotationConversationEventHandlers, annotationConversationInitialState, detectAnnotationConversationsThreads } from '../../../../content-conversations/ui/logic'
+import UserProfileCache from '../../../../user-management/utils/user-profile-cache'
 
 type EventHandler<EventName extends keyof PageDetailsEvent> = UIEventHandler<PageDetailsState, PageDetailsEvent, EventName>
 
 export default class PageDetailsLogic extends UILogic<PageDetailsState, PageDetailsEvent> {
-    users: { [id: string]: Promise<User | null> } = {}
+    _users: UserProfileCache
 
     constructor(private dependencies: PageDetailsDependencies) {
         super()
+
+        this._users = new UserProfileCache(dependencies)
 
         Object.assign(this, annotationConversationEventHandlers<PageDetailsState>(this as any, {
             ...this.dependencies,
@@ -24,7 +27,7 @@ export default class PageDetailsLogic extends UILogic<PageDetailsState, PageDeta
                 }
                 return { annotation, pageCreatorReference: state.creatorReference }
             },
-            loadUser: this._loadUser,
+            loadUser: reference => this._users.loadUser(reference),
         }))
     }
 
@@ -103,15 +106,5 @@ export default class PageDetailsLogic extends UILogic<PageDetailsState, PageDeta
             })
         ])
         this.emitSignal<PageDetailsSignal>({ type: 'loaded' })
-    }
-
-    _loadUser = async (userReference: UserReference): Promise<User | null> => {
-        if (this.users[userReference.id]) {
-            return this.users[userReference.id]
-        }
-
-        const user = this.dependencies.userManagement.getUser(userReference)
-        this.users[userReference.id] = user
-        return user
     }
 }

@@ -3,9 +3,9 @@ import range from 'lodash/range'
 import { SharedListEntry, SharedAnnotation } from "@worldbrain/memex-common/lib/content-sharing/types";
 import { createStorageTestSuite } from "../../../../../tests/storage-tests";
 import { TestLogicContainer } from "../../../../../tests/ui-logic";
-import CollectionDetailsLogic, { CollectionDetailsState } from "./logic";
+import CollectionDetailsLogic from "./logic";
 import CallModifier from '../../../../../utils/call-modifier';
-import { CollectionDetailsEvent } from './types';
+import { CollectionDetailsEvent, CollectionDetailsState } from './types';
 
 class TestDataFactory {
     createdWhen = 0
@@ -71,8 +71,8 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
             annotationsByPage: { [firstListEntry.normalizedUrl]: range(15).map(() => testDataFactory.createAnnotation(firstListEntry.normalizedUrl)) },
         })
         const logic = new CollectionDetailsLogic({
-            contentSharing: storage.serverModules.contentSharing,
-            userManagement: storage.serverModules.users,
+            storage: storage.serverModules,
+            services: {} as any,
             listID: storage.serverModules.contentSharing.getSharedListLinkID(listReference),
         });
         const container = new TestLogicContainer<CollectionDetailsState, CollectionDetailsEvent>(logic)
@@ -159,8 +159,8 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
         })
 
         const logic = new CollectionDetailsLogic({
-            contentSharing: storage.serverModules.contentSharing,
-            userManagement: storage.serverModules.users,
+            storage: storage.serverModules,
+            services: {} as any,
             listID: storage.serverModules.contentSharing.getSharedListLinkID(listReference),
         });
         const container = new TestLogicContainer<CollectionDetailsState, CollectionDetailsEvent>(logic)

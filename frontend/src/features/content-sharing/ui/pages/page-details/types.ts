@@ -8,8 +8,8 @@ import { User, UserReference } from "@worldbrain/memex-common/lib/web-interface/
 import { StorageModules } from "../../../../../storage/types";
 
 export interface PageDetailsDependencies {
-    services: UIElementServices<'contentConversations' | 'auth' | 'overlay' | 'activityStreams'>;
-    storage: Pick<StorageModules, 'contentSharing' | 'contentConversations' | 'users'>
+    services: UIElementServices<'contentConversations' | 'auth' | 'overlay' | 'activityStreams' | 'router'>;
+    storage: Pick<StorageModules, 'contentSharing' | 'contentConversations' | 'users' | 'activityStreams'>
     pageID: string
     userManagement: UserStorage
 }

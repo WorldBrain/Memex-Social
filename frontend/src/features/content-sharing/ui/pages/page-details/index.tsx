@@ -157,7 +157,7 @@ export default class PageDetailsPage extends UIElement<
                   <AnnotationsInPage
                     loadState={state.annotationLoadState}
                     annotations={annotations}
-                    annotationCreator={state.creator}
+                    getAnnotationCreator={() => state.creator}
                     annotationConversations={state.conversations}
                     onToggleReplies={(event) =>
                       this.processEvent("toggleAnnotationReplies", event)

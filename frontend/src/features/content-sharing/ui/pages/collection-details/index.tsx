@@ -172,6 +172,40 @@ export default class CollectionDetailsPage extends UIElement<
     }
   }
 
+  renderPageAnnotations(entry: SharedListEntry) {
+    const { state } = this;
+    return (
+      <AnnotationsInPage
+        loadState={state.annotationLoadStates[entry.normalizedUrl]}
+        annotations={
+          state.annotationEntryData &&
+          state.annotationEntryData[entry.normalizedUrl] &&
+          state.annotationEntryData &&
+          state.annotationEntryData[
+            entry.normalizedUrl
+          ].map((annotationEntry) => this.getAnnotation(annotationEntry))
+        }
+        annotationConversations={this.state.conversations}
+        getAnnotationCreator={() => this.state.listData?.creator}
+        onNewReplyInitiate={(event) =>
+          this.processEvent("initiateNewReplyToAnnotation", event)
+        }
+        onNewReplyCancel={(event) =>
+          this.processEvent("cancelNewReplyToAnnotation", event)
+        }
+        onNewReplyConfirm={(event) =>
+          this.processEvent("confirmNewReplyToAnnotation", event)
+        }
+        onNewReplyEdit={(event) =>
+          this.processEvent("editNewReplyToAnnotation", event)
+        }
+        onToggleReplies={(event) =>
+          this.processEvent("toggleAnnotationReplies", event)
+        }
+      />
+    );
+  }
+
   getAnnotation(
     annotationEntry: SharedAnnotationListEntry & {
       sharedAnnotation: SharedAnnotationReference;
@@ -305,44 +339,7 @@ export default class CollectionDetailsPage extends UIElement<
                 {state.pageAnnotationsExpanded[entry.normalizedUrl] && (
                   <Margin left={"small"}>
                     <Margin bottom={"smallest"}>
-                      <AnnotationsInPage
-                        loadState={
-                          state.annotationLoadStates[entry.normalizedUrl]
-                        }
-                        annotations={
-                          state.annotationEntryData &&
-                          state.annotationEntryData[entry.normalizedUrl] &&
-                          state.annotationEntryData &&
-                          state.annotationEntryData[
-                            entry.normalizedUrl
-                          ].map((annotationEntry) =>
-                            this.getAnnotation(annotationEntry)
-                          )
-                        }
-                        annotationConversations={this.state.conversations}
-                        annotationCreator={this.state.listData?.creator}
-                        onNewReplyInitiate={(event) =>
-                          this.processEvent(
-                            "initiateNewReplyToAnnotation",
-                            event
-                          )
-                        }
-                        onNewReplyCancel={(event) =>
-                          this.processEvent("cancelNewReplyToAnnotation", event)
-                        }
-                        onNewReplyConfirm={(event) =>
-                          this.processEvent(
-                            "confirmNewReplyToAnnotation",
-                            event
-                          )
-                        }
-                        onNewReplyEdit={(event) =>
-                          this.processEvent("editNewReplyToAnnotation", event)
-                        }
-                        onToggleReplies={(event) =>
-                          this.processEvent("toggleAnnotationReplies", event)
-                        }
-                      />
+                      {this.renderPageAnnotations(entry)}
                     </Margin>
                   </Margin>
                 )}

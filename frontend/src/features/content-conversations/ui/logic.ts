@@ -1,11 +1,11 @@
 import fromPairs from "lodash/fromPairs";
 import { AnnotationConversationsState, AnnotationConversationEvent, AnnotationConversationsHandlers, AnnotationConversationSignal } from "./types";
 import { UILogic, executeUITask } from "../../../main-ui/classes/logic";
-import { UIElementServices } from "../../../main-ui/classes";
 import ContentSharingStorage from "../../content-sharing/storage";
 import ContentConversationStorage from "../storage";
 import { UserReference, User } from "@worldbrain/memex-common/lib/web-interface/types/users";
 import { SharedAnnotationReference, SharedAnnotation } from "@worldbrain/memex-common/lib/content-sharing/types";
+import { Services } from "../../../services/types";
 
 export function annotationConversationInitialState(): AnnotationConversationsState {
     return {
@@ -36,7 +36,7 @@ export async function detectAnnotationConversationsThreads(
 export function annotationConversationEventHandlers<State extends AnnotationConversationsState>(
     logic: UILogic<AnnotationConversationsState, AnnotationConversationEvent>,
     dependencies: {
-        services: UIElementServices<'contentConversations' | 'auth' | 'activityStreams'>;
+        services: Pick<Services, 'contentConversations' | 'auth' | 'activityStreams'>;
         storage: {
             contentSharing: ContentSharingStorage,
             contentConversations: ContentConversationStorage
@@ -45,21 +45,22 @@ export function annotationConversationEventHandlers<State extends AnnotationConv
         getAnnotation(state: State, reference: SharedAnnotationReference): {
             pageCreatorReference?: UserReference | null,
             annotation: Pick<SharedAnnotation, 'normalizedPageUrl'>
-        } | null
+        } | null,
     }
 ): AnnotationConversationsHandlers {
     return {
         toggleAnnotationReplies: async ({ event, previousState }) => {
             const annotationId = dependencies.storage.contentSharing.getSharedAnnotationLinkID(event.annotationReference)
-            const conversation = previousState.conversations[annotationId]
+            const conversationId = event.conversationId ?? annotationId
+            const conversation = previousState.conversations[conversationId]
 
-            logic.emitMutation({ conversations: { [annotationId]: { expanded: { $set: !conversation.expanded } } } })
+            logic.emitMutation({ conversations: { [conversationId]: { expanded: { $set: !conversation.expanded } } } })
             if (conversation.loadState !== 'pristine') {
                 return
             }
 
             await executeUITask<AnnotationConversationsState>(logic, taskState => ({
-                conversations: { [annotationId]: { loadState: { $set: taskState } } }
+                conversations: { [conversationId]: { loadState: { $set: taskState } } }
             }), async () => {
                 const replies = await dependencies.storage.contentConversations.getRepliesByAnnotation({
                     annotationReference: event.annotationReference!,
@@ -67,7 +68,7 @@ export function annotationConversationEventHandlers<State extends AnnotationConv
                 return {
                     mutation: {
                         conversations: {
-                            [annotationId]: {
+                            [conversationId]: {
                                 replies: {
                                     $set: await Promise.all(replies.map(async reply => ({
                                         ...reply,
@@ -91,9 +92,10 @@ export function annotationConversationEventHandlers<State extends AnnotationConv
             }
 
             const annotationId = dependencies.storage.contentSharing.getSharedAnnotationLinkID(event.annotationReference)
+            const conversationId = event.conversationId ?? annotationId
             return {
                 conversations: {
-                    [annotationId]: {
+                    [conversationId]: {
                         expanded: { $set: true },
                         newReply: { editing: { $set: true } }
                     }
@@ -102,16 +104,19 @@ export function annotationConversationEventHandlers<State extends AnnotationConv
         },
         editNewReplyToAnnotation: ({ event }) => {
             const annotationId = dependencies.storage.contentSharing.getSharedAnnotationLinkID(event.annotationReference)
-            return { conversations: { [annotationId]: { newReply: { content: { $set: event.content } } } } }
+            const conversationId = event.conversationId ?? annotationId
+            return { conversations: { [conversationId]: { newReply: { content: { $set: event.content } } } } }
         },
         cancelNewReplyToAnnotation: ({ event }) => {
             const annotationId = dependencies.storage.contentSharing.getSharedAnnotationLinkID(event.annotationReference)
-            return { conversations: { [annotationId]: { newReply: { editing: { $set: false } } } } }
+            const conversationId = event.conversationId ?? annotationId
+            return { conversations: { [conversationId]: { newReply: { editing: { $set: false } } } } }
         },
         confirmNewReplyToAnnotation: async ({ event, previousState }) => {
             const annotationId = dependencies.storage.contentSharing.getSharedAnnotationLinkID(event.annotationReference)
+            const conversationId = event.conversationId ?? annotationId
             const annotationData = dependencies.getAnnotation(previousState as any, event.annotationReference)
-            const conversation = previousState.conversations[annotationId]
+            const conversation = previousState.conversations[conversationId]
             const user = await dependencies.services.auth.getCurrentUser()
             if (!annotationData) {
                 throw new Error(`Could not find annotation to sumbit reply to`)
@@ -128,30 +133,22 @@ export function annotationConversationEventHandlers<State extends AnnotationConv
             }
 
             await executeUITask<AnnotationConversationsState>(logic, taskState => ({
-                conversations: { [annotationId]: { newReply: { saveState: { $set: taskState } } } }
+                conversations: { [conversationId]: { newReply: { saveState: { $set: taskState } } } }
             }), async () => {
                 logic.emitSignal<AnnotationConversationSignal>({ type: 'reply-submitting' })
                 const result = await dependencies.services.contentConversations.submitReply({
                     annotationReference: event.annotationReference,
                     normalizedPageUrl: annotationData.annotation.normalizedPageUrl,
                     pageCreatorReference,
+                    isFirstReply: !conversation.replies.length,
                     reply: { content: conversation.newReply.content }
                 })
                 if (result.status === 'not-authenticated') {
                     return { status: 'pristine' }
                 }
-                try {
-                    await dependencies.services.activityStreams.followEntity({
-                        entityType: 'annotation',
-                        entity: event.annotationReference,
-                        feeds: { user: true, notification: false },
-                    })
-                } catch (err) {
-                    console.error(err)
-                }
                 logic.emitMutation({
                     conversations: {
-                        [annotationId]: {
+                        [conversationId]: {
                             newReply: { $set: { saveState: 'pristine', editing: false, content: '' } },
                             replies: {
                                 $push: [{

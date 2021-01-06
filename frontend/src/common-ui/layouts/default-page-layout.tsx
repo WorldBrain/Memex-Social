@@ -1,9 +1,12 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled, { css } from "styled-components";
 import { ViewportBreakpoint } from "../../main-ui/styles/types";
 import { UIElementServices } from "../../main-ui/classes";
 import AuthHeader from "../../features/user-management/ui/containers/auth-header";
 import { StorageModules } from "../../storage/types";
+import { Margin } from "styled-components-spacing";
+import RouteLink from "../components/route-link";
+import UnseenActivityIndicator from "../../features/activity-streams/ui/containers/unseen-activity-indicator";
 const logoImage = require("../../assets/img/memex-logo.svg");
 
 const middleMaxWidth = "800px";
@@ -38,11 +41,18 @@ const StyledHeader = styled.div<{
       height: 60px;
     `}
 `;
+
+const LogoAndFeed = styled.div<{
+  viewportWidth: "mobile" | "small" | "normal" | "big";
+}>`
+  display: flex;
+  flex: 1;
+`;
+
 const HeaderLogoArea = styled.div<{
   viewportWidth: "mobile" | "small" | "normal" | "big";
 }>`
   align-items: center;
-  flex: 1;
 
   ${(props) =>
     (props.viewportWidth === "small" || props.viewportWidth === "mobile") &&
@@ -77,6 +87,30 @@ const MemexLogo = styled.div<{
       width: 24px;
       border: none;
     `}
+`;
+
+const FeedArea = styled(Margin)`
+  display: flex;
+  align-items: center;
+`;
+
+const FeedLink = styled(RouteLink)`
+  display: flex;
+  align-items: center;
+  color: ${(props) => props.theme.colors.primary};
+`;
+
+const FeedLabel = styled.div`
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+`;
+
+const UnseenActivityDot = styled.div`
+  background: #5cd9a6;
+  width: 14px;
+  height: 14px;
+  border-radius: 10px;
 `;
 
 const HeaderMiddleArea = styled.div<{
@@ -183,23 +217,87 @@ const PageMiddleArea = styled.div<{
 `;
 
 export default function DefaultPageLayout(props: {
-  services: UIElementServices<"auth" | "overlay">;
-  storage: Pick<StorageModules, "users">;
+  services: UIElementServices<
+    "auth" | "overlay" | "router" | "activityStreams"
+  >;
+  storage: Pick<StorageModules, "users" | "activityStreams">;
   headerTitle?: string;
   headerSubtitle?: string | null;
+  hideActivityIndicator?: boolean;
   viewportBreakpoint: ViewportBreakpoint;
   children: React.ReactNode;
 }) {
   const { viewportBreakpoint: viewportWidth } = props;
+
+  const [isAuthenticated, setAuthenticated] = useState(
+    !!props.services.auth.getCurrentUser()
+  );
+  useEffect(() => {
+    const handler = () => {
+      setAuthenticated(!!props.services.auth.getCurrentUser());
+    };
+    props.services.auth.events.addListener("changed", handler);
+    return () => {
+      props.services.auth.events.removeListener("changed", handler);
+    };
+  });
+
+  const renderFeedArea = () => {
+    if (!isAuthenticated) {
+      return (
+        <FeedArea horizontal="medium">
+          <FeedLabel
+            onClick={async () => {
+              const { result } = await props.services.auth.requestAuth();
+              if (
+                result.status === "authenticated" ||
+                result.status === "registered-and-authenticated"
+              ) {
+                props.services.router.goTo("homeFeed");
+              }
+            }}
+          >
+            Feed
+          </FeedLabel>
+        </FeedArea>
+      );
+    }
+
+    return (
+      <FeedArea horizontal="medium">
+        <FeedLink services={props.services} route="homeFeed" params={{}}>
+          <FeedLabel>Feed</FeedLabel>
+          {!props.hideActivityIndicator && (
+            <Margin left="small">
+              <UnseenActivityIndicator
+                services={props.services}
+                storage={props.storage}
+                renderContent={(feedState) => {
+                  if (feedState === "has-unseen") {
+                    return <UnseenActivityDot />;
+                  }
+                  return null;
+                }}
+              />
+            </Margin>
+          )}
+        </FeedLink>
+      </FeedArea>
+    );
+  };
+
   return (
     <>
       <StyledHeader viewportWidth={viewportWidth}>
-        <HeaderLogoArea
-          onClick={() => window.open("https://getmemex.com")}
-          viewportWidth={viewportWidth}
-        >
-          <MemexLogo viewportWidth={viewportWidth} />
-        </HeaderLogoArea>
+        <LogoAndFeed viewportWidth={viewportWidth}>
+          <HeaderLogoArea
+            onClick={() => window.open("https://getmemex.com")}
+            viewportWidth={viewportWidth}
+          >
+            <MemexLogo viewportWidth={viewportWidth} />
+          </HeaderLogoArea>
+          {renderFeedArea()}
+        </LogoAndFeed>
         <HeaderMiddleArea viewportWidth={viewportWidth}>
           {props.headerTitle && (
             <HeaderTitle
