@@ -1,7 +1,7 @@
 import { ScenarioMap } from "../../services/scenarios/types";
 import { scenario } from "../../services/scenarios/utils";
 import { HomeFeedEvent, HomeFeedSignal } from "../../features/activity-streams/ui/pages/home-feed/types";
-import { setupTestActivities } from "../utils/activities";
+import { setupTestActivities } from "../../scenario-utils/activities";
 
 type Targets = {
     HomeFeedPage: {

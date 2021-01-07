@@ -4,7 +4,7 @@ import { PageDetailsEvent, PageDetailsSignal } from "../../features/content-shar
 import { SharedAnnotationReference } from "@worldbrain/memex-common/lib/content-sharing/types";
 import { AuthHeaderEvent, AuthHeaderSignal } from "../../features/user-management/ui/containers/auth-header/types";
 import { AuthDialogEvent, AuthDialogSignal } from "../../features/user-management/ui/containers/auth-dialog/types";
-import { setupTestActivities } from "../utils/activities";
+import { setupTestActivities } from "../../scenario-utils/activities";
 
 type Targets = {
     PageDetailsPage: {

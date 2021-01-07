@@ -352,6 +352,7 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
         })
         expect(retrievedAnnotations).toEqual([
             {
+                linkId: contentSharing.getSharedAnnotationLinkID(retrievedAnnotations[0].reference),
                 reference: expect.objectContaining({ type: 'shared-annotation-reference' }),
                 creator: userReference,
                 normalizedPageUrl: 'foo.com/page-1',
@@ -363,6 +364,7 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 selector: 'Selector 1',
             },
             {
+                linkId: contentSharing.getSharedAnnotationLinkID(retrievedAnnotations[1].reference),
                 reference: expect.objectContaining({ type: 'shared-annotation-reference' }),
                 creator: userReference,
                 createdWhen: 1500,
@@ -440,6 +442,7 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
             references: flatten(Object.values(entries).map(entries => entries.map(entry => entry.sharedAnnotation))),
         })).toEqual({
             [contentSharing.getSharedAnnotationLinkID(entries['foo.com/page-1'][0].sharedAnnotation)]: {
+                linkId: expect.any(String),
                 reference: expect.objectContaining({ type: 'shared-annotation-reference' }),
                 creator: userReference,
                 normalizedPageUrl: 'foo.com/page-1',
@@ -451,6 +454,7 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 selector: 'Selector 1',
             },
             [contentSharing.getSharedAnnotationLinkID(entries['foo.com/page-1'][1].sharedAnnotation)]: {
+                linkId: expect.any(String),
                 reference: expect.objectContaining({ type: 'shared-annotation-reference' }),
                 creator: userReference,
                 createdWhen: 1500,
@@ -462,6 +466,7 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 selector: 'Selector 2',
             },
             [contentSharing.getSharedAnnotationLinkID(entries['bar.com/page-2'][0].sharedAnnotation)]: {
+                linkId: expect.any(String),
                 reference: expect.objectContaining({ type: 'shared-annotation-reference' }),
                 creator: userReference,
                 normalizedPageUrl: 'bar.com/page-2',

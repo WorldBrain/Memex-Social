@@ -1,5 +1,5 @@
-import { Storage } from "../../storage/types"
-import { Services } from "../../services/types"
+import { Storage } from "../storage/types"
+import { Services } from "../services/types"
 
 export const setupTestActivities = async ({ services, storage }: { services: Services, storage: Storage }) => {
     await services.auth.loginWithEmailPassword({
