@@ -18,7 +18,6 @@ interface FollowEntityArgs {
   objectId: string;
   collection: string;
   userReference: UserReference;
-  createdWhen?: Date;
 }
 
 export default class ActivityFollowingStorage extends StorageModule {
@@ -89,7 +88,7 @@ export default class ActivityFollowingStorage extends StorageModule {
     collection,
     userReference: { id: userId },
     createdWhen = new Date(),
-  }: FollowEntityArgs): Promise<ActivityFollow> {
+  }: FollowEntityArgs & { createdWhen?: Date }): Promise<ActivityFollow> {
     const foundFollow = await this.operation("findFollow", {
       collection,
       userId,
@@ -124,7 +123,7 @@ export default class ActivityFollowingStorage extends StorageModule {
     }
   }
 
-  async isEntityFollowed({
+  async isEntityFollowedByUser({
     objectId,
     collection,
     userReference: { id: userId },
