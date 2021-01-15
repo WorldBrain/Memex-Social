@@ -97,9 +97,7 @@ export default class ActivityFollowsStorage extends StorageModule {
     collection,
     objectId,
     userReference,
-  }: FollowEntityArgs): Promise<
-    (ActivityFollow & { reference: ActivityFollowReference }) | null
-  > {
+  }: FollowEntityArgs): Promise<ActivityFollow | null> {
     const foundFollow = await this.operation("findFollow", {
       collection,
       objectId,
@@ -110,13 +108,7 @@ export default class ActivityFollowsStorage extends StorageModule {
       return null;
     }
 
-    const { id, ...follow } = foundFollow;
-    return (
-      {
-        ...follow,
-        reference: { type: "activity-follow-reference", id },
-      } ?? null
-    );
+    return foundFollow;
   }
 
   async followEntity({
@@ -157,7 +149,7 @@ export default class ActivityFollowsStorage extends StorageModule {
     });
 
     if (foundFollow) {
-      await this.operation("deleteFollow", { id: foundFollow.reference.id });
+      await this.operation("deleteFollow", { id: foundFollow.id });
     }
   }
 
