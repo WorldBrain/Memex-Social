@@ -15,7 +15,7 @@ import { StorageMiddleware } from "@worldbrain/storex/lib/types/middleware";
 import ContentSharingStorage from '../features/content-sharing/storage';
 import ContentConversationStorage from '../features/content-conversations/storage';
 import StorexActivityStreamsStorage from "@worldbrain/memex-common/lib/activity-streams/storage"
-import ActivityFollowingStorage from '../features/activity-following/storage';
+import ActivityFollowsStorage from '../features/activity-follows/storage';
 
 export async function createStorage(options: { backend: BackendType | StorageBackend }): Promise<Storage> {
     let storageBackend: StorageBackend
@@ -44,7 +44,7 @@ export async function createStorage(options: { backend: BackendType | StorageBac
         serverStorageManager: storageManager,
         serverModules: {
             // auth: new AuthStorage({ storageManager }),
-            activityFollowing: new ActivityFollowingStorage({ storageManager }),
+            activityFollows: new ActivityFollowsStorage({ storageManager }),
             users: new UserStorage({ storageManager }),
             contentSharing,
             contentConversations: new ContentConversationStorage({
