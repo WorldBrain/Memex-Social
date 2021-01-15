@@ -10,21 +10,56 @@ const StyledInput = styled.input`
   padding: 10px;
 `;
 
-export default function TextInput(
-  props: InputHTMLAttributes<HTMLInputElement> & {
-    onConfirm?(): void;
-  }
-) {
-  return (
-    <StyledInput
-      type="text"
-      {...props}
-      onKeyDown={(event) => {
-        if (props.onConfirm && event.keyCode === 13) {
-          return props.onConfirm();
+interface State {
+    value: string
+    prevValue: string
+}
+
+interface Props {
+    onConfirm: () => void
+    value?: string
+}
+
+export default class TextInput extends React.PureComponent<InputHTMLAttributes<HTMLInputElement> & Props,State> {
+
+    state = {prevValue: "", value:""}
+
+    constructor(props:Props) {
+        super(props);
+        this.state.value = props?.value ?? "";
+        this.state.prevValue = props?.value ?? "";
+    }
+
+    static getDerivedStateFromProps(props: Props, state: State) {
+        if (state.value !== state.prevValue) {
+            return {value: state.value}
         }
-        props.onKeyDown?.(event);
-      }}
-    />
-  );
+
+        if (props?.value && props?.value !== state.value) {
+            return { value: props.value };
+        }
+    }
+
+    handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        this.setState({prevValue: this.state.value, value:e.target.value})
+        this.props?.onChange?.(e)
+    }
+
+    render() {
+        const {onConfirm, value, ...props} = this.props;
+        return (
+            <StyledInput
+                type="text"
+                {...props}
+                onChange={this.handleChange}
+                value={this.state.value}
+                onKeyDown={(event) => {
+                    if (onConfirm && event.keyCode === 13) {
+                        return onConfirm();
+                    }
+                    this.props.onKeyDown?.(event);
+                }}
+            />
+        );
+    }
 }
