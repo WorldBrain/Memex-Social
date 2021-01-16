@@ -19,10 +19,12 @@ const StyledAnnotationBox = styled.div`
 const AnnotationBody = styled.span`
   background-color: ${(props) => props.theme.colors.secondary};
   white-space: normal;
-  padding: 0 5px;
+  padding: 2px 5px;
   box-decoration-break: clone;
-  font-size: 14px;
+  font-size: 18px;
+  line-height: 20px; 
   color: ${(props) => props.theme.colors.primary};
+  font-family: ${(props) => props.theme.fonts.content};
 `;
 
 const AnnotationComment = styled.div`
