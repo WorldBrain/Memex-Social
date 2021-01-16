@@ -25,6 +25,7 @@ export const theme: Theme = {
   fonts: {
     primary: '"Poppins", sans-serif',
     secondary: '"Poppins", sans-serif',
+    content: 'serif',
   },
   hoverBackgrounds: {
     primary: '#e0e0e0',
