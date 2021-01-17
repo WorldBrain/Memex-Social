@@ -22,7 +22,11 @@ createStorageTestSuite("Activity Following storage", ({ it }) => {
           .findObject({ collection, objectId })
       ).toEqual(null);
 
-      const follow = await activityFollows.followEntity({
+      const {
+        reference,
+        userReference: userReferenceStored,
+        ...follow
+      } = await activityFollows.followEntity({
         userReference,
         createdWhen,
         collection,
@@ -32,8 +36,12 @@ createStorageTestSuite("Activity Following storage", ({ it }) => {
       expect(
         await storage.serverStorageManager
           .collection("activityFollow")
-          .findObject({ id: follow.id })
-      ).toEqual(follow);
+          .findObject({ id: reference.id })
+      ).toEqual({
+        ...follow,
+        id: reference.id,
+        user: userReferenceStored.id,
+      });
     }
   );
 
@@ -83,7 +91,11 @@ createStorageTestSuite("Activity Following storage", ({ it }) => {
       const collection = "sharedList";
       const objectId = "list-a";
 
-      const follow = await activityFollows.followEntity({
+      const {
+        reference,
+        userReference: userReferenceStored,
+        ...follow
+      } = await activityFollows.followEntity({
         userReference,
         createdWhen,
         collection,
@@ -93,8 +105,12 @@ createStorageTestSuite("Activity Following storage", ({ it }) => {
       expect(
         await storage.serverStorageManager
           .collection("activityFollow")
-          .findObject({ id: follow.id })
-      ).toEqual(follow);
+          .findObject({ id: reference.id })
+      ).toEqual({
+        ...follow,
+        id: reference.id,
+        user: userReferenceStored.id,
+      });
 
       await activityFollows.unfollowEntity({
         userReference,
@@ -105,7 +121,7 @@ createStorageTestSuite("Activity Following storage", ({ it }) => {
       expect(
         await storage.serverStorageManager
           .collection("activityFollow")
-          .findObject({ id: follow.id })
+          .findObject({ id: reference.id })
       ).toEqual(null);
     }
   );

@@ -18,6 +18,11 @@ import {
   ActivityFollowReference,
 } from "@worldbrain/memex-common/lib/activity-follows/storage/types";
 
+interface ActivityFollowWithRef extends ActivityFollow {
+  reference: ActivityFollowReference;
+  userReference: UserReference;
+}
+
 interface EntityArgs {
   objectId: string;
   collection: string;
@@ -93,11 +98,21 @@ export default class ActivityFollowsStorage extends StorageModule {
     },
   });
 
+  private formatFollowWithRef = ({
+    id,
+    user: userId,
+    ...follow
+  }: ActivityFollow): ActivityFollowWithRef => ({
+    ...follow,
+    reference: { id, type: "activity-follow-reference" },
+    userReference: { id: userId, type: "user-reference" },
+  });
+
   private async findFollowedEntity({
     collection,
     objectId,
     userReference,
-  }: FollowEntityArgs): Promise<ActivityFollow | null> {
+  }: FollowEntityArgs): Promise<ActivityFollowWithRef | null> {
     const foundFollow = await this.operation("findFollow", {
       collection,
       objectId,
@@ -108,7 +123,7 @@ export default class ActivityFollowsStorage extends StorageModule {
       return null;
     }
 
-    return foundFollow;
+    return this.formatFollowWithRef(foundFollow);
   }
 
   async followEntity({
@@ -116,7 +131,9 @@ export default class ActivityFollowsStorage extends StorageModule {
     collection,
     userReference,
     createdWhen = new Date(),
-  }: FollowEntityArgs & { createdWhen?: Date }): Promise<ActivityFollow> {
+  }: FollowEntityArgs & { createdWhen?: Date }): Promise<
+    ActivityFollowWithRef
+  > {
     const foundFollow = await this.findFollowedEntity({
       objectId,
       collection,
@@ -127,14 +144,14 @@ export default class ActivityFollowsStorage extends StorageModule {
       return foundFollow;
     }
 
-    return (
-      await this.operation("createFollow", {
-        objectId,
-        collection,
-        user: userReference.id,
-        createdWhen: createdWhen.getTime(),
-      })
-    ).object;
+    const { object } = await this.operation("createFollow", {
+      objectId,
+      collection,
+      user: userReference.id,
+      createdWhen: createdWhen.getTime(),
+    });
+
+    return this.formatFollowWithRef(object);
   }
 
   async unfollowEntity({
@@ -149,7 +166,7 @@ export default class ActivityFollowsStorage extends StorageModule {
     });
 
     if (foundFollow) {
-      await this.operation("deleteFollow", { id: foundFollow.id });
+      await this.operation("deleteFollow", { id: foundFollow.reference.id });
     }
   }
 
@@ -170,10 +187,7 @@ export default class ActivityFollowsStorage extends StorageModule {
   async getAllEntityFollowers(args: EntityArgs): Promise<UserReference[]> {
     const follows = await this.getAllFollowsByEntity(args);
 
-    return follows.map((follow) => ({
-      id: follow.user,
-      type: "user-reference",
-    }));
+    return follows.map((follow) => follow.userReference);
   }
 
   async getAllFollowsByCollection({
@@ -182,24 +196,24 @@ export default class ActivityFollowsStorage extends StorageModule {
   }: {
     userReference: UserReference;
     collection: string;
-  }): Promise<ActivityFollow[]> {
+  }): Promise<ActivityFollowWithRef[]> {
     const follows: ActivityFollow[] = await this.operation(
       "findFollowsByCollection",
       { collection, user: userReference.id }
     );
 
-    return follows;
+    return follows.map(this.formatFollowWithRef);
   }
 
   async getAllFollowsByEntity({
     collection,
     objectId,
-  }: EntityArgs): Promise<ActivityFollow[]> {
+  }: EntityArgs): Promise<ActivityFollowWithRef[]> {
     const follows: ActivityFollow[] = await this.operation(
       "findFollowsByEntity",
       { collection, objectId }
     );
 
-    return follows;
+    return follows.map(this.formatFollowWithRef);
   }
 }
