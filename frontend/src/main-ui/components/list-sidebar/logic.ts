@@ -1,31 +1,14 @@
-import { UILogic, UIEvent, UIEventHandler, loadInitial } from "../../classes/logic"
 import { SharedList, SharedListReference } from "@worldbrain/memex-common/lib/content-sharing/types"
-import { UITaskState } from "../../types"
-import { Services } from "../../../services/types"
-import { Storage } from "../../../storage/types"
+import { UILogic, UIEventHandler, loadInitial } from "../../classes/logic"
+import { State, Dependencies, Events } from './types'
 
-export interface Dependencies {
-    services: Pick<Services, 'router' | 'auth'>
-    storage: Pick<Storage, 'serverModules'>
-}
-
-export interface State {
-    sharedLists: Array<SharedList & { reference: SharedListReference }>
-    isListShown: boolean
-    loadState: UITaskState
-}
-
-export type Event = UIEvent<{
-    clickSharedList: { listRef: SharedListReference }
-}>
-
-type EventHandler<EventName extends keyof Event> = UIEventHandler<
+type EventHandler<EventName extends keyof Events> = UIEventHandler<
     State,
-    Event,
+    Events,
     EventName
 >
 
-export default class Logic extends UILogic<State, Event> {
+export default class Logic extends UILogic<State, Events> {
     constructor(private options: Dependencies) {
         super()
     }
@@ -64,7 +47,10 @@ export default class Logic extends UILogic<State, Event> {
             // sharedLists.push({ ...list, reference: { type: 'shared-list-reference', id: list. } })
         }
 
-        this.emitMutation({ sharedLists: { $set: sharedLists }})
+        this.emitMutation({
+            sharedLists: { $set: sharedLists },
+            isListShown: { $set: true },
+        })
         // })
     }
 

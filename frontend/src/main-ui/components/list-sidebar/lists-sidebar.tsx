@@ -4,8 +4,8 @@ import {
   SharedList,
   SharedListReference,
 } from "@worldbrain/memex-common/lib/content-sharing/types";
-import { UITaskState } from "../types";
-import LoadingIndicator from "../../common-ui/components/loading-indicator";
+import { UITaskState } from "../../types";
+import LoadingIndicator from "../../../common-ui/components/loading-indicator";
 
 const Container = styled.div``;
 
