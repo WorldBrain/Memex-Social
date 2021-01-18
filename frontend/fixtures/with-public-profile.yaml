@@ -1,0 +1,11 @@
+objects:
+  userPublicProfile:
+    - $store: default
+      id: default-curator
+      websiteURL: 'https://fortelabs.co/',
+      mediumURL: 'https://medium.com/@fortelabs',
+      twitterURL: 'https://twitter.com/fortelabs',
+      subStackURL: 'https://praxis.every.to/people/532856-tiago-forte',
+      bio: 'Founder @fortelabs.co | Teaching @buildingasecondbrain.com | Writer @fortelabs.co/blog + the best productivity newsletter on the web: fortelabs.co/subscribe',
+      avatarId: '',
+      paymentPointer: '',
