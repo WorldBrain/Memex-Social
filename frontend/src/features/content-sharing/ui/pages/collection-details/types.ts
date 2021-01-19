@@ -10,11 +10,12 @@ import { StorageModules } from "../../../../../storage/types";
 export interface CollectionDetailsDependencies {
     listID: string
     services: UIElementServices<'auth' | 'overlay' | 'contentConversations' | 'activityStreams' | 'router' | 'activityStreams'>
-    storage: Pick<StorageModules, 'contentSharing' | 'contentConversations' | 'users' | 'activityStreams'>
+    storage: Pick<StorageModules, 'contentSharing' | 'contentConversations' | 'users' | 'activityStreams' | 'activityFollows'>
 }
 
 export type CollectionDetailsState = AnnotationConversationsState & {
     listLoadState: UITaskState
+    followLoadState: UITaskState
     annotationEntriesLoadState: UITaskState
     annotationLoadStates: { [normalizedPageUrl: string]: UITaskState }
     listData?: {
@@ -25,6 +26,7 @@ export type CollectionDetailsState = AnnotationConversationsState & {
         listDescriptionState: 'fits' | 'collapsed' | 'expanded'
         listDescriptionTruncated: string
     },
+    isCollectionFollowed: boolean
     allAnnotationExpanded: boolean
     pageAnnotationsExpanded: { [normalizedPageUrl: string]: true }
     annotationEntryData?: GetAnnotationListEntriesResult
@@ -36,6 +38,7 @@ export type CollectionDetailsEvent = UIEvent<AnnotationConversationEvent & {
     togglePageAnnotations: { normalizedUrl: string }
     toggleAllAnnotations: {}
     pageBreakpointHit: { entryIndex: number }
+    clickFollowBtn: null
 }>
 
 export type CollectionDetailsSignal = UISignal<

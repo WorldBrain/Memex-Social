@@ -45,9 +45,11 @@ export default class CollectionDetailsLogic extends UILogic<CollectionDetailsSta
     getInitialState(): CollectionDetailsState {
         return {
             listLoadState: 'pristine',
+            followLoadState: 'pristine',
             annotationEntriesLoadState: 'pristine',
             annotationLoadStates: {},
             annotations: {},
+            isCollectionFollowed: false,
             allAnnotationExpanded: false,
             pageAnnotationsExpanded: {},
             ...annotationConversationInitialState(),
@@ -163,6 +165,42 @@ export default class CollectionDetailsLogic extends UILogic<CollectionDetailsSta
         const { latestPageSeenIndex, normalizedPageUrls } = this.getFirstPagesWithoutLoadedAnnotations(incoming.previousState)
         this.latestPageSeenIndex = latestPageSeenIndex
         this.loadPageAnnotations(incoming.previousState.annotationEntryData!, normalizedPageUrls)
+    }
+
+    clickFollowBtn: EventHandler<'clickFollowBtn'> = async ({ previousState }) => {
+        const { services: { auth }, storage: { activityFollows }, listID } = this.dependencies
+        let userReference = auth.getCurrentUserReference()
+
+        // TODO: figure out what to properly do here
+        if (userReference === null) {
+            const { result } = await auth.requestAuth()
+
+            if (result.status !== 'authenticated' && result.status !== 'registered-and-authenticated') {
+                return
+            }
+
+            userReference = auth.getCurrentUserReference()!
+        }
+
+        const entityArgs = {
+            userReference,
+            objectId: listID,
+            collection: 'sharedList',
+        }
+
+        await executeUITask<CollectionDetailsState>(this, 'followLoadState', async () => {
+            const isAlreadyFollowed = await activityFollows.isEntityFollowedByUser(entityArgs)
+
+            if (isAlreadyFollowed) {
+                await activityFollows.deleteFollow(entityArgs)
+            } else {
+                await activityFollows.storeFollow(entityArgs)
+            }
+
+            this.emitMutation({
+                isCollectionFollowed: { $set: !isAlreadyFollowed }
+             })
+        })
     }
 
     getFirstPagesWithoutLoadedAnnotations(state: CollectionDetailsState) {

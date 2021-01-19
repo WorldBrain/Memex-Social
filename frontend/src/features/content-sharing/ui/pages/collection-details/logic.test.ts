@@ -180,4 +180,107 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
             annotationCount: 15
         })
     })
+
+    it('should show sign-up/log-in form when attempting to follow while logged out', { withTestUser: true }, async ({ storage, services, auth }) => {
+        const contentSharing = storage.serverModules.contentSharing;
+        const userReference = (services.auth.getCurrentUserReference()!);
+        const listReference = await contentSharing.createSharedList({
+            userReference,
+            localListId: 33,
+            listData: { title: 'Test list' },
+        })
+
+        const testDataFactory = new TestDataFactory()
+        const firstListEntry = testDataFactory.createListEntry();
+        await contentSharing.createListEntries({
+            userReference,
+            listReference,
+            listEntries: [
+                firstListEntry,
+                testDataFactory.createListEntry(),
+            ],
+        })
+        await contentSharing.createAnnotations({
+            creator: userReference,
+            listReferences: [listReference],
+            annotationsByPage: { [firstListEntry.normalizedUrl]: range(15).map(() => testDataFactory.createAnnotation(firstListEntry.normalizedUrl)) },
+        })
+        const logic = new CollectionDetailsLogic({
+            storage: storage.serverModules,
+            services: {} as any,
+            listID: storage.serverModules.contentSharing.getSharedListLinkID(listReference),
+        });
+        const container = new TestLogicContainer<CollectionDetailsState, CollectionDetailsEvent>(logic)
+        await container.init()
+
+        await auth.signOutTestUser()
+        await container.processEvent('clickFollowBtn', null)
+
+        // TODO: figure out how to check this
+        expect('TODO').toBe(2)
+    })
+
+    it('should be able to follow and unfollow the current list', { withTestUser: true }, async ({ storage, services, auth }) => {
+        const contentSharing = storage.serverModules.contentSharing;
+        const userReference = (services.auth.getCurrentUserReference()!);
+        const listReference = await contentSharing.createSharedList({
+            userReference,
+            localListId: 33,
+            listData: { title: 'Test list' },
+        })
+
+        const testDataFactory = new TestDataFactory()
+        const firstListEntry = testDataFactory.createListEntry();
+        await contentSharing.createListEntries({
+            userReference,
+            listReference,
+            listEntries: [
+                firstListEntry,
+                testDataFactory.createListEntry(),
+            ],
+        })
+        await contentSharing.createAnnotations({
+            creator: userReference,
+            listReferences: [listReference],
+            annotationsByPage: { [firstListEntry.normalizedUrl]: range(15).map(() => testDataFactory.createAnnotation(firstListEntry.normalizedUrl)) },
+        })
+
+        const listID= storage.serverModules.contentSharing.getSharedListLinkID(listReference)
+
+        const logic = new CollectionDetailsLogic({
+            storage: storage.serverModules,
+            services: {} as any,
+            listID
+        });
+        const container = new TestLogicContainer<CollectionDetailsState, CollectionDetailsEvent>(logic)
+        await container.init()
+
+        const entityArgs = { userReference, collection: 'sharedList', objectId: listID }
+
+        expect(
+            await storage.serverModules.activityFollows.isEntityFollowedByUser(entityArgs)
+        ).toBe(false)
+        expect(container.state.isCollectionFollowed).toBe(false)
+        expect(container.state.followLoadState).toEqual('pristine')
+
+        const followP = container.processEvent('clickFollowBtn', null)
+        expect(container.state.followLoadState).toEqual('running')
+        await followP
+
+        expect(container.state.isCollectionFollowed).toBe(true)
+        expect(container.state.followLoadState).toEqual('success')
+        expect(
+            await storage.serverModules.activityFollows.isEntityFollowedByUser(entityArgs)
+        ).toBe(true)
+
+        const unfollowP = container.processEvent('clickFollowBtn', null)
+        expect(container.state.followLoadState).toEqual('running')
+        await unfollowP
+
+        expect(container.state.isCollectionFollowed).toBe(false)
+        expect(container.state.followLoadState).toEqual('success')
+        expect(
+            await storage.serverModules.activityFollows.isEntityFollowedByUser(entityArgs)
+        ).toBe(false)
+    })
 })
