@@ -1,22 +1,28 @@
-import * as firebase from 'firebase'
+import firebase from 'firebase'
 
 import StorageManager, { StorageBackend } from "@worldbrain/storex";
 import { DexieStorageBackend } from "@worldbrain/storex-backend-dexie";
 import { FirestoreStorageBackend } from "@worldbrain/storex-backend-firestore";
 import inMemory from "@worldbrain/storex-backend-dexie/lib/in-memory";
 import { registerModuleMapCollections } from "@worldbrain/storex-pattern-modules";
-import { BackendType } from "../types";
-
-import { Storage } from "./types";
-import UserStorage from "../features/user-management/storage";
 import { StorageMiddleware } from "@worldbrain/storex/lib/types/middleware";
-// import { checkAccountCollectionInfoMap } from './checks';
-// import { ACCOUNT_COLLECTIONS } from './constants';
+import { ChangeWatchMiddleware, ChangeWatchMiddlewareSettings } from '@worldbrain/storex-middleware-change-watcher'
+
+import StorexActivityStreamsStorage from "@worldbrain/memex-common/lib/activity-streams/storage"
+import UserStorage from "../features/user-management/storage";
 import ContentSharingStorage from '../features/content-sharing/storage';
 import ContentConversationStorage from '../features/content-conversations/storage';
-import StorexActivityStreamsStorage from "@worldbrain/memex-common/lib/activity-streams/storage"
 
-export async function createStorage(options: { backend: BackendType | StorageBackend }): Promise<Storage> {
+import { BackendType } from "../types";
+import { Storage } from "./types";
+
+// import { checkAccountCollectionInfoMap } from './checks';
+// import { ACCOUNT_COLLECTIONS } from './constants';
+
+export async function createStorage(options: {
+    backend: BackendType | StorageBackend,
+    changeWatcher?: Pick<ChangeWatchMiddlewareSettings, 'shouldWatchCollection' | 'preprocessOperation' | 'postprocessOperation'>
+}): Promise<Storage> {
     let storageBackend: StorageBackend
     if (options.backend === 'memory') {
         storageBackend = new DexieStorageBackend({ dbName: 'useful-media', idbImplementation: inMemory() })
@@ -55,7 +61,10 @@ export async function createStorage(options: { backend: BackendType | StorageBac
     }
     registerModuleMapCollections(storageManager.registry, storage.serverModules as any)
     await storageManager.finishInitialization()
-    storageManager.setMiddleware(createStorageMiddleware())
+    storageManager.setMiddleware(createStorageMiddleware({
+        storageManager,
+        changeWatcher: options.changeWatcher,
+    }))
 
     // if (process.env.NODE_ENV === 'development') {
     //     checkAccountCollectionInfoMap({
@@ -67,7 +76,10 @@ export async function createStorage(options: { backend: BackendType | StorageBac
     return storage
 }
 
-function createStorageMiddleware(): StorageMiddleware[] {
+function createStorageMiddleware(options: {
+    storageManager: StorageManager,
+    changeWatcher?: Pick<ChangeWatchMiddlewareSettings, 'shouldWatchCollection' | 'preprocessOperation' | 'postprocessOperation'>
+}): StorageMiddleware[] {
     const middleware: StorageMiddleware[] = []
     if (process.env.REACT_APP_LOG_STORAGE === 'true') {
         middleware.unshift(({
@@ -75,6 +87,12 @@ function createStorageMiddleware(): StorageMiddleware[] {
                 console.log(`executing storage operation:`, operation)
                 return next.process({ operation })
             }
+        }))
+    }
+    if (options.changeWatcher) {
+        middleware.push(new ChangeWatchMiddleware({
+            ...options.changeWatcher,
+            storageManager: options.storageManager,
         }))
     }
 

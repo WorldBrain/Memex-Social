@@ -53,7 +53,7 @@ export default class PageDetailsLogic extends UILogic<PageDetailsState, PageDeta
             return {
                 mutation: {
                     pageInfo: { $set: pageInfo },
-                    pageInfoReference: { $set: result.reference },
+                    pageInfoReference: { $set: result?.reference },
                     creatorReference: { $set: creatorReference },
                 }
             }
