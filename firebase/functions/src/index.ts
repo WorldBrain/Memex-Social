@@ -11,6 +11,7 @@ module.exports = {
         functions,
     }),
     ...createFirestoreTriggers({
+        firebase: admin as any,
         functions,
     })
 }
