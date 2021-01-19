@@ -26,7 +26,7 @@ createStorageTestSuite("Activity Following storage", ({ it }) => {
         reference,
         userReference: userReferenceStored,
         ...follow
-      } = await activityFollows.followEntity({
+      } = await activityFollows.storeFollow({
         userReference,
         createdWhen,
         collection,
@@ -62,14 +62,14 @@ createStorageTestSuite("Activity Following storage", ({ it }) => {
           .findObject({ collection, objectId })
       ).toEqual(null);
 
-      const followA = await activityFollows.followEntity({
+      const followA = await activityFollows.storeFollow({
         userReference,
         createdWhen,
         collection,
         objectId,
       });
 
-      const followB = await activityFollows.followEntity({
+      const followB = await activityFollows.storeFollow({
         userReference,
         createdWhen,
         collection,
@@ -95,7 +95,7 @@ createStorageTestSuite("Activity Following storage", ({ it }) => {
         reference,
         userReference: userReferenceStored,
         ...follow
-      } = await activityFollows.followEntity({
+      } = await activityFollows.storeFollow({
         userReference,
         createdWhen,
         collection,
@@ -112,7 +112,7 @@ createStorageTestSuite("Activity Following storage", ({ it }) => {
         user: userReferenceStored.id,
       });
 
-      await activityFollows.unfollowEntity({
+      await activityFollows.deleteFollow({
         userReference,
         collection,
         objectId,
@@ -142,7 +142,7 @@ createStorageTestSuite("Activity Following storage", ({ it }) => {
       ];
 
       for (const userReference of userReferences) {
-        await activityFollows.followEntity({
+        await activityFollows.storeFollow({
           userReference,
           createdWhen,
           collection,
@@ -178,7 +178,7 @@ createStorageTestSuite("Activity Following storage", ({ it }) => {
         })
       ).toBe(false);
 
-      await activityFollows.followEntity({
+      await activityFollows.storeFollow({
         userReference,
         createdWhen,
         collection,
@@ -208,7 +208,7 @@ createStorageTestSuite("Activity Following storage", ({ it }) => {
       const follows: ActivityFollow[] = [];
 
       for (const objectId of objectIds) {
-        const follow = await activityFollows.followEntity({
+        const follow = await activityFollows.storeFollow({
           userReference,
           createdWhen,
           collection,
@@ -247,7 +247,7 @@ createStorageTestSuite("Activity Following storage", ({ it }) => {
       const follows: ActivityFollow[] = [];
 
       for (const userReference of userReferences) {
-        const follow = await activityFollows.followEntity({
+        const follow = await activityFollows.storeFollow({
           userReference,
           createdWhen,
           collection,

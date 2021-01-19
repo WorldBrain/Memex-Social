@@ -98,7 +98,7 @@ export default class ActivityFollowsStorage extends StorageModule {
     },
   });
 
-  private formatFollowWithRef = ({
+  private static prepareFollow = ({
     id,
     user: userId,
     ...follow
@@ -123,10 +123,10 @@ export default class ActivityFollowsStorage extends StorageModule {
       return null;
     }
 
-    return this.formatFollowWithRef(foundFollow);
+    return ActivityFollowsStorage.prepareFollow(foundFollow);
   }
 
-  async followEntity({
+  async storeFollow({
     objectId,
     collection,
     userReference,
@@ -151,10 +151,10 @@ export default class ActivityFollowsStorage extends StorageModule {
       createdWhen: createdWhen.getTime(),
     });
 
-    return this.formatFollowWithRef(object);
+    return ActivityFollowsStorage.prepareFollow(object);
   }
 
-  async unfollowEntity({
+  async deleteFollow({
     objectId,
     collection,
     userReference,
@@ -202,7 +202,7 @@ export default class ActivityFollowsStorage extends StorageModule {
       { collection, user: userReference.id }
     );
 
-    return follows.map(this.formatFollowWithRef);
+    return follows.map(ActivityFollowsStorage.prepareFollow);
   }
 
   async getAllFollowsByEntity({
@@ -214,6 +214,6 @@ export default class ActivityFollowsStorage extends StorageModule {
       { collection, objectId }
     );
 
-    return follows.map(this.formatFollowWithRef);
+    return follows.map(ActivityFollowsStorage.prepareFollow);
   }
 }
