@@ -1,6 +1,6 @@
 import createBrowserHistory from "history/createBrowserHistory";
 import debounce from 'lodash/debounce'
-import * as firebase from 'firebase';
+import firebase from 'firebase';
 import { getUiMountpoint, getDefaultUiRunner } from '../main-ui'
 import { createServices } from '../services';
 import { MainProgramOptions, MainProgramSetup } from './types';
@@ -8,6 +8,7 @@ import { createStorage } from '../storage';
 import { getReplayOptionsFromQueryParams } from '../services/scenarios';
 import { MemoryLocalStorage } from "../utils/web-storage";
 import { RouteName } from "../routes";
+import { StorageHooksChangeWatcher } from "../storage/hooks";
 
 export async function mainProgram(options: MainProgramOptions): Promise<MainProgramSetup> {
     if (options.backend === 'firebase' || options.backend === 'firebase-emulator') {
@@ -25,7 +26,11 @@ export async function mainProgram(options: MainProgramOptions): Promise<MainProg
     const history = options.history || createBrowserHistory()
 
     const uiMountPoint = !options.domUnavailable ? getUiMountpoint(options.mountPoint) : undefined
-    const storage = await createStorage(options)
+    const storageHooksChangeWatcher = options.backend === 'memory' ? new StorageHooksChangeWatcher() : undefined
+    const storage = await createStorage({
+        ...options,
+        changeWatcher: storageHooksChangeWatcher
+    })
     const services = createServices({
         ...options,
         history,
@@ -34,6 +39,9 @@ export async function mainProgram(options: MainProgramOptions): Promise<MainProg
         fixtureFetcher: options.fixtureFetcher,
         localStorage: options.backend.indexOf('memory') === 0 ? new MemoryLocalStorage() : localStorage
     })
+    if (storageHooksChangeWatcher) {
+        storageHooksChangeWatcher.setUp({ storage, services })
+    }
 
     if (!options.domUnavailable) {
         window.addEventListener('resize', debounce(() => {

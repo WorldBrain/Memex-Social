@@ -1,5 +1,5 @@
 import { History } from "history";
-import * as firebase from 'firebase';
+import firebaseModule from 'firebase';
 import FirebaseFunctionsActivityStreamsService from "@worldbrain/memex-common/lib/activity-streams/services/firebase-functions/client";
 import MemoryStreamsService from "@worldbrain/memex-common/lib/activity-streams/services/memory";
 import { BackendType } from "../types";
@@ -25,7 +25,7 @@ export function createServices(options: {
     history: History,
     localStorage: LimitedWebStorage,
     uiMountPoint?: Element,
-    firebase?: typeof firebase
+    firebase?: typeof firebaseModule
     logLogicEvents?: boolean
     fixtureFetcher?: FixtureFetcher
 }): Services {
@@ -34,11 +34,16 @@ export function createServices(options: {
 
     let auth: AuthService
     if (options.backend === 'firebase' || options.backend === 'firebase-emulator') {
-        auth = new FirebaseAuthService(options.firebase ?? firebase, { storage: options.storage })
+        const firebase = options.firebase ?? firebaseModule;
+        auth = new FirebaseAuthService(firebase, { storage: options.storage })
         if (process.env.NODE_ENV === 'development') {
-            if (process.env.REACT_APP_USE_FUNCTIONS_EMULATOR === 'true') {
+            if (options.backend === 'firebase-emulator') {
+                firebase.firestore().useEmulator("localhost", 8080);
+                firebase.auth().useEmulator('http://localhost:9099/');
+            }
+            if (options.backend === 'firebase-emulator' || process.env.REACT_APP_USE_FUNCTIONS_EMULATOR === 'true') {
                 console.log('Using *emulated* Firebase Functions')
-                firebase.functions().useFunctionsEmulator("http://localhost:5001")
+                firebaseModule.functions().useFunctionsEmulator("http://localhost:5001")
             } else {
                 console.log('Using *real* Firebase Functions')
             }
@@ -61,7 +66,7 @@ export function createServices(options: {
         getCurrentUserId: async () => services.auth.getCurrentUserReference()?.id
     }) : new FirebaseFunctionsActivityStreamsService({
         executeCall: async (name, params) => {
-            const functions = (options.firebase ?? firebase)!.functions()
+            const functions = (options.firebase ?? firebaseModule).functions()
             const result = await functions.httpsCallable(name)(params)
             return result.data
         }

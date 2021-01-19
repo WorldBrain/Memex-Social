@@ -1,5 +1,5 @@
 import { User } from '@worldbrain/memex-common/lib/web-interface/types/users';
-import * as firebase from 'firebase'
+import firebase from 'firebase'
 import { EventEmitter } from "events";
 import { Storage } from '../../storage/types';
 import { AuthProvider } from '../../types/auth';

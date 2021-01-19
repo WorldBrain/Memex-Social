@@ -29,16 +29,16 @@ export default class ContentConversationsService {
                 ...params
             })
             try {
-                await this.options.services.activityStreams.addActivity({
-                    entityType: 'sharedAnnotation',
-                    entity: params.annotationReference,
-                    activityType: 'conversationReply',
-                    activity: {
-                        replyReference,
-                        isFirstReply: params.isFirstReply,
-                    },
-                    follow: { home: true },
-                })
+                // await this.options.services.activityStreams.addActivity({
+                //     entityType: 'sharedAnnotation',
+                //     entity: params.annotationReference,
+                //     activityType: 'conversationReply',
+                //     activity: {
+                //         replyReference,
+                //         isFirstReply: params.isFirstReply,
+                //     },
+                //     follow: { home: true },
+                // })
             } catch (err) {
                 console.error(err)
             }
