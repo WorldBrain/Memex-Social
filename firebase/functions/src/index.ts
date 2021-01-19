@@ -10,7 +10,7 @@ module.exports = {
         firebase: admin as any,
         functions,
     }),
-    ...createFirestoreTriggers({
+    triggers: createFirestoreTriggers({
         firebase: admin as any,
         functions,
     })
