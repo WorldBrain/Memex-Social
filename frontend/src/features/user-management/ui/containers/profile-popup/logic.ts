@@ -1,10 +1,16 @@
+import { getUserReference } from '@worldbrain/memex-common/ts/user-management/utils'
 import { UILogic, UIEventHandler } from '../../../../../main-ui/classes/logic'
-import UserPublicProfile from '../../../types'
+import { UITaskState } from '../../../../../main-ui/types'
+import {
+    UserPublicProfile,
+    User,
+    UserReference,
+    ProfileWebLink,
+} from '../../../types'
 import {
     ProfilePopupDependencies,
     ProfilePopupEvent,
     ProfilePopupState,
-    TaskState,
 } from './types'
 
 type EventHandler<EventName extends keyof ProfilePopupEvent> = UIEventHandler<
@@ -27,74 +33,75 @@ export default class ProfilePopupLogic extends UILogic<
             isSupported: false,
             supportedTaskState: 'pristine',
             profileTaskState: 'pristine',
+            user: {
+                displayName: '',
+            },
             profileData: {
                 websiteURL: '',
                 mediumURL: '',
                 twitterURL: '',
                 subStackURL: '',
                 bio: '',
-                avatarId: '',
+                avatarUrl: '',
                 paymentPointer: '',
             },
+            webLinksArray: [],
         }
     }
 
-    initProfilePopup: EventHandler<'initProfilePopup'> = async () => {
+    initPopup: EventHandler<'initPopup'> = async () => {
         this._setProfileTaskState('running')
         this._setDisplayState(true)
+        const { userRef } = this.dependencies
         try {
             const promises = await Promise.all([
+                this.dependencies.services.userManagement.loadUserData(userRef),
                 this.dependencies.services.userManagement.loadUserPublicProfile(
-                    this.dependencies.user.id,
-                ),
-                this.dependencies.services.userManagement.loadIsSupported(
-                    this.dependencies.user.id,
+                    userRef,
                 ),
             ])
-            this._setPublicProfileData(promises[0])
-            this._setisSupported(promises[1])
+            this._setUser(await promises[0])
+            this._setWebLinksArray(await promises[1])
+            this._setPublicProfileData(promises[1])
             this._setProfileTaskState('success')
         } catch (err) {
             this._setProfileTaskState('error')
         }
     }
 
-    initCuratorSupport: EventHandler<'initCuratorSupport'> = async () => {
-        this._setSupportedTaskState('running')
-        try {
-            await this.dependencies.services.userManagement.toggleUserSupport(
-                this.dependencies.user.id,
-            )
-            this._setisSupported(true)
-            this._setSupportedTaskState('success')
-        } catch (err) {
-            this._setSupportedTaskState('error')
-        }
+    hidePopup: EventHandler<'hidePopup'> = () => {
+        this._setDisplayState(false)
     }
 
-    _setProfileTaskState(taskState: TaskState) {
+    private _setProfileTaskState(taskState: UITaskState) {
         this.emitMutation({ profileTaskState: { $set: taskState } })
     }
 
-    _setDisplayState(isDisplayed: boolean) {
+    private _setDisplayState(isDisplayed: boolean) {
         this.emitMutation({ isDisplayed: { $set: isDisplayed } })
     }
 
-    _setPublicProfileData(profileData: UserPublicProfile) {
+    private _setUser(user: User | null) {
+        if (!user) {
+            user = {
+                displayName: 'Unknown User',
+            }
+        }
+        this.emitMutation({ user: { $set: user } })
+    }
+
+    private _setPublicProfileData(profileData: UserPublicProfile) {
         this.emitMutation({
             profileData: { $set: profileData },
         })
     }
 
-    _setisSupported(isSupported: boolean) {
+    private _setWebLinksArray(profileData: UserPublicProfile) {
+        const webLinksArray: ProfileWebLink[] = this.dependencies.services.userManagement.getWebLinksArray(
+            profileData,
+        )
         this.emitMutation({
-            isSupported: { $set: isSupported },
-        })
-    }
-
-    _setSupportedTaskState(taskState: TaskState) {
-        this.emitMutation({
-            supportedTaskState: { $set: taskState },
+            webLinksArray: { $set: webLinksArray },
         })
     }
 }

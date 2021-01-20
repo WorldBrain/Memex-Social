@@ -1,30 +1,33 @@
 import { UIEvent } from '../../../../../main-ui/classes/logic'
 import { UIElementServices } from '../../../../../main-ui/classes'
 import { StorageModules } from '../../../../../storage/types'
-import UserPublicProfile from '../../../types'
-import { UserReference } from '@worldbrain/memex-common/lib/web-interface/types/users'
-
-export type TaskState = 'pristine' | 'success' | 'running' | 'error'
+import {
+    UserReference,
+    UserPublicProfile,
+    User,
+    ProfileWebLink,
+} from '../../../types'
+import { UITaskState } from '../../../../../main-ui/types'
 
 export interface ProfilePopupDependencies {
     services: UIElementServices<'userManagement'>
     storage: Pick<StorageModules, 'users'>
-    user: {
-        id: string | number
-        displayName: string
-    }
+    userRef: UserReference
+    doNotRenderProfile: boolean
 }
 
 export interface ProfilePopupState {
     isDisplayed: boolean
     isSupported: boolean
-    supportedTaskState: TaskState
-    profileTaskState: TaskState
+    supportedTaskState: UITaskState
+    profileTaskState: UITaskState
+    user: User
     profileData: UserPublicProfile
+    webLinksArray: ProfileWebLink[]
 }
 
 export type ProfilePopupEvent = UIEvent<{
-    initProfilePopup: null
-    hideProfilePopup: null
+    initPopup: null
+    hidePopup: null
     initCuratorSupport: null
 }>
