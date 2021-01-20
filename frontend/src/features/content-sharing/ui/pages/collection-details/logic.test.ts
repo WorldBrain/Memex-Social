@@ -72,7 +72,7 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
         })
         const logic = new CollectionDetailsLogic({
             storage: storage.serverModules,
-            services: {} as any,
+            services,
             listID: storage.serverModules.contentSharing.getSharedListLinkID(listReference),
         });
         const container = new TestLogicContainer<CollectionDetailsState, CollectionDetailsEvent>(logic)
@@ -160,7 +160,7 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
 
         const logic = new CollectionDetailsLogic({
             storage: storage.serverModules,
-            services: {} as any,
+            services,
             listID: storage.serverModules.contentSharing.getSharedListLinkID(listReference),
         });
         const container = new TestLogicContainer<CollectionDetailsState, CollectionDetailsEvent>(logic)
@@ -207,7 +207,7 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
         })
         const logic = new CollectionDetailsLogic({
             storage: storage.serverModules,
-            services: {} as any,
+            services,
             listID: storage.serverModules.contentSharing.getSharedListLinkID(listReference),
         });
         const container = new TestLogicContainer<CollectionDetailsState, CollectionDetailsEvent>(logic)
@@ -249,7 +249,7 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
 
         const logic = new CollectionDetailsLogic({
             storage: storage.serverModules,
-            services: {} as any,
+            services,
             listID
         });
         const container = new TestLogicContainer<CollectionDetailsState, CollectionDetailsEvent>(logic)

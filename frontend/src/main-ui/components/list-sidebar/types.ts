@@ -10,11 +10,11 @@ export interface Dependencies {
 }
 
 export interface State {
-    sharedLists: Array<SharedList & { reference: SharedListReference }>
+    followedLists: Array<SharedList & { reference: SharedListReference }>
     isListShown: boolean
     loadState: UITaskState
 }
 
 export type Events = UIEvent<{
-    clickSharedList: { listRef: SharedListReference }
+    clickSharedList: { listReference: SharedListReference }
 }>

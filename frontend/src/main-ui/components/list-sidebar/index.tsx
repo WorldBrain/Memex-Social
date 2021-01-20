@@ -9,10 +9,10 @@ export interface Props extends Dependencies {
 }
 
 export default class ListsSidebarContainer extends UIElement<Props, State, Events> {
-    private handleSharedListClick: (listRef:SharedListReference) => React.MouseEventHandler = (listRef) => (e) => {
+    private handleSharedListClick: (ref: SharedListReference) => React.MouseEventHandler = (listReference) => (e) => {
         e.preventDefault()
 
-        this.processEvent('clickSharedList', { listRef })
+        this.processEvent('clickSharedList', { listReference })
     }
 
     render() {
@@ -23,7 +23,7 @@ export default class ListsSidebarContainer extends UIElement<Props, State, Event
         return (
             <ListsSidebar
                 loadState={this.state.loadState}
-                sharedLists={this.state.sharedLists}
+                sharedLists={this.state.followedLists}
                 onSharedListClick={this.handleSharedListClick}
             />
         )

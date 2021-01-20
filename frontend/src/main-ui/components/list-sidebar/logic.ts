@@ -15,7 +15,7 @@ export default class Logic extends UILogic<State, Events> {
 
     getInitialState() : State {
         return {
-            sharedLists: [],
+            followedLists: [],
             isListShown: false,
             loadState: 'pristine',
         }
@@ -31,31 +31,36 @@ export default class Logic extends UILogic<State, Events> {
             return
         }
 
-        // TODO: Sort out the type errors using `loadInitial` here
-        // await loadInitial(this, async () => {
-        const follows = await serverModules.activityFollows.getAllFollowsByCollection({
-            collection: 'sharedList', userReference,
+        await loadInitial<State>(this, async () => {
+            const follows = await serverModules.activityFollows.getAllFollowsByCollection({
+                collection: 'sharedList', userReference,
+            })
+
+            const followedLists: Array<SharedList & {  reference: SharedListReference }> = []
+
+            // TODO: Do this more efficiently - I think there needs to be a new method
+            for (const { objectId } of follows) {
+                const listReference: SharedListReference = {
+                    type: 'shared-list-reference',
+                    id: objectId,
+                }
+                const list = await serverModules.contentSharing.retrieveList(listReference)
+
+                followedLists.push({
+                    ...list?.sharedList!,
+                    reference: listReference,
+                })
+            }
+
+            this.emitMutation({
+                followedLists: { $set: followedLists },
+                isListShown: { $set: true },
+            })
         })
-
-        const sharedLists: Array<SharedList & {  reference: SharedListReference }> = []
-
-        // TODO: Do this more efficiently - I think there needs to be a new method
-        for (const { objectId } of follows) {
-            const list = await serverModules.contentSharing.retrieveList({ type: 'shared-list-reference', id: objectId })
-
-            // TODO: Figure out how to get list IDs
-            // sharedLists.push({ ...list, reference: { type: 'shared-list-reference', id: list. } })
-        }
-
-        this.emitMutation({
-            sharedLists: { $set: sharedLists },
-            isListShown: { $set: true },
-        })
-        // })
     }
 
     clickSharedList: EventHandler<'clickSharedList'> = ({ event }) => {
         const { router } = this.options.services
-        router.goTo('collectionDetails', { id: event.listRef.id as string })
+        router.goTo('collectionDetails', { id: event.listReference.id as string })
     }
 }
