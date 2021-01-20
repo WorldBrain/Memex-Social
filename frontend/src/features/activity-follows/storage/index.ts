@@ -18,6 +18,11 @@ import {
   ActivityFollowReference,
 } from "@worldbrain/memex-common/lib/activity-follows/storage/types";
 
+interface ActivityFollowFromDB extends ActivityFollow {
+  id: string
+  user: string
+}
+
 interface ActivityFollowWithRef extends ActivityFollow {
   reference: ActivityFollowReference;
   userReference: UserReference;
@@ -102,7 +107,7 @@ export default class ActivityFollowsStorage extends StorageModule {
     id,
     user: userId,
     ...follow
-  }: ActivityFollow): ActivityFollowWithRef => ({
+  }: ActivityFollowFromDB): ActivityFollowWithRef => ({
     ...follow,
     reference: { id, type: "activity-follow-reference" },
     userReference: { id: userId, type: "user-reference" },
@@ -113,7 +118,7 @@ export default class ActivityFollowsStorage extends StorageModule {
     objectId,
     userReference,
   }: FollowEntityArgs): Promise<ActivityFollowWithRef | null> {
-    const foundFollow = await this.operation("findFollow", {
+    const foundFollow: ActivityFollowFromDB | null = await this.operation("findFollow", {
       collection,
       objectId,
       user: userReference.id,
@@ -197,7 +202,7 @@ export default class ActivityFollowsStorage extends StorageModule {
     userReference: UserReference;
     collection: string;
   }): Promise<ActivityFollowWithRef[]> {
-    const follows: ActivityFollow[] = await this.operation(
+    const follows: ActivityFollowFromDB[] = await this.operation(
       "findFollowsByCollection",
       { collection, user: userReference.id }
     );
@@ -209,7 +214,7 @@ export default class ActivityFollowsStorage extends StorageModule {
     collection,
     objectId,
   }: EntityArgs): Promise<ActivityFollowWithRef[]> {
-    const follows: ActivityFollow[] = await this.operation(
+    const follows: ActivityFollowFromDB[] = await this.operation(
       "findFollowsByEntity",
       { collection, objectId }
     );
