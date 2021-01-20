@@ -1,8 +1,8 @@
 import { UserReference } from '@worldbrain/memex-common/lib/web-interface/types/users'
-import { getUserReference } from '@worldbrain/memex-common/ts/user-management/utils'
-import UserPublicProfile from '../types'
+import { ProfileWebLink, User, UserPublicProfile } from '../types'
 import { AuthService } from '../../../services/auth/types'
 import UserStorage from '../storage/'
+import UserProfileCache from '../utils/user-profile-cache'
 
 export default class UserManagementService {
     constructor(
@@ -20,17 +20,55 @@ export default class UserManagementService {
      * @param userId id for a user
      */
     async loadUserPublicProfile(
-        userId: string | number,
+        userRef: UserReference,
     ): Promise<UserPublicProfile> {
-        if (this.userPublicProfilesCache[userId]) {
-            return this.userPublicProfilesCache[userId]
+        if (this.userPublicProfilesCache[userRef.id]) {
+            return this.userPublicProfilesCache[userRef.id]
         }
-        const userReference: UserReference = userId
-            ? getUserReference(userId)
+        const userReference: UserReference = userRef
+            ? userRef
             : await this.options.auth.getCurrentUserReference()!
-        this.userPublicProfilesCache[
-            userId
-        ] = await this.options.storage.getUserPublicProfile(userReference)
-        return this.userPublicProfilesCache[userId]
+        const publicProfile: UserPublicProfile = await this.options.storage.getUserPublicProfile(
+            userReference,
+        )
+        this.userPublicProfilesCache[userRef.id] = publicProfile
+        return publicProfile
+    }
+
+    getWebLinksArray(profileData: UserPublicProfile): ProfileWebLink[] {
+        const { websiteURL, mediumURL, twitterURL, subStackURL } = profileData
+        const arr: ProfileWebLink[] = []
+        if (websiteURL) {
+            arr.push({
+                url: websiteURL,
+                iconPath: 'img/websiteIcon.svg',
+            })
+        }
+        if (mediumURL) {
+            arr.push({
+                url: mediumURL,
+                iconPath: 'img/mediumIcon.svg',
+            })
+        }
+        if (twitterURL) {
+            arr.push({
+                url: twitterURL,
+                iconPath: 'img/twitterIcon.svg',
+            })
+        }
+        if (subStackURL) {
+            arr.push({
+                url: subStackURL,
+                iconPath: 'img/substackIcon.svg',
+            })
+        }
+        return arr
+    }
+
+    async loadUserData(userRef: UserReference): Promise<User | null> {
+        const userProfileCache = new UserProfileCache({
+            storage: { users: this.options.storage },
+        })
+        return await userProfileCache.loadUser(userRef)
     }
 }
