@@ -12,6 +12,7 @@ import StorexActivityStreamsStorage from "@worldbrain/memex-common/lib/activity-
 import UserStorage from "../features/user-management/storage";
 import ContentSharingStorage from '../features/content-sharing/storage';
 import ContentConversationStorage from '../features/content-conversations/storage';
+import ActivityFollowsStorage from '../features/activity-follows/storage';
 
 import { BackendType } from "../types";
 import { Storage } from "./types";
@@ -49,6 +50,7 @@ export async function createStorage(options: {
         serverStorageManager: storageManager,
         serverModules: {
             // auth: new AuthStorage({ storageManager }),
+            activityFollows: new ActivityFollowsStorage({ storageManager }),
             users: new UserStorage({ storageManager }),
             contentSharing,
             contentConversations: new ContentConversationStorage({
