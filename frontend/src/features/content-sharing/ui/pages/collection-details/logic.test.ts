@@ -283,4 +283,95 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
             await storage.serverModules.activityFollows.isEntityFollowedByUser(entityArgs)
         ).toBe(false)
     })
+
+    it ('should load all followed lists on init', { withTestUser: true }, async ({ storage, services }) => {
+        const { contentSharing, activityFollows } = storage.serverModules
+        const userReference = (services.auth.getCurrentUserReference()!);
+        const listReference = await contentSharing.createSharedList({
+            userReference,
+            localListId: 33,
+            listData: { title: 'Test list' },
+        })
+
+        const testDataFactory = new TestDataFactory()
+        const firstListEntry = testDataFactory.createListEntry();
+        await contentSharing.createListEntries({
+            userReference,
+            listReference,
+            listEntries: [
+                firstListEntry,
+                testDataFactory.createListEntry(),
+            ],
+        })
+        await activityFollows.storeFollow({
+            userReference,
+            collection: 'sharedList',
+            objectId: listReference.id as string,
+        })
+        const listID= storage.serverModules.contentSharing.getSharedListLinkID(listReference)
+
+        const logic = new CollectionDetailsLogic({
+            storage: storage.serverModules,
+            services,
+            listID
+        });
+        const container = new TestLogicContainer<CollectionDetailsState, CollectionDetailsEvent>(logic)
+
+        expect(container.state.listSidebarLoadState).toEqual('pristine')
+        expect(container.state.followedLists).toEqual([])
+        expect(container.state.isListSidebarShown).toEqual(false)
+
+        const initP = logic['loadListSidebarState']()
+        expect(container.state.listSidebarLoadState).toEqual('running')
+        await initP
+
+        expect(container.state.listSidebarLoadState).toEqual('success')
+        expect(container.state.followedLists).toEqual([expect.objectContaining({
+            title: 'Test list',
+            creator: 'default-user',
+            reference: listReference,
+        })])
+        expect(container.state.isListSidebarShown).toEqual(true)
+    })
+
+    it ('should re-route to selected list on sidebar list click', { withTestUser: true }, async (context) => {
+        const { storage, services } = context
+
+        const { contentSharing, activityFollows } = storage.serverModules
+        const userReference = (services.auth.getCurrentUserReference()!);
+        const listReference = await contentSharing.createSharedList({
+            userReference,
+            localListId: 33,
+            listData: { title: 'Test list' },
+        })
+
+        const testDataFactory = new TestDataFactory()
+        const firstListEntry = testDataFactory.createListEntry();
+        await contentSharing.createListEntries({
+            userReference,
+            listReference,
+            listEntries: [
+                firstListEntry,
+                testDataFactory.createListEntry(),
+            ],
+        })
+        await activityFollows.storeFollow({
+            userReference,
+            collection: 'sharedList',
+            objectId: listReference.id as string,
+        })
+        const listID= storage.serverModules.contentSharing.getSharedListLinkID(listReference)
+
+        const logic = new CollectionDetailsLogic({
+            storage: storage.serverModules,
+            services,
+            listID
+        });
+        const container = new TestLogicContainer<CollectionDetailsState, CollectionDetailsEvent>(logic)
+
+        await container.init()
+        await container.processEvent('clickFollowedListInSidebar', { listReference })
+
+        // TODO: implement a fake router history to be able to check the reroute
+    })
 })

@@ -1,7 +1,7 @@
 import { UIEvent, UISignal } from "../../../../../main-ui/classes/logic";
 import { AnnotationConversationEvent, AnnotationConversationsState } from "../../../../content-conversations/ui/types";
 import { GetAnnotationsResult, GetAnnotationListEntriesResult } from "@worldbrain/memex-common/lib/content-sharing/storage/types";
-import { SharedListEntry, SharedList } from "@worldbrain/memex-common/lib/content-sharing/types";
+import { SharedListEntry, SharedList, SharedListReference } from "@worldbrain/memex-common/lib/content-sharing/types";
 import { UITaskState } from "../../../../../main-ui/types";
 import { UserReference, User } from "@worldbrain/memex-common/lib/web-interface/types/users";
 import { UIElementServices } from "../../../../../main-ui/classes";
@@ -16,8 +16,11 @@ export interface CollectionDetailsDependencies {
 export type CollectionDetailsState = AnnotationConversationsState & {
     listLoadState: UITaskState
     followLoadState: UITaskState
+    listSidebarLoadState: UITaskState
     annotationEntriesLoadState: UITaskState
     annotationLoadStates: { [normalizedPageUrl: string]: UITaskState }
+    followedLists: Array<SharedList & { reference: SharedListReference }>
+    isListSidebarShown: boolean
     listData?: {
         creatorReference?: UserReference
         creator?: Pick<User, 'displayName'> | null
@@ -39,6 +42,7 @@ export type CollectionDetailsEvent = UIEvent<AnnotationConversationEvent & {
     toggleAllAnnotations: {}
     pageBreakpointHit: { entryIndex: number }
     clickFollowBtn: null
+    clickFollowedListInSidebar: { listReference: SharedListReference }
 }>
 
 export type CollectionDetailsSignal = UISignal<

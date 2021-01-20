@@ -1,6 +1,6 @@
 import chunk from 'lodash/chunk'
 import fromPairs from 'lodash/fromPairs'
-import { SharedAnnotationReference } from "@worldbrain/memex-common/lib/content-sharing/types"
+import { SharedAnnotationReference, SharedList, SharedListReference } from "@worldbrain/memex-common/lib/content-sharing/types"
 import { GetAnnotationListEntriesResult, GetAnnotationsResult } from "@worldbrain/memex-common/lib/content-sharing/storage/types"
 import { CollectionDetailsEvent, CollectionDetailsDependencies, CollectionDetailsSignal, CollectionDetailsState } from "./types"
 import { UILogic, UIEventHandler, executeUITask } from "../../../../../main-ui/classes/logic"
@@ -46,12 +46,15 @@ export default class CollectionDetailsLogic extends UILogic<CollectionDetailsSta
         return {
             listLoadState: 'pristine',
             followLoadState: 'pristine',
+            listSidebarLoadState: 'pristine',
             annotationEntriesLoadState: 'pristine',
             annotationLoadStates: {},
             annotations: {},
             isCollectionFollowed: false,
             allAnnotationExpanded: false,
+            isListSidebarShown: false,
             pageAnnotationsExpanded: {},
+            followedLists: [],
             ...annotationConversationInitialState(),
         }
     }
@@ -97,6 +100,45 @@ export default class CollectionDetailsLogic extends UILogic<CollectionDetailsSta
             }
         })
         this.emitSignal<CollectionDetailsSignal>({ type: 'loaded-annotation-entries', success: annotationEntriesSuccess })
+        await this.loadListSidebarState()
+    }
+
+    private async loadListSidebarState() {
+        const { activityFollows, contentSharing } = this.dependencies.storage
+        const { auth } = this.dependencies.services
+
+        const userReference = auth.getCurrentUserReference()
+
+        if (userReference == null) {
+            return
+        }
+
+        await executeUITask<CollectionDetailsState>(this, 'listSidebarLoadState', async () => {
+            const follows = await activityFollows.getAllFollowsByCollection({
+                collection: 'sharedList', userReference,
+            })
+
+            const followedLists: Array<SharedList & {  reference: SharedListReference }> = []
+
+            // TODO: Do this more efficiently - I think there needs to be a new method
+            for (const { objectId } of follows) {
+                const listReference: SharedListReference = {
+                    type: 'shared-list-reference',
+                    id: objectId,
+                }
+                const list = await contentSharing.retrieveList(listReference)
+
+                followedLists.push({
+                    ...list?.sharedList!,
+                    reference: listReference,
+                })
+            }
+
+            this.emitMutation({
+                followedLists: { $set: followedLists },
+                isListSidebarShown: { $set: true },
+            })
+        })
     }
 
     toggleDescriptionTruncation: EventHandler<'toggleDescriptionTruncation'> = () => {
@@ -201,6 +243,11 @@ export default class CollectionDetailsLogic extends UILogic<CollectionDetailsSta
                 isCollectionFollowed: { $set: !isAlreadyFollowed }
              })
         })
+    }
+
+    clickFollowedListInSidebar: EventHandler<'clickFollowedListInSidebar'> = ({ event }) => {
+        const { router } = this.dependencies.services
+        router.goTo('collectionDetails', { id: event.listReference.id as string })
     }
 
     getFirstPagesWithoutLoadedAnnotations(state: CollectionDetailsState) {
