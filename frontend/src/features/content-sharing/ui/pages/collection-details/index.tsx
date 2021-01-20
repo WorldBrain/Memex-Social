@@ -27,6 +27,8 @@ import { getViewportBreakpoint } from "../../../../../main-ui/styles/utils";
 import AnnotationsInPage from "../../../../annotations/ui/components/annotations-in-page";
 import ErrorWithAction from "../../../../../common-ui/components/error-with-action";
 import ErrorBox from "../../../../../common-ui/components/error-box";
+import FollowBtn from "../../../../activity-follows/ui/components/follow-btn"
+import ListsSidebar from "../../../../../main-ui/components/list-sidebar/lists-sidebar";
 const commentImage = require("../../../../../assets/img/comment.svg");
 
 const DocumentView = styled.div`
@@ -172,6 +174,16 @@ export default class CollectionDetailsPage extends UIElement<
     }
   }
 
+  renderFollowBtn() {
+    return (
+      <FollowBtn
+        onClick={() => this.processEvent('clickFollowBtn', null)}
+        isFollowed={this.state.isCollectionFollowed}
+        loadState={this.state.followLoadState}
+      />
+    )
+  }
+
   renderPageAnnotations(entry: SharedListEntry) {
     const { state } = this;
     return (
@@ -280,12 +292,18 @@ export default class CollectionDetailsPage extends UIElement<
           documentTitle={this.props.services.documentTitle}
           subTitle={data.list.title}
         />
+        <ListsSidebar
+          followedLists={this.state.followedLists}
+          loadState={this.state.listSidebarLoadState}
+          onSharedListClick={(listReference) => () => this.processEvent('clickFollowedListInSidebar', { listReference })}
+        />
         <DefaultPageLayout
           services={this.props.services}
           storage={this.props.storage}
           viewportBreakpoint={viewportBreakpoint}
           headerTitle={data.list.title}
           headerSubtitle={data.creator && `by ${data.creator.displayName}`}
+          followBtn={this.renderFollowBtn()}
         >
           {data.list.description && (
             <CollectionDescriptionBox viewportWidth={viewportBreakpoint}>

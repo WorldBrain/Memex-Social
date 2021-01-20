@@ -223,6 +223,7 @@ export default function DefaultPageLayout(props: {
   storage: Pick<StorageModules, "users" | "activityStreams">;
   headerTitle?: string;
   headerSubtitle?: string | null;
+  followBtn?: JSX.Element
   hideActivityIndicator?: boolean;
   viewportBreakpoint: ViewportBreakpoint;
   children: React.ReactNode;
@@ -312,6 +313,7 @@ export default function DefaultPageLayout(props: {
               {props.headerSubtitle}
             </HeaderSubtitle>
           )}
+          {props.followBtn && props.followBtn}
         </HeaderMiddleArea>
         <HeaderAuthArea viewportWidth={viewportWidth}>
           <AuthHeader services={props.services} storage={props.storage} />

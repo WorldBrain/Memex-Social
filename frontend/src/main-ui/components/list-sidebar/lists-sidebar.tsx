@@ -1,4 +1,4 @@
-import { PureComponent } from "react";
+import React, { PureComponent } from "react";
 import styled from "styled-components";
 import {
   SharedList,
@@ -18,7 +18,7 @@ const EmptyMsg = styled.span``;
 const ErrorMsg = styled.span``;
 
 export interface Props {
-  sharedLists: Array<SharedList & { reference: SharedListReference }>;
+  followedLists: Array<SharedList & { reference: SharedListReference }>;
   loadState: UITaskState;
   onSharedListClick: (listRef: SharedListReference) => React.MouseEventHandler
 }
@@ -41,11 +41,11 @@ export default class ListsSidebar extends PureComponent<Props> {
       );
     }
 
-    if (!this.props.sharedLists.length) {
+    if (!this.props.followedLists.length) {
       return <EmptyMsg>You don't follow any collections yet</EmptyMsg>;
     }
 
-    return this.props.sharedLists.map(({ title, reference }) => (
+    return this.props.followedLists.map(({ title, reference }) => (
       <ListName onClick={this.props.onSharedListClick(reference)}>
         {title}
       </ListName>
