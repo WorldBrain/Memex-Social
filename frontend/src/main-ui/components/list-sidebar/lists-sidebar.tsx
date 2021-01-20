@@ -7,7 +7,13 @@ import {
 import { UITaskState } from "../../types";
 import LoadingIndicator from "../../../common-ui/components/loading-indicator";
 
-const Container = styled.div``;
+const Container = styled.div`
+  position: fixed;
+  top: 50px;
+  height: 100vh;
+  font-family: ${(props) => props.theme.fonts.primary};
+  background: ${(props) => props.theme.colors.grey};
+`;
 
 const SectionTitle = styled.h1``;
 

@@ -3,7 +3,14 @@ import styled from 'styled-components'
 import { UITaskState } from "../../../../main-ui/types";
 import LoadingIndicator from "../../../../common-ui/components/loading-indicator";
 
-const Container = styled.button``
+const Container = styled.button`
+  font-family: ${(props) => props.theme.fonts.primary};
+  border-radius: 5px;
+  border-width: 1px;
+  font-weight: bold;
+  margin-left: auto;
+  padding: ${(props) => props.theme.spacing.small};
+`
 
 const PlusIcon = styled.span``
 
@@ -25,7 +32,7 @@ export default class FollowBtn extends PureComponent<Props> {
 
         return (
             <>
-                <PlusIcon />
+                <PlusIcon>+</PlusIcon>
                 <BtnText>{text}</BtnText>
             </>
         )
