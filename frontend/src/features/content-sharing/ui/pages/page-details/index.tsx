@@ -102,7 +102,7 @@ export default class PageDetailsPage extends UIElement<
           services={this.props.services}
           storage={this.props.storage}
           viewportBreakpoint={viewportWidth}
-          headerTitle={"Annotation"}
+          headerTitle={"Shared page not found"}
         >
           <DocumentTitle
             documentTitle={this.props.services.documentTitle}
