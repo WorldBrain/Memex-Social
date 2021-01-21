@@ -253,6 +253,11 @@ export function organizeActivities(activities: Array<ActivityStreamResultGroup<k
                 pageItem.notifiedWhen = replyActivity.reply.createdWhen
             }
         }
+        if (activityGroup.entityType === 'sharedList' && activityGroup.activityType === 'sharedListEntry') {
+            const entryActivityGroup = activityGroup as ActivityStreamResultGroup<'sharedList', 'sharedListEntry'>
+            entryActivityGroup.activities = sortBy(entryActivityGroup.activities, ({ activity }) => activity.entry.createdWhen)
+            console.log(`TODO: We've got new list entries. Do something with them!`)
+        }
     }
 
     return {

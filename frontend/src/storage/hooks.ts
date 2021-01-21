@@ -36,8 +36,6 @@ export class StorageHooksChangeWatcher {
             this.hooksByCollectionAndOperation[collection] = collectionHooks
         }
 
-        console.log(this.hooksByCollectionAndOperation)
-
         this.dependencies = dependencies
         this.initialized = true
     }
