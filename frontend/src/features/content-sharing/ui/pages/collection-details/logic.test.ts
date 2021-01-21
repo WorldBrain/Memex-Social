@@ -333,45 +333,4 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
         })])
         expect(container.state.isListSidebarShown).toEqual(true)
     })
-
-    it ('should re-route to selected list on sidebar list click', { withTestUser: true }, async (context) => {
-        const { storage, services } = context
-
-        const { contentSharing, activityFollows } = storage.serverModules
-        const userReference = (services.auth.getCurrentUserReference()!);
-        const listReference = await contentSharing.createSharedList({
-            userReference,
-            localListId: 33,
-            listData: { title: 'Test list' },
-        })
-
-        const testDataFactory = new TestDataFactory()
-        const firstListEntry = testDataFactory.createListEntry();
-        await contentSharing.createListEntries({
-            userReference,
-            listReference,
-            listEntries: [
-                firstListEntry,
-                testDataFactory.createListEntry(),
-            ],
-        })
-        await activityFollows.storeFollow({
-            userReference,
-            collection: 'sharedList',
-            objectId: listReference.id as string,
-        })
-        const listID= storage.serverModules.contentSharing.getSharedListLinkID(listReference)
-
-        const logic = new CollectionDetailsLogic({
-            storage: storage.serverModules,
-            services,
-            listID
-        });
-        const container = new TestLogicContainer<CollectionDetailsState, CollectionDetailsEvent>(logic)
-
-        await container.init()
-        await container.processEvent('clickFollowedListInSidebar', { listReference })
-
-        // TODO: implement a fake router history to be able to check the reroute
-    })
 })

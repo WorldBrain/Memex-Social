@@ -293,9 +293,9 @@ export default class CollectionDetailsPage extends UIElement<
           subTitle={data.list.title}
         />
         <ListsSidebar
+          services={this.props.services}
           followedLists={this.state.followedLists}
           loadState={this.state.listSidebarLoadState}
-          onSharedListClick={(listReference) => () => this.processEvent('clickFollowedListInSidebar', { listReference })}
         />
         <DefaultPageLayout
           services={this.props.services}

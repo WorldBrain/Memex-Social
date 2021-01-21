@@ -6,6 +6,8 @@ import {
 } from "@worldbrain/memex-common/lib/content-sharing/types";
 import { UITaskState } from "../../types";
 import LoadingIndicator from "../../../common-ui/components/loading-indicator";
+import RouteLink from "../../../common-ui/components/route-link";
+import { Services } from "../../../services/types";
 
 const Container = styled.div`
   position: fixed;
@@ -17,16 +19,16 @@ const Container = styled.div`
 
 const SectionTitle = styled.h1``;
 
-const ListName = styled.span``;
+const ListNameLink = styled(RouteLink)``;
 
 const EmptyMsg = styled.span``;
 
 const ErrorMsg = styled.span``;
 
 export interface Props {
+  services: Pick<Services, 'router'>;
   followedLists: Array<SharedList & { reference: SharedListReference }>;
   loadState: UITaskState;
-  onSharedListClick: (listRef: SharedListReference) => React.MouseEventHandler
 }
 
 export default class ListsSidebar extends PureComponent<Props> {
@@ -52,9 +54,13 @@ export default class ListsSidebar extends PureComponent<Props> {
     }
 
     return this.props.followedLists.map(({ title, reference }) => (
-      <ListName onClick={this.props.onSharedListClick(reference)}>
+      <ListNameLink
+        route="collectionDetails"
+        services={this.props.services}
+        params={{ id: reference.id as string }}
+      >
         {title}
-      </ListName>
+      </ListNameLink>
     ));
   }
 

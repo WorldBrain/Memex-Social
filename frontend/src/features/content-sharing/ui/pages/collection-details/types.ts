@@ -42,7 +42,6 @@ export type CollectionDetailsEvent = UIEvent<AnnotationConversationEvent & {
     toggleAllAnnotations: {}
     pageBreakpointHit: { entryIndex: number }
     clickFollowBtn: null
-    clickFollowedListInSidebar: { listReference: SharedListReference }
 }>
 
 export type CollectionDetailsSignal = UISignal<

@@ -245,11 +245,6 @@ export default class CollectionDetailsLogic extends UILogic<CollectionDetailsSta
         })
     }
 
-    clickFollowedListInSidebar: EventHandler<'clickFollowedListInSidebar'> = ({ event }) => {
-        const { router } = this.dependencies.services
-        router.goTo('collectionDetails', { id: event.listReference.id as string })
-    }
-
     getFirstPagesWithoutLoadedAnnotations(state: CollectionDetailsState) {
         const normalizedPageUrls: string[] = []
         let latestPageSeenIndex = 0
