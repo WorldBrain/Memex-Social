@@ -5,3 +5,4 @@ node_modules/
 firebase/public/
 .firebase/
 private/
+frontend/code-templates/
