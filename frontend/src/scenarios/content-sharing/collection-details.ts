@@ -431,4 +431,17 @@ export const SCENARIOS: ScenarioMap<Targets> = {
             })
         ]
     })),
+    'login-on-follow-button-click': scenario<Targets>(({ step, callModification }) => ({
+        fixture: 'annotated-list-with-user',
+        startRoute: { route: 'collectionDetails', params: { id: 'default-list' } },
+        steps: [
+            step({
+                name: 'follow-btn-clicked',
+                target: 'CollectionDetailsPage',
+                eventName: 'clickFollowBtn',
+                eventArgs: null,
+            })
+        ]
+    })),
+
 }
