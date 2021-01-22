@@ -101,6 +101,28 @@ export default class CollectionDetailsLogic extends UILogic<CollectionDetailsSta
         })
         this.emitSignal<CollectionDetailsSignal>({ type: 'loaded-annotation-entries', success: annotationEntriesSuccess })
         await this.loadListSidebarState()
+        await this.loadFollowBtnState()
+    }
+
+    private async loadFollowBtnState() {
+        const { activityFollows, contentSharing } = this.dependencies.storage
+        const { auth } = this.dependencies.services
+
+        const userReference = auth.getCurrentUserReference()
+
+        if (userReference == null) {
+            return
+        }
+
+        await executeUITask<CollectionDetailsState>(this, 'followLoadState', async () => {
+            const isAlreadyFollowed = await activityFollows.isEntityFollowedByUser({
+                userReference,
+                collection: 'sharedList',
+                objectId: this.dependencies.listID,
+            })
+
+            this.emitMutation({ isCollectionFollowed: { $set: isAlreadyFollowed }})
+        })
     }
 
     private async loadListSidebarState() {
