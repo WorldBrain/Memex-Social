@@ -1,0 +1,30 @@
+objects:
+  sharedLists:
+    - $store: default
+      id: default-list
+      creator: { $ref: users.default }
+      createdWhen: 1594225289914
+      updatedWhen: 1594225289914
+      title: "Productivity Tools: Networked Thoughts"
+      description: "A new breed of note-taking tools. Here is a collection of tools for networked thoughts. A new breed of note-taking tools. Here is a collection of tools for networked thoughts. A new breed of note-taking tools. Here is a collection of tools for networked thoughts. A new breed of note-taking tools. Here is a collection of tools for networked thoughts. A new breed of note-taking tools. Here is a collection of tools for networked thoughts. A new breed of note-taking tools. Here is a collection of tools for networked thoughts."
+    - $store: second
+      id: second-list
+      creator: { $ref: users.default }
+      createdWhen: 1594225389914
+      updatedWhen: 1594225389914
+      title: "Second list"
+      description: "Bla bla"
+  activityFollows:
+    - $store: default
+      id: default-follow-1
+      user: { $ref: users.default }
+      createdWhen: 1594225289919
+      collection: 'sharedList'
+      objectId: { $ref: sharedLists.default }
+    - $store: default
+      id: default-follow-2
+      user: { $ref: users.default }
+      createdWhen: 1594225589919
+      collection: 'sharedList'
+      objectId: { $ref: sharedLists.second }
+

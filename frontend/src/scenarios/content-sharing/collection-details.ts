@@ -360,4 +360,45 @@ export const SCENARIOS: ScenarioMap<Targets> = {
         startRoute: { route: 'collectionDetails', params: { id: 'non-existing' } },
         steps: []
     })),
+    'user-with-followed-collections': scenario<Targets>(({ step, callModification }) => ({
+        fixture: 'annotated-list-with-user-and-follows',
+        authenticated: true,
+        startRoute: { route: 'collectionDetails', params: { id: 'default-list' } },
+        setup: {
+            callModifications: ({ storage }) => [
+                callModification({
+                    name: 'follows-loading',
+                    object: storage.serverModules.activityFollows, property: 'getAllFollowsByCollection',
+                    modifier: 'block'
+                }),
+            ],
+        },
+        steps: [
+            step({
+                name: 'follows-loaded',
+                callModifications: ({ storage }) => [
+                    {
+                        name: 'follows-loaded',
+                        modifier: 'undo',
+                    },
+                ]
+            }),
+        ]
+    })),
+    'user-with-followed-collections-error': scenario<Targets>(({ step, callModification }) => ({
+        fixture: 'annotated-list-with-user-and-follows',
+        authenticated: true,
+        startRoute: { route: 'collectionDetails', params: { id: 'default-list' } },
+        setup: {
+            callModifications: ({ storage }) => [
+                callModification({
+                    name: 'follows-error',
+                    object: storage.serverModules.activityFollows, property: 'getAllFollowsByCollection',
+                    modifier: 'sabotage'
+                }),
+            ],
+        },
+        steps: []
+    })),
+
 }
