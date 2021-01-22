@@ -378,7 +378,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                 name: 'follows-loaded',
                 callModifications: ({ storage }) => [
                     {
-                        name: 'follows-loaded',
+                        name: 'follows-loading',
                         modifier: 'undo',
                     },
                 ]
@@ -400,5 +400,35 @@ export const SCENARIOS: ScenarioMap<Targets> = {
         },
         steps: []
     })),
-
+    'user-with-followed-collections-follow-button': scenario<Targets>(({ step, callModification }) => ({
+        fixture: 'annotated-list-with-user-and-follows',
+        authenticated: true,
+        startRoute: { route: 'collectionDetails', params: { id: 'default-list' } },
+        setup: {
+            callModifications: ({ storage }) => [
+                callModification({
+                    name: 'follow-btn-loading',
+                    object: storage.serverModules.activityFollows, property: 'isEntityFollowedByUser',
+                    modifier: 'block'
+                }),
+            ],
+        },
+        steps: [
+            step({
+                name: 'follow-btn-loaded',
+                callModifications: ({ storage }) => [
+                    {
+                        name: 'follow-btn-loading',
+                        modifier: 'undo',
+                    },
+                ]
+            }),
+            step({
+                name: 'follow-btn-clicked',
+                target: 'CollectionDetailsPage',
+                eventName: 'clickFollowBtn',
+                eventArgs: null,
+            })
+        ]
+    })),
 }
