@@ -54,11 +54,17 @@ export class ScenarioService {
         return scenario
     }
 
-    async startScenarioReplay(scenarioIdentifierString: string, options: { walkthrough: boolean }) {
+    async loadScenarioFixture(scenarioIdentifierString: string) {
         const scenarioIdentifier = parseScenarioIdentifier(scenarioIdentifierString)
         const { scenario, untilStep } = findScenario(this.scenarioModules, scenarioIdentifier)
 
         await this._loadScenarioFixture(scenario)
+    }
+
+    async startScenarioReplay(scenarioIdentifierString: string, options: { walkthrough: boolean }) {
+        const scenarioIdentifier = parseScenarioIdentifier(scenarioIdentifierString)
+        const { scenario, untilStep } = findScenario(this.scenarioModules, scenarioIdentifier)
+
         if (scenario.authenticated) {
             await this.options.services.auth.loginWithProvider('google')
         }
