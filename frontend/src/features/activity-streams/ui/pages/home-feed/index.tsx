@@ -21,12 +21,18 @@ import AnnotationsInPage from "../../../../annotations/ui/components/annotations
 import { SharedAnnotationInPage } from "../../../../annotations/ui/components/types";
 import MessageBox from "../../../../../common-ui/components/message-box";
 import LoadingIndicator from "../../../../../common-ui/components/loading-indicator";
+import RouteLink from "../../../../../common-ui/components/route-link";
 
 const commentImage = require("../../../../../assets/img/comment.svg");
 const collectionImage = require("../../../../../assets/img/collection.svg");
 
 const StyledIconMargin = styled(Margin)`
   display: flex;
+`
+
+const LoadMoreLink = styled(RouteLink)`
+  display: flex;
+  justify-content: center;
 `
 
 const StyledActivityReason = styled.div`
@@ -86,6 +92,10 @@ export default class HomeFeedPage extends UIElement<
   HomeFeedState,
   HomeFeedEvent
 > {
+  static defaultProps: Partial<HomeFeedDependencies> = {
+    listActivitiesLimit: 6,
+  }
+
   constructor(props: HomeFeedDependencies) {
     super(props, { logic: new Logic(props) });
   }
@@ -217,22 +227,34 @@ export default class HomeFeedPage extends UIElement<
           <Margin bottom="small">
             {this.renderActivityReason(listItem)}
           </Margin>
-          {listItem.entries.map(({ normalizedPageUrl }) => {
-            const pageInfo = this.state.pageInfo[normalizedPageUrl]
-            return (
-              <Margin bottom="small" key={normalizedPageUrl}>
-                <PageInfoBox
-                  pageInfo={{
-                    createdWhen: Date.now(),
-                    fullTitle: pageInfo?.fullTitle,
-                    normalizedUrl: normalizedPageUrl,
-                    originalUrl: pageInfo?.originalUrl,
-                  }}
-                  actions={[]}
-                />
-              </Margin>
-            )
-          })}
+          {listItem.entries
+            .slice(0, this.props.listActivitiesLimit)
+            .map(({ normalizedPageUrl }) => {
+              const pageInfo = this.state.pageInfo[normalizedPageUrl]
+              return (
+                <Margin bottom="small" key={normalizedPageUrl}>
+                  <PageInfoBox
+                    pageInfo={{
+                      createdWhen: Date.now(),
+                      fullTitle: pageInfo?.fullTitle,
+                      normalizedUrl: normalizedPageUrl,
+                      originalUrl: pageInfo?.originalUrl,
+                    }}
+                    actions={[]}
+                  />
+                </Margin>
+              )
+            })
+          }
+          {listItem.entries.length > this.props.listActivitiesLimit && (
+            <LoadMoreLink
+              route="collectionDetails"
+              services={this.props.services}
+              params={{ id: listItem.listReference.id as string }}
+            >
+              Load more
+            </LoadMoreLink>
+          )}
         </Margin>
       ),
     };

@@ -10,6 +10,7 @@ import { UITaskState } from "../../../../../main-ui/types";
 export interface HomeFeedDependencies {
     services: UIElementServices<'contentConversations' | 'auth' | 'overlay' | 'activityStreams' | 'router'>;
     storage: Pick<StorageModules, 'contentSharing' | 'contentConversations' | 'users' | 'activityStreams'>
+    listActivitiesLimit: number
 }
 
 export type HomeFeedState = {

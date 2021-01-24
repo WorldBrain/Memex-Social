@@ -88,6 +88,12 @@ export const setupTestActivities = async ({ services, storage }: { services: Ser
         listEntries: [
             { createdWhen: Date.now(), entryTitle: 'New.com - page one', normalizedUrl: 'new.com/one', originalUrl: 'https://www.new.com/one' },
             { createdWhen: Date.now(), entryTitle: 'New.com - page two', normalizedUrl: 'new.com/two', originalUrl: 'https://www.new.com/two' },
+            { createdWhen: Date.now(), entryTitle: 'New.com - page three', normalizedUrl: 'new.com/three', originalUrl: 'https://www.new.com/three' },
+            { createdWhen: Date.now(), entryTitle: 'New.com - page four', normalizedUrl: 'new.com/four', originalUrl: 'https://www.new.com/four' },
+            { createdWhen: Date.now(), entryTitle: 'New.com - page five', normalizedUrl: 'new.com/five', originalUrl: 'https://www.new.com/five' },
+            { createdWhen: Date.now(), entryTitle: 'New.com - page six', normalizedUrl: 'new.com/six', originalUrl: 'https://www.new.com/six' },
+            { createdWhen: Date.now(), entryTitle: 'New.com - page seven', normalizedUrl: 'new.com/seven', originalUrl: 'https://www.new.com/seven' },
+            { createdWhen: Date.now(), entryTitle: 'New.com - page eight', normalizedUrl: 'new.com/eight', originalUrl: 'https://www.new.com/eight' },
         ],
         userReference: services.auth.getCurrentUserReference()!
     })
