@@ -17,6 +17,11 @@ const Container = styled.div`
   background: ${(props) => props.theme.colors.grey};
 `;
 
+const ListContent = styled.div`
+  display: flex;
+  flex-direction: column;
+`
+
 const SectionTitle = styled.h1``;
 
 const ListNameLink = styled(RouteLink)``;
@@ -55,6 +60,7 @@ export default class ListsSidebar extends PureComponent<Props> {
 
     return this.props.followedLists.map(({ title, reference }) => (
       <ListNameLink
+        key={reference.id}
         route="collectionDetails"
         services={this.props.services}
         params={{ id: reference.id as string }}
@@ -68,7 +74,9 @@ export default class ListsSidebar extends PureComponent<Props> {
     return (
       <Container>
         <SectionTitle>Followed Collections</SectionTitle>
-        {this.renderSharedListNames()}
+        <ListContent>
+          {this.renderSharedListNames()}
+        </ListContent>
       </Container>
     );
   }

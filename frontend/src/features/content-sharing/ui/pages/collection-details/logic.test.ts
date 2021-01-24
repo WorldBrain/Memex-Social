@@ -223,26 +223,35 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
         ).toBe(false)
         expect(container.state.isCollectionFollowed).toBe(false)
         expect(container.state.followLoadState).toEqual('success')
+        expect(container.state.followedLists).toEqual([])
 
         const followP = container.processEvent('clickFollowBtn', null)
         expect(container.state.followLoadState).toEqual('running')
         await followP
 
-        expect(container.state.isCollectionFollowed).toBe(true)
-        expect(container.state.followLoadState).toEqual('success')
         expect(
             await storage.serverModules.activityFollows.isEntityFollowedByUser(entityArgs)
         ).toBe(true)
+        expect(container.state.isCollectionFollowed).toBe(true)
+        expect(container.state.followLoadState).toEqual('success')
+        const { list } = container.state.listData!
+        expect(container.state.followedLists).toEqual([{
+            title: list.title,
+            createdWhen: list.createdWhen,
+            updatedWhen: list.updatedWhen,
+            reference: { type: 'shared-list-reference', id: listID },
+        }])
 
         const unfollowP = container.processEvent('clickFollowBtn', null)
         expect(container.state.followLoadState).toEqual('running')
         await unfollowP
 
-        expect(container.state.isCollectionFollowed).toBe(false)
-        expect(container.state.followLoadState).toEqual('success')
         expect(
             await storage.serverModules.activityFollows.isEntityFollowedByUser(entityArgs)
         ).toBe(false)
+        expect(container.state.isCollectionFollowed).toBe(false)
+        expect(container.state.followLoadState).toEqual('success')
+        expect(container.state.followedLists).toEqual([])
     })
 
     it('should load follow button state on init', { withTestUser: true }, async ({ storage, services }) => {

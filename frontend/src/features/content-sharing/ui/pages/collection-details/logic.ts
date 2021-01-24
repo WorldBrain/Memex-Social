@@ -254,16 +254,28 @@ export default class CollectionDetailsLogic extends UILogic<CollectionDetailsSta
 
         await executeUITask<CollectionDetailsState>(this, 'followLoadState', async () => {
             const isAlreadyFollowed = await activityFollows.isEntityFollowedByUser(entityArgs)
+            const mutation: UIMutation<CollectionDetailsState> = {
+                isCollectionFollowed: { $set: !isAlreadyFollowed },
+            }
 
             if (isAlreadyFollowed) {
                 await activityFollows.deleteFollow(entityArgs)
+                const indexToDelete = previousState.followedLists.findIndex(list => list.reference.id === listID)
+                mutation.followedLists = { $splice: [[indexToDelete, 1]] }
             } else {
                 await activityFollows.storeFollow(entityArgs)
+                const { list } = previousState.listData!
+                mutation.followedLists = {
+                    $push: [{
+                        title: list.title,
+                        createdWhen: list.createdWhen,
+                        updatedWhen: list.updatedWhen,
+                        reference: { type: 'shared-list-reference', id: listID },
+                    }]
+                }
             }
 
-            this.emitMutation({
-                isCollectionFollowed: { $set: !isAlreadyFollowed }
-             })
+            this.emitMutation(mutation)
         })
     }
 
