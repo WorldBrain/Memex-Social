@@ -181,45 +181,6 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
         })
     })
 
-    it('should show sign-up/log-in form when attempting to follow while logged out', { withTestUser: true }, async ({ storage, services, auth }) => {
-        const contentSharing = storage.serverModules.contentSharing;
-        const userReference = (services.auth.getCurrentUserReference()!);
-        const listReference = await contentSharing.createSharedList({
-            userReference,
-            localListId: 33,
-            listData: { title: 'Test list' },
-        })
-
-        const testDataFactory = new TestDataFactory()
-        const firstListEntry = testDataFactory.createListEntry();
-        await contentSharing.createListEntries({
-            userReference,
-            listReference,
-            listEntries: [
-                firstListEntry,
-                testDataFactory.createListEntry(),
-            ],
-        })
-        await contentSharing.createAnnotations({
-            creator: userReference,
-            listReferences: [listReference],
-            annotationsByPage: { [firstListEntry.normalizedUrl]: range(15).map(() => testDataFactory.createAnnotation(firstListEntry.normalizedUrl)) },
-        })
-        const logic = new CollectionDetailsLogic({
-            storage: storage.serverModules,
-            services,
-            listID: storage.serverModules.contentSharing.getSharedListLinkID(listReference),
-        });
-        const container = new TestLogicContainer<CollectionDetailsState, CollectionDetailsEvent>(logic)
-        await container.init()
-
-        await auth.signOutTestUser()
-        await container.processEvent('clickFollowBtn', null)
-
-        // TODO: figure out how to check this
-        expect('TODO').toBe(2)
-    })
-
     it('should be able to follow and unfollow the current list', { withTestUser: true }, async ({ storage, services, auth }) => {
         const contentSharing = storage.serverModules.contentSharing;
         const userReference = (services.auth.getCurrentUserReference()!);
