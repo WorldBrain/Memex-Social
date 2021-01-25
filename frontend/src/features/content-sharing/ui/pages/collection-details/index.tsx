@@ -189,6 +189,16 @@ export default class CollectionDetailsPage extends UIElement<
                 }
                 annotationConversations={this.state.conversations}
                 getAnnotationCreator={() => this.state.listData?.creator}
+                getAnnotationCreatorRef={() =>
+                    this.state.listData?.creatorReference ?? {
+                        type: 'user-reference',
+                        id: '',
+                    }
+                }
+                profilePopupProps={{
+                    storage: this.props.storage,
+                    services: this.props.services,
+                }}
                 onNewReplyInitiate={(event) =>
                     this.processEvent('initiateNewReplyToAnnotation', event)
                 }
@@ -294,6 +304,7 @@ export default class CollectionDetailsPage extends UIElement<
                     headerSubtitle={
                         data.creator && `by ${data.creator.displayName}`
                     }
+                    creatorReference={data.creatorReference}
                 >
                     {data.list.description && (
                         <CollectionDescriptionBox

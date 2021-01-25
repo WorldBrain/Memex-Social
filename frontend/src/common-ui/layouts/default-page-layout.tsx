@@ -7,6 +7,8 @@ import { StorageModules } from '../../storage/types'
 import { Margin } from 'styled-components-spacing'
 import RouteLink from '../components/route-link'
 import UnseenActivityIndicator from '../../features/activity-streams/ui/containers/unseen-activity-indicator'
+import { UserReference } from '../../features/user-management/types'
+import ProfilePopupContainer from '../../features/user-management/ui/containers/profile-popup-container'
 const logoImage = require('../../assets/img/memex-logo.svg')
 
 const middleMaxWidth = '800px'
@@ -218,11 +220,12 @@ const PageMiddleArea = styled.div<{
 
 export default function DefaultPageLayout(props: {
     services: UIElementServices<
-        'auth' | 'overlay' | 'router' | 'activityStreams'
+        'auth' | 'overlay' | 'router' | 'activityStreams' | 'userManagement'
     >
     storage: Pick<StorageModules, 'users' | 'activityStreams'>
     headerTitle?: string
     headerSubtitle?: string | null
+    creatorReference?: UserReference
     hideActivityIndicator?: boolean
     viewportBreakpoint: ViewportBreakpoint
     children: React.ReactNode
@@ -314,9 +317,20 @@ export default function DefaultPageLayout(props: {
                         </HeaderTitle>
                     )}
                     {props.headerTitle && props.headerSubtitle && (
-                        <HeaderSubtitle viewportWidth={viewportWidth}>
-                            {props.headerSubtitle}
-                        </HeaderSubtitle>
+                        <ProfilePopupContainer
+                            services={props.services}
+                            storage={props.storage}
+                            userRef={
+                                props.creatorReference ?? {
+                                    type: 'user-reference',
+                                    id: '',
+                                }
+                            }
+                        >
+                            <HeaderSubtitle viewportWidth={viewportWidth}>
+                                {props.headerSubtitle}
+                            </HeaderSubtitle>
+                        </ProfilePopupContainer>
                     )}
                 </HeaderMiddleArea>
                 <HeaderAuthArea viewportWidth={viewportWidth}>
