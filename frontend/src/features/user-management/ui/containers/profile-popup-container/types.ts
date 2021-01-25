@@ -13,7 +13,6 @@ export interface ProfilePopupContainerDependencies {
     services: UIElementServices<'userManagement'>
     storage: Pick<StorageModules, 'users'>
     userRef: UserReference
-    doNotRenderProfile: boolean
 }
 
 export interface ProfilePopupContainerState {

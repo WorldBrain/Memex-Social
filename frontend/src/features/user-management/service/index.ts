@@ -36,7 +36,7 @@ export default class UserManagementService {
     }
 
     getWebLinksArray(profileData: UserPublicProfile): ProfileWebLink[] {
-        const { websiteURL, mediumURL, twitterURL, subStackURL } = profileData
+        const { websiteURL, mediumURL, twitterURL, substackURL } = profileData
         const arr: ProfileWebLink[] = []
         if (websiteURL) {
             arr.push({
@@ -56,9 +56,9 @@ export default class UserManagementService {
                 iconPath: 'img/twitterIcon.svg',
             })
         }
-        if (subStackURL) {
+        if (substackURL) {
             arr.push({
-                url: subStackURL,
+                url: substackURL,
                 iconPath: 'img/substackIcon.svg',
             })
         }

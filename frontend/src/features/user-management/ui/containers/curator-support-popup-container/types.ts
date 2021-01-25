@@ -1,9 +1,9 @@
 import {
-    ProfilePopupDependencies,
-    ProfilePopupState,
-    ProfilePopupEvent,
-} from '../profile-popup/types'
+    ProfilePopupContainerDependencies,
+    ProfilePopupContainerState,
+    ProfilePopupContainerEvent,
+} from '../profile-popup-container/types'
 
-export type CuratorSupportPopupDependencies = ProfilePopupDependencies
-export type CuratorSupportPopupState = ProfilePopupState
-export type CuratorSupportPopupEvent = ProfilePopupEvent
+export type CuratorSupportPopupDependencies = ProfilePopupContainerDependencies
+export type CuratorSupportPopupState = ProfilePopupContainerState
+export type CuratorSupportPopupEvent = ProfilePopupContainerEvent

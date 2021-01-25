@@ -1,11 +1,10 @@
 import { UILogic, UIEventHandler } from '../../../../../main-ui/classes/logic'
-import UserPublicProfile from '../../../types'
+import { UITaskState } from '../../../../../main-ui/types'
 import {
     CuratorSupportButtonBlockDependencies,
     CuratorSupportButtonBlockState,
     CuratorSupportButtonBlockEvent,
 } from './types'
-import { TaskState } from '../profile-popup/types'
 
 type EventHandler<
     EventName extends keyof CuratorSupportButtonBlockEvent
@@ -39,19 +38,21 @@ export default class CuratorSupportButtonBlockLogic extends UILogic<
     }
 
     async loadSupporterRelationship(): Promise<boolean> {
-        const supporterRelationshipExists: boolean = await this.dependencies.services.userManagement.loadSupporterRelationship(
-            this.dependencies.user.id,
-        )
+        // this is for the purposes of mocking up until the backend work is done
+        const supporterRelationshipExists = false
+        // const supporterRelationshipExists: boolean = await this.dependencies.services.userManagement.loadSupporterRelationship(
+        //     this.dependencies.user.id,
+        // )
         return supporterRelationshipExists
     }
 
     toggleSupporterRelationship: EventHandler<'toggleSupporterRelationship'> = async () => {
         try {
-            await this.dependencies.services.userManagement.toggleSupporterRelationship(
-                this.dependencies.user.id,
-            )
+            // await this.dependencies.services.userManagement.toggleSupporterRelationship(
+            //     this.dependencies.user.id,
+            // )
             const supporterRelationshipExists: boolean = await this.loadSupporterRelationship()
-            this._setSupporterRelationship(supporterRelationshipExists)
+            this._setSupporterRelationship(!supporterRelationshipExists)
             this._setToggleRelationshipTaskState('success')
         } catch (err) {
             this._setToggleRelationshipTaskState('error')
@@ -64,7 +65,7 @@ export default class CuratorSupportButtonBlockLogic extends UILogic<
         })
     }
 
-    _setToggleRelationshipTaskState(taskState: TaskState) {
+    _setToggleRelationshipTaskState(taskState: UITaskState) {
         this.emitMutation({
             toggleRelationshipTaskState: { $set: taskState },
         })

@@ -2,17 +2,18 @@ import React from 'react'
 import styled from 'styled-components'
 
 import { UIElement } from '../../../../../main-ui/classes'
+import { UITaskState } from '../../../../../main-ui/types'
 import { theme } from '../../../../../main-ui/styles/theme'
 import { Theme } from '../../../../../main-ui/styles/types'
-import { TaskState } from '../profile-popup/types'
 
-import LoadingScreen from '../../../../../common-ui/components/loading-screen'
 import {
     CuratorSupportButtonBlockEvent,
     CuratorSupportButtonBlockState,
     CuratorSupportButtonBlockDependencies,
 } from './types'
 import CuratorSupportButtonBlockLogic from './logic'
+
+import LoadingScreen from '../../../../../common-ui/components/loading-screen'
 
 const Container = styled.div`
     display: flex;
@@ -24,7 +25,7 @@ const Container = styled.div`
 
 const Button = styled.div<{
     theme: Theme
-    supportedTaskState: TaskState
+    supportedTaskState: UITaskState
     isSupported: boolean
 }>`
     height: 17px;

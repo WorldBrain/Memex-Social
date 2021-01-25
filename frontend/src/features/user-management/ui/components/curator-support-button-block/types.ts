@@ -1,7 +1,7 @@
 import { UIEvent } from '../../../../../main-ui/classes/logic'
 import { UIElementServices } from '../../../../../main-ui/classes'
 import { StorageModules } from '../../../../../storage/types'
-import { TaskState } from '../profile-popup/types'
+import { UITaskState } from '../../../../../main-ui/types'
 
 export interface CuratorSupportButtonBlockDependencies {
     services: UIElementServices<'userManagement'>
@@ -10,8 +10,8 @@ export interface CuratorSupportButtonBlockDependencies {
 }
 
 export interface CuratorSupportButtonBlockState {
-    initialLoadTaskState: TaskState
-    toggleRelationshipTaskState: TaskState
+    initialLoadTaskState: UITaskState
+    toggleRelationshipTaskState: UITaskState
     supporterRelationshipExists: boolean
 }
 

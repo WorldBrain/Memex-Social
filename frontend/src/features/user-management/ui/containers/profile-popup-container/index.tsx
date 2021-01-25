@@ -17,6 +17,8 @@ const Container = styled.div`
     position: relative;
 `
 
+export type ProfilePopupProps = ProfilePopupContainerDependencies
+
 export default class ProfilePopupContainer extends UIElement<
     ProfilePopupContainerDependencies,
     ProfilePopupContainerState,
