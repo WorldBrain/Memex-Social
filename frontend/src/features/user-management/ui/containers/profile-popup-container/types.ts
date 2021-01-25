@@ -9,14 +9,14 @@ import {
 } from '../../../types'
 import { UITaskState } from '../../../../../main-ui/types'
 
-export interface ProfilePopupDependencies {
+export interface ProfilePopupContainerDependencies {
     services: UIElementServices<'userManagement'>
     storage: Pick<StorageModules, 'users'>
     userRef: UserReference
     doNotRenderProfile: boolean
 }
 
-export interface ProfilePopupState {
+export interface ProfilePopupContainerState {
     isDisplayed: boolean
     isSupported: boolean
     supportedTaskState: UITaskState
@@ -26,7 +26,7 @@ export interface ProfilePopupState {
     webLinksArray: ProfileWebLink[]
 }
 
-export type ProfilePopupEvent = UIEvent<{
+export type ProfilePopupContainerEvent = UIEvent<{
     initPopup: null
     hidePopup: null
     initCuratorSupport: null

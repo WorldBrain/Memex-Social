@@ -1,33 +1,30 @@
 import { getUserReference } from '@worldbrain/memex-common/ts/user-management/utils'
 import { UILogic, UIEventHandler } from '../../../../../main-ui/classes/logic'
 import { UITaskState } from '../../../../../main-ui/types'
+import { UserPublicProfile, User, ProfileWebLink } from '../../../types'
 import {
-    UserPublicProfile,
-    User,
-    UserReference,
-    ProfileWebLink,
-} from '../../../types'
-import {
-    ProfilePopupDependencies,
-    ProfilePopupEvent,
-    ProfilePopupState,
+    ProfilePopupContainerDependencies,
+    ProfilePopupContainerEvent,
+    ProfilePopupContainerState,
 } from './types'
 
-type EventHandler<EventName extends keyof ProfilePopupEvent> = UIEventHandler<
-    ProfilePopupState,
-    ProfilePopupEvent,
+type EventHandler<
+    EventName extends keyof ProfilePopupContainerEvent
+> = UIEventHandler<
+    ProfilePopupContainerState,
+    ProfilePopupContainerEvent,
     EventName
 >
 
-export default class ProfilePopupLogic extends UILogic<
-    ProfilePopupState,
-    ProfilePopupEvent
+export default class ProfilePopupContainerLogic extends UILogic<
+    ProfilePopupContainerState,
+    ProfilePopupContainerEvent
 > {
-    constructor(private dependencies: ProfilePopupDependencies) {
+    constructor(private dependencies: ProfilePopupContainerDependencies) {
         super()
     }
 
-    getInitialState(): ProfilePopupState {
+    getInitialState(): ProfilePopupContainerState {
         return {
             isDisplayed: false,
             isSupported: false,
@@ -40,9 +37,9 @@ export default class ProfilePopupLogic extends UILogic<
                 websiteURL: '',
                 mediumURL: '',
                 twitterURL: '',
-                subStackURL: '',
+                substackURL: '',
                 bio: '',
-                avatarUrl: '',
+                avatarURL: '',
                 paymentPointer: '',
             },
             webLinksArray: [],
@@ -73,15 +70,15 @@ export default class ProfilePopupLogic extends UILogic<
         this._setDisplayState(false)
     }
 
-    private _setProfileTaskState(taskState: UITaskState) {
+    private _setProfileTaskState(taskState: UITaskState): void {
         this.emitMutation({ profileTaskState: { $set: taskState } })
     }
 
-    private _setDisplayState(isDisplayed: boolean) {
+    private _setDisplayState(isDisplayed: boolean): void {
         this.emitMutation({ isDisplayed: { $set: isDisplayed } })
     }
 
-    private _setUser(user: User | null) {
+    private _setUser(user: User | null): void {
         if (!user) {
             user = {
                 displayName: 'Unknown User',
@@ -90,13 +87,20 @@ export default class ProfilePopupLogic extends UILogic<
         this.emitMutation({ user: { $set: user } })
     }
 
-    private _setPublicProfileData(profileData: UserPublicProfile) {
+    private _setPublicProfileData(profileData: UserPublicProfile): void {
         this.emitMutation({
             profileData: { $set: profileData },
         })
     }
 
-    private _setWebLinksArray(profileData: UserPublicProfile) {
+    private async _setWebLinksArray(
+        profileData?: UserPublicProfile,
+    ): Promise<void> {
+        if (!profileData) {
+            profileData = await this.dependencies.services.userManagement.loadUserPublicProfile(
+                this.dependencies.userRef,
+            )
+        }
         const webLinksArray: ProfileWebLink[] = this.dependencies.services.userManagement.getWebLinksArray(
             profileData,
         )
