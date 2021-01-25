@@ -28,6 +28,7 @@ export interface CollectionDetailsDependencies {
         | 'activityStreams'
         | 'router'
         | 'activityStreams'
+        | 'userManagement'
     >
     storage: Pick<
         StorageModules,
