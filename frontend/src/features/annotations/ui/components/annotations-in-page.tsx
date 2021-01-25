@@ -17,6 +17,8 @@ import NewAnnotationReply, {
 } from '../../../content-conversations/ui/components/new-annotation-reply'
 import { SharedAnnotationInPage } from './types'
 import { ConversationReplyReference } from '@worldbrain/memex-common/lib/content-conversations/types'
+import { ProfilePopupProps } from '../../../user-management/ui/containers/profile-popup-container'
+import { UserReference } from '../../../user-management/types'
 
 const AnnotationContainer = styled.div`
     display: flex;
@@ -61,6 +63,10 @@ export default function AnnotationsInPage(
         getAnnotationCreator?: (
             annotationReference: SharedAnnotationReference,
         ) => Pick<User, 'displayName'> | null | undefined
+        getAnnotationCreatorRef: (
+            annotationReference: SharedAnnotationReference,
+        ) => UserReference
+        profilePopupProps: Omit<ProfilePopupProps, 'userRef'>
         getReplyCreator?: (
             annotationReference: SharedAnnotationReference,
             replyReference: ConversationReplyReference,
@@ -123,6 +129,12 @@ export default function AnnotationsInPage(
                     annotationCreator={props.getAnnotationCreator?.(
                         annotation.reference,
                     )}
+                    profilePopupProps={{
+                        ...props.profilePopupProps,
+                        userRef: props.getAnnotationCreatorRef?.(
+                            annotation.reference,
+                        ),
+                    }}
                     conversation={conversation}
                     renderReplyBox={props.renderReplyBox}
                     hideNewReplyIfNotEditing={props.hideNewReplyIfNotEditing}
@@ -147,6 +159,7 @@ export function AnnotationWithReplies(
     props: {
         annotation: SharedAnnotationInPage
         annotationCreator?: Pick<User, 'displayName'> | null
+        profilePopupProps: ProfilePopupProps
         conversation?: AnnotationConversationState
         hideNewReplyIfNotEditing?: boolean
         getReplyCreator?: (
@@ -171,6 +184,7 @@ export function AnnotationWithReplies(
         <>
             <AnnotationBox
                 annotation={annotation}
+                profilePopupProps={props.profilePopupProps}
                 creator={props.annotationCreator}
                 hasReplies={!!conversation?.thread}
                 onInitiateReply={() =>

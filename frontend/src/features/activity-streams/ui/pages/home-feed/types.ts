@@ -27,6 +27,7 @@ export interface HomeFeedDependencies {
         | 'overlay'
         | 'activityStreams'
         | 'router'
+        | 'userManagement'
     >
     storage: Pick<
         StorageModules,

@@ -210,11 +210,19 @@ export default class HomeFeedPage extends UIElement<
                                 },
                             )
                             .filter((annotation) => !!annotation)}
+                        profilePopupProps={{
+                            services: this.props.services,
+                            storage: this.props.storage,
+                        }}
                         getAnnotationCreator={(annotationReference) =>
                             state.users[
                                 state.annotations[annotationReference.id]
                                     .creatorReference.id
                             ]
+                        }
+                        getAnnotationCreatorRef={(annotationReference) =>
+                            state.annotations[annotationReference.id]
+                                .creatorReference
                         }
                         getAnnotationConversation={() => {
                             return this.state.conversations[pageItem.groupId]

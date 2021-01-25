@@ -7,6 +7,7 @@ import { SharedAnnotation } from '@worldbrain/memex-common/lib/content-sharing/t
 import ItemBox from '../../../../common-ui/components/item-box'
 import ItemBoxBottom from '../../../../common-ui/components/item-box-bottom'
 import Markdown from '../../../../common-ui/components/markdown'
+import { ProfilePopupProps } from '../../../user-management/ui/containers/profile-popup-container'
 
 const commentImage = require('../../../../assets/img/comment.svg')
 const replyImage = require('../../../../assets/img/reply.svg')
@@ -49,6 +50,7 @@ const preserveLinebreaks = (s: string | undefined) =>
 
 export default function AnnotationBox(props: {
     annotation: Pick<SharedAnnotation, 'body' | 'comment' | 'createdWhen'>
+    profilePopupProps: ProfilePopupProps
     creator?: Pick<User, 'displayName'> | null
     hasReplies?: boolean
     areRepliesExpanded?: boolean
@@ -79,6 +81,7 @@ export default function AnnotationBox(props: {
                         createdWhen: annotation.createdWhen,
                         creator: props.creator,
                     }}
+                    profilePopupProps={props.profilePopupProps}
                     actions={[
                         props.hasReplies &&
                             props.onToggleReplies && {

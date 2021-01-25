@@ -1,6 +1,9 @@
 import React from 'react'
 import styled from 'styled-components'
 import { Margin } from 'styled-components-spacing'
+import ProfilePopupContainer, {
+    ProfilePopupProps,
+} from '../../features/user-management/ui/containers/profile-popup-container'
 import CreationInfo, { CreationInfoProps } from './creation-info'
 
 const Bottom = styled.div`
@@ -25,6 +28,7 @@ const Action = styled.div<{ image: string }>`
 `
 
 export default function ItemBoxBottom(props: {
+    profilePopupProps: ProfilePopupProps
     creationInfo: CreationInfoProps
     replyCount?: number
     actions?: Array<
@@ -35,18 +39,20 @@ export default function ItemBoxBottom(props: {
     >
 }) {
     return (
-        <Bottom>
-            <CreationInfo {...props.creationInfo} />
-            <Actions>
-                {props.actions?.map?.(
-                    (actionProps) =>
-                        actionProps && (
-                            <Margin key={actionProps.key} left="small">
-                                <Action {...actionProps} />
-                            </Margin>
-                        ),
-                )}
-            </Actions>
-        </Bottom>
+        <ProfilePopupContainer {...props.profilePopupProps}>
+            <Bottom>
+                <CreationInfo {...props.creationInfo} />
+                <Actions>
+                    {props.actions?.map?.(
+                        (actionProps) =>
+                            actionProps && (
+                                <Margin key={actionProps.key} left="small">
+                                    <Action {...actionProps} />
+                                </Margin>
+                            ),
+                    )}
+                </Actions>
+            </Bottom>
+        </ProfilePopupContainer>
     )
 }
