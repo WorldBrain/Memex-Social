@@ -140,20 +140,13 @@ export default class CollectionDetailsLogic extends UILogic<CollectionDetailsSta
                 collection: 'sharedList', userReference,
             })
 
-            const followedLists: Array<SharedList & {  reference: SharedListReference }> = []
+            const followedLists: Array<SharedList & { reference: SharedListReference }> = []
 
-            // TODO: Do this more efficiently - I think there needs to be a new method
             for (const { objectId } of follows) {
-                const listReference: SharedListReference = {
-                    type: 'shared-list-reference',
+                followedLists.push(await contentSharing.getListByReference({
                     id: objectId,
-                }
-                const list = await contentSharing.retrieveList(listReference)
-
-                followedLists.push({
-                    ...list?.sharedList!,
-                    reference: listReference,
-                })
+                    type: 'shared-list-reference',
+                }))
             }
 
             this.emitMutation({

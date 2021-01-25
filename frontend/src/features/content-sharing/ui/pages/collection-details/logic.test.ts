@@ -352,8 +352,11 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
         expect(container.state.listSidebarLoadState).toEqual('success')
         expect(container.state.followedLists).toEqual([expect.objectContaining({
             title: 'Test list',
-            creator: 'default-user',
             reference: listReference,
+            creator: {
+                id: 'default-user',
+                type: 'user-reference',
+            },
         })])
         expect(container.state.isListSidebarShown).toEqual(true)
     })
