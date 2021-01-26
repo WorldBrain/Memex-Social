@@ -3,6 +3,7 @@ import { UILogic, executeUITask } from "../../../main-ui/classes/logic";
 import { Services } from '../../../services/types';
 import ActivityFollowsStorage from '../storage';
 import ContentSharingStorage from '../../content-sharing/storage';
+import { SharedListReference } from '@worldbrain/memex-common/lib/content-sharing/types';
 
 export function activityFollowsInitialState(): ActivityFollowsState {
     return {
@@ -39,7 +40,7 @@ export function activityFollowsEventHandlers(
                     collection: 'sharedList', userReference,
                 })
 
-                const followedLists: ActivityFollowsState['followedLists'] = []
+                const listReferences: SharedListReference[] = []
                 const seenLists = new Set()
 
                 for (const { objectId } of follows) {
@@ -48,11 +49,13 @@ export function activityFollowsEventHandlers(
                     }
                     seenLists.add(objectId)
 
-                    followedLists.push(await contentSharing.getListByReference({
+                    listReferences.push({
                         id: objectId,
                         type: 'shared-list-reference',
-                    }))
+                    })
                 }
+
+                const followedLists = await contentSharing.getListsByReferences(listReferences)
 
                 logic.emitMutation({
                     followedLists: { $set: followedLists },

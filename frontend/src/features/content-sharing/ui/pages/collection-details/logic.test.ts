@@ -345,7 +345,7 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
         expect(container.state.followedLists).toEqual([])
         expect(container.state.isListSidebarShown).toEqual(false)
 
-        const initP = logic['loadListSidebarState']()
+        const initP = container.processEvent('initActivityFollows', undefined)
         expect(container.state.listSidebarLoadState).toEqual('running')
         await initP
 
