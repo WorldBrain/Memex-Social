@@ -6,6 +6,7 @@ import { UITaskState } from "../../../../../main-ui/types";
 import { UserReference, User } from "@worldbrain/memex-common/lib/web-interface/types/users";
 import { UIElementServices } from "../../../../../main-ui/classes";
 import { StorageModules } from "../../../../../storage/types";
+import { ActivityFollowsState, ActivityFollowsEvent } from "../../../../activity-follows/ui/types";
 
 export interface CollectionDetailsDependencies {
     listID: string
@@ -13,14 +14,11 @@ export interface CollectionDetailsDependencies {
     storage: Pick<StorageModules, 'contentSharing' | 'contentConversations' | 'users' | 'activityStreams' | 'activityFollows'>
 }
 
-export type CollectionDetailsState = AnnotationConversationsState & {
+export type CollectionDetailsState = AnnotationConversationsState & ActivityFollowsState & {
     listLoadState: UITaskState
     followLoadState: UITaskState
-    listSidebarLoadState: UITaskState
     annotationEntriesLoadState: UITaskState
     annotationLoadStates: { [normalizedPageUrl: string]: UITaskState }
-    followedLists: Array<SharedList & { reference: SharedListReference }>
-    isListSidebarShown: boolean
     listData?: {
         creatorReference?: UserReference
         creator?: Pick<User, 'displayName'> | null
@@ -36,7 +34,7 @@ export type CollectionDetailsState = AnnotationConversationsState & {
     annotations: GetAnnotationsResult
 }
 
-export type CollectionDetailsEvent = UIEvent<AnnotationConversationEvent & {
+export type CollectionDetailsEvent = UIEvent<AnnotationConversationEvent & ActivityFollowsEvent & {
     toggleDescriptionTruncation: {}
     togglePageAnnotations: { normalizedUrl: string }
     toggleAllAnnotations: {}
