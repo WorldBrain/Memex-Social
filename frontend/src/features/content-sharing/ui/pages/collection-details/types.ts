@@ -1,7 +1,7 @@
 import { UIEvent, UISignal } from "../../../../../main-ui/classes/logic";
 import { AnnotationConversationEvent, AnnotationConversationsState } from "../../../../content-conversations/ui/types";
 import { GetAnnotationsResult, GetAnnotationListEntriesResult } from "@worldbrain/memex-common/lib/content-sharing/storage/types";
-import { SharedListEntry, SharedList } from "@worldbrain/memex-common/lib/content-sharing/types";
+import { SharedListEntry, SharedList, SharedListReference } from "@worldbrain/memex-common/lib/content-sharing/types";
 import { UITaskState } from "../../../../../main-ui/types";
 import { UserReference, User } from "@worldbrain/memex-common/lib/web-interface/types/users";
 import { UIElementServices } from "../../../../../main-ui/classes";
@@ -10,13 +10,17 @@ import { StorageModules } from "../../../../../storage/types";
 export interface CollectionDetailsDependencies {
     listID: string
     services: UIElementServices<'auth' | 'overlay' | 'contentConversations' | 'activityStreams' | 'router' | 'activityStreams'>
-    storage: Pick<StorageModules, 'contentSharing' | 'contentConversations' | 'users' | 'activityStreams'>
+    storage: Pick<StorageModules, 'contentSharing' | 'contentConversations' | 'users' | 'activityStreams' | 'activityFollows'>
 }
 
 export type CollectionDetailsState = AnnotationConversationsState & {
     listLoadState: UITaskState
+    followLoadState: UITaskState
+    listSidebarLoadState: UITaskState
     annotationEntriesLoadState: UITaskState
     annotationLoadStates: { [normalizedPageUrl: string]: UITaskState }
+    followedLists: Array<SharedList & { reference: SharedListReference }>
+    isListSidebarShown: boolean
     listData?: {
         creatorReference?: UserReference
         creator?: Pick<User, 'displayName'> | null
@@ -25,6 +29,7 @@ export type CollectionDetailsState = AnnotationConversationsState & {
         listDescriptionState: 'fits' | 'collapsed' | 'expanded'
         listDescriptionTruncated: string
     },
+    isCollectionFollowed: boolean
     allAnnotationExpanded: boolean
     pageAnnotationsExpanded: { [normalizedPageUrl: string]: true }
     annotationEntryData?: GetAnnotationListEntriesResult
@@ -36,6 +41,7 @@ export type CollectionDetailsEvent = UIEvent<AnnotationConversationEvent & {
     togglePageAnnotations: { normalizedUrl: string }
     toggleAllAnnotations: {}
     pageBreakpointHit: { entryIndex: number }
+    clickFollowBtn: null
 }>
 
 export type CollectionDetailsSignal = UISignal<
