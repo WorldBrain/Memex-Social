@@ -13,7 +13,7 @@ const Container = styled.button`
   border: 1px solid ${(props) => props.theme.colors.purple};
   padding: 5px 20px;
   background: white;
-  min-width: 50px;
+  min-width: 100px;
 `
 
 const PlusIcon = styled.span`
@@ -35,11 +35,11 @@ export default class FollowBtn extends PureComponent<Props> {
         }
 
         const text = (this.props.isFollowed) ? 'Unfollow' : 'Follow Updates'
-        const icon = (this.props.isFollowed) ? '' : '+'
+        const icon = (!this.props.isFollowed) && '+'
 
         return (
             <>
-                <PlusIcon>{icon}</PlusIcon>
+                {!this.props.isFollowed && (<PlusIcon>{icon}</PlusIcon>)}
                 <BtnText>{text}</BtnText>
             </>
         )

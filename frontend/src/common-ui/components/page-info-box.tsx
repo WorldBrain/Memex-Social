@@ -15,7 +15,7 @@ const PageContentBox = styled.div`
     display: flex;
     flex-direction: column;
 
-    padding: 15px 15px 5px 15px;
+    padding: 15px 15px 10px 15px;
     border-bottom: 1px solid #e0e0e0;
 `
 
@@ -32,8 +32,7 @@ const PageInfoBoxLink = styled.a`
 
 const PageInfoBoxLeft = styled.div`
   text-decoration: none;
-  padding: 15px 0px 15px 20px;
-  cursor: pointer;
+  padding: 15px 0px 15px 15px;
 `;
 
 const PageInfoBoxTop = styled.div`
@@ -62,6 +61,7 @@ const PageInfoBoxUrl = styled.div`
   overflow-wrap: break-word;
   white-space: nowrap;
   max-width: 100%;
+  padding-bottom: 5px;
 `;
 
 const CreatedWhenDate = styled.div`
@@ -105,6 +105,7 @@ const ResultContent = styled(Margin)`
 const PageUrl = styled.span`
     font-size: 12px;
     color: #545454;
+    padding-bottom: 5px;
 `
 
 const PageTitle = styled(Margin)`
@@ -132,7 +133,6 @@ export default function PageInfoBox(props: {
 }) {
   const { pageInfo } = props;
   const domain = pageInfo.normalizedUrl.split('/');
-
   console.log(pageInfo)
 
   return (
