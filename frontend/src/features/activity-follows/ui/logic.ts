@@ -40,8 +40,14 @@ export function activityFollowsEventHandlers(
                 })
 
                 const followedLists: ActivityFollowsState['followedLists'] = []
+                const seenLists = new Set()
 
                 for (const { objectId } of follows) {
+                    if (seenLists.has(objectId)) {
+                        continue
+                    }
+                    seenLists.add(objectId)
+
                     followedLists.push(await contentSharing.getListByReference({
                         id: objectId,
                         type: 'shared-list-reference',
