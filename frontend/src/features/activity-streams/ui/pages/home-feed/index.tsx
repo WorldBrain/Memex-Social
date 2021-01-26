@@ -33,6 +33,7 @@ const StyledIconMargin = styled(Margin)`
 const LoadMoreLink = styled(RouteLink)`
   display: flex;
   justify-content: center;
+  padding-left: 5px;
 `
 
 const LoadAnnotationsLink = styled(RouteLink)`
@@ -60,6 +61,7 @@ const ActivityReasonLabel = styled.div`
   font-weight: normal;
   font-size: ${(props) => props.theme.fontSizes.listTitle}
   color: ${(props) => props.theme.colors.primary};
+  display: flex;
 `;
 
 const StyledLastSeenLine = styled.div`
@@ -196,7 +198,15 @@ export default class HomeFeedPage extends UIElement<
       return (
         <ActivityReason
           icon={collectionImage}
-          label={<>Pages added to <strong>{activityItem.listName}</strong></>}
+          label={<>Pages added to 
+            <LoadMoreLink
+              route="collectionDetails"
+              services={this.props.services}
+              params={{ id: activityItem.listReference.id as string }}
+            >
+              <strong>{activityItem.listName}</strong>
+            </LoadMoreLink>
+            </>}
         />
       )
     }
@@ -274,7 +284,7 @@ export default class HomeFeedPage extends UIElement<
               services={this.props.services}
               params={{ id: listItem.listReference.id as string }}
             >
-              Load more
+              View All
             </LoadMoreLink>
           )}
         </Margin>
@@ -363,7 +373,7 @@ export default class HomeFeedPage extends UIElement<
                     })
                   }
                 >
-                  Load more
+                  Load older replies
                 </LoadMoreReplies>
               );
             }}

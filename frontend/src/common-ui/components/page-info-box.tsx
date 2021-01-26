@@ -12,10 +12,19 @@ const PageBox = styled.div`
 `;
 
 const PageContentBox = styled.div`
-  flex: 1;
-  width: 80%;
-  max-width: 96%;
-`;
+    display: flex;
+    flex-direction: column;
+
+    padding: 15px 15px 5px 15px;
+    border-bottom: 1px solid #e0e0e0;
+`
+
+const PageContentBoxBottom = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+`
 
 const PageInfoBoxLink = styled.a`
   text-decoration: none;
@@ -83,12 +92,35 @@ const PageInfoBoxAction = styled.div<{ image: string }>`
   background-repeat: no-repeat;
 `;
 
+const StyledPageResult = styled.div`
+    display: flex;
+    flex-direction: column;
+`
+const ResultContent = styled(Margin)`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+`
+const PageUrl = styled.span`
+    font-size: 12px;
+    color: #545454;
+`
+
+const PageTitle = styled(Margin)`
+    font-size: 14px;
+    font-weight: bold;
+    color: #3a2f45;
+    justify-content: flex-start;
+`
+
 export type PageInfoBoxAction =
   | {
       image: string;
       onClick?: () => void;
     }
   | { node: React.ReactNode };
+
 
 export default function PageInfoBox(props: {
   pageInfo: Pick<
@@ -99,45 +131,49 @@ export default function PageInfoBox(props: {
   children?: React.ReactNode;
 }) {
   const { pageInfo } = props;
+  const domain = pageInfo.normalizedUrl.split('/');
+
+  console.log(pageInfo)
 
   return (
     <ItemBox>
-      <PageBox>
-        <PageContentBox>
-          <PageInfoBoxLink href={pageInfo.originalUrl} target="_blank">
-            <PageInfoBoxLeft>
-              <PageInfoBoxTop>
-                <PageInfoBoxTitle title={pageInfo.fullTitle}>
+      <PageInfoBoxLink href={pageInfo.originalUrl} target="_blank">
+        <StyledPageResult>
+          <PageContentBox>
+              <ResultContent>
+                <PageUrl>{domain[0]}</PageUrl>
+              </ResultContent>
+              <PageTitle>
                   {pageInfo.fullTitle}
-                </PageInfoBoxTitle>
-              </PageInfoBoxTop>
-              <Margin bottom="smallest">
-                <PageInfoBoxUrl>{pageInfo.normalizedUrl}</PageInfoBoxUrl>
-              </Margin>
-              <CreatedWhenDate>
-                {moment(pageInfo.createdWhen).format("LLL")}
-              </CreatedWhenDate>
+              </PageTitle>
+          </PageContentBox>
+          <PageContentBoxBottom>
+            <PageInfoBoxLeft>
+            <CreatedWhenDate>
+                    {moment(pageInfo.createdWhen).format("LLL")}
+            </CreatedWhenDate>
             </PageInfoBoxLeft>
-          </PageInfoBoxLink>
-        </PageContentBox>
-        {props.actions && (
-          <PageInfoBoxRight>
-            <PageInfoBoxActions>
-              {props.actions.map((action, actionIndex) =>
-                "image" in action ? (
-                  <PageInfoBoxAction
-                    key={actionIndex}
-                    image={action.image}
-                    onClick={action.onClick}
-                  />
-                ) : (
-                  action.node
-                )
-              )}
-            </PageInfoBoxActions>
-          </PageInfoBoxRight>
-        )}
-      </PageBox>
+            {props.actions && (
+              <PageInfoBoxRight>
+                <PageInfoBoxActions>
+                  {props.actions.map((action, actionIndex) =>
+                    "image" in action ? (
+                      <PageInfoBoxAction
+                        key={actionIndex}
+                        image={action.image}
+                        onClick={action.onClick}
+                      />
+                    ) : (
+                      action.node
+                    )
+                  )}
+                </PageInfoBoxActions>
+              </PageInfoBoxRight>
+            )}
+          </PageContentBoxBottom>
+
+        </StyledPageResult>
+      </PageInfoBoxLink>
     </ItemBox>
   );
 }
