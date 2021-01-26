@@ -50,7 +50,7 @@ const preserveLinebreaks = (s: string | undefined) =>
 
 export default function AnnotationBox(props: {
     annotation: Pick<SharedAnnotation, 'body' | 'comment' | 'createdWhen'>
-    profilePopupProps: ProfilePopupProps
+    profilePopupProps?: ProfilePopupProps | null | undefined
     creator?: Pick<User, 'displayName'> | null
     hasReplies?: boolean
     areRepliesExpanded?: boolean

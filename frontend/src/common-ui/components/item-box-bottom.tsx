@@ -28,7 +28,7 @@ const Action = styled.div<{ image: string }>`
 `
 
 export default function ItemBoxBottom(props: {
-    profilePopupProps?: ProfilePopupProps
+    profilePopupProps?: ProfilePopupProps | null | undefined
     creationInfo: CreationInfoProps
     replyCount?: number
     actions?: Array<

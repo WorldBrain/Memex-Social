@@ -50,6 +50,9 @@ export default class ProfilePopupContainerLogic extends UILogic<
         this._setProfileTaskState('running')
         this._setDisplayState(true)
         const { userRef } = this.dependencies
+        if (!userRef) {
+            return this._setProfileTaskState('error')
+        }
         try {
             const promises = await Promise.all([
                 this.dependencies.services.userManagement.loadUserData(userRef),
@@ -97,9 +100,21 @@ export default class ProfilePopupContainerLogic extends UILogic<
         profileData?: UserPublicProfile,
     ): Promise<void> {
         if (!profileData) {
-            profileData = await this.dependencies.services.userManagement.loadUserPublicProfile(
-                this.dependencies.userRef,
-            )
+            if (this.dependencies.userRef) {
+                profileData = await this.dependencies.services.userManagement.loadUserPublicProfile(
+                    this.dependencies.userRef,
+                )
+            } else {
+                profileData = {
+                    websiteURL: '',
+                    mediumURL: '',
+                    twitterURL: '',
+                    substackURL: '',
+                    bio: '',
+                    avatarURL: '',
+                    paymentPointer: '',
+                }
+            }
         }
         const webLinksArray: ProfileWebLink[] = this.dependencies.services.userManagement.getWebLinksArray(
             profileData,

@@ -12,7 +12,7 @@ import { UITaskState } from '../../../../../main-ui/types'
 export interface ProfilePopupContainerDependencies {
     services: UIElementServices<'userManagement'>
     storage: Pick<StorageModules, 'users'>
-    userRef: UserReference
+    userRef: UserReference | null | undefined
 }
 
 export interface ProfilePopupContainerState {
@@ -20,7 +20,7 @@ export interface ProfilePopupContainerState {
     isSupported: boolean
     supportedTaskState: UITaskState
     profileTaskState: UITaskState
-    user: User
+    user: User | null | undefined
     profileData: UserPublicProfile
     webLinksArray: ProfileWebLink[]
 }

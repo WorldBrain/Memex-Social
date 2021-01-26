@@ -63,10 +63,10 @@ export default function AnnotationsInPage(
         getAnnotationCreator?: (
             annotationReference: SharedAnnotationReference,
         ) => Pick<User, 'displayName'> | null | undefined
-        getAnnotationCreatorRef: (
+        getAnnotationCreatorRef?: (
             annotationReference: SharedAnnotationReference,
-        ) => UserReference
-        profilePopupProps: Omit<ProfilePopupProps, 'userRef'>
+        ) => UserReference | null | undefined
+        profilePopupProps?: Omit<ProfilePopupProps, 'userRef'>
         getReplyCreator?: (
             annotationReference: SharedAnnotationReference,
             replyReference: ConversationReplyReference,
@@ -129,12 +129,14 @@ export default function AnnotationsInPage(
                     annotationCreator={props.getAnnotationCreator?.(
                         annotation.reference,
                     )}
-                    profilePopupProps={{
-                        ...props.profilePopupProps,
-                        userRef: props.getAnnotationCreatorRef?.(
-                            annotation.reference,
-                        ),
-                    }}
+                    profilePopupProps={
+                        props.profilePopupProps && {
+                            ...props.profilePopupProps,
+                            userRef: props.getAnnotationCreatorRef?.(
+                                annotation.reference,
+                            ),
+                        }
+                    }
                     conversation={conversation}
                     renderReplyBox={props.renderReplyBox}
                     hideNewReplyIfNotEditing={props.hideNewReplyIfNotEditing}
@@ -159,7 +161,7 @@ export function AnnotationWithReplies(
     props: {
         annotation: SharedAnnotationInPage
         annotationCreator?: Pick<User, 'displayName'> | null
-        profilePopupProps: ProfilePopupProps
+        profilePopupProps?: ProfilePopupProps | null | undefined
         conversation?: AnnotationConversationState
         hideNewReplyIfNotEditing?: boolean
         getReplyCreator?: (

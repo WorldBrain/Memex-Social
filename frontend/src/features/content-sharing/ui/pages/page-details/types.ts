@@ -26,6 +26,7 @@ export interface PageDetailsDependencies {
         | 'overlay'
         | 'activityStreams'
         | 'router'
+        | 'userManagement'
     >
     storage: Pick<
         StorageModules,

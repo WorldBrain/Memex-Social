@@ -163,6 +163,13 @@ export default class PageDetailsPage extends UIElement<
                                         getAnnotationCreator={() =>
                                             state.creator
                                         }
+                                        getAnnotationCreatorRef={() =>
+                                            state.creatorReference
+                                        }
+                                        profilePopupProps={{
+                                            services: this.props.services,
+                                            storage: this.props.storage,
+                                        }}
                                         annotationConversations={
                                             state.conversations
                                         }

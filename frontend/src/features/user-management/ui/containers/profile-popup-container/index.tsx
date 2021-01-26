@@ -45,14 +45,16 @@ export default class ProfilePopupContainer extends UIElement<
         } = this.state
         const { services, storage } = this.props
         return (
-            <ProfilePopup
-                user={user}
-                taskState={profileTaskState}
-                profileData={profileData}
-                services={services}
-                storage={storage}
-                webLinksArray={webLinksArray}
-            />
+            user && (
+                <ProfilePopup
+                    user={user}
+                    taskState={profileTaskState}
+                    profileData={profileData}
+                    services={services}
+                    storage={storage}
+                    webLinksArray={webLinksArray}
+                />
+            )
         )
     }
 
@@ -65,7 +67,9 @@ export default class ProfilePopupContainer extends UIElement<
                 >
                     {this.props.children}
                 </Container>
-                {this.state.isDisplayed && this.renderPopup()}
+                {this.state.isDisplayed &&
+                    this.state.user &&
+                    this.renderPopup()}
             </>
         )
     }
