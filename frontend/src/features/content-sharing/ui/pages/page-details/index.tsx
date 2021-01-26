@@ -16,6 +16,7 @@ import PageInfoBox from "../../../../../common-ui/components/page-info-box";
 import AnnotationsInPage from "../../../../annotations/ui/components/annotations-in-page";
 import LoadingIndicator from "../../../../../common-ui/components/loading-indicator";
 import ErrorWithAction from "../../../../../common-ui/components/error-with-action";
+import ListsSidebar from "../../../../../main-ui/components/list-sidebar/lists-sidebar";
 
 const PageInfoList = styled.div`
   width: 100%;
@@ -53,7 +54,7 @@ export default class PageDetailsPage extends UIElement<
     return "normal";
   }
 
-  render() {
+  renderPage() {
     const viewportWidth = this.getBreakPoints();
     const { state } = this;
 
@@ -187,6 +188,20 @@ export default class PageDetailsPage extends UIElement<
         </DefaultPageLayout>
       </>
     );
+  }
+
+  render() {
+    return (
+      <>
+        <ListsSidebar
+          services={this.props.services}
+          isShown={this.state.isListSidebarShown}
+          followedLists={this.state.followedLists}
+          loadState={this.state.listSidebarLoadState}
+        />
+        {this.renderPage()}
+      </>
+    )
   }
 
   getHeaderTitle(): string {
