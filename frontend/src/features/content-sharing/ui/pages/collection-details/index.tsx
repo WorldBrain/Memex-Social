@@ -19,15 +19,17 @@ import { PAGE_SIZE } from './constants'
 import DocumentTitle from '../../../../../main-ui/components/document-title'
 import DefaultPageLayout from '../../../../../common-ui/layouts/default-page-layout'
 import PageInfoBox, {
-    PageInfoBoxAction,
-} from '../../../../../common-ui/components/page-info-box'
-import { ViewportBreakpoint } from '../../../../../main-ui/styles/types'
-import LoadingScreen from '../../../../../common-ui/components/loading-screen'
-import { getViewportBreakpoint } from '../../../../../main-ui/styles/utils'
-import AnnotationsInPage from '../../../../annotations/ui/components/annotations-in-page'
-import ErrorWithAction from '../../../../../common-ui/components/error-with-action'
-import ErrorBox from '../../../../../common-ui/components/error-box'
-const commentImage = require('../../../../../assets/img/comment.svg')
+  PageInfoBoxAction,
+} from "../../../../../common-ui/components/page-info-box";
+import { ViewportBreakpoint } from "../../../../../main-ui/styles/types";
+import LoadingScreen from "../../../../../common-ui/components/loading-screen";
+import { getViewportBreakpoint } from "../../../../../main-ui/styles/utils";
+import AnnotationsInPage from "../../../../annotations/ui/components/annotations-in-page";
+import ErrorWithAction from "../../../../../common-ui/components/error-with-action";
+import ErrorBox from "../../../../../common-ui/components/error-box";
+import FollowBtn from "../../../../activity-follows/ui/components/follow-btn"
+import ListsSidebar from "../../../../../main-ui/components/list-sidebar/lists-sidebar";
+const commentImage = require("../../../../../assets/img/comment.svg");
 
 const DocumentView = styled.div`
     height: 100vh;
@@ -172,6 +174,16 @@ export default class CollectionDetailsPage extends UIElement<
         }
     }
 
+    renderFollowBtn() {
+      return (
+        <FollowBtn
+          onClick={() => this.processEvent('clickFollowBtn', null)}
+          isFollowed={this.state.isCollectionFollowed}
+          loadState={this.state.followLoadState}
+        />
+      )
+    }
+
     renderPageAnnotations(entry: SharedListEntry) {
         const { state } = this
         return (
@@ -189,12 +201,7 @@ export default class CollectionDetailsPage extends UIElement<
                 }
                 annotationConversations={this.state.conversations}
                 getAnnotationCreator={() => this.state.listData?.creator}
-                getAnnotationCreatorRef={() =>
-                    this.state.listData?.creatorReference ?? {
-                        type: 'user-reference',
-                        id: '',
-                    }
-                }
+                getAnnotationCreatorRef={() => this.state.listData?.creatorReference}
                 profilePopupProps={{
                     storage: this.props.storage,
                     services: this.props.services,
@@ -291,41 +298,37 @@ export default class CollectionDetailsPage extends UIElement<
         }
 
         return (
-            <>
-                <DocumentTitle
-                    documentTitle={this.props.services.documentTitle}
-                    subTitle={data.list.title}
-                />
-                <DefaultPageLayout
-                    services={this.props.services}
-                    storage={this.props.storage}
-                    viewportBreakpoint={viewportBreakpoint}
-                    headerTitle={data.list.title}
-                    headerSubtitle={
-                        data.creator && `by ${data.creator.displayName}`
-                    }
-                    creatorReference={data.creatorReference}
-                >
-                    {data.list.description && (
-                        <CollectionDescriptionBox
-                            viewportWidth={viewportBreakpoint}
-                        >
-                            <CollectionDescriptionText
-                                viewportWidth={viewportBreakpoint}
-                            >
-                                {data.listDescriptionState === 'collapsed'
-                                    ? data.listDescriptionTruncated
-                                    : data.list.description}
-                            </CollectionDescriptionText>
-                            {data.listDescriptionState !== 'fits' && (
-                                <CollectionDescriptionToggle
-                                    onClick={() =>
-                                        this.processEvent(
-                                            'toggleDescriptionTruncation',
-                                            {},
-                                        )
-                                    }
-                                    viewportWidth={viewportBreakpoint}
+          <>
+            <DocumentTitle
+              documentTitle={this.props.services.documentTitle}
+              subTitle={data.list.title}
+            />
+            <ListsSidebar
+              services={this.props.services}
+              followedLists={this.state.followedLists}
+              loadState={this.state.listSidebarLoadState}
+            />
+            <DefaultPageLayout
+              services={this.props.services}
+              storage={this.props.storage}
+              viewportBreakpoint={viewportBreakpoint}
+              headerTitle={data.list.title}
+              headerSubtitle={data.creator && `by ${data.creator.displayName}`}
+              followBtn={this.renderFollowBtn()}
+            >
+              {data.list.description && (
+                <CollectionDescriptionBox viewportWidth={viewportBreakpoint}>
+                  <CollectionDescriptionText viewportWidth={viewportBreakpoint}>
+                    {data.listDescriptionState === "collapsed"
+                      ? data.listDescriptionTruncated
+                      : data.list.description}
+                  </CollectionDescriptionText>
+                  {data.listDescriptionState !== "fits" && (
+                    <CollectionDescriptionToggle
+                      onClick={() =>
+                        this.processEvent("toggleDescriptionTruncation", {})
+                      }
+                      viewportWidth={viewportBreakpoint}
                                 >
                                     {data.listDescriptionState === 'collapsed'
                                         ? '▸ Show more'

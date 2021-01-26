@@ -219,16 +219,17 @@ const PageMiddleArea = styled.div<{
 `
 
 export default function DefaultPageLayout(props: {
-    services: UIElementServices<
-        'auth' | 'overlay' | 'router' | 'activityStreams' | 'userManagement'
-    >
-    storage: Pick<StorageModules, 'users' | 'activityStreams'>
-    headerTitle?: string
-    headerSubtitle?: string | null
-    creatorReference?: UserReference
-    hideActivityIndicator?: boolean
-    viewportBreakpoint: ViewportBreakpoint
-    children: React.ReactNode
+  services: UIElementServices<
+    "auth" | "overlay" | "router" | "activityStreams" | 'userManagement'
+  >;
+  storage: Pick<StorageModules, "users" | "activityStreams">;
+  headerTitle?: string;
+  headerSubtitle?: string | null;
+  creatorReference?: UserReference
+  followBtn?: JSX.Element
+  hideActivityIndicator?: boolean;
+  viewportBreakpoint: ViewportBreakpoint;
+  children: React.ReactNode;
 }) {
     const { viewportBreakpoint: viewportWidth } = props
 
@@ -295,54 +296,52 @@ export default function DefaultPageLayout(props: {
         )
     }
 
-    return (
-        <>
-            <StyledHeader viewportWidth={viewportWidth}>
-                <LogoAndFeed viewportWidth={viewportWidth}>
-                    <HeaderLogoArea
-                        onClick={() => window.open('https://getmemex.com')}
-                        viewportWidth={viewportWidth}
-                    >
-                        <MemexLogo viewportWidth={viewportWidth} />
-                    </HeaderLogoArea>
-                    {renderFeedArea()}
-                </LogoAndFeed>
-                <HeaderMiddleArea viewportWidth={viewportWidth}>
-                    {props.headerTitle && (
-                        <HeaderTitle
-                            title={props.headerTitle}
-                            viewportWidth={viewportWidth}
-                        >
-                            {props.headerTitle}
-                        </HeaderTitle>
-                    )}
-                    {props.headerTitle && props.headerSubtitle && (
-                        <ProfilePopupContainer
-                            services={props.services}
-                            storage={props.storage}
-                            userRef={
-                                props.creatorReference ?? {
-                                    type: 'user-reference',
-                                    id: '',
-                                }
-                            }
-                        >
-                            <HeaderSubtitle viewportWidth={viewportWidth}>
-                                {props.headerSubtitle}
-                            </HeaderSubtitle>
-                        </ProfilePopupContainer>
-                    )}
-                </HeaderMiddleArea>
-                <HeaderAuthArea viewportWidth={viewportWidth}>
-                    <AuthHeader
-                        services={props.services}
-                        storage={props.storage}
-                    />
-                </HeaderAuthArea>
-            </StyledHeader>
-            <PageMiddleArea viewportWidth={viewportWidth}>
-                {props.children}
-            </PageMiddleArea>
-        </>
-    )
+  return (
+    <>
+      <StyledHeader viewportWidth={viewportWidth}>
+        <LogoAndFeed viewportWidth={viewportWidth}>
+          <HeaderLogoArea
+            onClick={() => window.open("https://getmemex.com")}
+            viewportWidth={viewportWidth}
+          >
+            <MemexLogo viewportWidth={viewportWidth} />
+          </HeaderLogoArea>
+          {renderFeedArea()}
+        </LogoAndFeed>
+        <HeaderMiddleArea viewportWidth={viewportWidth}>
+          {props.headerTitle && (
+            <HeaderTitle
+              title={props.headerTitle}
+              viewportWidth={viewportWidth}
+            >
+              {props.headerTitle}
+            </HeaderTitle>
+          )}
+          {props.headerTitle && props.headerSubtitle && (
+              <ProfilePopupContainer
+                  services={props.services}
+                  storage={props.storage}
+                  userRef={
+                      props.creatorReference ?? {
+                          type: 'user-reference',
+                          id: '',
+                      }
+                  }
+              >
+                  <HeaderSubtitle viewportWidth={viewportWidth}>
+                      {props.headerSubtitle}
+                  </HeaderSubtitle>
+              </ProfilePopupContainer>
+          )}
+          {props.followBtn && props.followBtn}
+        </HeaderMiddleArea>
+        <HeaderAuthArea viewportWidth={viewportWidth}>
+          <AuthHeader services={props.services} storage={props.storage} />
+        </HeaderAuthArea>
+      </StyledHeader>
+      <PageMiddleArea viewportWidth={viewportWidth}>
+        {props.children}
+      </PageMiddleArea>
+    </>
+  );
 }
