@@ -294,6 +294,7 @@ export default class CollectionDetailsPage extends UIElement<
         />
         <ListsSidebar
           services={this.props.services}
+          isShown={this.state.isListSidebarShown}
           followedLists={this.state.followedLists}
           loadState={this.state.listSidebarLoadState}
         />

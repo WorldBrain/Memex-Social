@@ -55,6 +55,7 @@ export interface Props {
   services: Pick<Services, 'router'>;
   followedLists: Array<SharedList & { reference: SharedListReference }>;
   loadState: UITaskState;
+  isShown: boolean;
 }
 
 export default class ListsSidebar extends PureComponent<Props> {
@@ -92,6 +93,10 @@ export default class ListsSidebar extends PureComponent<Props> {
   }
 
   render() {
+    if (!this.props.isShown) {
+      return null
+    }
+
     return (
       <Container>
         <SectionTitle>Followed Collections</SectionTitle>
