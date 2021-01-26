@@ -6,6 +6,7 @@ import { generateRulesAstFromStorageModules } from '@worldbrain/storex-backend-f
 import { serializeRulesAST } from '@worldbrain/storex-backend-firestore/lib/security-rules/ast'
 import { createServices } from '../services'
 import { Services } from '../services/types'
+import { StorageHooksChangeWatcher } from '../storage/hooks'
 
 export interface StorageTestContext {
     storage: Storage
@@ -39,6 +40,7 @@ export function createStorageTestFactory(suiteOptions: { backend: StorageTestBac
 
         it(description, async () => {
             if (suiteOptions.backend === 'memory') {
+                const storageHooksChangeWatcher = new StorageHooksChangeWatcher()
                 const storage = await createStorage({ backend: 'memory' })
                 const services = createServices({
                     backend: 'memory',
@@ -47,6 +49,7 @@ export function createStorageTestFactory(suiteOptions: { backend: StorageTestBac
                     uiMountPoint: null!,
                     localStorage: null!,
                 })
+                storageHooksChangeWatcher.setUp({ storage, services })
                 if (testOptions.withTestUser) {
                     await services.auth.loginWithProvider('google')
                 }

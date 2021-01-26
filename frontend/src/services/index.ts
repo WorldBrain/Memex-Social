@@ -53,7 +53,11 @@ export function createServices(options: {
             storage: options.storage,
         })
         if (process.env.NODE_ENV === 'development') {
-            if (process.env.REACT_APP_USE_FUNCTIONS_EMULATOR === 'true') {
+            if (options.backend === 'firebase-emulator') {
+                firebase.firestore().useEmulator("localhost", 8080);
+                firebase.auth().useEmulator('http://localhost:9099/');
+            }
+            if (options.backend === 'firebase-emulator' || process.env.REACT_APP_USE_FUNCTIONS_EMULATOR === 'true') {
                 console.log('Using *emulated* Firebase Functions')
                 firebase
                     .functions()
