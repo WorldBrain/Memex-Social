@@ -5,7 +5,7 @@ import { StorageModules } from '../../../../../storage/types'
 export interface AnnotationDetailsDependencies {
     annotationID: string
     services: UIElementServices<
-        'auth' | 'overlay' | 'router' | 'activityStreams'
+        'auth' | 'overlay' | 'router' | 'activityStreams' | 'userManagement'
     >
     storage: Pick<
         StorageModules,
