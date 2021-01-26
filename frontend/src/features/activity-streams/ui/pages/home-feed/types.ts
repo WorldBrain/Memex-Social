@@ -55,6 +55,7 @@ export interface ListActivityItem extends TopLevelActivityItem {
 export interface ListEntryActivityItem {
     type: 'list-entry-item',
     normalizedPageUrl: string
+    hasAnnotations?: boolean
 }
 
 export interface PageActivityItem extends TopLevelActivityItem {

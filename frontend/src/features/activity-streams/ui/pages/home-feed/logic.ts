@@ -141,6 +141,18 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
             const organized = organizeActivities(activityGroups)
             activityData = organized.data
 
+            // For each added list entry, check if they have associated annotations
+            for (const activityItem of organized.activityItems) {
+                if (activityItem.type === 'list-item' && activityItem.reason === 'pages-added-to-list') {
+                    for (const listEntry of activityItem.entries) {
+                        listEntry.hasAnnotations = await this.dependencies.storage.contentSharing.doesAnnotationExistForPageInList({
+                            listReference: activityItem.listReference,
+                            normalizedPageUrl: listEntry.normalizedPageUrl,
+                        })
+                    }
+                }
+            }
+
             const conversations = getInitialAnnotationConversationStates(organized.activityItems.map((activityItem) => ({
                 linkId: activityItem.groupId,
             })))

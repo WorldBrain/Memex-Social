@@ -35,6 +35,17 @@ const LoadMoreLink = styled(RouteLink)`
   justify-content: center;
 `
 
+const LoadAnnotationsLink = styled(RouteLink)`
+  display: block;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  background-image: url("${commentImage}");
+  background-size: contain;
+  background-position: center center;
+  background-repeat: no-repeat;
+`
+
 const StyledActivityReason = styled.div`
   display: flex;
   align-items: center;
@@ -229,7 +240,7 @@ export default class HomeFeedPage extends UIElement<
           </Margin>
           {listItem.entries
             .slice(0, this.props.listActivitiesLimit)
-            .map(({ normalizedPageUrl }) => {
+            .map(({ normalizedPageUrl, hasAnnotations }) => {
               const pageInfo = this.state.pageInfo[normalizedPageUrl]
               return (
                 <Margin bottom="small" key={normalizedPageUrl}>
@@ -240,7 +251,18 @@ export default class HomeFeedPage extends UIElement<
                       normalizedUrl: normalizedPageUrl,
                       originalUrl: pageInfo?.originalUrl,
                     }}
-                    actions={[]}
+                    actions={hasAnnotations ? [
+                      {
+                        node: (
+                          <LoadAnnotationsLink
+                            route="collectionDetails"
+                            services={this.props.services}
+                            params={{ id: listItem.listReference.id as string }}
+                            children={null}
+                          />
+                       )
+                      }
+                    ] : []}
                   />
                 </Margin>
               )

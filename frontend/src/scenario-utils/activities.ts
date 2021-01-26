@@ -97,6 +97,15 @@ export const setupTestActivities = async ({ services, storage }: { services: Ser
         ],
         userReference: services.auth.getCurrentUserReference()!
     })
+    await storage.serverModules.contentSharing.createAnnotations({
+        creator: services.auth.getCurrentUserReference()!,
+        listReferences: [{ type: 'shared-list-reference', id: 'default-list' }],
+        annotationsByPage: {
+            ['new.com/one']: [
+                { createdWhen: Date.now(), comment: 'test note', localId: 'test-annot-1' },
+            ]
+        }
+    })
     await services.auth.logout()
 
     await services.auth.loginWithEmailPassword({
