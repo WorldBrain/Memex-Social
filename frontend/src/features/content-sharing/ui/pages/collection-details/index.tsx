@@ -303,7 +303,7 @@ export default class CollectionDetailsPage extends UIElement<
           storage={this.props.storage}
           viewportBreakpoint={viewportBreakpoint}
           headerTitle={data.list.title}
-          headerSubtitle={data.creator && `by ${data.creator.displayName}`}
+          headerSubtitle={data.creator && `${data.creator.displayName}`}
           followBtn={this.renderFollowBtn()}
         >
           {data.list.description && (

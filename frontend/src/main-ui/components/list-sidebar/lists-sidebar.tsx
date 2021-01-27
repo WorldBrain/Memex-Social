@@ -17,8 +17,9 @@ const Container = styled.div`
   font-family: ${(props) => props.theme.fonts.primary};
   background: ${(props) => props.theme.colors.grey};
   padding: 10px;
-  width: 300px;
+  width: 200px;
   overflow-y: scroll;
+  z-index: 5000;
 `;
 
 const ListContent = styled.div`
@@ -87,6 +88,7 @@ export default class ListsSidebar extends PureComponent<Props> {
         route="collectionDetails"
         services={this.props.services}
         params={{ id: reference.id as string }}
+        title={title}
       >
         {title}
       </ListNameLink>

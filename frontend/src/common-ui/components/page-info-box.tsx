@@ -138,7 +138,7 @@ export default function PageInfoBox(props: {
           <PageInfoBoxLink href={pageInfo.originalUrl} target="_blank">
             <PageContentBox>
                 <ResultContent>
-                  <PageUrl>{domain[0]}</PageUrl>
+                  <PageUrl title={pageInfo.normalizedUrl}>{domain[0]}</PageUrl>
                 </ResultContent>
                 <PageTitle>
                     {pageInfo.fullTitle}

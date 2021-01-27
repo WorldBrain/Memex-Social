@@ -3,17 +3,22 @@ import styled from 'styled-components'
 import { UITaskState } from "../../../../main-ui/types";
 import LoadingIndicator from "../../../../common-ui/components/loading-indicator";
 
-const Container = styled.button`
+const Container = styled.button<{
+  followStatus: boolean;
+}>`
   font-family: ${(props) => props.theme.fonts.primary};
   border-radius: 5px;
   border-width: 1px;
   font-weight: bold;
   margin-left: auto;
-  color: ${(props) => props.theme.colors.purple};
+  color: ${(props) => !props.followStatus ? props.theme.colors.purple : "white"};
   border: 1px solid ${(props) => props.theme.colors.purple};
   padding: 5px 20px;
-  background: white;
+  background: ${(props) => props.followStatus ? props.theme.colors.purple : "white"};
   min-width: 100px;
+  height: 34px;
+  cursor: pointer;
+  outline: none;
 `
 
 const PlusIcon = styled.span`
@@ -46,10 +51,19 @@ export default class FollowBtn extends PureComponent<Props> {
     }
 
     render() {
-        return (
-            <Container onClick={this.props.onClick}>
+
+        if (this.props.isFollowed) {
+            return (
+            <Container followStatus={true} onClick={this.props.onClick}>
                 {this.renderBody()}
             </Container>
-        )
+        )}
+
+        if (!this.props.isFollowed) {
+            return (
+              <Container followStatus={false} onClick={this.props.onClick}>
+                  {this.renderBody()}
+              </Container>
+        )}  
     }
 }

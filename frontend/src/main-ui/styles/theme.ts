@@ -18,6 +18,7 @@ export const theme: Theme = {
     purple: '#5671cf',
     grey: '#e0e0e0',
     black: '000',
+    lightblack: '#2c2c2c',
     darkgrey: '#545454',
     overlay: {
       background: 'rgba(0, 0, 0, 0.1)',

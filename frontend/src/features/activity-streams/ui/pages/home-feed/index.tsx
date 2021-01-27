@@ -46,8 +46,12 @@ const LoadMoreLink = styled(RouteLink)`
   }
 `
 
+const ActivityType = styled.div`
+  white-space: nowrap;
+`
+
 const CollectionLink = styled(RouteLink)`
-  display: flex;
+  display: block;
   justify-content: center;
   font-family: ${(props) => props.theme.fonts.primary};
   color: ${(props) => props.theme.colors.primary};
@@ -55,6 +59,12 @@ const CollectionLink = styled(RouteLink)`
   padding-left: 5px;
   cursor: pointer;
   align-items: center;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-weight: bold;
+  justify-content: flex-start;
+  width: 100%;
+  overflow: hidden;
 
   &:hover {
     text-decoration: underline;
@@ -76,6 +86,7 @@ const LoadAnnotationsLink = styled(RouteLink)`
 const StyledActivityReason = styled.div`
   display: flex;
   align-items: center;
+  width: 95%;
 `;
 const ActivityReasonIcon = styled.img`
   max-width: 15 px;
@@ -85,9 +96,10 @@ const ActivityReasonIcon = styled.img`
 const ActivityReasonLabel = styled.div`
   font-family: ${(props) => props.theme.fonts.primary};
   font-weight: normal;
-  font-size: ${(props) => props.theme.fontSizes.listTitle}
+  font-size: ${(props) => props.theme.fontSizes.listTitle}:
   color: ${(props) => props.theme.colors.primary};
   display: flex;
+  width: fill-available;
 `;
 
 const StyledLastSeenLine = styled.div`
@@ -228,14 +240,16 @@ export default class HomeFeedPage extends UIElement<
       return (
         <ActivityReason
           icon={collectionImage}
-          label={<>Pages added to
-            <CollectionLink
-              route="collectionDetails"
-              services={this.props.services}
-              params={{ id: activityItem.listReference.id as string }}
-            >
-              <strong>{activityItem.listName}</strong>
-            </CollectionLink>
+          label={
+            <>
+              <ActivityType>Pages added to</ActivityType>
+              <CollectionLink
+                route="collectionDetails"
+                services={this.props.services}
+                params={{ id: activityItem.listReference.id as string }}
+              >
+                {activityItem.listName}
+              </CollectionLink>
             </>}
         />
       )
@@ -456,7 +470,6 @@ export default class HomeFeedPage extends UIElement<
           services={this.props.services}
           storage={this.props.storage}
           viewportBreakpoint={viewportWidth}
-          headerTitle={"Collaboration Feed"}
           hideActivityIndicator
         >
           {this.renderContent()}

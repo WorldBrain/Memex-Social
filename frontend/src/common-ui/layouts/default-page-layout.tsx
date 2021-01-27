@@ -28,18 +28,6 @@ const StyledHeader = styled.div<{
   z-index: 2;
   align-items: center;
   height: 50px;
-
-  ${(props) =>
-    props.viewportWidth === "small" &&
-    css`
-      height: 70px;
-    `}
-
-  ${(props) =>
-    props.viewportWidth === "mobile" &&
-    css`
-      height: 60px;
-    `}
 `;
 
 const LogoAndFeed = styled.div<{
@@ -138,14 +126,14 @@ const HeaderTitle = styled.div<{
   font-weight: 600;
   text-overflow: ellipsis;
   overflow-x: hidden;
-  font-size: 16px;
+  font-family: ${(props) => props.theme.fonts.primary};
+  font-size: 20px;
   overflow-wrap: break-word;
-  white-space: nowrap;
   max-width: ${(props) =>
     props.viewportWidth === "small" || props.viewportWidth === "mobile"
       ? "100%"
-      : "70%"};
-  color: ${(props) => props.theme.colors.primary}
+      : "95%"};
+  color: ${(props) => props.theme.colors.lightblack}
     ${(props) =>
       props.viewportWidth === "small" &&
       css`
@@ -160,13 +148,9 @@ const HeaderTitle = styled.div<{
 const HeaderSubtitle = styled.div<{
   viewportWidth: "mobile" | "small" | "normal" | "big";
 }>`
-  margin-left: ${(props) =>
-    props.viewportWidth === "small" || props.viewportWidth === "mobile"
-      ? "0px"
-      : "10px"};
   font-weight: 500;
-  margin-top: 1px;
   font-size: 14px;
+  font-family: ${(props) => props.theme.fonts.primary};
   color: ${(props) => props.theme.colors.subText};
 
   ${(props) =>
@@ -214,6 +198,33 @@ const PageMiddleArea = styled.div<{
       margin: 20px auto 0;
     `}
 `;
+
+const PageMidleAreaTitles = styled.div`
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  flex-direction: column;
+  flex: 1;
+`
+
+const PageMidleAreaAction = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+  flex-direction: row;
+`
+
+const PageMiddleAreaTopBox = styled.div<{
+  viewportWidth: "mobile" | "small" | "normal" | "big";
+}>`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-direction: ${(props) =>
+    props.viewportWidth === "mobile"
+      ? "column"
+      : "row"};;
+`
 
 export default function DefaultPageLayout(props: {
   services: UIElementServices<
@@ -264,7 +275,7 @@ export default function DefaultPageLayout(props: {
     }
 
     return (
-      <FeedArea horizontal="medium">
+      <FeedArea>
         <FeedLink services={props.services} route="homeFeed" params={{}}>
           <FeedLabel>Feed</FeedLabel>
           {!props.hideActivityIndicator && (
@@ -296,9 +307,17 @@ export default function DefaultPageLayout(props: {
           >
             <MemexLogo viewportWidth={viewportWidth} />
           </HeaderLogoArea>
-          {renderFeedArea()}
         </LogoAndFeed>
         <HeaderMiddleArea viewportWidth={viewportWidth}>
+        {renderFeedArea()}
+        </HeaderMiddleArea>
+        <HeaderAuthArea viewportWidth={viewportWidth}>
+          <AuthHeader services={props.services} storage={props.storage} />
+        </HeaderAuthArea>
+      </StyledHeader>
+      <PageMiddleArea viewportWidth={viewportWidth}>
+        <PageMiddleAreaTopBox viewportWidth={viewportWidth}>
+          <PageMidleAreaTitles>
           {props.headerTitle && (
             <HeaderTitle
               title={props.headerTitle}
@@ -312,13 +331,11 @@ export default function DefaultPageLayout(props: {
               {props.headerSubtitle}
             </HeaderSubtitle>
           )}
+          </PageMidleAreaTitles>
+          <PageMidleAreaAction>
           {props.followBtn && props.followBtn}
-        </HeaderMiddleArea>
-        <HeaderAuthArea viewportWidth={viewportWidth}>
-          <AuthHeader services={props.services} storage={props.storage} />
-        </HeaderAuthArea>
-      </StyledHeader>
-      <PageMiddleArea viewportWidth={viewportWidth}>
+          </PageMidleAreaAction>
+        </PageMiddleAreaTopBox>
         {props.children}
       </PageMiddleArea>
     </>
