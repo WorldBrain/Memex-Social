@@ -360,4 +360,88 @@ export const SCENARIOS: ScenarioMap<Targets> = {
         startRoute: { route: 'collectionDetails', params: { id: 'non-existing' } },
         steps: []
     })),
+    'user-with-followed-collections': scenario<Targets>(({ step, callModification }) => ({
+        fixture: 'annotated-list-with-user-and-follows',
+        authenticated: true,
+        startRoute: { route: 'collectionDetails', params: { id: 'default-list' } },
+        setup: {
+            callModifications: ({ storage }) => [
+                callModification({
+                    name: 'follows-loading',
+                    object: storage.serverModules.activityFollows, property: 'getAllFollowsByCollection',
+                    modifier: 'block'
+                }),
+            ],
+        },
+        steps: [
+            step({
+                name: 'follows-loaded',
+                callModifications: ({ storage }) => [
+                    {
+                        name: 'follows-loading',
+                        modifier: 'undo',
+                    },
+                ]
+            }),
+        ]
+    })),
+    'user-with-followed-collections-error': scenario<Targets>(({ step, callModification }) => ({
+        fixture: 'annotated-list-with-user-and-follows',
+        authenticated: true,
+        startRoute: { route: 'collectionDetails', params: { id: 'default-list' } },
+        setup: {
+            callModifications: ({ storage }) => [
+                callModification({
+                    name: 'follows-error',
+                    object: storage.serverModules.activityFollows, property: 'getAllFollowsByCollection',
+                    modifier: 'sabotage'
+                }),
+            ],
+        },
+        steps: []
+    })),
+    'user-with-followed-collections-follow-button': scenario<Targets>(({ step, callModification }) => ({
+        fixture: 'annotated-list-with-user-and-follows',
+        authenticated: true,
+        startRoute: { route: 'collectionDetails', params: { id: 'default-list' } },
+        setup: {
+            callModifications: ({ storage }) => [
+                callModification({
+                    name: 'follow-btn-loading',
+                    object: storage.serverModules.activityFollows, property: 'isEntityFollowedByUser',
+                    modifier: 'block'
+                }),
+            ],
+        },
+        steps: [
+            step({
+                name: 'follow-btn-loaded',
+                callModifications: ({ storage }) => [
+                    {
+                        name: 'follow-btn-loading',
+                        modifier: 'undo',
+                    },
+                ]
+            }),
+            step({
+                name: 'follow-btn-clicked',
+                target: 'CollectionDetailsPage',
+                eventName: 'clickFollowBtn',
+                eventArgs: null,
+            })
+        ]
+    })),
+    'login-on-follow-button-click': scenario<Targets>(({ step, callModification }) => ({
+        fixture: 'annotated-list-with-user',
+        startRoute: { route: 'collectionDetails', params: { id: 'default-list' } },
+        steps: [
+            step({
+                name: 'follow-btn-clicked',
+                target: 'CollectionDetailsPage',
+                eventName: 'clickFollowBtn',
+                eventArgs: null,
+            })
+        ]
+    })),
+
 }

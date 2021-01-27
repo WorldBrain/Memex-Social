@@ -10,6 +10,7 @@ import {
   HomeFeedState,
   ActivityItem,
   PageActivityItem,
+  ListActivityItem,
 } from "./types";
 import DocumentTitle from "../../../../../main-ui/components/document-title";
 import DefaultPageLayout from "../../../../../common-ui/layouts/default-page-layout";
@@ -20,8 +21,31 @@ import AnnotationsInPage from "../../../../annotations/ui/components/annotations
 import { SharedAnnotationInPage } from "../../../../annotations/ui/components/types";
 import MessageBox from "../../../../../common-ui/components/message-box";
 import LoadingIndicator from "../../../../../common-ui/components/loading-indicator";
+import RouteLink from "../../../../../common-ui/components/route-link";
 
 const commentImage = require("../../../../../assets/img/comment.svg");
+const collectionImage = require("../../../../../assets/img/collection.svg");
+
+const StyledIconMargin = styled(Margin)`
+  display: flex;
+`
+
+const LoadMoreLink = styled(RouteLink)`
+  display: flex;
+  justify-content: center;
+  padding-left: 5px;
+`
+
+const LoadAnnotationsLink = styled(RouteLink)`
+  display: block;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  background-image: url("${commentImage}");
+  background-size: contain;
+  background-position: center center;
+  background-repeat: no-repeat;
+`
 
 const StyledActivityReason = styled.div`
   display: flex;
@@ -32,11 +56,12 @@ const ActivityReasonIcon = styled.img`
   max-height: 15px;
 `;
 
-const ActivitityReasonLabel = styled.div`
+const ActivityReasonLabel = styled.div`
   font-family: ${(props) => props.theme.fonts.primary};
-  font-weight: bold;
+  font-weight: normal;
   font-size: ${(props) => props.theme.fontSizes.listTitle}
   color: ${(props) => props.theme.colors.primary};
+  display: flex;
 `;
 
 const StyledLastSeenLine = styled.div`
@@ -72,11 +97,18 @@ const LoadMoreReplies = styled.div`
   cursor: pointer;
 `;
 
+type ActivityItemRendererResult = { key: string | number, rendered: JSX.Element }
+type ActivityItemRenderer<T extends ActivityItem> = (item: T) => ActivityItemRendererResult
+
 export default class HomeFeedPage extends UIElement<
   HomeFeedDependencies,
   HomeFeedState,
   HomeFeedEvent
 > {
+  static defaultProps: Partial<HomeFeedDependencies> = {
+    listActivitiesLimit: 6,
+  }
+
   constructor(props: HomeFeedDependencies) {
     super(props, { logic: new Logic(props) });
   }
@@ -134,28 +166,55 @@ export default class HomeFeedPage extends UIElement<
       this.state.lastSeenTimestamp ?? null
     );
     return activities.map((item) => {
-      const { key, rendered } = this.renderPageItem(item);
+      let result: ActivityItemRendererResult
+
+      if (item.type === 'page-item') {
+        result = this.renderPageItem(item);
+      } else if (item.type === 'list-item') {
+        result = this.renderListItem(item);
+      } else {
+        throw new Error(`Received unsupported activity type to render: ${(item as ActivityItem).type}`)
+      }
+
       return (
-        <React.Fragment key={key}>
+        <React.Fragment key={result.key}>
           {lastSeenLine.shouldRenderBeforeItem(item) && (
             <Margin vertical="medium">
               <LastSeenLine />
             </Margin>
           )}
-          {rendered}
+          {result.rendered}
         </React.Fragment>
       );
     });
   }
 
-  renderActivityReason(activityItem: Pick<ActivityItem, "reason">) {
+  renderActivityReason(activityItem: ActivityItem) {
     if (activityItem.reason === "new-replies") {
       return <ActivityReason icon={commentImage} label="New replies" />;
     }
+
+    if (activityItem.reason === 'pages-added-to-list') {
+      return (
+        <ActivityReason
+          icon={collectionImage}
+          label={<>Pages added to 
+            <LoadMoreLink
+              route="collectionDetails"
+              services={this.props.services}
+              params={{ id: activityItem.listReference.id as string }}
+            >
+              <strong>{activityItem.listName}</strong>
+            </LoadMoreLink>
+            </>}
+        />
+      )
+    }
+
     return null;
   }
 
-  renderPageItem(pageItem: PageActivityItem) {
+  renderPageItem: ActivityItemRenderer<PageActivityItem> = (pageItem) => {
     const pageInfo = this.state.pageInfo[pageItem.normalizedPageUrl];
     return {
       key: pageItem.annotations[0].replies[0].reference.id,
@@ -176,6 +235,58 @@ export default class HomeFeedPage extends UIElement<
             />
           </Margin>
           {this.renderAnnotationItems(pageItem)}
+        </Margin>
+      ),
+    };
+  }
+
+  renderListItem: ActivityItemRenderer<ListActivityItem> = (listItem) => {
+    return {
+      key: listItem.listReference.id + ':' + listItem.entries[0].normalizedPageUrl,
+      rendered: (
+        <Margin bottom="large">
+          <Margin bottom="small">
+            {this.renderActivityReason(listItem)}
+          </Margin>
+          {listItem.entries
+            .slice(0, this.props.listActivitiesLimit)
+            .map(({ normalizedPageUrl, hasAnnotations }) => {
+              const pageInfo = this.state.pageInfo[normalizedPageUrl]
+              return (
+                <Margin bottom="small" key={normalizedPageUrl}>
+                  <PageInfoBox
+                    pageInfo={{
+                      createdWhen: Date.now(),
+                      fullTitle: pageInfo?.fullTitle,
+                      normalizedUrl: normalizedPageUrl,
+                      originalUrl: pageInfo?.originalUrl,
+                    }}
+                    actions={hasAnnotations ? [
+                      {
+                        node: (
+                          <LoadAnnotationsLink
+                            route="collectionDetails"
+                            services={this.props.services}
+                            params={{ id: listItem.listReference.id as string }}
+                            children={null}
+                          />
+                       )
+                      }
+                    ] : []}
+                  />
+                </Margin>
+              )
+            })
+          }
+          {listItem.entries.length > this.props.listActivitiesLimit && (
+            <LoadMoreLink
+              route="collectionDetails"
+              services={this.props.services}
+              params={{ id: listItem.listReference.id as string }}
+            >
+              View All
+            </LoadMoreLink>
+          )}
         </Margin>
       ),
     };
@@ -262,7 +373,7 @@ export default class HomeFeedPage extends UIElement<
                     })
                   }
                 >
-                  Load more
+                  Load older replies
                 </LoadMoreReplies>
               );
             }}
@@ -325,13 +436,13 @@ export default class HomeFeedPage extends UIElement<
   }
 }
 
-const ActivityReason = (props: { icon: string; label: string }) => {
+const ActivityReason = (props: { icon: string; label: React.ReactChild }) => {
   return (
     <StyledActivityReason>
-      <Margin right="small">
+      <StyledIconMargin right="small">
         <ActivityReasonIcon src={props.icon} />
-      </Margin>
-      <ActivitityReasonLabel>{props.label}</ActivitityReasonLabel>
+      </StyledIconMargin>
+      <ActivityReasonLabel>{props.label}</ActivityReasonLabel>
     </StyledActivityReason>
   );
 };

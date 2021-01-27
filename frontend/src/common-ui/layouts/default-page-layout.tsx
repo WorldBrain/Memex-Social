@@ -122,7 +122,6 @@ const HeaderMiddleArea = styled.div<{
       : "80%"};
   max-width: ${middleMaxWidth};
   display: flex;
-  padding-right: 20px;
   align-items: ${(props) =>
     props.viewportWidth === "small" || props.viewportWidth === "mobile"
       ? "flex-start"

@@ -12,14 +12,40 @@ import { Services } from "../../../services/types";
 const Container = styled.div`
   position: fixed;
   top: 50px;
-  height: 100vh;
+  height: fill-available;
   font-family: ${(props) => props.theme.fonts.primary};
   background: ${(props) => props.theme.colors.grey};
+  padding: 10px;
+  width: 300px;
+  overflow-y: scroll;
 `;
 
-const SectionTitle = styled.h1``;
+const ListContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 100px;
+`
 
-const ListNameLink = styled(RouteLink)``;
+const SectionTitle = styled.div`
+  font-size: 16px;
+  font-weight: bold;
+  padding: 5px 0px 10px 5px;
+`;
+
+const ListNameLink = styled(RouteLink)`
+  width: 100%;
+  line-break: auto;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  color: ${(props) => props.theme.colors.darkgrey};
+  padding: 5px;
+  border-radius: 5px;
+
+  &:hover {
+    background: #fff;
+  }
+`;
 
 const EmptyMsg = styled.span``;
 
@@ -29,6 +55,7 @@ export interface Props {
   services: Pick<Services, 'router'>;
   followedLists: Array<SharedList & { reference: SharedListReference }>;
   loadState: UITaskState;
+  isShown: boolean;
 }
 
 export default class ListsSidebar extends PureComponent<Props> {
@@ -55,6 +82,7 @@ export default class ListsSidebar extends PureComponent<Props> {
 
     return this.props.followedLists.map(({ title, reference }) => (
       <ListNameLink
+        key={reference.id}
         route="collectionDetails"
         services={this.props.services}
         params={{ id: reference.id as string }}
@@ -65,10 +93,16 @@ export default class ListsSidebar extends PureComponent<Props> {
   }
 
   render() {
+    if (!this.props.isShown) {
+      return null
+    }
+
     return (
       <Container>
         <SectionTitle>Followed Collections</SectionTitle>
-        {this.renderSharedListNames()}
+        <ListContent>
+          {this.renderSharedListNames()}
+        </ListContent>
       </Container>
     );
   }

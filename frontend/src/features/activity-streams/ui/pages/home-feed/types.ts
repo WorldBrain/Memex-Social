@@ -1,4 +1,4 @@
-import { SharedAnnotationReference, SharedPageInfo, SharedAnnotation } from "@worldbrain/memex-common/lib/content-sharing/types";
+import { SharedAnnotationReference, SharedPageInfo, SharedAnnotation, SharedListReference } from "@worldbrain/memex-common/lib/content-sharing/types";
 import { ConversationReplyReference, ConversationReply } from "@worldbrain/memex-common/lib/content-conversations/types";
 import { UserReference, User } from "@worldbrain/memex-common/lib/web-interface/types/users";
 import { UIEvent, UISignal } from "../../../../../main-ui/classes/logic";
@@ -10,6 +10,7 @@ import { UITaskState } from "../../../../../main-ui/types";
 export interface HomeFeedDependencies {
     services: UIElementServices<'contentConversations' | 'auth' | 'overlay' | 'activityStreams' | 'router'>;
     storage: Pick<StorageModules, 'contentSharing' | 'contentConversations' | 'users' | 'activityStreams'>
+    listActivitiesLimit: number
 }
 
 export type HomeFeedState = {
@@ -35,13 +36,31 @@ export type HomeFeedSignal = UISignal<
     { type: 'not-yet' }
 >
 
-export type ActivityItem = PageActivityItem
+export type ActivityItem = PageActivityItem | ListActivityItem
 
-export interface PageActivityItem {
-    type: 'page-item'
+interface TopLevelActivityItem {
     groupId: string
-    reason: 'new-replies'
     notifiedWhen: number
+}
+
+export interface ListActivityItem extends TopLevelActivityItem {
+    type: 'list-item',
+    reason: 'pages-added-to-list'
+    listName: string
+    listReference: SharedListReference
+    entries: Array<ListEntryActivityItem>
+}
+
+// TODO: Maybe just replace this with `PageActivityItem`...
+export interface ListEntryActivityItem {
+    type: 'list-entry-item',
+    normalizedPageUrl: string
+    hasAnnotations?: boolean
+}
+
+export interface PageActivityItem extends TopLevelActivityItem {
+    type: 'page-item'
+    reason: 'new-replies'
     normalizedPageUrl: string
     annotations: Array<AnnotationActivityItem>
 }

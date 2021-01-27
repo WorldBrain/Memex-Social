@@ -141,6 +141,18 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
             const organized = organizeActivities(activityGroups)
             activityData = organized.data
 
+            // For each added list entry, check if they have associated annotations
+            for (const activityItem of organized.activityItems) {
+                if (activityItem.type === 'list-item' && activityItem.reason === 'pages-added-to-list') {
+                    for (const listEntry of activityItem.entries) {
+                        listEntry.hasAnnotations = await this.dependencies.storage.contentSharing.doesAnnotationExistForPageInList({
+                            listReference: activityItem.listReference,
+                            normalizedPageUrl: listEntry.normalizedPageUrl,
+                        })
+                    }
+                }
+            }
+
             const conversations = getInitialAnnotationConversationStates(organized.activityItems.map((activityItem) => ({
                 linkId: activityItem.groupId,
             })))
@@ -256,7 +268,20 @@ export function organizeActivities(activities: Array<ActivityStreamResultGroup<k
         if (activityGroup.entityType === 'sharedList' && activityGroup.activityType === 'sharedListEntry') {
             const entryActivityGroup = activityGroup as ActivityStreamResultGroup<'sharedList', 'sharedListEntry'>
             entryActivityGroup.activities = sortBy(entryActivityGroup.activities, ({ activity }) => activity.entry.createdWhen)
-            console.log(`TODO: We've got new list entries. Do something with them!`)
+            const { activity: firstActivity } = entryActivityGroup.activities[0]
+
+            activityItems.push({
+                type: 'list-item',
+                groupId: entryActivityGroup.id,
+                reason:'pages-added-to-list',
+                listName: firstActivity.list.title,
+                listReference: firstActivity.list.reference,
+                notifiedWhen: firstActivity.entry.createdWhen,
+                entries: entryActivityGroup.activities.map(({ activity }) => ({
+                    type: 'list-entry-item',
+                    normalizedPageUrl: activity.entry.normalizedUrl,
+                }))
+            })
         }
     }
 

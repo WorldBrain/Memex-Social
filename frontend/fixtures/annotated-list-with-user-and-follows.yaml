@@ -1,0 +1,1 @@
+extends: [with-default-user, with-annotated-list, with-list-follows]

@@ -15,8 +15,10 @@ export const theme: Theme = {
     primary: '#3a2f45',
     subText: '#aeaeae',
     secondary: '#5cd9a6',
+    purple: '#5671cf',
     grey: '#e0e0e0',
     black: '000',
+    darkgrey: '#545454',
     overlay: {
       background: 'rgba(0, 0, 0, 0.1)',
       dialog: 'white',
