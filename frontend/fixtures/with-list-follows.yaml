@@ -12,21 +12,21 @@ objects:
       creator: { $ref: users.default }
       createdWhen: 1594225389914
       updatedWhen: 1594225389914
-      title: "Second list"
+      title: "Flats in Berlin"
       description: "Bla bla"
     - $store: 3
       id: rd-list
       creator: { $ref: users.default }
       createdWhen: 1594225389914
       updatedWhen: 1594225389914
-      title: "Second list"
+      title: "Covid Papers"
       description: "Bla bla"
     - $store: 4
       id: 4-list
       creator: { $ref: users.default }
       createdWhen: 1594225389914
       updatedWhen: 1594225389914
-      title: "Second list"
+      title: "Covid Papers"
       description: "Bla bla"
     - $store: second
       id: 5-list
@@ -320,7 +320,7 @@ objects:
       creator: { $ref: users.default }
       createdWhen: 1594225389914
       updatedWhen: 1594225389914
-      title: "Second list"
+      title: "Flats in Berlin"
       description: "Bla bla"
   activityFollows:
     - $store: default
