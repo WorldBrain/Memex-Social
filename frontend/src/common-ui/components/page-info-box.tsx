@@ -14,9 +14,7 @@ const PageBox = styled.div`
 const PageContentBox = styled.div`
     display: flex;
     flex-direction: column;
-
     padding: 15px 15px 10px 15px;
-    border-bottom: 1px solid #e0e0e0;
 `
 
 const PageContentBoxBottom = styled.div`
@@ -24,6 +22,9 @@ const PageContentBoxBottom = styled.div`
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
+    border-top: 1px solid #e0e0e0;
+    height: 50px;
+    padding: 0px 15px 0px 15px;
 `
 
 const PageInfoBoxLink = styled.a`
@@ -32,7 +33,6 @@ const PageInfoBoxLink = styled.a`
 
 const PageInfoBoxLeft = styled.div`
   text-decoration: none;
-  padding: 15px 0px 15px 15px;
 `;
 
 const PageInfoBoxTop = styled.div`
@@ -68,14 +68,12 @@ const CreatedWhenDate = styled.div`
   font-family: "Poppins";
   font-weight: normal;
   font-size: 12px;
-  color: ${(props) => props.theme.colors.primary};
+  color: ${(props) => props.theme.colors.darkgrey};
 `;
 
 const PageInfoBoxRight = styled.div`
   text-decoration: none;
-  padding: 15px 0px 15px 10px;
   cursor: default;
-  width: 50px;
 `;
 
 const PageInfoBoxActions = styled.div`
@@ -136,16 +134,17 @@ export default function PageInfoBox(props: {
 
   return (
     <ItemBox>
-      <PageInfoBoxLink href={pageInfo.originalUrl} target="_blank">
         <StyledPageResult>
-          <PageContentBox>
-              <ResultContent>
-                <PageUrl>{domain[0]}</PageUrl>
-              </ResultContent>
-              <PageTitle>
-                  {pageInfo.fullTitle}
-              </PageTitle>
-          </PageContentBox>
+          <PageInfoBoxLink href={pageInfo.originalUrl} target="_blank">
+            <PageContentBox>
+                <ResultContent>
+                  <PageUrl>{domain[0]}</PageUrl>
+                </ResultContent>
+                <PageTitle>
+                    {pageInfo.fullTitle}
+                </PageTitle>
+            </PageContentBox>
+          </PageInfoBoxLink>
           <PageContentBoxBottom>
             <PageInfoBoxLeft>
             <CreatedWhenDate>
@@ -172,7 +171,6 @@ export default function PageInfoBox(props: {
           </PageContentBoxBottom>
 
         </StyledPageResult>
-      </PageInfoBoxLink>
     </ItemBox>
   );
 }

@@ -9,16 +9,20 @@ import Markdown from "../../../../common-ui/components/markdown";
 
 const StyledAnnotationBox = styled.div`
   font-family: ${(props) => props.theme.fonts.primary};
-  padding: 15px 20px;
 `;
 
 const ReplyContent = styled.div`
   font-size: 14px;
   font-family: ${(props) => props.theme.fonts.primary};
   color: ${(props) => props.theme.colors.primary};
+  padding: 15px 15px 10px 15px;
 
   & p:first-child {
     margin-top: 0;
+  }
+
+  & p:last-child {
+    margin-bottom: 0;
   }
 `;
 
@@ -34,7 +38,7 @@ export default function AnnotationReply(props: {
       {renderItemBox({
         children: (
           <StyledAnnotationBox>
-            <Margin bottom="small">
+            <Margin>
               <ReplyContent>
                 <Markdown>{props.reply?.content}</Markdown>
               </ReplyContent>

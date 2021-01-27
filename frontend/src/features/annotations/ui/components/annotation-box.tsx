@@ -13,7 +13,6 @@ const replyImage = require("../../../../assets/img/reply.svg");
 
 const StyledAnnotationBox = styled.div`
   font-family: ${(props) => props.theme.fonts.primary};
-  padding: 15px 20px;
 `;
 
 const AnnotationBody = styled.span`
@@ -29,10 +28,18 @@ const AnnotationComment = styled.div`
   font-size: 14px;
   color: ${(props) => props.theme.colors.primary};
 
-  & p:first-child {
+  & *:first-child {
     margin-top: 0;
   }
+
+  & *:last-child {
+    margin-bottom: 0;
+  }
 `;
+
+const AnnotationTopBox = styled.div`
+    padding: 15px 15px 10px 15px;
+`
 
 const DOM_PURIFY_CONFIG: DOMPurify.Config = {
   ALLOWED_TAGS: ["p", "br", "#text"],
@@ -60,8 +67,9 @@ export default function AnnotationBox(props: {
   return (
     <ItemBox>
       <StyledAnnotationBox>
+        <AnnotationTopBox>
         {annotation.body && (
-          <Margin bottom="small">
+          <Margin>
             <AnnotationBody
               dangerouslySetInnerHTML={{
                 __html: preserveLinebreaks(annotation.body),
@@ -69,11 +77,13 @@ export default function AnnotationBox(props: {
             />
           </Margin>
         )}
-        <Margin bottom="small">
+        {annotation.body && annotation.comment && (<Margin top="small"><div/></Margin>)}
+        <Margin>
           <AnnotationComment>
             <Markdown>{annotation.comment}</Markdown>
           </AnnotationComment>
         </Margin>
+        </AnnotationTopBox>
         <ItemBoxBottom
           creationInfo={{
             createdWhen: annotation.createdWhen,

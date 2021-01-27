@@ -24,7 +24,7 @@ const Creator = styled.div`
 const CreationDate = styled.div`
   font-family: "Poppins";
   font-weight: normal;
-  font-size: 12px;
+  font-size: 11px;
   color: ${(props) => props.theme.colors.primary};
 `;
 

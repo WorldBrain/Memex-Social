@@ -33,7 +33,33 @@ const StyledIconMargin = styled(Margin)`
 const LoadMoreLink = styled(RouteLink)`
   display: flex;
   justify-content: center;
+  font-family: ${(props) => props.theme.fonts.primary};
+  color: ${(props) => props.theme.colors.primary};
+  background: white;
+  font-size: 11px;
+  cursor: pointer;
+  border-radius: 3px; 
+  align-items: center;
+
+  &:hover {
+    background: ${(props) => props.theme.colors.grey};
+  }
+`
+
+const CollectionLink = styled(RouteLink)`
+  display: flex;
+  justify-content: center;
+  font-family: ${(props) => props.theme.fonts.primary};
+  color: ${(props) => props.theme.colors.primary};
+  background: white;
   padding-left: 5px;
+  cursor: pointer;
+  align-items: center;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
 `
 
 const LoadAnnotationsLink = styled(RouteLink)`
@@ -72,12 +98,10 @@ const StyledLastSeenLine = styled.div`
 `;
 const LastSeenLineBackground = styled.div`
   position: absolute;
-  background: rgba(0, 0, 0, 20%);
+  background: black;
   top: 50%;
-  left: 50%;
   height: 2px;
-  width: 50%;
-  transform: translateX(-50%) translateY(-50%);
+  width: 100%;
   z-index: 1;
 `;
 const LastSeenLineLabel = styled.div`
@@ -93,8 +117,13 @@ const LoadMoreReplies = styled.div`
   justify-content: center;
   font-family: ${(props) => props.theme.fonts.primary};
   background: white;
-  font-size: 10pt;
+  font-size: 11px;
   cursor: pointer;
+  border-radius: 3px; 
+
+  &:hover {
+    background: ${(props) => props.theme.colors.grey};
+  }
 `;
 
 type ActivityItemRendererResult = { key: string | number, rendered: JSX.Element }
@@ -190,8 +219,9 @@ export default class HomeFeedPage extends UIElement<
   }
 
   renderActivityReason(activityItem: ActivityItem) {
+
     if (activityItem.reason === "new-replies") {
-      return <ActivityReason icon={commentImage} label="New replies" />;
+        return <ActivityReason icon={commentImage} label="New replies" />;
     }
 
     if (activityItem.reason === 'pages-added-to-list') {
@@ -199,13 +229,13 @@ export default class HomeFeedPage extends UIElement<
         <ActivityReason
           icon={collectionImage}
           label={<>Pages added to
-            <LoadMoreLink
+            <CollectionLink
               route="collectionDetails"
               services={this.props.services}
               params={{ id: activityItem.listReference.id as string }}
             >
               <strong>{activityItem.listName}</strong>
-            </LoadMoreLink>
+            </CollectionLink>
             </>}
         />
       )
