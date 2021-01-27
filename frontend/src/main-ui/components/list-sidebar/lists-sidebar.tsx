@@ -12,7 +12,8 @@ import { Services } from "../../../services/types";
 const Container = styled.div`
   position: fixed;
   top: 50px;
-  height: fill-available;
+  min-height: fill-available;
+  height: 100%;
   font-family: ${(props) => props.theme.fonts.primary};
   background: ${(props) => props.theme.colors.grey};
   padding: 10px;
