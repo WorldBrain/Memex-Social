@@ -265,6 +265,7 @@ export function organizeActivities(activities: Array<ActivityStreamResultGroup<k
                 pageItem.notifiedWhen = replyActivity.reply.createdWhen
             }
         }
+
         if (activityGroup.entityType === 'sharedList' && activityGroup.activityType === 'sharedListEntry') {
             const entryActivityGroup = activityGroup as ActivityStreamResultGroup<'sharedList', 'sharedListEntry'>
             entryActivityGroup.activities = sortBy(entryActivityGroup.activities, ({ activity }) => activity.entry.createdWhen)
@@ -279,6 +280,8 @@ export function organizeActivities(activities: Array<ActivityStreamResultGroup<k
                 notifiedWhen: firstActivity.entry.createdWhen,
                 entries: entryActivityGroup.activities.map(({ activity }) => ({
                     type: 'list-entry-item',
+                    entryTitle: activity.entry.entryTitle,
+                    originalUrl: activity.entry.originalUrl,
                     normalizedPageUrl: activity.entry.normalizedUrl,
                 }))
             })

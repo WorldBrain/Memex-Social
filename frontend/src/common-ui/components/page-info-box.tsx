@@ -133,7 +133,6 @@ export default function PageInfoBox(props: {
 }) {
   const { pageInfo } = props;
   const domain = pageInfo.normalizedUrl.split('/');
-  console.log(pageInfo)
 
   return (
     <ItemBox>

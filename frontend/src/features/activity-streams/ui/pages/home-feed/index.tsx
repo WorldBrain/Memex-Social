@@ -198,7 +198,7 @@ export default class HomeFeedPage extends UIElement<
       return (
         <ActivityReason
           icon={collectionImage}
-          label={<>Pages added to 
+          label={<>Pages added to
             <LoadMoreLink
               route="collectionDetails"
               services={this.props.services}
@@ -250,18 +250,18 @@ export default class HomeFeedPage extends UIElement<
           </Margin>
           {listItem.entries
             .slice(0, this.props.listActivitiesLimit)
-            .map(({ normalizedPageUrl, hasAnnotations }) => {
-              const pageInfo = this.state.pageInfo[normalizedPageUrl]
+            .map((entry) => {
+              const pageInfo = this.state.pageInfo[entry.normalizedPageUrl]
               return (
-                <Margin bottom="small" key={normalizedPageUrl}>
+                <Margin bottom="small" key={entry.normalizedPageUrl}>
                   <PageInfoBox
                     pageInfo={{
                       createdWhen: Date.now(),
-                      fullTitle: pageInfo?.fullTitle,
-                      normalizedUrl: normalizedPageUrl,
-                      originalUrl: pageInfo?.originalUrl,
+                      fullTitle: entry.entryTitle,
+                      originalUrl: entry.originalUrl,
+                      normalizedUrl: entry.normalizedPageUrl,
                     }}
-                    actions={hasAnnotations ? [
+                    actions={entry.hasAnnotations ? [
                       {
                         node: (
                           <LoadAnnotationsLink
