@@ -46,7 +46,7 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
         }
     }
 
-    init: EventHandler<'init'> = async () => {
+    init: EventHandler<'init'> = async ({ previousState }) => {
         const userReference = this.dependencies.services.auth.getCurrentUserReference()
         if (!userReference) {
             // Firebase auth doesn't immediately detect authenticated users, so wait if needed
@@ -56,12 +56,12 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
                 })
             })
         }
-        await this.loadNextActivities({ isInitial: true })
+        await this.loadNextActivities(previousState, { isInitial: true })
     }
 
-    waypointHit: EventHandler<'waypointHit'> = async () => {
+    waypointHit: EventHandler<'waypointHit'> = async ({ previousState }) => {
         if (this.hasMore) {
-            await this.loadNextActivities()
+            await this.loadNextActivities(previousState)
         }
     }
 
@@ -112,7 +112,39 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
         })
     }
 
-    async loadNextActivities(options?: { isInitial?: boolean }) {
+    private async checkAnnotationsExistForActivityItems({ activityItems }: HomeFeedState) {
+        for (const [activityItemIndex, activityItem] of activityItems.entries()) {
+            if (activityItem.type !== 'list-item' || activityItem.reason !== 'pages-added-to-list') {
+                continue
+            }
+
+            for (const [listEntryIndex, listEntry] of activityItem.entries.entries()) {
+                const hasAnnotations = await this.dependencies.storage.contentSharing.doesAnnotationExistForPageInList({
+                    listReference: activityItem.listReference,
+                    normalizedPageUrl: listEntry.normalizedPageUrl,
+                })
+
+                // They're set false by default, so only emit mutation if otherwise
+                if (!hasAnnotations) {
+                    continue
+                }
+
+                this.emitMutation({
+                    activityItems: {
+                        [activityItemIndex]: {
+                            entries: {
+                                [listEntryIndex]: {
+                                    hasAnnotations: { $set: hasAnnotations },
+                                }
+                            }
+                        }
+                    }
+                })
+            }
+        }
+    }
+
+    async loadNextActivities(previousState: HomeFeedState, options?: { isInitial?: boolean }) {
         const userReference = this.dependencies.services.auth.getCurrentUserReference()
         if (!userReference) {
             return
@@ -129,6 +161,8 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
         }
 
         let activityData: ActivityData | undefined
+        const mainMutation: UIMutation<HomeFeedState> = {}
+
         await loader(async () => {
             const { activityGroups, hasMore } = await this.dependencies.services.activityStreams.getHomeFeedActivities({ offset: this.itemOffset, limit: this.pageSize })
             this.itemOffset += this.pageSize
@@ -140,18 +174,6 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
 
             const organized = organizeActivities(activityGroups)
             activityData = organized.data
-
-            // For each added list entry, check if they have associated annotations
-            for (const activityItem of organized.activityItems) {
-                if (activityItem.type === 'list-item' && activityItem.reason === 'pages-added-to-list') {
-                    for (const listEntry of activityItem.entries) {
-                        listEntry.hasAnnotations = await this.dependencies.storage.contentSharing.doesAnnotationExistForPageInList({
-                            listReference: activityItem.listReference,
-                            normalizedPageUrl: listEntry.normalizedPageUrl,
-                        })
-                    }
-                }
-            }
 
             const conversations = getInitialAnnotationConversationStates(organized.activityItems.map((activityItem) => ({
                 linkId: activityItem.groupId,
@@ -168,14 +190,15 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
                 }
             }
 
-            this.emitMutation({
-                activityItems: { $push: organized.activityItems },
-                pageInfo: { $merge: organized.data.pageInfo },
-                annotations: { $merge: organized.data.annotations },
-                replies: { $merge: organized.data.replies },
-                conversations: { $merge: conversations }
-            })
+            mainMutation.activityItems = { $push: organized.activityItems }
+            mainMutation.conversations = { $merge: conversations }
+            mainMutation.annotations = { $merge: organized.data.annotations }
+            mainMutation.pageInfo = { $merge: organized.data.pageInfo }
+            mainMutation.replies = { $merge: organized.data.replies }
+            this.emitMutation(mainMutation)
         })
+
+        const nextState = this.withMutation(previousState, mainMutation)
 
         const allReplies = flatten(Object.values(activityData?.replies ?? {}).map(
             annotationReplies => Object.values(annotationReplies))
@@ -196,7 +219,8 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
                 timestamp: Date.now(),
             }).then(({ previousTimestamp }) => {
                 this.emitMutation({ lastSeenTimestamp: { $set: previousTimestamp } })
-            })] : [])
+            })] : []),
+            this.checkAnnotationsExistForActivityItems(nextState),
         ])
     }
 }
