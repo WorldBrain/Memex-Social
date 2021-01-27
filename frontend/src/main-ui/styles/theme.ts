@@ -38,7 +38,15 @@ export const theme: Theme = {
   fontSizes: {
     listTitle: '16px',
     url: '14px',
+    text: '12px',
+    smallText: '8px',
   },
+  lineHeights: {
+    listTitle: '24px',
+    url: '21px',
+    text: '18px',
+    smallText: '12px',
+},
   zIndices: {
     overlay: 50,
   },
