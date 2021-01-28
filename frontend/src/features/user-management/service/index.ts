@@ -1,5 +1,4 @@
-import { UserReference } from '@worldbrain/memex-common/lib/web-interface/types/users'
-import { ProfileWebLink, User, UserPublicProfile } from '../types'
+import { ProfileWebLink, User, UserPublicProfile, UserReference } from '../types'
 import { AuthService } from '../../../services/auth/types'
 import UserStorage from '../storage/'
 import UserProfileCache from '../utils/user-profile-cache'
@@ -33,6 +32,18 @@ export default class UserManagementService {
         )
         this.userPublicProfilesCache[userRef.id] = publicProfile
         return publicProfile
+    }
+
+    async createUserPublicProfile(userRef: UserReference, profileData: UserPublicProfile): Promise<void> {
+        await this.options.storage.createOrUpdateUserPublicProfile(userRef, {knownStatus: 'new'}, profileData)
+    }
+
+    async updateUserPublicProfile(userRef: UserReference, profileData: UserPublicProfile): Promise<void> {
+        await this.options.storage.createOrUpdateUserPublicProfile(userRef, {knownStatus: 'exists'}, profileData)
+    }
+
+    async updateUserDisplayName(userRef: UserReference, value: string): Promise<void> {
+        await this.options.storage.updateUser(userRef, { knownStatus: 'exists' }, { displayName: value })
     }
 
     getWebLinksArray(profileData: UserPublicProfile): ProfileWebLink[] {
