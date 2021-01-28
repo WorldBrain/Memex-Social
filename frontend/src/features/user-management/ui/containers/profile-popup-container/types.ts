@@ -17,8 +17,6 @@ export interface ProfilePopupContainerDependencies {
 
 export interface ProfilePopupContainerState {
     isDisplayed: boolean
-    isSupported: boolean
-    supportedTaskState: UITaskState
     profileTaskState: UITaskState
     user: User | null | undefined
     profileData: UserPublicProfile

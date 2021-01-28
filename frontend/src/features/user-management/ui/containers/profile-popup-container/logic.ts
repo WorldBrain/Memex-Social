@@ -1,4 +1,3 @@
-import { getUserReference } from '@worldbrain/memex-common/ts/user-management/utils'
 import { UILogic, UIEventHandler } from '../../../../../main-ui/classes/logic'
 import { UITaskState } from '../../../../../main-ui/types'
 import { UserPublicProfile, User, ProfileWebLink } from '../../../types'
@@ -27,8 +26,6 @@ export default class ProfilePopupContainerLogic extends UILogic<
     getInitialState(): ProfilePopupContainerState {
         return {
             isDisplayed: false,
-            isSupported: false,
-            supportedTaskState: 'pristine',
             profileTaskState: 'pristine',
             user: {
                 displayName: '',

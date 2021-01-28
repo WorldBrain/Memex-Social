@@ -15,16 +15,23 @@ export const theme: Theme = {
         primary: '#3a2f45',
         subText: '#aeaeae',
         secondary: '#5cd9a6',
+        purple: '#5671cf',
+        lightgrey: 'lightgrey',
         grey: '#e0e0e0',
+        darkgrey: '#545454',
         black: '000',
         overlay: {
-            background: 'rgba(0, 0, 0, 0.1)',
-            dialog: 'white',
+          background: 'rgba(0, 0, 0, 0.1)',
+          dialog: 'white',
         },
     },
     fonts: {
         primary: '"Poppins", sans-serif',
         secondary: '"Poppins", sans-serif',
+    },
+    fontWeights: {
+        normal: 400,
+        bold: 700
     },
     hoverBackgrounds: {
         primary: '#e0e0e0',
@@ -33,12 +40,14 @@ export const theme: Theme = {
         default: '3px',
     },
     fontSizes: {
+        header: '20px',
         listTitle: '16px',
         url: '14px',
         text: '12px',
         smallText: '8px',
     },
     lineHeights: {
+        header: '30px',
         listTitle: '24px',
         url: '21px',
         text: '18px',
