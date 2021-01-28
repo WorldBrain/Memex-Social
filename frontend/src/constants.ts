@@ -1,1 +1,5 @@
-export default 'nothing yet'
+export default {
+    userPublicProfile: {
+        bioCharLength: 280
+    }
+}
