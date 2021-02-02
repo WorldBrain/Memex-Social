@@ -10,19 +10,19 @@ import LoadingScreen from '../../../../common-ui/components/loading-screen'
 import { StorageModules } from '../../../../storage/types'
 import { UIElementServices } from '../../../../main-ui/classes'
 import CuratorSupportButtonBlock from './curator-support-button-block'
+import UserAvatar from '../../../../common-ui/components/user-avatar'
 
 export const PopupContainer = styled.div<{ theme: Theme }>`
     position: absolute;
-    bottom: 0;
-    left: 0;
-    z-index: ${(props) => props.theme.zIndices.overlay}
     width: 164px;
     min-height: 111px;
-    ${(props) => `padding: ${props.theme.spacing.small};`};
-    ${(props) => `border-radius: ${props.theme.borderRadii.default};`}
-    ${(props) => `background-color: ${props.theme.colors.background};`}
-    ${(props) => `font-family: ${props.theme.fonts.primary};`}
+    font-family: ${(props) => props.theme.fonts.primary};
     color: ${(props) => props.theme.colors.primary};
+    background-color: ${(props) => props.theme.colors.background};
+    padding: ${(props) => props.theme.spacing.small};
+    border-radius: ${(props) => props.theme.borderRadii.default};
+    z-index: ${(props) => props.theme.zIndices.overlay};
+    box-shadow: 0px 2.21787px 3.69646px 1.47858px rgba(0, 0, 0, 0.2);
 `
 
 const ProfileContainer = styled.div`
@@ -39,13 +39,6 @@ const ProfileHeader = styled.div`
     height: min-content;
     display: flex;
     justify-content: start;
-`
-
-const Avatar = styled.div<{ theme: Theme; path: string }>`
-    height: 24px;
-    width: 24px;
-    margin: ${(props) => props.theme.spacing.small};
-    border-radius: 50%;
 `
 
 const ProfileHeaderInnerContainer = styled.div<{ theme: Theme }>`
@@ -117,17 +110,12 @@ export default class ProfilePopup extends PureComponent<ProfilePopupProps> {
                     <>
                         <ProfileContainer>
                             <ProfileHeader>
-                                <Avatar path={avatarURL} theme={theme}>
-                                    {(!avatarURL &&
-                                        displayName &&
-                                        displayName[0]) ||
-                                        'U'}
-                                </Avatar>
+                                <UserAvatar path={avatarURL} user={{displayName: displayName ?? 'Unknown User'}} />
                                 <ProfileHeaderInnerContainer theme={theme}>
                                     <DisplayName theme={theme}>
                                         {displayName}
                                     </DisplayName>
-                                    {webLinksArray.length && (
+                                    {!!webLinksArray.length && (
                                         <WebLinksContainer>
                                             {webLinksArray.map(
                                                 ({ url, iconPath }) => (

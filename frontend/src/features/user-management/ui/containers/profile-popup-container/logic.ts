@@ -1,4 +1,3 @@
-import { getUserReference } from '@worldbrain/memex-common/ts/user-management/utils'
 import { UILogic, UIEventHandler } from '../../../../../main-ui/classes/logic'
 import { UITaskState } from '../../../../../main-ui/types'
 import { UserPublicProfile, User, ProfileWebLink } from '../../../types'

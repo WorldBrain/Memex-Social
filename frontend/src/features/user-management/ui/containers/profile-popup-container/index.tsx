@@ -58,15 +58,13 @@ export default class ProfilePopupContainer extends UIElement<
 
     render() {
         return (
-            <>
                 <Container
                     onMouseEnter={() => this.handleMouseEnter()}
                     onMouseLeave={() => this.handleMouseLeave()}
                 >
                     {this.props.children}
+                    {this.state.isDisplayed && this.renderPopup()}
                 </Container>
-                {this.state.isDisplayed && this.renderPopup()}
-            </>
         )
     }
 }
