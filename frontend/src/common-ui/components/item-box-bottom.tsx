@@ -28,7 +28,7 @@ const Action = styled.div<{ image: string }>`
 `
 
 export default function ItemBoxBottom(props: {
-    profilePopupProps: ProfilePopupProps
+    profilePopupProps?: ProfilePopupProps
     creationInfo: CreationInfoProps
     replyCount?: number
     actions?: Array<
@@ -39,9 +39,11 @@ export default function ItemBoxBottom(props: {
     >
 }) {
     return (
-        <ProfilePopupContainer {...props.profilePopupProps}>
             <Bottom>
+            {props.profilePopupProps && <ProfilePopupContainer {...props.profilePopupProps}>
                 <CreationInfo {...props.creationInfo} />
+            </ProfilePopupContainer>}
+            {!props.profilePopupProps && <CreationInfo {...props.creationInfo} />}
                 <Actions>
                     {props.actions?.map?.(
                         (actionProps) =>
@@ -53,6 +55,5 @@ export default function ItemBoxBottom(props: {
                     )}
                 </Actions>
             </Bottom>
-        </ProfilePopupContainer>
     )
 }

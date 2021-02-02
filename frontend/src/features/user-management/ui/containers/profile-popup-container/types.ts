@@ -10,7 +10,7 @@ import {
 import { UITaskState } from '../../../../../main-ui/types'
 
 export interface ProfilePopupContainerDependencies {
-    services: UIElementServices<'userManagement'>
+    services: UIElementServices<'device' | 'documentTitle' | 'logicRegistry' | 'userManagement'>
     storage: Pick<StorageModules, 'users'>
     userRef: UserReference
 }
