@@ -58,6 +58,7 @@ export interface ListEntryActivityItem {
     originalUrl: string
     normalizedPageUrl: string
     hasAnnotations?: boolean
+    activityTimestamp: number
 }
 
 export interface PageActivityItem extends TopLevelActivityItem {

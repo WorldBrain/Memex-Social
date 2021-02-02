@@ -307,6 +307,7 @@ export function organizeActivities(activities: Array<ActivityStreamResultGroup<k
                     entryTitle: activity.entry.entryTitle,
                     originalUrl: activity.entry.originalUrl,
                     normalizedPageUrl: activity.entry.normalizedUrl,
+                    activityTimestamp: activity.entry.updatedWhen ?? activity.entry.createdWhen,
                 }))
             })
         }

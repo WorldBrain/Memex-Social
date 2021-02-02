@@ -295,14 +295,13 @@ export default class HomeFeedPage extends UIElement<
           {listItem.entries
             .slice(0, this.props.listActivitiesLimit)
             .map((entry) => {
-              const pageInfo = this.state.pageInfo[entry.normalizedPageUrl]
               return (
                 <Margin bottom="small" key={entry.normalizedPageUrl}>
                   <PageInfoBox
                     pageInfo={{
-                      createdWhen: Date.now(),
                       fullTitle: entry.entryTitle,
                       originalUrl: entry.originalUrl,
+                      createdWhen: entry.activityTimestamp,
                       normalizedUrl: entry.normalizedPageUrl,
                     }}
                     actions={entry.hasAnnotations ? [
