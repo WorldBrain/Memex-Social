@@ -5,6 +5,8 @@ import styled from "styled-components";
 import { Theme } from '../../main-ui/styles/types'
 import { theme } from '../../main-ui/styles/theme'
 
+import { USER_PROFILE_BIO_CHAR_LIMIT } from '../../constants'
+
 import { StyledInputLabel } from './text-input'
 
 const Container = styled.div`
@@ -26,7 +28,12 @@ const StyledTextArea = styled.textarea<{
 const CharCount = styled.div<{
     theme: Theme
 }>`
-    
+  width: 100%;
+  font-family: ${(props) => props.theme.fonts.primary};
+  font-weight: ${(props) => props.theme.fontWeights.bold};
+  font-size: ${(props) => props.theme.fontSizes.text};
+  line-height: ${(props) => props.theme.lineHeights.text};
+  text-align: right;
 `
 
 export default function TextArea(
@@ -57,6 +64,7 @@ export default function TextArea(
                 props.onKeyDown?.(event);
             }}
             />
+            <CharCount theme={theme}>{`${charCount}/${USER_PROFILE_BIO_CHAR_LIMIT}`}</CharCount>
         </Container>
       )
     }
