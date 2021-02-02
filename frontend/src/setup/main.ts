@@ -1,6 +1,6 @@
 import createBrowserHistory from "history/createBrowserHistory";
 import debounce from 'lodash/debounce'
-import * as firebase from 'firebase';
+import firebase from 'firebase';
 import { getUiMountpoint, getDefaultUiRunner } from '../main-ui'
 import { createServices } from '../services';
 import { MainProgramOptions, MainProgramSetup } from './types';

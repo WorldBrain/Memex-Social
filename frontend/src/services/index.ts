@@ -1,5 +1,5 @@
 import { History } from 'history'
-import * as firebase from 'firebase'
+import firebase from 'firebase'
 import FirebaseFunctionsActivityStreamsService from '@worldbrain/memex-common/lib/activity-streams/services/firebase-functions/client'
 import MemoryStreamsService from '@worldbrain/memex-common/lib/activity-streams/services/memory'
 import { BackendType } from '../types'
