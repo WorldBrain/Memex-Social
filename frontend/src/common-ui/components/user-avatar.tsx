@@ -28,6 +28,7 @@ const StyledUserAvatar = styled.div<{ loading?: boolean }>`
 
 export default function UserAvatar(props: {
   user?: Pick<User, "displayName"> | null;
+  path?: string
   loading?: boolean;
 }) {
   return (
