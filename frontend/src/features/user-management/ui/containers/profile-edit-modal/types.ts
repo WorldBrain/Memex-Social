@@ -12,6 +12,7 @@ export type ProfileEditModalDependencies = {
 
 export type ProfileEditModalState = Omit<ProfilePopupContainerState,'isSupported' | 'supportedTaskState'>&{
     savingTaskState: UITaskState
+    inputErrorArray: boolean[]
 }
 
 export type ProfileEditModalEvent = UIEvent<{
@@ -25,4 +26,5 @@ export type ProfileEditModalEvent = UIEvent<{
         value: string
     }
     setDisplayName: { value: string }
+    setErrorArray: { newArray: boolean[] }
 }>

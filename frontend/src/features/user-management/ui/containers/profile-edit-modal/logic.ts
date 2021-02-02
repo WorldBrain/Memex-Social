@@ -43,6 +43,7 @@ export default class ProfileEditModalLogic extends UILogic<
                 paymentPointer: '',
             },
             webLinksArray: [],
+            inputErrorArray: []
         }
     }
 
@@ -107,6 +108,12 @@ export default class ProfileEditModalLogic extends UILogic<
             profileData: {
                 [event.key]: { $set: event.value }
             }
+        })
+    }
+
+    setErrorArray: EventHandler<'setErrorArray'> = ({event}) => {
+        this.emitMutation({
+            inputErrorArray: { $set: event.newArray }
         })
     }
 

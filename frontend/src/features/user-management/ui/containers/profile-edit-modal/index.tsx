@@ -69,6 +69,9 @@ export default class ProfileEditModal extends UIElement<
         super(props, { logic: new ProfileEditModalLogic(props) })
     }
 
+    private displayNameErrorMessage: string = 'Display Name must not be empty'
+    private urlInputErrorMessage: string = 'This must be a valid URL'
+
     handleSaveClick() {
         this.processEvent('saveUserPublicProfile', { profileData: this.state.profileData,  })
     }
@@ -81,6 +84,18 @@ export default class ProfileEditModal extends UIElement<
 
     handleSetProfileValue(key: keyof UserPublicProfile, value: string): void {
         this.processEvent('setProfileValue', { key, value })
+    }
+
+    testDisplayName() {
+        const newArray = [...this.state.inputErrorArray]
+        newArray[0] = !this.state.user?.displayName
+        this.processEvent('setErrorArray', { newArray })
+    }
+
+    testValidURL(index: number, url: string) {
+        const newArray = [...this.state.inputErrorArray]
+        newArray[index] = !DOMAIN_TLD_PATTERN.test(url)
+        this.processEvent('setErrorArray', { newArray })
     }
 
     render() {
