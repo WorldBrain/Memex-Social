@@ -1,1 +1,1 @@
-extendds: ["with-default-curator", "with-public-profile"]
+extends: ["with-default-curator", "with-public-profile"]
