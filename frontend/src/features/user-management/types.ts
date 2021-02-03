@@ -1,3 +1,5 @@
+import { CSSObject } from 'styled-components'
+
 import { UserReference as UserRef } from '@worldbrain/memex-common/lib/web-interface/types/users'
 import {
     UserPublicProfile as Profile,
@@ -9,9 +11,5 @@ export type User = ImportedUser
 export type UserReference = UserRef
 export interface ProfileWebLink {
     url: string
-    iconPath:
-        | 'img/websiteIcon.svg'
-        | 'img/mediumIcon.svg'
-        | 'img/twitterIcon.svg'
-        | 'img/substackIcon.svg'
+    fileName: 'web-logo.svg' | 'medium-logo.svg' | 'twitter-logo.svg' | 'substack-logo.svg'
 }

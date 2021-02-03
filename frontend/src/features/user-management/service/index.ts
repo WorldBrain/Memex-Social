@@ -41,25 +41,25 @@ export default class UserManagementService {
         if (websiteURL) {
             arr.push({
                 url: websiteURL,
-                iconPath: 'img/websiteIcon.svg',
+                fileName: 'web-logo.svg',
             })
         }
         if (mediumURL) {
             arr.push({
                 url: mediumURL,
-                iconPath: 'img/mediumIcon.svg',
+                fileName: 'medium-logo.svg',
             })
         }
         if (twitterURL) {
             arr.push({
                 url: twitterURL,
-                iconPath: 'img/twitterIcon.svg',
+                fileName: 'twitter-logo.svg',
             })
         }
         if (substackURL) {
             arr.push({
                 url: substackURL,
-                iconPath: 'img/substackIcon.svg',
+                fileName: 'substack-logo.svg',
             })
         }
         return arr
