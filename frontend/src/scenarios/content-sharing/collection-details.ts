@@ -515,4 +515,64 @@ export const SCENARIOS: ScenarioMap<Targets> = {
         },
         steps: [],
     })),
+    'profile-popup-block-loading': scenario<Targets>(
+        ({ step, callModification }) => ({
+            fixture: 'annotated-list-with-user',
+            startRoute: {
+                route: 'collectionDetails',
+                params: { id: 'default-list' },
+            },
+            setup: {
+                callModifications: ({ storage }) => [
+                    callModification({
+                        name: 'public-profile-loading',
+                        object: storage.serverModules.users,
+                        property: 'getUserPublicProfile',
+                        modifier: 'block',
+                    }),
+                ],
+            },
+            steps: [
+                step({
+                    name: 'profile-loaded',
+                    callModifications: ({ storage }) => [
+                        {
+                            name: 'public-profile-loading',
+                            modifier: 'undo',
+                        },
+                    ],
+                }),
+            ],
+        }),
+    ),
+    'profile-popup-sabotage-loading': scenario<Targets>(
+        ({ step, callModification }) => ({
+            fixture: 'annotated-list-with-user',
+            startRoute: {
+                route: 'collectionDetails',
+                params: { id: 'default-list' },
+            },
+            setup: {
+                callModifications: ({ storage }) => [
+                    callModification({
+                        name: 'public-profile-loading',
+                        object: storage.serverModules.users,
+                        property: 'getUserPublicProfile',
+                        modifier: 'sabotage',
+                    }),
+                ],
+            },
+            steps: [
+                step({
+                    name: 'profile-loaded',
+                    callModifications: ({ storage }) => [
+                        {
+                            name: 'public-profile-loading',
+                            modifier: 'undo',
+                        },
+                    ],
+                }),
+            ],
+        }),
+    ),
 }

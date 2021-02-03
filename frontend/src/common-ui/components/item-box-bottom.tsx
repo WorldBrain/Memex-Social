@@ -38,10 +38,12 @@ export default function ItemBoxBottom(props: {
         | undefined
     >
 }) {
-    const renderMain = function () {
-        return (
+    return (
             <Bottom>
+            {props.profilePopupProps && <ProfilePopupContainer {...props.profilePopupProps}>
                 <CreationInfo {...props.creationInfo} />
+            </ProfilePopupContainer>}
+            {!props.profilePopupProps && <CreationInfo {...props.creationInfo} />}
                 <Actions>
                     {props.actions?.map?.(
                         (actionProps) =>
@@ -53,15 +55,5 @@ export default function ItemBoxBottom(props: {
                     )}
                 </Actions>
             </Bottom>
-        )
-    }
-    if (props.profilePopupProps) {
-        return (
-            <ProfilePopupContainer {...props.profilePopupProps}>
-                {renderMain()}
-            </ProfilePopupContainer>
-        )
-    } else {
-        return renderMain()
-    }
+    )
 }

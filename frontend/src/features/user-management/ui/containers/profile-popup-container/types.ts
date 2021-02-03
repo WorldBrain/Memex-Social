@@ -10,7 +10,7 @@ import {
 import { UITaskState } from '../../../../../main-ui/types'
 
 export interface ProfilePopupContainerDependencies {
-    services: UIElementServices<'userManagement'>
+    services: UIElementServices<'device' | 'documentTitle' | 'logicRegistry' | 'userManagement'>
     storage: Pick<StorageModules, 'users'>
     userRef: UserReference | null | undefined
 }
@@ -18,8 +18,8 @@ export interface ProfilePopupContainerDependencies {
 export interface ProfilePopupContainerState {
     isDisplayed: boolean
     profileTaskState: UITaskState
-    user: User | null | undefined
-    profileData: UserPublicProfile
+    user: User
+    userPublicProfile: UserPublicProfile
     webLinksArray: ProfileWebLink[]
 }
 

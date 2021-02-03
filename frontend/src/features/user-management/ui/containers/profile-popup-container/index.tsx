@@ -40,37 +40,31 @@ export default class ProfilePopupContainer extends UIElement<
         const {
             user,
             profileTaskState,
-            profileData,
+            userPublicProfile,
             webLinksArray,
         } = this.state
         const { services, storage } = this.props
         return (
-            user && (
-                <ProfilePopup
-                    user={user}
-                    taskState={profileTaskState}
-                    profileData={profileData}
-                    services={services}
-                    storage={storage}
-                    webLinksArray={webLinksArray}
-                />
-            )
+            <ProfilePopup
+                user={user}
+                taskState={profileTaskState}
+                userPublicProfile={userPublicProfile}
+                services={services}
+                storage={storage}
+                webLinksArray={webLinksArray}
+            />
         )
     }
 
     render() {
         return (
-            <>
                 <Container
-                    onMouseEnter={() => this.handleMouseEnter}
-                    onMouseLeave={() => this.handleMouseLeave}
+                    onMouseEnter={() => this.handleMouseEnter()}
+                    onMouseLeave={() => this.handleMouseLeave()}
                 >
                     {this.props.children}
+                    {this.state.isDisplayed && this.renderPopup()}
                 </Container>
-                {this.state.isDisplayed &&
-                    this.state.user &&
-                    this.renderPopup()}
-            </>
         )
     }
 }

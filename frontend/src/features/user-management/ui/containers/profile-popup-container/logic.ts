@@ -30,7 +30,7 @@ export default class ProfilePopupContainerLogic extends UILogic<
             user: {
                 displayName: '',
             },
-            profileData: {
+            userPublicProfile: {
                 websiteURL: '',
                 mediumURL: '',
                 twitterURL: '',
@@ -59,10 +59,11 @@ export default class ProfilePopupContainerLogic extends UILogic<
             ])
             this._setUser(await promises[0])
             this._setWebLinksArray(await promises[1])
-            this._setPublicProfileData(promises[1])
+            this._setUserPublicProfile(promises[1])
             this._setProfileTaskState('success')
         } catch (err) {
             this._setProfileTaskState('error')
+            console.log(err)
         }
     }
 
@@ -87,9 +88,9 @@ export default class ProfilePopupContainerLogic extends UILogic<
         this.emitMutation({ user: { $set: user } })
     }
 
-    private _setPublicProfileData(profileData: UserPublicProfile): void {
+    private _setUserPublicProfile(profileData: UserPublicProfile): void {
         this.emitMutation({
-            profileData: { $set: profileData },
+            userPublicProfile: { $set: profileData },
         })
     }
 
