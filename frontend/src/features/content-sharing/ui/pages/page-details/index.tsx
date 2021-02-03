@@ -158,6 +158,11 @@ export default class PageDetailsPage extends UIElement<
                     loadState={state.annotationLoadState}
                     annotations={annotations}
                     getAnnotationCreator={() => state.creator}
+                    getAnnotationCreatorRef={() => state.creatorReference}
+                    profilePopupProps={{
+                      services: this.props.services,
+                      storage: this.props.storage
+                    }}
                     annotationConversations={state.conversations}
                     onToggleReplies={(event) =>
                       this.processEvent("toggleAnnotationReplies", event)
