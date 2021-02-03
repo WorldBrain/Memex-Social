@@ -11,7 +11,9 @@ import {
   AnnotationConversationState,
 } from "../../../content-conversations/ui/types";
 import { User } from "@worldbrain/memex-common/lib/web-interface/types/users";
-import AnnotationReply from "../../../content-conversations/ui/components/annotation-reply";
+import AnnotationReply, {
+  AnnotationReplyProps,
+} from "../../../content-conversations/ui/components/annotation-reply";
 import NewAnnotationReply, {
   NewAnnotationReplyEventHandlers,
 } from "../../../content-conversations/ui/components/new-annotation-reply";
@@ -54,7 +56,9 @@ export default function AnnotationsInPage(
     loadState: UITaskState;
     annotations?: Array<SharedAnnotationInPage> | null;
     annotationConversations?: AnnotationConversationStates | null;
-    renderAnnotationBox?: (props: AnnotationBoxProps & { annotation: SharedAnnotationInPage }) => React.ReactNode
+    renderAnnotationBox?: (
+      props: AnnotationBoxProps & { annotation: SharedAnnotationInPage }
+    ) => React.ReactNode;
     getAnnotationConversation?: (
       annotationReference: SharedAnnotationReference
     ) => AnnotationConversationState | null;
@@ -68,6 +72,12 @@ export default function AnnotationsInPage(
     ) => Pick<User, "displayName"> | null | undefined;
     renderBeforeReplies?: (
       annotationReference: SharedAnnotationReference
+    ) => React.ReactNode;
+    renderReply?: (
+      props: {
+        annotationReference: SharedAnnotationReference;
+        replyReference: ConversationReplyReference;
+      } & AnnotationReplyProps
     ) => React.ReactNode;
     renderReplyBox?: (props: {
       annotationReference: SharedAnnotationReference;
@@ -145,7 +155,9 @@ export function AnnotationWithReplies(
   props: {
     annotation: SharedAnnotationInPage;
     annotationCreator?: Pick<User, "displayName"> | null;
-    renderAnnotationBox?: (props: AnnotationBoxProps & { annotation: SharedAnnotationInPage }) => React.ReactNode
+    renderAnnotationBox?: (
+      props: AnnotationBoxProps & { annotation: SharedAnnotationInPage }
+    ) => React.ReactNode;
     conversation?: AnnotationConversationState;
     hideNewReplyIfNotEditing?: boolean;
     getReplyCreator?: (
@@ -158,6 +170,12 @@ export function AnnotationWithReplies(
     renderBeforeReplies?: (
       annotationReference: SharedAnnotationReference
     ) => React.ReactNode;
+    renderReply?: (
+      props: {
+        annotationReference: SharedAnnotationReference;
+        replyReference: ConversationReplyReference;
+      } & AnnotationReplyProps
+    ) => React.ReactNode;
     renderReplyBox?: (props: {
       annotationReference: SharedAnnotationReference;
       replyReference: ConversationReplyReference;
@@ -166,6 +184,10 @@ export function AnnotationWithReplies(
   } & NewAnnotationReplyEventHandlers
 ) {
   const { annotation, conversation } = props;
+
+  const renderReply =
+    props.renderReply ?? ((props) => <AnnotationReply {...props} />);
+
   return (
     <>
       <AnnotationBox
@@ -197,24 +219,24 @@ export function AnnotationWithReplies(
               {conversation.replies?.map?.((replyData) => (
                 <Margin key={replyData.reference.id} left="small">
                   <AnnotationReplyContainer>
-                    <AnnotationReply
-                      {...replyData}
-                      user={
+                    {renderReply({
+                      ...replyData,
+                      annotationReference: annotation.reference,
+                      replyReference: replyData.reference,
+                      user:
                         props.getReplyCreator?.(
                           annotation.reference,
                           replyData.reference
-                        ) ?? replyData.user
-                      }
-                      renderItemBox={
+                        ) ?? replyData.user,
+                      renderItemBox:
                         props.renderReplyBox &&
                         ((boxProps) =>
                           props.renderReplyBox?.({
                             annotationReference: annotation.reference,
                             replyReference: replyData.reference,
                             ...boxProps,
-                          }))
-                      }
-                    />
+                          })),
+                    })}
                   </AnnotationReplyContainer>
                 </Margin>
               ))}

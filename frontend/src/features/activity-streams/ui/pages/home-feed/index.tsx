@@ -23,6 +23,7 @@ import MessageBox from "../../../../../common-ui/components/message-box";
 import LoadingIndicator from "../../../../../common-ui/components/loading-indicator";
 import RouteLink from "../../../../../common-ui/components/route-link";
 import AnnotationBox from "../../../../annotations/ui/components/annotation-box";
+import AnnotationReply from "../../../../content-conversations/ui/components/annotation-reply";
 
 const commentImage = require("../../../../../assets/img/comment.svg");
 const collectionImage = require("../../../../../assets/img/collection.svg");
@@ -300,6 +301,7 @@ export default class HomeFeedPage extends UIElement<
               const seenState = state.lastSeenTimestamp && (state.lastSeenTimestamp > entry.activityTimestamp) ? 'seen' : 'unseen'
               return (
                 <Margin bottom="small" key={entry.normalizedPageUrl}>
+                  {seenState}
                   <PageInfoBox
                     pageInfo={{
                       fullTitle: entry.entryTitle,
@@ -367,10 +369,6 @@ export default class HomeFeedPage extends UIElement<
                 state.annotations[annotationReference.id].creatorReference.id
               ]
             }
-            renderAnnotationBox={props => {
-              const seenState = state.lastSeenTimestamp && (state.lastSeenTimestamp > props.annotation.createdWhen) ? 'seen' : 'unseen'
-              return <AnnotationBox {...props} />
-            }}
             getAnnotationConversation={() => {
               return this.state.conversations[pageItem.groupId];
             }}
@@ -426,6 +424,13 @@ export default class HomeFeedPage extends UIElement<
                   Load older replies
                 </LoadMoreReplies>
               );
+            }}
+            renderReply={props => {
+              const seenState = (state.lastSeenTimestamp && props.reply) && (state.lastSeenTimestamp > props.reply.createdWhen ? 'seen' : 'unseen')
+              return <>
+              {seenState}
+              <AnnotationReply {...props} />
+              </>
             }}
             onNewReplyInitiate={(event) =>
               this.processEvent("initiateNewReplyToAnnotation", {
