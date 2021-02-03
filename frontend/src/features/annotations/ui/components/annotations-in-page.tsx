@@ -5,7 +5,7 @@ import LoadingIndicator from "../../../../common-ui/components/loading-indicator
 import ErrorBox from "../../../../common-ui/components/error-box";
 import { Margin } from "styled-components-spacing";
 import { SharedAnnotationReference } from "@worldbrain/memex-common/lib/content-sharing/types";
-import AnnotationBox from "./annotation-box";
+import AnnotationBox, { AnnotationBoxProps } from "./annotation-box";
 import {
   AnnotationConversationStates,
   AnnotationConversationState,
@@ -54,6 +54,7 @@ export default function AnnotationsInPage(
     loadState: UITaskState;
     annotations?: Array<SharedAnnotationInPage> | null;
     annotationConversations?: AnnotationConversationStates | null;
+    renderAnnotationBox?: (props: AnnotationBoxProps & { annotation: SharedAnnotationInPage }) => React.ReactNode
     getAnnotationConversation?: (
       annotationReference: SharedAnnotationReference
     ) => AnnotationConversationState | null;
@@ -144,6 +145,7 @@ export function AnnotationWithReplies(
   props: {
     annotation: SharedAnnotationInPage;
     annotationCreator?: Pick<User, "displayName"> | null;
+    renderAnnotationBox?: (props: AnnotationBoxProps & { annotation: SharedAnnotationInPage }) => React.ReactNode
     conversation?: AnnotationConversationState;
     hideNewReplyIfNotEditing?: boolean;
     getReplyCreator?: (

@@ -22,6 +22,7 @@ import { SharedAnnotationInPage } from "../../../../annotations/ui/components/ty
 import MessageBox from "../../../../../common-ui/components/message-box";
 import LoadingIndicator from "../../../../../common-ui/components/loading-indicator";
 import RouteLink from "../../../../../common-ui/components/route-link";
+import AnnotationBox from "../../../../annotations/ui/components/annotation-box";
 
 const commentImage = require("../../../../../assets/img/comment.svg");
 const collectionImage = require("../../../../../assets/img/collection.svg");
@@ -285,6 +286,7 @@ export default class HomeFeedPage extends UIElement<
   }
 
   renderListItem: ActivityItemRenderer<ListActivityItem> = (listItem) => {
+    const { state } = this
     return {
       key: listItem.listReference.id + ':' + listItem.entries[0].normalizedPageUrl,
       rendered: (
@@ -295,6 +297,7 @@ export default class HomeFeedPage extends UIElement<
           {listItem.entries
             .slice(0, this.props.listActivitiesLimit)
             .map((entry) => {
+              const seenState = state.lastSeenTimestamp && (state.lastSeenTimestamp > entry.activityTimestamp) ? 'seen' : 'unseen'
               return (
                 <Margin bottom="small" key={entry.normalizedPageUrl}>
                   <PageInfoBox
@@ -364,6 +367,10 @@ export default class HomeFeedPage extends UIElement<
                 state.annotations[annotationReference.id].creatorReference.id
               ]
             }
+            renderAnnotationBox={props => {
+              const seenState = state.lastSeenTimestamp && (state.lastSeenTimestamp > props.annotation.createdWhen) ? 'seen' : 'unseen'
+              return <AnnotationBox {...props} />
+            }}
             getAnnotationConversation={() => {
               return this.state.conversations[pageItem.groupId];
             }}

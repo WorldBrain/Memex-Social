@@ -56,21 +56,28 @@ export const setupTestActivities = async ({ services, storage }: { services: Ser
         annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' },
         normalizedPageUrl: 'getmemex.com',
         isFirstReply: true,
-        reply: { content: 'Test reply one' }
+        reply: { content: 'default - reply one' }
     })
     await services.contentConversations.submitReply({
         pageCreatorReference: { type: 'user-reference', id: 'default-user' },
         annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' },
         normalizedPageUrl: 'getmemex.com',
         isFirstReply: true,
-        reply: { content: 'Test reply two' }
+        reply: { content: 'default - reply two' }
     })
     await services.contentConversations.submitReply({
         pageCreatorReference: { type: 'user-reference', id: 'default-user' },
         annotationReference: { type: 'shared-annotation-reference', id: 'second-annotation' },
         normalizedPageUrl: 'getmemex.com',
         isFirstReply: true,
-        reply: { content: 'Test reply three' }
+        reply: { content: 'second - reply one' }
+    })
+    await services.contentConversations.submitReply({
+        pageCreatorReference: { type: 'user-reference', id: 'default-user' },
+        annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' },
+        normalizedPageUrl: 'getmemex.com',
+        isFirstReply: true,
+        reply: { content: 'default - reply three' }
     })
     await storage.serverModules.activityStreams.updateHomeFeedTimestamp({
         user: { type: 'user-reference', id: 'default-user' },
@@ -81,7 +88,7 @@ export const setupTestActivities = async ({ services, storage }: { services: Ser
         annotationReference: { type: 'shared-annotation-reference', id: 'third-annotation' },
         normalizedPageUrl: 'notion.so',
         isFirstReply: false,
-        reply: { content: 'Test reply four' }
+        reply: { content: 'third - reply one' }
     })
     await storage.serverModules.contentSharing.createListEntries({
         listReference: { type: 'shared-list-reference', id: 'default-list' },

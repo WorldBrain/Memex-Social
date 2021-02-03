@@ -46,7 +46,7 @@ export const theme: Theme = {
     url: '21px',
     text: '18px',
     smallText: '12px',
-},
+  },
   zIndices: {
     overlay: 50,
   },

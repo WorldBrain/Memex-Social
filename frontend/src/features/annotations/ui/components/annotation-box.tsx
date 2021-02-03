@@ -54,14 +54,16 @@ const preserveLinebreaks = (s: string | undefined) =>
       ) as string)
     : "";
 
-export default function AnnotationBox(props: {
+export interface AnnotationBoxProps {
   annotation: Pick<SharedAnnotation, "body" | "comment" | "createdWhen">;
   creator?: Pick<User, "displayName"> | null;
   hasReplies?: boolean;
   areRepliesExpanded?: boolean;
   onInitiateReply?(): void;
   onToggleReplies?(): void;
-}) {
+}
+
+export default function AnnotationBox(props: AnnotationBoxProps) {
   const { annotation } = props;
 
   return (
