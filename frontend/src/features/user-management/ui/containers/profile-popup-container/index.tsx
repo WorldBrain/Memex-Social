@@ -40,7 +40,7 @@ export default class ProfilePopupContainer extends UIElement<
         const {
             user,
             profileTaskState,
-            profileData,
+            userPublicProfile,
             webLinksArray,
         } = this.state
         const { services, storage } = this.props
@@ -48,7 +48,7 @@ export default class ProfilePopupContainer extends UIElement<
             <ProfilePopup
                 user={user}
                 taskState={profileTaskState}
-                profileData={profileData}
+                userPublicProfile={userPublicProfile}
                 services={services}
                 storage={storage}
                 webLinksArray={webLinksArray}
