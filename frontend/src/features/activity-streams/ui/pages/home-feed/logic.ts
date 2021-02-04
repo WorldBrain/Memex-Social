@@ -293,15 +293,15 @@ export function organizeActivities(activities: Array<ActivityStreamResultGroup<k
         if (activityGroup.entityType === 'sharedList' && activityGroup.activityType === 'sharedListEntry') {
             const entryActivityGroup = activityGroup as ActivityStreamResultGroup<'sharedList', 'sharedListEntry'>
             entryActivityGroup.activities = sortBy(entryActivityGroup.activities, ({ activity }) => activity.entry.createdWhen)
-            const { activity: firstActivity } = entryActivityGroup.activities[0]
+            const { activity: lastActivity } = entryActivityGroup.activities.slice(-1)[0]
 
             activityItems.push({
                 type: 'list-item',
                 groupId: entryActivityGroup.id,
                 reason:'pages-added-to-list',
-                listName: firstActivity.list.title,
-                listReference: firstActivity.list.reference,
-                notifiedWhen: firstActivity.entry.createdWhen,
+                listName: lastActivity.list.title,
+                listReference: lastActivity.list.reference,
+                notifiedWhen: lastActivity.entry.createdWhen,
                 entries: entryActivityGroup.activities.map(({ activity }) => ({
                     type: 'list-entry-item',
                     entryTitle: activity.entry.entryTitle,
