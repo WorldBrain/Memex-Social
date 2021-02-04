@@ -6,18 +6,18 @@ import { ProfilePopupContainerState } from '../profile-popup-container/types'
 import { UserPublicProfile } from '../../../types'
 
 export type ProfileEditModalDependencies = {
-    services: UIElementServices<'userManagement' | 'auth'>
+    services: UIElementServices<'userManagement' | 'auth' | 'overlay'>
     storage: Pick<StorageModules, 'users'>
+    onCloseRequested: () => void
 }
 
-export type ProfileEditModalState = Omit<ProfilePopupContainerState,'isSupported' | 'supportedTaskState'>&{
+export type ProfileEditModalState = Omit<ProfilePopupContainerState,'isDisplayed'>&{
     savingTaskState: UITaskState
     inputErrorArray: boolean[]
 }
 
 export type ProfileEditModalEvent = UIEvent<{
-    hidePopup: null
-    saveUserPublicProfile: {
+    saveProfile: {
         profileData: UserPublicProfile
         displayName: string
     }

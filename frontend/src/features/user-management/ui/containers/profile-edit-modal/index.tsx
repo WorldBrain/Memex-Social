@@ -17,13 +17,17 @@ import { PrimaryActionButton, SecondaryActionButton } from '../../components/Act
 import TextInput from '../../../../../common-ui/components/text-input'
 import { DOMAIN_TLD_PATTERN } from '../../../../../constants';
 import TextArea from '../../../../../common-ui/components/text-area';
-const cameraImage = require('../../../../../assets/img/cameraIcon.svg')
+import Icon from '../../../../../common-ui/components/icon';
+import Overlay from '../../../../../main-ui/containers/overlay';
 
 const Container = styled.div<{ theme: Theme }>`
+    margin: auto;
     min-height: 358px;
     max-height: 70vh;
     width: 648px;
     overflow-y: scroll;
+
+    background-color: ${props => props.theme.colors.background};
     padding-left: ${props => props.theme.spacing.large};
     padding-right: ${props => props.theme.spacing.large};
     padding-top: ${props => props.theme.spacing.large};
@@ -80,12 +84,19 @@ const AvatarPlaceholder = styled.div<{ theme: Theme }>`
     align-items: center;
 `
 
-const CameraIcon = styled.div`
-    height: 30px;
-    width: 30px;
+const CameraIcon = styled(Icon)`
     background-position: center;
     background-size: contain;
-    background-image: url(${cameraImage});
+`
+
+const StyledPrimaryButton = styled(PrimaryActionButton)`
+    padding-top: 0;
+    padding-bottom: 0;
+`
+
+const StyledSecondaryButton = styled(SecondaryActionButton)`
+    padding-top: 0;
+    padding-bottom: 0;
 `
 
 export type ProfilePopupProps = ProfileEditModalDependencies
@@ -103,11 +114,7 @@ export default class ProfileEditModal extends UIElement<
     private urlInputErrorMessage: string = 'This must be a valid URL'
 
     handleSaveClick() {
-        this.processEvent('saveUserPublicProfile', { profileData: this.state.profileData, displayName: this.state.user?.displayName ?? '' })
-    }
-
-    handleCancelClick() {
-        this.processEvent('hidePopup', null)
+        this.processEvent('saveProfile', { profileData: this.state.userPublicProfile, displayName: this.state.user?.displayName ?? '' })
     }
 
     handleSetDisplayName(evt: React.ChangeEvent<HTMLInputElement>) {
@@ -132,29 +139,29 @@ export default class ProfileEditModal extends UIElement<
 
     render() {
         return (
-            <Container>
-                <Padding horizontal="large" vertical="large">
+            <Overlay services={this.props.services} onCloseRequested={this.props.onCloseRequested}>
+                <Container>
                     <Margin vertical="large">
                         <ButtonContainer>
-                            <PrimaryActionButton
+                            <StyledPrimaryButton
                                 label="Save"
                                 onClick={this.handleSaveClick}
                                 minWidth="82px"
                             />
-                            <SecondaryActionButton
+                            <StyledSecondaryButton
                                 label="Cancel"
-                                onClick={this.handleCancelClick}
+                                onClick={() => this.props.onCloseRequested()}
                                 minWidth="82px"
                             />
                         </ButtonContainer>
                     </Margin>
                     <FormContainer>
-                        <Margin vertical="medium">
-                            <SectionHeader theme={theme}>
-                                Profile Information
-                            </SectionHeader>
-                        </Margin>
                         <FormColumn maxWidth="263px">
+                            <Margin vertical="medium">
+                                <SectionHeader theme={theme}>
+                                    Profile Information
+                                </SectionHeader>
+                            </Margin>
                             <TextInput 
                                 label="Display Name"
                                 value={this.state.user?.displayName}
@@ -164,46 +171,47 @@ export default class ProfileEditModal extends UIElement<
                             />
                             <TextArea
                                 label="Bio"
-                                value={this.state.profileData.bio}
+                                rows={5}
+                                value={this.state.userPublicProfile.bio}
                             />
                             <TextInput
                                 label="Website"
-                                value={this.state.profileData.websiteURL}
-                                onConfirm={() => this.testValidURL(1, this.state.profileData.websiteURL)}
+                                value={this.state.userPublicProfile.websiteURL}
+                                onConfirm={() => this.testValidURL(1, this.state.userPublicProfile.websiteURL)}
                                 error={this.state.inputErrorArray[1]}
                                 errorMessage={this.urlInputErrorMessage}
                             />
                             <TextInput
                                 label="Twitter"
-                                value={this.state.profileData.twitterURL}
-                                onConfirm={() => this.testValidURL(2, this.state.profileData.twitterURL)}
+                                value={this.state.userPublicProfile.twitterURL}
+                                onConfirm={() => this.testValidURL(2, this.state.userPublicProfile.twitterURL)}
                                 error={this.state.inputErrorArray[2]}
                                 errorMessage={this.urlInputErrorMessage}
                             />
                             <TextInput
                                 label="Medium"
-                                value={this.state.profileData.mediumURL}
-                                onConfirm={() => this.testValidURL(3, this.state.profileData.mediumURL)}
+                                value={this.state.userPublicProfile.mediumURL}
+                                onConfirm={() => this.testValidURL(3, this.state.userPublicProfile.mediumURL)}
                                 error={this.state.inputErrorArray[3]}
                                 errorMessage={this.urlInputErrorMessage}
                             />
                             <TextInput
                                 label="Substack"
-                                value={this.state.profileData.substackURL}
-                                onConfirm={() => this.testValidURL(4, this.state.profileData.substackURL)}
+                                value={this.state.userPublicProfile.substackURL}
+                                onConfirm={() => this.testValidURL(4, this.state.userPublicProfile.substackURL)}
                                 error={this.state.inputErrorArray[4]}
                                 errorMessage={this.urlInputErrorMessage}
                             />
                         </FormColumn>
                         <FormColumn maxWidth="186px">
-                            {this.state.profileData.avatarURL && <LargeUserAvatar path={this.state.profileData.avatarURL} />}
-                            {!this.state.profileData.avatarURL && <AvatarPlaceholder>
-                                <CameraIcon />
+                            {this.state.userPublicProfile.avatarURL && <LargeUserAvatar path={this.state.userPublicProfile.avatarURL} />}
+                            {!this.state.userPublicProfile.avatarURL && <AvatarPlaceholder>
+                                <CameraIcon height="30px" fileName="camera.svg" />
                             </AvatarPlaceholder>}
                         </FormColumn>
                     </FormContainer>
-                </Padding>
-            </Container>
+                </Container>
+            </Overlay>
         )
     }
 }

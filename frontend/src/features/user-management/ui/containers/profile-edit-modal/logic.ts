@@ -27,13 +27,12 @@ export default class ProfileEditModalLogic extends UILogic<
 
     getInitialState(): ProfileEditModalState {
         return {
-            isDisplayed: false,
             profileTaskState: 'pristine',
             savingTaskState: 'pristine',
             user: {
                 displayName: '',
             },
-            profileData: {
+            userPublicProfile: {
                 websiteURL: '',
                 mediumURL: '',
                 twitterURL: '',
@@ -49,8 +48,6 @@ export default class ProfileEditModalLogic extends UILogic<
 
     init: EventHandler<'init'> = async () => {
         this._setProfileTaskState('running')
-        this._setDisplayState(true)
-        
         try {
             if(!this.userRef) {
                 await this._setCurrentUserReference()
@@ -65,14 +62,14 @@ export default class ProfileEditModalLogic extends UILogic<
                 ),
             ])
             this._setUser(await promises[0])
-            this._setPublicProfileData(promises[1])
+            this._setUserPublicProfileData(promises[1])
             this._setProfileTaskState('success')
         } catch (err) {
             this._setProfileTaskState('error')
         }
     }
 
-    saveUserPublicProfile: EventHandler<'saveUserPublicProfile'> = async ({event}) => {
+    saveUserPublicProfile: EventHandler<'saveProfile'> = async ({event}) => {
         this._setSavingTaskState('running')
         if(!this.userRef) {
             try {
@@ -105,7 +102,7 @@ export default class ProfileEditModalLogic extends UILogic<
 
     setProfileValue: EventHandler<'setProfileValue'> = ({event}) => {
         this.emitMutation({
-            profileData: {
+            userPublicProfile: {
                 [event.key]: { $set: event.value }
             }
         })
@@ -115,10 +112,6 @@ export default class ProfileEditModalLogic extends UILogic<
         this.emitMutation({
             inputErrorArray: { $set: event.newArray }
         })
-    }
-
-    hidePopup: EventHandler<'hidePopup'> = () => {
-        this._setDisplayState(false)
     }
 
     private async _saveDisplayName(displayName: string): Promise<void> {
@@ -141,10 +134,6 @@ export default class ProfileEditModalLogic extends UILogic<
         this.emitMutation({ profileTaskState: { $set: taskState } })
     }
 
-    private _setDisplayState(isDisplayed: boolean): void {
-        this.emitMutation({ isDisplayed: { $set: isDisplayed } })
-    }
-
     private _setUser(user: User | null): void {
         if (!user) {
             user = {
@@ -154,9 +143,9 @@ export default class ProfileEditModalLogic extends UILogic<
         this.emitMutation({ user: { $set: user } })
     }
 
-    private _setPublicProfileData(profileData: UserPublicProfile): void {
+    private _setUserPublicProfileData(profileData: UserPublicProfile): void {
         this.emitMutation({
-            profileData: { $set: profileData },
+            userPublicProfile: { $set: profileData },
         })
     }
 }
