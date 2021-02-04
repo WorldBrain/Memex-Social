@@ -34,7 +34,7 @@ export default class CuratorSupportPopupContainer extends UIElement<
     }
 
     render() {
-        const { profileTaskState, profileData } = this.state
+        const { profileTaskState, userPublicProfile: { paymentPointer} } = this.state
         return (
             <>
                 <Container
@@ -46,7 +46,7 @@ export default class CuratorSupportPopupContainer extends UIElement<
                 {this.state.isDisplayed && (
                     <CuratorSupportPopup
                         taskState={profileTaskState}
-                        paymentPointer={profileData.paymentPointer}
+                        paymentPointer={paymentPointer}
                         services={this.props.services}
                         storage={this.props.storage}
                     />

@@ -161,7 +161,7 @@ export function AnnotationWithReplies(
     props: {
         annotation: SharedAnnotationInPage
         annotationCreator?: Pick<User, 'displayName'> | null
-        profilePopupProps?: ProfilePopupProps | null | undefined
+        profilePopupProps?: ProfilePopupProps
         conversation?: AnnotationConversationState
         hideNewReplyIfNotEditing?: boolean
         getReplyCreator?: (

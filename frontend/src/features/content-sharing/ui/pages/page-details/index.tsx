@@ -125,98 +125,75 @@ export default class PageDetailsPage extends UIElement<
 
         return (
             <>
-                <DocumentTitle
-                    documentTitle={this.props.services.documentTitle}
-                    subTitle={`Shared page${
-                        creator ? ` by ${creator.displayName}` : ''
-                    }`}
-                />
-                <DefaultPageLayout
-                    services={this.props.services}
-                    storage={this.props.storage}
-                    viewportBreakpoint={viewportWidth}
-                    headerTitle={this.getHeaderTitle()}
-                    headerSubtitle={this.getHeaderSubtitle()}
-                >
-                    <PageInfoList>
-                        <Margin bottom={'small'}>
-                            <PageInfoBox pageInfo={pageInfo} />
-                        </Margin>
-                        <Margin bottom="large">
-                            {(state.annotationLoadState === 'pristine' ||
-                                state.annotationLoadState === 'running') && (
-                                <Margin vertical="medium">
-                                    <AnnotationsLoading>
-                                        <LoadingIndicator />
-                                    </AnnotationsLoading>
-                                </Margin>
-                            )}
-                            {/* Modify the next line to show something if the page doesn't have any annotations */}
-                            {state.annotationLoadState === 'success' &&
-                                !annotations?.length &&
-                                ' '}
-                            {state.annotationLoadState === 'success' &&
-                                !!annotations?.length && (
-                                    <AnnotationsInPage
-                                        loadState={state.annotationLoadState}
-                                        annotations={annotations}
-                                        getAnnotationCreator={() =>
-                                            state.creator
-                                        }
-                                        getAnnotationCreatorRef={() =>
-                                            state.creatorReference
-                                        }
-                                        profilePopupProps={{
-                                            services: this.props.services,
-                                            storage: this.props.storage,
-                                        }}
-                                        annotationConversations={
-                                            state.conversations
-                                        }
-                                        onToggleReplies={(event) =>
-                                            this.processEvent(
-                                                'toggleAnnotationReplies',
-                                                event,
-                                            )
-                                        }
-                                        onNewReplyInitiate={(event) =>
-                                            this.processEvent(
-                                                'initiateNewReplyToAnnotation',
-                                                event,
-                                            )
-                                        }
-                                        onNewReplyEdit={(event) =>
-                                            this.processEvent(
-                                                'editNewReplyToAnnotation',
-                                                event,
-                                            )
-                                        }
-                                        onNewReplyCancel={(event) =>
-                                            this.processEvent(
-                                                'cancelNewReplyToAnnotation',
-                                                event,
-                                            )
-                                        }
-                                        onNewReplyConfirm={(event) =>
-                                            this.processEvent(
-                                                'confirmNewReplyToAnnotation',
-                                                event,
-                                            )
-                                        }
-                                    />
-                                )}
-                            {state.annotationLoadState === 'error' && (
-                                <AnnotationsInPage
-                                    loadState={state.annotationLoadState}
-                                    annotations={annotations}
-                                />
-                            )}
-                        </Margin>
-                    </PageInfoList>
-                </DefaultPageLayout>
+              <DocumentTitle
+                documentTitle={this.props.services.documentTitle}
+                subTitle={`Shared page${creator ? ` by ${creator.displayName}` : ""}`}
+              />
+              <DefaultPageLayout
+                services={this.props.services}
+                storage={this.props.storage}
+                viewportBreakpoint={viewportWidth}
+                headerTitle={this.getHeaderTitle()}
+                headerSubtitle={this.getHeaderSubtitle()}
+              >
+                <PageInfoList>
+                  <Margin bottom={"small"}>
+                    <PageInfoBox pageInfo={pageInfo} />
+                  </Margin>
+                  <Margin bottom="large">
+                    {(state.annotationLoadState === "pristine" ||
+                      state.annotationLoadState === "running") && (
+                      <Margin vertical="medium">
+                        <AnnotationsLoading>
+                          <LoadingIndicator />
+                        </AnnotationsLoading>
+                      </Margin>
+                    )}
+                    {/* Modify the next line to show something if the page doesn't have any annotations */}
+                    {state.annotationLoadState === "success" &&
+                      !annotations?.length &&
+                      " "}
+                    {state.annotationLoadState === "success" &&
+                      !!annotations?.length && (
+                        <AnnotationsInPage
+                          loadState={state.annotationLoadState}
+                          annotations={annotations}
+                          getAnnotationCreator={() => state.creator}
+                          getAnnotationCreatorRef={() => state.creatorReference}
+                          profilePopupProps={{
+                            services: this.props.services,
+                            storage: this.props.storage
+                          }}
+                          annotationConversations={state.conversations}
+                          onToggleReplies={(event) =>
+                            this.processEvent("toggleAnnotationReplies", event)
+                          }
+                          onNewReplyInitiate={(event) =>
+                            this.processEvent("initiateNewReplyToAnnotation", event)
+                          }
+                          onNewReplyEdit={(event) =>
+                            this.processEvent("editNewReplyToAnnotation", event)
+                          }
+                          onNewReplyCancel={(event) =>
+                            this.processEvent("cancelNewReplyToAnnotation", event)
+                          }
+                          onNewReplyConfirm={(event) =>
+                            this.processEvent("confirmNewReplyToAnnotation", event)
+                          }
+                        />
+                      )}
+                    {state.annotationLoadState === "error" && (
+                      <AnnotationsInPage
+                        loadState={state.annotationLoadState}
+                        annotations={annotations}
+                      />
+                    )}
+                  </Margin>
+                </PageInfoList>
+              </DefaultPageLayout>
             </>
-        )
-    }
+          );
+        }
 
     getHeaderTitle(): string {
         const { pageInfoLoadState, pageInfo } = this.state
