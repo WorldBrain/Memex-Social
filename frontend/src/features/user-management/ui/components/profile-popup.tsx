@@ -16,7 +16,7 @@ import Icon from '../../../../common-ui/components/icon'
 
 export const PopupContainer = styled.div<{ theme: Theme }>`
     position: absolute;
-    width: 164px;
+    width: 270px;
     min-height: 111px;
     font-family: ${(props) => props.theme.fonts.primary};
     color: ${(props) => props.theme.colors.primary};
@@ -45,7 +45,7 @@ const ProfileHeader = styled.div`
 
 const ProfileHeaderInnerContainer = styled.div<{ theme: Theme }>`
     height: min-content;
-    width: min-content;
+    width: 100%;
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -53,7 +53,7 @@ const ProfileHeaderInnerContainer = styled.div<{ theme: Theme }>`
 `
 
 const DisplayName = styled.div<{ theme: Theme }>`
-    font-size: ${(props) => props.theme.fontSizes.text};
+    font-size: ${(props) => props.theme.fontSizes.url};
     line-height: ${(props) => props.theme.lineHeights.text};
     font-weight: 700;
 `
@@ -64,13 +64,14 @@ const WebLinksContainer = styled.div`
     display: flex;
     justify-content: start;
     align-items: center;
+    padding-top: 10px;
 `
 
 const ProfileBio = styled.div<{ theme: Theme }>`
     width: 100%;
     height: min-content;
-    font-size: ${(props) => props.theme.fontSizes.smallText};
-    line-height: ${(props) => props.theme.lineHeights.smallText};
+    font-size: ${(props) => props.theme.fontSizes.text};
+    line-height: ${(props) => props.theme.lineHeights.text};
 `
 
 interface ProfilePopupProps {
@@ -104,8 +105,8 @@ export default class ProfilePopup extends PureComponent<ProfilePopupProps> {
                         <>
                             <ProfileContainer>
                                 <ProfileHeader>
-                                    <UserAvatar path={avatarURL} user={{displayName: displayName ?? 'Unknown User'}} />
-                                    <Padding left="small">
+                                    {/*<UserAvatar path={avatarURL} user={{displayName: displayName ?? 'Unknown User'}} />*/}
+                                    <Padding>
                                         <ProfileHeaderInnerContainer theme={theme} >
                                             <DisplayName theme={theme}>
                                                 {displayName}
@@ -117,7 +118,7 @@ export default class ProfilePopup extends PureComponent<ProfilePopupProps> {
                                                             <Icon
                                                                 key={index}
                                                                 fileName={fileName}
-                                                                height="10px"
+                                                                height="18px"
                                                                 onClick={() =>
                                                                     this.handleWebLinkClick(
                                                                         url,
