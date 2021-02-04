@@ -4,7 +4,7 @@ import { User } from "@worldbrain/memex-common/lib/web-interface/types/users";
 import { StorageModules } from "../../../../../storage/types";
 
 export interface AuthHeaderDependencies {
-    services: UIElementServices<'auth' | 'overlay'>
+    services: UIElementServices<'auth' | 'overlay' | 'userManagement'>
     storage: Pick<StorageModules, 'users'>
 }
 
@@ -12,6 +12,7 @@ export interface AuthHeaderState {
     user: Pick<User, 'displayName'> | null
     showMenu: boolean
     showSettings: boolean
+    showAccountSettings: boolean
 }
 
 export type AuthHeaderEvent = UIEvent<{
@@ -19,6 +20,8 @@ export type AuthHeaderEvent = UIEvent<{
     hideMenu: null
     showSettings: null
     hideSettings: null
+    showAccountSettings: null
+    hideAccountSettings: null
     login: null
     logout: null
 }>

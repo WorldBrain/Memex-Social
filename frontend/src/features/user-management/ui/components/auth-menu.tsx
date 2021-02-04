@@ -23,6 +23,7 @@ const MenuItemText = styled.div``;
 export default function AuthMenu(props: {
   onSettingsRequested(): void;
   onLogoutRequested(): void;
+  onAccountSettingsRequested(): void
 }) {
   return (
     <StyledAuthMenu>
@@ -30,6 +31,10 @@ export default function AuthMenu(props: {
         label={"Settings"}
         onClick={props.onSettingsRequested}
       />*/}
+      <AuthMenuItem
+        label={"Account Settings"}
+        onClick={props.onAccountSettingsRequested}
+      />
       <AuthMenuItem
         label={"Logout"}
         onClick={props.onLogoutRequested}

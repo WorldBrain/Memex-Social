@@ -20,6 +20,7 @@ export default class AuthHeaderLogic extends UILogic<AuthHeaderState, AuthHeader
             showMenu: false,
             // showMenu: true,
             showSettings: false,
+            showAccountSettings: false,
         }
     }
 
@@ -41,6 +42,14 @@ export default class AuthHeaderLogic extends UILogic<AuthHeaderState, AuthHeader
 
     hideSettings: EventHandler<'hideSettings'> = () => {
         return { showSettings: { $set: false } }
+    }
+
+    showAccountSettings: EventHandler<'showAccountSettings'> = () => {
+        return { showAccountSettings: { $set: true } }
+    }
+
+    hideAccountSettings: EventHandler<'hideAccountSettings'> = () => {
+        return { showAccountSettings: { $set: false } }
     }
 
     login: EventHandler<'login'> = async () => {
