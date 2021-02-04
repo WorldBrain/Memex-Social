@@ -75,6 +75,10 @@ export const PrimaryActionButton = ({
     </StyledActionButton>
 )
 
+const StyledSecondaryActionButton = styled(StyledActionButton)`
+    border: none;
+`
+
 export const SecondaryActionButton = ({
     label, 
     onClick,
@@ -88,16 +92,16 @@ export const SecondaryActionButton = ({
     innerRef?: any
     minWidth?: string
 }) => (
-    <StyledActionButton
+    <StyledSecondaryActionButton
         minWidth={minWidth}
         theme={theme}
-        backgroundColor={"transparent"}
         tabIndex={0}
+        backgroundColor="transparent"
         onClick={disabled === true ? undefined : onClick}
         disabled={disabled}
         ref={innerRef}
         onKeyPress={(e) => (e.key === 'Enter' ? onClick() : false)}
     >
         <StyledActionLinkText>{label}</StyledActionLinkText>
-    </StyledActionButton>
+    </StyledSecondaryActionButton>
 )

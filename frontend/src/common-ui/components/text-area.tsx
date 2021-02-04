@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import { InputHTMLAttributes } from "react";
+import React, { TextareaHTMLAttributes, useState } from "react";
 import styled from "styled-components";
 
 import { Theme } from '../../main-ui/styles/types'
@@ -37,12 +36,13 @@ const CharCount = styled.div<{
 `
 
 export default function TextArea(
-    props: InputHTMLAttributes<HTMLTextAreaElement> & {
+    props: TextareaHTMLAttributes<HTMLTextAreaElement> & {
       onConfirm?(): void
       label?: string
     }
   ) {
-    const [charCount, setCharCount] = useState(0)
+    const valueLen = props.value && typeof props.value === 'string' ? props.value.length : typeof props.value === 'number' ? (props.value + '').length : (props.value && typeof props.value === 'object' && props.value.join().length)
+    const [charCount, setCharCount] = useState(valueLen)
     const handleChange: React.ChangeEventHandler<HTMLTextAreaElement> = (evt) => {
         if (props.onChange) {
             props.onChange(evt)
