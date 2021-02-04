@@ -22,6 +22,7 @@ import { SharedAnnotationInPage } from "../../../../annotations/ui/components/ty
 import MessageBox from "../../../../../common-ui/components/message-box";
 import LoadingIndicator from "../../../../../common-ui/components/loading-indicator";
 import RouteLink from "../../../../../common-ui/components/route-link";
+import { mapOrderedMap, getOrderedMapIndex } from "../../../../../utils/ordered-map";
 
 const commentImage = require("../../../../../assets/img/comment.svg");
 const collectionImage = require("../../../../../assets/img/collection.svg");
@@ -38,7 +39,7 @@ const LoadMoreLink = styled(RouteLink)`
   background: white;
   font-size: 11px;
   cursor: pointer;
-  border-radius: 3px; 
+  border-radius: 3px;
   align-items: center;
 
   &:hover {
@@ -131,7 +132,7 @@ const LoadMoreReplies = styled.div`
   background: white;
   font-size: 11px;
   cursor: pointer;
-  border-radius: 3px; 
+  border-radius: 3px;
 
   &:hover {
     background: ${(props) => props.theme.colors.grey};
@@ -180,7 +181,7 @@ export default class HomeFeedPage extends UIElement<
     if (state.loadState === "error") {
       return "Error";
     }
-    if (!this.state.activityItems?.length) {
+    if (!this.state.activityItems.order.length) {
       return this.renderNoActivities();
     }
     return (
@@ -202,11 +203,11 @@ export default class HomeFeedPage extends UIElement<
     );
   }
 
-  renderActivities(activities: ActivityItem[]) {
+  renderActivities(activities: HomeFeedState['activityItems']) {
     const lastSeenLine = new LastSeenLineState(
       this.state.lastSeenTimestamp ?? null
     );
-    return activities.map((item) => {
+    return mapOrderedMap(activities, item => {
       let result: ActivityItemRendererResult
 
       if (item.type === 'page-item') {
@@ -261,7 +262,7 @@ export default class HomeFeedPage extends UIElement<
   renderPageItem: ActivityItemRenderer<PageActivityItem> = (pageItem) => {
     const pageInfo = this.state.pageInfo[pageItem.normalizedPageUrl];
     return {
-      key: pageItem.annotations[0].replies[0].reference.id,
+      key: getOrderedMapIndex(pageItem.annotations, 0).reference.id,
       rendered: (
         <Margin bottom="large">
           <Margin bottom="small">
@@ -286,15 +287,13 @@ export default class HomeFeedPage extends UIElement<
 
   renderListItem: ActivityItemRenderer<ListActivityItem> = (listItem) => {
     return {
-      key: listItem.listReference.id + ':' + listItem.entries[0].normalizedPageUrl,
+      key: listItem.listReference.id + ':' + getOrderedMapIndex(listItem.entries, 0).normalizedPageUrl,
       rendered: (
         <Margin bottom="large">
           <Margin bottom="small">
             {this.renderActivityReason(listItem)}
           </Margin>
-          {listItem.entries
-            .slice(0, this.props.listActivitiesLimit)
-            .map((entry) => {
+          {mapOrderedMap(listItem.entries, entry => {
               return (
                 <Margin bottom="small" key={entry.normalizedPageUrl}>
                   <PageInfoBox
@@ -319,9 +318,9 @@ export default class HomeFeedPage extends UIElement<
                   />
                 </Margin>
               )
-            })
+            }, inputArr => inputArr.slice(0, this.props.listActivitiesLimit))
           }
-          {listItem.entries.length > this.props.listActivitiesLimit && (
+          {listItem.entries.order.length > this.props.listActivitiesLimit && (
             <LoadMoreLink
               route="collectionDetails"
               services={this.props.services}
@@ -342,8 +341,7 @@ export default class HomeFeedPage extends UIElement<
         <Margin bottom={"smallest"}>
           <AnnotationsInPage
             loadState="success"
-            annotations={pageItem.annotations
-              .map(
+            annotations={mapOrderedMap(pageItem.annotations,
                 (annotationItem): SharedAnnotationInPage => {
                   const annotation =
                     state.annotations[annotationItem.reference.id];
@@ -381,10 +379,7 @@ export default class HomeFeedPage extends UIElement<
               )?.user;
             }}
             renderBeforeReplies={(annotationReference) => {
-              const annotationItem = pageItem.annotations.find(
-                (annotationItem) =>
-                  annotationItem.reference.id === annotationReference.id
-              );
+              const annotationItem = pageItem.annotations.items[annotationReference.id]
               if (!annotationItem || !annotationItem.hasEarlierReplies) {
                 return null;
               }

@@ -6,6 +6,7 @@ import { HomeFeedEvent, HomeFeedDependencies, HomeFeedState, PageActivityItem, A
 import { getInitialAnnotationConversationStates } from "../../../../content-conversations/ui/utils"
 import { annotationConversationInitialState, annotationConversationEventHandlers } from "../../../../content-conversations/ui/logic"
 import UserProfileCache from "../../../../user-management/utils/user-profile-cache"
+import { createOrderedMap, arrayToOrderedMap } from "../../../../../utils/ordered-map"
 
 type EventHandler<EventName extends keyof HomeFeedEvent> = UIEventHandler<HomeFeedState, HomeFeedEvent, EventName>
 
@@ -36,7 +37,7 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
     getInitialState(): HomeFeedState {
         return {
             loadState: 'pristine',
-            activityItems: [],
+            activityItems: createOrderedMap(),
             pageInfo: {},
             annotations: {},
             replies: {},
@@ -113,12 +114,15 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
     }
 
     private async checkAnnotationsExistForActivityItems({ activityItems }: HomeFeedState) {
-        for (const [activityItemIndex, activityItem] of activityItems.entries()) {
+        for (const activityItemKey of activityItems.order) {
+            const activityItem = activityItems.items[activityItemKey]
             if (activityItem.type !== 'list-item' || activityItem.reason !== 'pages-added-to-list') {
                 continue
             }
 
-            for (const [listEntryIndex, listEntry] of activityItem.entries.entries()) {
+            for (const entryKey of activityItem.entries.order) {
+                const listEntry = activityItem.entries.items[entryKey]
+
                 const hasAnnotations = await this.dependencies.storage.contentSharing.doesAnnotationExistForPageInList({
                     listReference: activityItem.listReference,
                     normalizedPageUrl: listEntry.normalizedPageUrl,
@@ -131,10 +135,14 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
 
                 this.emitMutation({
                     activityItems: {
-                        [activityItemIndex]: {
-                            entries: {
-                                [listEntryIndex]: {
-                                    hasAnnotations: { $set: hasAnnotations },
+                        items: {
+                            [activityItemKey]:  {
+                                entries: {
+                                    items: {
+                                        [entryKey]: {
+                                            hasAnnotations: { $set: hasAnnotations },
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -190,7 +198,17 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
                 }
             }
 
-            mainMutation.activityItems = { $push: organized.activityItems }
+            const nextActivityItems = arrayToOrderedMap(organized.activityItems, item => {
+                if (item.type === 'list-item') {
+                    return item.listReference.id
+                }
+                return item.normalizedPageUrl
+            })
+
+            mainMutation.activityItems = {
+                order: { $push: nextActivityItems.order },
+                items: { $merge: nextActivityItems.items },
+            }
             mainMutation.conversations = { $merge: conversations }
             mainMutation.annotations = { $merge: organized.data.annotations }
             mainMutation.pageInfo = { $merge: organized.data.pageInfo }
@@ -256,7 +274,7 @@ export function organizeActivities(activities: Array<ActivityStreamResultGroup<k
                 reason: 'new-replies',
                 normalizedPageUrl: replyActivityGroup.activities[0].activity.normalizedPageUrl,
                 notifiedWhen: 0,
-                annotations: [annotationItem],
+                annotations: arrayToOrderedMap([annotationItem], item => item.reference.id),
             }
             // data.pageItems[pageItem.normalizedPageUrl] = pageItem
             activityItems.push(pageItem)
@@ -302,13 +320,14 @@ export function organizeActivities(activities: Array<ActivityStreamResultGroup<k
                 listName: firstActivity.list.title,
                 listReference: firstActivity.list.reference,
                 notifiedWhen: firstActivity.entry.createdWhen,
-                entries: entryActivityGroup.activities.map(({ activity }) => ({
+                entries: arrayToOrderedMap(entryActivityGroup.activities.map(({ activity }) => ({
                     type: 'list-entry-item',
+                    reference: activity.entry.reference,
                     entryTitle: activity.entry.entryTitle,
                     originalUrl: activity.entry.originalUrl,
                     normalizedPageUrl: activity.entry.normalizedUrl,
                     activityTimestamp: activity.entry.updatedWhen ?? activity.entry.createdWhen,
-                }))
+                })), item => item.reference.id)
             })
         }
     }

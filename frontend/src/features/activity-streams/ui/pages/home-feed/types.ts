@@ -1,4 +1,4 @@
-import { SharedAnnotationReference, SharedPageInfo, SharedAnnotation, SharedListReference } from "@worldbrain/memex-common/lib/content-sharing/types";
+import { SharedAnnotationReference, SharedPageInfo, SharedAnnotation, SharedListReference, SharedListEntryReference } from "@worldbrain/memex-common/lib/content-sharing/types";
 import { ConversationReplyReference, ConversationReply } from "@worldbrain/memex-common/lib/content-conversations/types";
 import { UserReference, User } from "@worldbrain/memex-common/lib/web-interface/types/users";
 import { UIEvent, UISignal } from "../../../../../main-ui/classes/logic";
@@ -6,6 +6,7 @@ import { UIElementServices } from "../../../../../main-ui/classes";
 import { AnnotationConversationEvent, AnnotationConversationsState } from "../../../../content-conversations/ui/types";
 import { StorageModules } from "../../../../../storage/types";
 import { UITaskState } from "../../../../../main-ui/types";
+import { OrderedMap } from "../../../../../utils/ordered-map";
 
 export interface HomeFeedDependencies {
     services: UIElementServices<'contentConversations' | 'auth' | 'overlay' | 'activityStreams' | 'router'>;
@@ -15,7 +16,7 @@ export interface HomeFeedDependencies {
 
 export type HomeFeedState = {
     loadState: UITaskState
-    activityItems: Array<ActivityItem>
+    activityItems: OrderedMap<ActivityItem>
     pageInfo: ActivityData['pageInfo']
     annotations: ActivityData['annotations']
     replies: ActivityData['replies']
@@ -48,12 +49,12 @@ export interface ListActivityItem extends TopLevelActivityItem {
     reason: 'pages-added-to-list'
     listName: string
     listReference: SharedListReference
-    entries: Array<ListEntryActivityItem>
+    entries: OrderedMap<ListEntryActivityItem>
 }
 
-// TODO: Maybe just replace this with `PageActivityItem`...
 export interface ListEntryActivityItem {
     type: 'list-entry-item',
+    reference: SharedListEntryReference
     entryTitle: string
     originalUrl: string
     normalizedPageUrl: string
@@ -65,7 +66,7 @@ export interface PageActivityItem extends TopLevelActivityItem {
     type: 'page-item'
     reason: 'new-replies'
     normalizedPageUrl: string
-    annotations: Array<AnnotationActivityItem>
+    annotations: OrderedMap<AnnotationActivityItem>
 }
 
 export interface AnnotationActivityItem {
