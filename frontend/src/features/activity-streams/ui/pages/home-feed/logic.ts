@@ -5,6 +5,7 @@ import { UILogic, UIEventHandler, loadInitial, executeUITask, UIMutation } from 
 import { HomeFeedEvent, HomeFeedDependencies, HomeFeedState, PageActivityItem, AnnotationActivityItem, ActivityItem, ActivityData } from "./types"
 import { getInitialAnnotationConversationStates } from "../../../../content-conversations/ui/utils"
 import { annotationConversationInitialState, annotationConversationEventHandlers } from "../../../../content-conversations/ui/logic"
+import { activityFollowsInitialState, activityFollowsEventHandlers } from '../../../../activity-follows/ui/logic'
 import UserProfileCache from "../../../../user-management/utils/user-profile-cache"
 
 type EventHandler<EventName extends keyof HomeFeedEvent> = UIEventHandler<HomeFeedState, HomeFeedEvent, EventName>
@@ -31,6 +32,10 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
             },
             loadUser: reference => this.users.loadUser(reference),
         }))
+
+        Object.assign(this, activityFollowsEventHandlers(this as any, {
+            ...this.dependencies,
+        }))
     }
 
     getInitialState(): HomeFeedState {
@@ -42,11 +47,12 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
             replies: {},
             users: {},
             moreRepliesLoadStates: {},
+            ...activityFollowsInitialState(),
             ...annotationConversationInitialState(),
         }
     }
 
-    init: EventHandler<'init'> = async ({ previousState }) => {
+    init: EventHandler<'init'> = async ({ previousState, event }) => {
         const userReference = this.dependencies.services.auth.getCurrentUserReference()
         if (!userReference) {
             // Firebase auth doesn't immediately detect authenticated users, so wait if needed
@@ -57,6 +63,7 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
             })
         }
         await this.loadNextActivities(previousState, { isInitial: true })
+        await this.processUIEvent('initActivityFollows', { previousState, event })
     }
 
     waypointHit: EventHandler<'waypointHit'> = async ({ previousState }) => {
