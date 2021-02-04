@@ -299,9 +299,9 @@ export default class HomeFeedPage extends UIElement<
             .slice(0, this.props.listActivitiesLimit)
             .map((entry) => {
               const seenState = state.lastSeenTimestamp && (state.lastSeenTimestamp > entry.activityTimestamp) ? 'seen' : 'unseen'
-              return (
+              return (<>
+                {seenState === 'unseen' && (
                 <Margin bottom="small" key={entry.normalizedPageUrl}>
-                  {seenState}
                   <PageInfoBox
                     pageInfo={{
                       fullTitle: entry.entryTitle,
@@ -322,7 +322,10 @@ export default class HomeFeedPage extends UIElement<
                       }
                     ] : []}
                   />
+                  
                 </Margin>
+                )}
+                </>
               )
             })
           }
@@ -428,8 +431,9 @@ export default class HomeFeedPage extends UIElement<
             renderReply={props => {
               const seenState = (state.lastSeenTimestamp && props.reply) && (state.lastSeenTimestamp > props.reply.createdWhen ? 'seen' : 'unseen')
               return <>
-              {seenState}
+              {seenState === 'unseen' && (
               <AnnotationReply {...props} />
+              )}
               </>
             }}
             onNewReplyInitiate={(event) =>
