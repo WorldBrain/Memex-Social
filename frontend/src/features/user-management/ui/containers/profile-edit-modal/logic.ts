@@ -69,7 +69,7 @@ export default class ProfileEditModalLogic extends UILogic<
         }
     }
 
-    saveUserPublicProfile: EventHandler<'saveProfile'> = async ({event}) => {
+    saveProfile: EventHandler<'saveProfile'> = async ({event}) => {
         this._setSavingTaskState('running')
         if(!this.userRef) {
             try {
