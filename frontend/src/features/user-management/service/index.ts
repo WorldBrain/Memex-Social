@@ -39,7 +39,12 @@ export default class UserManagementService {
     }
 
     async updateUserPublicProfile(userRef: UserReference, profileData: UserPublicProfile): Promise<void> {
-        await this.options.storage.createOrUpdateUserPublicProfile(userRef, {knownStatus: 'exists'}, profileData)
+        try {
+            await this.options.storage.createOrUpdateUserPublicProfile(userRef, {knownStatus: 'exists'}, profileData)
+        } catch(err) {
+            console.log('userStorage.updateUserPublicProfile error')
+            console.error(err)
+        }
     }
 
     async updateUserDisplayName(userRef: UserReference, value: string): Promise<void> {
