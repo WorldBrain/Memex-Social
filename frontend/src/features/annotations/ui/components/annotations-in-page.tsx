@@ -188,73 +188,71 @@ export function AnnotationWithReplies(
   const renderReply =
     props.renderReply ?? ((props) => <AnnotationReply {...props} />);
 
-  return (
-    <>
-      <AnnotationBox
-        annotation={annotation}
-        creator={props.annotationCreator}
-        hasReplies={!!conversation?.thread}
-        onInitiateReply={() =>
-          props.onNewReplyInitiate?.({
-            annotationReference: annotation.reference,
-          })
-        }
-        onToggleReplies={() =>
-          props.onToggleReplies?.({
-            annotationReference: annotation.reference,
-          })
-        }
-      />
-      {conversation && (
-        <>
-          {conversation.expanded && (
-            <>
-              {props.renderBeforeReplies && (
-                <Margin left="small">
-                  <AnnotationReplyContainer>
-                    {props.renderBeforeReplies(annotation.reference)}
-                  </AnnotationReplyContainer>
-                </Margin>
-              )}
-              {conversation.replies?.map?.((replyData) => (
+  return <>
+    <AnnotationBox
+      annotation={annotation}
+      creator={props.annotationCreator}
+      hasReplies={!!conversation?.thread}
+      onInitiateReply={() =>
+        props.onNewReplyInitiate?.({
+          annotationReference: annotation.reference,
+        })
+      }
+      onToggleReplies={() =>
+        props.onToggleReplies?.({
+          annotationReference: annotation.reference,
+        })
+      }
+    />
+    {conversation && (
+      <>
+        {conversation.expanded && (
+          <>
+            {props.renderBeforeReplies && (
+              <Margin left="small">
+                <AnnotationReplyContainer>
+                  {props.renderBeforeReplies(annotation.reference)}
+                </AnnotationReplyContainer>
+              </Margin>
+            )}
+            {conversation.replies?.map?.(replyData => {
+              const renderedReply = renderReply({
+                ...replyData,
+                annotationReference: annotation.reference,
+                replyReference: replyData.reference,
+                user: props.getReplyCreator?.(annotation.reference, replyData.reference) ?? replyData.user,
+                renderItemBox: props.renderReplyBox &&
+                  ((boxProps) => props.renderReplyBox?.({
+                    annotationReference: annotation.reference,
+                    replyReference: replyData.reference,
+                    ...boxProps,
+                  })),
+              });
+              if (!renderedReply) {
+                return null
+              }
+              return (
                 <Margin key={replyData.reference.id} left="small">
                   <AnnotationReplyContainer>
-                    {renderReply({
-                      ...replyData,
-                      annotationReference: annotation.reference,
-                      replyReference: replyData.reference,
-                      user:
-                        props.getReplyCreator?.(
-                          annotation.reference,
-                          replyData.reference
-                        ) ?? replyData.user,
-                      renderItemBox:
-                        props.renderReplyBox &&
-                        ((boxProps) =>
-                          props.renderReplyBox?.({
-                            annotationReference: annotation.reference,
-                            replyReference: replyData.reference,
-                            ...boxProps,
-                          })),
-                    })}
+                    {renderedReply}
                   </AnnotationReplyContainer>
                 </Margin>
-              ))}
-              {(conversation.newReply.editing ||
-                !props.hideNewReplyIfNotEditing) && (
-                <Margin left="small">
-                  <AnnotationReplyContainer>
-                    <NewAnnotationReply
-                      conversation={conversation}
-                      {...props}
-                    />
-                  </AnnotationReplyContainer>
-                </Margin>
-              )}
-            </>
-          )}
-        </>
-      )}
-    </>
-  );
+              );
+            })}
+            {(conversation.newReply.editing ||
+              !props.hideNewReplyIfNotEditing) && (
+              <Margin left="small">
+                <AnnotationReplyContainer>
+                  <NewAnnotationReply
+                    conversation={conversation}
+                    {...props}
+                  />
+                </AnnotationReplyContainer>
+              </Margin>
+            )}
+          </>
+        )}
+      </>
+    )}
+  </>;
 }

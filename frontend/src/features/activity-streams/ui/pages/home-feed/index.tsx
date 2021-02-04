@@ -429,12 +429,11 @@ export default class HomeFeedPage extends UIElement<
               );
             }}
             renderReply={props => {
+              const moreRepliesLoadStates =
+                state.moreRepliesLoadStates[pageItem.groupId] ?? "pristine";
               const seenState = (state.lastSeenTimestamp && props.reply) && (state.lastSeenTimestamp > props.reply.createdWhen ? 'seen' : 'unseen')
-              return <>
-              {(seenState === 'unseen' || options.groupAlreadySeen) && (
-              <AnnotationReply {...props} />
-              )}
-              </>
+              const shouldRender = seenState === 'unseen' || options.groupAlreadySeen || moreRepliesLoadStates === 'success'
+              return shouldRender && <AnnotationReply {...props} />
             }}
             onNewReplyInitiate={(event) =>
               this.processEvent("initiateNewReplyToAnnotation", {

@@ -110,6 +110,7 @@ export const setupTestActivities = async ({ services, storage }: { services: Ser
         listReference: { type: 'shared-list-reference', id: 'default-list' },
         listEntries: [
             { createdWhen: Date.now(), entryTitle: 'New.com - page four', normalizedUrl: 'new.com/four', originalUrl: 'https://www.new.com/four' },
+            { createdWhen: Date.now(), entryTitle: 'New.com - page five', normalizedUrl: 'new.com/five', originalUrl: 'https://www.new.com/five' },
         ],
         userReference: services.auth.getCurrentUserReference()!
     })
