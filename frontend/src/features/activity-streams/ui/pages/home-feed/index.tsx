@@ -141,7 +141,7 @@ const LoadMoreReplies = styled.div`
 `;
 
 type ActivityItemRendererResult = { key: string | number, rendered: JSX.Element }
-type ActivityItemRenderer<T extends ActivityItem> = (item: T) => ActivityItemRendererResult
+type ActivityItemRenderer<T extends ActivityItem> = (item: T, options: { groupAlreadySeen: boolean }) => ActivityItemRendererResult
 
 export default class HomeFeedPage extends UIElement<
   HomeFeedDependencies,
@@ -209,19 +209,20 @@ export default class HomeFeedPage extends UIElement<
       this.state.lastSeenTimestamp ?? null
     );
     return activities.map((item) => {
+      const shouldRenderLastSeenLine = lastSeenLine.shouldRenderBeforeItem(item);
+      
       let result: ActivityItemRendererResult
-
       if (item.type === 'page-item') {
-        result = this.renderPageItem(item);
+        result = this.renderPageItem(item, { groupAlreadySeen: lastSeenLine.alreadyRenderedLine });
       } else if (item.type === 'list-item') {
-        result = this.renderListItem(item);
+        result = this.renderListItem(item, { groupAlreadySeen: lastSeenLine.alreadyRenderedLine });
       } else {
         throw new Error(`Received unsupported activity type to render: ${(item as ActivityItem).type}`)
       }
 
       return (
         <React.Fragment key={result.key}>
-          {lastSeenLine.shouldRenderBeforeItem(item) && (
+          {shouldRenderLastSeenLine && (
             <Margin vertical="medium">
               <LastSeenLine />
             </Margin>
@@ -233,7 +234,6 @@ export default class HomeFeedPage extends UIElement<
   }
 
   renderActivityReason(activityItem: ActivityItem) {
-
     if (activityItem.reason === "new-replies") {
         return <ActivityReason icon={commentImage} label="New replies" />;
     }
@@ -260,7 +260,7 @@ export default class HomeFeedPage extends UIElement<
     return null;
   }
 
-  renderPageItem: ActivityItemRenderer<PageActivityItem> = (pageItem) => {
+  renderPageItem: ActivityItemRenderer<PageActivityItem> = (pageItem, options) => {
     const pageInfo = this.state.pageInfo[pageItem.normalizedPageUrl];
     return {
       key: pageItem.annotations[0].replies[0].reference.id,
@@ -280,13 +280,13 @@ export default class HomeFeedPage extends UIElement<
               actions={[]}
             />
           </Margin>
-          {this.renderAnnotationItems(pageItem)}
+          {this.renderAnnotationItems(pageItem, options)}
         </Margin>
       ),
     };
   }
 
-  renderListItem: ActivityItemRenderer<ListActivityItem> = (listItem) => {
+  renderListItem: ActivityItemRenderer<ListActivityItem> = (listItem, options) => {
     const { state } = this
     return {
       key: listItem.listReference.id + ':' + listItem.entries[0].normalizedPageUrl,
@@ -300,7 +300,7 @@ export default class HomeFeedPage extends UIElement<
             .map((entry) => {
               const seenState = state.lastSeenTimestamp && (state.lastSeenTimestamp > entry.activityTimestamp) ? 'seen' : 'unseen'
               return (<>
-                {seenState === 'unseen' && (
+                {(seenState === 'unseen' || options.groupAlreadySeen) && (
                 <Margin bottom="small" key={entry.normalizedPageUrl}>
                   <PageInfoBox
                     pageInfo={{
@@ -343,7 +343,7 @@ export default class HomeFeedPage extends UIElement<
     };
   }
 
-  renderAnnotationItems(pageItem: PageActivityItem) {
+  renderAnnotationItems(pageItem: PageActivityItem, options: { groupAlreadySeen: boolean }) {
     const { state } = this;
     return (
       <Margin left={"small"}>
@@ -431,7 +431,7 @@ export default class HomeFeedPage extends UIElement<
             renderReply={props => {
               const seenState = (state.lastSeenTimestamp && props.reply) && (state.lastSeenTimestamp > props.reply.createdWhen ? 'seen' : 'unseen')
               return <>
-              {seenState === 'unseen' && (
+              {(seenState === 'unseen' || options.groupAlreadySeen) && (
               <AnnotationReply {...props} />
               )}
               </>
