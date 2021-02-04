@@ -1,5 +1,6 @@
 import flatten from "lodash/flatten"
 import sortBy from "lodash/sortBy"
+import orderBy from "lodash/orderBy"
 import { ActivityStreamResultGroup, ActivityStream } from "@worldbrain/memex-common/lib/activity-streams/types"
 import { UILogic, UIEventHandler, loadInitial, executeUITask, UIMutation } from "../../../../../main-ui/classes/logic"
 import { HomeFeedEvent, HomeFeedDependencies, HomeFeedState, PageActivityItem, AnnotationActivityItem, ActivityItem, ActivityData } from "./types"
@@ -292,7 +293,7 @@ export function organizeActivities(activities: Array<ActivityStreamResultGroup<k
 
         if (activityGroup.entityType === 'sharedList' && activityGroup.activityType === 'sharedListEntry') {
             const entryActivityGroup = activityGroup as ActivityStreamResultGroup<'sharedList', 'sharedListEntry'>
-            entryActivityGroup.activities = sortBy(entryActivityGroup.activities, ({ activity }) => activity.entry.createdWhen)
+            entryActivityGroup.activities = orderBy(entryActivityGroup.activities, [({ activity }) => activity.entry.createdWhen], ['desc'])
             const { activity: firstActivity } = entryActivityGroup.activities[0]
 
             activityItems.push({

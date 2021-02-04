@@ -5,13 +5,15 @@ import LoadingIndicator from "../../../../common-ui/components/loading-indicator
 import ErrorBox from "../../../../common-ui/components/error-box";
 import { Margin } from "styled-components-spacing";
 import { SharedAnnotationReference } from "@worldbrain/memex-common/lib/content-sharing/types";
-import AnnotationBox from "./annotation-box";
+import AnnotationBox, { AnnotationBoxProps } from "./annotation-box";
 import {
   AnnotationConversationStates,
   AnnotationConversationState,
 } from "../../../content-conversations/ui/types";
 import { User } from "@worldbrain/memex-common/lib/web-interface/types/users";
-import AnnotationReply from "../../../content-conversations/ui/components/annotation-reply";
+import AnnotationReply, {
+  AnnotationReplyProps,
+} from "../../../content-conversations/ui/components/annotation-reply";
 import NewAnnotationReply, {
   NewAnnotationReplyEventHandlers,
 } from "../../../content-conversations/ui/components/new-annotation-reply";
@@ -54,6 +56,9 @@ export default function AnnotationsInPage(
     loadState: UITaskState;
     annotations?: Array<SharedAnnotationInPage> | null;
     annotationConversations?: AnnotationConversationStates | null;
+    renderAnnotationBox?: (
+      props: AnnotationBoxProps & { annotation: SharedAnnotationInPage }
+    ) => React.ReactNode;
     getAnnotationConversation?: (
       annotationReference: SharedAnnotationReference
     ) => AnnotationConversationState | null;
@@ -67,6 +72,12 @@ export default function AnnotationsInPage(
     ) => Pick<User, "displayName"> | null | undefined;
     renderBeforeReplies?: (
       annotationReference: SharedAnnotationReference
+    ) => React.ReactNode;
+    renderReply?: (
+      props: {
+        annotationReference: SharedAnnotationReference;
+        replyReference: ConversationReplyReference;
+      } & AnnotationReplyProps
     ) => React.ReactNode;
     renderReplyBox?: (props: {
       annotationReference: SharedAnnotationReference;
@@ -144,6 +155,9 @@ export function AnnotationWithReplies(
   props: {
     annotation: SharedAnnotationInPage;
     annotationCreator?: Pick<User, "displayName"> | null;
+    renderAnnotationBox?: (
+      props: AnnotationBoxProps & { annotation: SharedAnnotationInPage }
+    ) => React.ReactNode;
     conversation?: AnnotationConversationState;
     hideNewReplyIfNotEditing?: boolean;
     getReplyCreator?: (
@@ -156,6 +170,12 @@ export function AnnotationWithReplies(
     renderBeforeReplies?: (
       annotationReference: SharedAnnotationReference
     ) => React.ReactNode;
+    renderReply?: (
+      props: {
+        annotationReference: SharedAnnotationReference;
+        replyReference: ConversationReplyReference;
+      } & AnnotationReplyProps
+    ) => React.ReactNode;
     renderReplyBox?: (props: {
       annotationReference: SharedAnnotationReference;
       replyReference: ConversationReplyReference;
@@ -164,73 +184,75 @@ export function AnnotationWithReplies(
   } & NewAnnotationReplyEventHandlers
 ) {
   const { annotation, conversation } = props;
-  return (
-    <>
-      <AnnotationBox
-        annotation={annotation}
-        creator={props.annotationCreator}
-        hasReplies={!!conversation?.thread}
-        onInitiateReply={() =>
-          props.onNewReplyInitiate?.({
-            annotationReference: annotation.reference,
-          })
-        }
-        onToggleReplies={() =>
-          props.onToggleReplies?.({
-            annotationReference: annotation.reference,
-          })
-        }
-      />
-      {conversation && (
-        <>
-          {conversation.expanded && (
-            <>
-              {props.renderBeforeReplies && (
-                <Margin left="small">
-                  <AnnotationReplyContainer>
-                    {props.renderBeforeReplies(annotation.reference)}
-                  </AnnotationReplyContainer>
-                </Margin>
-              )}
-              {conversation.replies?.map?.((replyData) => (
+
+  const renderReply =
+    props.renderReply ?? ((props) => <AnnotationReply {...props} />);
+
+  return <>
+    <AnnotationBox
+      annotation={annotation}
+      creator={props.annotationCreator}
+      hasReplies={!!conversation?.thread}
+      onInitiateReply={() =>
+        props.onNewReplyInitiate?.({
+          annotationReference: annotation.reference,
+        })
+      }
+      onToggleReplies={() =>
+        props.onToggleReplies?.({
+          annotationReference: annotation.reference,
+        })
+      }
+    />
+    {conversation && (
+      <>
+        {conversation.expanded && (
+          <>
+            {props.renderBeforeReplies && (
+              <Margin left="small">
+                <AnnotationReplyContainer>
+                  {props.renderBeforeReplies(annotation.reference)}
+                </AnnotationReplyContainer>
+              </Margin>
+            )}
+            {conversation.replies?.map?.(replyData => {
+              const renderedReply = renderReply({
+                ...replyData,
+                annotationReference: annotation.reference,
+                replyReference: replyData.reference,
+                user: props.getReplyCreator?.(annotation.reference, replyData.reference) ?? replyData.user,
+                renderItemBox: props.renderReplyBox &&
+                  ((boxProps) => props.renderReplyBox?.({
+                    annotationReference: annotation.reference,
+                    replyReference: replyData.reference,
+                    ...boxProps,
+                  })),
+              });
+              if (!renderedReply) {
+                return null
+              }
+              return (
                 <Margin key={replyData.reference.id} left="small">
                   <AnnotationReplyContainer>
-                    <AnnotationReply
-                      {...replyData}
-                      user={
-                        props.getReplyCreator?.(
-                          annotation.reference,
-                          replyData.reference
-                        ) ?? replyData.user
-                      }
-                      renderItemBox={
-                        props.renderReplyBox &&
-                        ((boxProps) =>
-                          props.renderReplyBox?.({
-                            annotationReference: annotation.reference,
-                            replyReference: replyData.reference,
-                            ...boxProps,
-                          }))
-                      }
-                    />
+                    {renderedReply}
                   </AnnotationReplyContainer>
                 </Margin>
-              ))}
-              {(conversation.newReply.editing ||
-                !props.hideNewReplyIfNotEditing) && (
-                <Margin left="small">
-                  <AnnotationReplyContainer>
-                    <NewAnnotationReply
-                      conversation={conversation}
-                      {...props}
-                    />
-                  </AnnotationReplyContainer>
-                </Margin>
-              )}
-            </>
-          )}
-        </>
-      )}
-    </>
-  );
+              );
+            })}
+            {(conversation.newReply.editing ||
+              !props.hideNewReplyIfNotEditing) && (
+              <Margin left="small">
+                <AnnotationReplyContainer>
+                  <NewAnnotationReply
+                    conversation={conversation}
+                    {...props}
+                  />
+                </AnnotationReplyContainer>
+              </Margin>
+            )}
+          </>
+        )}
+      </>
+    )}
+  </>;
 }

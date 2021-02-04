@@ -26,11 +26,15 @@ const ReplyContent = styled.div`
   }
 `;
 
-export default function AnnotationReply(props: {
+export interface AnnotationReplyProps {
   user?: Pick<User, "displayName"> | null;
   reply?: ConversationReply;
-  renderItemBox?: (props: { children: React.ReactNode }) => React.ReactNode;
-}) {
+  renderItemBox?: (props: {
+    children: React.ReactNode;
+  }) => React.ReactNode;
+}
+
+export default function AnnotationReply(props: AnnotationReplyProps) {
   const renderItemBox =
     props.renderItemBox ?? ((props) => <ItemBox {...props} />);
   return (
