@@ -11,6 +11,10 @@ const logoImage = require("../../assets/img/memex-logo.svg");
 
 const middleMaxWidth = "800px";
 
+const MainContainer = styled.div`
+    background: #f6f8fB;
+`
+
 const StyledHeader = styled.div<{
   viewportWidth: "mobile" | "small" | "normal" | "big";
 }>`
@@ -18,7 +22,7 @@ const StyledHeader = styled.div<{
   width: 100%;
   height: 50px;
   display: flex;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   justify-content: space-between;
   padding: 0 20px;
   position: sticky;
@@ -28,6 +32,7 @@ const StyledHeader = styled.div<{
   z-index: 2;
   align-items: center;
   height: 50px;
+  box-shadow: #101e7308 0 4px 16px;
 `;
 
 const LogoAndFeed = styled.div<{
@@ -214,7 +219,7 @@ const PageMidleAreaAction = styled.div`
   flex-direction: row;
 `
 
-const PageMiddleAreaTopBox = styled.div<{
+const PageMiddleAreaTopBox = styled(Margin)<{
   viewportWidth: "mobile" | "small" | "normal" | "big";
 }>`
   display: flex;
@@ -224,6 +229,7 @@ const PageMiddleAreaTopBox = styled.div<{
     props.viewportWidth === "mobile"
       ? "column"
       : "row"};;
+
 `
 
 export default function DefaultPageLayout(props: {
@@ -298,7 +304,7 @@ export default function DefaultPageLayout(props: {
   };
 
   return (
-    <>
+    <MainContainer>
       <StyledHeader viewportWidth={viewportWidth}>
         <LogoAndFeed viewportWidth={viewportWidth}>
           <HeaderLogoArea
@@ -316,7 +322,7 @@ export default function DefaultPageLayout(props: {
         </HeaderAuthArea>
       </StyledHeader>
       <PageMiddleArea viewportWidth={viewportWidth}>
-        <PageMiddleAreaTopBox viewportWidth={viewportWidth}>
+        <PageMiddleAreaTopBox top="larger" viewportWidth={viewportWidth}>
           <PageMidleAreaTitles>
           {props.headerTitle && (
             <HeaderTitle
@@ -338,6 +344,6 @@ export default function DefaultPageLayout(props: {
         </PageMiddleAreaTopBox>
         {props.children}
       </PageMiddleArea>
-    </>
+    </MainContainer>
   );
 }
