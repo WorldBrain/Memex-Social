@@ -19,6 +19,7 @@ import { DOMAIN_TLD_PATTERN } from '../../../../../constants';
 import TextArea from '../../../../../common-ui/components/text-area';
 import Icon from '../../../../../common-ui/components/icon';
 import Overlay from '../../../../../main-ui/containers/overlay';
+import { UITaskState } from '../../../../../main-ui/types';
 
 const Container = styled.div<{ theme: Theme }>`
     margin: auto;
@@ -41,7 +42,7 @@ const ButtonContainer = styled.div`
     justify-content: center;
 `
 
-const FormContainer = styled.div`
+const FormRow = styled.div`
     display: flex;
 `
 
@@ -55,6 +56,17 @@ const SectionHeader = styled.div<{
     line-height: ${props => props.theme.lineHeights.header};
     color: ${props => props.theme.colors.primary};
     text-align: left;
+`
+
+const SectionHeaderDescription = styled(SectionHeader)`
+    font-weight: ${props => props.theme.fontWeights.normal};
+    font-size: ${props => props.theme.fontSizes.text};
+    line-height: ${props => props.theme.lineHeights.text};
+`
+
+const WebLink = styled(SectionHeaderDescription)`
+    text-decoration: underline;
+    cursor: pointer;
 `
 
 const FormColumn = styled.div<{
@@ -89,7 +101,13 @@ const CameraIcon = styled(Icon)`
     background-size: contain;
 `
 
-const StyledPrimaryButton = styled(PrimaryActionButton)`
+const StyledPrimaryButton = styled(PrimaryActionButton)<{ 
+    theme: Theme
+    taskState: UITaskState
+    error: boolean
+}>`
+    background: ${props => props.taskState === 'pristine' || props.taskState === 'success' ? props.theme.colors.secondary : props.taskState === 'running' ? props.theme.colors.background : props.theme.colors.warning};
+    ${props => props.taskState === 'running' || props.error ? `1px solid ${props.theme.colors.secondary};` : ''}
     padding-top: 0;
     padding-bottom: 0;
 `
@@ -110,6 +128,7 @@ export default class ProfileEditModal extends UIElement<
         super(props, { logic: new ProfileEditModalLogic(props) })
     }
 
+    private webMonetizationLearnMoreURL: string = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
     private displayNameErrorMessage: string = 'Display Name must not be empty'
     private urlInputErrorMessage: string = 'This must be a valid URL'
 
@@ -117,8 +136,8 @@ export default class ProfileEditModal extends UIElement<
         this.processEvent('saveProfile', { profileData: this.state.userPublicProfile, displayName: this.state.user?.displayName ?? '' })
     }
 
-    handleSetDisplayName(evt: React.ChangeEvent<HTMLInputElement>) {
-        this.processEvent('setDisplayName', { value: evt.currentTarget.value })
+    handleSetDisplayName(value: string) {
+        this.processEvent('setDisplayName', { value: value })
     }
 
     handleSetProfileValue(key: keyof UserPublicProfile, value: string): void {
@@ -137,6 +156,11 @@ export default class ProfileEditModal extends UIElement<
         this.processEvent('setErrorArray', { newArray })
     }
 
+    handleWebLinkClick = (url: string): void => {
+        const newWindow = window.open(url, '_blank', 'noopener,noreferrer')
+        if (newWindow) newWindow.opener = null
+    }
+
     render() {
         return (
             <Overlay services={this.props.services} onCloseRequested={this.props.onCloseRequested}>
@@ -144,8 +168,11 @@ export default class ProfileEditModal extends UIElement<
                     <Margin vertical="large">
                         <ButtonContainer>
                             <StyledPrimaryButton
+                                theme={theme}
+                                taskState={this.state.savingTaskState}
+                                error={this.state.inputErrorArray.every(val => !val)}
                                 label="Save"
-                                onClick={this.handleSaveClick}
+                                onClick={() => this.handleSaveClick()}
                                 minWidth="82px"
                             />
                             <StyledSecondaryButton
@@ -155,28 +182,33 @@ export default class ProfileEditModal extends UIElement<
                             />
                         </ButtonContainer>
                     </Margin>
-                    <FormContainer>
+                    <FormRow>
+                        <Margin vertical="medium">
+                            <SectionHeader theme={theme}>
+                                Profile Information
+                            </SectionHeader>
+                        </Margin>
+                    </FormRow>
+                    <FormRow>
                         <FormColumn maxWidth="263px">
-                            <Margin vertical="medium">
-                                <SectionHeader theme={theme}>
-                                    Profile Information
-                                </SectionHeader>
-                            </Margin>
                             <TextInput 
                                 label="Display Name"
                                 value={this.state.user?.displayName}
+                                onChange={(evt) => this.handleSetDisplayName(evt.currentTarget.value)}
                                 onConfirm={() => this.testDisplayName()}
                                 error={this.state.inputErrorArray[0]}
                                 errorMessage={this.displayNameErrorMessage}
-                            />
+                                />
                             <TextArea
                                 label="Bio"
                                 rows={5}
                                 value={this.state.userPublicProfile.bio}
+                                onChange={(evt) => this.handleSetProfileValue('bio', evt.currentTarget.value)}
                             />
                             <TextInput
                                 label="Website"
                                 value={this.state.userPublicProfile.websiteURL}
+                                onChange={(evt) => this.handleSetProfileValue('websiteURL', evt.currentTarget.value)}
                                 onConfirm={() => this.testValidURL(1, this.state.userPublicProfile.websiteURL)}
                                 error={this.state.inputErrorArray[1]}
                                 errorMessage={this.urlInputErrorMessage}
@@ -184,6 +216,7 @@ export default class ProfileEditModal extends UIElement<
                             <TextInput
                                 label="Twitter"
                                 value={this.state.userPublicProfile.twitterURL}
+                                onChange={(evt) => this.handleSetProfileValue('twitterURL', evt.currentTarget.value)}
                                 onConfirm={() => this.testValidURL(2, this.state.userPublicProfile.twitterURL)}
                                 error={this.state.inputErrorArray[2]}
                                 errorMessage={this.urlInputErrorMessage}
@@ -191,6 +224,7 @@ export default class ProfileEditModal extends UIElement<
                             <TextInput
                                 label="Medium"
                                 value={this.state.userPublicProfile.mediumURL}
+                                onChange={(evt) => this.handleSetProfileValue('mediumURL', evt.currentTarget.value)}
                                 onConfirm={() => this.testValidURL(3, this.state.userPublicProfile.mediumURL)}
                                 error={this.state.inputErrorArray[3]}
                                 errorMessage={this.urlInputErrorMessage}
@@ -198,6 +232,7 @@ export default class ProfileEditModal extends UIElement<
                             <TextInput
                                 label="Substack"
                                 value={this.state.userPublicProfile.substackURL}
+                                onChange={(evt) => this.handleSetProfileValue('substackURL', evt.currentTarget.value)}
                                 onConfirm={() => this.testValidURL(4, this.state.userPublicProfile.substackURL)}
                                 error={this.state.inputErrorArray[4]}
                                 errorMessage={this.urlInputErrorMessage}
@@ -209,7 +244,29 @@ export default class ProfileEditModal extends UIElement<
                                 <CameraIcon height="30px" fileName="camera.svg" />
                             </AvatarPlaceholder>}
                         </FormColumn>
-                    </FormContainer>
+                    </FormRow>
+                    <FormRow>
+                        <Margin top="medium">
+                            <SectionHeader theme={theme}>
+                                Web Monetization Settings
+                            </SectionHeader>
+                            <SectionHeaderDescription>
+                                People can pay for your curations with WebMonetization micropayments. Takes 5 minutes to set up. 
+                                <WebLink as="span" onClick={() => this.handleWebLinkClick(this.webMonetizationLearnMoreURL)}>
+                                    {`Learn More >>`}
+                                </WebLink>
+                            </SectionHeaderDescription>
+                        </Margin>
+                    </FormRow>
+                    <FormRow>
+                        <FormColumn maxWidth="263px">
+                            <TextInput 
+                                label="Display Name"
+                                value={this.state.userPublicProfile.paymentPointer}
+                                onChange={(evt) => this.handleSetProfileValue('paymentPointer', evt.currentTarget.value)}
+                            />
+                        </FormColumn>
+                    </FormRow>
                 </Container>
             </Overlay>
         )
