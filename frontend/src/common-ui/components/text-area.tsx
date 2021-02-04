@@ -42,29 +42,29 @@ export default function TextArea(
     }
   ) {
     const valueLen = props.value && typeof props.value === 'string' ? props.value.length : typeof props.value === 'number' ? (props.value + '').length : (props.value && typeof props.value === 'object' && props.value.join().length)
-    const [charCount, setCharCount] = useState(valueLen)
+    const [charCount, setCharCount] = useState(valueLen ?? 0)
     const handleChange: React.ChangeEventHandler<HTMLTextAreaElement> = (evt) => {
         if (props.onChange) {
             props.onChange(evt)
         }
-        setCharCount(evt.currentTarget.value.length)
+          setCharCount(evt.currentTarget.value.length)
     }
     const renderElement = function(padding?: boolean) {
       return (
         <Container>
             <StyledTextArea
-            onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => handleChange(event)}
-            padding={padding}
-            theme={theme}
-            {...props}
-            onKeyDown={(event: React.KeyboardEvent<HTMLTextAreaElement>) => {
-                if (props.onConfirm && event.keyCode === 13) {
-                return props.onConfirm();
-                }
-                props.onKeyDown?.(event);
-            }}
+              padding={padding}
+              theme={theme}
+              {...props}
+              onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => handleChange(event)}
+              onKeyDown={(event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+                  if (props.onConfirm && event.keyCode === 13) {
+                  return props.onConfirm();
+                  }
+                  props.onKeyDown?.(event);
+              }}
             />
-            <CharCount theme={theme}>{`${charCount}/${USER_PROFILE_BIO_CHAR_LIMIT}`}</CharCount>
+            <CharCount theme={theme}>{`${charCount ?? 0}/${USER_PROFILE_BIO_CHAR_LIMIT}`}</CharCount>
         </Container>
       )
     }

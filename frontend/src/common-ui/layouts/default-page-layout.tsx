@@ -317,21 +317,23 @@ export default function DefaultPageLayout(props: {
               {props.headerTitle}
             </HeaderTitle>
           )}
-          {props.headerTitle && props.headerSubtitle && (
+          {props.headerTitle && props.headerSubtitle && props.creatorReference && (
               <ProfilePopupContainer
                   services={props.services}
                   storage={props.storage}
                   userRef={
-                      props.creatorReference ?? {
-                          type: 'user-reference',
-                          id: '',
-                      }
+                      props.creatorReference
                   }
               >
                   <HeaderSubtitle viewportWidth={viewportWidth}>
                       {props.headerSubtitle}
                   </HeaderSubtitle>
               </ProfilePopupContainer>
+          )}
+          {props.headerTitle && props.headerSubtitle && !props.creatorReference && (
+                <HeaderSubtitle viewportWidth={viewportWidth}>
+                    {props.headerSubtitle}
+                </HeaderSubtitle>
           )}
           {props.followBtn && props.followBtn}
         </HeaderMiddleArea>
