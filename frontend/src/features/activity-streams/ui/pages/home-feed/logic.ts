@@ -2,7 +2,7 @@ import flatten from "lodash/flatten"
 import sortBy from "lodash/sortBy"
 import { ActivityStreamResultGroup, ActivityStream } from "@worldbrain/memex-common/lib/activity-streams/types"
 import { UILogic, UIEventHandler, loadInitial, executeUITask, UIMutation } from "../../../../../main-ui/classes/logic"
-import { HomeFeedEvent, HomeFeedDependencies, HomeFeedState, PageActivityItem, AnnotationActivityItem, ActivityItem, ActivityData } from "./types"
+import { HomeFeedEvent, HomeFeedDependencies, HomeFeedState, PageActivityItem, AnnotationActivityItem, ActivityItem, ActivityData, ListEntryActivityItem, ListActivityItem } from "./types"
 import { getInitialAnnotationConversationStates } from "../../../../content-conversations/ui/utils"
 import { annotationConversationInitialState, annotationConversationEventHandlers } from "../../../../content-conversations/ui/logic"
 import UserProfileCache from "../../../../user-management/utils/user-profile-cache"
@@ -64,6 +64,67 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
         if (this.hasMore) {
             await this.loadNextActivities(previousState)
         }
+    }
+
+    loadListEntryActivityAnnotations: EventHandler<'loadListEntryActivityAnnotations'> = async ({ event, previousState }) => {
+        const { storage, services } = this.dependencies
+        const { normalizedPageUrl } = (previousState.activityItems.items[event.listReference.id] as ListActivityItem)
+            .entries.items[event.listEntryReference.id]
+
+        const userReference = services.auth.getCurrentUserReference()
+        if (!userReference) {
+            return
+        }
+
+        await executeUITask<HomeFeedState>(this, (taskState) => ({
+            activityItems: {
+                items: {
+                    [event.listReference.id]: {
+                        entries: {
+                            items: {
+                                [event.listEntryReference.id]: {
+                                    annotationsLoadState: { $set: taskState },
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }), async () => {
+            const annotations = await storage.contentSharing.getAnnotationsByCreatorAndPageUrl({
+                normalizedPageUrl,
+                creatorReference: userReference,
+            })
+
+            const annotationRefs = annotations.map(a => a.reference)
+            const annotationsData: ActivityData['annotations'] = {}
+
+            for (const annotation of annotations) {
+                annotationsData[annotation.reference.id] = {
+                    ...annotation,
+                    creatorReference: annotation.creator,
+                    linkId: annotation.reference.id as string,
+                }
+            }
+
+            this.emitMutation({
+                annotations: { $merge: annotationsData },
+                activityItems: {
+                    items: {
+                        [event.listReference.id]: {
+                            entries: {
+                                items: {
+                                    [event.listEntryReference.id]: {
+                                        areAnnotationsShown: { $set: true },
+                                        annotations: { $set: annotationRefs },
+                                    },
+                                },
+                            }
+                        }
+                    }
+                }
+            })
+        })
     }
 
     loadMoreReplies: EventHandler<'loadMoreReplies'> = async (incoming) => {
@@ -320,8 +381,11 @@ export function organizeActivities(activities: Array<ActivityStreamResultGroup<k
                 listName: firstActivity.list.title,
                 listReference: firstActivity.list.reference,
                 notifiedWhen: firstActivity.entry.createdWhen,
-                entries: arrayToOrderedMap(entryActivityGroup.activities.map(({ activity }) => ({
+                entries: arrayToOrderedMap(entryActivityGroup.activities.map(({ activity }): ListEntryActivityItem => ({
                     type: 'list-entry-item',
+                    annotations: [],
+                    areAnnotationsShown: false,
+                    annotationsLoadState: 'pristine',
                     reference: activity.entry.reference,
                     entryTitle: activity.entry.entryTitle,
                     originalUrl: activity.entry.originalUrl,

@@ -31,6 +31,10 @@ export type HomeFeedEvent = UIEvent<AnnotationConversationEvent & {
         groupId: string
         annotationReference: SharedAnnotationReference
     }
+    loadListEntryActivityAnnotations: {
+        listReference: SharedListReference
+        listEntryReference: SharedListEntryReference
+    }
 }>
 
 export type HomeFeedSignal = UISignal<
@@ -58,8 +62,11 @@ export interface ListEntryActivityItem {
     entryTitle: string
     originalUrl: string
     normalizedPageUrl: string
-    hasAnnotations?: boolean
     activityTimestamp: number
+    hasAnnotations?: boolean
+    areAnnotationsShown?: boolean
+    annotationsLoadState: UITaskState
+    annotations: SharedAnnotationReference[]
 }
 
 export interface PageActivityItem extends TopLevelActivityItem {
