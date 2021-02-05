@@ -28,6 +28,7 @@ const ListContent = styled.div`
   display: flex;
   flex-direction: column;
   padding-bottom: 100px;
+  padding-left: 5px;
 `
 
 const SectionTitle = styled.div`
@@ -55,9 +56,13 @@ const ListNameLink = styled(RouteLink)`
   }
 `;
 
-const EmptyMsg = styled.span``;
+const EmptyMsg = styled.span`
+  font-size: 12px;
+`;
 
-const ErrorMsg = styled.span``;
+const ErrorMsg = styled.span`
+  font-size: 12px;
+`;
 
 export interface Props {
   services: Pick<Services, 'router'>;

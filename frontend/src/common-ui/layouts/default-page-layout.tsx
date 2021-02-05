@@ -13,6 +13,7 @@ const middleMaxWidth = "800px";
 
 const MainContainer = styled.div`
     background: #f6f8fB;
+    height: 100%;
 `
 
 const StyledHeader = styled.div<{
@@ -183,10 +184,10 @@ const PageMiddleArea = styled.div<{
   viewportWidth: "mobile" | "small" | "normal" | "big";
 }>`
   max-width: ${middleMaxWidth};
-  top: 10px;
+  padding-top: 10px;
   position: relative;
   padding-bottom: 100px;
-  margin: 20px auto 0;
+  margin: 0px auto 0;
 
   ${(props) =>
     props.viewportWidth === "small" &&
