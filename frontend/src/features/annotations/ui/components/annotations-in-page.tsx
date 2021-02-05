@@ -18,7 +18,7 @@ import NewAnnotationReply, {
 import { SharedAnnotationInPage } from "./types";
 import { ConversationReplyReference } from "@worldbrain/memex-common/lib/content-conversations/types";
 
-const AnnotationContainer = styled.div`
+const AnnotationContainer = styled(Margin)`
   display: flex;
   justify-content: center;
 `;
@@ -27,7 +27,7 @@ const AnnotationLine = styled.span`
   height: auto;
   width: 4px;
   background: #e0e0e0;
-  margin: -8px 10px 4px;
+  margin: -8px 10px 15px;
 `;
 
 const AnnotationReplyContainer = styled.div`
@@ -80,7 +80,7 @@ export default function AnnotationsInPage(
 ) {
   if (props.loadState === "pristine" || props.loadState === "running") {
     return (
-      <AnnotationContainer>
+      <AnnotationContainer bottom="large">
         <AnnotationLine />
         <AnnotationList>
           <CenteredContent>
@@ -129,7 +129,7 @@ export default function AnnotationsInPage(
   };
 
   return (
-    <AnnotationContainer>
+    <AnnotationContainer bottom="large">
       <AnnotationLine />
       <AnnotationList>
         {props.annotations.map(
