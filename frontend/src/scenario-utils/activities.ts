@@ -129,4 +129,12 @@ export const setupTestActivities = async ({ services, storage }: { services: Ser
         email: 'default-user',
         password: 'bling'
     })
+
+    await services.contentConversations.submitReply({
+        pageCreatorReference: { type: 'user-reference', id: 'default-user' },
+        annotationReference: { type: 'shared-annotation-reference', id: 'third-annotation' },
+        normalizedPageUrl: 'notion.so',
+        isFirstReply: true,
+        reply: { content: 'My final reply to myself' }
+    })
 }

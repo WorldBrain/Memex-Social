@@ -8,6 +8,7 @@ import { getInitialAnnotationConversationStates } from "../../../../content-conv
 import { annotationConversationInitialState, annotationConversationEventHandlers } from "../../../../content-conversations/ui/logic"
 import { activityFollowsInitialState, activityFollowsEventHandlers } from '../../../../activity-follows/ui/logic'
 import UserProfileCache from "../../../../user-management/utils/user-profile-cache"
+import { AnnotationConversationState } from "../../../../content-conversations/ui/types"
 
 type EventHandler<EventName extends keyof HomeFeedEvent> = UIEventHandler<HomeFeedState, HomeFeedEvent, EventName>
 
@@ -85,14 +86,19 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
                 // don't process already loaded replies
                 !incoming.previousState.replies[groupId][replyData.reference.id]
             ))
-            const conversationsMutations: UIMutation<HomeFeedState['conversations']> = {}
-            conversationsMutations[groupId] = {
-                replies: {
-                    $unshift: await Promise.all(replies.map(async replyData => ({
-                        reference: replyData.reference,
-                        user: await this.users.loadUser(replyData.userReference),
-                        reply: replyData.reply,
-                    })))
+
+            const repliesWithUsers = await Promise.all(replies.map(async replyData => ({
+                reference: replyData.reference,
+                user: await this.users.loadUser(replyData.userReference),
+                reply: replyData.reply,
+            })))
+
+            const conversationsMutations: UIMutation<HomeFeedState['conversations']> = {
+                [groupId]: {
+                    replies: {
+                        $apply: (prevReplies: AnnotationConversationState['replies']) => // TODO: Why aren't $apply ops getting typed?A
+                            [...prevReplies, ...repliesWithUsers].sort((a, b) => a.reply.createdWhen - b.reply.createdWhen)
+                    }
                 }
             }
 
