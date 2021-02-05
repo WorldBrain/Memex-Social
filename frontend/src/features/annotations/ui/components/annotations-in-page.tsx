@@ -52,7 +52,7 @@ const CenteredContent = styled.div`
 export default function AnnotationsInPage(
   props: {
     loadState: UITaskState;
-    annotations?: Array<SharedAnnotationInPage> | null;
+    annotations?: Array<SharedAnnotationInPage | null> | null;
     annotationConversations?: AnnotationConversationStates | null;
     getAnnotationConversation?: (
       annotationReference: SharedAnnotationReference

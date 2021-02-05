@@ -23,6 +23,7 @@ import MessageBox from "../../../../../common-ui/components/message-box";
 import LoadingIndicator from "../../../../../common-ui/components/loading-indicator";
 import RouteLink from "../../../../../common-ui/components/route-link";
 import { mapOrderedMap, getOrderedMapIndex } from "../../../../../utils/ordered-map";
+import { SharedAnnotationReference } from "@worldbrain/memex-common/lib/content-sharing/types";
 
 const commentImage = require("../../../../../assets/img/comment.svg");
 const collectionImage = require("../../../../../assets/img/collection.svg");
@@ -71,17 +72,6 @@ const CollectionLink = styled(RouteLink)`
     text-decoration: underline;
   }
 
-`
-
-const LoadAnnotationsLink = styled(RouteLink)`
-  display: block;
-  width: 20px;
-  height: 20px;
-  cursor: pointer;
-  background-image: url("${commentImage}");
-  background-size: contain;
-  background-position: center center;
-  background-repeat: no-repeat;
 `
 
 const StyledActivityReason = styled.div`
@@ -171,6 +161,21 @@ export default class HomeFeedPage extends UIElement<
     }
 
     return "normal";
+  }
+
+  private getRenderableAnnotation = (reference: SharedAnnotationReference) => {
+    const annotation = this.state.annotations[reference.id]
+
+    if (!annotation) {
+      return null
+    }
+
+    return {
+      linkId: reference.id as string,
+      reference: reference,
+      createdWhen: annotation.updatedWhen,
+      ...pick(annotation, "comment", "body"),
+    } as SharedAnnotationInPage
   }
 
   renderContent() {
@@ -294,7 +299,9 @@ export default class HomeFeedPage extends UIElement<
             {this.renderActivityReason(listItem)}
           </Margin>
           {mapOrderedMap(listItem.entries, entry => {
+              const { state } = this
               return (
+                <>
                 <Margin bottom="small" key={entry.normalizedPageUrl}>
                   <PageInfoBox
                     pageInfo={{
@@ -305,18 +312,74 @@ export default class HomeFeedPage extends UIElement<
                     }}
                     actions={entry.hasAnnotations ? [
                       {
-                        node: (
-                          <LoadAnnotationsLink
-                            route="collectionDetails"
-                            services={this.props.services}
-                            params={{ id: listItem.listReference.id as string }}
-                            children={null}
-                          />
-                       )
+                        image: commentImage,
+                        onClick: () => this.processEvent('toggleListEntryActivityAnnotations', {
+                          listReference: listItem.listReference,
+                          listEntryReference: entry.reference,
+                        }),
                       }
                     ] : []}
                   />
                 </Margin>
+                {entry.annotationsLoadState === 'running' && <LoadingIndicator />}
+                {entry.areAnnotationsShown && (
+                  <AnnotationsInPage
+                    loadState="success"
+                    annotations={entry.annotations.map(this.getRenderableAnnotation)}
+                    getAnnotationCreator={(annotationReference) =>
+                      state.users[
+                        state.annotations[annotationReference.id].creatorReference.id
+                      ]
+                    }
+                    getAnnotationConversation={() => {
+                      return this.state.conversations[listItem.groupId];
+                    }}
+                    getReplyCreator={(annotationReference, replyReference) => {
+                      const groupReplies = state.replies[listItem.groupId];
+                      const reply = groupReplies?.[replyReference.id]
+
+                      // When the reply is newly submitted, it's not in state.replies yet
+                      if (reply) {
+                          return state.users[reply.creatorReference.id];
+                      }
+
+                      return (state.conversations[listItem.groupId]?.replies ?? []).find(
+                        reply => reply.reference.id === replyReference.id
+                      )?.user;
+                    }}
+                    onNewReplyInitiate={(event) =>
+                      this.processEvent("initiateNewReplyToAnnotation", {
+                        ...event,
+                        conversationId: listItem.groupId,
+                      })
+                    }
+                    onNewReplyCancel={(event) =>
+                      this.processEvent("cancelNewReplyToAnnotation", {
+                        ...event,
+                        conversationId: listItem.groupId,
+                      })
+                    }
+                    onNewReplyConfirm={(event) =>
+                      this.processEvent("confirmNewReplyToAnnotation", {
+                        ...event,
+                        conversationId: listItem.groupId,
+                      })
+                    }
+                    onNewReplyEdit={(event) =>
+                      this.processEvent("editNewReplyToAnnotation", {
+                        ...event,
+                        conversationId: listItem.groupId,
+                      })
+                    }
+                    onToggleReplies={(event) =>
+                      this.processEvent("toggleAnnotationReplies", {
+                        ...event,
+                        conversationId: listItem.groupId,
+                      })
+                    }
+                  />
+                )}
+                </>
               )
             }, inputArr => inputArr.slice(0, this.props.listActivitiesLimit))
           }
@@ -342,21 +405,8 @@ export default class HomeFeedPage extends UIElement<
           <AnnotationsInPage
             loadState="success"
             annotations={mapOrderedMap(pageItem.annotations,
-                (annotationItem): SharedAnnotationInPage => {
-                  const annotation =
-                    state.annotations[annotationItem.reference.id];
-                  if (!annotation) {
-                    return null as any;
-                  }
-                  return {
-                    linkId: annotationItem.reference.id as string,
-                    reference: annotationItem.reference,
-                    createdWhen: annotation.updatedWhen,
-                    ...pick(annotation, "comment", "body"),
-                  };
-                }
-              )
-              .filter((annotation) => !!annotation)}
+              (annotationItem) => this.getRenderableAnnotation(annotationItem.reference)
+            )}
             getAnnotationCreator={(annotationReference) =>
               state.users[
                 state.annotations[annotationReference.id].creatorReference.id
