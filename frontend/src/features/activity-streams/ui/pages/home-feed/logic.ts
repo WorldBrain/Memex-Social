@@ -67,10 +67,8 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
     }
 
     toggleListEntryActivityAnnotations: EventHandler<'toggleListEntryActivityAnnotations'> = async ({ event, previousState }) => {
-        const { storage, services } = this.dependencies
-
-        const entry = (previousState.activityItems.items[event.listReference.id] as ListActivityItem)
-            .entries.items[event.listEntryReference.id]
+        const list = previousState.activityItems.items[event.listReference.id] as ListActivityItem
+        const entry = list.entries.items[event.listEntryReference.id]
 
         // Things have already been loaded earlier, so just toggle the show state
         if (entry.annotationsLoadState !== 'pristine') {
@@ -92,11 +90,6 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
             return
         }
 
-        const userReference = services.auth.getCurrentUserReference()
-        if (!userReference) {
-            return
-        }
-
         await executeUITask<HomeFeedState>(this, (taskState) => ({
             activityItems: {
                 items: {
@@ -112,9 +105,11 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
                 }
             }
         }), async () => {
-            const annotations = await storage.contentSharing.getAnnotationsByCreatorAndPageUrl({
+            const { contentSharing } = this.dependencies.storage
+
+            const annotations = await contentSharing.getAnnotationsByCreatorAndPageUrl({
                 normalizedPageUrl: entry.normalizedPageUrl,
-                creatorReference: userReference,
+                creatorReference: entry.creator,
             })
 
             const annotationRefs = annotations.map(a => a.reference)
@@ -410,6 +405,7 @@ export function organizeActivities(activities: Array<ActivityStreamResultGroup<k
                     reference: activity.entry.reference,
                     entryTitle: activity.entry.entryTitle,
                     originalUrl: activity.entry.originalUrl,
+                    creator: activity.entryCreator.reference,
                     normalizedPageUrl: activity.entry.normalizedUrl,
                     activityTimestamp: activity.entry.updatedWhen ?? activity.entry.createdWhen,
                 })), item => item.reference.id)

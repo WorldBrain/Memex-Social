@@ -59,6 +59,7 @@ export interface ListActivityItem extends TopLevelActivityItem {
 export interface ListEntryActivityItem {
     type: 'list-entry-item',
     reference: SharedListEntryReference
+    creator: UserReference
     entryTitle: string
     originalUrl: string
     normalizedPageUrl: string
