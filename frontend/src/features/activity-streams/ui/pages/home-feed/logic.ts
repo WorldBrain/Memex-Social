@@ -105,14 +105,22 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
                 }
             }
         }), async () => {
-            const { contentSharing } = this.dependencies.storage
+            const { contentSharing, contentConversations } = this.dependencies.storage
 
             const annotations = await contentSharing.getAnnotationsByCreatorAndPageUrl({
                 normalizedPageUrl: entry.normalizedPageUrl,
                 creatorReference: entry.creator,
             })
+            const repliesByAnnotation = await contentConversations.getRepliesByAnnotations({
+                annotationReferences: annotations.map(a => a.reference),
+            })
 
-            const annotationRefs = annotations.map(a => a.reference)
+            const annotationItems: AnnotationActivityItem[] = annotations.map((a, i) => ({
+                type: 'annotation-item',
+                reference: a.reference,
+                hasEarlierReplies: i !== 0,
+                replies: repliesByAnnotation[a.reference.id],
+            }))
             const annotationsData: ActivityData['annotations'] = {}
 
             for (const annotation of annotations) {
@@ -132,7 +140,9 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
                                 items: {
                                     [event.listEntryReference.id]: {
                                         areAnnotationsShown: { $set: !entry.areAnnotationsShown },
-                                        annotations: { $set: annotationRefs },
+                                        annotations: {
+                                            $set: arrayToOrderedMap(annotationItems, item => item.reference.id),
+                                        },
                                     },
                                 },
                             }
@@ -399,8 +409,8 @@ export function organizeActivities(activities: Array<ActivityStreamResultGroup<k
                 notifiedWhen: firstActivity.entry.createdWhen,
                 entries: arrayToOrderedMap(entryActivityGroup.activities.map(({ activity }): ListEntryActivityItem => ({
                     type: 'list-entry-item',
-                    annotations: [],
                     areAnnotationsShown: false,
+                    annotations: createOrderedMap(),
                     annotationsLoadState: 'pristine',
                     reference: activity.entry.reference,
                     entryTitle: activity.entry.entryTitle,

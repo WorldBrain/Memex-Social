@@ -17,9 +17,9 @@ export interface HomeFeedDependencies {
 export type HomeFeedState = {
     loadState: UITaskState
     activityItems: OrderedMap<ActivityItem>
+    replies: ActivityData['replies']
     pageInfo: ActivityData['pageInfo']
     annotations: ActivityData['annotations']
-    replies: ActivityData['replies']
     users: { [userId: string]: Pick<User, 'displayName'> | null }
     lastSeenTimestamp?: number | null
     moreRepliesLoadStates: { [groupId: string]: UITaskState }
@@ -67,7 +67,7 @@ export interface ListEntryActivityItem {
     hasAnnotations?: boolean
     areAnnotationsShown?: boolean
     annotationsLoadState: UITaskState
-    annotations: SharedAnnotationReference[]
+    annotations: OrderedMap<AnnotationActivityItem>
 }
 
 export interface PageActivityItem extends TopLevelActivityItem {

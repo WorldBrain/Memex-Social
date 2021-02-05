@@ -11,6 +11,7 @@ import {
   ActivityItem,
   PageActivityItem,
   ListActivityItem,
+  AnnotationActivityItem,
 } from "./types";
 import DocumentTitle from "../../../../../main-ui/components/document-title";
 import DefaultPageLayout from "../../../../../common-ui/layouts/default-page-layout";
@@ -22,7 +23,7 @@ import { SharedAnnotationInPage } from "../../../../annotations/ui/components/ty
 import MessageBox from "../../../../../common-ui/components/message-box";
 import LoadingIndicator from "../../../../../common-ui/components/loading-indicator";
 import RouteLink from "../../../../../common-ui/components/route-link";
-import { mapOrderedMap, getOrderedMapIndex } from "../../../../../utils/ordered-map";
+import { mapOrderedMap, getOrderedMapIndex, OrderedMap } from "../../../../../utils/ordered-map";
 import { SharedAnnotationReference } from "@worldbrain/memex-common/lib/content-sharing/types";
 
 const commentImage = require("../../../../../assets/img/comment.svg");
@@ -284,10 +285,110 @@ export default class HomeFeedPage extends UIElement<
               actions={[]}
             />
           </Margin>
-          {this.renderAnnotationItems(pageItem)}
+          <Margin left={"small"}>
+            {this.renderAnnotationsInPage(pageItem.groupId, pageItem.annotations)}
+          </Margin>
         </Margin>
       ),
     };
+  }
+
+  renderAnnotationsInPage = (groupId: string, annotations: OrderedMap<AnnotationActivityItem>) => {
+    const { state } = this
+    return (
+      <AnnotationsInPage
+        loadState="success"
+        annotations={mapOrderedMap(annotations, a => this.getRenderableAnnotation(a.reference))}
+        getAnnotationCreator={(annotationReference) =>
+          state.users[
+            state.annotations[annotationReference.id].creatorReference.id
+          ]
+        }
+        getAnnotationConversation={() => {
+          return this.state.conversations[groupId];
+        }}
+        getReplyCreator={(annotationReference, replyReference) => {
+          const groupReplies = state.replies[groupId];
+          const reply = groupReplies?.[replyReference.id]
+
+          // When the reply is newly submitted, it's not in state.replies yet
+          if (reply) {
+              return state.users[reply.creatorReference.id];
+          }
+
+          return (state.conversations[groupId]?.replies ?? []).find(
+            reply => reply.reference.id === replyReference.id
+          )?.user;
+        }}
+        renderBeforeReplies={(annotationReference) => {
+          const annotationItem = annotations.items[annotationReference.id]
+          if (!annotationItem || !annotationItem.hasEarlierReplies) {
+            return null;
+          }
+          const loadState =
+            state.moreRepliesLoadStates[groupId] ?? "pristine";
+          if (loadState === "success") {
+            return null;
+          }
+          if (loadState === "running") {
+            return (
+              <LoadMoreReplies>
+                <LoadingIndicator />
+              </LoadMoreReplies>
+            );
+          }
+          if (loadState === "error") {
+            return (
+              <LoadMoreReplies>
+                Error loading earlier replies
+              </LoadMoreReplies>
+            );
+          }
+          return (
+            <LoadMoreReplies
+              onClick={() =>
+                this.processEvent("loadMoreReplies", {
+                  groupId: groupId,
+                  annotationReference,
+                })
+              }
+            >
+              Load older replies
+            </LoadMoreReplies>
+          );
+        }}
+        onNewReplyInitiate={(event) =>
+          this.processEvent("initiateNewReplyToAnnotation", {
+            ...event,
+            conversationId: groupId,
+          })
+        }
+        onNewReplyCancel={(event) =>
+          this.processEvent("cancelNewReplyToAnnotation", {
+            ...event,
+            conversationId: groupId,
+          })
+        }
+        onNewReplyConfirm={(event) =>
+          this.processEvent("confirmNewReplyToAnnotation", {
+            ...event,
+            conversationId: groupId,
+          })
+        }
+        onNewReplyEdit={(event) =>
+          this.processEvent("editNewReplyToAnnotation", {
+            ...event,
+            conversationId: groupId,
+          })
+        }
+        onToggleReplies={(event) =>
+          this.processEvent("toggleAnnotationReplies", {
+            ...event,
+            conversationId: groupId,
+          })
+        }
+      />
+    )
   }
 
   renderListItem: ActivityItemRenderer<ListActivityItem> = (listItem) => {
@@ -298,90 +399,31 @@ export default class HomeFeedPage extends UIElement<
           <Margin bottom="small">
             {this.renderActivityReason(listItem)}
           </Margin>
-          {mapOrderedMap(listItem.entries, entry => {
-              const { state } = this
-              return (
-                <>
-                <Margin bottom="small" key={entry.normalizedPageUrl}>
-                  <PageInfoBox
-                    pageInfo={{
-                      fullTitle: entry.entryTitle,
-                      originalUrl: entry.originalUrl,
-                      createdWhen: entry.activityTimestamp,
-                      normalizedUrl: entry.normalizedPageUrl,
-                    }}
-                    actions={entry.hasAnnotations ? [
-                      {
-                        image: commentImage,
-                        onClick: () => this.processEvent('toggleListEntryActivityAnnotations', {
-                          listReference: listItem.listReference,
-                          listEntryReference: entry.reference,
-                        }),
-                      }
-                    ] : []}
-                  />
-                </Margin>
-                {entry.annotationsLoadState === 'running' && <LoadingIndicator />}
-                {entry.areAnnotationsShown && (
-                  <AnnotationsInPage
-                    loadState="success"
-                    annotations={entry.annotations.map(this.getRenderableAnnotation)}
-                    getAnnotationCreator={(annotationReference) =>
-                      state.users[
-                        state.annotations[annotationReference.id].creatorReference.id
-                      ]
+          {mapOrderedMap(listItem.entries, entry => (
+              <>
+              <Margin bottom="small" key={entry.normalizedPageUrl}>
+                <PageInfoBox
+                  pageInfo={{
+                    fullTitle: entry.entryTitle,
+                    originalUrl: entry.originalUrl,
+                    createdWhen: entry.activityTimestamp,
+                    normalizedUrl: entry.normalizedPageUrl,
+                  }}
+                  actions={entry.hasAnnotations ? [
+                    {
+                      image: commentImage,
+                      onClick: () => this.processEvent('toggleListEntryActivityAnnotations', {
+                        listReference: listItem.listReference,
+                        listEntryReference: entry.reference,
+                      }),
                     }
-                    getAnnotationConversation={() => {
-                      return this.state.conversations[listItem.groupId];
-                    }}
-                    getReplyCreator={(annotationReference, replyReference) => {
-                      const groupReplies = state.replies[listItem.groupId];
-                      const reply = groupReplies?.[replyReference.id]
-
-                      // When the reply is newly submitted, it's not in state.replies yet
-                      if (reply) {
-                          return state.users[reply.creatorReference.id];
-                      }
-
-                      return (state.conversations[listItem.groupId]?.replies ?? []).find(
-                        reply => reply.reference.id === replyReference.id
-                      )?.user;
-                    }}
-                    onNewReplyInitiate={(event) =>
-                      this.processEvent("initiateNewReplyToAnnotation", {
-                        ...event,
-                        conversationId: listItem.groupId,
-                      })
-                    }
-                    onNewReplyCancel={(event) =>
-                      this.processEvent("cancelNewReplyToAnnotation", {
-                        ...event,
-                        conversationId: listItem.groupId,
-                      })
-                    }
-                    onNewReplyConfirm={(event) =>
-                      this.processEvent("confirmNewReplyToAnnotation", {
-                        ...event,
-                        conversationId: listItem.groupId,
-                      })
-                    }
-                    onNewReplyEdit={(event) =>
-                      this.processEvent("editNewReplyToAnnotation", {
-                        ...event,
-                        conversationId: listItem.groupId,
-                      })
-                    }
-                    onToggleReplies={(event) =>
-                      this.processEvent("toggleAnnotationReplies", {
-                        ...event,
-                        conversationId: listItem.groupId,
-                      })
-                    }
-                  />
-                )}
-                </>
-              )
-            }, inputArr => inputArr.slice(0, this.props.listActivitiesLimit))
+                  ] : []}
+                />
+              </Margin>
+              {entry.annotationsLoadState === 'running' && <LoadingIndicator />}
+              {entry.areAnnotationsShown && this.renderAnnotationsInPage(listItem.groupId, entry.annotations)}
+              </>
+            ), inputArr => inputArr.slice(0, this.props.listActivitiesLimit))
           }
           {listItem.entries.order.length > this.props.listActivitiesLimit && (
             <LoadMoreLink
@@ -395,110 +437,6 @@ export default class HomeFeedPage extends UIElement<
         </Margin>
       ),
     };
-  }
-
-  renderAnnotationItems(pageItem: PageActivityItem) {
-    const { state } = this;
-    return (
-      <Margin left={"small"}>
-        <Margin bottom={"smallest"}>
-          <AnnotationsInPage
-            loadState="success"
-            annotations={mapOrderedMap(pageItem.annotations,
-              (annotationItem) => this.getRenderableAnnotation(annotationItem.reference)
-            )}
-            getAnnotationCreator={(annotationReference) =>
-              state.users[
-                state.annotations[annotationReference.id].creatorReference.id
-              ]
-            }
-            getAnnotationConversation={() => {
-              return this.state.conversations[pageItem.groupId];
-            }}
-            getReplyCreator={(annotationReference, replyReference) => {
-              const groupReplies = state.replies[pageItem.groupId];
-              const reply = groupReplies?.[replyReference.id]
-
-              // When the reply is newly submitted, it's not in state.replies yet
-              if (reply) {
-                  return state.users[reply.creatorReference.id];
-              }
-
-              return (state.conversations[pageItem.groupId]?.replies ?? []).find(
-                reply => reply.reference.id === replyReference.id
-              )?.user;
-            }}
-            renderBeforeReplies={(annotationReference) => {
-              const annotationItem = pageItem.annotations.items[annotationReference.id]
-              if (!annotationItem || !annotationItem.hasEarlierReplies) {
-                return null;
-              }
-              const loadState =
-                state.moreRepliesLoadStates[pageItem.groupId] ?? "pristine";
-              if (loadState === "success") {
-                return null;
-              }
-              if (loadState === "running") {
-                return (
-                  <LoadMoreReplies>
-                    <LoadingIndicator />
-                  </LoadMoreReplies>
-                );
-              }
-              if (loadState === "error") {
-                return (
-                  <LoadMoreReplies>
-                    Error loading earlier replies
-                  </LoadMoreReplies>
-                );
-              }
-              return (
-                <LoadMoreReplies
-                  onClick={() =>
-                    this.processEvent("loadMoreReplies", {
-                      groupId: pageItem.groupId,
-                      annotationReference,
-                    })
-                  }
-                >
-                  Load older replies
-                </LoadMoreReplies>
-              );
-            }}
-            onNewReplyInitiate={(event) =>
-              this.processEvent("initiateNewReplyToAnnotation", {
-                ...event,
-                conversationId: pageItem.groupId,
-              })
-            }
-            onNewReplyCancel={(event) =>
-              this.processEvent("cancelNewReplyToAnnotation", {
-                ...event,
-                conversationId: pageItem.groupId,
-              })
-            }
-            onNewReplyConfirm={(event) =>
-              this.processEvent("confirmNewReplyToAnnotation", {
-                ...event,
-                conversationId: pageItem.groupId,
-              })
-            }
-            onNewReplyEdit={(event) =>
-              this.processEvent("editNewReplyToAnnotation", {
-                ...event,
-                conversationId: pageItem.groupId,
-              })
-            }
-            onToggleReplies={(event) =>
-              this.processEvent("toggleAnnotationReplies", {
-                ...event,
-                conversationId: pageItem.groupId,
-              })
-            }
-          />
-        </Margin>
-      </Margin>
-    );
   }
 
   render() {
