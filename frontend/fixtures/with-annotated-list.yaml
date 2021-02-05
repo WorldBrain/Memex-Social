@@ -111,14 +111,14 @@ objects:
       createdWhen: 1594225289914
       updatedWhen: 1594225289914
       entryTitle: Obsidian
-      normalizedUrl: obsidian.md
+      normalizedUrl: obsidian-2.md
       originalUrl: "https://obsidian.md"
     - sharedList: { $ref: sharedLists.default }
       creator: { $ref: users.default }
       createdWhen: 1594225289914
       updatedWhen: 1594225289914
       entryTitle: Roam Research
-      normalizedUrl: roamresearch.com
+      normalizedUrl: roamresearch-2.com
       originalUrl: "https://roamresearch.com"
     - sharedList: { $ref: sharedLists.default }
       creator: { $ref: users.default }

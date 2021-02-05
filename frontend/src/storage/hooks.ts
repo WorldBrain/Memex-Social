@@ -31,7 +31,7 @@ export class StorageHooksChangeWatcher {
                 throw new Error(`Can't use storage hooks on collections that don't have a simple primary key ('${collection}').`)
             }
 
-            const collectionHooks: HooksByCollectionAndOperation[keyof HooksByCollectionAndOperation] = {}
+            const collectionHooks: HooksByCollectionAndOperation[keyof HooksByCollectionAndOperation] = this.hooksByCollectionAndOperation[collection] ?? {}
             collectionHooks[hook.operation] = { hook, pkIndex }
             this.hooksByCollectionAndOperation[collection] = collectionHooks
         }
