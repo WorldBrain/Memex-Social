@@ -66,10 +66,31 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
         }
     }
 
-    loadListEntryActivityAnnotations: EventHandler<'loadListEntryActivityAnnotations'> = async ({ event, previousState }) => {
+    toggleListEntryActivityAnnotations: EventHandler<'toggleListEntryActivityAnnotations'> = async ({ event, previousState }) => {
         const { storage, services } = this.dependencies
-        const { normalizedPageUrl } = (previousState.activityItems.items[event.listReference.id] as ListActivityItem)
+
+        const entry = (previousState.activityItems.items[event.listReference.id] as ListActivityItem)
             .entries.items[event.listEntryReference.id]
+
+        // Things have already been loaded earlier, so just toggle the show state
+        if (entry.annotationsLoadState !== 'pristine') {
+            this.emitMutation({
+                activityItems: {
+                    items: {
+                        [event.listReference.id]: {
+                            entries: {
+                                items: {
+                                    [event.listEntryReference.id]: {
+                                        areAnnotationsShown: { $set: !entry.areAnnotationsShown }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            })
+            return
+        }
 
         const userReference = services.auth.getCurrentUserReference()
         if (!userReference) {
@@ -92,7 +113,7 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
             }
         }), async () => {
             const annotations = await storage.contentSharing.getAnnotationsByCreatorAndPageUrl({
-                normalizedPageUrl,
+                normalizedPageUrl: entry.normalizedPageUrl,
                 creatorReference: userReference,
             })
 
@@ -115,7 +136,7 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
                             entries: {
                                 items: {
                                     [event.listEntryReference.id]: {
-                                        areAnnotationsShown: { $set: true },
+                                        areAnnotationsShown: { $set: !entry.areAnnotationsShown },
                                         annotations: { $set: annotationRefs },
                                     },
                                 },

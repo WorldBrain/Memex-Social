@@ -31,7 +31,7 @@ export type HomeFeedEvent = UIEvent<AnnotationConversationEvent & {
         groupId: string
         annotationReference: SharedAnnotationReference
     }
-    loadListEntryActivityAnnotations: {
+    toggleListEntryActivityAnnotations: {
         listReference: SharedListReference
         listEntryReference: SharedListEntryReference
     }
