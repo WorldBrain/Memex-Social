@@ -97,7 +97,15 @@ export const setupTestActivities = async ({ services, storage }: { services: Ser
         ],
         userReference: services.auth.getCurrentUserReference()!
     })
-    await storage.serverModules.contentSharing.createAnnotations({
+    await storage.serverModules.contentSharing.createPageInfo({
+        creatorReference: services.auth.getCurrentUserReference()!,
+        pageInfo: {
+            fullTitle: 'New page',
+            normalizedUrl: 'new.com/one',
+            originalUrl: 'https://new.com/one',
+        }
+    })
+    const { sharedAnnotationReferences } = await storage.serverModules.contentSharing.createAnnotations({
         creator: services.auth.getCurrentUserReference()!,
         listReferences: [{ type: 'shared-list-reference', id: 'default-list' }],
         annotationsByPage: {
@@ -105,6 +113,13 @@ export const setupTestActivities = async ({ services, storage }: { services: Ser
                 { createdWhen: Date.now(), comment: 'test note', localId: 'test-annot-1' },
             ]
         }
+    })
+    await services.contentConversations.submitReply({
+        pageCreatorReference: services.auth.getCurrentUserReference()!,
+        annotationReference: sharedAnnotationReferences['test-annot-1'],
+        normalizedPageUrl: 'new.com/one',
+        isFirstReply: true,
+        reply: { content: 'Test annot reply' }
     })
     await services.auth.logout()
 
