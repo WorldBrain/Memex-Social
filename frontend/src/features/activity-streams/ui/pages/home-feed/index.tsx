@@ -415,6 +415,7 @@ export default class HomeFeedPage extends UIElement<
                       onClick: () => this.processEvent('toggleListEntryActivityAnnotations', {
                         listReference: listItem.listReference,
                         listEntryReference: entry.reference,
+                        groupId: listItem.groupId,
                       }),
                     }
                   ] : []}

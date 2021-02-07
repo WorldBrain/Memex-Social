@@ -121,7 +121,9 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
                 hasEarlierReplies: i !== 0,
                 replies: repliesByAnnotation[a.reference.id],
             }))
+
             const annotationsData: ActivityData['annotations'] = {}
+            const repliesData: ActivityData['replies'] = {}
 
             for (const annotation of annotations) {
                 annotationsData[annotation.reference.id] = {
@@ -131,7 +133,27 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
                 }
             }
 
+            for (const replies of Object.values(repliesByAnnotation)) {
+                for (const reply of replies) {
+                    repliesData[event.groupId] = {
+                        ...(repliesData[event.groupId] ?? {}),
+                        [reply.reference.id]: {
+                            creatorReference: reply.userReference,
+                            reference: reply.reference,
+                            reply: {
+                                content: reply.reply.content,
+                                createdWhen: reply.reply.createdWhen,
+                                normalizedPageUrl: reply.reply.normalizedPageUrl,
+                            },
+                        }
+                    }
+                }
+            }
+
+            // TODO: figure out what's missing here to cause the replies not to be rendered (pretty sure it's the conversation state)
+
             this.emitMutation({
+                replies: { $merge: repliesData },
                 annotations: { $merge: annotationsData },
                 activityItems: {
                     items: {
