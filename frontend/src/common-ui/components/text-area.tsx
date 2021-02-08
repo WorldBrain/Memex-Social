@@ -1,4 +1,4 @@
-import React, { TextareaHTMLAttributes, useState } from 'react'
+import React, { TextareaHTMLAttributes } from 'react'
 import styled from 'styled-components'
 
 import { Theme } from '../../main-ui/styles/types'
@@ -15,6 +15,7 @@ const Container = styled.div`
 const StyledTextArea = styled.textarea<{
     theme: Theme
     padding?: boolean
+    error?: boolean
 }>`
     font-family: ${(props) => props.theme.fonts.primary};
     background: ${(props) => props.theme.colors.grey};
@@ -23,6 +24,7 @@ const StyledTextArea = styled.textarea<{
     ${
         (props) => (props.padding ? 'padding: 10px;' : '') // hacky workaround as this component is already used in several places
     };
+    ${(props) => props.error && 'border: solid 2px red;'}
 `
 
 const CharCount = styled.div<{
@@ -36,62 +38,94 @@ const CharCount = styled.div<{
     text-align: right;
 `
 
-export default function TextArea(
-    props: TextareaHTMLAttributes<HTMLTextAreaElement> & {
-        onConfirm?(): void
-        label?: string
-    },
-) {
-    const valueLen =
-        props.value && typeof props.value === 'string'
-            ? props.value.length
-            : typeof props.value === 'number'
-            ? (props.value + '').length
-            : props.value &&
-              typeof props.value === 'object' &&
-              props.value.join().length
-    const [charCount, setCharCount] = useState(valueLen ?? 0)
-    const handleChange: React.ChangeEventHandler<HTMLTextAreaElement> = (
-        evt,
-    ) => {
-        if (props.onChange) {
-            props.onChange(evt)
-        }
-        setCharCount(evt.currentTarget.value.length)
+interface State {
+    value: string
+    prevValue: string
+    charCount: number
+}
+
+interface Props {
+    onConfirm?: () => void
+    value?: string
+    label?: string
+    error?: boolean
+    errorMessage?: string
+}
+export default class TextArea extends React.PureComponent<
+    TextareaHTMLAttributes<HTMLTextAreaElement> & Props,
+    State
+> {
+    state = {
+        prevValue: '',
+        value: '',
+        charCount: 0,
     }
-    const renderElement = function (padding?: boolean) {
+
+    constructor(props: Props) {
+        super(props)
+        this.state.value = props?.value ?? ''
+        this.state.prevValue = props?.value ?? ''
+        this.state.charCount = props.value?.length ?? 0
+    }
+
+    static getDerivedStateFromProps(props: Props, state: State) {
+        if (state.value !== state.prevValue) {
+            return { value: state.value }
+        }
+
+        if (props?.value && props?.value !== state.value) {
+            return { value: props.value }
+        }
+
+        return null
+    }
+
+    handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        this.setState({
+            prevValue: this.state.value,
+            value: e.target.value,
+            charCount: e.target.value.length,
+        })
+        this.props?.onChange?.(e)
+    }
+
+    handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        if (this.props.onConfirm && e.keyCode === 13) {
+            return this.props.onConfirm()
+        }
+        this.props.onKeyDown?.(e)
+    }
+
+    renderElement(padding?: boolean) {
+        const { onConfirm, value, error, errorMessage, ...props } = this.props
         return (
             <Container>
                 <StyledTextArea
                     padding={padding}
                     theme={theme}
+                    value={this.state.value}
+                    error={error}
                     {...props}
-                    onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) =>
-                        handleChange(event)
-                    }
-                    onKeyDown={(
-                        event: React.KeyboardEvent<HTMLTextAreaElement>,
-                    ) => {
-                        if (props.onConfirm && event.keyCode === 13) {
-                            return props.onConfirm()
-                        }
-                        props.onKeyDown?.(event)
-                    }}
+                    onChange={this.handleChange}
+                    onKeyDown={this.handleKeyDown}
                 />
-                <CharCount theme={theme}>{`${
-                    charCount ?? 0
-                }/${USER_PROFILE_BIO_CHAR_LIMIT}`}</CharCount>
+                <CharCount
+                    theme={theme}
+                >{`${this.state.charCount}/${USER_PROFILE_BIO_CHAR_LIMIT}`}</CharCount>
             </Container>
         )
     }
-    if (!props.label) {
-        return renderElement(true)
-    } else {
-        return (
-            <>
-                <StyledInputLabel>{props.label}</StyledInputLabel>
-                {renderElement()}
-            </>
-        )
+
+    render() {
+        if (!this.props.label) {
+            return this.renderElement(true)
+        } else {
+            return (
+                <>
+                    <StyledInputLabel>{this.props.label}</StyledInputLabel>
+                    {this.renderElement()}
+                </>
+            )
+        }
     }
 }
