@@ -1,24 +1,28 @@
 import { Storage } from "../storage/types"
 import { Services } from "../services/types"
+import { ConversationReplyReference } from "@worldbrain/memex-common/lib/content-conversations/types"
+
+type SuccessReplyRes = { status: 'success', replyReference: ConversationReplyReference }
 
 export const setupTestActivities = async ({ services, storage }: { services: Services, storage: Storage }) => {
     await services.auth.loginWithEmailPassword({
         email: 'default-user',
         password: 'bling'
     })
-    await services.contentConversations.submitReply({
+    const { replyReference: reply1Ref } = await services.contentConversations.submitReply({
         pageCreatorReference: { type: 'user-reference', id: 'default-user' },
         annotationReference: { type: 'shared-annotation-reference', id: 'third-annotation' },
         normalizedPageUrl: 'notion.so',
         isFirstReply: true,
         reply: { content: 'Replying to myself' }
-    })
+    }) as SuccessReplyRes
     await services.contentConversations.submitReply({
         pageCreatorReference: { type: 'user-reference', id: 'default-user' },
         annotationReference: { type: 'shared-annotation-reference', id: 'third-annotation' },
         normalizedPageUrl: 'notion.so',
         isFirstReply: false,
-        reply: { content: 'Another reply to myself' }
+        reply: { content: 'Another reply to myself' },
+        previousReplyReference: reply1Ref,
     })
     await services.activityStreams.followEntity({
         entityType: 'sharedAnnotation',
@@ -51,34 +55,32 @@ export const setupTestActivities = async ({ services, storage }: { services: Ser
     }, {
         knownStatus: 'exists'
     }, { displayName: 'User two' })
-    await services.contentConversations.submitReply({
+    const { replyReference: reply2Ref } = await services.contentConversations.submitReply({
         pageCreatorReference: { type: 'user-reference', id: 'default-user' },
         annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' },
         normalizedPageUrl: 'getmemex.com',
-        isFirstReply: true,
         reply: { content: 'default - reply one' }
-    })
+    }) as SuccessReplyRes
     await services.contentConversations.submitReply({
         pageCreatorReference: { type: 'user-reference', id: 'default-user' },
         annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' },
         normalizedPageUrl: 'getmemex.com',
-        isFirstReply: false,
-        reply: { content: 'default - reply two' }
+        reply: { content: 'default - reply two' },
+        previousReplyReference: reply2Ref,
     })
-    await services.contentConversations.submitReply({
+    const { replyReference: reply4Ref } = await services.contentConversations.submitReply({
         pageCreatorReference: { type: 'user-reference', id: 'default-user' },
         annotationReference: { type: 'shared-annotation-reference', id: 'second-annotation' },
         normalizedPageUrl: 'getmemex.com',
-        isFirstReply: true,
-        reply: { content: 'second - reply one' }
-    })
-    await services.contentConversations.submitReply({
+        reply: { content: 'second - reply one' },
+    }) as SuccessReplyRes
+    const { replyReference: reply5Ref } = await services.contentConversations.submitReply({
         pageCreatorReference: { type: 'user-reference', id: 'default-user' },
         annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' },
         normalizedPageUrl: 'getmemex.com',
-        isFirstReply: false,
-        reply: { content: 'default - reply three' }
-    })
+        reply: { content: 'default - reply three' },
+        previousReplyReference: reply4Ref,
+    }) as SuccessReplyRes
     await storage.serverModules.contentSharing.createListEntries({
         listReference: { type: 'shared-list-reference', id: 'default-list' },
         listEntries: [
@@ -92,19 +94,19 @@ export const setupTestActivities = async ({ services, storage }: { services: Ser
         user: { type: 'user-reference', id: 'default-user' },
         timestamp: Date.now(),
     })
-    await services.contentConversations.submitReply({
+    const { replyReference: reply6Ref } = await services.contentConversations.submitReply({
         pageCreatorReference: { type: 'user-reference', id: 'default-user' },
         annotationReference: { type: 'shared-annotation-reference', id: 'third-annotation' },
         normalizedPageUrl: 'notion.so',
-        isFirstReply: false,
-        reply: { content: 'third - reply one' }
-    })
+        reply: { content: 'third - reply one' },
+        previousReplyReference: reply5Ref,
+    }) as SuccessReplyRes
     await services.contentConversations.submitReply({
         pageCreatorReference: { type: 'user-reference', id: 'default-user' },
         annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' },
         normalizedPageUrl: 'getmemex.com',
-        isFirstReply: false,
-        reply: { content: 'default - reply four' }
+        reply: { content: 'default - reply four' },
+        previousReplyReference: reply6Ref,
     })
     await storage.serverModules.contentSharing.createListEntries({
         listReference: { type: 'shared-list-reference', id: 'default-list' },
@@ -134,7 +136,6 @@ export const setupTestActivities = async ({ services, storage }: { services: Ser
         pageCreatorReference: { type: 'user-reference', id: 'default-user' },
         annotationReference: { type: 'shared-annotation-reference', id: 'third-annotation' },
         normalizedPageUrl: 'notion.so',
-        isFirstReply: true,
         reply: { content: 'My final reply to myself' }
     })
 }

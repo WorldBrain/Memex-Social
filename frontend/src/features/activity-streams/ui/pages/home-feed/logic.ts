@@ -259,7 +259,7 @@ export function organizeActivities(activities: Array<ActivityStreamResultGroup<k
             const annotationItem: AnnotationActivityItem = {
                 type: 'annotation-item',
                 reference: replyActivityGroup.activities[0].activity.annotation.reference,
-                hasEarlierReplies: !replyActivityGroup.activities[0].activity.isFirstReply,
+                hasEarlierReplies: !replyActivityGroup.activities[0].activity.previousReplyReference !== null,
                 replies: []
             }
             data.annotationItems[activityGroup.id] = annotationItem
