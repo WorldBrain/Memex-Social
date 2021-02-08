@@ -16,7 +16,6 @@ import PageInfoBox from "../../../../../common-ui/components/page-info-box";
 import AnnotationsInPage from "../../../../annotations/ui/components/annotations-in-page";
 import LoadingIndicator from "../../../../../common-ui/components/loading-indicator";
 import ErrorWithAction from "../../../../../common-ui/components/error-with-action";
-import ListsSidebar from "../../../../../main-ui/components/list-sidebar/lists-sidebar";
 
 const PageInfoList = styled.div`
   width: 100%;
@@ -54,7 +53,7 @@ export default class PageDetailsPage extends UIElement<
     return "normal";
   }
 
-  renderPage() {
+  render() {
     const viewportWidth = this.getBreakPoints();
     const { state } = this;
 
@@ -68,6 +67,11 @@ export default class PageDetailsPage extends UIElement<
           storage={this.props.storage}
           viewportBreakpoint={viewportWidth}
           headerTitle={"Loading page..."}
+          listsSidebarProps={{
+            isShown: state.isListSidebarShown,
+            followedLists: state.followedLists,
+            loadState: state.listSidebarLoadState,
+          }}
         >
           <DocumentTitle
             documentTitle={this.props.services.documentTitle}
@@ -104,6 +108,11 @@ export default class PageDetailsPage extends UIElement<
           storage={this.props.storage}
           viewportBreakpoint={viewportWidth}
           headerTitle={"Shared page not found"}
+          listsSidebarProps={{
+            isShown: state.isListSidebarShown,
+            followedLists: state.followedLists,
+            loadState: state.listSidebarLoadState,
+          }}
         >
           <DocumentTitle
             documentTitle={this.props.services.documentTitle}
@@ -135,6 +144,11 @@ export default class PageDetailsPage extends UIElement<
           viewportBreakpoint={viewportWidth}
           headerTitle={this.getHeaderTitle()}
           headerSubtitle={this.getHeaderSubtitle()}
+          listsSidebarProps={{
+            isShown: state.isListSidebarShown,
+            followedLists: state.followedLists,
+            loadState: state.listSidebarLoadState,
+          }}
         >
           <PageInfoList>
             <Margin bottom={"small"}>
@@ -188,20 +202,6 @@ export default class PageDetailsPage extends UIElement<
         </DefaultPageLayout>
       </>
     );
-  }
-
-  render() {
-    return (
-      <>
-        <ListsSidebar
-          services={this.props.services}
-          isShown={this.state.isListSidebarShown}
-          followedLists={this.state.followedLists}
-          loadState={this.state.listSidebarLoadState}
-        />
-        {this.renderPage()}
-      </>
-    )
   }
 
   getHeaderTitle(): string {

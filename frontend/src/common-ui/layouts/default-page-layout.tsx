@@ -7,6 +7,7 @@ import { StorageModules } from "../../storage/types";
 import { Margin } from "styled-components-spacing";
 import RouteLink from "../components/route-link";
 import UnseenActivityIndicator from "../../features/activity-streams/ui/containers/unseen-activity-indicator";
+import ListsSidebar, { Props as ListsSidebarProps } from "../../main-ui/components/list-sidebar/lists-sidebar";
 const logoImage = require("../../assets/img/memex-logo.svg");
 
 const middleMaxWidth = "800px";
@@ -242,6 +243,7 @@ export default function DefaultPageLayout(props: {
   headerSubtitle?: string | null;
   followBtn?: JSX.Element
   hideActivityIndicator?: boolean;
+  listsSidebarProps?: Omit<ListsSidebarProps, 'services'>
   viewportBreakpoint: ViewportBreakpoint;
   children: React.ReactNode;
 }) {
@@ -304,8 +306,22 @@ export default function DefaultPageLayout(props: {
     );
   };
 
+  const renderListsSidebar = () => {
+    if (props.listsSidebarProps == null) {
+      return null
+    }
+
+    return (
+      <ListsSidebar
+        {...props.listsSidebarProps}
+        services={props.services}
+      />
+    )
+  }
+
   return (
     <MainContainer>
+      {renderListsSidebar()}
       <StyledHeader viewportWidth={viewportWidth}>
         <LogoAndFeed viewportWidth={viewportWidth}>
           <HeaderLogoArea

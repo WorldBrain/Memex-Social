@@ -40,7 +40,7 @@ const LoadMoreLink = styled(RouteLink)`
   background: white;
   font-size: 11px;
   cursor: pointer;
-  border-radius: 3px; 
+  border-radius: 3px;
   align-items: center;
 
   &:hover {
@@ -133,7 +133,7 @@ const LoadMoreReplies = styled.div`
   background: white;
   font-size: 11px;
   cursor: pointer;
-  border-radius: 3px; 
+  border-radius: 3px;
 
   &:hover {
     background: ${(props) => props.theme.colors.grey};
@@ -485,6 +485,11 @@ export default class HomeFeedPage extends UIElement<
           storage={this.props.storage}
           viewportBreakpoint={viewportWidth}
           hideActivityIndicator
+          listsSidebarProps={{
+            isShown: this.state.isListSidebarShown,
+            followedLists: this.state.followedLists,
+            loadState: this.state.listSidebarLoadState,
+          }}
         >
           {this.renderContent()}
         </DefaultPageLayout>

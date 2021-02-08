@@ -28,7 +28,6 @@ import AnnotationsInPage from "../../../../annotations/ui/components/annotations
 import ErrorWithAction from "../../../../../common-ui/components/error-with-action";
 import ErrorBox from "../../../../../common-ui/components/error-box";
 import FollowBtn from "../../../../activity-follows/ui/components/follow-btn"
-import ListsSidebar from "../../../../../main-ui/components/list-sidebar/lists-sidebar";
 const commentImage = require("../../../../../assets/img/comment.svg");
 
 const DocumentView = styled.div`
@@ -292,12 +291,6 @@ export default class CollectionDetailsPage extends UIElement<
           documentTitle={this.props.services.documentTitle}
           subTitle={data.list.title}
         />
-        <ListsSidebar
-          services={this.props.services}
-          isShown={this.state.isListSidebarShown}
-          followedLists={this.state.followedLists}
-          loadState={this.state.listSidebarLoadState}
-        />
         <DefaultPageLayout
           services={this.props.services}
           storage={this.props.storage}
@@ -305,6 +298,11 @@ export default class CollectionDetailsPage extends UIElement<
           headerTitle={data.list.title}
           headerSubtitle={data.creator && `${data.creator.displayName}`}
           followBtn={this.renderFollowBtn()}
+          listsSidebarProps={{
+            isShown: this.state.isListSidebarShown,
+            followedLists: this.state.followedLists,
+            loadState: this.state.listSidebarLoadState,
+          }}
         >
           {data.list.description && (
             <CollectionDescriptionBox viewportWidth={viewportBreakpoint}>
