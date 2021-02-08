@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Margin, Padding } from 'styled-components-spacing'
+import { Margin } from 'styled-components-spacing'
 
 import { UIElement } from '../../../../../main-ui/classes'
 import { Theme } from '../../../../../main-ui/styles/types'
@@ -9,7 +9,11 @@ import {
     ProfileEditModalEvent,
     ProfileEditModalState,
 } from './types'
-import { UserPublicProfile } from '../../../types'
+import {
+    ProfileWebLabel,
+    ProfileWebLinkName,
+    UserPublicProfile,
+} from '../../../types'
 
 import { theme } from '../../../../../main-ui/styles/theme'
 import ProfileEditModalLogic from './logic'
@@ -18,11 +22,12 @@ import {
     SecondaryActionButton,
 } from '../../components/ActionButtons'
 import TextInput from '../../../../../common-ui/components/text-input'
-import { DOMAIN_TLD_PATTERN } from '../../../../../constants'
+import { VALID_URL_TEST } from '../../../../../constants'
 import TextArea from '../../../../../common-ui/components/text-area'
 import Icon from '../../../../../common-ui/components/icon'
 import Overlay from '../../../../../main-ui/containers/overlay'
 import { UITaskState } from '../../../../../main-ui/types'
+import { UserPublicProfileIndexable } from '../profile-popup-container/types'
 
 const Container = styled.div<{ theme: Theme }>`
     margin: auto;
@@ -107,16 +112,15 @@ const CameraIcon = styled(Icon)`
 const StyledPrimaryButton = styled(PrimaryActionButton)<{
     theme: Theme
     taskState: UITaskState
-    error: boolean
 }>`
     background: ${(props) =>
         props.taskState === 'pristine' || props.taskState === 'success'
             ? props.theme.colors.secondary
-            : props.taskState === 'running'
+            : props.taskState === 'running' || props.disabled
             ? props.theme.colors.background
             : props.theme.colors.warning};
     ${(props) =>
-        props.taskState === 'running' || props.error
+        props.taskState === 'running' || props.disabled
             ? `1px solid ${props.theme.colors.secondary};`
             : ''}
     padding-top: 0;
@@ -145,10 +149,31 @@ export default class ProfileEditModal extends UIElement<
     private urlInputErrorMessage: string = 'This must be a valid URL'
 
     handleSaveClick() {
+        this.runAllTests()
+        this.state.inputErrorArray.forEach((val, idx) => {
+            if (val) {
+                console.log(
+                    `Aborting save due to error in inputErrorArray[${idx}]`,
+                )
+                return
+            }
+        })
         this.processEvent('saveProfile', {
             profileData: this.state.userPublicProfile,
             displayName: this.state.user?.displayName ?? '',
         })
+    }
+
+    runAllTests() {
+        const newArray = []
+        newArray[0] = this.testDisplayName()
+        this.state.webLinksArray.forEach(
+            (val, idx) =>
+                (newArray[idx + 1] = this.testValidURL(
+                    this.state.userPublicProfile[val.urlPropName],
+                )),
+        )
+        this.processEvent('setErrorArray', { newArray })
     }
 
     handleSetDisplayName(value: string) {
@@ -159,21 +184,41 @@ export default class ProfileEditModal extends UIElement<
         this.processEvent('setProfileValue', { key, value })
     }
 
-    testDisplayName() {
-        const newArray = [...this.state.inputErrorArray]
-        newArray[0] = !this.state.user?.displayName
-        this.processEvent('setErrorArray', { newArray })
+    handleURLChange = (
+        evt: React.ChangeEvent<HTMLInputElement>,
+        errorIndex: number,
+        urlPropName: ProfileWebLinkName,
+    ) => {
+        if (this.state.inputErrorArray[errorIndex]) {
+            const newArray = [...this.state.inputErrorArray]
+            const profileTypesHack: { [key: string]: string } = {
+                ...this.state.userPublicProfile,
+            }
+            newArray[errorIndex] = this.testValidURL(
+                profileTypesHack[urlPropName],
+            )
+            this.processEvent('setErrorArray', { newArray })
+        }
+        this.handleSetProfileValue(urlPropName, evt.currentTarget.value)
     }
 
-    testValidURL(index: number, url: string) {
-        const newArray = [...this.state.inputErrorArray]
-        newArray[index] = !DOMAIN_TLD_PATTERN.test(url)
-        this.processEvent('setErrorArray', { newArray })
+    testDisplayName(): boolean {
+        return !this.state.user?.displayName
+    }
+
+    testValidURL(url: string): boolean {
+        return !VALID_URL_TEST.test(url)
     }
 
     handleWebLinkClick = (url: string): void => {
         const newWindow = window.open(url, '_blank', 'noopener,noreferrer')
         if (newWindow) newWindow.opener = null
+    }
+
+    handleEnterKeyDown: React.KeyboardEventHandler = (evt) => {
+        if (evt.charCode === 13) {
+            this.handleSaveClick()
+        }
     }
 
     render() {
@@ -182,14 +227,14 @@ export default class ProfileEditModal extends UIElement<
                 services={this.props.services}
                 onCloseRequested={this.props.onCloseRequested}
             >
-                <Container>
+                <Container onKeyDown={this.handleEnterKeyDown}>
                     <Margin vertical="large">
                         <ButtonContainer>
                             <StyledPrimaryButton
                                 theme={theme}
                                 taskState={this.state.savingTaskState}
-                                error={this.state.inputErrorArray.every(
-                                    (val) => !val,
+                                disabled={this.state.inputErrorArray.some(
+                                    (val) => val,
                                 )}
                                 label="Save"
                                 onClick={() => this.handleSaveClick()}
@@ -214,12 +259,14 @@ export default class ProfileEditModal extends UIElement<
                             <TextInput
                                 label="Display Name"
                                 value={this.state.user?.displayName}
-                                onChange={(evt) =>
+                                onChange={(evt) => {
+                                    if (this.state.inputErrorArray[0]) {
+                                        this.testDisplayName()
+                                    }
                                     this.handleSetDisplayName(
                                         evt.currentTarget.value,
                                     )
-                                }
-                                onConfirm={() => this.testDisplayName()}
+                                }}
                                 error={this.state.inputErrorArray[0]}
                                 errorMessage={this.displayNameErrorMessage}
                             />
