@@ -9,11 +9,7 @@ import {
 
 type EventHandler<
     EventName extends keyof ProfileEditModalEvent
-> = UIEventHandler<
-    ProfileEditModalState,
-    ProfileEditModalEvent,
-    EventName
->
+> = UIEventHandler<ProfileEditModalState, ProfileEditModalEvent, EventName>
 
 export default class ProfileEditModalLogic extends UILogic<
     ProfileEditModalState,
@@ -42,21 +38,23 @@ export default class ProfileEditModalLogic extends UILogic<
                 paymentPointer: '',
             },
             webLinksArray: [],
-            inputErrorArray: []
+            inputErrorArray: [],
         }
     }
 
     init: EventHandler<'init'> = async () => {
         this._setProfileTaskState('running')
         try {
-            if(!this.userRef) {
+            if (!this.userRef) {
                 await this._setCurrentUserReference()
             }
             if (!this.userRef) {
                 return // this is purely to fix type errors - error handling is in the catch statement
             }
             const promises = await Promise.all([
-                this.dependencies.services.userManagement.loadUserData(this.userRef),
+                this.dependencies.services.userManagement.loadUserData(
+                    this.userRef,
+                ),
                 this.dependencies.services.userManagement.loadUserPublicProfile(
                     this.userRef,
                 ),
@@ -69,9 +67,9 @@ export default class ProfileEditModalLogic extends UILogic<
         }
     }
 
-    saveProfile: EventHandler<'saveProfile'> = async ({event}) => {
+    saveProfile: EventHandler<'saveProfile'> = async ({ event }) => {
         this._setSavingTaskState('running')
-        if(!this.userRef) {
+        if (!this.userRef) {
             try {
                 await this._setCurrentUserReference()
             } catch (err) {
@@ -83,8 +81,11 @@ export default class ProfileEditModalLogic extends UILogic<
         }
         try {
             await Promise.all([
-                this.dependencies.services.userManagement.updateUserPublicProfile(this.userRef, event.profileData),
-                this._saveDisplayName(event.displayName)
+                this.dependencies.services.userManagement.updateUserPublicProfile(
+                    this.userRef,
+                    event.profileData,
+                ),
+                this._saveDisplayName(event.displayName),
             ])
             this._setSavingTaskState('success')
         } catch (err) {
@@ -92,34 +93,39 @@ export default class ProfileEditModalLogic extends UILogic<
         }
     }
 
-    setDisplayName: EventHandler<'setDisplayName'> = ({event}) => {
+    setDisplayName: EventHandler<'setDisplayName'> = ({ event }) => {
         this.emitMutation({
             user: {
-                displayName: { $set: event.value }
-            }
+                displayName: { $set: event.value },
+            },
         })
     }
 
-    setProfileValue: EventHandler<'setProfileValue'> = ({event}) => {
+    setProfileValue: EventHandler<'setProfileValue'> = ({ event }) => {
         this.emitMutation({
             userPublicProfile: {
-                [event.key]: { $set: event.value }
-            }
+                [event.key]: { $set: event.value },
+            },
         })
     }
 
-    setErrorArray: EventHandler<'setErrorArray'> = ({event}) => {
+    setErrorArray: EventHandler<'setErrorArray'> = ({ event }) => {
         this.emitMutation({
-            inputErrorArray: { $set: event.newArray }
+            inputErrorArray: { $set: event.newArray },
         })
     }
 
     private async _saveDisplayName(displayName: string): Promise<void> {
         await this._setCurrentUserReference()
         if (!this.userRef) {
-            throw new Error('Cannot find reference for current user. Please ensure user is authenticated.')
+            throw new Error(
+                'Cannot find reference for current user. Please ensure user is authenticated.',
+            )
         }
-        await this.dependencies.services.userManagement.updateUserDisplayName(this.userRef, displayName)
+        await this.dependencies.services.userManagement.updateUserDisplayName(
+            this.userRef,
+            displayName,
+        )
     }
 
     private async _setCurrentUserReference(): Promise<void> {

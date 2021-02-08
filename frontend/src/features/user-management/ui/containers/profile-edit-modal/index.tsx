@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Margin, Padding } from "styled-components-spacing";
+import { Margin, Padding } from 'styled-components-spacing'
 
 import { UIElement } from '../../../../../main-ui/classes'
 import { Theme } from '../../../../../main-ui/styles/types'
@@ -13,13 +13,16 @@ import { UserPublicProfile } from '../../../types'
 
 import { theme } from '../../../../../main-ui/styles/theme'
 import ProfileEditModalLogic from './logic'
-import { PrimaryActionButton, SecondaryActionButton } from '../../components/ActionButtons';
+import {
+    PrimaryActionButton,
+    SecondaryActionButton,
+} from '../../components/ActionButtons'
 import TextInput from '../../../../../common-ui/components/text-input'
-import { DOMAIN_TLD_PATTERN } from '../../../../../constants';
-import TextArea from '../../../../../common-ui/components/text-area';
-import Icon from '../../../../../common-ui/components/icon';
-import Overlay from '../../../../../main-ui/containers/overlay';
-import { UITaskState } from '../../../../../main-ui/types';
+import { DOMAIN_TLD_PATTERN } from '../../../../../constants'
+import TextArea from '../../../../../common-ui/components/text-area'
+import Icon from '../../../../../common-ui/components/icon'
+import Overlay from '../../../../../main-ui/containers/overlay'
+import { UITaskState } from '../../../../../main-ui/types'
 
 const Container = styled.div<{ theme: Theme }>`
     margin: auto;
@@ -28,11 +31,11 @@ const Container = styled.div<{ theme: Theme }>`
     width: 648px;
     overflow-y: scroll;
 
-    background-color: ${props => props.theme.colors.background};
-    padding-left: ${props => props.theme.spacing.large};
-    padding-right: ${props => props.theme.spacing.large};
-    padding-top: ${props => props.theme.spacing.large};
-    padding-bottom: ${props => props.theme.spacing.large};
+    background-color: ${(props) => props.theme.colors.background};
+    padding-left: ${(props) => props.theme.spacing.large};
+    padding-right: ${(props) => props.theme.spacing.large};
+    padding-top: ${(props) => props.theme.spacing.large};
+    padding-bottom: ${(props) => props.theme.spacing.large};
 `
 
 const ButtonContainer = styled.div`
@@ -50,18 +53,18 @@ const SectionHeader = styled.div<{
     theme: Theme
 }>`
     width: 100%;
-    font-family: ${props => props.theme.fonts.primary};
-    font-weight: ${props => props.theme.fontWeights.bold};
-    font-size: ${props => props.theme.fontSizes.header};
-    line-height: ${props => props.theme.lineHeights.header};
-    color: ${props => props.theme.colors.primary};
+    font-family: ${(props) => props.theme.fonts.primary};
+    font-weight: ${(props) => props.theme.fontWeights.bold};
+    font-size: ${(props) => props.theme.fontSizes.header};
+    line-height: ${(props) => props.theme.lineHeights.header};
+    color: ${(props) => props.theme.colors.primary};
     text-align: left;
 `
 
 const SectionHeaderDescription = styled(SectionHeader)`
-    font-weight: ${props => props.theme.fontWeights.normal};
-    font-size: ${props => props.theme.fontSizes.text};
-    line-height: ${props => props.theme.lineHeights.text};
+    font-weight: ${(props) => props.theme.fontWeights.normal};
+    font-size: ${(props) => props.theme.fontSizes.text};
+    line-height: ${(props) => props.theme.lineHeights.text};
 `
 
 const WebLink = styled(SectionHeaderDescription)`
@@ -74,7 +77,7 @@ const FormColumn = styled.div<{
 }>`
     display: flex;
     flex-direction: column;
-    ${props => props.maxWidth && `max-width: ${props.maxWidth}`};
+    ${(props) => props.maxWidth && `max-width: ${props.maxWidth}`};
 `
 
 const LargeUserAvatar = styled.div<{ path: string }>`
@@ -83,14 +86,14 @@ const LargeUserAvatar = styled.div<{ path: string }>`
     border-radius: 50px;
     background-position: center;
     background-size: contain;
-    background: url(${props => props.path});
+    background: url(${(props) => props.path});
 `
 
 const AvatarPlaceholder = styled.div<{ theme: Theme }>`
     height: 100px;
     width: 100px;
     border-radius: 50px;
-    background: ${props => props.theme.colors.grey};
+    background: ${(props) => props.theme.colors.grey};
     display: flex;
     justify-content: center;
     align-items: center;
@@ -101,13 +104,21 @@ const CameraIcon = styled(Icon)`
     background-size: contain;
 `
 
-const StyledPrimaryButton = styled(PrimaryActionButton)<{ 
+const StyledPrimaryButton = styled(PrimaryActionButton)<{
     theme: Theme
     taskState: UITaskState
     error: boolean
 }>`
-    background: ${props => props.taskState === 'pristine' || props.taskState === 'success' ? props.theme.colors.secondary : props.taskState === 'running' ? props.theme.colors.background : props.theme.colors.warning};
-    ${props => props.taskState === 'running' || props.error ? `1px solid ${props.theme.colors.secondary};` : ''}
+    background: ${(props) =>
+        props.taskState === 'pristine' || props.taskState === 'success'
+            ? props.theme.colors.secondary
+            : props.taskState === 'running'
+            ? props.theme.colors.background
+            : props.theme.colors.warning};
+    ${(props) =>
+        props.taskState === 'running' || props.error
+            ? `1px solid ${props.theme.colors.secondary};`
+            : ''}
     padding-top: 0;
     padding-bottom: 0;
 `
@@ -128,12 +139,16 @@ export default class ProfileEditModal extends UIElement<
         super(props, { logic: new ProfileEditModalLogic(props) })
     }
 
-    private webMonetizationLearnMoreURL: string = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
+    private webMonetizationLearnMoreURL: string =
+        'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
     private displayNameErrorMessage: string = 'Display Name must not be empty'
     private urlInputErrorMessage: string = 'This must be a valid URL'
 
     handleSaveClick() {
-        this.processEvent('saveProfile', { profileData: this.state.userPublicProfile, displayName: this.state.user?.displayName ?? '' })
+        this.processEvent('saveProfile', {
+            profileData: this.state.userPublicProfile,
+            displayName: this.state.user?.displayName ?? '',
+        })
     }
 
     handleSetDisplayName(value: string) {
@@ -163,14 +178,19 @@ export default class ProfileEditModal extends UIElement<
 
     render() {
         return (
-            <Overlay services={this.props.services} onCloseRequested={this.props.onCloseRequested}>
+            <Overlay
+                services={this.props.services}
+                onCloseRequested={this.props.onCloseRequested}
+            >
                 <Container>
                     <Margin vertical="large">
                         <ButtonContainer>
                             <StyledPrimaryButton
                                 theme={theme}
                                 taskState={this.state.savingTaskState}
-                                error={this.state.inputErrorArray.every(val => !val)}
+                                error={this.state.inputErrorArray.every(
+                                    (val) => !val,
+                                )}
                                 label="Save"
                                 onClick={() => this.handleSaveClick()}
                                 minWidth="82px"
@@ -191,58 +211,119 @@ export default class ProfileEditModal extends UIElement<
                     </FormRow>
                     <FormRow>
                         <FormColumn maxWidth="263px">
-                            <TextInput 
+                            <TextInput
                                 label="Display Name"
                                 value={this.state.user?.displayName}
-                                onChange={(evt) => this.handleSetDisplayName(evt.currentTarget.value)}
+                                onChange={(evt) =>
+                                    this.handleSetDisplayName(
+                                        evt.currentTarget.value,
+                                    )
+                                }
                                 onConfirm={() => this.testDisplayName()}
                                 error={this.state.inputErrorArray[0]}
                                 errorMessage={this.displayNameErrorMessage}
-                                />
+                            />
                             <TextArea
                                 label="Bio"
                                 rows={5}
                                 value={this.state.userPublicProfile.bio}
-                                onChange={(evt) => this.handleSetProfileValue('bio', evt.currentTarget.value)}
+                                onChange={(evt) =>
+                                    this.handleSetProfileValue(
+                                        'bio',
+                                        evt.currentTarget.value,
+                                    )
+                                }
                             />
                             <TextInput
                                 label="Website"
                                 value={this.state.userPublicProfile.websiteURL}
-                                onChange={(evt) => this.handleSetProfileValue('websiteURL', evt.currentTarget.value)}
-                                onConfirm={() => this.testValidURL(1, this.state.userPublicProfile.websiteURL)}
+                                onChange={(evt) =>
+                                    this.handleSetProfileValue(
+                                        'websiteURL',
+                                        evt.currentTarget.value,
+                                    )
+                                }
+                                onConfirm={() =>
+                                    this.testValidURL(
+                                        1,
+                                        this.state.userPublicProfile.websiteURL,
+                                    )
+                                }
                                 error={this.state.inputErrorArray[1]}
                                 errorMessage={this.urlInputErrorMessage}
                             />
                             <TextInput
                                 label="Twitter"
                                 value={this.state.userPublicProfile.twitterURL}
-                                onChange={(evt) => this.handleSetProfileValue('twitterURL', evt.currentTarget.value)}
-                                onConfirm={() => this.testValidURL(2, this.state.userPublicProfile.twitterURL)}
+                                onChange={(evt) =>
+                                    this.handleSetProfileValue(
+                                        'twitterURL',
+                                        evt.currentTarget.value,
+                                    )
+                                }
+                                onConfirm={() =>
+                                    this.testValidURL(
+                                        2,
+                                        this.state.userPublicProfile.twitterURL,
+                                    )
+                                }
                                 error={this.state.inputErrorArray[2]}
                                 errorMessage={this.urlInputErrorMessage}
                             />
                             <TextInput
                                 label="Medium"
                                 value={this.state.userPublicProfile.mediumURL}
-                                onChange={(evt) => this.handleSetProfileValue('mediumURL', evt.currentTarget.value)}
-                                onConfirm={() => this.testValidURL(3, this.state.userPublicProfile.mediumURL)}
+                                onChange={(evt) =>
+                                    this.handleSetProfileValue(
+                                        'mediumURL',
+                                        evt.currentTarget.value,
+                                    )
+                                }
+                                onConfirm={() =>
+                                    this.testValidURL(
+                                        3,
+                                        this.state.userPublicProfile.mediumURL,
+                                    )
+                                }
                                 error={this.state.inputErrorArray[3]}
                                 errorMessage={this.urlInputErrorMessage}
                             />
                             <TextInput
                                 label="Substack"
                                 value={this.state.userPublicProfile.substackURL}
-                                onChange={(evt) => this.handleSetProfileValue('substackURL', evt.currentTarget.value)}
-                                onConfirm={() => this.testValidURL(4, this.state.userPublicProfile.substackURL)}
+                                onChange={(evt) =>
+                                    this.handleSetProfileValue(
+                                        'substackURL',
+                                        evt.currentTarget.value,
+                                    )
+                                }
+                                onConfirm={() =>
+                                    this.testValidURL(
+                                        4,
+                                        this.state.userPublicProfile
+                                            .substackURL,
+                                    )
+                                }
                                 error={this.state.inputErrorArray[4]}
                                 errorMessage={this.urlInputErrorMessage}
                             />
                         </FormColumn>
                         <FormColumn maxWidth="186px">
-                            {this.state.userPublicProfile.avatarURL && <LargeUserAvatar path={this.state.userPublicProfile.avatarURL} />}
-                            {!this.state.userPublicProfile.avatarURL && <AvatarPlaceholder>
-                                <CameraIcon height="30px" fileName="camera.svg" />
-                            </AvatarPlaceholder>}
+                            {this.state.userPublicProfile.avatarURL && (
+                                <LargeUserAvatar
+                                    path={
+                                        this.state.userPublicProfile.avatarURL
+                                    }
+                                />
+                            )}
+                            {!this.state.userPublicProfile.avatarURL && (
+                                <AvatarPlaceholder>
+                                    <CameraIcon
+                                        height="30px"
+                                        fileName="camera.svg"
+                                    />
+                                </AvatarPlaceholder>
+                            )}
                         </FormColumn>
                     </FormRow>
                     <FormRow>
@@ -251,8 +332,17 @@ export default class ProfileEditModal extends UIElement<
                                 Web Monetization Settings
                             </SectionHeader>
                             <SectionHeaderDescription>
-                                People can pay for your curations with WebMonetization micropayments. Takes 5 minutes to set up. 
-                                <WebLink as="span" onClick={() => this.handleWebLinkClick(this.webMonetizationLearnMoreURL)}>
+                                People can pay for your curations with
+                                WebMonetization micropayments. Takes 5 minutes
+                                to set up.
+                                <WebLink
+                                    as="span"
+                                    onClick={() =>
+                                        this.handleWebLinkClick(
+                                            this.webMonetizationLearnMoreURL,
+                                        )
+                                    }
+                                >
                                     {`Learn More >>`}
                                 </WebLink>
                             </SectionHeaderDescription>
@@ -260,10 +350,17 @@ export default class ProfileEditModal extends UIElement<
                     </FormRow>
                     <FormRow>
                         <FormColumn maxWidth="263px">
-                            <TextInput 
+                            <TextInput
                                 label="Display Name"
-                                value={this.state.userPublicProfile.paymentPointer}
-                                onChange={(evt) => this.handleSetProfileValue('paymentPointer', evt.currentTarget.value)}
+                                value={
+                                    this.state.userPublicProfile.paymentPointer
+                                }
+                                onChange={(evt) =>
+                                    this.handleSetProfileValue(
+                                        'paymentPointer',
+                                        evt.currentTarget.value,
+                                    )
+                                }
                             />
                         </FormColumn>
                     </FormRow>

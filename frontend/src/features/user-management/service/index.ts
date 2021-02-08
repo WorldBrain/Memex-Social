@@ -1,4 +1,9 @@
-import { ProfileWebLink, User, UserPublicProfile, UserReference } from '../types'
+import {
+    ProfileWebLink,
+    User,
+    UserPublicProfile,
+    UserReference,
+} from '../types'
 import { AuthService } from '../../../services/auth/types'
 import UserStorage from '../storage/'
 import UserProfileCache from '../utils/user-profile-cache'
@@ -34,21 +39,42 @@ export default class UserManagementService {
         return publicProfile
     }
 
-    async createUserPublicProfile(userRef: UserReference, profileData: UserPublicProfile): Promise<void> {
-        await this.options.storage.createOrUpdateUserPublicProfile(userRef, {knownStatus: 'new'}, profileData)
+    async createUserPublicProfile(
+        userRef: UserReference,
+        profileData: UserPublicProfile,
+    ): Promise<void> {
+        await this.options.storage.createOrUpdateUserPublicProfile(
+            userRef,
+            { knownStatus: 'new' },
+            profileData,
+        )
     }
 
-    async updateUserPublicProfile(userRef: UserReference, profileData: UserPublicProfile): Promise<void> {
+    async updateUserPublicProfile(
+        userRef: UserReference,
+        profileData: UserPublicProfile,
+    ): Promise<void> {
         try {
-            await this.options.storage.createOrUpdateUserPublicProfile(userRef, {knownStatus: 'exists'}, profileData)
-        } catch(err) {
+            await this.options.storage.createOrUpdateUserPublicProfile(
+                userRef,
+                { knownStatus: 'exists' },
+                profileData,
+            )
+        } catch (err) {
             console.log('userStorage.updateUserPublicProfile error')
             console.error(err)
         }
     }
 
-    async updateUserDisplayName(userRef: UserReference, value: string): Promise<void> {
-        await this.options.storage.updateUser(userRef, { knownStatus: 'exists' }, { displayName: value })
+    async updateUserDisplayName(
+        userRef: UserReference,
+        value: string,
+    ): Promise<void> {
+        await this.options.storage.updateUser(
+            userRef,
+            { knownStatus: 'exists' },
+            { displayName: value },
+        )
     }
 
     getWebLinksArray(profileData: UserPublicProfile): ProfileWebLink[] {
