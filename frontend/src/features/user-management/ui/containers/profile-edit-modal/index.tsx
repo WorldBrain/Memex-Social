@@ -234,79 +234,26 @@ export default class ProfileEditModal extends UIElement<
                                     )
                                 }
                             />
-                            <TextInput
-                                label="Website"
-                                value={this.state.userPublicProfile.websiteURL}
-                                onChange={(evt) =>
-                                    this.handleSetProfileValue(
-                                        'websiteURL',
-                                        evt.currentTarget.value,
-                                    )
-                                }
-                                onConfirm={() =>
-                                    this.testValidURL(
-                                        1,
-                                        this.state.userPublicProfile.websiteURL,
-                                    )
-                                }
-                                error={this.state.inputErrorArray[1]}
-                                errorMessage={this.urlInputErrorMessage}
-                            />
-                            <TextInput
-                                label="Twitter"
-                                value={this.state.userPublicProfile.twitterURL}
-                                onChange={(evt) =>
-                                    this.handleSetProfileValue(
-                                        'twitterURL',
-                                        evt.currentTarget.value,
-                                    )
-                                }
-                                onConfirm={() =>
-                                    this.testValidURL(
-                                        2,
-                                        this.state.userPublicProfile.twitterURL,
-                                    )
-                                }
-                                error={this.state.inputErrorArray[2]}
-                                errorMessage={this.urlInputErrorMessage}
-                            />
-                            <TextInput
-                                label="Medium"
-                                value={this.state.userPublicProfile.mediumURL}
-                                onChange={(evt) =>
-                                    this.handleSetProfileValue(
-                                        'mediumURL',
-                                        evt.currentTarget.value,
-                                    )
-                                }
-                                onConfirm={() =>
-                                    this.testValidURL(
-                                        3,
-                                        this.state.userPublicProfile.mediumURL,
-                                    )
-                                }
-                                error={this.state.inputErrorArray[3]}
-                                errorMessage={this.urlInputErrorMessage}
-                            />
-                            <TextInput
-                                label="Substack"
-                                value={this.state.userPublicProfile.substackURL}
-                                onChange={(evt) =>
-                                    this.handleSetProfileValue(
-                                        'substackURL',
-                                        evt.currentTarget.value,
-                                    )
-                                }
-                                onConfirm={() =>
-                                    this.testValidURL(
-                                        4,
-                                        this.state.userPublicProfile
-                                            .substackURL,
-                                    )
-                                }
-                                error={this.state.inputErrorArray[4]}
-                                errorMessage={this.urlInputErrorMessage}
-                            />
+                            {this.state.webLinksArray.map((linkObj, idx) => (
+                                <TextInput
+                                    key={idx}
+                                    label={linkObj.label}
+                                    value={
+                                        this.state.userPublicProfile[
+                                            linkObj.urlPropName
+                                        ]
+                                    }
+                                    onChange={(evt) =>
+                                        this.handleURLChange(
+                                            evt,
+                                            idx + 1,
+                                            linkObj.urlPropName,
+                                        )
+                                    }
+                                    error={this.state.inputErrorArray[idx + 1]}
+                                    errorMessage={this.urlInputErrorMessage}
+                                />
+                            ))}
                         </FormColumn>
                         <FormColumn maxWidth="186px">
                             {this.state.userPublicProfile.avatarURL && (

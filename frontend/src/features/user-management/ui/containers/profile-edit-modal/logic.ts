@@ -1,6 +1,11 @@
 import { UILogic, UIEventHandler } from '../../../../../main-ui/classes/logic'
 import { UITaskState } from '../../../../../main-ui/types'
-import { UserPublicProfile, User, UserReference } from '../../../types'
+import {
+    UserPublicProfile,
+    User,
+    UserReference,
+    ProfileWebLink,
+} from '../../../types'
 import {
     ProfileEditModalDependencies,
     ProfileEditModalEvent,
@@ -61,6 +66,7 @@ export default class ProfileEditModalLogic extends UILogic<
             ])
             this._setUser(await promises[0])
             this._setUserPublicProfileData(promises[1])
+            this._setWebLinksArray()
             this._setProfileTaskState('success')
         } catch (err) {
             this._setProfileTaskState('error')
@@ -88,7 +94,9 @@ export default class ProfileEditModalLogic extends UILogic<
                 this._saveDisplayName(event.displayName),
             ])
             this._setSavingTaskState('success')
+            this.dependencies.onCloseRequested()
         } catch (err) {
+            console.error(err)
             this._setSavingTaskState('error')
         }
     }
@@ -152,6 +160,34 @@ export default class ProfileEditModalLogic extends UILogic<
     private _setUserPublicProfileData(profileData: UserPublicProfile): void {
         this.emitMutation({
             userPublicProfile: { $set: profileData },
+        })
+    }
+
+    private async _setWebLinksArray(
+        profileData?: UserPublicProfile,
+    ): Promise<void> {
+        if (!profileData) {
+            if (this.userRef) {
+                profileData = await this.dependencies.services.userManagement.loadUserPublicProfile(
+                    this.userRef,
+                )
+            } else {
+                profileData = {
+                    websiteURL: '',
+                    mediumURL: '',
+                    twitterURL: '',
+                    substackURL: '',
+                    bio: '',
+                    avatarURL: '',
+                    paymentPointer: '',
+                }
+            }
+        }
+        const webLinksArray: ProfileWebLink[] = this.dependencies.services.userManagement.getWebLinksArray(
+            profileData,
+        )
+        this.emitMutation({
+            webLinksArray: { $set: webLinksArray },
         })
     }
 }
