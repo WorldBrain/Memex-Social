@@ -43,7 +43,7 @@ interface State {
 }
 
 interface Props {
-    onConfirm: () => void
+    onConfirm?: () => void
     value?: string
     label?: string
     error?: boolean
@@ -70,6 +70,8 @@ export default class TextInput extends React.PureComponent<
         if (props?.value && props?.value !== state.value) {
             return { value: props.value }
         }
+
+        return null
     }
 
     handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
