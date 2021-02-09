@@ -1,15 +1,13 @@
-import expect from "expect"
-// import { organizeNotifications } from "./logic"
-import { AnnotationReplyActivity, ActivityStreamResult, ActivityStreamResultGroup } from "@worldbrain/memex-common/lib/activity-streams/types"
-import { inspect } from "util"
+import { ActivityStreamResult, ActivityStreamResultGroup } from "@worldbrain/memex-common/lib/activity-streams/types"
 
 describe('Home feed logic tests', () => {
     function createReplyActivityFactory() {
         const objects: {
             pages: { [normalizedPageUrl: string]: { createdWhen: number, index: number } },
             annotations: { [normalizedPageUrl: string]: { createdWhen: number, index: number } },
+            threads: { [normalizedPageUrl: string]: { createdWhen: number, index: number } },
             users: { [normalizedPageUrl: string]: { createdWhen: number, index: number } },
-        } = { pages: {}, annotations: {}, users: {} }
+        } = { pages: {}, annotations: {}, threads: {}, users: {} }
         let time = 0
         let notificationCount = 0
 
@@ -28,16 +26,17 @@ describe('Home feed logic tests', () => {
             replies: Array<{
                 replyCreator: string
             }>
-        }): ActivityStreamResultGroup<'sharedAnnotation', 'conversationReply'> => {
+        }): ActivityStreamResultGroup<'conversationThread', 'conversationReply'> => {
             const contentCreator = createOrGet('users', params.contentCreator)
             const page = createOrGet('pages', params.normalizedPageUrl)
             const annotation = createOrGet('annotations', params.annotationId)
+            const thread = createOrGet('threads', params.normalizedPageUrl)
             return {
                 id: '',
-                entityType: 'sharedAnnotation',
-                entity: { type: 'shared-annotation-reference', id: `annot-${annotation.index}` },
+                entityType: 'conversationThread',
+                entity: { type: 'conversation-thread-reference', id: `thread-${thread.index}` },
                 activityType: 'conversationReply',
-                activities: params.replies.map((replyData): ActivityStreamResult<'sharedAnnotation', 'conversationReply'> => {
+                activities: params.replies.map((replyData): ActivityStreamResult<'conversationThread', 'conversationReply'> => {
                     const replyCreator = createOrGet('users', replyData.replyCreator)
                     const reply = createOrGet('users', replyData.replyCreator)
                     return {

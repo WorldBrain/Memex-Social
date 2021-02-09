@@ -190,13 +190,17 @@ objects:
       updatedWhen: 1594225289914
       normalizedPageUrl: "notion.so"
   conversationThreads:
-    - user: { $ref: users.default }
+    - $store: default
+      user: { $ref: users.default }
+      sharedList: null
       sharedAnnotation: { $ref: sharedAnnotations.annotation-1 }
       updatedWhen: 1594225289914
       fullTitle: "WorldBrain's Memex"
       normalizedPageUrl: getmemex.com
   conversationReplies:
     - user: { $ref: users.default }
+      conversationThread: { $ref: conversationThreads.default }
+      sharedList: null
       sharedAnnotation: { $ref: sharedAnnotations.annotation-1 }
       createdWhen: 1594225289914
       normalizedPageUrl: getmemex.com
@@ -211,6 +215,8 @@ objects:
 
         <i>should ignore html</i>
     - user: { $ref: users.default }
+      conversationThread: { $ref: conversationThreads.default }
+      sharedList: null
       sharedAnnotation: { $ref: sharedAnnotations.annotation-1 }
       createdWhen: 1594225289914
       normalizedPageUrl: getmemex.com
