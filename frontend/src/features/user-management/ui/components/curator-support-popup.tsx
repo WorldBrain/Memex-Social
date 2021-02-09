@@ -8,7 +8,7 @@ import { UIElementServices } from '../../../../main-ui/classes'
 import { StorageModules } from '../../../../storage/types'
 
 import LoadingScreen from '../../../../common-ui/components/loading-screen'
-import CuratorSupportButtonBlock from '../components/curator-support-button-block'
+import CuratorSupportButtonBlock from '../../../web-monetization/ui/containers/curator-support-button-block'
 
 const PopupContainer = styled.div<{ theme: Theme }>`
     position: absolute;
