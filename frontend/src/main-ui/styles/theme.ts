@@ -7,6 +7,7 @@ export const theme: Theme = {
     small: '0.5rem',
     medium: '1rem',
     large: '1.5rem',
+    larger: '2rem',
     largest: '3rem',
   },
   colors: {
@@ -53,7 +54,7 @@ export const theme: Theme = {
     url: '21px',
     text: '18px',
     smallText: '12px',
-},
+  },
   zIndices: {
     overlay: 50,
   },

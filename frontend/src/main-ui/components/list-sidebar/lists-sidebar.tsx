@@ -20,22 +20,28 @@ const Container = styled.div`
   width: 200px;
   overflow-y: scroll;
   z-index: 5000;
+  background: #fff;
+  box-shadow: #101e7308 4px 0 16px;
 `;
 
 const ListContent = styled.div`
   display: flex;
   flex-direction: column;
   padding-bottom: 100px;
+  padding-left: 5px;
 `
 
 const SectionTitle = styled.div`
-  font-size: 16px;
-  font-weight: bold;
-  padding: 5px 0px 10px 5px;
+  font-size: 14px;
+  font-weight: 300;
+  padding: 5px 0px 5px 5px;
+  color: ${(props) => props.theme.colors.darkgrey};
+  opacity: 0.7;
 `;
 
 const ListNameLink = styled(RouteLink)`
   width: 100%;
+  font-size: 14px;
   line-break: auto;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -43,15 +49,20 @@ const ListNameLink = styled(RouteLink)`
   color: ${(props) => props.theme.colors.darkgrey};
   padding: 5px;
   border-radius: 5px;
+  font-weight: 500;
 
   &:hover {
-    background: #fff;
+    background: ${(props) => props.theme.colors.grey};;
   }
 `;
 
-const EmptyMsg = styled.span``;
+const EmptyMsg = styled.span`
+  font-size: 12px;
+`;
 
-const ErrorMsg = styled.span``;
+const ErrorMsg = styled.span`
+  font-size: 12px;
+`;
 
 export interface Props {
   services: Pick<Services, 'router'>;

@@ -7,10 +7,11 @@ import { AnnotationConversationEvent, AnnotationConversationsState } from "../..
 import { StorageModules } from "../../../../../storage/types";
 import { UITaskState } from "../../../../../main-ui/types";
 import { OrderedMap } from "../../../../../utils/ordered-map";
+import { ActivityFollowsState, ActivityFollowsEvent } from "../../../../activity-follows/ui/types";
 
 export interface HomeFeedDependencies {
     services: UIElementServices<'contentConversations' | 'auth' | 'overlay' | 'activityStreams' | 'router'>;
-    storage: Pick<StorageModules, 'contentSharing' | 'contentConversations' | 'users' | 'activityStreams'>
+    storage: Pick<StorageModules, 'contentSharing' | 'contentConversations' | 'users' | 'activityStreams' | 'activityFollows'>
     listActivitiesLimit: number
 }
 
@@ -23,9 +24,9 @@ export type HomeFeedState = {
     users: { [userId: string]: Pick<User, 'displayName'> | null }
     lastSeenTimestamp?: number | null
     moreRepliesLoadStates: { [groupId: string]: UITaskState }
-} & AnnotationConversationsState
+} & AnnotationConversationsState & ActivityFollowsState
 
-export type HomeFeedEvent = UIEvent<AnnotationConversationEvent & {
+export type HomeFeedEvent = UIEvent<AnnotationConversationEvent & ActivityFollowsEvent & {
     waypointHit: null
     loadMoreReplies: {
         groupId: string

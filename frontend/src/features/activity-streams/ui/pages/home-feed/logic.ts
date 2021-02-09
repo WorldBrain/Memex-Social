@@ -1,10 +1,12 @@
 import flatten from "lodash/flatten"
 import sortBy from "lodash/sortBy"
+import orderBy from "lodash/orderBy"
 import { ActivityStreamResultGroup, ActivityStream } from "@worldbrain/memex-common/lib/activity-streams/types"
 import { UILogic, UIEventHandler, loadInitial, executeUITask, UIMutation } from "../../../../../main-ui/classes/logic"
 import { HomeFeedEvent, HomeFeedDependencies, HomeFeedState, PageActivityItem, AnnotationActivityItem, ActivityItem, ActivityData, ListEntryActivityItem, ListActivityItem } from "./types"
 import { getInitialAnnotationConversationStates } from "../../../../content-conversations/ui/utils"
 import { annotationConversationInitialState, annotationConversationEventHandlers } from "../../../../content-conversations/ui/logic"
+import { activityFollowsInitialState, activityFollowsEventHandlers } from '../../../../activity-follows/ui/logic'
 import UserProfileCache from "../../../../user-management/utils/user-profile-cache"
 import { createOrderedMap, arrayToOrderedMap } from "../../../../../utils/ordered-map"
 
@@ -32,6 +34,10 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
             },
             loadUser: reference => this.users.loadUser(reference),
         }))
+
+        Object.assign(this, activityFollowsEventHandlers(this as any, {
+            ...this.dependencies,
+        }))
     }
 
     getInitialState(): HomeFeedState {
@@ -43,11 +49,12 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
             replies: {},
             users: {},
             moreRepliesLoadStates: {},
+            ...activityFollowsInitialState(),
             ...annotationConversationInitialState(),
         }
     }
 
-    init: EventHandler<'init'> = async ({ previousState }) => {
+    init: EventHandler<'init'> = async ({ previousState, event }) => {
         const userReference = this.dependencies.services.auth.getCurrentUserReference()
         if (!userReference) {
             // Firebase auth doesn't immediately detect authenticated users, so wait if needed
@@ -58,6 +65,7 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
             })
         }
         await this.loadNextActivities(previousState, { isInitial: true })
+        await this.processUIEvent('initActivityFollows', { previousState, event })
     }
 
     waypointHit: EventHandler<'waypointHit'> = async ({ previousState }) => {
@@ -435,7 +443,7 @@ export function organizeActivities(activities: Array<ActivityStreamResultGroup<k
 
         if (activityGroup.entityType === 'sharedList' && activityGroup.activityType === 'sharedListEntry') {
             const entryActivityGroup = activityGroup as ActivityStreamResultGroup<'sharedList', 'sharedListEntry'>
-            entryActivityGroup.activities = sortBy(entryActivityGroup.activities, ({ activity }) => activity.entry.createdWhen)
+            entryActivityGroup.activities = orderBy(entryActivityGroup.activities, [({ activity }) => activity.entry.createdWhen], ['desc'])
             const { activity: firstActivity } = entryActivityGroup.activities[0]
 
             activityItems.push({

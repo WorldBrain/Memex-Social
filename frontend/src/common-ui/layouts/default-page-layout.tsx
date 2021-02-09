@@ -7,9 +7,15 @@ import { StorageModules } from "../../storage/types";
 import { Margin } from "styled-components-spacing";
 import RouteLink from "../components/route-link";
 import UnseenActivityIndicator from "../../features/activity-streams/ui/containers/unseen-activity-indicator";
+import ListsSidebar, { Props as ListsSidebarProps } from "../../main-ui/components/list-sidebar/lists-sidebar";
 const logoImage = require("../../assets/img/memex-logo.svg");
 
 const middleMaxWidth = "800px";
+
+const MainContainer = styled.div`
+    background: #f6f8fB;
+    height: 100%;
+`
 
 const StyledHeader = styled.div<{
   viewportWidth: "mobile" | "small" | "normal" | "big";
@@ -18,7 +24,7 @@ const StyledHeader = styled.div<{
   width: 100%;
   height: 50px;
   display: flex;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   justify-content: space-between;
   padding: 0 20px;
   position: sticky;
@@ -28,6 +34,7 @@ const StyledHeader = styled.div<{
   z-index: 2;
   align-items: center;
   height: 50px;
+  box-shadow: #101e7308 0 4px 16px;
 `;
 
 const LogoAndFeed = styled.div<{
@@ -178,10 +185,10 @@ const PageMiddleArea = styled.div<{
   viewportWidth: "mobile" | "small" | "normal" | "big";
 }>`
   max-width: ${middleMaxWidth};
-  top: 10px;
+  padding-top: 10px;
   position: relative;
   padding-bottom: 100px;
-  margin: 20px auto 0;
+  margin: 0px auto 0;
 
   ${(props) =>
     props.viewportWidth === "small" &&
@@ -214,7 +221,7 @@ const PageMidleAreaAction = styled.div`
   flex-direction: row;
 `
 
-const PageMiddleAreaTopBox = styled.div<{
+const PageMiddleAreaTopBox = styled(Margin)<{
   viewportWidth: "mobile" | "small" | "normal" | "big";
 }>`
   display: flex;
@@ -224,6 +231,7 @@ const PageMiddleAreaTopBox = styled.div<{
     props.viewportWidth === "mobile"
       ? "column"
       : "row"};;
+
 `
 
 export default function DefaultPageLayout(props: {
@@ -235,6 +243,7 @@ export default function DefaultPageLayout(props: {
   headerSubtitle?: string | null;
   followBtn?: JSX.Element
   hideActivityIndicator?: boolean;
+  listsSidebarProps?: Omit<ListsSidebarProps, 'services'>
   viewportBreakpoint: ViewportBreakpoint;
   children: React.ReactNode;
 }) {
@@ -297,8 +306,22 @@ export default function DefaultPageLayout(props: {
     );
   };
 
+  const renderListsSidebar = () => {
+    if (props.listsSidebarProps == null) {
+      return null
+    }
+
+    return (
+      <ListsSidebar
+        {...props.listsSidebarProps}
+        services={props.services}
+      />
+    )
+  }
+
   return (
-    <>
+    <MainContainer>
+      {renderListsSidebar()}
       <StyledHeader viewportWidth={viewportWidth}>
         <LogoAndFeed viewportWidth={viewportWidth}>
           <HeaderLogoArea
@@ -316,7 +339,7 @@ export default function DefaultPageLayout(props: {
         </HeaderAuthArea>
       </StyledHeader>
       <PageMiddleArea viewportWidth={viewportWidth}>
-        <PageMiddleAreaTopBox viewportWidth={viewportWidth}>
+        <PageMiddleAreaTopBox top="larger" viewportWidth={viewportWidth}>
           <PageMidleAreaTitles>
           {props.headerTitle && (
             <HeaderTitle
@@ -338,6 +361,6 @@ export default function DefaultPageLayout(props: {
         </PageMiddleAreaTopBox>
         {props.children}
       </PageMiddleArea>
-    </>
+    </MainContainer>
   );
 }
