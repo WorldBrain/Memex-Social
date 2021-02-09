@@ -51,16 +51,19 @@ const ListNameLink = styled(RouteLink)`
   font-weight: 500;
 
   &:hover {
-    background: ${(props) => props.theme.colors.grey};;
+    background: ${(props) => props.theme.colors.grey};
   }
 `;
 
 const EmptyMsg = styled.span`
   font-size: 12px;
+  padding-left: 5px;
 `;
 
 const ErrorMsg = styled.span`
   font-size: 12px;
+  color: ${(props) => props.theme.colors.warning};
+  padding-left: 5px;
 `;
 
 export interface Props {
