@@ -21,6 +21,7 @@ const Container = styled.div`
     height: min-content;
     justify-content: start;
     align-items: center;
+    ${(props) => `margin: ${props.theme.spacing.small} ${props.theme.spacing.small} 0 0;`}
 `
 
 const Button = styled.div<{
@@ -28,17 +29,19 @@ const Button = styled.div<{
     supportedTaskState: UITaskState
     isSupported: boolean
 }>`
-    height: 17px;
-    min-width: 71px;
+    height: 40px;
+    width: 140px;
     display: flex;
-    ${(props) => `margin: ${props.theme.spacing.small};`}
-    ${(props) => `padding: ${props.theme.spacing.smallest};`}
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    ${(props) => `padding: ${props.theme.spacing.small} ${props.theme.spacing.medium};`}
     ${(props) =>
         props.supportedTaskState === 'pristine' &&
-        `border: 1px solid ${props.theme.colors.grey};`}
+        `border: 2px solid ${props.theme.colors.grey};`}
     ${(props) =>
         props.supportedTaskState === 'running' &&
-        `border: 1px solid ${props.theme.colors.secondary};`}
+        `border: 2px solid ${props.theme.colors.secondary};`}
     ${(props) => `background-color: ${props.theme.colors.background};`}
     ${(props) =>
         (props.supportedTaskState === 'success' || props.isSupported) &&
@@ -46,15 +49,22 @@ const Button = styled.div<{
     ${(props) =>
         props.supportedTaskState === 'error' &&
         `background-color: ${props.theme.colors.warning};`}
+    border-radius: 3px;
+
+    &:hover {
+        ${(props) => `background-color: ${props.theme.colors.secondary};`}
+    }
 `
 
 const Icon = styled.div<{ theme: Theme }>`
-    height: 10px;
-    width: 10px;
+    height: 14px;
+    width: 14px;
     ${(props) => `padding: ${props.theme.spacing.smallest};`}
 `
 
-const ButtonInnerText = styled.div<{ theme: Theme }>`
+const ButtonInnerText = styled.div<{
+    theme: Theme
+}>`
     color: ${(props) => props.theme.colors.primary};
     font-family: ${(props) => props.theme.fonts.primary};
     font-size: ${(props) => props.theme.fontSizes.text};
@@ -66,8 +76,11 @@ const BoldText = styled(ButtonInnerText)`
 `
 
 const Link = styled.a<{ theme: Theme }>`
-    ${(props) => `font-size: ${props.theme.fontSizes.smallText};`}
-    ${(props) => `line-height: ${props.theme.lineHeights.smallText};`}
+    ${(props) => `font-size: ${props.theme.fontSizes.text};`}
+    ${(props) => `line-height: ${props.theme.lineHeights.text};`}
+    text-decoration: underline;
+    ${(props) => `margin-left: ${props.theme.spacing.medium};`}
+    color: ${(props) => props.theme.colors.primary};
 `
 
 const ErrorMessage = styled.div<{ theme: Theme }>`
@@ -121,7 +134,7 @@ export class CuratorSupportButtonBlock extends UIElement<
                 {toggleRelationshipTaskState === 'pristine' &&
                     'Support Curator'}
                 {toggleRelationshipTaskState === 'success' &&
-                    'Curator Supported'}
+                    <BoldText>Supported</BoldText>}
                 {toggleRelationshipTaskState === 'error' && (
                     <div>
                         Error processing payment. <BoldText>Try again</BoldText>
@@ -144,7 +157,7 @@ export class CuratorSupportButtonBlock extends UIElement<
                     supportedTaskState={toggleRelationshipTaskState}
                     theme={theme}
                 >
-                    <Icon theme={theme} />
+                    {/*<Icon theme={theme} />*/}
                     {this.renderButtonInnerHTML()}
                 </Button>
                 <Link

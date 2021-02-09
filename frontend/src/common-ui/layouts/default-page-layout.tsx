@@ -27,7 +27,7 @@ const StyledHeader = styled.div<{
     top: 0;
     background-color: #fff;
     margin-top: -20px;
-    z-index: 2;
+    z-index: 2000;
     align-items: center;
     height: 50px;
 
