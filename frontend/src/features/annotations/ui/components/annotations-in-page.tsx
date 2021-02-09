@@ -227,7 +227,9 @@ export function AnnotationWithReplies(
                                                     replyData.reference,
                                                 ) ?? replyData.user
                                             }
-                                            profilePopupProps={props.profilePopupProps}
+                                            profilePopupProps={
+                                                props.profilePopupProps
+                                            }
                                             renderItemBox={
                                                 props.renderReplyBox &&
                                                 ((boxProps) =>
