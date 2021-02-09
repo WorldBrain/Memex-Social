@@ -39,7 +39,6 @@ const LoadMoreLink = styled(RouteLink)`
   justify-content: center;
   font-family: ${(props) => props.theme.fonts.primary};
   color: ${(props) => props.theme.colors.primary};
-  background: white;
   font-size: 11px;
   cursor: pointer;
   border-radius: 3px;
@@ -59,7 +58,6 @@ const CollectionLink = styled(RouteLink)`
   justify-content: center;
   font-family: ${(props) => props.theme.fonts.primary};
   color: ${(props) => props.theme.colors.primary};
-  background: white;
   padding-left: 5px;
   cursor: pointer;
   align-items: center;
@@ -112,8 +110,8 @@ const LastSeenLineBackground = styled.div`
 const LastSeenLineLabel = styled.div`
   font-family: ${(props) => props.theme.fonts.primary};
   text-align: center;
-  background: white;
   padding: 0 20px;
+  background: #f6f8fB;
   z-index: 2;
 `;
 
@@ -121,7 +119,6 @@ const LoadMoreReplies = styled.div`
   display: flex;
   justify-content: center;
   font-family: ${(props) => props.theme.fonts.primary};
-  background: white;
   font-size: 11px;
   cursor: pointer;
   border-radius: 3px;

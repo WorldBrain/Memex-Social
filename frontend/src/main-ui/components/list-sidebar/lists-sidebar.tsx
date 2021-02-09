@@ -28,7 +28,6 @@ const ListContent = styled.div`
   display: flex;
   flex-direction: column;
   padding-bottom: 100px;
-  padding-left: 5px;
 `
 
 const SectionTitle = styled.div`
