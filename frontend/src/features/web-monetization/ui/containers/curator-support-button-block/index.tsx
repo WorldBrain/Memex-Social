@@ -21,7 +21,8 @@ const Container = styled.div`
     height: min-content;
     justify-content: start;
     align-items: center;
-    ${(props) => `margin: ${props.theme.spacing.small} ${props.theme.spacing.small} 0 0;`}
+    ${(props) =>
+        `margin: ${props.theme.spacing.small} ${props.theme.spacing.small} 0 0;`}
 `
 
 const Button = styled.div<{
@@ -35,7 +36,8 @@ const Button = styled.div<{
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    ${(props) => `padding: ${props.theme.spacing.small} ${props.theme.spacing.medium};`}
+    ${(props) =>
+        `padding: ${props.theme.spacing.small} ${props.theme.spacing.medium};`}
     ${(props) =>
         props.supportedTaskState === 'pristine' &&
         `border: 2px solid ${props.theme.colors.grey};`}
@@ -125,17 +127,17 @@ export class CuratorSupportButtonBlock extends UIElement<
     }
 
     renderButtonInnerHTML() {
-        const { toggleRelationshipTaskState } = this.state
-        if (toggleRelationshipTaskState === 'running') {
+        const { makePaymentTaskState } = this.state
+        if (makePaymentTaskState === 'running') {
             return <LoadingScreen />
         }
         return (
             <ButtonInnerText>
-                {toggleRelationshipTaskState === 'pristine' &&
-                    'Support Curator'}
-                {toggleRelationshipTaskState === 'success' &&
-                    <BoldText>Supported</BoldText>}
-                {toggleRelationshipTaskState === 'error' && (
+                {makePaymentTaskState === 'pristine' && 'Support Curator'}
+                {makePaymentTaskState === 'success' && (
+                    <BoldText>Supported</BoldText>
+                )}
+                {makePaymentTaskState === 'error' && (
                     <div>
                         Error processing payment. <BoldText>Try again</BoldText>
                     </div>
@@ -144,17 +146,14 @@ export class CuratorSupportButtonBlock extends UIElement<
         )
     }
 
-    renderButtonBlock() {
-        const {
-            supporterRelationshipExists,
-            toggleRelationshipTaskState,
-        } = this.state
+    render() {
+        const { paymentMade, makePaymentTaskState } = this.state
         return (
             <Container>
                 <Button
                     onClick={this.handleButtonClick}
-                    isSupported={supporterRelationshipExists}
-                    supportedTaskState={toggleRelationshipTaskState}
+                    isSupported={paymentMade}
+                    supportedTaskState={makePaymentTaskState}
                     theme={theme}
                 >
                     {/*<Icon theme={theme} />*/}
@@ -162,28 +161,18 @@ export class CuratorSupportButtonBlock extends UIElement<
                 </Button>
                 <Link
                     href={
-                        toggleRelationshipTaskState === 'error'
+                        makePaymentTaskState === 'error'
                             ? 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
                             : 'https://www.youtube.com/watch?v=at_f98qOGY0'
                     }
                     theme={theme}
                 >
-                    {toggleRelationshipTaskState === 'error'
+                    {makePaymentTaskState === 'error'
                         ? 'Help>>'
                         : 'Learn More>>'}
                 </Link>
             </Container>
         )
-    }
-
-    render() {
-        if (this.state.initialLoadTaskState === 'running') {
-            return this.renderLoadingSceen()
-        } else if (this.state.initialLoadTaskState === 'error') {
-            return this.renderErrorScreen()
-        } else {
-            return this.renderButtonBlock()
-        }
     }
 }
 

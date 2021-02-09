@@ -10,7 +10,7 @@ import { theme } from '../../../../main-ui/styles/theme'
 import LoadingScreen from '../../../../common-ui/components/loading-screen'
 import { StorageModules } from '../../../../storage/types'
 import { UIElementServices } from '../../../../main-ui/classes'
-import CuratorSupportButtonBlock from './curator-support-button-block'
+import CuratorSupportButtonBlock from '../../../web-monetization/ui/containers/curator-support-button-block'
 import UserAvatar from '../../../../common-ui/components/user-avatar'
 import Icon from '../../../../common-ui/components/icon'
 
@@ -99,53 +99,56 @@ export default class ProfilePopup extends PureComponent<ProfilePopupProps> {
             webLinksArray,
         } = this.props
         return (
-                <PopupContainer theme={theme}>
-                    {taskState === 'running' && <LoadingScreen />}
-                    {(taskState === 'pristine' || taskState === 'success') && (
-                        <>
-                            <ProfileContainer>
-                                <ProfileHeader>
-                                    {/*<UserAvatar path={avatarURL} user={{displayName: displayName ?? 'Unknown User'}} />*/}
-                                    <Padding>
-                                        <ProfileHeaderInnerContainer theme={theme} >
-                                            <DisplayName theme={theme}>
-                                                {displayName}
-                                            </DisplayName>
-                                            {!!webLinksArray.length && (
-                                                <WebLinksContainer>
-                                                    {webLinksArray.map(
-                                                        ({ url, fileName }, index) => (
-                                                            <Icon
-                                                                key={index}
-                                                                fileName={fileName}
-                                                                height="18px"
-                                                                onClick={() =>
-                                                                    this.handleWebLinkClick(
-                                                                        url,
-                                                                    )
-                                                                }
-                                                            />
-                                                        ),
-                                                    )}
-                                                </WebLinksContainer>
-                                            )}
-                                        </ProfileHeaderInnerContainer>
-                                    </Padding>
-                                </ProfileHeader>
-                                <Margin vertical={"small"}>
-                                    <ProfileBio theme={theme}>{bio}</ProfileBio>
-                                </Margin> 
-                            </ProfileContainer>
-                            {paymentPointer && (
-                                <CuratorSupportButtonBlock
-                                    services={services}
-                                    storage={storage}
-                                    paymentPointer={paymentPointer}
-                                />
-                            )}
-                        </>
-                    )}
-                </PopupContainer>
+            <PopupContainer theme={theme}>
+                {taskState === 'running' && <LoadingScreen />}
+                {(taskState === 'pristine' || taskState === 'success') && (
+                    <>
+                        <ProfileContainer>
+                            <ProfileHeader>
+                                {/*<UserAvatar path={avatarURL} user={{displayName: displayName ?? 'Unknown User'}} />*/}
+                                <Padding>
+                                    <ProfileHeaderInnerContainer theme={theme}>
+                                        <DisplayName theme={theme}>
+                                            {displayName}
+                                        </DisplayName>
+                                        {!!webLinksArray.length && (
+                                            <WebLinksContainer>
+                                                {webLinksArray.map(
+                                                    (
+                                                        { url, fileName },
+                                                        index,
+                                                    ) => (
+                                                        <Icon
+                                                            key={index}
+                                                            fileName={fileName}
+                                                            height="18px"
+                                                            onClick={() =>
+                                                                this.handleWebLinkClick(
+                                                                    url,
+                                                                )
+                                                            }
+                                                        />
+                                                    ),
+                                                )}
+                                            </WebLinksContainer>
+                                        )}
+                                    </ProfileHeaderInnerContainer>
+                                </Padding>
+                            </ProfileHeader>
+                            <Margin vertical={'small'}>
+                                <ProfileBio theme={theme}>{bio}</ProfileBio>
+                            </Margin>
+                        </ProfileContainer>
+                        {paymentPointer && (
+                            <CuratorSupportButtonBlock
+                                services={services}
+                                storage={storage}
+                                paymentPointer={paymentPointer}
+                            />
+                        )}
+                    </>
+                )}
+            </PopupContainer>
         )
     }
 }
