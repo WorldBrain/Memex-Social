@@ -318,6 +318,7 @@ export default class CollectionDetailsPage extends UIElement<
                     headerSubtitle={
                         data.creator && `by ${data.creator.displayName}`
                     }
+                    creatorReference={data.creatorReference}
                     followBtn={this.renderFollowBtn()}
                 >
                     {data.list.description && (
