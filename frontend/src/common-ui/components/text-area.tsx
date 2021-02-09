@@ -22,6 +22,7 @@ const StyledTextArea = styled.textarea<{
     border: 0;
     outline: none;
     max-width: 100%;
+    padding: 10px;
     border-radius: ${(props) => props.theme.borderRadii.default};
     ${
         (props) => (props.padding ? 'padding: 10px;' : '') // hacky workaround as this component is already used in several places
