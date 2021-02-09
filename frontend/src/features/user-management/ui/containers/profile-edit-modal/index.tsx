@@ -9,11 +9,7 @@ import {
     ProfileEditModalEvent,
     ProfileEditModalState,
 } from './types'
-import {
-    ProfileWebLabel,
-    ProfileWebLinkName,
-    UserPublicProfile,
-} from '../../../types'
+import { ProfileWebLinkName, UserPublicProfile } from '../../../types'
 
 import { theme } from '../../../../../main-ui/styles/theme'
 import ProfileEditModalLogic from './logic'
@@ -27,7 +23,6 @@ import TextArea from '../../../../../common-ui/components/text-area'
 import Icon from '../../../../../common-ui/components/icon'
 import Overlay from '../../../../../main-ui/containers/overlay'
 import { UITaskState } from '../../../../../main-ui/types'
-import { UserPublicProfileIndexable } from '../profile-popup-container/types'
 
 const Container = styled.div<{ theme: Theme }>`
     margin: auto;
