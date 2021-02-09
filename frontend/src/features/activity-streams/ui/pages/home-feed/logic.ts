@@ -150,11 +150,27 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
                 }
             }
 
-            // TODO: figure out what's missing here to cause the replies not to be rendered (pretty sure it's the conversation state)
+            const conversationsData: HomeFeedState['conversations'] = {
+                [event.groupId]: {
+                    loadState: 'pristine',
+                    expanded: true,
+                    newReply: {
+                        content: '',
+                        editing: false,
+                        saveState: 'pristine',
+                    },
+                    replies: await Promise.all(Object.values(repliesData[event.groupId]).map(async reply => ({
+                        reference: reply.reference,
+                        reply: reply.reply,
+                        user: await this.users.loadUser(reply.creatorReference),
+                    }))),
+                }
+            }
 
             this.emitMutation({
                 replies: { $merge: repliesData },
                 annotations: { $merge: annotationsData },
+                conversations: { $merge: conversationsData },
                 activityItems: {
                     items: {
                         [event.listReference.id]: {

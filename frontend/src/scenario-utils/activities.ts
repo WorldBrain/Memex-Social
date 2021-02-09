@@ -132,4 +132,12 @@ export const setupTestActivities = async ({ services, storage }: { services: Ser
         email: 'default-user',
         password: 'bling'
     })
+
+    await services.contentConversations.submitReply({
+        pageCreatorReference: services.auth.getCurrentUserReference()!,
+        annotationReference: sharedAnnotationReferences['test-annot-1'],
+        normalizedPageUrl: 'new.com/one',
+        isFirstReply: false,
+        reply: { content: 'Another test annot reply - from John Doe!' }
+    })
 }
