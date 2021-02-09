@@ -126,6 +126,14 @@ export const setupTestActivities = async ({ services, storage }: { services: Ser
         isFirstReply: true,
         reply: { content: 'Test annot reply' }
     })
+
+    await services.contentConversations.submitReply({
+        pageCreatorReference: services.auth.getCurrentUserReference()!,
+        annotationReference: sharedAnnotationReferences['test-annot-1'],
+        normalizedPageUrl: 'new.com/one',
+        isFirstReply: true,
+        reply: { content: 'Another test annot reply' }
+    })
     await services.auth.logout()
 
     await services.auth.loginWithEmailPassword({
@@ -138,6 +146,6 @@ export const setupTestActivities = async ({ services, storage }: { services: Ser
         annotationReference: sharedAnnotationReferences['test-annot-1'],
         normalizedPageUrl: 'new.com/one',
         isFirstReply: false,
-        reply: { content: 'Another test annot reply - from John Doe!' }
+        reply: { content: 'Yet another test reply - from John Doe!' }
     })
 }
