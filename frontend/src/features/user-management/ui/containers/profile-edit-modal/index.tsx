@@ -47,7 +47,7 @@ const ButtonContainer = styled.div`
     width: 100%;
     height: min-content;
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
 `
 
 const FormRow = styled.div`
@@ -82,7 +82,7 @@ const FormColumn = styled.div<{
 }>`
     display: flex;
     flex-direction: column;
-    ${(props) => props.maxWidth && `max-width: ${props.maxWidth}`};
+    width: 100%;
 `
 
 const LargeUserAvatar = styled.div<{ path: string }>`
@@ -144,7 +144,7 @@ export default class ProfileEditModal extends UIElement<
     }
 
     private webMonetizationLearnMoreURL: string =
-        'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
+        'https://www.worldbrain.io/WebMonetizationTutorial'
     private displayNameErrorMessage: string = 'Display Name must not be empty'
     private urlInputErrorMessage: string = 'This must be a valid URL'
 
@@ -228,7 +228,7 @@ export default class ProfileEditModal extends UIElement<
                 onCloseRequested={this.props.onCloseRequested}
             >
                 <Container onKeyDown={this.handleEnterKeyDown}>
-                    <Margin vertical="large">
+                    <Margin bottom="large">
                         <ButtonContainer>
                             <StyledPrimaryButton
                                 theme={theme}
@@ -270,6 +270,7 @@ export default class ProfileEditModal extends UIElement<
                                 error={this.state.inputErrorArray[0]}
                                 errorMessage={this.displayNameErrorMessage}
                             />
+                            <Margin vertical="small">
                             <TextArea
                                 label="Bio"
                                 rows={5}
@@ -281,6 +282,7 @@ export default class ProfileEditModal extends UIElement<
                                     )
                                 }
                             />
+                            </Margin>
                             {this.state.webLinksArray.map((linkObj, idx) => (
                                 <TextInput
                                     key={idx}
@@ -302,23 +304,24 @@ export default class ProfileEditModal extends UIElement<
                                 />
                             ))}
                         </FormColumn>
-                        <FormColumn maxWidth="186px">
-                            {this.state.userPublicProfile.avatarURL && (
-                                <LargeUserAvatar
-                                    path={
-                                        this.state.userPublicProfile.avatarURL
-                                    }
-                                />
-                            )}
-                            {!this.state.userPublicProfile.avatarURL && (
-                                <AvatarPlaceholder>
-                                    <CameraIcon
-                                        height="30px"
-                                        fileName="camera.svg"
+                        {/*<FormColumn maxWidth="186px">
+                                {this.state.userPublicProfile.avatarURL && (
+                                    <LargeUserAvatar
+                                        path={
+                                            this.state.userPublicProfile.avatarURL
+                                        }
                                     />
-                                </AvatarPlaceholder>
-                            )}
-                        </FormColumn>
+                                )}
+                                {!this.state.userPublicProfile.avatarURL && (
+                                    <AvatarPlaceholder>
+                                        <CameraIcon
+                                            height="30px"
+                                            fileName="camera.svg"
+                                        />
+                                    </AvatarPlaceholder>
+                                )}
+                            </FormColumn>
+                        */}
                     </FormRow>
                     <FormRow>
                         <Margin top="medium">
@@ -327,7 +330,7 @@ export default class ProfileEditModal extends UIElement<
                             </SectionHeader>
                             <SectionHeaderDescription>
                                 People can pay for your curations with
-                                WebMonetization micropayments. Takes 5 minutes
+                                WebMonetization micropayments. <br/> Takes 5 minutes
                                 to set up.
                                 <WebLink
                                     as="span"
@@ -345,7 +348,7 @@ export default class ProfileEditModal extends UIElement<
                     <FormRow>
                         <FormColumn maxWidth="263px">
                             <TextInput
-                                label="Display Name"
+                                label=""
                                 value={
                                     this.state.userPublicProfile.paymentPointer
                                 }

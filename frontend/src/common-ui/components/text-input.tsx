@@ -1,6 +1,7 @@
 import React from 'react'
 import { InputHTMLAttributes } from 'react'
 import styled from 'styled-components'
+import { Margin } from "styled-components-spacing";
 
 import { theme } from '../../main-ui/styles/theme'
 import { Theme } from '../../main-ui/styles/types'
@@ -13,9 +14,13 @@ const StyledInput = styled.input<{
     font-family: ${(props) => props.theme.fonts.primary};
     background: ${(props) => props.theme.colors.grey};
     border: 0;
+    min-height: 30px;
+    padding: 10px;
+    width: 100%;
     border-radius: ${(props) => props.theme.borderRadii.default};
     ${(props) => (props.padding ? 'padding: 10px;' : '')}
     ${(props) => props.error && 'border: solid 2px red;'}
+    outline: none;
 `
 
 export const StyledInputLabel = styled.div<{
@@ -112,8 +117,12 @@ export default class TextInput extends React.PureComponent<
         } else {
             return (
                 <>
+                    <Margin bottom="small">
                     <StyledInputLabel>{label}</StyledInputLabel>
+                    </Margin>
+                    <Margin bottom="small">
                     {this.renderElement()}
+                    </Margin>
                 </>
             )
         }
