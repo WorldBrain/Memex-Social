@@ -3,6 +3,7 @@ import { AuthService } from '../../../services/auth/types'
 import { Services } from '../../../services/types'
 import UserManagementService from '../../user-management/service'
 import { UserReference } from '../../user-management/types'
+import { WebMonetizationButtonState } from '../logic/buttons/types'
 
 export default class WebMonetizationService {
     constructor(
@@ -46,27 +47,22 @@ export default class WebMonetizationService {
     }
 
     private _setTaskStateHandler(
-        taskStateHandler: (taskState: UITaskState) => void,
+        taskStateHandler: any,
         metaTag: HTMLMetaElement,
     ) {
-        const docProxy: Document & {
-            monetization?: any
-        } = {
-            ...document,
-        }
-        if (!docProxy.monetization) {
+        if ((document as any).monetization) {
             console.error('Monetization is not enabled')
             return
         }
         function stopHandler(taskState: UITaskState, metaTag: HTMLMetaElement) {
             taskStateHandler(taskState)
-            document.head.removeChild(metaTag)
+            (document as any).head.removeChild(metaTag)
         }
-        docProxy.monetization.addEventListener(
+        (document as any).monetization.addEventListener(
             'monetizationpending',
             taskStateHandler.bind(null, 'running'),
         )
-        docProxy.monetization.addEventListener(
+        (document as any).monetization.addEventListener(
             'monetizationstop',
             stopHandler.bind(null, 'success', metaTag),
         )
