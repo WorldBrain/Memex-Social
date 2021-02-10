@@ -161,7 +161,7 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
             const conversationsData: HomeFeedState['conversations'] = {
                 [event.groupId]: {
                     loadState: 'pristine',
-                    expanded: true,
+                    expanded: false,
                     newReply: {
                         content: '',
                         editing: false,
