@@ -26,6 +26,7 @@ export default abstract class WebMonetizationButtonLogic extends UILogic<
         return {
             isDisplayed: false,
             paymentMade: false,
+            curatorPaymentPointer: '',
             initialLoadTaskState: 'pristine',
             makePaymentTaskState: 'pristine',
         }
@@ -46,8 +47,9 @@ export default abstract class WebMonetizationButtonLogic extends UILogic<
     makeSupporterPayment: EventHandler<'makeSupporterPayment'> = async () => {
         try {
             this._setMakePaymentTaskState('running')
+            const curatorPaymentPointer = await this._getPaymentPointer()
             await this.dependencies.services.webMonetization.initiatePayment(
-                this.dependencies.paymentPointer, 
+                curatorPaymentPointer,
                 (taskState: UITaskState) => {
                     if(taskState === 'success') {
                         this._setPaymentMade(true)
@@ -59,14 +61,20 @@ export default abstract class WebMonetizationButtonLogic extends UILogic<
             this._setMakePaymentTaskState('error')
         }
     }
-
+    
     private async shouldComponentDisplay(): Promise<boolean> {
         const currentUserPaymentPointer = await this.dependencies.services.webMonetization.getCurrentUserPaymentPointer()
         return !!currentUserPaymentPointer
     }
-
+    
+    private async _getPaymentPointer(): Promise<string> {
+        const paymentPointer = await this.dependencies.services.webMonetization.getUserPaymentPointer(
+            this.dependencies.curatorUserRef
+        )
+        return paymentPointer
+    }
+    
     private async _setIsDisplayed(isDisplayed: boolean): Promise<void> {
-        
         this.emitMutation({
             isDisplayed: { $set: isDisplayed }
         })

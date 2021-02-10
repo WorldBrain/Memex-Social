@@ -7,13 +7,13 @@ import { UserReference } from "../../../user-management/types";
 export interface WebMonetizationButtonDependencies {
   services: UIElementServices<"userManagement" | 'webMonetization'>;
   storage: Pick<StorageModules, "users">;
-  userRef: UserReference;
-  paymentPointer: string;
+  curatorUserRef: UserReference;
 }
 
 export interface WebMonetizationButtonState {
   isDisplayed: boolean;
   paymentMade: boolean;
+  curatorPaymentPointer: string
   initialLoadTaskState: UITaskState
   makePaymentTaskState: UITaskState;
 }
