@@ -9,6 +9,7 @@ import { DocumentTitleService } from './document-title'
 import ContentConversationsService from '../features/content-conversations/services/content-conversations'
 import { ActivityStreamsService } from '@worldbrain/memex-common/lib/activity-streams/types'
 import UserManagementService from '../features/user-management/service'
+import WebMonetizationService from '../features/web-monetization/service'
 
 export interface Services {
     router: RouterService
@@ -24,4 +25,5 @@ export interface Services {
 
     // Feature specific services
     contentConversations: ContentConversationsService
+    webMonetization: WebMonetizationService
 }
