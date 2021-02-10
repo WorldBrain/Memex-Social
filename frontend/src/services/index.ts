@@ -20,6 +20,7 @@ import { LimitedWebStorage } from "../utils/web-storage/types";
 import CallModifier from "../utils/call-modifier";
 import { DocumentTitleService } from "./document-title";
 import UserManagementService from "../features/user-management/service";
+import WebMonetizationService from '../features/web-monetization/service'
 
 export function createServices(options: {
     backend: BackendType, storage: Storage,
@@ -84,6 +85,10 @@ export function createServices(options: {
             return result.data
         }
     })
+    const userManagement = new UserManagementService({
+        storage: options.storage.serverModules.users,
+        auth,
+    })
     const services: Services = {
         overlay: new OverlayService(),
         logicRegistry,
@@ -110,15 +115,15 @@ export function createServices(options: {
             get: () => document.title,
         }),
         activityStreams,
-        userManagement: new UserManagementService({
-            storage: options.storage.serverModules.users,
-            auth,
-        }),
+        userManagement,
         contentConversations: new ContentConversationsService({
             storage: options.storage.serverModules.contentConversations,
             services: { activityStreams, router },
             auth,
         }),
+        webMonetization: new WebMonetizationService({
+            services: { userManagement, auth }
+        })
     }
 
     return services
