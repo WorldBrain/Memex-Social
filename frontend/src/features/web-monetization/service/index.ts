@@ -21,10 +21,11 @@ export default class WebMonetizationService {
         return userProfile.paymentPointer
     }
 
-    async getCurrentUserPaymentPointer() {
+    async getCurrentUserPaymentPointer(): Promise<string | boolean> {
         const userRef = this.options.services.auth.getCurrentUserReference()
         if (!userRef) {
             console.error('Please :)')
+            return false
         } else {
             const userProfile = await this.options.services.userManagement.loadUserPublicProfile(
                 userRef,
