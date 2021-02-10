@@ -26,23 +26,23 @@ objects:
       creator: { $ref: users.default }
       createdWhen: 1594225289914
       updatedWhen: 1594225289914
-      entryTitle: Page without notes with a title that is very very very very very very very very very very very long
+      entryTitle: Page without notes with a title that is very very very very very very very very very very very longry very very longry very very longry very very longry very very longry very very longry very very longry very very longry very very longry very very long
       normalizedUrl: verylong.so
       originalUrl: "https://verylong.so"
     - sharedList: { $ref: sharedLists.default }
       creator: { $ref: users.default }
       createdWhen: 1594225289914
       updatedWhen: 1594225289914
-      entryTitle: Bananas
-      normalizedUrl: bananas.so-1
-      originalUrl: "https://bananas.so"
+      entryTitle: Roam Research
+      normalizedUrl: roamresearch.com
+      originalUrl: "https://roamresearch.com"
     - sharedList: { $ref: sharedLists.default }
       creator: { $ref: users.default }
       createdWhen: 1594225289914
       updatedWhen: 1594225289914
-      entryTitle: Bananas
-      normalizedUrl: bananas.so-2
-      originalUrl: "https://bananas.so"
+      entryTitle: Obsidian
+      normalizedUrl: obsidian.md
+      originalUrl: "https://obsidian.md"
     - sharedList: { $ref: sharedLists.default }
       creator: { $ref: users.default }
       createdWhen: 1594225289914
@@ -91,35 +91,35 @@ objects:
       updatedWhen: 1594225289914
       entryTitle: Bananas
       normalizedUrl: bananas.so-9
-      originalUrl: "https://bananas.so"
+      originalUrl: "https://"
     - sharedList: { $ref: sharedLists.default }
       creator: { $ref: users.default }
       createdWhen: 1594225289914
       updatedWhen: 1594225289914
-      entryTitle: Bananas
-      normalizedUrl: bananas.so-10
-      originalUrl: "https://bananas.so"
+      entryTitle: Twemex
+      normalizedUrl: twemex.app
+      originalUrl: "https://twemex.app"
     - sharedList: { $ref: sharedLists.default }
       creator: { $ref: users.default }
       createdWhen: 1594225289914
       updatedWhen: 1594225289914
-      entryTitle: Bananas
-      normalizedUrl: bananas.so-11
-      originalUrl: "https://bananas.so"
+      entryTitle: Remnote
+      normalizedUrl: remnote.io
+      originalUrl: "https://remnote.io"
     - sharedList: { $ref: sharedLists.default }
       creator: { $ref: users.default }
       createdWhen: 1594225289914
       updatedWhen: 1594225289914
-      entryTitle: Bananas
-      normalizedUrl: bananas.so-12
-      originalUrl: "https://bananas.so"
+      entryTitle: Obsidian
+      normalizedUrl: obsidian-2.md
+      originalUrl: "https://obsidian.md"
     - sharedList: { $ref: sharedLists.default }
       creator: { $ref: users.default }
       createdWhen: 1594225289914
       updatedWhen: 1594225289914
-      entryTitle: Bananas
-      normalizedUrl: bananas.so-13
-      originalUrl: "https://bananas.so"
+      entryTitle: Roam Research
+      normalizedUrl: roamresearch-2.com
+      originalUrl: "https://roamresearch.com"
     - sharedList: { $ref: sharedLists.default }
       creator: { $ref: users.default }
       createdWhen: 1594225255555

@@ -1,6 +1,6 @@
 import chunk from 'lodash/chunk'
 import fromPairs from 'lodash/fromPairs'
-import { SharedAnnotationReference, SharedList, SharedListReference } from "@worldbrain/memex-common/lib/content-sharing/types"
+import { SharedAnnotationReference } from "@worldbrain/memex-common/lib/content-sharing/types"
 import { GetAnnotationListEntriesResult, GetAnnotationsResult } from "@worldbrain/memex-common/lib/content-sharing/storage/types"
 import { CollectionDetailsEvent, CollectionDetailsDependencies, CollectionDetailsSignal, CollectionDetailsState } from "./types"
 import { UILogic, UIEventHandler, executeUITask } from "../../../../../main-ui/classes/logic"
@@ -11,6 +11,7 @@ import { annotationConversationInitialState, annotationConversationEventHandlers
 import { getInitialAnnotationConversationStates } from '../../../../content-conversations/ui/utils'
 import mapValues from 'lodash/mapValues'
 import UserProfileCache from '../../../../user-management/utils/user-profile-cache'
+import { activityFollowsInitialState, activityFollowsEventHandlers } from '../../../../activity-follows/ui/logic'
 const truncate = require('truncate')
 
 const LIST_DESCRIPTION_CHAR_LIMIT = 200
@@ -40,26 +41,28 @@ export default class CollectionDetailsLogic extends UILogic<CollectionDetailsSta
             },
             loadUser: reference => this._users.loadUser(reference),
         }))
+
+        Object.assign(this, activityFollowsEventHandlers(this as any, {
+            ...this.dependencies,
+        }))
     }
 
     getInitialState(): CollectionDetailsState {
         return {
             listLoadState: 'pristine',
             followLoadState: 'pristine',
-            listSidebarLoadState: 'pristine',
             annotationEntriesLoadState: 'pristine',
             annotationLoadStates: {},
             annotations: {},
             isCollectionFollowed: false,
             allAnnotationExpanded: false,
-            isListSidebarShown: false,
             pageAnnotationsExpanded: {},
-            followedLists: [],
+            ...activityFollowsInitialState(),
             ...annotationConversationInitialState(),
         }
     }
 
-    init: EventHandler<'init'> = async () => {
+    init: EventHandler<'init'> = async (incoming) => {
         const { contentSharing, users } = this.dependencies.storage
         const listReference = contentSharing.getSharedListReferenceFromLinkID(this.dependencies.listID)
         const { success: listDataSuccess } = await executeUITask<CollectionDetailsState>(this, 'listLoadState', async () => {
@@ -100,11 +103,12 @@ export default class CollectionDetailsLogic extends UILogic<CollectionDetailsSta
             }
         })
         this.emitSignal<CollectionDetailsSignal>({ type: 'loaded-annotation-entries', success: annotationEntriesSuccess })
-        await this.loadListSidebarState()
+        await this.processUIEvent('initActivityFollows', incoming)
+        await this.loadFollowBtnState()
     }
 
-    private async loadListSidebarState() {
-        const { activityFollows, contentSharing } = this.dependencies.storage
+    private async loadFollowBtnState() {
+        const { activityFollows } = this.dependencies.storage
         const { auth } = this.dependencies.services
 
         const userReference = auth.getCurrentUserReference()
@@ -113,31 +117,14 @@ export default class CollectionDetailsLogic extends UILogic<CollectionDetailsSta
             return
         }
 
-        await executeUITask<CollectionDetailsState>(this, 'listSidebarLoadState', async () => {
-            const follows = await activityFollows.getAllFollowsByCollection({
-                collection: 'sharedList', userReference,
+        await executeUITask<CollectionDetailsState>(this, 'followLoadState', async () => {
+            const isAlreadyFollowed = await activityFollows.isEntityFollowedByUser({
+                userReference,
+                collection: 'sharedList',
+                objectId: this.dependencies.listID,
             })
 
-            const followedLists: Array<SharedList & {  reference: SharedListReference }> = []
-
-            // TODO: Do this more efficiently - I think there needs to be a new method
-            for (const { objectId } of follows) {
-                const listReference: SharedListReference = {
-                    type: 'shared-list-reference',
-                    id: objectId,
-                }
-                const list = await contentSharing.retrieveList(listReference)
-
-                followedLists.push({
-                    ...list?.sharedList!,
-                    reference: listReference,
-                })
-            }
-
-            this.emitMutation({
-                followedLists: { $set: followedLists },
-                isListSidebarShown: { $set: true },
-            })
+            this.emitMutation({ isCollectionFollowed: { $set: isAlreadyFollowed }})
         })
     }
 
@@ -232,16 +219,28 @@ export default class CollectionDetailsLogic extends UILogic<CollectionDetailsSta
 
         await executeUITask<CollectionDetailsState>(this, 'followLoadState', async () => {
             const isAlreadyFollowed = await activityFollows.isEntityFollowedByUser(entityArgs)
+            const mutation: UIMutation<CollectionDetailsState> = {
+                isCollectionFollowed: { $set: !isAlreadyFollowed },
+            }
 
             if (isAlreadyFollowed) {
                 await activityFollows.deleteFollow(entityArgs)
+                const indexToDelete = previousState.followedLists.findIndex(list => list.reference.id === listID)
+                mutation.followedLists = { $splice: [[indexToDelete, 1]] }
             } else {
                 await activityFollows.storeFollow(entityArgs)
+                const { list } = previousState.listData!
+                mutation.followedLists = {
+                    $push: [{
+                        title: list.title,
+                        createdWhen: list.createdWhen,
+                        updatedWhen: list.updatedWhen,
+                        reference: { type: 'shared-list-reference', id: listID },
+                    }]
+                }
             }
 
-            this.emitMutation({
-                isCollectionFollowed: { $set: !isAlreadyFollowed }
-             })
+            this.emitMutation(mutation)
         })
     }
 
