@@ -38,8 +38,8 @@ export default class CuratorSupportPopupContainer extends UIElement<
         return (
             <>
                 <Container
-                    onMouseEnter={this.handleMouseEnter}
-                    onMouseLeave={this.handleMouseLeave}
+                    onMouseEnter={() => this.handleMouseEnter()}
+                    onMouseLeave={() => this.handleMouseLeave()}
                 >
                     {this.props.children}
                 </Container>
