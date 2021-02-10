@@ -8,7 +8,6 @@ const Container = styled.button`
   border-radius: 5px;
   border-width: 1px;
   font-weight: bold;
-  margin-left: auto;
   padding: ${(props) => props.theme.spacing.small};
 `
 

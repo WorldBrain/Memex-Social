@@ -29,6 +29,7 @@ import ErrorWithAction from '../../../../../common-ui/components/error-with-acti
 import ErrorBox from '../../../../../common-ui/components/error-box'
 import FollowBtn from '../../../../activity-follows/ui/components/follow-btn'
 import ListsSidebar from '../../../../../main-ui/components/list-sidebar/lists-sidebar'
+import WebMonetizationIcon from '../../../../web-monetization/ui/components/web-monetization-icon'
 const commentImage = require('../../../../../assets/img/comment.svg')
 
 const DocumentView = styled.div`
@@ -171,6 +172,18 @@ export default class CollectionDetailsPage extends UIElement<
                         }),
                 },
             ]
+        }
+    }
+
+    renderWebMonetizationIcon() {
+        if (this.state.listData?.creatorReference) {
+            return (
+                <WebMonetizationIcon
+                    services={this.props.services}
+                    storage={this.props.storage}
+                    curatorUserRef={this.state.listData?.creatorReference}
+                />
+            )
         }
     }
 
@@ -319,6 +332,7 @@ export default class CollectionDetailsPage extends UIElement<
                         data.creator && `by ${data.creator.displayName}`
                     }
                     creatorReference={data.creatorReference}
+                    webMonetizationIcon={this.renderWebMonetizationIcon()}
                     followBtn={this.renderFollowBtn()}
                 >
                     {data.list.description && (

@@ -226,6 +226,7 @@ export default function DefaultPageLayout(props: {
   headerTitle?: string;
   headerSubtitle?: string | null;
   creatorReference?: UserReference
+  webMonetizationIcon?: JSX.Element
   followBtn?: JSX.Element
   hideActivityIndicator?: boolean;
   viewportBreakpoint: ViewportBreakpoint;
@@ -335,6 +336,7 @@ export default function DefaultPageLayout(props: {
                     {props.headerSubtitle}
                 </HeaderSubtitle>
           )}
+          {props.webMonetizationIcon && props.webMonetizationIcon}
           {props.followBtn && props.followBtn}
         </HeaderMiddleArea>
         <HeaderAuthArea viewportWidth={viewportWidth}>
