@@ -43,6 +43,7 @@ describe('Home feed logic tests', () => {
                     return {
                         id: ++notificationCount,
                         activity: {
+                            previousReplyReference: null,
                             normalizedPageUrl: params.normalizedPageUrl,
                             annotationCreator: {
                                 reference: { type: 'user-reference', id: `user-${contentCreator.index}` },
