@@ -12,10 +12,20 @@ const PageBox = styled.div`
 `;
 
 const PageContentBox = styled.div`
-  flex: 1;
-  width: 80%;
-  max-width: 96%;
-`;
+    display: flex;
+    flex-direction: column;
+    padding: 15px 15px 10px 15px;
+`
+
+const PageContentBoxBottom = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid #e0e0e0;
+    height: 50px;
+    padding: 0px 15px 0px 15px;
+`
 
 const PageInfoBoxLink = styled.a`
   text-decoration: none;
@@ -23,8 +33,6 @@ const PageInfoBoxLink = styled.a`
 
 const PageInfoBoxLeft = styled.div`
   text-decoration: none;
-  padding: 15px 0px 15px 20px;
-  cursor: pointer;
 `;
 
 const PageInfoBoxTop = styled.div`
@@ -53,20 +61,19 @@ const PageInfoBoxUrl = styled.div`
   overflow-wrap: break-word;
   white-space: nowrap;
   max-width: 100%;
+  padding-bottom: 5px;
 `;
 
 const CreatedWhenDate = styled.div`
   font-family: "Poppins";
   font-weight: normal;
   font-size: 12px;
-  color: ${(props) => props.theme.colors.primary};
+  color: ${(props) => props.theme.colors.darkgrey};
 `;
 
 const PageInfoBoxRight = styled.div`
   text-decoration: none;
-  padding: 15px 0px 15px 10px;
   cursor: default;
-  width: 50px;
 `;
 
 const PageInfoBoxActions = styled.div`
@@ -83,12 +90,36 @@ const PageInfoBoxAction = styled.div<{ image: string }>`
   background-repeat: no-repeat;
 `;
 
+const StyledPageResult = styled.div`
+    display: flex;
+    flex-direction: column;
+`
+const ResultContent = styled(Margin)`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+`
+const PageUrl = styled.span`
+    font-size: 12px;
+    color: #545454;
+    padding-bottom: 5px;
+`
+
+const PageTitle = styled(Margin)`
+    font-size: 14px;
+    font-weight: bold;
+    color: #3a2f45;
+    justify-content: flex-start;
+`
+
 export type PageInfoBoxAction =
   | {
       image: string;
       onClick?: () => void;
     }
   | { node: React.ReactNode };
+
 
 export default function PageInfoBox(props: {
   pageInfo: Pick<
@@ -99,45 +130,47 @@ export default function PageInfoBox(props: {
   children?: React.ReactNode;
 }) {
   const { pageInfo } = props;
+  const domain = pageInfo.normalizedUrl.split('/');
 
   return (
     <ItemBox>
-      <PageBox>
-        <PageContentBox>
+        <StyledPageResult>
           <PageInfoBoxLink href={pageInfo.originalUrl} target="_blank">
-            <PageInfoBoxLeft>
-              <PageInfoBoxTop>
-                <PageInfoBoxTitle title={pageInfo.fullTitle}>
-                  {pageInfo.fullTitle}
-                </PageInfoBoxTitle>
-              </PageInfoBoxTop>
-              <Margin bottom="smallest">
-                <PageInfoBoxUrl>{pageInfo.normalizedUrl}</PageInfoBoxUrl>
-              </Margin>
-              <CreatedWhenDate>
-                {moment(pageInfo.createdWhen).format("LLL")}
-              </CreatedWhenDate>
-            </PageInfoBoxLeft>
+            <PageContentBox>
+                <ResultContent>
+                  <PageUrl title={pageInfo.normalizedUrl}>{domain[0]}</PageUrl>
+                </ResultContent>
+                <PageTitle>
+                    {pageInfo.fullTitle}
+                </PageTitle>
+            </PageContentBox>
           </PageInfoBoxLink>
-        </PageContentBox>
-        {props.actions && (
-          <PageInfoBoxRight>
-            <PageInfoBoxActions>
-              {props.actions.map((action, actionIndex) =>
-                "image" in action ? (
-                  <PageInfoBoxAction
-                    key={actionIndex}
-                    image={action.image}
-                    onClick={action.onClick}
-                  />
-                ) : (
-                  action.node
-                )
-              )}
-            </PageInfoBoxActions>
-          </PageInfoBoxRight>
-        )}
-      </PageBox>
+          <PageContentBoxBottom>
+            <PageInfoBoxLeft>
+            <CreatedWhenDate>
+                    {moment(pageInfo.createdWhen).format("LLL")}
+            </CreatedWhenDate>
+            </PageInfoBoxLeft>
+            {props.actions && (
+              <PageInfoBoxRight>
+                <PageInfoBoxActions>
+                  {props.actions.map((action, actionIndex) =>
+                    "image" in action ? (
+                      <PageInfoBoxAction
+                        key={actionIndex}
+                        image={action.image}
+                        onClick={action.onClick}
+                      />
+                    ) : (
+                      action.node
+                    )
+                  )}
+                </PageInfoBoxActions>
+              </PageInfoBoxRight>
+            )}
+          </PageContentBoxBottom>
+
+        </StyledPageResult>
     </ItemBox>
   );
 }

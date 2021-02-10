@@ -67,6 +67,11 @@ export default class PageDetailsPage extends UIElement<
           storage={this.props.storage}
           viewportBreakpoint={viewportWidth}
           headerTitle={"Loading page..."}
+          listsSidebarProps={{
+            isShown: state.isListSidebarShown,
+            followedLists: state.followedLists,
+            loadState: state.listSidebarLoadState,
+          }}
         >
           <DocumentTitle
             documentTitle={this.props.services.documentTitle}
@@ -102,7 +107,12 @@ export default class PageDetailsPage extends UIElement<
           services={this.props.services}
           storage={this.props.storage}
           viewportBreakpoint={viewportWidth}
-          headerTitle={"Annotation"}
+          headerTitle={"Shared page not found"}
+          listsSidebarProps={{
+            isShown: state.isListSidebarShown,
+            followedLists: state.followedLists,
+            loadState: state.listSidebarLoadState,
+          }}
         >
           <DocumentTitle
             documentTitle={this.props.services.documentTitle}
@@ -134,6 +144,11 @@ export default class PageDetailsPage extends UIElement<
           viewportBreakpoint={viewportWidth}
           headerTitle={this.getHeaderTitle()}
           headerSubtitle={this.getHeaderSubtitle()}
+          listsSidebarProps={{
+            isShown: state.isListSidebarShown,
+            followedLists: state.followedLists,
+            loadState: state.listSidebarLoadState,
+          }}
         >
           <PageInfoList>
             <Margin bottom={"small"}>

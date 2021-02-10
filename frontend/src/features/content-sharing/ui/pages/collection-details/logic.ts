@@ -11,6 +11,7 @@ import { annotationConversationInitialState, annotationConversationEventHandlers
 import { getInitialAnnotationConversationStates } from '../../../../content-conversations/ui/utils'
 import mapValues from 'lodash/mapValues'
 import UserProfileCache from '../../../../user-management/utils/user-profile-cache'
+import { activityFollowsInitialState, activityFollowsEventHandlers } from '../../../../activity-follows/ui/logic'
 const truncate = require('truncate')
 
 const LIST_DESCRIPTION_CHAR_LIMIT = 200
@@ -40,21 +41,28 @@ export default class CollectionDetailsLogic extends UILogic<CollectionDetailsSta
             },
             loadUser: reference => this._users.loadUser(reference),
         }))
+
+        Object.assign(this, activityFollowsEventHandlers(this as any, {
+            ...this.dependencies,
+        }))
     }
 
     getInitialState(): CollectionDetailsState {
         return {
             listLoadState: 'pristine',
+            followLoadState: 'pristine',
             annotationEntriesLoadState: 'pristine',
             annotationLoadStates: {},
             annotations: {},
+            isCollectionFollowed: false,
             allAnnotationExpanded: false,
             pageAnnotationsExpanded: {},
+            ...activityFollowsInitialState(),
             ...annotationConversationInitialState(),
         }
     }
 
-    init: EventHandler<'init'> = async () => {
+    init: EventHandler<'init'> = async (incoming) => {
         const { contentSharing, users } = this.dependencies.storage
         const listReference = contentSharing.getSharedListReferenceFromLinkID(this.dependencies.listID)
         const { success: listDataSuccess } = await executeUITask<CollectionDetailsState>(this, 'listLoadState', async () => {
@@ -95,6 +103,29 @@ export default class CollectionDetailsLogic extends UILogic<CollectionDetailsSta
             }
         })
         this.emitSignal<CollectionDetailsSignal>({ type: 'loaded-annotation-entries', success: annotationEntriesSuccess })
+        await this.processUIEvent('initActivityFollows', incoming)
+        await this.loadFollowBtnState()
+    }
+
+    private async loadFollowBtnState() {
+        const { activityFollows } = this.dependencies.storage
+        const { auth } = this.dependencies.services
+
+        const userReference = auth.getCurrentUserReference()
+
+        if (userReference == null) {
+            return
+        }
+
+        await executeUITask<CollectionDetailsState>(this, 'followLoadState', async () => {
+            const isAlreadyFollowed = await activityFollows.isEntityFollowedByUser({
+                userReference,
+                collection: 'sharedList',
+                objectId: this.dependencies.listID,
+            })
+
+            this.emitMutation({ isCollectionFollowed: { $set: isAlreadyFollowed }})
+        })
     }
 
     toggleDescriptionTruncation: EventHandler<'toggleDescriptionTruncation'> = () => {
@@ -163,6 +194,54 @@ export default class CollectionDetailsLogic extends UILogic<CollectionDetailsSta
         const { latestPageSeenIndex, normalizedPageUrls } = this.getFirstPagesWithoutLoadedAnnotations(incoming.previousState)
         this.latestPageSeenIndex = latestPageSeenIndex
         this.loadPageAnnotations(incoming.previousState.annotationEntryData!, normalizedPageUrls)
+    }
+
+    clickFollowBtn: EventHandler<'clickFollowBtn'> = async ({ previousState }) => {
+        const { services: { auth }, storage: { activityFollows }, listID } = this.dependencies
+        let userReference = auth.getCurrentUserReference()
+
+        // TODO: figure out what to properly do here
+        if (userReference === null) {
+            const { result } = await auth.requestAuth()
+
+            if (result.status !== 'authenticated' && result.status !== 'registered-and-authenticated') {
+                return
+            }
+
+            userReference = auth.getCurrentUserReference()!
+        }
+
+        const entityArgs = {
+            userReference,
+            objectId: listID,
+            collection: 'sharedList',
+        }
+
+        await executeUITask<CollectionDetailsState>(this, 'followLoadState', async () => {
+            const isAlreadyFollowed = await activityFollows.isEntityFollowedByUser(entityArgs)
+            const mutation: UIMutation<CollectionDetailsState> = {
+                isCollectionFollowed: { $set: !isAlreadyFollowed },
+            }
+
+            if (isAlreadyFollowed) {
+                await activityFollows.deleteFollow(entityArgs)
+                const indexToDelete = previousState.followedLists.findIndex(list => list.reference.id === listID)
+                mutation.followedLists = { $splice: [[indexToDelete, 1]] }
+            } else {
+                await activityFollows.storeFollow(entityArgs)
+                const { list } = previousState.listData!
+                mutation.followedLists = {
+                    $push: [{
+                        title: list.title,
+                        createdWhen: list.createdWhen,
+                        updatedWhen: list.updatedWhen,
+                        reference: { type: 'shared-list-reference', id: listID },
+                    }]
+                }
+            }
+
+            this.emitMutation(mutation)
+        })
     }
 
     getFirstPagesWithoutLoadedAnnotations(state: CollectionDetailsState) {

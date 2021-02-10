@@ -5,6 +5,7 @@ import { Margin } from "styled-components-spacing";
 import UserAvatar from "./user-avatar";
 import { User } from "@worldbrain/memex-common/lib/web-interface/types/users";
 
+
 const StyledCreationInfo = styled.div`
   display: flex;
 `;
@@ -15,7 +16,11 @@ const AvatarHolder = styled.div`
   justify-content: center;
 `;
 
-const Details = styled.div``;
+const Details = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
 const Creator = styled.div`
   font-weight: 600;
   color: ${(props) => props.theme.colors.primary};
@@ -24,8 +29,9 @@ const Creator = styled.div`
 const CreationDate = styled.div`
   font-family: "Poppins";
   font-weight: normal;
-  font-size: 12px;
+  font-size: 11px;
   color: ${(props) => props.theme.colors.primary};
+  padding-left: 10px;
 `;
 
 export interface CreationInfoProps {

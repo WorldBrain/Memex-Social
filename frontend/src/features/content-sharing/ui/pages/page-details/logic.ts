@@ -6,6 +6,7 @@ import { PageDetailsEvent, PageDetailsDependencies, PageDetailsState, PageDetail
 import { getInitialAnnotationConversationStates } from '../../../../content-conversations/ui/utils'
 import { annotationConversationEventHandlers, annotationConversationInitialState, detectAnnotationConversationsThreads } from '../../../../content-conversations/ui/logic'
 import UserProfileCache from '../../../../user-management/utils/user-profile-cache'
+import { activityFollowsInitialState, activityFollowsEventHandlers } from '../../../../activity-follows/ui/logic'
 
 type EventHandler<EventName extends keyof PageDetailsEvent> = UIEventHandler<PageDetailsState, PageDetailsEvent, EventName>
 
@@ -29,6 +30,10 @@ export default class PageDetailsLogic extends UILogic<PageDetailsState, PageDeta
             },
             loadUser: reference => this._users.loadUser(reference),
         }))
+
+        Object.assign(this, activityFollowsEventHandlers(this as any, {
+            ...this.dependencies,
+        }))
     }
 
     getInitialState(): PageDetailsState {
@@ -36,11 +41,12 @@ export default class PageDetailsLogic extends UILogic<PageDetailsState, PageDeta
             creatorLoadState: 'pristine',
             annotationLoadState: 'pristine',
             pageInfoLoadState: 'pristine',
+            ...activityFollowsInitialState(),
             ...annotationConversationInitialState(),
         }
     }
 
-    init: EventHandler<'init'> = async () => {
+    init: EventHandler<'init'> = async (incoming) => {
         const { storage, userManagement } = this.dependencies
         const pageInfoReference = storage.contentSharing.getSharedPageInfoReferenceFromLinkID(this.dependencies.pageID)
         let creatorReference: UserReference | null
@@ -53,7 +59,7 @@ export default class PageDetailsLogic extends UILogic<PageDetailsState, PageDeta
             return {
                 mutation: {
                     pageInfo: { $set: pageInfo },
-                    pageInfoReference: { $set: result.reference },
+                    pageInfoReference: { $set: result?.reference },
                     creatorReference: { $set: creatorReference },
                 }
             }
@@ -106,5 +112,6 @@ export default class PageDetailsLogic extends UILogic<PageDetailsState, PageDeta
             })
         ])
         this.emitSignal<PageDetailsSignal>({ type: 'loaded' })
+        await this.processUIEvent('initActivityFollows', incoming)
     }
 }

@@ -13,9 +13,8 @@ const commentImage = require('../../../../assets/img/comment.svg')
 const replyImage = require('../../../../assets/img/reply.svg')
 
 const StyledAnnotationBox = styled.div`
-    font-family: ${(props) => props.theme.fonts.primary};
-    padding: 15px 20px;
-`
+  font-family: ${(props) => props.theme.fonts.primary};
+`;
 
 const AnnotationBody = styled.span`
     background-color: ${(props) => props.theme.colors.secondary};
@@ -30,9 +29,17 @@ const AnnotationComment = styled.div`
     font-size: 14px;
     color: ${(props) => props.theme.colors.primary};
 
-    & p:first-child {
-        margin-top: 0;
-    }
+  & *:first-child {
+    margin-top: 0;
+  }
+
+  & *:last-child {
+    margin-bottom: 0;
+  }
+`;
+
+const AnnotationTopBox = styled.div`
+    padding: 15px 15px 10px 15px;
 `
 
 const DOM_PURIFY_CONFIG: DOMPurify.Config = {
@@ -48,55 +55,60 @@ const preserveLinebreaks = (s: string | undefined) =>
           ) as string)
         : ''
 
-export default function AnnotationBox(props: {
-    annotation: Pick<SharedAnnotation, 'body' | 'comment' | 'createdWhen'>
-    profilePopupProps?: ProfilePopupProps
-    creator?: Pick<User, 'displayName'> | null
-    hasReplies?: boolean
-    areRepliesExpanded?: boolean
-    onInitiateReply?(): void
-    onToggleReplies?(): void
-}) {
-    const { annotation } = props
+export interface AnnotationBoxProps {
+  annotation: Pick<SharedAnnotation, "body" | "comment" | "createdWhen">;
+  creator?: Pick<User, "displayName"> | null;
+  profilePopupProps?: ProfilePopupProps
+  hasReplies?: boolean;
+  areRepliesExpanded?: boolean;
+  onInitiateReply?(): void;
+  onToggleReplies?(): void;
+}
 
-    return (
-        <ItemBox>
-            <StyledAnnotationBox>
-                {annotation.body && (
-                    <Margin bottom="small">
-                        <AnnotationBody
-                            dangerouslySetInnerHTML={{
-                                __html: preserveLinebreaks(annotation.body),
-                            }}
-                        />
-                    </Margin>
-                )}
-                <Margin bottom="small">
-                    <AnnotationComment>
-                        <Markdown>{annotation.comment}</Markdown>
-                    </AnnotationComment>
-                </Margin>
-                <ItemBoxBottom
-                    creationInfo={{
-                        createdWhen: annotation.createdWhen,
-                        creator: props.creator,
-                    }}
-                    profilePopupProps={props.profilePopupProps}
-                    actions={[
-                        props.hasReplies &&
-                            props.onToggleReplies && {
-                                key: 'toggle-replies',
-                                image: commentImage,
-                                onClick: props.onToggleReplies,
-                            },
-                        props.onInitiateReply && {
-                            key: 'new-reply',
-                            image: replyImage,
-                            onClick: props.onInitiateReply,
-                        },
-                    ]}
-                />
-            </StyledAnnotationBox>
-        </ItemBox>
-    )
+export default function AnnotationBox(props: AnnotationBoxProps) {
+  const { annotation } = props;
+
+  return (
+    <ItemBox>
+      <StyledAnnotationBox>
+        <AnnotationTopBox>
+        {annotation.body && (
+          <Margin>
+            <AnnotationBody
+              dangerouslySetInnerHTML={{
+                __html: preserveLinebreaks(annotation.body),
+              }}
+            />
+          </Margin>
+        )}
+        {annotation.body && annotation.comment && (<Margin top="small"><div/></Margin>)}
+        <Margin>
+          <AnnotationComment>
+            <Markdown>{annotation.comment}</Markdown>
+          </AnnotationComment>
+        </Margin>
+        </AnnotationTopBox>
+        <ItemBoxBottom
+          creationInfo={{
+            createdWhen: annotation.createdWhen,
+            creator: props.creator,
+          }}
+          profilePopupProps={props.profilePopupProps}
+          actions={[
+            props.hasReplies &&
+              props.onToggleReplies && {
+                key: "toggle-replies",
+                image: commentImage,
+                onClick: props.onToggleReplies,
+              },
+            props.onInitiateReply && {
+              key: "new-reply",
+              image: replyImage,
+              onClick: props.onInitiateReply,
+            },
+          ]}
+        />
+      </StyledAnnotationBox>
+    </ItemBox>
+  );
 }

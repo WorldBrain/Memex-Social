@@ -8,13 +8,16 @@ const StyledRouteLink = styled.a`
   font-family: ${(props) => props.theme.fonts.primary};
 `;
 
-export default function RouteLink(props: {
+export interface Props {
   services: Pick<Services, "router">;
   route: keyof RouteMap;
   params: { [key: string]: string };
   children: React.ReactNode;
   className?: string;
-}) {
+  title?: string;
+}
+
+export default function RouteLink(props: Props) {
   const url = props.services.router.getUrl(props.route, props.params);
   return (
     <StyledRouteLink
@@ -27,6 +30,7 @@ export default function RouteLink(props: {
         event.preventDefault();
         props.services.router.goTo(props.route, props.params);
       }}
+      title={props.title}
     >
       {props.children}
     </StyledRouteLink>

@@ -1,10 +1,12 @@
 import flatten from "lodash/flatten"
 import sortBy from "lodash/sortBy"
+import orderBy from "lodash/orderBy"
 import { ActivityStreamResultGroup, ActivityStream } from "@worldbrain/memex-common/lib/activity-streams/types"
 import { UILogic, UIEventHandler, loadInitial, executeUITask, UIMutation } from "../../../../../main-ui/classes/logic"
 import { HomeFeedEvent, HomeFeedDependencies, HomeFeedState, PageActivityItem, AnnotationActivityItem, ActivityItem, ActivityData } from "./types"
 import { getInitialAnnotationConversationStates } from "../../../../content-conversations/ui/utils"
 import { annotationConversationInitialState, annotationConversationEventHandlers } from "../../../../content-conversations/ui/logic"
+import { activityFollowsInitialState, activityFollowsEventHandlers } from '../../../../activity-follows/ui/logic'
 import UserProfileCache from "../../../../user-management/utils/user-profile-cache"
 
 type EventHandler<EventName extends keyof HomeFeedEvent> = UIEventHandler<HomeFeedState, HomeFeedEvent, EventName>
@@ -31,6 +33,10 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
             },
             loadUser: reference => this.users.loadUser(reference),
         }))
+
+        Object.assign(this, activityFollowsEventHandlers(this as any, {
+            ...this.dependencies,
+        }))
     }
 
     getInitialState(): HomeFeedState {
@@ -42,11 +48,12 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
             replies: {},
             users: {},
             moreRepliesLoadStates: {},
+            ...activityFollowsInitialState(),
             ...annotationConversationInitialState(),
         }
     }
 
-    init: EventHandler<'init'> = async () => {
+    init: EventHandler<'init'> = async ({ previousState, event }) => {
         const userReference = this.dependencies.services.auth.getCurrentUserReference()
         if (!userReference) {
             // Firebase auth doesn't immediately detect authenticated users, so wait if needed
@@ -56,12 +63,13 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
                 })
             })
         }
-        await this.loadNextActivities({ isInitial: true })
+        await this.loadNextActivities(previousState, { isInitial: true })
+        await this.processUIEvent('initActivityFollows', { previousState, event })
     }
 
-    waypointHit: EventHandler<'waypointHit'> = async () => {
+    waypointHit: EventHandler<'waypointHit'> = async ({ previousState }) => {
         if (this.hasMore) {
-            await this.loadNextActivities()
+            await this.loadNextActivities(previousState)
         }
     }
 
@@ -112,7 +120,39 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
         })
     }
 
-    async loadNextActivities(options?: { isInitial?: boolean }) {
+    private async checkAnnotationsExistForActivityItems({ activityItems }: HomeFeedState) {
+        for (const [activityItemIndex, activityItem] of activityItems.entries()) {
+            if (activityItem.type !== 'list-item' || activityItem.reason !== 'pages-added-to-list') {
+                continue
+            }
+
+            for (const [listEntryIndex, listEntry] of activityItem.entries.entries()) {
+                const hasAnnotations = await this.dependencies.storage.contentSharing.doesAnnotationExistForPageInList({
+                    listReference: activityItem.listReference,
+                    normalizedPageUrl: listEntry.normalizedPageUrl,
+                })
+
+                // They're set false by default, so only emit mutation if otherwise
+                if (!hasAnnotations) {
+                    continue
+                }
+
+                this.emitMutation({
+                    activityItems: {
+                        [activityItemIndex]: {
+                            entries: {
+                                [listEntryIndex]: {
+                                    hasAnnotations: { $set: hasAnnotations },
+                                }
+                            }
+                        }
+                    }
+                })
+            }
+        }
+    }
+
+    async loadNextActivities(previousState: HomeFeedState, options?: { isInitial?: boolean }) {
         const userReference = this.dependencies.services.auth.getCurrentUserReference()
         if (!userReference) {
             return
@@ -129,6 +169,8 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
         }
 
         let activityData: ActivityData | undefined
+        const mainMutation: UIMutation<HomeFeedState> = {}
+
         await loader(async () => {
             const { activityGroups, hasMore } = await this.dependencies.services.activityStreams.getHomeFeedActivities({ offset: this.itemOffset, limit: this.pageSize })
             this.itemOffset += this.pageSize
@@ -156,14 +198,15 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
                 }
             }
 
-            this.emitMutation({
-                activityItems: { $push: organized.activityItems },
-                pageInfo: { $merge: organized.data.pageInfo },
-                annotations: { $merge: organized.data.annotations },
-                replies: { $merge: organized.data.replies },
-                conversations: { $merge: conversations }
-            })
+            mainMutation.activityItems = { $push: organized.activityItems }
+            mainMutation.conversations = { $merge: conversations }
+            mainMutation.annotations = { $merge: organized.data.annotations }
+            mainMutation.pageInfo = { $merge: organized.data.pageInfo }
+            mainMutation.replies = { $merge: organized.data.replies }
+            this.emitMutation(mainMutation)
         })
+
+        const nextState = this.withMutation(previousState, mainMutation)
 
         const allReplies = flatten(Object.values(activityData?.replies ?? {}).map(
             annotationReplies => Object.values(annotationReplies))
@@ -184,7 +227,8 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
                 timestamp: Date.now(),
             }).then(({ previousTimestamp }) => {
                 this.emitMutation({ lastSeenTimestamp: { $set: previousTimestamp } })
-            })] : [])
+            })] : []),
+            this.checkAnnotationsExistForActivityItems(nextState),
         ])
     }
 }
@@ -252,6 +296,28 @@ export function organizeActivities(activities: Array<ActivityStreamResultGroup<k
                 })
                 pageItem.notifiedWhen = replyActivity.reply.createdWhen
             }
+        }
+
+        if (activityGroup.entityType === 'sharedList' && activityGroup.activityType === 'sharedListEntry') {
+            const entryActivityGroup = activityGroup as ActivityStreamResultGroup<'sharedList', 'sharedListEntry'>
+            entryActivityGroup.activities = orderBy(entryActivityGroup.activities, [({ activity }) => activity.entry.createdWhen], ['desc'])
+            const { activity: firstActivity } = entryActivityGroup.activities[0]
+
+            activityItems.push({
+                type: 'list-item',
+                groupId: entryActivityGroup.id,
+                reason:'pages-added-to-list',
+                listName: firstActivity.list.title,
+                listReference: firstActivity.list.reference,
+                notifiedWhen: firstActivity.entry.createdWhen,
+                entries: entryActivityGroup.activities.map(({ activity }) => ({
+                    type: 'list-entry-item',
+                    entryTitle: activity.entry.entryTitle,
+                    originalUrl: activity.entry.originalUrl,
+                    normalizedPageUrl: activity.entry.normalizedUrl,
+                    activityTimestamp: activity.entry.updatedWhen ?? activity.entry.createdWhen,
+                }))
+            })
         }
     }
 

@@ -9,9 +9,15 @@ import RouteLink from '../components/route-link'
 import UnseenActivityIndicator from '../../features/activity-streams/ui/containers/unseen-activity-indicator'
 import { UserReference } from '../../features/user-management/types'
 import ProfilePopupContainer from '../../features/user-management/ui/containers/profile-popup-container'
+import ListsSidebar, { Props as ListsSidebarProps } from "../../main-ui/components/list-sidebar/lists-sidebar";
 const logoImage = require('../../assets/img/memex-logo.svg')
 
 const middleMaxWidth = '800px'
+
+const MainContainer = styled.div`
+    background: #f6f8fB;
+    height: 100%;
+`
 
 const StyledHeader = styled.div<{
     viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
@@ -20,7 +26,7 @@ const StyledHeader = styled.div<{
     width: 100%;
     height: 50px;
     display: flex;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     justify-content: space-between;
     padding: 0 20px;
     position: sticky;
@@ -30,6 +36,7 @@ const StyledHeader = styled.div<{
     z-index: 2000;
     align-items: center;
     height: 50px;
+    box-shadow: #101e7308 0 4px 16px;
 
     ${(props) =>
         props.viewportWidth === 'small' &&
@@ -141,13 +148,14 @@ const HeaderTitle = styled.div<{
     font-weight: 600;
     text-overflow: ellipsis;
     overflow-x: hidden;
+    font-family: ${(props) => props.theme.fonts.primary};
     font-size: 16px;
     overflow-wrap: break-word;
     white-space: nowrap;
     max-width: ${(props) =>
         props.viewportWidth === 'small' || props.viewportWidth === 'mobile'
             ? '100%'
-            : '70%'};
+            : '95%'};
     color: ${(props) => props.theme.colors.primary}
         ${(props) =>
             props.viewportWidth === 'small' &&
@@ -170,6 +178,7 @@ const HeaderSubtitle = styled.div<{
     font-weight: 500;
     margin-top: 1px;
     font-size: 14px;
+    font-family: ${(props) => props.theme.fonts.primary};
     color: ${(props) => props.theme.colors.subText};
 
     ${(props) =>
@@ -200,7 +209,7 @@ const PageMiddleArea = styled.div<{
     top: 10px;
     position: relative;
     padding-bottom: 100px;
-    margin: 20px auto 0;
+    margin: 0px auto 0;
 
     ${(props) =>
         props.viewportWidth === 'small' &&
@@ -218,6 +227,34 @@ const PageMiddleArea = styled.div<{
         `}
 `
 
+const PageMidleAreaTitles = styled.div`
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  flex-direction: column;
+  flex: 1;
+`
+
+const PageMidleAreaAction = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+  flex-direction: row;
+`
+
+const PageMiddleAreaTopBox = styled(Margin)<{
+  viewportWidth: "mobile" | "small" | "normal" | "big";
+}>`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-direction: ${(props) =>
+    props.viewportWidth === "mobile"
+      ? "column"
+      : "row"};;
+
+`
+
 export default function DefaultPageLayout(props: {
     services: UIElementServices<
         'auth' | 'overlay' | 'router' | 'activityStreams' | 'userManagement'
@@ -225,8 +262,10 @@ export default function DefaultPageLayout(props: {
     storage: Pick<StorageModules, 'users' | 'activityStreams'>
     headerTitle?: string
     headerSubtitle?: string | null
+    followBtn?: JSX.Element
     creatorReference?: UserReference
     hideActivityIndicator?: boolean
+    listsSidebarProps?: Omit<ListsSidebarProps, 'services'>
     viewportBreakpoint: ViewportBreakpoint
     children: React.ReactNode
 }) {
@@ -295,54 +334,72 @@ export default function DefaultPageLayout(props: {
         )
     }
 
-    return (
-        <>
-            <StyledHeader viewportWidth={viewportWidth}>
-                <LogoAndFeed viewportWidth={viewportWidth}>
-                    <HeaderLogoArea
-                        onClick={() => window.open('https://getmemex.com')}
-                        viewportWidth={viewportWidth}
-                    >
-                        <MemexLogo viewportWidth={viewportWidth} />
-                    </HeaderLogoArea>
-                    {renderFeedArea()}
-                </LogoAndFeed>
-                <HeaderMiddleArea viewportWidth={viewportWidth}>
-                    {props.headerTitle && (
-                        <HeaderTitle
-                            title={props.headerTitle}
-                            viewportWidth={viewportWidth}
-                        >
-                            {props.headerTitle}
-                        </HeaderTitle>
-                    )}
-                    {props.headerTitle && props.headerSubtitle && (
-                        <ProfilePopupContainer
-                            services={props.services}
-                            storage={props.storage}
-                            userRef={
-                                props.creatorReference ?? {
-                                    type: 'user-reference',
-                                    id: '',
-                                }
-                            }
-                        >
-                            <HeaderSubtitle viewportWidth={viewportWidth}>
-                                {props.headerSubtitle}
-                            </HeaderSubtitle>
-                        </ProfilePopupContainer>
-                    )}
-                </HeaderMiddleArea>
-                <HeaderAuthArea viewportWidth={viewportWidth}>
-                    <AuthHeader
-                        services={props.services}
-                        storage={props.storage}
-                    />
-                </HeaderAuthArea>
-            </StyledHeader>
-            <PageMiddleArea viewportWidth={viewportWidth}>
-                {props.children}
-            </PageMiddleArea>
-        </>
-    )
+    const renderListsSidebar = () => {
+        if (props.listsSidebarProps == null) {
+          return null
+        }
+
+        return (
+          <ListsSidebar
+            {...props.listsSidebarProps}
+            services={props.services}
+          />
+        )
+      }
+
+  return (
+    <MainContainer>
+      {renderListsSidebar()}
+      <StyledHeader viewportWidth={viewportWidth}>
+        <LogoAndFeed viewportWidth={viewportWidth}>
+          <HeaderLogoArea
+            onClick={() => window.open("https://getmemex.com")}
+            viewportWidth={viewportWidth}
+          >
+            <MemexLogo viewportWidth={viewportWidth} />
+          </HeaderLogoArea>
+        </LogoAndFeed>
+        <HeaderMiddleArea viewportWidth={viewportWidth}>
+        {renderFeedArea()}
+        </HeaderMiddleArea>
+        <HeaderAuthArea viewportWidth={viewportWidth}>
+          <AuthHeader services={props.services} storage={props.storage} />
+        </HeaderAuthArea>
+      </StyledHeader>
+      <PageMiddleArea viewportWidth={viewportWidth}>
+        <PageMiddleAreaTopBox top="larger" viewportWidth={viewportWidth}>
+          <PageMidleAreaTitles>
+          {props.headerTitle && (
+            <HeaderTitle
+              title={props.headerTitle}
+              viewportWidth={viewportWidth}
+            >
+              {props.headerTitle}
+            </HeaderTitle>
+          )}
+        {props.headerTitle && props.headerSubtitle && (
+            <ProfilePopupContainer
+                services={props.services}
+                storage={props.storage}
+                userRef={
+                    props.creatorReference ?? {
+                        type: 'user-reference',
+                        id: '',
+                    }
+                }
+            >
+                <HeaderSubtitle viewportWidth={viewportWidth}>
+                    {props.headerSubtitle}
+                </HeaderSubtitle>
+            </ProfilePopupContainer>
+        )}
+          </PageMidleAreaTitles>
+          <PageMidleAreaAction>
+          {props.followBtn && props.followBtn}
+          </PageMidleAreaAction>
+        </PageMiddleAreaTopBox>
+        {props.children}
+      </PageMiddleArea>
+    </MainContainer>
+  );
 }

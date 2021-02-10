@@ -8,6 +8,7 @@ import { createStorage } from '../storage';
 import { getReplayOptionsFromQueryParams } from '../services/scenarios';
 import { MemoryLocalStorage } from "../utils/web-storage";
 import { RouteName } from "../routes";
+import { StorageHooksChangeWatcher } from "../storage/hooks";
 
 export async function mainProgram(options: MainProgramOptions): Promise<MainProgramSetup> {
     if (options.backend === 'firebase' || options.backend === 'firebase-emulator') {
@@ -25,7 +26,11 @@ export async function mainProgram(options: MainProgramOptions): Promise<MainProg
     const history = options.history || createBrowserHistory()
 
     const uiMountPoint = !options.domUnavailable ? getUiMountpoint(options.mountPoint) : undefined
-    const storage = await createStorage(options)
+    const storageHooksChangeWatcher = options.backend === 'memory' ? new StorageHooksChangeWatcher() : undefined
+    const storage = await createStorage({
+        ...options,
+        changeWatcher: storageHooksChangeWatcher
+    })
     const services = createServices({
         ...options,
         history,
@@ -41,13 +46,20 @@ export async function mainProgram(options: MainProgramOptions): Promise<MainProg
         }, 200))
     }
 
+    const scenarioIdentifier = services.scenarios && options.queryParams.scenario;
+    if (scenarioIdentifier) {
+        await services.scenarios.loadScenarioFixture(scenarioIdentifier)
+    }
+    if (storageHooksChangeWatcher) {
+        storageHooksChangeWatcher.setUp({ storage, services })
+    }
     if (options.queryParams.scenario && options.navigateToScenarioStart) {
         const scenario = services.scenarios.findScenario(options.queryParams.scenario)
         const startUrlPath = services.router.getUrl(scenario.startRoute.route as RouteName, scenario.startRoute.params)
         history.replace(startUrlPath)
     }
-    if (services.scenarios && options.queryParams.scenario) {
-        await services.scenarios.startScenarioReplay(options.queryParams.scenario, getReplayOptionsFromQueryParams(options.queryParams))
+    if (scenarioIdentifier) {
+        await services.scenarios.startScenarioReplay(scenarioIdentifier, getReplayOptionsFromQueryParams(options.queryParams))
     }
 
     const uiRunner = uiMountPoint ? getDefaultUiRunner({ mountPoint: uiMountPoint }) : options.uiRunner

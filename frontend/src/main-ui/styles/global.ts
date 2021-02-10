@@ -4,6 +4,8 @@ const GlobalStyle = createGlobalStyle`
   html,
   body {
     margin: 0;
+    top: 10px;
+    background: #f6f8fB;
   }
 
   body, input, button {
@@ -12,6 +14,8 @@ const GlobalStyle = createGlobalStyle`
 
   * {
     box-sizing: border-box;
+  }
+
   }
 `
 

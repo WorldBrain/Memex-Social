@@ -72,7 +72,7 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
         })
         const logic = new CollectionDetailsLogic({
             storage: storage.serverModules,
-            services: {} as any,
+            services,
             listID: storage.serverModules.contentSharing.getSharedListLinkID(listReference),
         });
         const container = new TestLogicContainer<CollectionDetailsState, CollectionDetailsEvent>(logic)
@@ -160,7 +160,7 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
 
         const logic = new CollectionDetailsLogic({
             storage: storage.serverModules,
-            services: {} as any,
+            services,
             listID: storage.serverModules.contentSharing.getSharedListLinkID(listReference),
         });
         const container = new TestLogicContainer<CollectionDetailsState, CollectionDetailsEvent>(logic)
@@ -179,5 +179,185 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
         expect({ annotationCount: Object.keys(container.state.annotations).length }).toEqual({
             annotationCount: 15
         })
+    })
+
+    it('should be able to follow and unfollow the current list', { withTestUser: true }, async ({ storage, services, auth }) => {
+        const contentSharing = storage.serverModules.contentSharing;
+        const userReference = (services.auth.getCurrentUserReference()!);
+        const listReference = await contentSharing.createSharedList({
+            userReference,
+            localListId: 33,
+            listData: { title: 'Test list' },
+        })
+
+        const testDataFactory = new TestDataFactory()
+        const firstListEntry = testDataFactory.createListEntry();
+        await contentSharing.createListEntries({
+            userReference,
+            listReference,
+            listEntries: [
+                firstListEntry,
+                testDataFactory.createListEntry(),
+            ],
+        })
+        await contentSharing.createAnnotations({
+            creator: userReference,
+            listReferences: [listReference],
+            annotationsByPage: { [firstListEntry.normalizedUrl]: range(15).map(() => testDataFactory.createAnnotation(firstListEntry.normalizedUrl)) },
+        })
+
+        const listID= storage.serverModules.contentSharing.getSharedListLinkID(listReference)
+
+        const logic = new CollectionDetailsLogic({
+            storage: storage.serverModules,
+            services,
+            listID
+        });
+        const container = new TestLogicContainer<CollectionDetailsState, CollectionDetailsEvent>(logic)
+        await container.init()
+
+        const entityArgs = { userReference, collection: 'sharedList', objectId: listID }
+
+        expect(
+            await storage.serverModules.activityFollows.isEntityFollowedByUser(entityArgs)
+        ).toBe(false)
+        expect(container.state.isCollectionFollowed).toBe(false)
+        expect(container.state.followLoadState).toEqual('success')
+        expect(container.state.followedLists).toEqual([])
+
+        const followP = container.processEvent('clickFollowBtn', null)
+        expect(container.state.followLoadState).toEqual('running')
+        await followP
+
+        expect(
+            await storage.serverModules.activityFollows.isEntityFollowedByUser(entityArgs)
+        ).toBe(true)
+        expect(container.state.isCollectionFollowed).toBe(true)
+        expect(container.state.followLoadState).toEqual('success')
+        const { list } = container.state.listData!
+        expect(container.state.followedLists).toEqual([{
+            title: list.title,
+            createdWhen: list.createdWhen,
+            updatedWhen: list.updatedWhen,
+            reference: { type: 'shared-list-reference', id: listID },
+        }])
+
+        const unfollowP = container.processEvent('clickFollowBtn', null)
+        expect(container.state.followLoadState).toEqual('running')
+        await unfollowP
+
+        expect(
+            await storage.serverModules.activityFollows.isEntityFollowedByUser(entityArgs)
+        ).toBe(false)
+        expect(container.state.isCollectionFollowed).toBe(false)
+        expect(container.state.followLoadState).toEqual('success')
+        expect(container.state.followedLists).toEqual([])
+    })
+
+    it('should load follow button state on init', { withTestUser: true }, async ({ storage, services }) => {
+        const { contentSharing, activityFollows } = storage.serverModules
+        const userReference = (services.auth.getCurrentUserReference()!);
+        const listReference = await contentSharing.createSharedList({
+            userReference,
+            localListId: 33,
+            listData: { title: 'Test list' },
+        })
+
+        const testDataFactory = new TestDataFactory()
+        const firstListEntry = testDataFactory.createListEntry();
+        await contentSharing.createListEntries({
+            userReference,
+            listReference,
+            listEntries: [
+                firstListEntry,
+                testDataFactory.createListEntry(),
+            ],
+        })
+        await contentSharing.createAnnotations({
+            creator: userReference,
+            listReferences: [listReference],
+            annotationsByPage: { [firstListEntry.normalizedUrl]: range(15).map(() => testDataFactory.createAnnotation(firstListEntry.normalizedUrl)) },
+        })
+
+        const listID = storage.serverModules.contentSharing.getSharedListLinkID(listReference)
+
+        await activityFollows.storeFollow({
+            collection: 'sharedList',
+            objectId: listID,
+            userReference,
+        })
+
+        const logic = new CollectionDetailsLogic({
+            storage: storage.serverModules,
+            services,
+            listID
+        });
+        const container = new TestLogicContainer<CollectionDetailsState, CollectionDetailsEvent>(logic)
+
+        expect(container.state.isCollectionFollowed).toEqual(false)
+        expect(container.state.followLoadState).toEqual('pristine')
+
+        const initP = logic['loadFollowBtnState']()
+
+        expect(container.state.followLoadState).toEqual('running')
+
+        await initP
+
+        expect(container.state.isCollectionFollowed).toEqual(true)
+        expect(container.state.followLoadState).toEqual('success')
+    })
+
+
+    it ('should load all followed lists on init', { withTestUser: true }, async ({ storage, services }) => {
+        const { contentSharing, activityFollows } = storage.serverModules
+        const userReference = (services.auth.getCurrentUserReference()!);
+        const listReference = await contentSharing.createSharedList({
+            userReference,
+            localListId: 33,
+            listData: { title: 'Test list' },
+        })
+
+        const testDataFactory = new TestDataFactory()
+        const firstListEntry = testDataFactory.createListEntry();
+        await contentSharing.createListEntries({
+            userReference,
+            listReference,
+            listEntries: [
+                firstListEntry,
+                testDataFactory.createListEntry(),
+            ],
+        })
+        await activityFollows.storeFollow({
+            userReference,
+            collection: 'sharedList',
+            objectId: listReference.id as string,
+        })
+        const listID= storage.serverModules.contentSharing.getSharedListLinkID(listReference)
+
+        const logic = new CollectionDetailsLogic({
+            storage: storage.serverModules,
+            services,
+            listID
+        });
+        const container = new TestLogicContainer<CollectionDetailsState, CollectionDetailsEvent>(logic)
+
+        expect(container.state.listSidebarLoadState).toEqual('pristine')
+        expect(container.state.followedLists).toEqual([])
+        expect(container.state.isListSidebarShown).toEqual(false)
+
+        const initP = container.processEvent('initActivityFollows', undefined)
+        expect(container.state.listSidebarLoadState).toEqual('running')
+        await initP
+
+        expect(container.state.listSidebarLoadState).toEqual('success')
+        expect(container.state.followedLists).toEqual([expect.objectContaining({
+            title: 'Test list',
+            reference: listReference,
+            creator: {
+                id: 'default-user',
+                type: 'user-reference',
+            },
+        })])
+        expect(container.state.isListSidebarShown).toEqual(true)
     })
 })

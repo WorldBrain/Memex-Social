@@ -6,15 +6,16 @@ import { AnnotationConversationEvent, AnnotationConversationsState, AnnotationCo
 import { UITaskState } from "../../../../../main-ui/types";
 import { User, UserReference } from "@worldbrain/memex-common/lib/web-interface/types/users";
 import { StorageModules } from "../../../../../storage/types";
+import { ActivityFollowsState, ActivityFollowsEvent } from "../../../../activity-follows/ui/types";
 
 export interface PageDetailsDependencies {
     services: UIElementServices<'contentConversations' | 'auth' | 'overlay' | 'activityStreams' | 'router' | 'userManagement'>;
-    storage: Pick<StorageModules, 'contentSharing' | 'contentConversations' | 'users' | 'activityStreams'>
+    storage: Pick<StorageModules, 'contentSharing' | 'contentConversations' | 'users' | 'activityStreams' | 'activityFollows'>
     pageID: string
     userManagement: UserStorage
 }
 
-export type PageDetailsState = AnnotationConversationsState & {
+export type PageDetailsState = AnnotationConversationsState & ActivityFollowsState & {
     annotationLoadState: UITaskState
     annotations?: Array<SharedAnnotation & { reference: SharedAnnotationReference, linkId: string }> | null
 
@@ -27,7 +28,7 @@ export type PageDetailsState = AnnotationConversationsState & {
     creatorReference?: UserReference | null
 }
 
-export type PageDetailsEvent = UIEvent<AnnotationConversationEvent>
+export type PageDetailsEvent = UIEvent<AnnotationConversationEvent & ActivityFollowsEvent>
 
 export type PageDetailsSignal = UISignal<
     { type: 'loaded' } |
