@@ -143,8 +143,8 @@ export default function AnnotationsInPage(
                     profilePopupProps={props.profilePopupProps && {
                         ...props.profilePopupProps,
                         userRef: props.getAnnotationCreatorRef?.(
-                            annotation.reference,
-                        ) ?? {type: 'user-reference', id: ''},
+                          annotation.reference,
+                      ) ?? {type: 'user-reference', id: ''},
                     }}
                     conversation={conversation}
                     renderReplyBox={props.renderReplyBox}
@@ -170,6 +170,7 @@ export function AnnotationWithReplies(
   props: {
     annotation: SharedAnnotationInPage;
     annotationCreator?: Pick<User, "displayName"> | null;
+    profilePopupProps?: ProfilePopupProps
     renderAnnotationBox?: (
       props: AnnotationBoxProps & { annotation: SharedAnnotationInPage }
     ) => React.ReactNode;
@@ -207,6 +208,9 @@ export function AnnotationWithReplies(
     <AnnotationBox
       annotation={annotation}
       creator={props.annotationCreator}
+      profilePopupProps={
+        props.profilePopupProps
+      }
       hasReplies={!!conversation?.thread}
       onInitiateReply={() =>
         props.onNewReplyInitiate?.({
@@ -236,6 +240,7 @@ export function AnnotationWithReplies(
                 annotationReference: annotation.reference,
                 replyReference: replyData.reference,
                 user: props.getReplyCreator?.(annotation.reference, replyData.reference) ?? replyData.user,
+                profilePopupProps: props.profilePopupProps,
                 renderItemBox: props.renderReplyBox &&
                   ((boxProps) => props.renderReplyBox?.({
                     annotationReference: annotation.reference,

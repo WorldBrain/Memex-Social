@@ -67,7 +67,6 @@ export interface AnnotationBoxProps {
 
 export default function AnnotationBox(props: AnnotationBoxProps) {
   const { annotation } = props;
-
   return (
     <ItemBox>
       <StyledAnnotationBox>

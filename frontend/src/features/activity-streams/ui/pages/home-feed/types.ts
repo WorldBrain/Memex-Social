@@ -31,7 +31,7 @@ export type HomeFeedEvent = UIEvent<AnnotationConversationEvent & ActivityFollow
         groupId: string
         annotationReference: SharedAnnotationReference
     }
->
+}>
 
 export type ActivityItem = PageActivityItem | ListActivityItem
 
