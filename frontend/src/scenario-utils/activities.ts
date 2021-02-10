@@ -35,11 +35,6 @@ export const setupTestActivities = async ({ services, storage }: { services: Ser
         entity: { type: 'shared-annotation-reference', id: 'third-annotation' },
         feeds: { home: true },
     })
-    await services.activityStreams.followEntity({
-        entityType: 'sharedList',
-        entity: { type: 'shared-list-reference', id: 'default-list' },
-        feeds: { home: true },
-    })
     await storage.serverModules.activityFollows.storeFollow({
         userReference: services.auth.getCurrentUserReference()!,
         collection: 'sharedList',
