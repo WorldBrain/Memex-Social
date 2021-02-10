@@ -34,6 +34,7 @@ export interface CollectionDetailsDependencies {
     | "router"
     | "activityStreams"
     | "userManagement"
+    | "webMonetization"
   >;
   storage: Pick<
     StorageModules,

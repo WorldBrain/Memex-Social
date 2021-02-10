@@ -28,6 +28,7 @@ import AnnotationsInPage from "../../../../annotations/ui/components/annotations
 import ErrorWithAction from "../../../../../common-ui/components/error-with-action";
 import ErrorBox from "../../../../../common-ui/components/error-box";
 import FollowBtn from "../../../../activity-follows/ui/components/follow-btn"
+import WebMonetizationIcon from "../../../../web-monetization/ui/components/web-monetization-icon";
 const commentImage = require("../../../../../assets/img/comment.svg");
 
 const DocumentView = styled.div`
@@ -175,6 +176,18 @@ export default class CollectionDetailsPage extends UIElement<
     }
   }
 
+  renderWebMonetizationIcon() {
+      if (this.state.listData?.creatorReference) {
+          return (
+              <WebMonetizationIcon
+                  services={this.props.services}
+                  storage={this.props.storage}
+                  curatorUserRef={this.state.listData?.creatorReference}
+              />
+          )
+      }
+  }
+
   renderFollowBtn() {
     return (
       <FollowBtn
@@ -320,6 +333,7 @@ export default class CollectionDetailsPage extends UIElement<
           headerTitle={data.list.title}
           headerSubtitle={data.creator && `${data.creator.displayName}`}
           creatorReference={data.creatorReference}
+          webMonetizationIcon={this.renderWebMonetizationIcon()}
           followBtn={this.renderFollowBtn()}
           listsSidebarProps={{
             isShown: this.state.isListSidebarShown,

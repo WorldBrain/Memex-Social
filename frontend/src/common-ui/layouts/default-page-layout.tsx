@@ -263,6 +263,7 @@ export default function DefaultPageLayout(props: {
     headerTitle?: string
     headerSubtitle?: string | null
     followBtn?: JSX.Element
+    webMonetizationIcon?: JSX.Element
     creatorReference?: UserReference
     hideActivityIndicator?: boolean
     listsSidebarProps?: Omit<ListsSidebarProps, 'services'>
@@ -393,6 +394,7 @@ export default function DefaultPageLayout(props: {
         )}
           </PageMidleAreaTitles>
           <PageMidleAreaAction>
+          {props.webMonetizationIcon && props.webMonetizationIcon}
           {props.followBtn && props.followBtn}
           </PageMidleAreaAction>
         </PageMiddleAreaTopBox>
