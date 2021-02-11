@@ -15,13 +15,13 @@ export const setupTestActivities = async ({ services, storage }: { services: Ser
         normalizedPageUrl: 'notion.so',
         reply: { content: 'Replying to myself' }
     }) as SuccessReplyRes
-    await services.contentConversations.submitReply({
+    const { replyReference: reply2Ref } = await services.contentConversations.submitReply({
         pageCreatorReference: { type: 'user-reference', id: 'default-user' },
         annotationReference: { type: 'shared-annotation-reference', id: 'third-annotation' },
         normalizedPageUrl: 'notion.so',
         reply: { content: 'Another reply to myself' },
         previousReplyReference: reply1Ref,
-    })
+    }) as SuccessReplyRes
     await services.activityStreams.followEntity({
         entityType: 'sharedAnnotation',
         entity: { type: 'shared-annotation-reference', id: 'default-annotation' },
@@ -53,31 +53,32 @@ export const setupTestActivities = async ({ services, storage }: { services: Ser
     }, {
         knownStatus: 'exists'
     }, { displayName: 'User two' })
-    const { replyReference: reply2Ref } = await services.contentConversations.submitReply({
+    const { replyReference: reply3Ref } = await services.contentConversations.submitReply({
         pageCreatorReference: { type: 'user-reference', id: 'default-user' },
         annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' },
         normalizedPageUrl: 'getmemex.com',
         reply: { content: 'default - reply one' }
     }) as SuccessReplyRes
-    await services.contentConversations.submitReply({
+    const { replyReference: reply4Ref } = await services.contentConversations.submitReply({
         pageCreatorReference: { type: 'user-reference', id: 'default-user' },
         annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' },
         normalizedPageUrl: 'getmemex.com',
         reply: { content: 'default - reply two' },
-        previousReplyReference: reply2Ref,
-    })
-    const { replyReference: reply4Ref } = await services.contentConversations.submitReply({
+        previousReplyReference: reply3Ref,
+    }) as SuccessReplyRes
+    const { replyReference: reply5Ref } = await services.contentConversations.submitReply({
         pageCreatorReference: { type: 'user-reference', id: 'default-user' },
         annotationReference: { type: 'shared-annotation-reference', id: 'second-annotation' },
         normalizedPageUrl: 'getmemex.com',
         reply: { content: 'second - reply one' },
+        previousReplyReference: reply4Ref,
     }) as SuccessReplyRes
-    const { replyReference: reply5Ref } = await services.contentConversations.submitReply({
+    const { replyReference: reply6Ref } = await services.contentConversations.submitReply({
         pageCreatorReference: { type: 'user-reference', id: 'default-user' },
         annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' },
         normalizedPageUrl: 'getmemex.com',
         reply: { content: 'default - reply three' },
-        previousReplyReference: reply4Ref,
+        previousReplyReference: reply5Ref,
     }) as SuccessReplyRes
     await storage.serverModules.contentSharing.createListEntries({
         listReference: { type: 'shared-list-reference', id: 'default-list' },
@@ -92,18 +93,19 @@ export const setupTestActivities = async ({ services, storage }: { services: Ser
         user: { type: 'user-reference', id: 'default-user' },
         timestamp: Date.now(),
     })
-    const { replyReference: reply6Ref } = await services.contentConversations.submitReply({
+    const { replyReference: reply7Ref } = await services.contentConversations.submitReply({
         pageCreatorReference: { type: 'user-reference', id: 'default-user' },
         annotationReference: { type: 'shared-annotation-reference', id: 'third-annotation' },
         normalizedPageUrl: 'notion.so',
         reply: { content: 'third - reply one' },
-        previousReplyReference: reply5Ref,
+        previousReplyReference: reply2Ref,
     }) as SuccessReplyRes
     await services.contentConversations.submitReply({
         pageCreatorReference: { type: 'user-reference', id: 'default-user' },
         annotationReference: { type: 'shared-annotation-reference', id: 'default-annotation' },
         normalizedPageUrl: 'getmemex.com',
         reply: { content: 'default - reply four' },
+        previousReplyReference: reply6Ref,
     })
     await storage.serverModules.contentSharing.createListEntries({
         listReference: { type: 'shared-list-reference', id: 'default-list' },
@@ -130,19 +132,19 @@ export const setupTestActivities = async ({ services, storage }: { services: Ser
             ]
         }
     })
-    const { replyReference: reply7Ref } = await services.contentConversations.submitReply({
+    const { replyReference: reply8Ref } = await services.contentConversations.submitReply({
         pageCreatorReference: services.auth.getCurrentUserReference()!,
         annotationReference: sharedAnnotationReferences['test-annot-1'],
         normalizedPageUrl: 'new.com/one',
         reply: { content: 'Test annot reply' }
     }) as SuccessReplyRes
 
-    const { replyReference: reply8Ref } = await services.contentConversations.submitReply({
+    const { replyReference: reply9Ref } = await services.contentConversations.submitReply({
         pageCreatorReference: services.auth.getCurrentUserReference()!,
         annotationReference: sharedAnnotationReferences['test-annot-1'],
         normalizedPageUrl: 'new.com/one',
         reply: { content: 'Another test annot reply' },
-        previousReplyReference: reply7Ref,
+        previousReplyReference: reply8Ref,
     }) as SuccessReplyRes
     await services.auth.logout()
 
@@ -156,7 +158,7 @@ export const setupTestActivities = async ({ services, storage }: { services: Ser
         annotationReference: { type: 'shared-annotation-reference', id: 'third-annotation' },
         normalizedPageUrl: 'notion.so',
         reply: { content: 'My final reply to myself' },
-        previousReplyReference: reply6Ref,
+        previousReplyReference: reply7Ref,
     })
 
     await services.contentConversations.submitReply({
@@ -164,6 +166,6 @@ export const setupTestActivities = async ({ services, storage }: { services: Ser
         annotationReference: sharedAnnotationReferences['test-annot-1'],
         normalizedPageUrl: 'new.com/one',
         reply: { content: 'Yet another test reply - from John Doe!' },
-        previousReplyReference: reply8Ref
+        previousReplyReference: reply9Ref
     })
 }
