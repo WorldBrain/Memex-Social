@@ -260,6 +260,11 @@ export default class CollectionDetailsPage extends UIElement<
             services={this.props.services}
             storage={this.props.storage}
             viewportBreakpoint={viewportBreakpoint}
+            listsSidebarProps={{
+              isShown: this.state.isListSidebarShown,
+              followedLists: this.state.followedLists,
+              loadState: this.state.listSidebarLoadState,
+            }}
           >
             <ErrorWithAction errorType="internal-error">
               Error loading this collection. <br /> Reload page to retry.
@@ -276,6 +281,11 @@ export default class CollectionDetailsPage extends UIElement<
           services={this.props.services}
           storage={this.props.storage}
           viewportBreakpoint={viewportBreakpoint}
+          listsSidebarProps={{
+            isShown: this.state.isListSidebarShown,
+            followedLists: this.state.followedLists,
+            loadState: this.state.listSidebarLoadState,
+          }}
         >
           <ErrorWithAction
             errorType="not-found"
