@@ -63,8 +63,14 @@ export default class CollectionDetailsLogic extends UILogic<CollectionDetailsSta
     }
 
     init: EventHandler<'init'> = async (incoming) => {
+        await this.processUIEvent('loadListData', { ...incoming, event: { listID: this.dependencies.listID } })
+        await this.processUIEvent('initActivityFollows', incoming)
+        await this.loadFollowBtnState()
+    }
+
+    loadListData: EventHandler<'loadListData'> = async ({ event }) => {
         const { contentSharing, users } = this.dependencies.storage
-        const listReference = contentSharing.getSharedListReferenceFromLinkID(this.dependencies.listID)
+        const listReference = contentSharing.getSharedListReferenceFromLinkID(event.listID)
         const { success: listDataSuccess } = await executeUITask<CollectionDetailsState>(this, 'listLoadState', async () => {
             this.emitSignal<CollectionDetailsSignal>({ type: 'loading-started' })
 
@@ -89,6 +95,10 @@ export default class CollectionDetailsLogic extends UILogic<CollectionDetailsSta
                         },
                     }
                 }
+            } else {
+                return {
+                    mutation: { listData: { $set: undefined } }
+                }
             }
         })
         this.emitSignal<CollectionDetailsSignal>({ type: 'loaded-list-data', success: listDataSuccess })
@@ -103,8 +113,6 @@ export default class CollectionDetailsLogic extends UILogic<CollectionDetailsSta
             }
         })
         this.emitSignal<CollectionDetailsSignal>({ type: 'loaded-annotation-entries', success: annotationEntriesSuccess })
-        await this.processUIEvent('initActivityFollows', incoming)
-        await this.loadFollowBtnState()
     }
 
     private async loadFollowBtnState() {

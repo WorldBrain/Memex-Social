@@ -128,6 +128,12 @@ export default class CollectionDetailsPage extends UIElement<
     super(props, { logic: new Logic(props) });
   }
 
+  async componentDidUpdate(prevProps: CollectionDetailsDependencies) {
+    if (this.props.listID !== prevProps.listID) {
+      await this.processEvent('loadListData', { listID: this.props.listID })
+    }
+  }
+
   renderPageEntry(entry: SharedListEntry) {
     return (
       <PageInfoBox
