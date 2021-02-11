@@ -33,15 +33,12 @@ export default abstract class WebMonetizationButtonLogic extends UILogic<
     }
 
     init: EventHandler<'init'> = async () => {
-        try {
-            this._setInitialLoadTaskState('running')
-            const shouldDisplay = await this.shouldComponentDisplay()
-            this._setIsDisplayed(shouldDisplay)
-            this._setInitialLoadTaskState('success')
-        } catch (err) {
-            console.error(err)
-            this._setInitialLoadTaskState('error')
-        }
+        this._tryDisplayComponent()
+        this.dependencies.services.userManagement.events.addListener('userProfileChange',this._tryDisplayComponent)
+    }
+
+    cleanup: EventHandler<'cleanup'> = () => {
+        this.dependencies.services.userManagement.events.removeAllListeners()
     }
 
     makeSupporterPayment: EventHandler<'makeSupporterPayment'> = async () => {
@@ -61,8 +58,20 @@ export default abstract class WebMonetizationButtonLogic extends UILogic<
             this._setMakePaymentTaskState('error')
         }
     }
+
+    private async _tryDisplayComponent(): Promise<void> {
+        try {
+            this._setInitialLoadTaskState('running')
+            const shouldDisplay = await this._shouldComponentDisplay()
+            this._setIsDisplayed(shouldDisplay)
+            this._setInitialLoadTaskState('success')
+        } catch (err) {
+            console.error(err)
+            this._setInitialLoadTaskState('error')
+        }
+    }
     
-    private async shouldComponentDisplay(): Promise<boolean> {
+    private async _shouldComponentDisplay(): Promise<boolean> {
         const currentUserPaymentPointer = await this.dependencies.services.webMonetization.getCurrentUserPaymentPointer()
         return !!currentUserPaymentPointer
     }
