@@ -38,6 +38,7 @@ export type CollectionDetailsEvent = UIEvent<AnnotationConversationEvent & Activ
     toggleDescriptionTruncation: {}
     togglePageAnnotations: { normalizedUrl: string }
     toggleAllAnnotations: {}
+    loadListData: { listID: string }
     pageBreakpointHit: { entryIndex: number }
     clickFollowBtn: null
 }>

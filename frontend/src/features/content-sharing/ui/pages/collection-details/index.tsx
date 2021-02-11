@@ -95,7 +95,6 @@ const ToggleAllAnnotations = styled.div`
   cursor: pointer;
   font-size: 12px;
   width: fit-content;
-  background-color: #fff;
   padding: 0 5px;
   margin: 5px 0 10px;
   border-radius: 5px;
@@ -124,6 +123,12 @@ export default class CollectionDetailsPage extends UIElement<
 > {
   constructor(props: CollectionDetailsDependencies) {
     super(props, { logic: new Logic(props) });
+  }
+
+  async componentDidUpdate(prevProps: CollectionDetailsDependencies) {
+    if (this.props.listID !== prevProps.listID) {
+      await this.processEvent('loadListData', { listID: this.props.listID })
+    }
   }
 
   renderPageEntry(entry: SharedListEntry) {
@@ -262,6 +267,11 @@ export default class CollectionDetailsPage extends UIElement<
             services={this.props.services}
             storage={this.props.storage}
             viewportBreakpoint={viewportBreakpoint}
+            listsSidebarProps={{
+              isShown: this.state.isListSidebarShown,
+              followedLists: this.state.followedLists,
+              loadState: this.state.listSidebarLoadState,
+            }}
           >
             <ErrorWithAction errorType="internal-error">
               Error loading this collection. <br /> Reload page to retry.
@@ -278,6 +288,11 @@ export default class CollectionDetailsPage extends UIElement<
           services={this.props.services}
           storage={this.props.storage}
           viewportBreakpoint={viewportBreakpoint}
+          listsSidebarProps={{
+            isShown: this.state.isListSidebarShown,
+            followedLists: this.state.followedLists,
+            loadState: this.state.listSidebarLoadState,
+          }}
         >
           <ErrorWithAction
             errorType="not-found"
