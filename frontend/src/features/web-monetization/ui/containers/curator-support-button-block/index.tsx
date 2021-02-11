@@ -73,12 +73,13 @@ const BoldText = styled(ButtonInnerText)`
     font-weight: 700;
 `
 
-const Link = styled.a<{ theme: Theme }>`
+const Link = styled.div<{ theme: Theme }>`
     ${(props) => `font-size: ${props.theme.fontSizes.text};`}
     ${(props) => `line-height: ${props.theme.lineHeights.text};`}
     text-decoration: underline;
     ${(props) => `margin-left: ${props.theme.spacing.medium};`}
     color: ${(props) => props.theme.colors.primary};
+    cursor: pointer;
 `
 
 const ErrorMessage = styled.div<{ theme: Theme }>`
@@ -106,6 +107,11 @@ export class CuratorSupportButtonBlock extends UIElement<
 
     handleButtonClick: React.MouseEventHandler = () => {
         this.processEvent('makeSupporterPayment', null)
+    }
+
+    handleWebLinkClick = (url: string): void => {
+        const newWindow = window.open(url, '_blank', 'noopener,noreferrer')
+        if (newWindow) newWindow.opener = null
     }
 
     renderErrorScreen() {
@@ -161,10 +167,11 @@ export class CuratorSupportButtonBlock extends UIElement<
                             {this.renderButtonInnerHTML()}
                         </Button>
                         <Link
-                            href={
-                                makePaymentTaskState === 'error'
-                                    ? 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
-                                    : 'https://www.youtube.com/watch?v=at_f98qOGY0'
+                            onClick={() => this.handleWebLinkClick(
+                                    makePaymentTaskState === 'error'
+                                        ? 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
+                                        : 'https://www.youtube.com/watch?v=at_f98qOGY0'
+                                )
                             }
                             theme={theme}
                         >

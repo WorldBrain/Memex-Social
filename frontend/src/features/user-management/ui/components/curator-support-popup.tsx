@@ -12,6 +12,7 @@ import CuratorSupportButtonBlock from '../../../web-monetization/ui/containers/c
 import { UserReference } from '../../types'
 
 const PopupContainer = styled.div<{ theme: Theme }>`
+    position: absolute;
     z-index: ${(props) => props.theme.zIndices.overlay};
     padding: ${(props) => props.theme.spacing.small};
     border-radius: ${(props) => props.theme.borderRadii.default};
