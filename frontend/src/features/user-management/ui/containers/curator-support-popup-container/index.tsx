@@ -2,19 +2,24 @@ import React from 'react'
 import styled from 'styled-components'
 
 import { UIElement } from '../../../../../main-ui/classes'
-import CuratorSupportPopupContainerLogic, {
-    CuratorSupportPopupContainerDependencies,
-    CuratorSupportPopupContainerState,
-    CuratorSupportPopupContainerEvent,
-} from './logic'
+import CuratorSupportPopupContainerLogic from './logic'
+import {
+    ProfilePopupContainerDependencies,
+    ProfilePopupContainerState,
+    ProfilePopupContainerEvent,
+} from '../profile-popup-container/types'
 
 import CuratorSupportPopup from '../../components/curator-support-popup'
 
 const Container = styled.div`
-    height: 'min-content';
-    width: 'min-content';
+    height: min-content;
+    width: min-content;
     position: relative;
 `
+
+export type CuratorSupportPopupContainerDependencies = ProfilePopupContainerDependencies
+export type CuratorSupportPopupContainerState = ProfilePopupContainerState
+export type CuratorSupportPopupContainerEvent = ProfilePopupContainerEvent
 
 export default class CuratorSupportPopupContainer extends UIElement<
     CuratorSupportPopupContainerDependencies,
@@ -34,21 +39,21 @@ export default class CuratorSupportPopupContainer extends UIElement<
     }
 
     render() {
-        const { profileTaskState, userPublicProfile: { paymentPointer} } = this.state
+        const { props, state } = this
         return (
             <>
                 <Container
                     onMouseEnter={() => this.handleMouseEnter()}
                     onMouseLeave={() => this.handleMouseLeave()}
                 >
-                    {this.props.children}
+                    {props.children}
                 </Container>
-                {this.state.isDisplayed && (
+                {state.isDisplayed && (
                     <CuratorSupportPopup
-                        taskState={profileTaskState}
-                        paymentPointer={paymentPointer}
-                        services={this.props.services}
-                        storage={this.props.storage}
+                        taskState={state.profileTaskState}
+                        curatorUserRef={props.userRef}
+                        services={props.services}
+                        storage={props.storage}
                     />
                 )}
             </>

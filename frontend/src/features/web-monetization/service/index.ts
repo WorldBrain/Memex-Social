@@ -1,9 +1,7 @@
 import { UITaskState } from '../../../main-ui/types'
 import { AuthService } from '../../../services/auth/types'
-import { Services } from '../../../services/types'
 import UserManagementService from '../../user-management/service'
 import { UserReference } from '../../user-management/types'
-import { WebMonetizationButtonState } from '../logic/buttons/types'
 
 export default class WebMonetizationService {
     constructor(

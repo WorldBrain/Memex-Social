@@ -6,14 +6,10 @@ import { UITaskState } from '../../../../../main-ui/types'
 import { theme } from '../../../../../main-ui/styles/theme'
 import { Theme } from '../../../../../main-ui/styles/types'
 
-import {
-    CuratorSupportButtonBlockEvent,
-    CuratorSupportButtonBlockState,
-    CuratorSupportButtonBlockDependencies,
-} from './types'
 import CuratorSupportButtonBlockLogic from './logic'
 
 import LoadingScreen from '../../../../../common-ui/components/loading-screen'
+import { WebMonetizationButtonDependencies, WebMonetizationButtonState, WebMonetizationButtonEvent } from '../../../logic/buttons/types'
 
 const Container = styled.div`
     display: flex;
@@ -95,6 +91,10 @@ const ErrorMessage = styled.div<{ theme: Theme }>`
     align-items: center;
 `
 
+type CuratorSupportButtonBlockDependencies = WebMonetizationButtonDependencies
+type CuratorSupportButtonBlockState = WebMonetizationButtonState
+type CuratorSupportButtonBlockEvent = WebMonetizationButtonEvent
+
 export class CuratorSupportButtonBlock extends UIElement<
     CuratorSupportButtonBlockDependencies,
     CuratorSupportButtonBlockState,
@@ -105,7 +105,7 @@ export class CuratorSupportButtonBlock extends UIElement<
     }
 
     handleButtonClick: React.MouseEventHandler = () => {
-        this.processEvent('toggleSupporterRelationship', null)
+        this.processEvent('makeSupporterPayment', null)
     }
 
     renderErrorScreen() {
@@ -147,30 +147,34 @@ export class CuratorSupportButtonBlock extends UIElement<
     }
 
     render() {
-        const { paymentMade, makePaymentTaskState } = this.state
+        const { paymentMade, makePaymentTaskState, isDisplayed } = this.state
         return (
             <Container>
-                <Button
-                    onClick={this.handleButtonClick}
-                    isSupported={paymentMade}
-                    supportedTaskState={makePaymentTaskState}
-                    theme={theme}
-                >
-                    {/*<Icon theme={theme} />*/}
-                    {this.renderButtonInnerHTML()}
-                </Button>
-                <Link
-                    href={
-                        makePaymentTaskState === 'error'
-                            ? 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
-                            : 'https://www.youtube.com/watch?v=at_f98qOGY0'
-                    }
-                    theme={theme}
-                >
-                    {makePaymentTaskState === 'error'
-                        ? 'Help>>'
-                        : 'Learn More>>'}
-                </Link>
+                {isDisplayed && (
+                    <>
+                        <Button
+                            onClick={this.handleButtonClick}
+                            isSupported={paymentMade}
+                            supportedTaskState={makePaymentTaskState}
+                            theme={theme}
+                        >
+                            {this.renderButtonInnerHTML()}
+                        </Button>
+                        <Link
+                            href={
+                                makePaymentTaskState === 'error'
+                                    ? 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
+                                    : 'https://www.youtube.com/watch?v=at_f98qOGY0'
+                            }
+                            theme={theme}
+                        >
+                            {makePaymentTaskState === 'error'
+                                ? 'Help>>'
+                                : 'Learn More>>'}
+                        </Link>
+                    </>
+                )}
+                
             </Container>
         )
     }
