@@ -47,7 +47,6 @@ export default class CuratorSupportPopupContainer extends UIElement<
                     onMouseLeave={() => this.handleMouseLeave()}
                 >
                     {props.children}
-                </Container>
                 {state.isDisplayed && (
                     <CuratorSupportPopup
                         taskState={state.profileTaskState}
@@ -56,6 +55,7 @@ export default class CuratorSupportPopupContainer extends UIElement<
                         storage={props.storage}
                     />
                 )}
+                </Container>
             </>
         )
     }
