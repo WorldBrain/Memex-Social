@@ -9,18 +9,14 @@ import { StorageModules } from '../../../../storage/types'
 
 import LoadingScreen from '../../../../common-ui/components/loading-screen'
 import CuratorSupportButtonBlock from '../../../web-monetization/ui/containers/curator-support-button-block'
+import { UserReference } from '../../types'
 
 const PopupContainer = styled.div<{ theme: Theme }>`
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    z-index: ${(props) => props.theme.zIndices.overlay}
-    width: 164px;
-    min-height: 111px;
+    z-index: ${(props) => props.theme.zIndices.overlay};
     padding: ${(props) => props.theme.spacing.small};
     border-radius: ${(props) => props.theme.borderRadii.default};
     background-color: ${(props) => props.theme.colors.background};
-    font-family: ${(props) => props.theme.fonts.primary}
+    font-family: ${(props) => props.theme.fonts.primary};
     color: ${(props) => props.theme.colors.primary};
 `
 
@@ -39,15 +35,15 @@ const Text = styled.div<{ theme: Theme }>`
 `
 
 interface CuratorSupportPopupProps {
-    taskState: UITaskState
-    paymentPointer: string
-    services: UIElementServices<'userManagement'>
+    services: UIElementServices<'userManagement' | 'webMonetization'>
     storage: Pick<StorageModules, 'users'>
+    curatorUserRef: UserReference
+    taskState: UITaskState
 }
 
 export default class CuratorSupportPopup extends PureComponent<CuratorSupportPopupProps> {
     render() {
-        const { taskState, paymentPointer, services, storage } = this.props
+        const { taskState, curatorUserRef, services, storage } = this.props
         return (
             <PopupContainer theme={theme}>
                 {taskState === 'running' && <LoadingScreen />}
@@ -57,13 +53,11 @@ export default class CuratorSupportPopup extends PureComponent<CuratorSupportPop
                         <Text theme={theme}>
                             Donate a few cents with one click
                         </Text>
-                        {paymentPointer && (
-                            <CuratorSupportButtonBlock
-                                services={services}
-                                storage={storage}
-                                paymentPointer={paymentPointer}
-                            />
-                        )}
+                        <CuratorSupportButtonBlock
+                            services={services}
+                            storage={storage}
+                            curatorUserRef={curatorUserRef}
+                        />
                     </>
                 )}
             </PopupContainer>
