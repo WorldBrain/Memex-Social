@@ -451,6 +451,8 @@ export default class HomeFeedPage extends UIElement<
   }
 
   render() {
+    // console.log(this.state)
+
     const viewportWidth = this.getBreakPoints();
 
     return (

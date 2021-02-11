@@ -158,7 +158,7 @@ objects:
       normalizedPageUrl: "getmemex.com"
       body: "Automatically indexes websites you visit. Instantly recover anything you've seen without upfront work."
       comment: |
-        I have been waiting for this *forever*!
+        default annotation - I have been waiting for this *forever*!
 
         * one
 
@@ -173,7 +173,7 @@ objects:
       updatedWhen: 1594225289914
       normalizedPageUrl: "getmemex.com"
       comment: |
-        Memex is **great** and brings *networked thoughts* into online research.
+        second annotation - Memex is **great** and brings *networked thoughts* into online research.
         But it is missing sharing features.
         How else could I share what I find with my community?
 
@@ -194,7 +194,7 @@ objects:
       updatedWhen: 1594225289914
       normalizedPageUrl: "notion.so"
       body: "Body 3"
-      comment: "Comment 3"
+      comment: "third annotation - Comment 3"
       selector: "Selector 3"
   sharedAnnotationListEntries:
     - creator: { $ref: users.default }

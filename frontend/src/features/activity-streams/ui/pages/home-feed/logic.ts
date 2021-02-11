@@ -143,16 +143,17 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
             }
 
             for (const replies of Object.values(repliesByAnnotation)) {
-                for (const reply of replies) {
+                for (const replyData of replies) {
                     repliesData[event.groupId] = {
                         ...(repliesData[event.groupId] ?? {}),
-                        [reply.reference.id]: {
-                            creatorReference: reply.userReference,
-                            reference: reply.reference,
+                        [replyData.reference.id]: {
+                            creatorReference: replyData.userReference,
+                            reference: replyData.reference,
+                            previousReplyReference: replyData.previousReply,
                             reply: {
-                                content: reply.reply.content,
-                                createdWhen: reply.reply.createdWhen,
-                                normalizedPageUrl: reply.reply.normalizedPageUrl,
+                                content: replyData.reply.content,
+                                createdWhen: replyData.reply.createdWhen,
+                                normalizedPageUrl: replyData.reply.normalizedPageUrl,
                             },
                         }
                     }
@@ -236,6 +237,7 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
                     [replyData.reference.id]: {
                         $set: {
                             reference: replyData.reference,
+                            previousReplyReference: replyData.previousReply,
                             creatorReference: replyData.userReference,
                             reply: replyData.reply,
                         }
@@ -312,6 +314,7 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
 
         await loader(async () => {
             const { activityGroups, hasMore } = await this.dependencies.services.activityStreams.getHomeFeedActivities({ offset: this.itemOffset, limit: this.pageSize })
+            // console.log(activityGroups)
             this.itemOffset += this.pageSize
             if (!activityGroups.length) {
                 this.hasMore = false
@@ -320,6 +323,10 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
             this.hasMore = hasMore
 
             const organized = organizeActivities(activityGroups)
+            // console.log(organized)
+            // if (1) {
+            //     return
+            // }
             activityData = organized.data
 
             const conversations = getInitialAnnotationConversationStates(organized.activityItems.map((activityItem) => ({
