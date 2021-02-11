@@ -97,6 +97,7 @@ export interface ActivityData {
         [groupId: string]: {
             [replyId: string]: {
                 reference: ConversationReplyReference
+                previousReplyReference: ConversationReplyReference | null
                 creatorReference: UserReference
                 reply: Pick<ConversationReply, 'content' | 'createdWhen' | 'normalizedPageUrl'>,
             }

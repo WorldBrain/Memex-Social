@@ -127,7 +127,7 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
             const annotationItems: AnnotationActivityItem[] = annotations.map((a, i) => ({
                 type: 'annotation-item',
                 reference: a.reference,
-                hasEarlierReplies: i !== 0,
+                hasEarlierReplies: false,
                 replies: repliesByAnnotation[a.reference.id],
             }))
 
@@ -402,7 +402,7 @@ export function organizeActivities(activities: Array<ActivityStreamResultGroup<k
             const annotationItem: AnnotationActivityItem = {
                 type: 'annotation-item',
                 reference: replyActivityGroup.activities[0].activity.annotation.reference,
-                hasEarlierReplies: !replyActivityGroup.activities[0].activity.previousReplyReference !== null,
+                hasEarlierReplies: false, // This gets determined after all replies processed
                 replies: []
             }
             data.annotationItems[activityGroup.id] = annotationItem
@@ -433,6 +433,7 @@ export function organizeActivities(activities: Array<ActivityStreamResultGroup<k
                 }
                 data.replies[activityGroup.id][replyActivity.reply.reference.id] = {
                     reference: replyActivity.reply.reference,
+                    previousReplyReference: replyActivity.reply.previousReplyReference,
                     creatorReference: replyActivity.replyCreator.reference,
                     reply: {
                         ...replyActivity.reply,
@@ -445,6 +446,7 @@ export function organizeActivities(activities: Array<ActivityStreamResultGroup<k
                 })
                 pageItem.notifiedWhen = replyActivity.reply.createdWhen
             }
+            annotationItem.hasEarlierReplies = data.replies[activityGroup.id][annotationItem.replies[0].reference.id].previousReplyReference !== null
         }
 
         if (activityGroup.entityType === 'sharedList' && activityGroup.activityType === 'sharedListEntry') {
