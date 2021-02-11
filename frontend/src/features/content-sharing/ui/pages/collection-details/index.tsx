@@ -98,7 +98,6 @@ const ToggleAllAnnotations = styled.div`
   cursor: pointer;
   font-size: 12px;
   width: fit-content;
-  background-color: #fff;
   padding: 0 5px;
   margin: 5px 0 10px;
   border-radius: 5px;
