@@ -394,6 +394,7 @@ export default function DefaultPageLayout(props: {
         )}
           </PageMidleAreaTitles>
           <PageMidleAreaAction>
+          {props.webMonetizationIcon && props.webMonetizationIcon}
           {props.followBtn && props.followBtn}
           </PageMidleAreaAction>
         </PageMiddleAreaTopBox>
