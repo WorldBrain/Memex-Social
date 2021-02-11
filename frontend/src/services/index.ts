@@ -1,37 +1,33 @@
-import { History } from 'history'
-import firebase from 'firebase'
-import FirebaseFunctionsActivityStreamsService from '@worldbrain/memex-common/lib/activity-streams/services/firebase-functions/client'
-import MemoryStreamsService from '@worldbrain/memex-common/lib/activity-streams/services/memory'
-import { BackendType } from '../types'
-import { Storage } from '../storage/types'
-import ROUTES from '../routes'
-import ContentConversationsService from '../features/content-conversations/services/content-conversations'
-import { Services } from './types'
-import OverlayService from './overlay'
-import LogicRegistryService from './logic-registry'
-import FixtureService, {
-    FixtureFetcher,
-    defaultFixtureFetcher,
-} from './fixtures'
-import RouterService from './router'
-import { AuthService } from './auth/types'
-import FirebaseAuthService from './auth/firebase'
-import MemoryAuthService from './auth/memory'
-import { ScenarioService } from './scenarios'
-import { DeviceService } from './device'
-import { LimitedWebStorage } from '../utils/web-storage/types'
-import CallModifier from '../utils/call-modifier'
-import { DocumentTitleService } from './document-title'
-import UserManagementService from '../features/user-management/service'
+import { History } from "history";
+import firebaseModule from 'firebase';
+import FirebaseFunctionsActivityStreamsService from "@worldbrain/memex-common/lib/activity-streams/services/firebase-functions/client";
+import MemoryStreamsService from "@worldbrain/memex-common/lib/activity-streams/services/memory";
+import { BackendType } from "../types";
+import { Storage } from "../storage/types";
+import ROUTES from "../routes";
+import ContentConversationsService from "../features/content-conversations/services/content-conversations";
+import { Services } from "./types";
+import OverlayService from "./overlay";
+import LogicRegistryService from "./logic-registry";
+import FixtureService, { FixtureFetcher, defaultFixtureFetcher } from "./fixtures";
+import RouterService from "./router";
+import { AuthService } from "./auth/types";
+import FirebaseAuthService from "./auth/firebase";
+import MemoryAuthService from "./auth/memory";
+import { ScenarioService } from "./scenarios";
+import { DeviceService } from "./device";
+import { LimitedWebStorage } from "../utils/web-storage/types";
+import CallModifier from "../utils/call-modifier";
+import { DocumentTitleService } from "./document-title";
+import UserManagementService from "../features/user-management/service";
 import WebMonetizationService from '../features/web-monetization/service'
 
 export function createServices(options: {
-    backend: BackendType
-    storage: Storage
-    history: History
-    localStorage: LimitedWebStorage
-    uiMountPoint?: Element
-    firebase?: typeof firebase
+    backend: BackendType, storage: Storage,
+    history: History,
+    localStorage: LimitedWebStorage,
+    uiMountPoint?: Element,
+    firebase?: typeof firebaseModule
     logLogicEvents?: boolean
     fixtureFetcher?: FixtureFetcher
 }): Services {
@@ -46,13 +42,9 @@ export function createServices(options: {
     })
 
     let auth: AuthService
-    if (
-        options.backend === 'firebase' ||
-        options.backend === 'firebase-emulator'
-    ) {
-        auth = new FirebaseAuthService(options.firebase ?? firebase, {
-            storage: options.storage,
-        })
+    if (options.backend === 'firebase' || options.backend === 'firebase-emulator') {
+        const firebase = options.firebase ?? firebaseModule;
+        auth = new FirebaseAuthService(firebase, { storage: options.storage })
         if (process.env.NODE_ENV === 'development') {
             if (options.backend === 'firebase-emulator') {
                 firebase.firestore().useEmulator("localhost", 8080);
@@ -60,9 +52,7 @@ export function createServices(options: {
             }
             if (options.backend === 'firebase-emulator' || process.env.REACT_APP_USE_FUNCTIONS_EMULATOR === 'true') {
                 console.log('Using *emulated* Firebase Functions')
-                firebase
-                    .functions()
-                    .useFunctionsEmulator('http://localhost:5001')
+                firebaseModule.functions().useFunctionsEmulator("http://localhost:5001")
             } else {
                 console.log('Using *real* Firebase Functions')
             }
@@ -84,25 +74,17 @@ export function createServices(options: {
     })
 
     const callModifier = new CallModifier()
-    const fixtures = new FixtureService({
-        storage: options.storage,
-        fixtureFetcher: options.fixtureFetcher ?? defaultFixtureFetcher,
+    const fixtures = new FixtureService({ storage: options.storage, fixtureFetcher: options.fixtureFetcher ?? defaultFixtureFetcher });
+    const activityStreams = options.backend === 'memory' ? new MemoryStreamsService({
+        storage: options.storage.serverModules,
+        getCurrentUserId: async () => services.auth.getCurrentUserReference()?.id
+    }) : new FirebaseFunctionsActivityStreamsService({
+        executeCall: async (name, params) => {
+            const functions = (options.firebase ?? firebaseModule).functions()
+            const result = await functions.httpsCallable(name)(params)
+            return result.data
+        }
     })
-    const activityStreams =
-        options.backend === 'memory'
-            ? new MemoryStreamsService({
-                  storage: options.storage.serverModules,
-                  getCurrentUserId: async () =>
-                      services.auth.getCurrentUserReference()?.id,
-              })
-            : new FirebaseFunctionsActivityStreamsService({
-                  executeCall: async (name, params) => {
-                      const functions = (options.firebase ??
-                          firebase)!.functions()
-                      const result = await functions.httpsCallable(name)(params)
-                      return result.data
-                  },
-              })
     const userManagement = new UserManagementService({
         storage: options.storage.serverModules.users,
         auth,

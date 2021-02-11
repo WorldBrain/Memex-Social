@@ -9,6 +9,7 @@ declare module "styled-components-spacing" {
         | 'small'
         | 'medium'
         | 'large'
+        | 'larger'
         | 'largest'
     // type SpacingLength<Breakpoints extends string> = keyof typeof theme.spacing | { [Breakpoint in Breakpoints]: keyof typeof theme.spacing }
 

@@ -515,6 +515,165 @@ export const SCENARIOS: ScenarioMap<Targets> = {
         },
         steps: [],
     })),
+    'user-with-followed-collections': scenario<Targets>(({ step, callModification }) => ({
+        fixture: 'annotated-list-with-user',
+        authenticated: true,
+        startRoute: { route: 'collectionDetails', params: { id: 'default-list' } },
+        setup: {
+            callModifications: ({ storage }) => [
+                callModification({
+                    name: 'follows-loading',
+                    object: storage.serverModules.activityFollows, property: 'getAllFollowsByCollection',
+                    modifier: 'block'
+                }),
+            ],
+            execute: async ({ storage, services }) => {
+                await storage.serverModules.activityFollows.storeFollow({
+                    userReference: services.auth.getCurrentUserReference()!,
+                    collection: 'sharedList',
+                    objectId: 'default-list',
+                })
+            }
+        },
+        steps: [
+            step({
+                name: 'follows-loaded',
+                callModifications: ({ storage }) => [
+                    {
+                        name: 'follows-loading',
+                        modifier: 'undo',
+                    },
+                ]
+            }),
+        ]
+    })),
+    'follow-collection': scenario<Targets>(({ step, callModification }) => ({
+        fixture: 'annotated-list-with-user',
+        authenticated: true,
+        startRoute: { route: 'collectionDetails', params: { id: 'default-list' } },
+        setup: {
+            callModifications: ({ storage }) => [
+                callModification({
+                    name: 'following',
+                    object: storage.serverModules.activityFollows, property: 'storeFollow',
+                    modifier: 'block'
+                }),
+            ],
+        },
+        steps: [
+            step({
+                name: 'follow-collection',
+                target: 'CollectionDetailsPage',
+                eventName: 'clickFollowBtn',
+                eventArgs: null
+            }),
+            step({
+                name: 'follow-complete',
+                callModifications: ({ storage }) => [
+                    {
+                        name: 'following',
+                        modifier: 'undo',
+                    },
+                ]
+            }),
+        ]
+    })),
+    'unfollow-collection': scenario<Targets>(({ step, callModification }) => ({
+        fixture: 'annotated-list-with-user',
+        authenticated: true,
+        startRoute: { route: 'collectionDetails', params: { id: 'default-list' } },
+        setup: {
+            callModifications: ({ storage }) => [
+                callModification({
+                    name: 'unfollowing',
+                    object: storage.serverModules.activityFollows, property: 'deleteFollow',
+                    modifier: 'block'
+                }),
+            ],
+            execute: async ({ storage, services }) => {
+                await storage.serverModules.activityFollows.storeFollow({
+                    userReference: services.auth.getCurrentUserReference()!,
+                    collection: 'sharedList',
+                    objectId: 'default-list',
+                })
+            }
+        },
+        steps: [
+            step({
+                name: 'unfollow-collection',
+                target: 'CollectionDetailsPage',
+                eventName: 'clickFollowBtn',
+                eventArgs: null
+            }),
+            step({
+                name: 'unfollow-complete',
+                callModifications: () => [
+                    {
+                        name: 'unfollowing',
+                        modifier: 'undo',
+                    },
+                ]
+            }),
+        ]
+    })),
+    'user-with-followed-collections-error': scenario<Targets>(({ step, callModification }) => ({
+        fixture: 'annotated-list-with-user-and-follows',
+        authenticated: true,
+        startRoute: { route: 'collectionDetails', params: { id: 'default-list' } },
+        setup: {
+            callModifications: ({ storage }) => [
+                callModification({
+                    name: 'follows-error',
+                    object: storage.serverModules.activityFollows, property: 'getAllFollowsByCollection',
+                    modifier: 'sabotage'
+                }),
+            ],
+        },
+        steps: []
+    })),
+    'user-with-followed-collections-follow-button': scenario<Targets>(({ step, callModification }) => ({
+        fixture: 'annotated-list-with-user-and-follows',
+        authenticated: true,
+        startRoute: { route: 'collectionDetails', params: { id: 'default-list' } },
+        setup: {
+            callModifications: ({ storage }) => [
+                callModification({
+                    name: 'follow-btn-loading',
+                    object: storage.serverModules.activityFollows, property: 'isEntityFollowedByUser',
+                    modifier: 'block'
+                }),
+            ],
+        },
+        steps: [
+            step({
+                name: 'follow-btn-loaded',
+                callModifications: ({ storage }) => [
+                    {
+                        name: 'follow-btn-loading',
+                        modifier: 'undo',
+                    },
+                ]
+            }),
+            step({
+                name: 'follow-btn-clicked',
+                target: 'CollectionDetailsPage',
+                eventName: 'clickFollowBtn',
+                eventArgs: null,
+            })
+        ]
+    })),
+    'login-on-follow-button-click': scenario<Targets>(({ step, callModification }) => ({
+        fixture: 'annotated-list-with-user',
+        startRoute: { route: 'collectionDetails', params: { id: 'default-list' } },
+        steps: [
+            step({
+                name: 'follow-btn-clicked',
+                target: 'CollectionDetailsPage',
+                eventName: 'clickFollowBtn',
+                eventArgs: null,
+            })
+        ]
+    })),
     'profile-popup-block-loading': scenario<Targets>(
         ({ step, callModification }) => ({
             fixture: 'annotated-list-with-user',

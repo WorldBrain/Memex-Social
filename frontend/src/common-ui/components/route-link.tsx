@@ -14,6 +14,7 @@ export interface Props {
   params: { [key: string]: string };
   children: React.ReactNode;
   className?: string;
+  title?: string;
 }
 
 export default function RouteLink(props: Props) {
@@ -29,6 +30,7 @@ export default function RouteLink(props: Props) {
         event.preventDefault();
         props.services.router.goTo(props.route, props.params);
       }}
+      title={props.title}
     >
       {props.children}
     </StyledRouteLink>

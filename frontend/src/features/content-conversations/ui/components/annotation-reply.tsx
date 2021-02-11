@@ -9,26 +9,32 @@ import Markdown from "../../../../common-ui/components/markdown";
 import { ProfilePopupProps } from "../../../user-management/ui/containers/profile-popup-container";
 
 const StyledAnnotationBox = styled.div`
-    font-family: ${(props) => props.theme.fonts.primary};
-    padding: 15px 20px;
-`
+  font-family: ${(props) => props.theme.fonts.primary};
+`;
 
 const ReplyContent = styled.div`
-    font-size: 14px;
-    font-family: ${(props) => props.theme.fonts.primary};
-    color: ${(props) => props.theme.colors.primary};
+  font-size: 14px;
+  font-family: ${(props) => props.theme.fonts.primary};
+  color: ${(props) => props.theme.colors.primary};
+  padding: 15px 15px 10px 15px;
 
-    & p:first-child {
-        margin-top: 0;
-    }
-`
+  & p:first-child {
+    margin-top: 0;
+  }
 
-export default function AnnotationReply(props: {
+  & p:last-child {
+    margin-bottom: 0;
+  }
+`;
+
+export interface AnnotationReplyProps {
   user?: Pick<User, "displayName"> | null;
   reply?: ConversationReply;
-  profilePopupProps?: ProfilePopupProps
+  profilePopupProps?: ProfilePopupProps;
   renderItemBox?: (props: { children: React.ReactNode }) => React.ReactNode;
-}) {
+}
+
+export default function AnnotationReply(props: AnnotationReplyProps) {
   const renderItemBox =
     props.renderItemBox ?? ((props) => <ItemBox {...props} />);
   return (
@@ -36,7 +42,7 @@ export default function AnnotationReply(props: {
       {renderItemBox({
         children: (
           <StyledAnnotationBox>
-            <Margin bottom="small">
+            <Margin>
               <ReplyContent>
                 <Markdown>{props.reply?.content}</Markdown>
               </ReplyContent>
