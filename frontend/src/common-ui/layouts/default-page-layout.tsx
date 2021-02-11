@@ -265,7 +265,7 @@ export default function DefaultPageLayout(props: {
   const renderFeedArea = () => {
     if (!isAuthenticated) {
       return (
-        <FeedArea horizontal="medium">
+        <FeedArea>
           <FeedLabel
             onClick={async () => {
               const { result } = await props.services.auth.requestAuth();
@@ -339,7 +339,7 @@ export default function DefaultPageLayout(props: {
         </HeaderAuthArea>
       </StyledHeader>
       <PageMiddleArea viewportWidth={viewportWidth}>
-        <PageMiddleAreaTopBox top="larger" viewportWidth={viewportWidth}>
+        <PageMiddleAreaTopBox top="larger" bottom="medium" viewportWidth={viewportWidth}>
           <PageMidleAreaTitles>
           {props.headerTitle && (
             <HeaderTitle

@@ -16,6 +16,8 @@ import AccountSettings from "../account-settings-dialog";
 const StyledAuthHeader = styled.div``;
 const LoginAction = styled.div`
   cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
 `;
 const UserInfo = styled.div`
   display: flex;
