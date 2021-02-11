@@ -16,6 +16,8 @@ import ProfileEditModal from "../profile-edit-modal";
 const StyledAuthHeader = styled.div``;
 const LoginAction = styled.div`
   cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
 `;
 const UserInfo = styled.div`
   display: flex;

@@ -22,17 +22,17 @@ import { ConversationReplyReference } from '@worldbrain/memex-common/lib/content
 import { ProfilePopupProps } from '../../../user-management/ui/containers/profile-popup-container'
 import { UserReference } from '../../../user-management/types'
 
-const AnnotationContainer = styled.div`
-    display: flex;
-    justify-content: center;
-`
+const AnnotationContainer = styled(Margin)`
+  display: flex;
+  justify-content: center;
+`;
 
 const AnnotationLine = styled.span`
-    height: auto;
-    width: 4px;
-    background: #e0e0e0;
-    margin: -8px 10px 4px;
-`
+  height: auto;
+  width: 4px;
+  background: #e0e0e0;
+  margin: -8px 10px 15px;
+`;
 
 const AnnotationReplyContainer = styled.div`
     padding-top: 0.5rem;
@@ -56,7 +56,7 @@ const CenteredContent = styled.div`
 export default function AnnotationsInPage(
   props: {
     loadState: UITaskState;
-    annotations?: Array<SharedAnnotationInPage> | null;
+    annotations?: Array<SharedAnnotationInPage | null> | null;
     annotationConversations?: AnnotationConversationStates | null;
     renderAnnotationBox?: (
       props: AnnotationBoxProps & { annotation: SharedAnnotationInPage }
@@ -95,18 +95,18 @@ export default function AnnotationsInPage(
     }): void;
   } & NewAnnotationReplyEventHandlers
 ) {
-    if (props.loadState === 'pristine' || props.loadState === 'running') {
-        return (
-            <AnnotationContainer>
-                <AnnotationLine />
-                <AnnotationList>
-                    <CenteredContent>
-                        <LoadingIndicator />
-                    </CenteredContent>
-                </AnnotationList>
-            </AnnotationContainer>
-        )
-    }
+  if (props.loadState === "pristine" || props.loadState === "running") {
+    return (
+      <AnnotationContainer bottom="large">
+        <AnnotationLine />
+        <AnnotationList>
+          <CenteredContent>
+            <LoadingIndicator />
+          </CenteredContent>
+        </AnnotationList>
+      </AnnotationContainer>
+    );
+  }
 
     if (props.loadState === 'error') {
         return (
@@ -154,16 +154,16 @@ export default function AnnotationsInPage(
         )
     }
 
-    return (
-        <AnnotationContainer>
-            <AnnotationLine />
-            <AnnotationList>
-                {props.annotations.map(
-                    (annotation) => annotation && renderAnnotation(annotation),
-                )}
-            </AnnotationList>
-        </AnnotationContainer>
-    )
+  return (
+    <AnnotationContainer bottom="large">
+      <AnnotationLine />
+      <AnnotationList>
+        {props.annotations.map(
+          (annotation) => annotation && renderAnnotation(annotation)
+        )}
+      </AnnotationList>
+    </AnnotationContainer>
+  );
 }
 
 export function AnnotationWithReplies(

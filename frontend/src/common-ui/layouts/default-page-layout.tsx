@@ -284,28 +284,26 @@ export default function DefaultPageLayout(props: {
         }
     })
 
-    const renderFeedArea = () => {
-        if (!isAuthenticated) {
-            return (
-                <FeedArea horizontal="medium">
-                    <FeedLabel
-                        onClick={async () => {
-                            const {
-                                result,
-                            } = await props.services.auth.requestAuth()
-                            if (
-                                result.status === 'authenticated' ||
-                                result.status === 'registered-and-authenticated'
-                            ) {
-                                props.services.router.goTo('homeFeed')
-                            }
-                        }}
-                    >
-                        Feed
-                    </FeedLabel>
-                </FeedArea>
-            )
-        }
+  const renderFeedArea = () => {
+    if (!isAuthenticated) {
+      return (
+        <FeedArea>
+          <FeedLabel
+            onClick={async () => {
+              const { result } = await props.services.auth.requestAuth();
+              if (
+                result.status === "authenticated" ||
+                result.status === "registered-and-authenticated"
+              ) {
+                props.services.router.goTo("homeFeed");
+              }
+            }}
+          >
+            Feed
+          </FeedLabel>
+        </FeedArea>
+      );
+    }
 
         return (
             <FeedArea horizontal="medium">
@@ -367,7 +365,7 @@ export default function DefaultPageLayout(props: {
         </HeaderAuthArea>
       </StyledHeader>
       <PageMiddleArea viewportWidth={viewportWidth}>
-        <PageMiddleAreaTopBox top="larger" viewportWidth={viewportWidth}>
+        <PageMiddleAreaTopBox top="larger" bottom="medium" viewportWidth={viewportWidth}>
           <PageMidleAreaTitles>
           {props.headerTitle && (
             <HeaderTitle

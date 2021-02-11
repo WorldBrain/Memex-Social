@@ -11,6 +11,7 @@ import {
   ActivityItem,
   PageActivityItem,
   ListActivityItem,
+  AnnotationActivityItem,
 } from "./types";
 import DocumentTitle from "../../../../../main-ui/components/document-title";
 import DefaultPageLayout from "../../../../../common-ui/layouts/default-page-layout";
@@ -22,7 +23,8 @@ import { SharedAnnotationInPage } from "../../../../annotations/ui/components/ty
 import MessageBox from "../../../../../common-ui/components/message-box";
 import LoadingIndicator from "../../../../../common-ui/components/loading-indicator";
 import RouteLink from "../../../../../common-ui/components/route-link";
-import AnnotationBox from "../../../../annotations/ui/components/annotation-box";
+import { mapOrderedMap, getOrderedMapIndex, OrderedMap } from "../../../../../utils/ordered-map";
+import { SharedAnnotationReference } from "@worldbrain/memex-common/lib/content-sharing/types";
 import AnnotationReply from "../../../../content-conversations/ui/components/annotation-reply";
 
 const commentImage = require("../../../../../assets/img/comment.svg");
@@ -37,7 +39,6 @@ const LoadMoreLink = styled(RouteLink)`
   justify-content: center;
   font-family: ${(props) => props.theme.fonts.primary};
   color: ${(props) => props.theme.colors.primary};
-  background: white;
   font-size: 11px;
   cursor: pointer;
   border-radius: 3px;
@@ -56,7 +57,6 @@ const CollectionLink = styled(RouteLink)`
   justify-content: center;
   font-family: ${(props) => props.theme.fonts.primary};
   color: ${(props) => props.theme.colors.primary};
-  background: white;
   padding-left: 5px;
   cursor: pointer;
   align-items: center;
@@ -69,17 +69,6 @@ const CollectionLink = styled(RouteLink)`
   &:hover {
     text-decoration: underline;
   }
-`
-
-const LoadAnnotationsLink = styled(RouteLink)`
-  display: block;
-  width: 20px;
-  height: 20px;
-  cursor: pointer;
-  background-image: url("${commentImage}");
-  background-size: contain;
-  background-position: center center;
-  background-repeat: no-repeat;
 `
 
 const StyledActivityReason = styled.div`
@@ -118,8 +107,8 @@ const LastSeenLineBackground = styled.div`
 const LastSeenLineLabel = styled.div`
   font-family: ${(props) => props.theme.fonts.primary};
   text-align: center;
-  background: white;
   padding: 0 20px;
+  background: #f6f8fB;
   z-index: 2;
 `;
 
@@ -127,7 +116,6 @@ const LoadMoreReplies = styled.div`
   display: flex;
   justify-content: center;
   font-family: ${(props) => props.theme.fonts.primary};
-  background: white;
   font-size: 11px;
   cursor: pointer;
   border-radius: 3px;
@@ -136,8 +124,9 @@ const LoadMoreReplies = styled.div`
   }
 `;
 
+type ActivityItemRendererOpts = { groupAlreadySeen: boolean }
 type ActivityItemRendererResult = { key: string | number, rendered: JSX.Element }
-type ActivityItemRenderer<T extends ActivityItem> = (item: T, options: { groupAlreadySeen: boolean }) => ActivityItemRendererResult
+type ActivityItemRenderer<T extends ActivityItem> = (item: T, options: ActivityItemRendererOpts) => ActivityItemRendererResult
 
 export default class HomeFeedPage extends UIElement<
   HomeFeedDependencies,
@@ -170,6 +159,21 @@ export default class HomeFeedPage extends UIElement<
     return "normal";
   }
 
+  private getRenderableAnnotation = (reference: SharedAnnotationReference) => {
+    const annotation = this.state.annotations[reference.id]
+
+    if (!annotation) {
+      return null
+    }
+
+    return {
+      linkId: reference.id as string,
+      reference: reference,
+      createdWhen: annotation.updatedWhen,
+      ...pick(annotation, "comment", "body"),
+    } as SharedAnnotationInPage
+  }
+
   renderContent() {
     const { state } = this;
     if (state.loadState === "pristine" || state.loadState === "running") {
@@ -178,7 +182,7 @@ export default class HomeFeedPage extends UIElement<
     if (state.loadState === "error") {
       return "Error";
     }
-    if (!this.state.activityItems?.length) {
+    if (!this.state.activityItems.order.length) {
       return this.renderNoActivities();
     }
     return (
@@ -200,11 +204,11 @@ export default class HomeFeedPage extends UIElement<
     );
   }
 
-  renderActivities(activities: ActivityItem[]) {
+  renderActivities(activities: HomeFeedState['activityItems']) {
     const lastSeenLine = new LastSeenLineState(
       this.state.lastSeenTimestamp ?? null
     );
-    return activities.map((item) => {
+    return mapOrderedMap(activities, item => {
       const shouldRenderLastSeenLine = lastSeenLine.shouldRenderBeforeItem(item);
 
       let result: ActivityItemRendererResult
@@ -259,7 +263,7 @@ export default class HomeFeedPage extends UIElement<
   renderPageItem: ActivityItemRenderer<PageActivityItem> = (pageItem, options) => {
     const pageInfo = this.state.pageInfo[pageItem.normalizedPageUrl];
     return {
-      key: pageItem.annotations[0].replies[0].reference.id,
+      key: getOrderedMapIndex(pageItem.annotations, 0).reference.id,
       rendered: (
         <Margin bottom="large">
           <Margin bottom="small">
@@ -276,56 +280,167 @@ export default class HomeFeedPage extends UIElement<
               actions={[]}
             />
           </Margin>
-          {this.renderAnnotationItems(pageItem, options)}
+          <Margin left={"small"}>
+            {this.renderAnnotationsInPage(pageItem.groupId, pageItem.annotations, options)}
+          </Margin>
         </Margin>
       ),
     };
   }
 
-  renderListItem: ActivityItemRenderer<ListActivityItem> = (listItem, options) => {
+  renderAnnotationsInPage = (
+    groupId: string,
+    annotations: OrderedMap<AnnotationActivityItem>,
+    options: ActivityItemRendererOpts
+  ) => {
     const { state } = this
+    return (
+      <AnnotationsInPage
+        loadState="success"
+        annotations={mapOrderedMap(annotations, a => this.getRenderableAnnotation(a.reference))}
+        getAnnotationCreator={(annotationReference) =>
+          state.users[
+            state.annotations[annotationReference.id].creatorReference.id
+          ]
+        }
+        profilePopupProps={{
+          services: this.props.services,
+          storage: this.props.storage,
+        }}
+        getAnnotationCreatorRef={(annotationReference) =>
+          state.annotations[annotationReference.id]
+              .creatorReference
+        }
+        getAnnotationConversation={() => {
+          return this.state.conversations[groupId];
+        }}
+        getReplyCreator={(annotationReference, replyReference) => {
+          const groupReplies = state.replies[groupId];
+          const reply = groupReplies?.[replyReference.id]
+
+          // When the reply is newly submitted, it's not in state.replies yet
+          if (reply) {
+              return state.users[reply.creatorReference.id];
+          }
+
+          return (state.conversations[groupId]?.replies ?? []).find(
+            reply => reply.reference.id === replyReference.id
+          )?.user;
+        }}
+        renderBeforeReplies={(annotationReference) => {
+          const annotationItem = annotations.items[annotationReference.id]
+          if (!annotationItem || !annotationItem.hasEarlierReplies) {
+            return null;
+          }
+          const loadState =
+            state.moreRepliesLoadStates[groupId] ?? "pristine";
+          if (loadState === "success") {
+            return null;
+          }
+          if (loadState === "running") {
+            return (
+              <LoadMoreReplies>
+                <LoadingIndicator />
+              </LoadMoreReplies>
+            );
+          }
+          if (loadState === "error") {
+            return (
+              <LoadMoreReplies>
+                Error loading earlier replies
+              </LoadMoreReplies>
+            );
+          }
+          return (
+            <LoadMoreReplies
+              onClick={() =>
+                this.processEvent("loadMoreReplies", {
+                  groupId: groupId,
+                  annotationReference,
+                })
+              }
+            >
+              Load older replies
+            </LoadMoreReplies>
+          );
+        }}
+        renderReply={props => {
+          const moreRepliesLoadStates =
+                state.moreRepliesLoadStates[groupId] ?? "pristine";
+          const seenState = (state.lastSeenTimestamp && props.reply) && (state.lastSeenTimestamp > props.reply.createdWhen ? 'seen' : 'unseen')
+          const shouldRender = seenState === 'unseen' || options.groupAlreadySeen || moreRepliesLoadStates === 'success'
+          return shouldRender && <AnnotationReply {...props} />
+        }}
+        onNewReplyInitiate={(event) =>
+          this.processEvent("initiateNewReplyToAnnotation", {
+            ...event,
+            conversationId: groupId,
+          })
+        }
+        onNewReplyCancel={(event) =>
+          this.processEvent("cancelNewReplyToAnnotation", {
+            ...event,
+            conversationId: groupId,
+          })
+        }
+        onNewReplyConfirm={(event) =>
+          this.processEvent("confirmNewReplyToAnnotation", {
+            ...event,
+            conversationId: groupId,
+          })
+        }
+        onNewReplyEdit={(event) =>
+          this.processEvent("editNewReplyToAnnotation", {
+            ...event,
+            conversationId: groupId,
+          })
+        }
+        onToggleReplies={(event) =>
+          this.processEvent("toggleAnnotationReplies", {
+            ...event,
+            conversationId: groupId,
+          })
+        }
+      />
+    )
+  }
+
+  renderListItem: ActivityItemRenderer<ListActivityItem> = (listItem, options) => {
     return {
-      key: listItem.listReference.id + ':' + listItem.entries[0].normalizedPageUrl,
+      key: listItem.listReference.id + ':' + getOrderedMapIndex(listItem.entries, 0).normalizedPageUrl,
       rendered: (
         <Margin bottom="large">
           <Margin bottom="small">
             {this.renderActivityReason(listItem)}
           </Margin>
-          {listItem.entries
-            .slice(0, this.props.listActivitiesLimit)
-            .map((entry) => {
-              const seenState = state.lastSeenTimestamp && (state.lastSeenTimestamp > entry.activityTimestamp) ? 'seen' : 'unseen'
-              return (<>
-                {(seenState === 'unseen' || options.groupAlreadySeen) && (
-                <Margin bottom="small" key={entry.normalizedPageUrl}>
-                  <PageInfoBox
-                    pageInfo={{
-                      fullTitle: entry.entryTitle,
-                      originalUrl: entry.originalUrl,
-                      createdWhen: entry.activityTimestamp,
-                      normalizedUrl: entry.normalizedPageUrl,
-                    }}
-                    actions={entry.hasAnnotations ? [
-                      {
-                        node: (
-                          <LoadAnnotationsLink
-                            route="collectionDetails"
-                            services={this.props.services}
-                            params={{ id: listItem.listReference.id as string }}
-                            children={null}
-                          />
-                       )
-                      }
-                    ] : []}
-                  />
-
-                </Margin>
-                )}
-                </>
-              )
-            })
-          }
-          {listItem.entries.length > this.props.listActivitiesLimit && (
+          {mapOrderedMap(listItem.entries, entry => (
+              <>
+              <Margin bottom="small" key={entry.normalizedPageUrl}>
+                <PageInfoBox
+                  pageInfo={{
+                    fullTitle: entry.entryTitle,
+                    originalUrl: entry.originalUrl,
+                    createdWhen: entry.activityTimestamp,
+                    normalizedUrl: entry.normalizedPageUrl,
+                  }}
+                  actions={entry.hasAnnotations ? [
+                    {
+                      image: commentImage,
+                      onClick: () => this.processEvent('toggleListEntryActivityAnnotations', {
+                        listReference: listItem.listReference,
+                        listEntryReference: entry.reference,
+                        groupId: listItem.groupId,
+                      }),
+                    }
+                  ] : []}
+                />
+              </Margin>
+              {entry.annotationsLoadState === 'running' && <LoadingIndicator />}
+              {entry.areAnnotationsShown && this.renderAnnotationsInPage(listItem.groupId, entry.annotations, options)}
+              </>
+            ), inputArr => inputArr.slice(0, this.props.listActivitiesLimit))
+                }
+          {listItem.entries.order.length > this.props.listActivitiesLimit && (
             <LoadMoreLink
               route="collectionDetails"
               services={this.props.services}
@@ -337,142 +452,6 @@ export default class HomeFeedPage extends UIElement<
         </Margin>
       ),
     };
-  }
-
-  renderAnnotationItems(pageItem: PageActivityItem, options: { groupAlreadySeen: boolean }) {
-    const { state } = this;
-    return (
-      <Margin left={"small"}>
-        <Margin bottom={"smallest"}>
-          <AnnotationsInPage
-            loadState="success"
-            annotations={pageItem.annotations
-              .map(
-                (annotationItem): SharedAnnotationInPage => {
-                  const annotation =
-                    state.annotations[annotationItem.reference.id];
-                  if (!annotation) {
-                    return null as any;
-                  }
-                  return {
-                    linkId: annotationItem.reference.id as string,
-                    reference: annotationItem.reference,
-                    createdWhen: annotation.updatedWhen,
-                    ...pick(annotation, "comment", "body"),
-                  };
-                }
-              )
-              .filter((annotation) => !!annotation)}
-            getAnnotationCreator={(annotationReference) =>
-              state.users[
-                state.annotations[annotationReference.id].creatorReference.id
-              ]
-            }
-            getAnnotationConversation={() => {
-              return this.state.conversations[pageItem.groupId];
-            }}
-            profilePopupProps={{
-              services: this.props.services,
-              storage: this.props.storage,
-            }}
-            getAnnotationCreatorRef={(annotationReference) =>
-              state.annotations[annotationReference.id]
-                  .creatorReference
-            }
-            getReplyCreator={(annotationReference, replyReference) => {
-              const groupReplies = state.replies[pageItem.groupId];
-              const reply = groupReplies?.[replyReference.id]
-
-              // When the reply is newly submitted, it's not in state.replies yet
-              if (reply) {
-                  return state.users[reply.creatorReference.id];
-              }
-
-              return (state.conversations[pageItem.groupId]?.replies ?? []).find(
-                reply => reply.reference.id === replyReference.id
-              )?.user;
-            }}
-            renderBeforeReplies={(annotationReference) => {
-              const annotationItem = pageItem.annotations.find(
-                (annotationItem) =>
-                  annotationItem.reference.id === annotationReference.id
-              );
-              if (!annotationItem || !annotationItem.hasEarlierReplies) {
-                return null;
-              }
-              const loadState =
-                state.moreRepliesLoadStates[pageItem.groupId] ?? "pristine";
-              if (loadState === "success") {
-                return null;
-              }
-              if (loadState === "running") {
-                return (
-                  <LoadMoreReplies>
-                    <LoadingIndicator />
-                  </LoadMoreReplies>
-                );
-              }
-              if (loadState === "error") {
-                return (
-                  <LoadMoreReplies>
-                    Error loading earlier replies
-                  </LoadMoreReplies>
-                );
-              }
-              return (
-                <LoadMoreReplies
-                  onClick={() =>
-                    this.processEvent("loadMoreReplies", {
-                      groupId: pageItem.groupId,
-                      annotationReference,
-                    })
-                  }
-                >
-                  Load older replies
-                </LoadMoreReplies>
-              );
-            }}
-            renderReply={props => {
-              const moreRepliesLoadStates =
-                state.moreRepliesLoadStates[pageItem.groupId] ?? "pristine";
-              const seenState = (state.lastSeenTimestamp && props.reply) && (state.lastSeenTimestamp > props.reply.createdWhen ? 'seen' : 'unseen')
-              const shouldRender = seenState === 'unseen' || options.groupAlreadySeen || moreRepliesLoadStates === 'success'
-              return shouldRender && <AnnotationReply {...props} />
-            }}
-            onNewReplyInitiate={(event) =>
-              this.processEvent("initiateNewReplyToAnnotation", {
-                ...event,
-                conversationId: pageItem.groupId,
-              })
-            }
-            onNewReplyCancel={(event) =>
-              this.processEvent("cancelNewReplyToAnnotation", {
-                ...event,
-                conversationId: pageItem.groupId,
-              })
-            }
-            onNewReplyConfirm={(event) =>
-              this.processEvent("confirmNewReplyToAnnotation", {
-                ...event,
-                conversationId: pageItem.groupId,
-              })
-            }
-            onNewReplyEdit={(event) =>
-              this.processEvent("editNewReplyToAnnotation", {
-                ...event,
-                conversationId: pageItem.groupId,
-              })
-            }
-            onToggleReplies={(event) =>
-              this.processEvent("toggleAnnotationReplies", {
-                ...event,
-                conversationId: pageItem.groupId,
-              })
-            }
-          />
-        </Margin>
-      </Margin>
-    );
   }
 
   render() {

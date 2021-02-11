@@ -66,16 +66,14 @@ export type CollectionDetailsState = AnnotationConversationsState &
     annotations: GetAnnotationsResult;
   };
 
-export type CollectionDetailsEvent = UIEvent<
-  AnnotationConversationEvent &
-    ActivityFollowsEvent & {
-      toggleDescriptionTruncation: {};
-      togglePageAnnotations: { normalizedUrl: string };
-      toggleAllAnnotations: {};
-      pageBreakpointHit: { entryIndex: number };
-      clickFollowBtn: null;
-    }
->;
+export type CollectionDetailsEvent = UIEvent<AnnotationConversationEvent & ActivityFollowsEvent & {
+    toggleDescriptionTruncation: {}
+    togglePageAnnotations: { normalizedUrl: string }
+    toggleAllAnnotations: {}
+    loadListData: { listID: string }
+    pageBreakpointHit: { entryIndex: number }
+    clickFollowBtn: null
+}>
 
 export type CollectionDetailsSignal = UISignal<
   | { type: "loading-started" }
