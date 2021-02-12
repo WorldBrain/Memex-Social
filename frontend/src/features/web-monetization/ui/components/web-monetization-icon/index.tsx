@@ -47,6 +47,7 @@ export default class WebMonetizationIcon extends UIElement<
                     storage={this.props.storage}
                     userRef={this.props.curatorUserRef}
                     >
+                    {(this.state.makePaymentTaskState === 'pristine' || this.state.makePaymentTaskState === 'success') && (
                     <Icon
                         onClick={this.handleClick}
                         height={this.iconHeight}
@@ -54,6 +55,8 @@ export default class WebMonetizationIcon extends UIElement<
                             this.state.paymentMade ? '-confirmed' : ''
                         }.svg`}
                         />
+                    )}
+                    {this.state.makePaymentTaskState === 'error' && <span>Whoops! Error!</span>}
                 </CuratorSupportPopupContainer>
             )}
             </Container>

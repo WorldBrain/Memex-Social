@@ -37,18 +37,25 @@ export default class WebMonetizationService {
         paymentPointer: string,
         taskStateHandler: (taskState: UITaskState) => void,
     ) {
-        const meta = document.createElement('meta')
-        meta.setAttribute('name', 'monetization')
-        meta.setAttribute('content', paymentPointer)
-        this._setTaskStateHandler(taskStateHandler, meta)
-        document.head.appendChild(meta)
+        console.log('web mon service initiatePayment method')
+        try {
+            const meta = document.createElement('meta')
+            meta.setAttribute('name', 'monetization')
+            meta.setAttribute('content', paymentPointer)
+            this._setTaskStateHandler(taskStateHandler, meta)
+            document.head.appendChild(meta)
+        } catch (err) {
+            console.error(err)
+        }
+        
+        console.log((document as any).monetization.state)
     }
 
     private _setTaskStateHandler(
         taskStateHandler: any,
         metaTag: HTMLMetaElement,
     ) {
-        if ((document as any).monetization) {
+        if (!(document as any).monetization) {
             console.error('Monetization is not enabled')
             return
         }
