@@ -42,6 +42,7 @@ export default abstract class WebMonetizationButtonLogic extends UILogic<
     }
 
     makeSupporterPayment: EventHandler<'makeSupporterPayment'> = async () => {
+        console.log('web mon logic makeSupporterPayment event')
         try {
             this._setMakePaymentTaskState('running')
             const curatorPaymentPointer = await this._getPaymentPointer()
@@ -63,6 +64,7 @@ export default abstract class WebMonetizationButtonLogic extends UILogic<
         try {
             this._setInitialLoadTaskState('running')
             const shouldDisplay = await this._shouldComponentDisplay()
+            console.log('try display web mon content: ', shouldDisplay)
             this._setIsDisplayed(shouldDisplay)
             this._setInitialLoadTaskState('success')
         } catch (err) {
