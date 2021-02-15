@@ -132,6 +132,8 @@ export function annotationConversationEventHandlers<State extends AnnotationConv
                 throw new Error(`Tried to submit a reply without being authenticated`)
             }
 
+            const lastReply = conversation.replies.length ? conversation.replies[conversation.replies.length - 1] : null
+
             await executeUITask<AnnotationConversationsState>(logic, taskState => ({
                 conversations: { [conversationId]: { newReply: { saveState: { $set: taskState } } } }
             }), async () => {
@@ -140,8 +142,8 @@ export function annotationConversationEventHandlers<State extends AnnotationConv
                     annotationReference: event.annotationReference,
                     normalizedPageUrl: annotationData.annotation.normalizedPageUrl,
                     pageCreatorReference,
-                    isFirstReply: !conversation.replies.length,
-                    reply: { content: conversation.newReply.content }
+                    reply: { content: conversation.newReply.content },
+                    previousReplyReference: lastReply?.reference,
                 })
                 if (result.status === 'not-authenticated') {
                     return { status: 'pristine' }

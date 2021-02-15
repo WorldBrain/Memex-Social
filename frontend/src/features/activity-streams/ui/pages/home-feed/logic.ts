@@ -8,6 +8,7 @@ import { getInitialAnnotationConversationStates } from "../../../../content-conv
 import { annotationConversationInitialState, annotationConversationEventHandlers } from "../../../../content-conversations/ui/logic"
 import { activityFollowsInitialState, activityFollowsEventHandlers } from '../../../../activity-follows/ui/logic'
 import UserProfileCache from "../../../../user-management/utils/user-profile-cache"
+import { AnnotationConversationState } from "../../../../content-conversations/ui/types"
 import { createOrderedMap, arrayToOrderedMap } from "../../../../../utils/ordered-map"
 
 type EventHandler<EventName extends keyof HomeFeedEvent> = UIEventHandler<HomeFeedState, HomeFeedEvent, EventName>
@@ -126,7 +127,7 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
             const annotationItems: AnnotationActivityItem[] = annotations.map((a, i) => ({
                 type: 'annotation-item',
                 reference: a.reference,
-                hasEarlierReplies: i !== 0,
+                hasEarlierReplies: false,
                 replies: repliesByAnnotation[a.reference.id],
             }))
 
@@ -142,16 +143,17 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
             }
 
             for (const replies of Object.values(repliesByAnnotation)) {
-                for (const reply of replies) {
+                for (const replyData of replies) {
                     repliesData[event.groupId] = {
                         ...(repliesData[event.groupId] ?? {}),
-                        [reply.reference.id]: {
-                            creatorReference: reply.userReference,
-                            reference: reply.reference,
+                        [replyData.reference.id]: {
+                            creatorReference: replyData.userReference,
+                            reference: replyData.reference,
+                            previousReplyReference: replyData.previousReply,
                             reply: {
-                                content: reply.reply.content,
-                                createdWhen: reply.reply.createdWhen,
-                                normalizedPageUrl: reply.reply.normalizedPageUrl,
+                                content: replyData.reply.content,
+                                createdWhen: replyData.reply.createdWhen,
+                                normalizedPageUrl: replyData.reply.normalizedPageUrl,
                             },
                         }
                     }
@@ -211,14 +213,19 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
                 // don't process already loaded replies
                 !incoming.previousState.replies[groupId][replyData.reference.id]
             ))
-            const conversationsMutations: UIMutation<HomeFeedState['conversations']> = {}
-            conversationsMutations[groupId] = {
-                replies: {
-                    $unshift: await Promise.all(replies.map(async replyData => ({
-                        reference: replyData.reference,
-                        user: await this.users.loadUser(replyData.userReference),
-                        reply: replyData.reply,
-                    })))
+
+            const repliesWithUsers = await Promise.all(replies.map(async replyData => ({
+                reference: replyData.reference,
+                user: await this.users.loadUser(replyData.userReference),
+                reply: replyData.reply,
+            })))
+
+            const conversationsMutations: UIMutation<HomeFeedState['conversations']> = {
+                [groupId]: {
+                    replies: {
+                        $apply: (prevReplies: AnnotationConversationState['replies']) => // TODO: Why aren't $apply ops getting typed?A
+                            [...prevReplies, ...repliesWithUsers].sort((a, b) => a.reply.createdWhen - b.reply.createdWhen)
+                    }
                 }
             }
 
@@ -230,6 +237,7 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
                     [replyData.reference.id]: {
                         $set: {
                             reference: replyData.reference,
+                            previousReplyReference: replyData.previousReply,
                             creatorReference: replyData.userReference,
                             reply: replyData.reply,
                         }
@@ -306,6 +314,7 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
 
         await loader(async () => {
             const { activityGroups, hasMore } = await this.dependencies.services.activityStreams.getHomeFeedActivities({ offset: this.itemOffset, limit: this.pageSize })
+            // console.log(activityGroups)
             this.itemOffset += this.pageSize
             if (!activityGroups.length) {
                 this.hasMore = false
@@ -314,6 +323,10 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
             this.hasMore = hasMore
 
             const organized = organizeActivities(activityGroups)
+            // console.log(organized)
+            // if (1) {
+            //     return
+            // }
             activityData = organized.data
 
             const conversations = getInitialAnnotationConversationStates(organized.activityItems.map((activityItem) => ({
@@ -396,7 +409,7 @@ export function organizeActivities(activities: Array<ActivityStreamResultGroup<k
             const annotationItem: AnnotationActivityItem = {
                 type: 'annotation-item',
                 reference: replyActivityGroup.activities[0].activity.annotation.reference,
-                hasEarlierReplies: !replyActivityGroup.activities[0].activity.isFirstReply,
+                hasEarlierReplies: false, // This gets determined after all replies processed
                 replies: []
             }
             data.annotationItems[activityGroup.id] = annotationItem
@@ -427,6 +440,7 @@ export function organizeActivities(activities: Array<ActivityStreamResultGroup<k
                 }
                 data.replies[activityGroup.id][replyActivity.reply.reference.id] = {
                     reference: replyActivity.reply.reference,
+                    previousReplyReference: replyActivity.reply.previousReplyReference,
                     creatorReference: replyActivity.replyCreator.reference,
                     reply: {
                         ...replyActivity.reply,
@@ -439,6 +453,7 @@ export function organizeActivities(activities: Array<ActivityStreamResultGroup<k
                 })
                 pageItem.notifiedWhen = replyActivity.reply.createdWhen
             }
+            annotationItem.hasEarlierReplies = data.replies[activityGroup.id][annotationItem.replies[0].reference.id].previousReplyReference !== null
         }
 
         if (activityGroup.entityType === 'sharedList' && activityGroup.activityType === 'sharedListEntry') {
