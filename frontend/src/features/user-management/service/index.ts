@@ -18,6 +18,10 @@ export default class UserManagementService {
 
     userPublicProfilesCache: { [id: string]: UserPublicProfile } = {}
 
+    private _updateCache(userRef: UserReference, profileData: UserPublicProfile) {
+        this.userPublicProfilesCache[userRef.id] = profileData
+    }
+
     /**
      * finds the user public profile for the userId specified returns this from cache if present,
      * otherwise retrieves from DB and caches before returning
@@ -60,6 +64,7 @@ export default class UserManagementService {
                 { knownStatus: 'exists' },
                 profileData,
             )
+            this._updateCache(userRef, profileData)
         } catch (err) {
             console.log('userStorage.updateUserPublicProfile error')
             console.error(err)
