@@ -60,7 +60,7 @@ export default abstract class WebMonetizationButtonLogic extends UILogic<
         }
     }
 
-    private async _tryDisplayComponent(): Promise<void> {
+    private _tryDisplayComponent = async (): Promise<void> => {
         try {
             this._setInitialLoadTaskState('running')
             const shouldDisplay = await this._shouldComponentDisplay()
@@ -73,19 +73,19 @@ export default abstract class WebMonetizationButtonLogic extends UILogic<
         }
     }
     
-    private async _shouldComponentDisplay(): Promise<boolean> {
+    private _shouldComponentDisplay = async (): Promise<boolean>=> {
         const currentUserPaymentPointer = await this.dependencies.services.webMonetization.getCurrentUserPaymentPointer()
         return !!currentUserPaymentPointer
     }
     
-    private async _getPaymentPointer(): Promise<string> {
+    private _getPaymentPointer = async(): Promise<string> => {
         const paymentPointer = await this.dependencies.services.webMonetization.getUserPaymentPointer(
             this.dependencies.curatorUserRef
         )
         return paymentPointer
     }
     
-    private async _setIsDisplayed(isDisplayed: boolean): Promise<void> {
+    private _setIsDisplayed(isDisplayed: boolean): void {
         this.emitMutation({
             isDisplayed: { $set: isDisplayed }
         })
