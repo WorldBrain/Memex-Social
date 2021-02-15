@@ -55,7 +55,7 @@ export function activityFollowsEventHandlers(
                     })
                 }
 
-                const followedLists = await contentSharing.getListsByReferences(listReferences)
+                const followedLists = listReferences.length ? await contentSharing.getListsByReferences(listReferences) : []
 
                 logic.emitMutation({
                     followedLists: { $set: followedLists },
