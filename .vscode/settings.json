@@ -4,5 +4,5 @@
         ".firebase": true,
         "**/yarn.lock": true
     },
-    "editor.formatOnSave": false
+    "editor.formatOnSave": true
 }

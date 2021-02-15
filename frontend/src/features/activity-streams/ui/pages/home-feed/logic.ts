@@ -397,8 +397,8 @@ export function organizeActivities(activities: Array<ActivityStreamResultGroup<k
 
     const activityItems: ActivityItem[] = []
     for (const activityGroup of activities) {
-        if (activityGroup.entityType === 'sharedAnnotation' && activityGroup.activityType === 'conversationReply') {
-            const replyActivityGroup = activityGroup as ActivityStreamResultGroup<'sharedAnnotation', 'conversationReply'>
+        if (activityGroup.entityType === 'conversationThread' && activityGroup.activityType === 'conversationReply') {
+            const replyActivityGroup = activityGroup as ActivityStreamResultGroup<'conversationThread', 'conversationReply'>
             replyActivityGroup.activities = sortBy(replyActivityGroup.activities, ({ activity }) => activity.reply.createdWhen)
 
             const annotationItem: AnnotationActivityItem = {
@@ -459,7 +459,7 @@ export function organizeActivities(activities: Array<ActivityStreamResultGroup<k
             activityItems.push({
                 type: 'list-item',
                 groupId: entryActivityGroup.id,
-                reason:'pages-added-to-list',
+                reason: 'pages-added-to-list',
                 listName: firstActivity.list.title,
                 listReference: firstActivity.list.reference,
                 notifiedWhen: firstActivity.entry.createdWhen,
