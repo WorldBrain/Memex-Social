@@ -256,19 +256,19 @@ const PageMiddleAreaTopBox = styled(Margin)<{
 `
 
 export default function DefaultPageLayout(props: {
-    services: UIElementServices<
-        'auth' | 'overlay' | 'router' | 'activityStreams' | 'userManagement'
-    >
-    storage: Pick<StorageModules, 'users' | 'activityStreams'>
-    headerTitle?: string
-    headerSubtitle?: string | null
-    followBtn?: JSX.Element
-    webMonetizationIcon?: JSX.Element
-    creatorReference?: UserReference
-    hideActivityIndicator?: boolean
-    listsSidebarProps?: Omit<ListsSidebarProps, 'services'>
-    viewportBreakpoint: ViewportBreakpoint
-    children: React.ReactNode
+  services: UIElementServices<
+    "auth" | "overlay" | "router" | "activityStreams" | 'userManagement'
+  >;
+  storage: Pick<StorageModules, "users" | "activityStreams">;
+  headerTitle?: string;
+  headerSubtitle?: string | null;
+  creatorReference?: UserReference
+  webMonetizationIcon?: JSX.Element
+  followBtn?: JSX.Element
+  listsSidebarProps?: Omit<ListsSidebarProps, 'services'>
+  hideActivityIndicator?: boolean;
+  viewportBreakpoint: ViewportBreakpoint;
+  children: React.ReactNode;
 }) {
     const { viewportBreakpoint: viewportWidth } = props
 

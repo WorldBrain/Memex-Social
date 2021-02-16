@@ -177,15 +177,15 @@ export default class CollectionDetailsPage extends UIElement<
   }
 
   renderWebMonetizationIcon() {
-      if (this.state.listData?.creatorReference) {
-          return (
-              <WebMonetizationIcon
-                  services={this.props.services}
-                  storage={this.props.storage}
-                  curatorUserRef={this.state.listData?.creatorReference}
-              />
-          )
-      }
+    if (this.state.listData?.creatorReference) {
+        return (
+            <WebMonetizationIcon
+                services={this.props.services}
+                storage={this.props.storage}
+                curatorUserRef={this.state.listData?.creatorReference}
+            />
+        )
+    }
   }
 
   renderFollowBtn() {

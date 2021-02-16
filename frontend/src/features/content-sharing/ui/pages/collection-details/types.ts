@@ -25,25 +25,9 @@ import {
 } from "../../../../activity-follows/ui/types";
 
 export interface CollectionDetailsDependencies {
-  listID: string;
-  services: UIElementServices<
-    | "auth"
-    | "overlay"
-    | "contentConversations"
-    | "activityStreams"
-    | "router"
-    | "activityStreams"
-    | "userManagement"
-    | "webMonetization"
-  >;
-  storage: Pick<
-    StorageModules,
-    | "contentSharing"
-    | "contentConversations"
-    | "users"
-    | "activityStreams"
-    | "activityFollows"
-  >;
+    listID: string
+    services: UIElementServices<'auth' | 'overlay' | 'contentConversations' | 'activityStreams' | 'router' | 'activityStreams' | 'userManagement' | 'webMonetization'>
+    storage: Pick<StorageModules, 'contentSharing' | 'contentConversations' | 'users' | 'activityStreams' | 'activityFollows'>
 }
 
 export type CollectionDetailsState = AnnotationConversationsState &
