@@ -10,6 +10,7 @@ import { activityFollowsInitialState, activityFollowsEventHandlers } from '../..
 import UserProfileCache from "../../../../user-management/utils/user-profile-cache"
 import { AnnotationConversationState } from "../../../../content-conversations/ui/types"
 import { createOrderedMap, arrayToOrderedMap } from "../../../../../utils/ordered-map"
+import { User, UserReference } from "@worldbrain/memex-common/lib/web-interface/types/users"
 
 type EventHandler<EventName extends keyof HomeFeedEvent> = UIEventHandler<HomeFeedState, HomeFeedEvent, EventName>
 
@@ -142,6 +143,17 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
                 }
             }
 
+            const loadedUsers: { [id: string]: User } = {}
+            for (const result of await Promise.all(annotations.map(async annotation =>
+                [annotation.creator, await this.users.loadUser(annotation.creator)]
+            ))) {
+                const userReference = result[0] as UserReference
+                const user = result[1] as User | null
+                if (user) {
+                    loadedUsers[userReference.id] = user
+                }
+            }
+
             for (const replies of Object.values(repliesByAnnotation)) {
                 for (const replyData of replies) {
                     repliesData[event.groupId] = {
@@ -196,7 +208,8 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
                             }
                         }
                     }
-                }
+                },
+                users: { $merge: loadedUsers }
             })
         })
     }
