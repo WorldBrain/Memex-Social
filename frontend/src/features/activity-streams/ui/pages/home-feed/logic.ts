@@ -277,7 +277,7 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
                 this.emitMutation({
                     activityItems: {
                         items: {
-                            [activityItemKey]:  {
+                            [activityItemKey]: {
                                 entries: {
                                     items: {
                                         [entryKey]: {
@@ -422,7 +422,7 @@ export function organizeActivities(activities: Array<ActivityStreamResultGroup<k
 
             for (const activityInGroup of replyActivityGroup.activities) {
                 const replyActivity = activityInGroup.activity
-                const annotationReference = replyActivityGroup.entity
+                const annotationReference = activityInGroup.activity.annotation.reference
                 data.pageInfo[replyActivity.normalizedPageUrl] = replyActivity.pageInfo
                 data.annotations[annotationReference.id] = {
                     linkId: annotationReference.id as string,
@@ -449,9 +449,7 @@ export function organizeActivities(activities: Array<ActivityStreamResultGroup<k
                 pageItem.notifiedWhen = replyActivity.reply.createdWhen
             }
             annotationItem.hasEarlierReplies = data.replies[activityGroup.id][annotationItem.replies[0].reference.id].previousReplyReference !== null
-        }
-
-        if (activityGroup.entityType === 'sharedList' && activityGroup.activityType === 'sharedListEntry') {
+        } else if (activityGroup.entityType === 'sharedList' && activityGroup.activityType === 'sharedListEntry') {
             const entryActivityGroup = activityGroup as ActivityStreamResultGroup<'sharedList', 'sharedListEntry'>
             entryActivityGroup.activities = orderBy(entryActivityGroup.activities, [({ activity }) => activity.entry.createdWhen], ['desc'])
             const { activity: firstActivity } = entryActivityGroup.activities[0]
@@ -476,6 +474,8 @@ export function organizeActivities(activities: Array<ActivityStreamResultGroup<k
                     activityTimestamp: activity.entry.updatedWhen ?? activity.entry.createdWhen,
                 })), item => item.reference.id)
             })
+        } else {
+            console.warn(`Ignored unknown activity ${activityGroup.entityType}:${activityGroup.activityType}`)
         }
     }
 

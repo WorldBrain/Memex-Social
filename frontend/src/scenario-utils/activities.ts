@@ -34,14 +34,14 @@ async function setup({ services, storage, script }: { services: Services, storag
     }
 
     let homeFeedTimestampUpdated = false
-    
-    const annotationCreators: {[annotationId: string]: string} = {}
-    const annotationPages: {[annotationId: string]: string} = {}
+
+    const annotationCreators: { [annotationId: string]: string } = {}
+    const annotationPages: { [annotationId: string]: string } = {}
     const getAnnotationPage = async (annotationId: string | number) => {
         if (annotationPages[annotationId]) {
             return annotationPages[annotationId]
         }
-        const annotationData = await storage.serverModules.contentSharing.getAnnotation({ reference: { type: 'shared-annotation-reference', id: annotationId }})
+        const annotationData = await storage.serverModules.contentSharing.getAnnotation({ reference: { type: 'shared-annotation-reference', id: annotationId } })
         const { annotation: { normalizedPageUrl } } = annotationData!
         annotationPages[annotationId] = normalizedPageUrl
         return normalizedPageUrl
@@ -84,12 +84,25 @@ async function setup({ services, storage, script }: { services: Services, storag
                 throw new Error(`Error creating reply ${replyNumber} for page ${normalizedPageUrl}: ${replyResult.status}`)
             }
             // console.log(annotationName, {prev: lastReplyByAnnotation[annotId]?.id, next: replyResult.replyReference.id})
-            
+
             lastReplyByAnnotation[annotId] = replyResult.replyReference
         } else if (step.type === 'follow-annotation') {
+            const annotationReference = { type: 'shared-annotation-reference' as 'shared-annotation-reference', id: step.annotation }
+            const annotationData = await storage.serverModules.contentSharing.getAnnotation({
+                reference: annotationReference
+            })
+            if (!annotationData) {
+                throw new Error(`Tried to follow non-existing annotation: ${step.annotation}`)
+            }
+            const thread = await storage.serverModules.contentConversations.getOrCreateThread({
+                pageCreatorReference: annotationData.creatorReference,
+                annotationReference: annotationReference,
+                normalizedPageUrl: annotationData.annotation.normalizedPageUrl,
+                sharedListReference: null,
+            })
             await services.activityStreams.followEntity({
-                entityType: 'sharedAnnotation',
-                entity: { type: 'shared-annotation-reference', id: step.annotation },
+                entityType: 'conversationThread',
+                entity: thread.reference,
                 feeds: { home: true },
             })
         } else if (step.type === 'follow-list') {
