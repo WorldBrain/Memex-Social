@@ -1,9 +1,11 @@
-import { UITaskState } from '../../../main-ui/types'
+import { EventEmitter } from 'events'
+import TypedEventEmitter from 'typed-emitter'
 import { AuthService } from '../../../services/auth/types'
 import UserManagementService from '../../user-management/service'
 import { UserReference } from '../../user-management/types'
+import { WebMonetizationEvents, WebMonetizationService, WebMonetizationStartEvent, WebMonetizationStopEvent } from './types'
 
-export default class WebMonetizationService {
+export default abstract class WebMonetizationBase implements WebMonetizationService {
     constructor(
         private options: {
             services: {
@@ -13,6 +15,8 @@ export default class WebMonetizationService {
         },
     ) {}
 
+    events: TypedEventEmitter<WebMonetizationEvents> = new EventEmitter()
+
     async getUserPaymentPointer(userRef: UserReference) {
         const userProfile = await this.options.services.userManagement.loadUserPublicProfile(
             userRef,
@@ -20,11 +24,11 @@ export default class WebMonetizationService {
         return userProfile.paymentPointer
     }
 
-    async getCurrentUserPaymentPointer(): Promise<string | boolean> {
+    async getCurrentUserPaymentPointer(): Promise<string | null> {
         const userRef = this.options.services.auth.getCurrentUserReference()
         if (!userRef) {
-            console.error('Please :)')
-            return false
+            console.error('Please login')
+            return null
         } else {
             const userProfile = await this.options.services.userManagement.loadUserPublicProfile(
                 userRef,
@@ -34,42 +38,33 @@ export default class WebMonetizationService {
     }
 
     initiatePayment(
-        paymentPointer: string,
-        taskStateHandler: (taskState: UITaskState) => void,
+        paymentPointer: string
     ) {
         console.log('web mon service initiatePayment method')
         try {
+            this._attachEventHandlers()
             const meta = document.createElement('meta')
             meta.setAttribute('name', 'monetization')
             meta.setAttribute('content', paymentPointer)
-            this._setTaskStateHandler(taskStateHandler, meta)
             document.head.appendChild(meta)
         } catch (err) {
             console.error(err)
         }
-        
-        console.log((document as any).monetization.state)
     }
 
-    private _setTaskStateHandler(
-        taskStateHandler: any,
-        metaTag: HTMLMetaElement,
-    ) {
-        if (!(document as any).monetization) {
-            console.error('Monetization is not enabled')
-            return
+    private _attachEventHandlers(): void {
+
+        const monetizationStartHandler = (event: WebMonetizationStartEvent): void => {
+            this.events.emit('webMonetizationStart', event)
         }
-        function stopHandler(taskState: UITaskState, metaTag: HTMLMetaElement) {
-            taskStateHandler(taskState)
-            (document as any).head.removeChild(metaTag)
+
+        const monetizationStopHandler = (event: WebMonetizationStopEvent): void => {
+            this.events.emit('webMonetizationStop', event)
         }
-        (document as any).monetization.addEventListener(
-            'monetizationpending',
-            taskStateHandler.bind(null, 'running'),
-        )
-        (document as any).monetization.addEventListener(
-            'monetizationstop',
-            stopHandler.bind(null, 'success', metaTag),
-        )
+
+        (document as any).monetization.addEventListener('monetizationstart', monetizationStartHandler)
+        (document as any).monetization.addEventListener('monetizationstop', monetizationStopHandler)
+    
     }
+
 }
