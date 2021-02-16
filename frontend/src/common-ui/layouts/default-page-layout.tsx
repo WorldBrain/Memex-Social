@@ -257,7 +257,7 @@ const PageMiddleAreaTopBox = styled(Margin)<{
 
 export default function DefaultPageLayout(props: {
   services: UIElementServices<
-    "auth" | "overlay" | "router" | "activityStreams" | 'userManagement'
+    "auth" | "overlay" | "router" | "activityStreams" | 'userManagement' | 'webMonetization'
   >;
   storage: Pick<StorageModules, "users" | "activityStreams">;
   headerTitle?: string;
