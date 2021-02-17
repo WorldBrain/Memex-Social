@@ -1,0 +1,5 @@
+objects:
+    users:
+        - $store: default
+          id: default-curator
+          displayName: 'Tiago Forte'

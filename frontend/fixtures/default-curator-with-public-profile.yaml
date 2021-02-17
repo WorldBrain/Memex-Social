@@ -1,0 +1,1 @@
+extends: ['with-default-curator', 'with-public-profile']

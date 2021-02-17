@@ -1,5 +1,16 @@
 objects:
-  users:
-    - $store: default
-      id: default-user
-      displayName: "John Doe"
+    users:
+        - $store: default
+          id: default-user
+          displayName: 'John Doe'
+    userPublicProfiles:
+        - $store: default
+          user: { $ref: users.default }
+          id: { $ref: users.default }
+          websiteURL: 'https://fortelabs.co/'
+          mediumURL: 'https://medium.com/@fortelabs'
+          twitterURL: 'https://twitter.com/fortelabs'
+          substackURL: 'https://every.to/@tiago'
+          bio: 'Founder @fortelabs.co | Teaching @buildingasecondbrain.com | Writer @fortelabs.co/blog + the best productivity newsletter on the web: fortelabs.co/subscribe'
+          avatarURL: ''
+          paymentPointer: 'test.com'
