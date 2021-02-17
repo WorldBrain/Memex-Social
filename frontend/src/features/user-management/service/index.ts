@@ -35,40 +35,10 @@ export default class UserManagementService {
         return publicProfile
     }
 
-    getWebLinksArray(profileData: UserPublicProfile): ProfileWebLink[] {
-        const { websiteURL, mediumURL, twitterURL, substackURL } = profileData
-        const arr: ProfileWebLink[] = []
-        if (websiteURL) {
-            arr.push({
-                url: websiteURL,
-                fileName: 'web-logo.svg',
-            })
-        }
-        if (mediumURL) {
-            arr.push({
-                url: mediumURL,
-                fileName: 'medium-logo.svg',
-            })
-        }
-        if (twitterURL) {
-            arr.push({
-                url: twitterURL,
-                fileName: 'twitter-logo.svg',
-            })
-        }
-        if (substackURL) {
-            arr.push({
-                url: substackURL,
-                fileName: 'substack-logo.svg',
-            })
-        }
-        return arr
-    }
-
     async loadUserData(userRef: UserReference): Promise<User | null> {
         const userProfileCache = new UserProfileCache({
             storage: { users: this.options.storage },
         })
-        return await userProfileCache.loadUser(userRef)
+        return userProfileCache.loadUser(userRef)
     }
 }

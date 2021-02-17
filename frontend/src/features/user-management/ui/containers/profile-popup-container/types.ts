@@ -19,10 +19,10 @@ export interface ProfilePopupContainerDependencies {
 
 export interface ProfilePopupContainerState {
     isDisplayed: boolean
-    profileTaskState: UITaskState
+    loadState: UITaskState
     user: User
-    userPublicProfile: UserPublicProfile
-    webLinksArray: ProfileWebLink[]
+    userPublicProfile: UserPublicProfile | null
+    profileLinks: ProfileWebLink[]
 }
 
 export type ProfilePopupContainerEvent = UIEvent<{

@@ -39,9 +39,9 @@ export default class ProfilePopupContainer extends UIElement<
     renderPopup() {
         const {
             user,
-            profileTaskState,
+            loadState: profileTaskState,
             userPublicProfile,
-            webLinksArray,
+            profileLinks: webLinksArray,
         } = this.state
         const { services, storage } = this.props
         return (

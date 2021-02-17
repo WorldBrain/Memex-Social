@@ -1,4 +1,8 @@
-import { UILogic, UIEventHandler } from '../../../../../main-ui/classes/logic'
+import {
+    UILogic,
+    UIEventHandler,
+    loadInitial,
+} from '../../../../../main-ui/classes/logic'
 import { UITaskState } from '../../../../../main-ui/types'
 import { UserPublicProfile, User, ProfileWebLink } from '../../../types'
 import {
@@ -26,7 +30,7 @@ export default class ProfilePopupContainerLogic extends UILogic<
     getInitialState(): ProfilePopupContainerState {
         return {
             isDisplayed: false,
-            profileTaskState: 'pristine',
+            loadState: 'pristine',
             user: {
                 displayName: '',
             },
@@ -39,71 +43,69 @@ export default class ProfilePopupContainerLogic extends UILogic<
                 avatarURL: '',
                 paymentPointer: '',
             },
-            webLinksArray: [],
+            profileLinks: [],
         }
     }
 
-    initPopup: EventHandler<'initPopup'> = async () => {
-        this._setProfileTaskState('running')
-        this._setDisplayState(true)
-        const { userRef } = this.dependencies
-        try {
-            const promises = await Promise.all([
+    initPopup: EventHandler<'initPopup'> = async (incoming) => {
+        this.emitMutation({ isDisplayed: { $set: true } })
+
+        const loadState = incoming.previousState.loadState
+        if (!(loadState === 'pristine' || loadState === 'error')) {
+            return
+        }
+
+        await loadInitial<ProfilePopupContainerState>(this, async () => {
+            const { userRef } = this.dependencies
+            const [user, userProfile] = await Promise.all([
                 this.dependencies.services.userManagement.loadUserData(userRef),
                 this.dependencies.services.userManagement.loadUserPublicProfile(
                     userRef,
                 ),
             ])
-            this._setUser(await promises[0])
-            this._setWebLinksArray(await promises[1])
-            this._setUserPublicProfile(promises[1])
-            this._setProfileTaskState('success')
-        } catch (err) {
-            this._setProfileTaskState('error')
-            console.log(err)
-        }
+            this.emitMutation({
+                user: {
+                    displayName: { $set: user?.displayName ?? 'Unknown user' },
+                },
+                userPublicProfile: { $set: userProfile },
+                profileLinks: {
+                    $set: userProfile ? getProfileLinks(userProfile) : [],
+                },
+            })
+        })
     }
 
     hidePopup: EventHandler<'hidePopup'> = () => {
-        this._setDisplayState(false)
+        this.emitMutation({ isDisplayed: { $set: false } })
     }
+}
 
-    private _setProfileTaskState(taskState: UITaskState): void {
-        this.emitMutation({ profileTaskState: { $set: taskState } })
-    }
-
-    private _setDisplayState(isDisplayed: boolean): void {
-        this.emitMutation({ isDisplayed: { $set: isDisplayed } })
-    }
-
-    private _setUser(user: User | null): void {
-        if (!user) {
-            user = {
-                displayName: 'Unknown User',
-            }
-        }
-        this.emitMutation({ user: { $set: user } })
-    }
-
-    private _setUserPublicProfile(profileData: UserPublicProfile): void {
-        this.emitMutation({
-            userPublicProfile: { $set: profileData },
+function getProfileLinks(profileData: UserPublicProfile): ProfileWebLink[] {
+    const { websiteURL, mediumURL, twitterURL, substackURL } = profileData
+    const arr: ProfileWebLink[] = []
+    if (websiteURL) {
+        arr.push({
+            url: websiteURL,
+            fileName: 'web-logo.svg',
         })
     }
-
-    private async _setWebLinksArray(
-        profileData?: UserPublicProfile,
-    ): Promise<void> {
-        if (!profileData) {
-            profileData = await this.dependencies.services.userManagement.loadUserPublicProfile(
-                this.dependencies.userRef,
-            )
-        }
-        const webLinksArray: ProfileWebLink[] = this.dependencies.services.userManagement.getWebLinksArray(
-            profileData,
-        )
-        this.emitMutation({
-            webLinksArray: { $set: webLinksArray },
+    if (mediumURL) {
+        arr.push({
+            url: mediumURL,
+            fileName: 'medium-logo.svg',
         })
     }
+    if (twitterURL) {
+        arr.push({
+            url: twitterURL,
+            fileName: 'twitter-logo.svg',
+        })
+    }
+    if (substackURL) {
+        arr.push({
+            url: substackURL,
+            fileName: 'substack-logo.svg',
+        })
+    }
+    return arr
 }

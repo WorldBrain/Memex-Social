@@ -79,7 +79,7 @@ interface ProfilePopupProps {
     services: UIElementServices<'userManagement'>
     storage: Pick<StorageModules, 'users'>
     taskState: UITaskState
-    userPublicProfile: UserPublicProfile
+    userPublicProfile: UserPublicProfile | null
     webLinksArray: ProfileWebLink[]
 }
 
@@ -90,12 +90,11 @@ export default class ProfilePopup extends PureComponent<ProfilePopupProps> {
     }
 
     render() {
+        const { props } = this
         const {
             user: { displayName },
-            services,
-            storage,
             taskState,
-            userPublicProfile: { bio, avatarURL, paymentPointer },
+            userPublicProfile,
             webLinksArray,
         } = this.props
         return (
@@ -136,14 +135,18 @@ export default class ProfilePopup extends PureComponent<ProfilePopupProps> {
                                 </Padding>
                             </ProfileHeader>
                             <Margin vertical={'small'}>
-                                <ProfileBio theme={theme}>{bio}</ProfileBio>
+                                <ProfileBio theme={theme}>
+                                    {userPublicProfile?.bio}
+                                </ProfileBio>
                             </Margin>
                         </ProfileContainer>
-                        {paymentPointer && (
+                        {userPublicProfile?.paymentPointer && (
                             <CuratorSupportButtonBlock
-                                services={services}
-                                storage={storage}
-                                paymentPointer={paymentPointer}
+                                services={props.services}
+                                storage={props.storage}
+                                paymentPointer={
+                                    userPublicProfile.paymentPointer
+                                }
                             />
                         )}
                     </>
