@@ -23,7 +23,11 @@ import { SharedAnnotationInPage } from "../../../../annotations/ui/components/ty
 import MessageBox from "../../../../../common-ui/components/message-box";
 import LoadingIndicator from "../../../../../common-ui/components/loading-indicator";
 import RouteLink from "../../../../../common-ui/components/route-link";
-import { mapOrderedMap, getOrderedMapIndex, OrderedMap } from "../../../../../utils/ordered-map";
+import {
+  mapOrderedMap,
+  getOrderedMapIndex,
+  OrderedMap,
+} from "../../../../../utils/ordered-map";
 import { SharedAnnotationReference } from "@worldbrain/memex-common/lib/content-sharing/types";
 import AnnotationReply from "../../../../content-conversations/ui/components/annotation-reply";
 
@@ -32,7 +36,7 @@ const collectionImage = require("../../../../../assets/img/collection.svg");
 
 const StyledIconMargin = styled(Margin)`
   display: flex;
-`
+`;
 
 const LoadMoreLink = styled(RouteLink)`
   display: flex;
@@ -47,11 +51,11 @@ const LoadMoreLink = styled(RouteLink)`
   &:hover {
     background: ${(props) => props.theme.colors.grey};
   }
-`
+`;
 
 const ActivityType = styled.div`
   white-space: nowrap;
-`
+`;
 
 const CollectionLink = styled(RouteLink)`
   display: block;
@@ -71,8 +75,7 @@ const CollectionLink = styled(RouteLink)`
   &:hover {
     text-decoration: underline;
   }
-
-`
+`;
 
 const StyledActivityReason = styled.div`
   display: flex;
@@ -111,7 +114,7 @@ const LastSeenLineLabel = styled.div`
   font-family: ${(props) => props.theme.fonts.primary};
   text-align: center;
   padding: 0 20px;
-  background: #f6f8fB;
+  background: #f6f8fb;
   z-index: 2;
 `;
 
@@ -128,9 +131,15 @@ const LoadMoreReplies = styled.div`
   }
 `;
 
-type ActivityItemRendererOpts = { groupAlreadySeen: boolean }
-type ActivityItemRendererResult = { key: string | number, rendered: JSX.Element }
-type ActivityItemRenderer<T extends ActivityItem> = (item: T, options: ActivityItemRendererOpts) => ActivityItemRendererResult
+type ActivityItemRendererOpts = { groupAlreadySeen: boolean };
+type ActivityItemRendererResult = {
+  key: string | number;
+  rendered: JSX.Element;
+};
+type ActivityItemRenderer<T extends ActivityItem> = (
+  item: T,
+  options: ActivityItemRendererOpts
+) => ActivityItemRendererResult;
 
 export default class HomeFeedPage extends UIElement<
   HomeFeedDependencies,
@@ -139,7 +148,7 @@ export default class HomeFeedPage extends UIElement<
 > {
   static defaultProps: Partial<HomeFeedDependencies> = {
     listActivitiesLimit: 6,
-  }
+  };
 
   constructor(props: HomeFeedDependencies) {
     super(props, { logic: new Logic(props) });
@@ -163,20 +172,23 @@ export default class HomeFeedPage extends UIElement<
     return "normal";
   }
 
-  private getRenderableAnnotation = (reference: SharedAnnotationReference) => {
-    const annotation = this.state.annotations[reference.id]
+  private getRenderableAnnotation = (
+    reference: SharedAnnotationReference,
+    hasReplies: boolean
+  ): SharedAnnotationInPage | null => {
+    const annotation = this.state.annotations[reference.id];
 
     if (!annotation) {
-      return null
+      return null;
     }
 
     return {
       linkId: reference.id as string,
       reference: reference,
-      createdWhen: annotation.updatedWhen,
+      hasThread: hasReplies,
       ...pick(annotation, "comment", "body"),
-    } as SharedAnnotationInPage
-  }
+    } as SharedAnnotationInPage;
+  };
 
   renderContent() {
     const { state } = this;
@@ -208,20 +220,30 @@ export default class HomeFeedPage extends UIElement<
     );
   }
 
-  renderActivities(activities: HomeFeedState['activityItems']) {
+  renderActivities(activities: HomeFeedState["activityItems"]) {
     const lastSeenLine = new LastSeenLineState(
       this.state.lastSeenTimestamp ?? null
     );
-    return mapOrderedMap(activities, item => {
-      const shouldRenderLastSeenLine = lastSeenLine.shouldRenderBeforeItem(item);
+    return mapOrderedMap(activities, (item) => {
+      const shouldRenderLastSeenLine = lastSeenLine.shouldRenderBeforeItem(
+        item
+      );
 
-      let result: ActivityItemRendererResult
-      if (item.type === 'page-item') {
-        result = this.renderPageItem(item, { groupAlreadySeen: lastSeenLine.alreadyRenderedLine });
-      } else if (item.type === 'list-item') {
-        result = this.renderListItem(item, { groupAlreadySeen: lastSeenLine.alreadyRenderedLine });
+      let result: ActivityItemRendererResult;
+      if (item.type === "page-item") {
+        result = this.renderPageItem(item, {
+          groupAlreadySeen: lastSeenLine.alreadyRenderedLine,
+        });
+      } else if (item.type === "list-item") {
+        result = this.renderListItem(item, {
+          groupAlreadySeen: lastSeenLine.alreadyRenderedLine,
+        });
       } else {
-        throw new Error(`Received unsupported activity type to render: ${(item as ActivityItem).type}`)
+        throw new Error(
+          `Received unsupported activity type to render: ${
+            (item as ActivityItem).type
+          }`
+        );
       }
 
       return (
@@ -239,10 +261,10 @@ export default class HomeFeedPage extends UIElement<
 
   renderActivityReason(activityItem: ActivityItem) {
     if (activityItem.reason === "new-replies") {
-        return <ActivityReason icon={commentImage} label="New replies" />;
+      return <ActivityReason icon={commentImage} label="New replies" />;
     }
 
-    if (activityItem.reason === 'pages-added-to-list') {
+    if (activityItem.reason === "pages-added-to-list") {
       return (
         <ActivityReason
           icon={collectionImage}
@@ -256,15 +278,19 @@ export default class HomeFeedPage extends UIElement<
               >
                 {activityItem.listName}
               </CollectionLink>
-            </>}
+            </>
+          }
         />
-      )
+      );
     }
 
     return null;
   }
 
-  renderPageItem: ActivityItemRenderer<PageActivityItem> = (pageItem, options) => {
+  renderPageItem: ActivityItemRenderer<PageActivityItem> = (
+    pageItem,
+    options
+  ) => {
     const pageInfo = this.state.pageInfo[pageItem.normalizedPageUrl];
     return {
       key: getOrderedMapIndex(pageItem.annotations, 0).reference.id,
@@ -285,23 +311,34 @@ export default class HomeFeedPage extends UIElement<
             />
           </Margin>
           <Margin left={"small"}>
-            {this.renderAnnotationsInPage(pageItem.groupId, pageItem.annotations, options)}
+            {this.renderAnnotationsInPage(
+              pageItem.groupId,
+              pageItem,
+              pageItem.annotations,
+              options
+            )}
           </Margin>
         </Margin>
       ),
     };
-  }
+  };
 
   renderAnnotationsInPage = (
     groupId: string,
-    annotations: OrderedMap<AnnotationActivityItem>,
+    parentItem: PageActivityItem | ListActivityItem,
+    annotationItems: OrderedMap<AnnotationActivityItem>,
     options: ActivityItemRendererOpts
   ) => {
-    const { state } = this
+    const { state } = this;
     return (
       <AnnotationsInPage
         loadState="success"
-        annotations={mapOrderedMap(annotations, a => this.getRenderableAnnotation(a.reference))}
+        annotations={mapOrderedMap(annotationItems, (annotationItem) => {
+          return this.getRenderableAnnotation(
+            annotationItem.reference,
+            !!annotationItem.replies?.length
+          );
+        })}
         getAnnotationCreator={(annotationReference) =>
           state.users[
             state.annotations[annotationReference.id].creatorReference.id
@@ -312,24 +349,23 @@ export default class HomeFeedPage extends UIElement<
         }}
         getReplyCreator={(annotationReference, replyReference) => {
           const groupReplies = state.replies[groupId];
-          const reply = groupReplies?.[replyReference.id]
+          const reply = groupReplies?.[replyReference.id];
 
           // When the reply is newly submitted, it's not in state.replies yet
           if (reply) {
-              return state.users[reply.creatorReference.id];
+            return state.users[reply.creatorReference.id];
           }
 
           return (state.conversations[groupId]?.replies ?? []).find(
-            reply => reply.reference.id === replyReference.id
+            (reply) => reply.reference.id === replyReference.id
           )?.user;
         }}
         renderBeforeReplies={(annotationReference) => {
-          const annotationItem = annotations.items[annotationReference.id]
+          const annotationItem = annotationItems.items[annotationReference.id];
           if (!annotationItem || !annotationItem.hasEarlierReplies) {
             return null;
           }
-          const loadState =
-            state.moreRepliesLoadStates[groupId] ?? "pristine";
+          const loadState = state.moreRepliesLoadStates[groupId] ?? "pristine";
           if (loadState === "success") {
             return null;
           }
@@ -342,9 +378,7 @@ export default class HomeFeedPage extends UIElement<
           }
           if (loadState === "error") {
             return (
-              <LoadMoreReplies>
-                Error loading earlier replies
-              </LoadMoreReplies>
+              <LoadMoreReplies>Error loading earlier replies</LoadMoreReplies>
             );
           }
           return (
@@ -360,12 +394,21 @@ export default class HomeFeedPage extends UIElement<
             </LoadMoreReplies>
           );
         }}
-        renderReply={props => {
+        renderReply={(props) => {
           const moreRepliesLoadStates =
-                state.moreRepliesLoadStates[groupId] ?? "pristine";
-          const seenState = (state.lastSeenTimestamp && props.reply) && (state.lastSeenTimestamp > props.reply.createdWhen ? 'seen' : 'unseen')
-          const shouldRender = seenState === 'unseen' || options.groupAlreadySeen || moreRepliesLoadStates === 'success'
-          return shouldRender && <AnnotationReply {...props} />
+            state.moreRepliesLoadStates[groupId] ?? "pristine";
+          const seenState =
+            state.lastSeenTimestamp &&
+            props.reply &&
+            (state.lastSeenTimestamp > props.reply.createdWhen
+              ? "seen"
+              : "unseen");
+          const shouldRender =
+            parentItem.type === "list-item" ||
+            seenState === "unseen" ||
+            options.groupAlreadySeen ||
+            moreRepliesLoadStates === "success";
+          return shouldRender && <AnnotationReply {...props} />;
         }}
         onNewReplyInitiate={(event) =>
           this.processEvent("initiateNewReplyToAnnotation", {
@@ -398,44 +441,67 @@ export default class HomeFeedPage extends UIElement<
           })
         }
       />
-    )
-  }
+    );
+  };
 
-  renderListItem: ActivityItemRenderer<ListActivityItem> = (listItem, options) => {
+  renderListItem: ActivityItemRenderer<ListActivityItem> = (
+    listItem,
+    options
+  ) => {
     return {
-      key: listItem.listReference.id + ':' + getOrderedMapIndex(listItem.entries, 0).normalizedPageUrl,
+      key:
+        listItem.listReference.id +
+        ":" +
+        getOrderedMapIndex(listItem.entries, 0).normalizedPageUrl,
       rendered: (
         <Margin bottom="large">
-          <Margin bottom="small">
-            {this.renderActivityReason(listItem)}
-          </Margin>
-          {mapOrderedMap(listItem.entries, entry => (
+          <Margin bottom="small">{this.renderActivityReason(listItem)}</Margin>
+          {mapOrderedMap(
+            listItem.entries,
+            (entry) => (
               <>
-              <Margin bottom="small" key={entry.normalizedPageUrl}>
-                <PageInfoBox
-                  pageInfo={{
-                    fullTitle: entry.entryTitle,
-                    originalUrl: entry.originalUrl,
-                    createdWhen: entry.activityTimestamp,
-                    normalizedUrl: entry.normalizedPageUrl,
-                  }}
-                  actions={entry.hasAnnotations ? [
-                    {
-                      image: commentImage,
-                      onClick: () => this.processEvent('toggleListEntryActivityAnnotations', {
-                        listReference: listItem.listReference,
-                        listEntryReference: entry.reference,
-                        groupId: listItem.groupId,
-                      }),
+                <Margin bottom="small" key={entry.normalizedPageUrl}>
+                  <PageInfoBox
+                    pageInfo={{
+                      fullTitle: entry.entryTitle,
+                      originalUrl: entry.originalUrl,
+                      createdWhen: entry.activityTimestamp,
+                      normalizedUrl: entry.normalizedPageUrl,
+                    }}
+                    actions={
+                      entry.hasAnnotations
+                        ? [
+                            {
+                              image: commentImage,
+                              onClick: () =>
+                                this.processEvent(
+                                  "toggleListEntryActivityAnnotations",
+                                  {
+                                    listReference: listItem.listReference,
+                                    listEntryReference: entry.reference,
+                                    groupId: listItem.groupId,
+                                  }
+                                ),
+                            },
+                          ]
+                        : []
                     }
-                  ] : []}
-                />
-              </Margin>
-              {entry.annotationsLoadState === 'running' && <LoadingIndicator />}
-              {entry.areAnnotationsShown && this.renderAnnotationsInPage(listItem.groupId, entry.annotations, options)}
+                  />
+                </Margin>
+                {entry.annotationsLoadState === "running" && (
+                  <LoadingIndicator />
+                )}
+                {entry.areAnnotationsShown &&
+                  this.renderAnnotationsInPage(
+                    listItem.groupId,
+                    listItem,
+                    entry.annotations,
+                    options
+                  )}
               </>
-            ), inputArr => inputArr.slice(0, this.props.listActivitiesLimit))
-          }
+            ),
+            (inputArr) => inputArr.slice(0, this.props.listActivitiesLimit)
+          )}
           {listItem.entries.order.length > this.props.listActivitiesLimit && (
             <LoadMoreLink
               route="collectionDetails"
@@ -448,7 +514,7 @@ export default class HomeFeedPage extends UIElement<
         </Margin>
       ),
     };
-  }
+  };
 
   render() {
     const viewportWidth = this.getBreakPoints();

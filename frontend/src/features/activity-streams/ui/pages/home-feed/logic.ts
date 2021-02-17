@@ -129,7 +129,7 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
                 type: 'annotation-item',
                 reference: a.reference,
                 hasEarlierReplies: false,
-                replies: repliesByAnnotation[a.reference.id],
+                replies: repliesByAnnotation[a.reference.id].map(reply => ({ reference: reply.reference })),
             }))
 
             const annotationsData: ActivityData['annotations'] = {}

@@ -84,7 +84,18 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                 ]
             }),
         },
-        steps: []
+        steps: [
+            // step({
+            //     name: 'load-more-replies',
+            //     target: 'HomeFeedPage',
+            //     eventName: 'toggleListEntryActivityAnnotations',
+            //     eventArgs: {
+            //         groupId: 'act-1',
+            //         listReference: { type: 'shared-list-reference', id: 'default-list' },
+            //         listEntryReference: { type: 'shared-list-entry-reference', id:  },
+            //     }
+            // })
+        ]
     })),
     'no-activities': scenario<Targets>(({ step, callModification }) => ({
         fixture: 'annotated-list-with-user',
