@@ -40,16 +40,19 @@ export default abstract class WebMonetizationBase implements WebMonetizationServ
     initiatePayment(
         paymentPointer: string
     ) {
-        console.log('web mon service initiatePayment method')
-        try {
-            this._attachEventHandlers()
-            const meta = document.createElement('meta')
-            meta.setAttribute('name', 'monetization')
-            meta.setAttribute('content', paymentPointer)
-            document.head.appendChild(meta)
-        } catch (err) {
-            console.error(err)
-        }
+        setTimeout(
+            () => {
+                try {
+                    this._attachEventHandlers()
+                    const meta = document.createElement('meta')
+                    meta.setAttribute('name', 'monetization')
+                    meta.setAttribute('content', paymentPointer)
+                    document.head.appendChild(meta)
+                } catch (err) {
+                    console.error(err)
+                }
+            }, 1000
+        )
     }
 
     private _attachEventHandlers(): void {

@@ -90,11 +90,14 @@ export function createServices(options: {
         storage: options.storage.serverModules.users,
         auth,
     })
-    const webMonetization = options.backend === 'memory' ? new MemoryWebMonetizationService({
-        services: { userManagement, auth }
-    }) : new FirebaseWebMonetizationService({
-        services: { userManagement, auth }
-    })
+    // const webMonetization = options.backend === 'memory' ? new MemoryWebMonetizationService({
+    //     services: { userManagement, auth }
+    // }) : new FirebaseWebMonetizationService({
+    //     services: { userManagement, auth }
+    // })
+    const webMonetization = new FirebaseWebMonetizationService({
+            services: { userManagement, auth }
+        })
     const services: Services = {
         overlay: new OverlayService(),
         logicRegistry,
