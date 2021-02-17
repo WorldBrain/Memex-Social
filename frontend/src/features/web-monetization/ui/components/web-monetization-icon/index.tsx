@@ -25,7 +25,7 @@ export default class WebMonetizationIcon extends UIElement<
     WebMonetizationIconEvent
 > {
 
-    private iconHeight = "40px"
+    private iconHeight = "34px"
 
     constructor(props: WebMonetizationIconDependencies) {
         super(props, { logic: new Logic(props) })
@@ -48,12 +48,12 @@ export default class WebMonetizationIcon extends UIElement<
                     userRef={this.props.curatorUserRef}
                     >
                     {(this.state.makePaymentTaskState === 'pristine' || this.state.makePaymentTaskState === 'success') && (
-                    <Icon
-                        onClick={this.handleClick}
-                        height={this.iconHeight}
-                        fileName={`web-monetization-logo${
-                            this.state.paymentMade ? '-confirmed' : ''
-                        }.svg`}
+                        <Icon
+                            onClick={this.handleClick}
+                            height={this.iconHeight}
+                            fileName={`web-monetization-logo${
+                                this.state.paymentMade ? '-confirmed' : ''
+                            }.svg`}
                         />
                     )}
                     {this.state.makePaymentTaskState === 'error' && <span>Whoops! Error!</span>}

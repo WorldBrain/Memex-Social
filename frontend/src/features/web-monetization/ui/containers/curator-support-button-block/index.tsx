@@ -23,8 +23,8 @@ const Container = styled.div`
 
 const Button = styled.div<{
     theme: Theme
-    supportedTaskState: UITaskState
-    isSupported: boolean
+    supportedTaskState?: UITaskState
+    isSupported?: boolean
 }>`
     height: 40px;
     width: 140px;
@@ -32,6 +32,8 @@ const Button = styled.div<{
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    ${(props) => `border: 2px solid ${props.theme.colors.grey};`}
+
     ${(props) =>
         `padding: ${props.theme.spacing.small} ${props.theme.spacing.medium};`}
     ${(props) =>
@@ -158,7 +160,7 @@ export class CuratorSupportButtonBlock extends UIElement<
             <Container>
                 {isDisplayed && (
                     <>
-                        <Button
+                        {/*<Button
                             onClick={this.handleButtonClick}
                             isSupported={paymentMade}
                             supportedTaskState={makePaymentTaskState}
@@ -166,19 +168,20 @@ export class CuratorSupportButtonBlock extends UIElement<
                         >
                             {this.renderButtonInnerHTML()}
                         </Button>
-                        <Link
+                        */}
+                        <Button
                             onClick={() => this.handleWebLinkClick(
-                                    makePaymentTaskState === 'error'
-                                        ? 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
-                                        : 'https://www.youtube.com/watch?v=at_f98qOGY0'
+                                    'https://worldbrain.io/tutorial/webmonetization'
                                 )
                             }
                             theme={theme}
                         >
-                            {makePaymentTaskState === 'error'
-                                ? 'Help>>'
-                                : 'Learn More>>'}
-                        </Link>
+                            <ButtonInnerText>
+                                {makePaymentTaskState === 'error'
+                                    ? 'Help>>'
+                                    : 'Setup Payments'}
+                            </ButtonInnerText>
+                        </Button>
                     </>
                 )}
                 
