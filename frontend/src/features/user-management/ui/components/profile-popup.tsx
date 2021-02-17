@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react'
-import styled, { CSSObject } from 'styled-components'
+import styled from 'styled-components'
 import { Margin, Padding } from 'styled-components-spacing'
 
 import { Theme } from '../../../../main-ui/styles/types'
@@ -11,7 +11,6 @@ import LoadingScreen from '../../../../common-ui/components/loading-screen'
 import { StorageModules } from '../../../../storage/types'
 import { UIElementServices } from '../../../../main-ui/classes'
 import CuratorSupportButtonBlock from './curator-support-button-block'
-import UserAvatar from '../../../../common-ui/components/user-avatar'
 import Icon from '../../../../common-ui/components/icon'
 
 export const PopupContainer = styled.div<{ theme: Theme }>`

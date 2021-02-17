@@ -87,7 +87,7 @@ export class ScenarioService {
         const scenarioIdentifier = parseScenarioIdentifier(
             scenarioIdentifierString,
         )
-        const { scenario, untilStep } = findScenario(
+        const { scenario } = findScenario(
             this.scenarioModules,
             scenarioIdentifier,
         )

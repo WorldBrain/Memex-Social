@@ -3,8 +3,7 @@ import {
     UIEventHandler,
     loadInitial,
 } from '../../../../../main-ui/classes/logic'
-import { UITaskState } from '../../../../../main-ui/types'
-import { UserPublicProfile, User, ProfileWebLink } from '../../../types'
+import { UserPublicProfile, ProfileWebLink } from '../../../types'
 import {
     ProfilePopupContainerDependencies,
     ProfilePopupContainerEvent,

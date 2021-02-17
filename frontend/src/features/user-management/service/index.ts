@@ -1,5 +1,5 @@
 import { UserReference } from '@worldbrain/memex-common/lib/web-interface/types/users'
-import { ProfileWebLink, User, UserPublicProfile } from '../types'
+import { User, UserPublicProfile } from '../types'
 import { AuthService } from '../../../services/auth/types'
 import UserStorage from '../storage/'
 import UserProfileCache from '../utils/user-profile-cache'

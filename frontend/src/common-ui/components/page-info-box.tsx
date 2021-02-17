@@ -5,12 +5,6 @@ import { Margin } from 'styled-components-spacing'
 import { SharedPageInfo } from '@worldbrain/memex-common/lib/content-sharing/types'
 import ItemBox from '../components/item-box'
 
-const PageBox = styled.div`
-    display: flex;
-    width: 100%;
-    justify-content: space-between;
-`
-
 const PageContentBox = styled.div`
     display: flex;
     flex-direction: column;
@@ -33,35 +27,6 @@ const PageInfoBoxLink = styled.a`
 
 const PageInfoBoxLeft = styled.div`
     text-decoration: none;
-`
-
-const PageInfoBoxTop = styled.div`
-    display: flex;
-`
-const PageInfoBoxTitle = styled.div`
-    flex-grow: 2;
-    font-weight: 600;
-    color: ${(props) => props.theme.colors.primary};
-    text-decoration: none;
-    font-size: ${(props) => props.theme.fontSizes.listTitle};
-    text-overflow: ellipsis;
-    overflow-x: hidden;
-    text-decoration: none;
-    overflow-wrap: break-word;
-    white-space: nowrap;
-`
-
-const PageInfoBoxUrl = styled.div`
-    font-weight: 400;
-    font-size: ${(props) => props.theme.fontSizes.url};
-    color: ${(props) => props.theme.colors.subText};
-    text-overflow: ellipsis;
-    overflow-x: hidden;
-    text-decoration: none;
-    overflow-wrap: break-word;
-    white-space: nowrap;
-    max-width: 100%;
-    padding-bottom: 5px;
 `
 
 const CreatedWhenDate = styled.div`

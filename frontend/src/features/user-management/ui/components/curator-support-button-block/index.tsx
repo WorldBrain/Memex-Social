@@ -58,12 +58,6 @@ const Button = styled.div<{
     }
 `
 
-const Icon = styled.div<{ theme: Theme }>`
-    height: 14px;
-    width: 14px;
-    ${(props) => `padding: ${props.theme.spacing.smallest};`}
-`
-
 const ButtonInnerText = styled.div<{
     theme: Theme
 }>`

@@ -1,4 +1,4 @@
-import React, { HTMLAttributes } from 'react'
+import React from 'react'
 import styled, { CSSObject } from 'styled-components'
 
 const StyledIcon = styled.div<{

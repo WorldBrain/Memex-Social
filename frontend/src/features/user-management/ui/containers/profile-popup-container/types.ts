@@ -14,7 +14,7 @@ export interface ProfilePopupContainerDependencies {
         'device' | 'documentTitle' | 'logicRegistry' | 'userManagement'
     >
     storage: Pick<StorageModules, 'users'>
-    userRef: UserReference
+    userRef: UserReference | null
 }
 
 export interface ProfilePopupContainerState {
