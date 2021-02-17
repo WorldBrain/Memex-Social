@@ -12,12 +12,15 @@ const NewReplyTextArea = styled.textarea<{ editing: boolean }>`
   width: 100%;
   height: ${(props) => (props.editing ? "150px" : "40px")};
   border: 0;
-  background: ${(props) => props.theme.colors.grey};
+  background: #fff;
   border-radius: 3px;
   padding: 10px;
   font-family: ${(props) => props.theme.fonts.primary};
   font-size: 14px;
   outline: none;
+  box-shadow: rgba(0, 0, 0, 0.06) 0px 2px 4px 0px inset;
+  resize: vertical;
+  min-height: 40px;
 `;
 
 const NewReplyActions = styled.div`
