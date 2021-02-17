@@ -10,15 +10,20 @@ import { StorageModules } from '../../../../storage/types'
 import LoadingScreen from '../../../../common-ui/components/loading-screen'
 import CuratorSupportButtonBlock from '../../../web-monetization/ui/containers/curator-support-button-block'
 import { UserReference } from '../../types'
+import { Margin } from "styled-components-spacing";
+
 
 const PopupContainer = styled.div<{ theme: Theme }>`
     position: absolute;
     z-index: ${(props) => props.theme.zIndices.overlay};
-    padding: ${(props) => props.theme.spacing.small};
+    padding: ${(props) => props.theme.spacing.medium};
     border-radius: ${(props) => props.theme.borderRadii.default};
     background-color: ${(props) => props.theme.colors.background};
     font-family: ${(props) => props.theme.fonts.primary};
     color: ${(props) => props.theme.colors.primary};
+    box-shadow: 0px 0px 4.19178px rgba(0, 0, 0, 0.14);
+    width: 240px;
+    left: -100px;
 `
 
 const Title = styled.div<{ theme: Theme }>`
@@ -30,9 +35,8 @@ const Title = styled.div<{ theme: Theme }>`
 const Text = styled.div<{ theme: Theme }>`
     width: 100%;
     height: min-content;
-    padding: ${(props) => props.theme.spacing.small};
-    font-size: ${(props) => props.theme.fontSizes.smallText};
-    line-height: ${(props) => props.theme.lineHeights.smallText};
+    font-size: ${(props) => props.theme.fontSizes.text};
+    line-height: ${(props) => props.theme.lineHeights.text};
 `
 
 interface CuratorSupportPopupProps {
@@ -50,15 +54,17 @@ export default class CuratorSupportPopup extends PureComponent<CuratorSupportPop
                 {taskState === 'running' && <LoadingScreen />}
                 {(taskState === 'pristine' || taskState === 'success') && (
                     <>
-                        <Title theme={theme}>Support this Curator</Title>
+                        <Margin bottom="smallest">
+                            <Title theme={theme}>Support Collection Curator</Title>
+                        </Margin>
                         <Text theme={theme}>
-                            Donate a few cents with one click
+                            Automatically donate a few cents for every visit to this collection. 
                         </Text>
-                        {/* <CuratorSupportButtonBlock
+                        <CuratorSupportButtonBlock
                             services={services}
                             storage={storage}
                             curatorUserRef={curatorUserRef}
-                        /> */}
+                        />
                     </>
                 )}
             </PopupContainer>

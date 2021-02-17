@@ -13,7 +13,8 @@ import CuratorSupportPopupContainer from '../../../../user-management/ui/contain
 import LoadingScreen from '../../../../../common-ui/components/loading-screen'
 
 const Container = styled.div`
-    margin-left: auto
+    margin-left: auto;
+    margin-right: 10px;
 `
 
 const IconContainer = styled.div<{ iconHeight: string }>`
@@ -37,7 +38,7 @@ export default class WebMonetizationIcon extends UIElement<
     WebMonetizationIconEvent
 > {
 
-    private iconHeight = "40px"
+    private iconHeight = "34px"
 
     constructor(props: WebMonetizationIconDependencies) {
         super(props, { logic: new Logic(props) })

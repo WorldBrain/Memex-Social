@@ -37,18 +37,6 @@ const StyledHeader = styled.div<{
     align-items: center;
     height: 50px;
     box-shadow: #101e7308 0 4px 16px;
-
-    ${(props) =>
-        props.viewportWidth === 'small' &&
-        css`
-            height: 70px;
-        `}
-
-    ${(props) =>
-        props.viewportWidth === 'mobile' &&
-        css`
-            height: 60px;
-        `}
 `
 
 const LogoAndFeed = styled.div<{
@@ -171,10 +159,6 @@ const HeaderTitle = styled.div<{
 const HeaderSubtitle = styled.div<{
     viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
 }>`
-    margin-left: ${(props) =>
-        props.viewportWidth === 'small' || props.viewportWidth === 'mobile'
-            ? '0px'
-            : '10px'};
     font-weight: 500;
     margin-top: 1px;
     font-size: 14px;
