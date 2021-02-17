@@ -3,9 +3,9 @@ import TypedEventEmitter from 'typed-emitter'
 import { AuthService } from '../../../services/auth/types'
 import UserManagementService from '../../user-management/service'
 import { UserReference } from '../../user-management/types'
-import { WebMonetizationEvents, WebMonetizationService, WebMonetizationStartEvent, WebMonetizationStopEvent } from './types'
+import { WebMonetizationEvents, WebMonetizationService as WebMonetizationInterface, WebMonetizationStartEvent, WebMonetizationStopEvent } from './types'
 
-export default abstract class WebMonetizationBase implements WebMonetizationService {
+export default abstract class WebMonetizationService implements WebMonetizationInterface {
     constructor(
         private options: {
             services: {
@@ -17,10 +17,13 @@ export default abstract class WebMonetizationBase implements WebMonetizationServ
 
     events: TypedEventEmitter<WebMonetizationEvents> = new EventEmitter()
 
-    async getUserPaymentPointer(userRef: UserReference) {
+    async getUserPaymentPointer(userRef: UserReference): Promise<string | null> {
         const userProfile = await this.options.services.userManagement.loadUserPublicProfile(
             userRef,
         )
+        if (!userProfile) {
+            return null
+        }
         return userProfile.paymentPointer
     }
 
@@ -39,34 +42,32 @@ export default abstract class WebMonetizationBase implements WebMonetizationServ
 
     initiatePayment(
         paymentPointer: string
-    ) {
-        setTimeout(
-            () => {
-                try {
-                    this._attachEventHandlers()
-                    const meta = document.createElement('meta')
-                    meta.setAttribute('name', 'monetization')
-                    meta.setAttribute('content', paymentPointer)
-                    document.head.appendChild(meta)
-                } catch (err) {
-                    console.error(err)
-                }
-            }, 1000
-        )
+    ): void {
+        try {
+            this._attachEventHandlers()
+            const meta = document.createElement('meta')
+            meta.setAttribute('name', 'monetization')
+            meta.setAttribute('content', paymentPointer)
+            document.head.appendChild(meta)
+        } catch (err) {
+            console.error(err)
+        }
     }
 
     private _attachEventHandlers(): void {
 
-        const monetizationStartHandler = (event: WebMonetizationStartEvent): void => {
+        const monetizationStartHandler = (event: CustomEvent<WebMonetizationStartEvent>): void => {
+            console.log('monetizationstart event triggered')
             this.events.emit('webMonetizationStart', event)
         }
 
-        const monetizationStopHandler = (event: WebMonetizationStopEvent): void => {
+        const monetizationStopHandler = (event: CustomEvent<WebMonetizationStopEvent>): void => {
+            console.log('monetizationstop event triggered')
             this.events.emit('webMonetizationStop', event)
         }
 
-        (document as any).monetization.addEventListener('monetizationstart', monetizationStartHandler)
-        (document as any).monetization.addEventListener('monetizationstop', monetizationStopHandler)
+        document.monetization.addEventListener('monetizationstart', monetizationStartHandler)
+        document.monetization.addEventListener('monetizationstop', monetizationStopHandler)
     
     }
 

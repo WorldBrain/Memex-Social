@@ -2,6 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import Icon from '../../../../../common-ui/components/icon'
 import { UIElement } from '../../../../../main-ui/classes'
+
 import Logic from './logic'
 import {
     WebMonetizationButtonDependencies,
@@ -13,6 +14,17 @@ import LoadingScreen from '../../../../../common-ui/components/loading-screen'
 
 const Container = styled.div`
     margin-left: auto
+`
+
+const IconContainer = styled.div<{ iconHeight: string }>`
+    height: ${props => props.iconHeight};
+    width: ${props => props.iconHeight};
+`
+
+const StyledIcon = styled(Icon)<{
+    isClickable: boolean
+}>`
+    ${props => !props.isClickable && `cursor: auto`}
 `
 
 type WebMonetizationIconDependencies = WebMonetizationButtonDependencies
@@ -35,6 +47,29 @@ export default class WebMonetizationIcon extends UIElement<
         this.processEvent('makeSupporterPayment', null)
     }
 
+    renderIcon() {
+        return (
+            <IconContainer
+                iconHeight={this.iconHeight}
+                >
+                {this.state.makePaymentTaskState === 'running' && (
+                    <LoadingScreen />
+                )}
+                {this.state.makePaymentTaskState === 'error' && <span>Whoops! Error!</span>}
+                {(this.state.makePaymentTaskState === 'pristine' || this.state.makePaymentTaskState === 'success') && (
+                    <StyledIcon
+                        onClick={this.state.paymentMade ? () => {} : this.handleClick}
+                        height={this.iconHeight}
+                        isClickable={!this.state.paymentMade}
+                        fileName={`web-monetization-logo${
+                            this.state.paymentMade ? '-confirmed' : ''
+                        }.svg`}
+                    />
+                )}
+            </IconContainer>
+        )
+    }
+
     render() {
         return (
             <Container>
@@ -46,17 +81,8 @@ export default class WebMonetizationIcon extends UIElement<
                     services={this.props.services}
                     storage={this.props.storage}
                     userRef={this.props.curatorUserRef}
-                    >
-                    {(this.state.makePaymentTaskState === 'pristine' || this.state.makePaymentTaskState === 'success') && (
-                    <Icon
-                        onClick={this.handleClick}
-                        height={this.iconHeight}
-                        fileName={`web-monetization-logo${
-                            this.state.paymentMade ? '-confirmed' : ''
-                        }.svg`}
-                        />
-                    )}
-                    {this.state.makePaymentTaskState === 'error' && <span>Whoops! Error!</span>}
+                >
+                    {this.renderIcon()}
                 </CuratorSupportPopupContainer>
             )}
             </Container>

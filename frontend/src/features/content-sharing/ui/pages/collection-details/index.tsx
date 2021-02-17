@@ -183,6 +183,7 @@ export default class CollectionDetailsPage extends UIElement<
                 services={this.props.services}
                 storage={this.props.storage}
                 curatorUserRef={this.state.listData?.creatorReference}
+                isCollectionFollowed={this.state.isCollectionFollowed}
             />
         )
     }

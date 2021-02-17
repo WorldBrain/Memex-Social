@@ -8,6 +8,7 @@ export interface WebMonetizationButtonDependencies {
   services: UIElementServices<"userManagement" | 'webMonetization'>;
   storage: Pick<StorageModules, "users">;
   curatorUserRef: UserReference;
+  isCollectionFollowed: boolean
 }
 
 export interface WebMonetizationButtonState {
