@@ -1,0 +1,9 @@
+package.json
+frontend/package.json
+.git/
+node_modules/
+firebase/public/
+.firebase/
+private/
+frontend/code-templates/
+external/

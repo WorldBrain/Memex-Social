@@ -10,14 +10,21 @@
     "test:watch": "lerna run --parallel --stream test:watch -- --colors",
     "prepare:watch": "lerna run --parallel --stream prepare:watch"
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged"
+    }
+  },
   "devDependencies": {
     "@types/glob": "5.0.35",
     "@types/lodash": "^4.14.108",
     "@types/node": "^14.0.14",
     "glob": "^7.1.6",
-    "husky": "^4.3.0",
+    "husky": "^4.3.8",
     "lerna": "^3.13.2",
     "lodash": "^4.17.15",
+    "prettier": "2.2.1",
+    "pretty-quick": "^3.1.0",
     "toposort": "^2.0.2",
     "ts-node": "^8.10.2",
     "typescript": "^3.9.5"
