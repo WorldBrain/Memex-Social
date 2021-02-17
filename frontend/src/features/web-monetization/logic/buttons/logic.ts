@@ -41,7 +41,7 @@ export default abstract class WebMonetizationButtonLogic extends UILogic<
         try {
             this.curatorPaymentPointer = await this._getCuratorPaymentPointer()
         } catch (err) {
-            this._setMakePaymentTaskState('error')
+            this._setInitialLoadTaskState('error')
             return console.error(err)
         }
         
