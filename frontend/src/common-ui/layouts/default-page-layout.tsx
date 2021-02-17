@@ -291,7 +291,7 @@ export default function DefaultPageLayout(props: {
     }
 
         return (
-            <FeedArea horizontal="medium">
+            <FeedArea>
                 <FeedLink
                     services={props.services}
                     route="homeFeed"
