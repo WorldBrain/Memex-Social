@@ -1,8 +1,9 @@
 type Message = string
-type Messages = {[id : string] : Message}
+type Messages = { [id: string]: Message }
 
-const MESSAGES : Messages = {
-    'landing-intro-header': 'Engage with your communities, prioritize what you care about',
+const MESSAGES: Messages = {
+    'landing-intro-header':
+        'Engage with your communities, prioritize what you care about',
     'landing-intro-body': `
     A social network created for people who want help each other and make a positive change in the world,
     but already have too many things asking their attention.

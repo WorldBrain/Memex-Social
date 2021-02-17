@@ -1,224 +1,224 @@
 objects:
-  sharedLists:
-    - $store: default
-      id: default-list
-      creator: { $ref: users.default }
-      createdWhen: 1594225289914
-      updatedWhen: 1594225289914
-      title: "Productivity Tools: Networked Thoughts"
-      description: "A new breed of note-taking tools. Here is a collection of tools for networked thoughts. A new breed of note-taking tools. Here is a collection of tools for networked thoughts. A new breed of note-taking tools. Here is a collection of tools for networked thoughts. A new breed of note-taking tools. Here is a collection of tools for networked thoughts. A new breed of note-taking tools. Here is a collection of tools for networked thoughts. A new breed of note-taking tools. Here is a collection of tools for networked thoughts."
-  sharedListEntries:
-    - sharedList: { $ref: sharedLists.default }
-      creator: { $ref: users.default }
-      createdWhen: 1594225555555
-      updatedWhen: 1594225555555
-      fullTitle: "WorldBrain's Memex"
-      normalizedUrl: getmemex.com
-      originalUrl: "https://getmemex.com"
-    - sharedList: { $ref: sharedLists.default }
-      creator: { $ref: users.default }
-      createdWhen: 1594225289914
-      updatedWhen: 1594225289914
-      fullTitle: Page with notes with a title that is very very very very very very very very very very very longvery very very longvery very very longvery very very longvery very very longvery very very longvery very very longvery very very longvery very very long
-      normalizedUrl: notion.so
-      originalUrl: "https://notion.so"
-    - sharedList: { $ref: sharedLists.default }
-      creator: { $ref: users.default }
-      createdWhen: 1594225289914
-      updatedWhen: 1594225289914
-      fullTitle: Page without notes with a title that is very very very very very very very very very very very longvery very longvery very longvery very longvery very longvery very longvery very longvery very long
-      normalizedUrl: verylong.so
-      originalUrl: "https://verylong.so"
-    - sharedList: { $ref: sharedLists.default }
-      creator: { $ref: users.default }
-      createdWhen: 1594225289914
-      updatedWhen: 1594225289914
-      fullTitle: Bananas
-      normalizedUrl: bananas.so-1
-      originalUrl: "https://bananas.so"
-    - sharedList: { $ref: sharedLists.default }
-      creator: { $ref: users.default }
-      createdWhen: 1594225289914
-      updatedWhen: 1594225289914
-      fullTitle: Bananas
-      normalizedUrl: bananas.so-2
-      originalUrl: "https://bananas.so"
-    - sharedList: { $ref: sharedLists.default }
-      creator: { $ref: users.default }
-      createdWhen: 1594225289914
-      updatedWhen: 1594225289914
-      fullTitle: Bananas
-      normalizedUrl: bananas.so-3
-      originalUrl: "https://bananas.so"
-    - sharedList: { $ref: sharedLists.default }
-      creator: { $ref: users.default }
-      createdWhen: 1594225289914
-      updatedWhen: 1594225289914
-      fullTitle: Bananas
-      normalizedUrl: bananas.so-4
-      originalUrl: "https://bananas.so"
-    - sharedList: { $ref: sharedLists.default }
-      creator: { $ref: users.default }
-      createdWhen: 1594225289914
-      updatedWhen: 1594225289914
-      fullTitle: Bananas
-      normalizedUrl: bananas.so-5
-      originalUrl: "https://bananas.so"
-    - sharedList: { $ref: sharedLists.default }
-      creator: { $ref: users.default }
-      createdWhen: 1594225289914
-      updatedWhen: 1594225289914
-      fullTitle: Bananas
-      normalizedUrl: bananas.so-6
-      originalUrl: "https://bananas.so"
-    - sharedList: { $ref: sharedLists.default }
-      creator: { $ref: users.default }
-      createdWhen: 1594225289914
-      updatedWhen: 1594225289914
-      fullTitle: Bananas
-      normalizedUrl: bananas.so-7
-      originalUrl: "https://bananas.so"
-    - sharedList: { $ref: sharedLists.default }
-      creator: { $ref: users.default }
-      createdWhen: 1594225289914
-      updatedWhen: 1594225289914
-      fullTitle: Bananas
-      normalizedUrl: bananas.so-8
-      originalUrl: "https://bananas.so"
-    - sharedList: { $ref: sharedLists.default }
-      creator: { $ref: users.default }
-      createdWhen: 1594225289914
-      updatedWhen: 1594225289914
-      fullTitle: Bananas
-      normalizedUrl: bananas.so-9
-      originalUrl: "https://bananas.so"
-    - sharedList: { $ref: sharedLists.default }
-      creator: { $ref: users.default }
-      createdWhen: 1594225289914
-      updatedWhen: 1594225289914
-      fullTitle: Bananas
-      normalizedUrl: bananas.so-10
-      originalUrl: "https://bananas.so"
-    - sharedList: { $ref: sharedLists.default }
-      creator: { $ref: users.default }
-      createdWhen: 1594225289914
-      updatedWhen: 1594225289914
-      fullTitle: Bananas
-      normalizedUrl: bananas.so-11
-      originalUrl: "https://bananas.so"
-    - sharedList: { $ref: sharedLists.default }
-      creator: { $ref: users.default }
-      createdWhen: 1594225289914
-      updatedWhen: 1594225289914
-      fullTitle: Bananas
-      normalizedUrl: bananas.so-12
-      originalUrl: "https://bananas.so"
-    - sharedList: { $ref: sharedLists.default }
-      creator: { $ref: users.default }
-      createdWhen: 1594225289914
-      updatedWhen: 1594225289914
-      fullTitle: Bananas
-      normalizedUrl: bananas.so-13
-      originalUrl: "https://bananas.so"
-    - sharedList: { $ref: sharedLists.default }
-      creator: { $ref: users.default }
-      createdWhen: 1594225255555
-      updatedWhen: 1594225255555
-      fullTitle: Apples
-      normalizedUrl: apples.so
-      originalUrl: "https://apples.so"
-  sharedPageInfo:
-    - id: default-page
-      creator: { $ref: users.default }
-      createdWhen: 1594225555555
-      updatedWhen: 1594225555555
-      fullTitle: "WorldBrain's Memex"
-      normalizedUrl: getmemex.com
-      originalUrl: "https://getmemex.com"
-    - id: empty-page
-      creator: { $ref: users.default }
-      createdWhen: 1594225555555
-      updatedWhen: 1594225555555
-      fullTitle: Apples
-      normalizedUrl: apples.so
-      originalUrl: "https://apples.so"
-  sharedAnnotations:
-    - $store: annotation-1
-      id: default-annotation
-      creator: { $ref: users.default }
-      createdWhen: 1594225289914
-      updatedWhen: 1594225289914
-      fullTitle: "WorldBrain's Memex"
-      normalizedPageUrl: "getmemex.com"
-      body: "Automatically indexes websites you visit. Instantly recover anything you've seen without upfront work."
-      comment: "I have been waiting for this forever!"
-      selector: "Selector 1"
-    - $store: annotation-2
-      creator: { $ref: users.default }
-      createdWhen: 1594225289914
-      updatedWhen: 1594225289914
-      normalizedPageUrl: "getmemex.com"
-      comment: "Memex is great and brings networked thoughts into online research. But it is missing sharing features. How else could I share what I find with my community?"
-      selector: "Selector 2"
-    - $store: annotation-3
-      creator: { $ref: users.default }
-      createdWhen: 1594225289914
-      updatedWhen: 1594225289914
-      normalizedPageUrl: "notion.so"
-      body: "Body 3"
-      comment: "Comment 3"
-      selector: "Selector 3"
-  sharedAnnotationListEntries:
-    - creator: { $ref: users.default }
-      sharedList: { $ref: sharedLists.default }
-      sharedAnnotation: { $ref: sharedAnnotations.annotation-1 }
-      createdWhen: 1594225289914
-      updatedWhen: 1594225289914
-      fullTitle: "WorldBrain's Memex"
-      normalizedPageUrl: "getmemex.com"
-    - creator: { $ref: users.default }
-      sharedList: { $ref: sharedLists.default }
-      sharedAnnotation: { $ref: sharedAnnotations.annotation-2 }
-      createdWhen: 1594225289914
-      updatedWhen: 1594225289914
-      fullTitle: "WorldBrain's Memex"
-      normalizedPageUrl: "getmemex.com"
-    - creator: { $ref: users.default }
-      sharedList: { $ref: sharedLists.default }
-      sharedAnnotation: { $ref: sharedAnnotations.annotation-3 }
-      createdWhen: 1594225289914
-      updatedWhen: 1594225289914
-      normalizedPageUrl: "notion.so"
-  conversationThreads:
-    - $store: default
-      user: { $ref: users.default }
-      sharedList: null
-      sharedAnnotation: { $ref: sharedAnnotations.annotation-1 }
-      updatedWhen: 1594225289914
-      fullTitle: "WorldBrain's Memex"
-      normalizedPageUrl: getmemex.com
-  conversationReplies:
-    - user: { $ref: users.default }
-      conversationThread: { $ref: conversationThreads.default }
-      sharedList: null
-      sharedAnnotation: { $ref: sharedAnnotations.annotation-1 }
-      createdWhen: 1594225289914
-      normalizedPageUrl: getmemex.com
-      fullTitle: "WorldBrain's Memex"
-      content: |
-        First **comment** with *markdown*!
+    sharedLists:
+        - $store: default
+          id: default-list
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          title: 'Productivity Tools: Networked Thoughts'
+          description: 'A new breed of note-taking tools. Here is a collection of tools for networked thoughts. A new breed of note-taking tools. Here is a collection of tools for networked thoughts. A new breed of note-taking tools. Here is a collection of tools for networked thoughts. A new breed of note-taking tools. Here is a collection of tools for networked thoughts. A new breed of note-taking tools. Here is a collection of tools for networked thoughts. A new breed of note-taking tools. Here is a collection of tools for networked thoughts.'
+    sharedListEntries:
+        - sharedList: { $ref: sharedLists.default }
+          creator: { $ref: users.default }
+          createdWhen: 1594225555555
+          updatedWhen: 1594225555555
+          fullTitle: "WorldBrain's Memex"
+          normalizedUrl: getmemex.com
+          originalUrl: 'https://getmemex.com'
+        - sharedList: { $ref: sharedLists.default }
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          fullTitle: Page with notes with a title that is very very very very very very very very very very very longvery very very longvery very very longvery very very longvery very very longvery very very longvery very very longvery very very longvery very very long
+          normalizedUrl: notion.so
+          originalUrl: 'https://notion.so'
+        - sharedList: { $ref: sharedLists.default }
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          fullTitle: Page without notes with a title that is very very very very very very very very very very very longvery very longvery very longvery very longvery very longvery very longvery very longvery very long
+          normalizedUrl: verylong.so
+          originalUrl: 'https://verylong.so'
+        - sharedList: { $ref: sharedLists.default }
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          fullTitle: Bananas
+          normalizedUrl: bananas.so-1
+          originalUrl: 'https://bananas.so'
+        - sharedList: { $ref: sharedLists.default }
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          fullTitle: Bananas
+          normalizedUrl: bananas.so-2
+          originalUrl: 'https://bananas.so'
+        - sharedList: { $ref: sharedLists.default }
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          fullTitle: Bananas
+          normalizedUrl: bananas.so-3
+          originalUrl: 'https://bananas.so'
+        - sharedList: { $ref: sharedLists.default }
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          fullTitle: Bananas
+          normalizedUrl: bananas.so-4
+          originalUrl: 'https://bananas.so'
+        - sharedList: { $ref: sharedLists.default }
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          fullTitle: Bananas
+          normalizedUrl: bananas.so-5
+          originalUrl: 'https://bananas.so'
+        - sharedList: { $ref: sharedLists.default }
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          fullTitle: Bananas
+          normalizedUrl: bananas.so-6
+          originalUrl: 'https://bananas.so'
+        - sharedList: { $ref: sharedLists.default }
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          fullTitle: Bananas
+          normalizedUrl: bananas.so-7
+          originalUrl: 'https://bananas.so'
+        - sharedList: { $ref: sharedLists.default }
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          fullTitle: Bananas
+          normalizedUrl: bananas.so-8
+          originalUrl: 'https://bananas.so'
+        - sharedList: { $ref: sharedLists.default }
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          fullTitle: Bananas
+          normalizedUrl: bananas.so-9
+          originalUrl: 'https://bananas.so'
+        - sharedList: { $ref: sharedLists.default }
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          fullTitle: Bananas
+          normalizedUrl: bananas.so-10
+          originalUrl: 'https://bananas.so'
+        - sharedList: { $ref: sharedLists.default }
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          fullTitle: Bananas
+          normalizedUrl: bananas.so-11
+          originalUrl: 'https://bananas.so'
+        - sharedList: { $ref: sharedLists.default }
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          fullTitle: Bananas
+          normalizedUrl: bananas.so-12
+          originalUrl: 'https://bananas.so'
+        - sharedList: { $ref: sharedLists.default }
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          fullTitle: Bananas
+          normalizedUrl: bananas.so-13
+          originalUrl: 'https://bananas.so'
+        - sharedList: { $ref: sharedLists.default }
+          creator: { $ref: users.default }
+          createdWhen: 1594225255555
+          updatedWhen: 1594225255555
+          fullTitle: Apples
+          normalizedUrl: apples.so
+          originalUrl: 'https://apples.so'
+    sharedPageInfo:
+        - id: default-page
+          creator: { $ref: users.default }
+          createdWhen: 1594225555555
+          updatedWhen: 1594225555555
+          fullTitle: "WorldBrain's Memex"
+          normalizedUrl: getmemex.com
+          originalUrl: 'https://getmemex.com'
+        - id: empty-page
+          creator: { $ref: users.default }
+          createdWhen: 1594225555555
+          updatedWhen: 1594225555555
+          fullTitle: Apples
+          normalizedUrl: apples.so
+          originalUrl: 'https://apples.so'
+    sharedAnnotations:
+        - $store: annotation-1
+          id: default-annotation
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          fullTitle: "WorldBrain's Memex"
+          normalizedPageUrl: 'getmemex.com'
+          body: "Automatically indexes websites you visit. Instantly recover anything you've seen without upfront work."
+          comment: 'I have been waiting for this forever!'
+          selector: 'Selector 1'
+        - $store: annotation-2
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          normalizedPageUrl: 'getmemex.com'
+          comment: 'Memex is great and brings networked thoughts into online research. But it is missing sharing features. How else could I share what I find with my community?'
+          selector: 'Selector 2'
+        - $store: annotation-3
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          normalizedPageUrl: 'notion.so'
+          body: 'Body 3'
+          comment: 'Comment 3'
+          selector: 'Selector 3'
+    sharedAnnotationListEntries:
+        - creator: { $ref: users.default }
+          sharedList: { $ref: sharedLists.default }
+          sharedAnnotation: { $ref: sharedAnnotations.annotation-1 }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          fullTitle: "WorldBrain's Memex"
+          normalizedPageUrl: 'getmemex.com'
+        - creator: { $ref: users.default }
+          sharedList: { $ref: sharedLists.default }
+          sharedAnnotation: { $ref: sharedAnnotations.annotation-2 }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          fullTitle: "WorldBrain's Memex"
+          normalizedPageUrl: 'getmemex.com'
+        - creator: { $ref: users.default }
+          sharedList: { $ref: sharedLists.default }
+          sharedAnnotation: { $ref: sharedAnnotations.annotation-3 }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          normalizedPageUrl: 'notion.so'
+    conversationThreads:
+        - $store: default
+          user: { $ref: users.default }
+          sharedList: null
+          sharedAnnotation: { $ref: sharedAnnotations.annotation-1 }
+          updatedWhen: 1594225289914
+          fullTitle: "WorldBrain's Memex"
+          normalizedPageUrl: getmemex.com
+    conversationReplies:
+        - user: { $ref: users.default }
+          conversationThread: { $ref: conversationThreads.default }
+          sharedList: null
+          sharedAnnotation: { $ref: sharedAnnotations.annotation-1 }
+          createdWhen: 1594225289914
+          normalizedPageUrl: getmemex.com
+          fullTitle: "WorldBrain's Memex"
+          content: |
+              First **comment** with *markdown*!
 
-        * one
-        * two
+              * one
+              * two
 
-        -----------------
+              -----------------
 
-        <i>should ignore html</i>
-    - user: { $ref: users.default }
-      conversationThread: { $ref: conversationThreads.default }
-      sharedList: null
-      sharedAnnotation: { $ref: sharedAnnotations.annotation-1 }
-      createdWhen: 1594225289914
-      normalizedPageUrl: getmemex.com
-      fullTitle: "WorldBrain's Memex"
-      content: SEcond comment!
+              <i>should ignore html</i>
+        - user: { $ref: users.default }
+          conversationThread: { $ref: conversationThreads.default }
+          sharedList: null
+          sharedAnnotation: { $ref: sharedAnnotations.annotation-1 }
+          createdWhen: 1594225289914
+          normalizedPageUrl: getmemex.com
+          fullTitle: "WorldBrain's Memex"
+          content: SEcond comment!

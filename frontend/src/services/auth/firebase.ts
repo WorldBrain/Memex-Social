@@ -1,10 +1,17 @@
-import { User } from '@worldbrain/memex-common/lib/web-interface/types/users';
+import { User } from '@worldbrain/memex-common/lib/web-interface/types/users'
 import firebase from 'firebase'
-import { EventEmitter } from "events";
-import { Storage } from '../../storage/types';
-import { AuthProvider } from '../../types/auth';
-import { AuthMethod, AuthLoginFlow, AuthResult, RegistrationResult, EmailPasswordCredentials, LoginResult } from "./types";
-import { AuthServiceBase } from './base';
+import { EventEmitter } from 'events'
+import { Storage } from '../../storage/types'
+import { AuthProvider } from '../../types/auth'
+import {
+    AuthMethod,
+    AuthLoginFlow,
+    AuthResult,
+    RegistrationResult,
+    EmailPasswordCredentials,
+    LoginResult,
+} from './types'
+import { AuthServiceBase } from './base'
 
 export default class FirebaseAuthService extends AuthServiceBase {
     events = new EventEmitter()
@@ -12,9 +19,12 @@ export default class FirebaseAuthService extends AuthServiceBase {
     private _user: User | null = null
     private _initialized = false
 
-    constructor(firebaseRoot: typeof firebase, private options: {
-        storage: Storage,
-    }) {
+    constructor(
+        firebaseRoot: typeof firebase,
+        private options: {
+            storage: Storage
+        },
+    ) {
         super()
 
         this._firebase = firebaseRoot
@@ -26,15 +36,23 @@ export default class FirebaseAuthService extends AuthServiceBase {
         })
     }
 
-    getSupportedMethods(options: { method: AuthMethod, provider?: AuthProvider }): AuthMethod[] {
+    getSupportedMethods(options: {
+        method: AuthMethod
+        provider?: AuthProvider
+    }): AuthMethod[] {
         return ['external-provider']
     }
 
-    getLoginFlow(options: { method: AuthMethod, provider?: AuthProvider }): AuthLoginFlow | null {
+    getLoginFlow(options: {
+        method: AuthMethod
+        provider?: AuthProvider
+    }): AuthLoginFlow | null {
         return options.method === 'external-provider' ? 'redirect' : null
     }
 
-    async loginWithProvider(provider: AuthProvider): Promise<{ result: AuthResult }> {
+    async loginWithProvider(
+        provider: AuthProvider,
+    ): Promise<{ result: AuthResult }> {
         const firebaseProvider: any = ({
             facebook: new this._firebase.auth.FacebookAuthProvider(),
             google: new this._firebase.auth.GoogleAuthProvider(),
@@ -51,14 +69,26 @@ export default class FirebaseAuthService extends AuthServiceBase {
             if (firebaseError.code === 'auth/popup-blocked') {
                 return { result: { status: 'error', reason: 'popup-blocked' } }
             }
-            return { result: { status: 'error', reason: 'unknown', internalReason: firebaseError.code } }
+            return {
+                result: {
+                    status: 'error',
+                    reason: 'unknown',
+                    internalReason: firebaseError.code,
+                },
+            }
         }
     }
 
-    async loginWithEmailPassword(options: EmailPasswordCredentials): Promise<{ result: LoginResult }> {
+    async loginWithEmailPassword(
+        options: EmailPasswordCredentials,
+    ): Promise<{ result: LoginResult }> {
         try {
-            const waitForChange = new Promise(resolve => this.events.once('changed', () => resolve()))
-            await this._firebase.auth().signInWithEmailAndPassword(options.email, options.password)
+            const waitForChange = new Promise((resolve) =>
+                this.events.once('changed', () => resolve()),
+            )
+            await this._firebase
+                .auth()
+                .signInWithEmailAndPassword(options.email, options.password)
             await waitForChange
             return { result: { status: 'authenticated' } }
         } catch (e) {
@@ -76,9 +106,13 @@ export default class FirebaseAuthService extends AuthServiceBase {
         }
     }
 
-    async registerWithEmailPassword(options: EmailPasswordCredentials): Promise<{ result: RegistrationResult }> {
+    async registerWithEmailPassword(
+        options: EmailPasswordCredentials,
+    ): Promise<{ result: RegistrationResult }> {
         try {
-            await this._firebase.auth().createUserWithEmailAndPassword(options.email, options.password)
+            await this._firebase
+                .auth()
+                .createUserWithEmailAndPassword(options.email, options.password)
             return { result: { status: 'registered-and-authenticated' } }
         } catch (e) {
             const firebaseError: firebase.FirebaseError = e
@@ -113,7 +147,12 @@ export default class FirebaseAuthService extends AuthServiceBase {
         this._initialized = true
 
         const user = this._firebase.auth().currentUser
-        this._user = user && await _ensureFirebaseUser(user, this.options.storage.serverModules.users)
+        this._user =
+            user &&
+            (await _ensureFirebaseUser(
+                user,
+                this.options.storage.serverModules.users,
+            ))
         if (!alreadyInitialized && !this._user?.displayName) {
             this._user = null
             this._firebase.auth().signOut()
@@ -124,9 +163,14 @@ export default class FirebaseAuthService extends AuthServiceBase {
     }
 }
 
-async function _ensureFirebaseUser(firebaseUser: firebase.User, userStorage: Storage['serverModules']['users']) {
+async function _ensureFirebaseUser(
+    firebaseUser: firebase.User,
+    userStorage: Storage['serverModules']['users'],
+) {
     // const provider = firebaseUser.providerId as AuthProvider
-    const user = await userStorage.ensureUser({
-    }, { type: 'user-reference', id: firebaseUser.uid })
+    const user = await userStorage.ensureUser(
+        {},
+        { type: 'user-reference', id: firebaseUser.uid },
+    )
     return user
 }

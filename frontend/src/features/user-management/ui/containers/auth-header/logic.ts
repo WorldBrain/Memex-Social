@@ -1,9 +1,20 @@
-import { UILogic, UIEventHandler } from "../../../../../main-ui/classes/logic"
-import { AuthHeaderEvent, AuthHeaderDependencies, AuthHeaderState } from "./types"
+import { UILogic, UIEventHandler } from '../../../../../main-ui/classes/logic'
+import {
+    AuthHeaderEvent,
+    AuthHeaderDependencies,
+    AuthHeaderState,
+} from './types'
 
-type EventHandler<EventName extends keyof AuthHeaderEvent> = UIEventHandler<AuthHeaderState, AuthHeaderEvent, EventName>
+type EventHandler<EventName extends keyof AuthHeaderEvent> = UIEventHandler<
+    AuthHeaderState,
+    AuthHeaderEvent,
+    EventName
+>
 
-export default class AuthHeaderLogic extends UILogic<AuthHeaderState, AuthHeaderEvent> {
+export default class AuthHeaderLogic extends UILogic<
+    AuthHeaderState,
+    AuthHeaderEvent
+> {
     constructor(private dependencies: AuthHeaderDependencies) {
         super()
 
@@ -23,9 +34,7 @@ export default class AuthHeaderLogic extends UILogic<AuthHeaderState, AuthHeader
         }
     }
 
-    init: EventHandler<'init'> = async () => {
-
-    }
+    init: EventHandler<'init'> = async () => {}
 
     toggleMenu: EventHandler<'toggleMenu'> = () => {
         return { $toggle: ['showMenu'] }
@@ -44,7 +53,9 @@ export default class AuthHeaderLogic extends UILogic<AuthHeaderState, AuthHeader
     }
 
     login: EventHandler<'login'> = async () => {
-        this.dependencies.services.auth.requestAuth({ reason: 'login-requested' })
+        this.dependencies.services.auth.requestAuth({
+            reason: 'login-requested',
+        })
     }
 
     logout: EventHandler<'logout'> = async () => {

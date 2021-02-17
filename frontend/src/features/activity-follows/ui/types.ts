@@ -1,6 +1,9 @@
-import { SharedListReference, SharedList } from "@worldbrain/memex-common/lib/content-sharing/types";
-import { UITaskState } from "../../../main-ui/types";
-import { UIEventHandler } from '../../../main-ui/classes/logic';
+import {
+    SharedListReference,
+    SharedList,
+} from '@worldbrain/memex-common/lib/content-sharing/types'
+import { UITaskState } from '../../../main-ui/types'
+import { UIEventHandler } from '../../../main-ui/classes/logic'
 
 export interface ActivityFollowsState {
     followedLists: Array<SharedList & { reference: SharedListReference }>
@@ -13,6 +16,9 @@ export interface ActivityFollowsEvent {
 }
 
 export type ActivityFollowsHandlers = {
-    [EventName in keyof ActivityFollowsEvent]:
-    UIEventHandler<ActivityFollowsState, ActivityFollowsEvent, EventName>
+    [EventName in keyof ActivityFollowsEvent]: UIEventHandler<
+        ActivityFollowsState,
+        ActivityFollowsEvent,
+        EventName
+    >
 }

@@ -1,15 +1,15 @@
-import { UILogic, UIMutation, UIEvent } from "../main-ui/classes/logic"
+import { UILogic, UIMutation, UIEvent } from '../main-ui/classes/logic'
 
 export class TestLogicContainer<
     State = {},
     Event extends UIEvent<{}> = UIEvent<{}>
-    > {
+> {
     public state: State
     private eventMutations: Array<UIMutation<State>> = []
 
     constructor(public logic: UILogic<State, Event>) {
         this.state = logic.getInitialState()
-        this.logic.events.addListener('mutation', mutation =>
+        this.logic.events.addListener('mutation', (mutation) =>
             this.processMutation(mutation),
         )
     }
@@ -19,7 +19,9 @@ export class TestLogicContainer<
     }
 
     async cleanup() {
-        const cleanupMutations = this.processEvent('cleanup', undefined, { optional: true })
+        const cleanupMutations = this.processEvent('cleanup', undefined, {
+            optional: true,
+        })
         this.logic.events.removeAllListeners()
         return cleanupMutations
     }

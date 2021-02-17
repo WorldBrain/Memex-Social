@@ -17,10 +17,8 @@
         "strictNullChecks": false,
         "outDir": "tmp",
         "lib": ["es2017", "dom", "esnext.asynciterable"],
-        "types": [
-            "node"
-        ]
+        "types": ["node"]
     },
     "include": ["./**/*"],
-    "exclude": ["node_modules", "./src/**/*.js", "./src/**/*.jsx"],
+    "exclude": ["node_modules", "./src/**/*.js", "./src/**/*.jsx"]
 }

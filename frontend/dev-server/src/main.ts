@@ -1,7 +1,10 @@
 import Koa from 'koa'
-import { loadFixture, loadSingleFixture } from '../../src/services/fixtures/utils'
+import {
+    loadFixture,
+    loadSingleFixture,
+} from '../../src/services/fixtures/utils'
 const Router = require('koa-router')
-const IO = require('koa-socket-2');
+const IO = require('koa-socket-2')
 
 interface Fixture {
     extends?: string | string[]
@@ -14,14 +17,20 @@ export async function main() {
     const io = new IO()
 
     router.get('/playground/fixture/:name', async (ctx: Koa.Context, next) => {
-        ctx.body = await loadFixture(ctx.params.name, { fixtureFetcher: loadSingleFixture })
+        ctx.body = await loadFixture(ctx.params.name, {
+            fixtureFetcher: loadSingleFixture,
+        })
     })
 
     io.attach(app)
 
     const socketsByType = {}
     const socketDataById: { [id: string]: { type: string } } = {}
-    const maybeSendTo = (targetType: string, eventName: string, eventData: any) => {
+    const maybeSendTo = (
+        targetType: string,
+        eventName: string,
+        eventData: any,
+    ) => {
         const target = socketsByType[targetType]
         if (target) {
             target.emit(eventName, eventData)
@@ -54,10 +63,7 @@ export async function main() {
         console.log('UI console.log:', ...data)
     })
 
-    app
-        .use(router.routes())
-        .use(router.allowedMethods())
-        .listen(5030)
+    app.use(router.routes()).use(router.allowedMethods()).listen(5030)
 }
 
 if (require.main === module) {

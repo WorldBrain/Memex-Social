@@ -1,38 +1,38 @@
-import React from "react";
-import { UIElement } from "../../../../../main-ui/classes";
-import Logic from "./logic";
+import React from 'react'
+import { UIElement } from '../../../../../main-ui/classes'
+import Logic from './logic'
 import {
-  AuthDialogEvent,
-  AuthDialogDependencies,
-  AuthDialogState,
-} from "./types";
-import styled from "styled-components";
-import Overlay from "../../../../../main-ui/containers/overlay";
-import Button from "../../../../../common-ui/components/button";
-import TextInput from "../../../../../common-ui/components/text-input";
-import { Margin } from "styled-components-spacing";
-import { AuthError } from "../../../../../services/auth/types";
-import ProfileSetupForm from "../../components/profile-setup-form";
-import LoadingScreen from "../../../../../common-ui/components/loading-screen";
+    AuthDialogEvent,
+    AuthDialogDependencies,
+    AuthDialogState,
+} from './types'
+import styled from 'styled-components'
+import Overlay from '../../../../../main-ui/containers/overlay'
+import Button from '../../../../../common-ui/components/button'
+import TextInput from '../../../../../common-ui/components/text-input'
+import { Margin } from 'styled-components-spacing'
+import { AuthError } from '../../../../../services/auth/types'
+import ProfileSetupForm from '../../components/profile-setup-form'
+import LoadingScreen from '../../../../../common-ui/components/loading-screen'
 
-const FRIENDLY_ERRORS: { [Key in AuthError["reason"]]: string } = {
-  "popup-blocked": "Could not open a popup for you to log in",
-  "invalid-email": "Please enter a valid e-mail address",
-  "user-not-found": `There's nobody registered with that e-mail address`,
-  "wrong-password": "You entered a wrong password",
-  "email-exists": `There's already an account with that e-mail address registered`,
-  "weak-password": "Please enter a stronger password",
-  unknown: "Sorry, something went wrong on our side. Please try again later",
-};
+const FRIENDLY_ERRORS: { [Key in AuthError['reason']]: string } = {
+    'popup-blocked': 'Could not open a popup for you to log in',
+    'invalid-email': 'Please enter a valid e-mail address',
+    'user-not-found': `There's nobody registered with that e-mail address`,
+    'wrong-password': 'You entered a wrong password',
+    'email-exists': `There's already an account with that e-mail address registered`,
+    'weak-password': 'Please enter a stronger password',
+    unknown: 'Sorry, something went wrong on our side. Please try again later',
+}
 
 const StyledAuthDialog = styled.div`
-  font-family: ${(props) => props.theme.fonts.primary};
-`;
+    font-family: ${(props) => props.theme.fonts.primary};
+`
 const Header = styled.div`
-  text-align: center;
-  font-size: 16px;
-  font-weight: bold;
-`;
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+`
 const AuthenticationMethods = styled.div`
   display: flex;
   height: 260px;
@@ -42,23 +42,23 @@ const AuthenticationMethods = styled.div`
   & > div {
     width: 350px;
   }
-`;
+`
 const EmailPasswordLogin = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 
-  & > *,
-  input {
-    width: 100%;
-  }
-`;
+    & > *,
+    input {
+        width: 100%;
+    }
+`
 const EmailPasswordError = styled.div`
-  color: red;
-  font-weight: bold;
-  text-align: center;
-`;
+    color: red;
+    font-weight: bold;
+    text-align: center;
+`
 
 // const SocialLogins = styled.div`
 //   display: flex;
@@ -77,99 +77,112 @@ const EmailPasswordError = styled.div`
 // const SocialLoginLabel = styled.div``;
 
 const Footer = styled.div`
-  text-align: center;
-  user-select: none;
-`;
+    text-align: center;
+    user-select: none;
+`
 const ModeSwitch = styled.span`
-  cursor: pointer;
-  font-weight: bold;
-`;
+    cursor: pointer;
+    font-weight: bold;
+`
 
 export default class AuthDialog extends UIElement<
-  AuthDialogDependencies,
-  AuthDialogState,
-  AuthDialogEvent
+    AuthDialogDependencies,
+    AuthDialogState,
+    AuthDialogEvent
 > {
-  constructor(props: AuthDialogDependencies) {
-    super(props, { logic: new Logic(props) });
-  }
-
-  renderAuthError() {
-    const error = (text: string) => {
-      return (
-        <Margin vertical={"medium"}>
-          <EmailPasswordError>{text}</EmailPasswordError>
-        </Margin>
-      );
-    };
-
-    if (this.state.error) {
-      return error(FRIENDLY_ERRORS[this.state.error]);
+    constructor(props: AuthDialogDependencies) {
+        super(props, { logic: new Logic(props) })
     }
 
-    if (this.state.saveState === "error") {
-      const action = this.state.mode === "login" ? "log you in" : "sign you up";
-      return error(
-        `Something went wrong trying to ${action}. Please try again later.`
-      );
+    renderAuthError() {
+        const error = (text: string) => {
+            return (
+                <Margin vertical={'medium'}>
+                    <EmailPasswordError>{text}</EmailPasswordError>
+                </Margin>
+            )
+        }
+
+        if (this.state.error) {
+            return error(FRIENDLY_ERRORS[this.state.error])
+        }
+
+        if (this.state.saveState === 'error') {
+            const action =
+                this.state.mode === 'login' ? 'log you in' : 'sign you up'
+            return error(
+                `Something went wrong trying to ${action}. Please try again later.`,
+            )
+        }
+
+        return null
     }
 
-    return null;
-  }
+    renderAuthForm() {
+        // const onSocialLogin = (event: { provider: AuthProvider }) =>
+        //   this.processEvent("socialSignIn", event);
 
-  renderAuthForm() {
-    // const onSocialLogin = (event: { provider: AuthProvider }) =>
-    //   this.processEvent("socialSignIn", event);
-
-    return (
-      <StyledAuthDialog>
-        <Margin bottom="medium">
-          <Header>
-            {this.state.mode === "login" && "Login"}
-            {this.state.mode === "register" && "Sign up"}
-          </Header>
-        </Margin>
-        <Margin top="large">
-          <AuthenticationMethods>
-            <EmailPasswordLogin>
-              <TextInput
-                type="email"
-                placeholder="E-mail"
-                onChange={(e) =>
-                  this.processEvent("editEmail", { value: e.target.value })
-                }
-                onConfirm={() => {
-                  this.processEvent("emailPasswordConfirm", null);
-                }}
-              />
-              <Margin vertical={"medium"}>
-                <TextInput
-                  type="password"
-                  placeholder="Password"
-                  onChange={(e) =>
-                    this.processEvent("editPassword", {
-                      value: e.target.value,
-                    })
-                  }
-                  onConfirm={() => {
-                    this.processEvent("emailPasswordConfirm", null);
-                  }}
-                />
-              </Margin>
-              <Margin top={"medium"}>
-                <Button
-                  type="primary-action"
-                  onClick={() =>
-                    this.processEvent("emailPasswordConfirm", null)
-                  }
-                >
-                  {this.state.mode === "login" && "Log in"}
-                  {this.state.mode === "register" && "Register"}
-                </Button>
-              </Margin>
-              {this.renderAuthError()}
-            </EmailPasswordLogin>
-            {/* <SocialLogins>
+        return (
+            <StyledAuthDialog>
+                <Margin bottom="medium">
+                    <Header>
+                        {this.state.mode === 'login' && 'Login'}
+                        {this.state.mode === 'register' && 'Sign up'}
+                    </Header>
+                </Margin>
+                <Margin top="large">
+                    <AuthenticationMethods>
+                        <EmailPasswordLogin>
+                            <TextInput
+                                type="email"
+                                placeholder="E-mail"
+                                onChange={(e) =>
+                                    this.processEvent('editEmail', {
+                                        value: e.target.value,
+                                    })
+                                }
+                                onConfirm={() => {
+                                    this.processEvent(
+                                        'emailPasswordConfirm',
+                                        null,
+                                    )
+                                }}
+                            />
+                            <Margin vertical={'medium'}>
+                                <TextInput
+                                    type="password"
+                                    placeholder="Password"
+                                    onChange={(e) =>
+                                        this.processEvent('editPassword', {
+                                            value: e.target.value,
+                                        })
+                                    }
+                                    onConfirm={() => {
+                                        this.processEvent(
+                                            'emailPasswordConfirm',
+                                            null,
+                                        )
+                                    }}
+                                />
+                            </Margin>
+                            <Margin top={'medium'}>
+                                <Button
+                                    type="primary-action"
+                                    onClick={() =>
+                                        this.processEvent(
+                                            'emailPasswordConfirm',
+                                            null,
+                                        )
+                                    }
+                                >
+                                    {this.state.mode === 'login' && 'Log in'}
+                                    {this.state.mode === 'register' &&
+                                        'Register'}
+                                </Button>
+                            </Margin>
+                            {this.renderAuthError()}
+                        </EmailPasswordLogin>
+                        {/* <SocialLogins>
                 <SocialLogin
                   icon={"path to icon"}
                   provider="facebook"
@@ -191,64 +204,72 @@ export default class AuthDialog extends UIElement<
                   onClick={onSocialLogin}
                 />
               </SocialLogins> */}
-          </AuthenticationMethods>
-        </Margin>
-        <Footer>
-          {this.state.mode === "login" && (
-            <>
-              Don’t have an account?{" "}
-              <ModeSwitch onClick={() => this.processEvent("toggleMode", null)}>
-                Sign up
-              </ModeSwitch>
-            </>
-          )}
-          {this.state.mode === "register" && (
-            <>
-              Already have an account?{" "}
-              <ModeSwitch onClick={() => this.processEvent("toggleMode", null)}>
-                Log in
-              </ModeSwitch>
-            </>
-          )}
-        </Footer>
-      </StyledAuthDialog>
-    );
-  }
+                    </AuthenticationMethods>
+                </Margin>
+                <Footer>
+                    {this.state.mode === 'login' && (
+                        <>
+                            Don’t have an account?{' '}
+                            <ModeSwitch
+                                onClick={() =>
+                                    this.processEvent('toggleMode', null)
+                                }
+                            >
+                                Sign up
+                            </ModeSwitch>
+                        </>
+                    )}
+                    {this.state.mode === 'register' && (
+                        <>
+                            Already have an account?{' '}
+                            <ModeSwitch
+                                onClick={() =>
+                                    this.processEvent('toggleMode', null)
+                                }
+                            >
+                                Log in
+                            </ModeSwitch>
+                        </>
+                    )}
+                </Footer>
+            </StyledAuthDialog>
+        )
+    }
 
-  renderProfileForm() {
-    return (
-      <ProfileSetupForm
-        displayName={this.state.displayName}
-        onDisplayNameChange={(value) =>
-          this.processEvent("editDisplayName", { value })
+    renderProfileForm() {
+        return (
+            <ProfileSetupForm
+                displayName={this.state.displayName}
+                onDisplayNameChange={(value) =>
+                    this.processEvent('editDisplayName', { value })
+                }
+                onConfirm={() => this.processEvent('confirmDisplayName', null)}
+            />
+        )
+    }
+
+    renderOverlayContent() {
+        if (this.state.saveState === 'running') {
+            return <LoadingScreen />
         }
-        onConfirm={() => this.processEvent("confirmDisplayName", null)}
-      />
-    );
-  }
-
-  renderOverlayContent() {
-    if (this.state.saveState === "running") {
-      return <LoadingScreen />;
+        if (this.state.mode === 'profile') {
+            return this.renderProfileForm()
+        }
+        return this.renderAuthForm()
     }
-    if (this.state.mode === "profile") {
-      return this.renderProfileForm();
-    }
-    return this.renderAuthForm();
-  }
 
-  render() {
-    return (
-      this.state.mode !== "hidden" && (
-        <Overlay
-          services={this.props.services}
-          onCloseRequested={() => this.processEvent("close", null)}
-        >
-          {this.renderOverlayContent()}
-        </Overlay>
-      )
-    );
-  }
+    render() {
+        return (
+            this.state.mode !== 'hidden' && (
+                <Overlay
+                    services={this.props.services}
+                    onCloseRequested={() => this.processEvent('close', null)}
+                >
+                    {this.renderOverlayContent()}
+                </Overlay>
+            )
+        )
+    }
 }
 
 // function SocialLogin(props: {

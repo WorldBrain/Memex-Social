@@ -1,23 +1,23 @@
 {
-  "compilerOptions": {
-    "baseUrl": ".",
-    "allowJs": true,
-    "target": "ES6",
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "esModuleInterop": true,
-    "jsx": "react",
-    "noImplicitAny": false,
-    "sourceMap": true,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "allowSyntheticDefaultImports": true,
-    "skipDefaultLibCheck": true,
-    "skipLibCheck": true,
-    "strictNullChecks": false,
-    "outDir": "tmp",
-    "lib": ["es2017", "dom", "esnext.asynciterable"]
-  },
-  "include": ["./src/**/*", "../src/**/*"],
-  "exclude": ["node_modules", "./src/**/*.js", "./src/**/*.jsx"]
+    "compilerOptions": {
+        "baseUrl": ".",
+        "allowJs": true,
+        "target": "ES6",
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "esModuleInterop": true,
+        "jsx": "react",
+        "noImplicitAny": false,
+        "sourceMap": true,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "allowSyntheticDefaultImports": true,
+        "skipDefaultLibCheck": true,
+        "skipLibCheck": true,
+        "strictNullChecks": false,
+        "outDir": "tmp",
+        "lib": ["es2017", "dom", "esnext.asynciterable"]
+    },
+    "include": ["./src/**/*", "../src/**/*"],
+    "exclude": ["node_modules", "./src/**/*.js", "./src/**/*.jsx"]
 }

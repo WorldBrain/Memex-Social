@@ -1,27 +1,27 @@
-import React from "react";
-import { Storage } from "../../../storage/types";
-import { UIElement, UIElementServices } from "../../classes";
-import Logic, { State, Event } from "./logic";
+import React from 'react'
+import { Storage } from '../../../storage/types'
+import { UIElement, UIElementServices } from '../../classes'
+import Logic, { State, Event } from './logic'
 
 interface Props {
-  storage: Storage;
-  services: UIElementServices<"auth" | "router">;
+    storage: Storage
+    services: UIElementServices<'auth' | 'router'>
 }
 
 export default class UserHome extends UIElement<Props, State, Event> {
-  constructor(props: Props) {
-    super(props, { logic: new Logic(props) });
-  }
-
-  render() {
-    const user = this.props.services.auth.getCurrentUser();
-    if (!user) {
-      throw new Error("User home activated without active user");
-    }
-    if (!user.displayName) {
-      throw new Error("User has no display name");
+    constructor(props: Props) {
+        super(props, { logic: new Logic(props) })
     }
 
-    return <div></div>;
-  }
+    render() {
+        const user = this.props.services.auth.getCurrentUser()
+        if (!user) {
+            throw new Error('User home activated without active user')
+        }
+        if (!user.displayName) {
+            throw new Error('User has no display name')
+        }
+
+        return <div></div>
+    }
 }

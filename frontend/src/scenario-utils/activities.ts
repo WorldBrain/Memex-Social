@@ -1,22 +1,38 @@
-import { Storage } from "../storage/types"
-import { Services } from "../services/types"
-import { ConversationReplyReference } from "@worldbrain/memex-common/lib/content-conversations/types"
+import { Storage } from '../storage/types'
+import { Services } from '../services/types'
+import { ConversationReplyReference } from '@worldbrain/memex-common/lib/content-conversations/types'
 
-type SuccessReplyRes = { status: 'success', replyReference: ConversationReplyReference }
+type SuccessReplyRes = {
+    status: 'success'
+    replyReference: ConversationReplyReference
+}
 
 type ActivityScript = ActivityScriptStep[]
 type ActivityScriptStep =
-    | { type: 'login', user: string, createProfile?: boolean }
-    | { type: 'reply', annotation: string }
-    | { type: 'reply', createdAnnotation: string }
-    | { type: 'follow-annotation', annotation: string }
-    | { type: 'follow-list', list: string }
-    | { type: 'list-entries', list: string, pages: string[] }
-    | { type: 'home-feed-timestamp', user: string, time: '$now' }
-    | { type: 'create-page-info', page: string }
-    | { type: 'create-annotation', page: string, list: string, createdId: string }
+    | { type: 'login'; user: string; createProfile?: boolean }
+    | { type: 'reply'; annotation: string }
+    | { type: 'reply'; createdAnnotation: string }
+    | { type: 'follow-annotation'; annotation: string }
+    | { type: 'follow-list'; list: string }
+    | { type: 'list-entries'; list: string; pages: string[] }
+    | { type: 'home-feed-timestamp'; user: string; time: '$now' }
+    | { type: 'create-page-info'; page: string }
+    | {
+          type: 'create-annotation'
+          page: string
+          list: string
+          createdId: string
+      }
 
-async function setup({ services, storage, script }: { services: Services, storage: Storage, script: ActivityScript }) {
+async function setup({
+    services,
+    storage,
+    script,
+}: {
+    services: Services
+    storage: Storage
+    script: ActivityScript
+}) {
     const replyCountByAnnotation: { [annotationId: string]: number } = {}
     const increasedReplyCount = (annotationId: string | number) => {
         const existingCount = replyCountByAnnotation[annotationId] ?? 0
@@ -25,7 +41,9 @@ async function setup({ services, storage, script }: { services: Services, storag
         return newCount
     }
     const annotationIds: { [localId: string]: string | number } = {}
-    const lastReplyByAnnotation: { [annotationId: string]: ConversationReplyReference } = {}
+    const lastReplyByAnnotation: {
+        [annotationId: string]: ConversationReplyReference
+    } = {}
 
     let time = Date.now()
     const goBackInTime = (delta: number) => {
@@ -41,8 +59,17 @@ async function setup({ services, storage, script }: { services: Services, storag
         if (annotationPages[annotationId]) {
             return annotationPages[annotationId]
         }
-        const annotationData = await storage.serverModules.contentSharing.getAnnotation({ reference: { type: 'shared-annotation-reference', id: annotationId } })
-        const { annotation: { normalizedPageUrl } } = annotationData!
+        const annotationData = await storage.serverModules.contentSharing.getAnnotation(
+            {
+                reference: {
+                    type: 'shared-annotation-reference',
+                    id: annotationId,
+                },
+            },
+        )
+        const {
+            annotation: { normalizedPageUrl },
+        } = annotationData!
         annotationPages[annotationId] = normalizedPageUrl
         return normalizedPageUrl
     }
@@ -52,54 +79,91 @@ async function setup({ services, storage, script }: { services: Services, storag
             if (services.auth.getCurrentUser()) {
                 await services.auth.logout()
             }
-            await services.auth.loginWithEmailPassword({ email: step.user, password: 'bling' })
+            await services.auth.loginWithEmailPassword({
+                email: step.user,
+                password: 'bling',
+            })
             if (step.createProfile) {
-                await storage.serverModules.users.updateUser({
-                    type: 'user-reference', id: step.user
-                }, {
-                    knownStatus: 'exists'
-                }, { displayName: `${step.user}'s display name` })
+                await storage.serverModules.users.updateUser(
+                    {
+                        type: 'user-reference',
+                        id: step.user,
+                    },
+                    {
+                        knownStatus: 'exists',
+                    },
+                    { displayName: `${step.user}'s display name` },
+                )
             }
         } else if (step.type === 'reply') {
-            const annotId = 'createdAnnotation' in step ? annotationIds[step.createdAnnotation] : step.annotation
+            const annotId =
+                'createdAnnotation' in step
+                    ? annotationIds[step.createdAnnotation]
+                    : step.annotation
             const normalizedPageUrl = await getAnnotationPage(annotId)
             const replyNumber = increasedReplyCount(annotId)
             const currentUser = await services.auth.getCurrentUserReference()!
-            const byMyself = currentUser.id === (annotationCreators[annotId] ?? 'default-user')
+            const byMyself =
+                currentUser.id ===
+                (annotationCreators[annotId] ?? 'default-user')
 
-            const annotationName = 'createdAnnotation' in step ? `created note: ${step.createdAnnotation}` : annotId
+            const annotationName =
+                'createdAnnotation' in step
+                    ? `created note: ${step.createdAnnotation}`
+                    : annotId
             const extraInfo = [
                 homeFeedTimestampUpdated ? 'should be new' : 'should be seen',
                 byMyself ? 'to myself should be ignored' : null,
-            ].filter(entry => !!entry).join(', ')
+            ]
+                .filter((entry) => !!entry)
+                .join(', ')
 
-            const replyResult = await services.contentConversations.submitReply({
-                pageCreatorReference: currentUser,
-                annotationReference: { type: 'shared-annotation-reference', id: annotId },
-                normalizedPageUrl: normalizedPageUrl,
-                reply: { content: `annot in ${normalizedPageUrl} - ${annotationName} - reply ${replyNumber} (${extraInfo})` },
-                previousReplyReference: lastReplyByAnnotation[annotId],
-            })
+            const replyResult = await services.contentConversations.submitReply(
+                {
+                    pageCreatorReference: currentUser,
+                    annotationReference: {
+                        type: 'shared-annotation-reference',
+                        id: annotId,
+                    },
+                    normalizedPageUrl: normalizedPageUrl,
+                    reply: {
+                        content: `annot in ${normalizedPageUrl} - ${annotationName} - reply ${replyNumber} (${extraInfo})`,
+                    },
+                    previousReplyReference: lastReplyByAnnotation[annotId],
+                },
+            )
             if (replyResult.status !== 'success') {
-                throw new Error(`Error creating reply ${replyNumber} for page ${normalizedPageUrl}: ${replyResult.status}`)
+                throw new Error(
+                    `Error creating reply ${replyNumber} for page ${normalizedPageUrl}: ${replyResult.status}`,
+                )
             }
             // console.log(annotationName, {prev: lastReplyByAnnotation[annotId]?.id, next: replyResult.replyReference.id})
 
             lastReplyByAnnotation[annotId] = replyResult.replyReference
         } else if (step.type === 'follow-annotation') {
-            const annotationReference = { type: 'shared-annotation-reference' as 'shared-annotation-reference', id: step.annotation }
-            const annotationData = await storage.serverModules.contentSharing.getAnnotation({
-                reference: annotationReference
-            })
-            if (!annotationData) {
-                throw new Error(`Tried to follow non-existing annotation: ${step.annotation}`)
+            const annotationReference = {
+                type: 'shared-annotation-reference' as 'shared-annotation-reference',
+                id: step.annotation,
             }
-            const thread = await storage.serverModules.contentConversations.getOrCreateThread({
-                pageCreatorReference: annotationData.creatorReference,
-                annotationReference: annotationReference,
-                normalizedPageUrl: annotationData.annotation.normalizedPageUrl,
-                sharedListReference: null,
-            })
+            const annotationData = await storage.serverModules.contentSharing.getAnnotation(
+                {
+                    reference: annotationReference,
+                },
+            )
+            if (!annotationData) {
+                throw new Error(
+                    `Tried to follow non-existing annotation: ${step.annotation}`,
+                )
+            }
+            const thread = await storage.serverModules.contentConversations.getOrCreateThread(
+                {
+                    pageCreatorReference: annotationData.creatorReference,
+                    annotationReference: annotationReference,
+                    normalizedPageUrl:
+                        annotationData.annotation.normalizedPageUrl,
+                    sharedListReference: null,
+                },
+            )
             await services.activityStreams.followEntity({
                 entityType: 'conversationThread',
                 entity: thread.reference,
@@ -110,24 +174,26 @@ async function setup({ services, storage, script }: { services: Services, storag
             await storage.serverModules.activityFollows.storeFollow({
                 userReference: services.auth.getCurrentUserReference()!,
                 collection: 'sharedList',
-                objectId: step.list
+                objectId: step.list,
             })
         } else if (step.type === 'list-entries') {
             await storage.serverModules.contentSharing.createListEntries({
                 listReference: { type: 'shared-list-reference', id: step.list },
-                listEntries: step.pages.map(page => ({
+                listEntries: step.pages.map((page) => ({
                     createdWhen: goBackInTime(1000 * 60 * 60),
                     entryTitle: `${page} title`,
                     normalizedUrl: page,
-                    originalUrl: `https://www.${page}`
+                    originalUrl: `https://www.${page}`,
                 })),
-                userReference: services.auth.getCurrentUserReference()!
+                userReference: services.auth.getCurrentUserReference()!,
             })
         } else if (step.type === 'home-feed-timestamp') {
-            await storage.serverModules.activityStreams.updateHomeFeedTimestamp({
-                user: { type: 'user-reference', id: step.user },
-                timestamp: Date.now(),
-            })
+            await storage.serverModules.activityStreams.updateHomeFeedTimestamp(
+                {
+                    user: { type: 'user-reference', id: step.user },
+                    timestamp: Date.now(),
+                },
+            )
             homeFeedTimestampUpdated = true
         } else if (step.type === 'create-page-info') {
             await storage.serverModules.contentSharing.createPageInfo({
@@ -136,26 +202,44 @@ async function setup({ services, storage, script }: { services: Services, storag
                     fullTitle: `${step.page} title`,
                     normalizedUrl: step.page,
                     originalUrl: `https://${step.page}`,
-                }
+                },
             })
         } else if (step.type === 'create-annotation') {
-            const { sharedAnnotationReferences } = await storage.serverModules.contentSharing.createAnnotations({
+            const {
+                sharedAnnotationReferences,
+            } = await storage.serverModules.contentSharing.createAnnotations({
                 creator: services.auth.getCurrentUserReference()!,
-                listReferences: [{ type: 'shared-list-reference', id: step.list }],
+                listReferences: [
+                    { type: 'shared-list-reference', id: step.list },
+                ],
                 annotationsByPage: {
                     [step.page]: [
-                        { createdWhen: Date.now(), comment: `created note: ${step.createdId}`, localId: step.createdId },
-                    ]
-                }
+                        {
+                            createdWhen: Date.now(),
+                            comment: `created note: ${step.createdId}`,
+                            localId: step.createdId,
+                        },
+                    ],
+                },
             })
-            for (const [localId, annotationReference] of Object.entries(sharedAnnotationReferences)) {
+            for (const [localId, annotationReference] of Object.entries(
+                sharedAnnotationReferences,
+            )) {
                 annotationIds[localId] = annotationReference.id
             }
         }
     }
 }
 
-export const setupTestActivities = async ({ services, storage, script }: { services: Services, storage: Storage, script?: ActivityScript }) => {
+export const setupTestActivities = async ({
+    services,
+    storage,
+    script,
+}: {
+    services: Services
+    storage: Storage
+    script?: ActivityScript
+}) => {
     // prettier-ignore
     await setup({
         services,
@@ -241,7 +325,7 @@ export const setupTestActivities = async ({ services, storage, script }: { servi
     // })
     // await storage.serverModules.users.updateUser({
     //     type: 'user-reference', id: 'two@user.com'
-    // }, {    
+    // }, {
     //     knownStatus: 'exists'
     // }, { displayName: 'User two' })
 
@@ -351,7 +435,6 @@ export const setupTestActivities = async ({ services, storage, script }: { servi
     //     previousReplyReference: reply8Ref,
     // }) as SuccessReplyRes
 
-
     // switch user
     // await services.auth.logout()
     // await services.auth.loginWithEmailPassword({
@@ -376,4 +459,3 @@ export const setupTestActivities = async ({ services, storage, script }: { servi
     //     previousReplyReference: reply9Ref
     // })
 }
-

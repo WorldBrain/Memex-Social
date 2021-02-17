@@ -1,8 +1,6 @@
-import { UILogic, UIEvent } from "../../classes/logic"
+import { UILogic, UIEvent } from '../../classes/logic'
 
-interface State {
-
-}
+interface State {}
 type Event = UIEvent<{}>
 
 export default class Logic extends UILogic<State, Event> {

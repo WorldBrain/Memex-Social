@@ -1,28 +1,28 @@
-import { Trans } from "react-i18next";
-import React from "react";
+import { Trans } from 'react-i18next'
+import React from 'react'
 // import styled from "styled-components";
-import { UIElement, UIElementServices } from "../../classes";
-import Logic, { LandingPageState } from "./logic";
-import { LandingPageEvent } from "./types";
+import { UIElement, UIElementServices } from '../../classes'
+import Logic, { LandingPageState } from './logic'
+import { LandingPageEvent } from './types'
 
 interface LandingPageProps {
-  services: UIElementServices<"auth" | "router">;
+    services: UIElementServices<'auth' | 'router'>
 }
 
 export default class LandingPage extends UIElement<
-  LandingPageProps,
-  LandingPageState,
-  LandingPageEvent
+    LandingPageProps,
+    LandingPageState,
+    LandingPageEvent
 > {
-  constructor(props: LandingPageProps) {
-    super(props, { logic: new Logic() });
-  }
+    constructor(props: LandingPageProps) {
+        super(props, { logic: new Logic() })
+    }
 
-  componentDidMount() {
-    this.props.services.router.goToExternalUrl("https://getmemex.com");
-  }
+    componentDidMount() {
+        this.props.services.router.goToExternalUrl('https://getmemex.com')
+    }
 
-  render() {
-    return <Trans>Redirecting...</Trans>;
-  }
+    render() {
+        return <Trans>Redirecting...</Trans>
+    }
 }

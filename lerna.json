@@ -1,19 +1,19 @@
 {
-  "version": "independent",
-  "npmClient": "yarn",
-  "command": {
-    "publish": {
-      "ignoreChanges": ["ignored-file"],
-      "message": "chore(release): publish"
+    "version": "independent",
+    "npmClient": "yarn",
+    "command": {
+        "publish": {
+            "ignoreChanges": ["ignored-file"],
+            "message": "chore(release): publish"
+        },
+        "bootstrap": {
+            "npmClientArgs": ["--no-package-lock"]
+        }
     },
-    "bootstrap": {
-      "npmClientArgs": ["--no-package-lock"]
-    }
-  },
-  "packages": [
-    "external/*",
-    "external/@worldbrain/*",
-    "frontend",
-    "firebase/functions"
-  ]
+    "packages": [
+        "external/*",
+        "external/@worldbrain/*",
+        "frontend",
+        "firebase/functions"
+    ]
 }

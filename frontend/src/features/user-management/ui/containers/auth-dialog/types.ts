@@ -1,9 +1,9 @@
-import { UIEvent, UISignal } from "../../../../../main-ui/classes/logic";
-import { UIElementServices } from "../../../../../main-ui/classes";
-import { AuthProvider } from "../../../../../types/auth";
-import { AuthError } from "../../../../../services/auth/types";
-import { StorageModules } from "../../../../../storage/types";
-import { UITaskState } from "../../../../../main-ui/types";
+import { UIEvent, UISignal } from '../../../../../main-ui/classes/logic'
+import { UIElementServices } from '../../../../../main-ui/classes'
+import { AuthProvider } from '../../../../../types/auth'
+import { AuthError } from '../../../../../services/auth/types'
+import { StorageModules } from '../../../../../storage/types'
+import { UITaskState } from '../../../../../main-ui/types'
 
 export interface AuthDialogDependencies {
     services: UIElementServices<'auth' | 'overlay'>
@@ -18,7 +18,7 @@ export interface AuthDialogState {
     displayName: string
     error?: AuthError['reason']
 }
-export type AuthDialogMode = 'hidden' | 'register' | 'login' | 'profile';
+export type AuthDialogMode = 'hidden' | 'register' | 'login' | 'profile'
 
 export type AuthDialogEvent = UIEvent<{
     show: null
@@ -33,6 +33,4 @@ export type AuthDialogEvent = UIEvent<{
     confirmDisplayName: null
 }>
 
-export type AuthDialogSignal = UISignal<
-    { type: 'auth-running' }
->
+export type AuthDialogSignal = UISignal<{ type: 'auth-running' }>

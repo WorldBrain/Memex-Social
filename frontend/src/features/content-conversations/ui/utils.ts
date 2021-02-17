@@ -1,5 +1,8 @@
-import { AnnotationConversationState, AnnotationConversationStates } from "./types";
-import fromPairs from "lodash/fromPairs";
+import {
+    AnnotationConversationState,
+    AnnotationConversationStates,
+} from './types'
+import fromPairs from 'lodash/fromPairs'
 
 export function getInitialAnnotationConversationState(): AnnotationConversationState {
     return {
@@ -17,8 +20,10 @@ export function getInitialAnnotationConversationState(): AnnotationConversationS
 export function getInitialAnnotationConversationStates(
     annotations: Array<{ linkId: string }>,
 ): AnnotationConversationStates {
-    return fromPairs(annotations.map(annotation => [
-        annotation.linkId,
-        getInitialAnnotationConversationState()
-    ]))
+    return fromPairs(
+        annotations.map((annotation) => [
+            annotation.linkId,
+            getInitialAnnotationConversationState(),
+        ]),
+    )
 }

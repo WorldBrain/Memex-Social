@@ -1,9 +1,9 @@
 import React, { PureComponent } from 'react'
-import styled, { keyframes } from "styled-components";
+import styled, { keyframes } from 'styled-components'
 
 class LoadingIndicator extends PureComponent {
     render() {
-        return <Loader/>
+        return <Loader />
     }
 }
 
@@ -32,27 +32,26 @@ const Loader = styled.div`
     transform: translateZ(0);
 
     &:before {
-	    border-radius: 100% 0 0 0;
-	    position: absolute;
-	    top: 0;
-	    left: 0;
-	    content: '';
-	}
+        border-radius: 100% 0 0 0;
+        position: absolute;
+        top: 0;
+        left: 0;
+        content: '';
+    }
 
-	&:after {
-	    background: #fff;
-	    width: 65%;
-	    height: 65%;
-	    border-radius: 50%;
-	    content: '';
-	    margin: auto;
-	    position: absolute;
-	    top: 0;
-	    left: 0;
-	    bottom: 0;
-	    right: 0;
-	}
-
+    &:after {
+        background: #fff;
+        width: 65%;
+        height: 65%;
+        border-radius: 50%;
+        content: '';
+        margin: auto;
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+    }
 `
 
 export default LoadingIndicator

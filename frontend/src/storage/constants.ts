@@ -1,4 +1,6 @@
-export type AccountCollectionInfoMap = { [collection: string]: AccountCollectionInfo }
+export type AccountCollectionInfoMap = {
+    [collection: string]: AccountCollectionInfo
+}
 export interface AccountCollectionInfo {
     onAccountDelete: 'delete' | 'ignore'
 }

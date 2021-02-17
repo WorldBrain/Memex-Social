@@ -4,8 +4,12 @@ export class DocumentTitleService {
     _titlesById: { [id: number]: string } = {}
     _titleStack: number[] = []
 
-    constructor(public _titleAccess: { set: (title: string) => void, get: () => string }) {
-    }
+    constructor(
+        public _titleAccess: {
+            set: (title: string) => void
+            get: () => string
+        },
+    ) {}
 
     pushTitle(title: string): number {
         if (!this._defaultTitle) {
