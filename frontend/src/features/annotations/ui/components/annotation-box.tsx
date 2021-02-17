@@ -16,18 +16,38 @@ const StyledAnnotationBox = styled.div`
   font-family: ${(props) => props.theme.fonts.primary};
 `;
 
-const AnnotationBody = styled.span`
-    background-color: ${(props) => props.theme.colors.secondary};
-    white-space: normal;
-    padding: 0 5px;
-    box-decoration-break: clone;
-    font-size: 14px;
-    color: ${(props) => props.theme.colors.primary};
+const HighlightBox = styled(Margin)`
+  display: flex;
+  align-items: center;
+  padding: 10px 15px 10px 15px;
+  border-bottom: 0.5px solid #e0e0e0;
+  width: 100%;
 `
 
+const HighlightIndicator = styled.div`
+  background-color: #D4E8FF;
+  border-radius: 5px;
+  min-width: 7px;
+  min-height: 40px;
+  margin-right: 10px;
+  height: 100%;
+`
+
+const AnnotationBody = styled.span`
+  white-space: normal;
+  background-color: #D4E8FF;
+  padding: 1px 5px;
+  box-decoration-break: clone;
+  font-size: 14px;
+  color: ${(props) => props.theme.colors.primary};
+  font-weight: 400;
+  font-style: italic;
+`;
+
 const AnnotationComment = styled.div`
-    font-size: 14px;
-    color: ${(props) => props.theme.colors.primary};
+  font-size: 14px;
+  color: ${(props) => props.theme.colors.primary};
+  padding: 10px 15px;
 
   & *:first-child {
     margin-top: 0;
@@ -39,7 +59,8 @@ const AnnotationComment = styled.div`
 `;
 
 const AnnotationTopBox = styled.div`
-    padding: 15px 15px 10px 15px;
+  padding: 5px 0 0 0;
+  display: flex;
 `
 
 const DOM_PURIFY_CONFIG: DOMPurify.Config = {
@@ -72,21 +93,23 @@ export default function AnnotationBox(props: AnnotationBoxProps) {
       <StyledAnnotationBox>
         <AnnotationTopBox>
         {annotation.body && (
-          <Margin>
-            <AnnotationBody
-              dangerouslySetInnerHTML={{
-                __html: preserveLinebreaks(annotation.body),
-              }}
-            />
-          </Margin>
+          <HighlightBox>
+            {/*<HighlightIndicator/>*/}
+            <Margin>
+              <AnnotationBody
+                dangerouslySetInnerHTML={{
+                  __html: preserveLinebreaks(annotation.body),
+                }}
+              />
+            </Margin>
+          </HighlightBox>
         )}
-        {annotation.body && annotation.comment && (<Margin top="small"><div/></Margin>)}
+        </AnnotationTopBox>
         <Margin>
           <AnnotationComment>
             <Markdown>{annotation.comment}</Markdown>
           </AnnotationComment>
         </Margin>
-        </AnnotationTopBox>
         <ItemBoxBottom
           creationInfo={{
             createdWhen: annotation.createdWhen,

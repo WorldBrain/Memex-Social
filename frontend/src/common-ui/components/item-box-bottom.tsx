@@ -13,7 +13,7 @@ const Bottom = styled.div`
   justify-content: space-between;
   padding: 0px 15px 0px 15px;
   border-top: 1px solid #e0e0e0;
-  height: 50px;
+  height: 40px;
 `;
 
 const Actions = styled.div`
