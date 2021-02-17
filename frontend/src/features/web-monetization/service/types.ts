@@ -2,8 +2,8 @@ import TypedEventEmitter from "typed-emitter";
 import { UserReference } from "../../user-management/types";
 
 export interface WebMonetizationEvents {
-    webMonetizationStart(event: CustomEvent<WebMonetizationStartEvent>): void
-    webMonetizationStop(event: CustomEvent<WebMonetizationStopEvent>): void
+    monetizationstart(event: CustomEvent<WebMonetizationStartEvent>): void
+    monetizationstop(event: CustomEvent<WebMonetizationStopEvent>): void
 }
 
 type WebMonetizationEventDetailBase = {
