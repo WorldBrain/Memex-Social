@@ -7,8 +7,6 @@ import { StorageModules } from '../../storage/types'
 import { Margin } from 'styled-components-spacing'
 import RouteLink from '../components/route-link'
 import UnseenActivityIndicator from '../../features/activity-streams/ui/containers/unseen-activity-indicator'
-import { UserReference } from '../../features/user-management/types'
-import ProfilePopupContainer from '../../features/user-management/ui/containers/profile-popup-container'
 import ListsSidebar, {
     Props as ListsSidebarProps,
 } from '../../main-ui/components/list-sidebar/lists-sidebar'
@@ -262,13 +260,14 @@ export default function DefaultPageLayout(props: {
     headerTitle?: string
     headerSubtitle?: string | null
     followBtn?: JSX.Element
-    creatorReference?: UserReference
     hideActivityIndicator?: boolean
     listsSidebarProps?: Omit<ListsSidebarProps, 'services'>
+    renderSubtitle?: (props: { children: React.ReactNode }) => React.ReactNode
     viewportBreakpoint: ViewportBreakpoint
     children: React.ReactNode
 }) {
     const { viewportBreakpoint: viewportWidth } = props
+    const renderSubtitle = props.renderSubtitle ?? ((props) => props.children)
 
     const [isAuthenticated, setAuthenticated] = useState(
         !!props.services.auth.getCurrentUser(),
@@ -370,7 +369,7 @@ export default function DefaultPageLayout(props: {
             </StyledHeader>
             <PageMiddleArea viewportWidth={viewportWidth}>
                 <PageMiddleAreaTopBox
-                    top="larger"
+                    top="large"
                     bottom="medium"
                     viewportWidth={viewportWidth}
                 >
@@ -383,22 +382,17 @@ export default function DefaultPageLayout(props: {
                                 {props.headerTitle}
                             </HeaderTitle>
                         )}
-                        {props.headerTitle && props.headerSubtitle && (
-                            <ProfilePopupContainer
-                                services={props.services}
-                                storage={props.storage}
-                                userRef={
-                                    props.creatorReference ?? {
-                                        type: 'user-reference',
-                                        id: '',
-                                    }
-                                }
-                            >
-                                <HeaderSubtitle viewportWidth={viewportWidth}>
-                                    {props.headerSubtitle}
-                                </HeaderSubtitle>
-                            </ProfilePopupContainer>
-                        )}
+                        {props.headerTitle &&
+                            props.headerSubtitle &&
+                            renderSubtitle({
+                                children: (
+                                    <HeaderSubtitle
+                                        viewportWidth={viewportWidth}
+                                    >
+                                        {props.headerSubtitle}
+                                    </HeaderSubtitle>
+                                ),
+                            })}
                     </PageMidleAreaTitles>
                     <PageMidleAreaAction>
                         {props.followBtn && props.followBtn}

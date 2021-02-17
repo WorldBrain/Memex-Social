@@ -48,6 +48,11 @@ export default class ProfilePopupContainerLogic extends UILogic<
     }
 
     initPopup: EventHandler<'initPopup'> = async (incoming) => {
+        const { userRef } = this.dependencies
+        if (!userRef) {
+            return
+        }
+
         this.emitMutation({ isDisplayed: { $set: true } })
 
         const loadState = incoming.previousState.loadState
@@ -56,7 +61,6 @@ export default class ProfilePopupContainerLogic extends UILogic<
         }
 
         await loadInitial<ProfilePopupContainerState>(this, async () => {
-            const { userRef } = this.dependencies
             const [user, userProfile] = await Promise.all([
                 this.dependencies.services.userManagement.loadUserData(userRef),
                 this.dependencies.services.userManagement.loadUserPublicProfile(

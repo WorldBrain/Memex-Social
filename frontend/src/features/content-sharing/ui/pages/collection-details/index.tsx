@@ -28,6 +28,7 @@ import AnnotationsInPage from '../../../../annotations/ui/components/annotations
 import ErrorWithAction from '../../../../../common-ui/components/error-with-action'
 import ErrorBox from '../../../../../common-ui/components/error-box'
 import FollowBtn from '../../../../activity-follows/ui/components/follow-btn'
+import ProfilePopupContainer from '../../../../user-management/ui/containers/profile-popup-container'
 const commentImage = require('../../../../../assets/img/comment.svg')
 
 const DocumentView = styled.div`
@@ -329,7 +330,15 @@ export default class CollectionDetailsPage extends UIElement<
                     headerSubtitle={
                         data.creator && `${data.creator.displayName}`
                     }
-                    creatorReference={data.creatorReference}
+                    renderSubtitle={(props) => (
+                        <ProfilePopupContainer
+                            services={this.props.services}
+                            storage={this.props.storage}
+                            userRef={data.creatorReference ?? null}
+                        >
+                            {props.children}
+                        </ProfilePopupContainer>
+                    )}
                     followBtn={this.renderFollowBtn()}
                     listsSidebarProps={{
                         isShown: this.state.isListSidebarShown,

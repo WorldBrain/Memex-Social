@@ -16,6 +16,7 @@ import PageInfoBox from '../../../../../common-ui/components/page-info-box'
 import AnnotationsInPage from '../../../../annotations/ui/components/annotations-in-page'
 import LoadingIndicator from '../../../../../common-ui/components/loading-indicator'
 import ErrorWithAction from '../../../../../common-ui/components/error-with-action'
+import ProfilePopupContainer from '../../../../user-management/ui/containers/profile-popup-container'
 
 const PageInfoList = styled.div`
     width: 100%;
@@ -147,6 +148,15 @@ export default class PageDetailsPage extends UIElement<
                     viewportBreakpoint={viewportWidth}
                     headerTitle={this.getHeaderTitle()}
                     headerSubtitle={this.getHeaderSubtitle()}
+                    renderSubtitle={(props) => (
+                        <ProfilePopupContainer
+                            services={this.props.services}
+                            storage={this.props.storage}
+                            userRef={this.state.creatorReference ?? null}
+                        >
+                            {props.children}
+                        </ProfilePopupContainer>
+                    )}
                     listsSidebarProps={{
                         isShown: state.isListSidebarShown,
                         followedLists: state.followedLists,
