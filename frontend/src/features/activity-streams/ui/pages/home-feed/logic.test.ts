@@ -2,6 +2,7 @@ import {
     ActivityStreamResult,
     ActivityStreamResultGroup,
 } from '@worldbrain/memex-common/lib/activity-streams/types'
+// import { organizeNotifications } from "./logic"
 
 describe('Home feed logic tests', () => {
     function createReplyActivityFactory() {
@@ -86,7 +87,6 @@ describe('Home feed logic tests', () => {
                         return {
                             id: ++notificationCount,
                             activity: {
-                                previousReplyReference: null,
                                 normalizedPageUrl: params.normalizedPageUrl,
                                 annotationCreator: {
                                     reference: {
@@ -122,6 +122,7 @@ describe('Home feed logic tests', () => {
                                     normalizedPageUrl: params.normalizedPageUrl,
                                     createdWhen: reply.createdWhen,
                                     content: `reply ${reply.index}`,
+                                    previousReplyReference: null,
                                 },
                                 pageInfo: {
                                     reference: {

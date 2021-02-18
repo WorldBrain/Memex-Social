@@ -9,7 +9,16 @@ import {
 export type UserPublicProfile = Profile
 export type User = ImportedUser
 export type UserReference = UserRef
+
+export type ProfileWebLinkLabel = 'Website' | 'Medium' | 'Twitter' | 'Substack'
+export type ProfileWebLinkName =
+    | 'websiteURL'
+    | 'mediumURL'
+    | 'twitterURL'
+    | 'substackURL'
 export interface ProfileWebLink {
+    urlPropName: ProfileWebLinkName
+    label: ProfileWebLinkLabel
     url: string
     fileName:
         | 'web-logo.svg'

@@ -12,6 +12,7 @@ import { Margin } from 'styled-components-spacing'
 import { Closable } from '../../../../../common-ui/components/closable'
 import AuthMenu from '../../components/auth-menu'
 import AccountSettings from '../account-settings-dialog'
+import ProfileEditModal from '../profile-edit-modal'
 
 const StyledAuthHeader = styled.div``
 const LoginAction = styled.div`
@@ -76,27 +77,42 @@ export default class AuthHeader extends UIElement<
                             <MenuContainerOuter>
                                 <MenuContainerInner>
                                     <AuthMenu
-                                        onSettingsRequested={() =>
+                                        onSettingsRequested={() => {
+                                            this.processEvent('hideMenu', null)
                                             this.processEvent(
                                                 'showSettings',
                                                 null,
                                             )
-                                        }
+                                        }}
                                         onLogoutRequested={() =>
                                             this.processEvent('logout', null)
                                         }
+                                        onAccountSettingsRequested={() => {
+                                            this.processEvent('hideMenu', null)
+                                            this.processEvent(
+                                                'showAccountSettings',
+                                                null,
+                                            )
+                                        }}
                                     />
                                 </MenuContainerInner>
                             </MenuContainerOuter>
                         </Closable>
                     )}
                 </StyledAuthHeader>
-                {this.state.showSettings && (
-                    <AccountSettings
+                {/* {this.state.showSettings && (
+          <AccountSettings
+            services={this.props.services}
+            storage={this.props.storage}
+            onCloseRequested={() => this.processEvent("hideSettings", null)}
+          />
+        )} */}
+                {this.state.showAccountSettings && (
+                    <ProfileEditModal
                         services={this.props.services}
                         storage={this.props.storage}
                         onCloseRequested={() =>
-                            this.processEvent('hideSettings', null)
+                            this.processEvent('hideAccountSettings', null)
                         }
                     />
                 )}

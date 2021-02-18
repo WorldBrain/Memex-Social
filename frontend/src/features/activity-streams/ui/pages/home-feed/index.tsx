@@ -183,6 +183,7 @@ export default class HomeFeedPage extends UIElement<
             linkId: reference.id as string,
             reference: reference,
             hasThread: hasReplies,
+            createdWhen: annotation.updatedWhen,
             ...pick(annotation, 'comment', 'body'),
         } as SharedAnnotationInPage
     }

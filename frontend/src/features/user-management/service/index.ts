@@ -1,5 +1,4 @@
-import { UserReference } from '@worldbrain/memex-common/lib/web-interface/types/users'
-import { User, UserPublicProfile } from '../types'
+import { User, UserPublicProfile, UserReference } from '../types'
 import { AuthService } from '../../../services/auth/types'
 import UserStorage from '../storage/'
 import UserProfileCache from '../utils/user-profile-cache'
@@ -13,6 +12,13 @@ export default class UserManagementService {
     ) {}
 
     userPublicProfilesCache: { [id: string]: UserPublicProfile } = {}
+
+    private _updateCache(
+        userRef: UserReference,
+        profileData: UserPublicProfile,
+    ) {
+        this.userPublicProfilesCache[userRef.id] = profileData
+    }
 
     /**
      * finds the user public profile for the userId specified returns this from cache if present,
@@ -33,6 +39,45 @@ export default class UserManagementService {
         )
         this.userPublicProfilesCache[userRef.id] = publicProfile
         return publicProfile
+    }
+
+    async createUserPublicProfile(
+        userRef: UserReference,
+        profileData: UserPublicProfile,
+    ): Promise<void> {
+        await this.options.storage.createOrUpdateUserPublicProfile(
+            userRef,
+            { knownStatus: 'new' },
+            profileData,
+        )
+    }
+
+    async updateUserPublicProfile(
+        userRef: UserReference,
+        profileData: UserPublicProfile,
+    ): Promise<void> {
+        try {
+            await this.options.storage.createOrUpdateUserPublicProfile(
+                userRef,
+                { knownStatus: 'exists' },
+                profileData,
+            )
+            this._updateCache(userRef, profileData)
+        } catch (err) {
+            console.log('userStorage.updateUserPublicProfile error')
+            console.error(err)
+        }
+    }
+
+    async updateUserDisplayName(
+        userRef: UserReference,
+        value: string,
+    ): Promise<void> {
+        await this.options.storage.updateUser(
+            userRef,
+            { knownStatus: 'exists' },
+            { displayName: value },
+        )
     }
 
     async loadUserData(userRef: UserReference): Promise<User | null> {

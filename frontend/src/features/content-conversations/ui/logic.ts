@@ -231,7 +231,8 @@ export function annotationConversationEventHandlers<
                                 annotationData.annotation.normalizedPageUrl,
                             pageCreatorReference,
                             reply: { content: conversation.newReply.content },
-                            previousReplyReference: lastReply?.reference,
+                            previousReplyReference:
+                                lastReply?.reference ?? null,
                         },
                     )
                     if (result.status === 'not-authenticated') {
