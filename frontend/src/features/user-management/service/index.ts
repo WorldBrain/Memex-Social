@@ -75,7 +75,7 @@ export default class UserManagementService {
             }
             await this.options.storage.createOrUpdateUserPublicProfile(
                 userRef,
-                { knownStatus: 'exists' },
+                {},
                 profileData,
             )
             this._updateCache(userRef, profileData)
