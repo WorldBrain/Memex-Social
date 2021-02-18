@@ -6,12 +6,8 @@ export type ItemBoxVariant = 'new-item'
 const StyledItemBox = styled.div<{ variant?: ItemBoxVariant }>`
     font-family: ${(props) => props.theme.fonts.primary};
     background: #ffffff;
-    border: ${(props) =>
-        props.variant === 'new-item'
-            ? '3px solid rgba(92, 217, 166, 0.98);'
-            : '1px solid rgba(0, 0, 0, 0.1)'};
     box-sizing: border-box;
-    box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.2);
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 2px 0px;
     border-radius: 5px;
     text-decoration: none;
     width: 100%;

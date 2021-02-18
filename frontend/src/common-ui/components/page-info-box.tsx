@@ -17,7 +17,7 @@ const PageContentBoxBottom = styled.div`
     align-items: center;
     justify-content: space-between;
     border-top: 1px solid #e0e0e0;
-    height: 50px;
+    height: 40px;
     padding: 0px 15px 0px 15px;
 `
 

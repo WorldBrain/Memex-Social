@@ -5,11 +5,15 @@ import {
     CollectionDetailsSignal,
 } from '../../features/content-sharing/ui/pages/collection-details/types'
 import { SharedAnnotationReference } from '@worldbrain/memex-common/lib/content-sharing/types'
+import { WebMonetizationEvents } from '../../features/web-monetization/service/types'
 
 type Targets = {
     CollectionDetailsPage: {
         events: CollectionDetailsEvent
         signals: CollectionDetailsSignal
+    }
+    WebMonetizationIcon: {
+        events: WebMonetizationEvents
     }
 }
 
@@ -708,6 +712,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
     'profile-popup-block-loading': scenario<Targets>(
         ({ step, callModification }) => ({
             fixture: 'annotated-list-with-user',
+            authenticated: true,
             startRoute: {
                 route: 'collectionDetails',
                 params: { id: 'default-list' },
@@ -738,6 +743,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
     'profile-popup-sabotage-loading': scenario<Targets>(
         ({ step, callModification }) => ({
             fixture: 'annotated-list-with-user',
+            authenticated: true,
             startRoute: {
                 route: 'collectionDetails',
                 params: { id: 'default-list' },
@@ -762,6 +768,55 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                         },
                     ],
                 }),
+            ],
+        }),
+    ),
+    'web-monetization-initial-load-error': scenario<Targets>(
+        ({ step, callModification }) => ({
+            fixture: 'annotated-list-with-user-and-follows',
+            authenticated: true,
+            startRoute: {
+                route: 'collectionDetails',
+                params: { id: 'default-list' },
+            },
+            setup: {
+                callModifications: ({ storage }) => [
+                    callModification({
+                        name: 'profile-error',
+                        object: storage.serverModules.users,
+                        property: 'getUserPublicProfile',
+                        modifier: 'sabotage',
+                    }),
+                ],
+            },
+            steps: [
+                step({
+                    name: 'profile-loaded',
+                    callModifications: ({ storage }) => [
+                        {
+                            name: 'profile-error',
+                            modifier: 'undo',
+                        },
+                    ],
+                }),
+            ],
+        }),
+    ),
+    'web-monetization-make-payment': scenario<Targets>(
+        ({ step, callModification }) => ({
+            fixture: 'annotated-list-with-user-and-follows',
+            authenticated: true,
+            startRoute: {
+                route: 'collectionDetails',
+                params: { id: 'default-list' },
+            },
+            steps: [
+                // step({
+                //     name: 'follow-btn-clicked',
+                //     target: 'CollectionDetailsPage',
+                //     eventName: 'clickFollowBtn',
+                //     eventArgs: null,
+                // })
             ],
         }),
     ),

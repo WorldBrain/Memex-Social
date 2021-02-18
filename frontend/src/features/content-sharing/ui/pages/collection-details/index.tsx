@@ -21,6 +21,7 @@ import DefaultPageLayout from '../../../../../common-ui/layouts/default-page-lay
 import PageInfoBox, {
     PageInfoBoxAction,
 } from '../../../../../common-ui/components/page-info-box'
+import ProfilePopupContainer from '../../../../user-management/ui/containers/profile-popup-container'
 import { ViewportBreakpoint } from '../../../../../main-ui/styles/types'
 import LoadingScreen from '../../../../../common-ui/components/loading-screen'
 import { getViewportBreakpoint } from '../../../../../main-ui/styles/utils'
@@ -28,7 +29,6 @@ import AnnotationsInPage from '../../../../annotations/ui/components/annotations
 import ErrorWithAction from '../../../../../common-ui/components/error-with-action'
 import ErrorBox from '../../../../../common-ui/components/error-box'
 import FollowBtn from '../../../../activity-follows/ui/components/follow-btn'
-import ProfilePopupContainer from '../../../../user-management/ui/containers/profile-popup-container'
 import WebMonetizationIcon from '../../../../web-monetization/ui/components/web-monetization-icon'
 const commentImage = require('../../../../../assets/img/comment.svg')
 
@@ -72,7 +72,7 @@ const ToggleAllBox = styled.div<{
   justify-content: flex-end;
   width: 100%;
   position: sticky;
-  top: 35px;
+  top: 50px;
   z-index: 2;
   border-radius: 5px;
   ${(props) =>
@@ -154,6 +154,7 @@ export default class CollectionDetailsPage extends UIElement<
                     services={this.props.services}
                     storage={this.props.storage}
                     curatorUserRef={this.state.listData?.creatorReference}
+                    isCollectionFollowed={this.state.isCollectionFollowed}
                 />
             )
         }

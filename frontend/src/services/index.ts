@@ -23,7 +23,7 @@ import { LimitedWebStorage } from '../utils/web-storage/types'
 import CallModifier from '../utils/call-modifier'
 import { DocumentTitleService } from './document-title'
 import UserManagementService from '../features/user-management/service'
-import WebMonetizationService from '../features/web-monetization/service'
+import FirebaseWebMonetizationService from '../features/web-monetization/service/firebase'
 
 export function createServices(options: {
     backend: BackendType
@@ -110,6 +110,14 @@ export function createServices(options: {
         storage: options.storage.serverModules.users,
         auth,
     })
+    // const webMonetization = options.backend === 'memory' ? new MemoryWebMonetizationService({
+    //     services: { userManagement, auth }
+    // }) : new FirebaseWebMonetizationService({
+    //     services: { userManagement, auth }
+    // })
+    const webMonetization = new FirebaseWebMonetizationService({
+        services: { userManagement, auth },
+    })
     const services: Services = {
         overlay: new OverlayService(),
         logicRegistry,
@@ -142,9 +150,7 @@ export function createServices(options: {
             services: { activityStreams, router },
             auth,
         }),
-        webMonetization: new WebMonetizationService({
-            services: { userManagement, auth },
-        }),
+        webMonetization,
     }
 
     return services

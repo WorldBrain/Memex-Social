@@ -1,6 +1,10 @@
 import { UILogic, UIEventHandler } from '../../../../main-ui/classes/logic'
 import { UITaskState } from '../../../../main-ui/types'
 import {
+    WebMonetizationStartEvent,
+    WebMonetizationStopEvent,
+} from '../../service/types'
+import {
     WebMonetizationButtonDependencies,
     WebMonetizationButtonState,
     WebMonetizationButtonEvent,
@@ -22,6 +26,8 @@ export default abstract class WebMonetizationButtonLogic extends UILogic<
         super()
     }
 
+    curatorPaymentPointer: string | null = ''
+
     getInitialState(): WebMonetizationButtonState {
         return {
             isDisplayed: false,
@@ -33,37 +39,90 @@ export default abstract class WebMonetizationButtonLogic extends UILogic<
     }
 
     init: EventHandler<'init'> = async () => {
+        // ensure curator payment pointer is available
+        try {
+            this.curatorPaymentPointer = await this._getCuratorPaymentPointer()
+        } catch (err) {
+            this._setInitialLoadTaskState('error')
+            return console.error(err)
+        }
+
+        if (!this.curatorPaymentPointer) {
+            return this._setIsDisplayed(false)
+        }
+
+        // attach listeners
+        // this._attachMonetizationListeners()
+        const startListener = (
+            event: CustomEvent<WebMonetizationStartEvent>,
+        ) => {
+            console.log('webmonbut logic startListener triggered')
+            console.log(event)
+            if (event.detail.paymentPointer === this.curatorPaymentPointer) {
+                this._setMakePaymentTaskState('success')
+                this._setPaymentMade(true)
+            }
+        }
+        const stopListener = (event: CustomEvent<WebMonetizationStopEvent>) => {
+            if (event.detail.paymentPointer === this.curatorPaymentPointer) {
+                this.dependencies.services.webMonetization.events.removeAllListeners()
+            }
+        }
+
+        document.monetization.addEventListener(
+            'monetizationstart',
+            startListener,
+        )
+        document.monetization.addEventListener('monetizationstop', stopListener)
+        this.dependencies.services.userManagement.events.addListener(
+            'userProfileChange',
+            () => this._tryDisplayComponent(),
+        )
+
+        // attempt to display component (requires current user to have payment pointer)
         this._tryDisplayComponent()
         this.dependencies.services.userManagement.events.addListener(
             'userProfileChange',
             this._tryDisplayComponent,
         )
+
+        // if user follows collection, initiate payment
+        if (this.dependencies.isCollectionFollowed) {
+            await this._initiatePayment()
+        }
     }
 
     cleanup: EventHandler<'cleanup'> = () => {
         this.dependencies.services.userManagement.events.removeAllListeners()
+        this.dependencies.services.webMonetization.events.removeAllListeners()
     }
 
     makeSupporterPayment: EventHandler<'makeSupporterPayment'> = async () => {
-        console.log('web mon logic makeSupporterPayment event')
+        await this._initiatePayment()
+    }
+
+    private _initiatePayment = async (): Promise<void> => {
         try {
             this._setMakePaymentTaskState('running')
-            const curatorPaymentPointer = await this._getPaymentPointer()
+            // this.dependencies.services.webMonetization.events.removeAllListeners()
+
+            // ensure curator payment pointer is present
+            this.curatorPaymentPointer = await this._getCuratorPaymentPointer()
+            if (!this.curatorPaymentPointer) {
+                throw new Error('Curator does not have web monetization set up')
+            }
+
+            // attach event listeners and trigger payment flow
+            // this._attachMonetizationListeners()
             await this.dependencies.services.webMonetization.initiatePayment(
-                curatorPaymentPointer,
-                (taskState: UITaskState) => {
-                    if (taskState === 'success') {
-                        this._setPaymentMade(true)
-                    }
-                    this._setMakePaymentTaskState(taskState)
-                },
+                this.curatorPaymentPointer,
             )
         } catch (err) {
             this._setMakePaymentTaskState('error')
         }
     }
 
-    private async _tryDisplayComponent(): Promise<void> {
+    private _tryDisplayComponent = async (): Promise<void> => {
         try {
             this._setInitialLoadTaskState('running')
             const shouldDisplay = await this._shouldComponentDisplay()
@@ -76,19 +135,19 @@ export default abstract class WebMonetizationButtonLogic extends UILogic<
         }
     }
 
-    private async _shouldComponentDisplay(): Promise<boolean> {
+    private _shouldComponentDisplay = async (): Promise<boolean> => {
         const currentUserPaymentPointer = await this.dependencies.services.webMonetization.getCurrentUserPaymentPointer()
-        return !!currentUserPaymentPointer
+        return !!currentUserPaymentPointer && !!(document as any).monetization
     }
 
-    private async _getPaymentPointer(): Promise<string> {
+    private _getCuratorPaymentPointer = async (): Promise<string | null> => {
         const paymentPointer = await this.dependencies.services.webMonetization.getUserPaymentPointer(
             this.dependencies.curatorUserRef,
         )
         return paymentPointer
     }
 
-    private async _setIsDisplayed(isDisplayed: boolean): Promise<void> {
+    private _setIsDisplayed(isDisplayed: boolean): void {
         this.emitMutation({
             isDisplayed: { $set: isDisplayed },
         })

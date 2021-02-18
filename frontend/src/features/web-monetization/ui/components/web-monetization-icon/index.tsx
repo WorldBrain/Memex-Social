@@ -2,6 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import Icon from '../../../../../common-ui/components/icon'
 import { UIElement } from '../../../../../main-ui/classes'
+
 import Logic from './logic'
 import {
     WebMonetizationButtonDependencies,
@@ -13,6 +14,18 @@ import LoadingScreen from '../../../../../common-ui/components/loading-screen'
 
 const Container = styled.div`
     margin-left: auto;
+    margin-right: 10px;
+`
+
+const IconContainer = styled.div<{ iconHeight: string }>`
+    height: ${(props) => props.iconHeight};
+    width: ${(props) => props.iconHeight};
+`
+
+const StyledIcon = styled(Icon)<{
+    isClickable: boolean
+}>`
+    ${(props) => !props.isClickable && `cursor: auto`}
 `
 
 type WebMonetizationIconDependencies = WebMonetizationButtonDependencies
@@ -24,7 +37,7 @@ export default class WebMonetizationIcon extends UIElement<
     WebMonetizationIconState,
     WebMonetizationIconEvent
 > {
-    private iconHeight = '40px'
+    private iconHeight = '34px'
 
     constructor(props: WebMonetizationIconDependencies) {
         super(props, { logic: new Logic(props) })
@@ -32,6 +45,32 @@ export default class WebMonetizationIcon extends UIElement<
 
     handleClick: React.MouseEventHandler = () => {
         this.processEvent('makeSupporterPayment', null)
+    }
+
+    renderIcon() {
+        return (
+            <IconContainer iconHeight={this.iconHeight}>
+                {this.state.makePaymentTaskState === 'running' && (
+                    <LoadingScreen />
+                )}
+                {this.state.makePaymentTaskState === 'error' && (
+                    <span>Whoops! Error!</span>
+                )}
+                {(this.state.makePaymentTaskState === 'pristine' ||
+                    this.state.makePaymentTaskState === 'success') && (
+                    <StyledIcon
+                        onClick={
+                            this.state.paymentMade ? () => {} : this.handleClick
+                        }
+                        height={this.iconHeight}
+                        isClickable={!this.state.paymentMade}
+                        fileName={`web-monetization-logo${
+                            this.state.paymentMade ? '-confirmed' : ''
+                        }.svg`}
+                    />
+                )}
+            </IconContainer>
+        )
     }
 
     render() {
@@ -48,22 +87,7 @@ export default class WebMonetizationIcon extends UIElement<
                             storage={this.props.storage}
                             userRef={this.props.curatorUserRef}
                         >
-                            {(this.state.makePaymentTaskState === 'pristine' ||
-                                this.state.makePaymentTaskState ===
-                                    'success') && (
-                                <Icon
-                                    onClick={this.handleClick}
-                                    height={this.iconHeight}
-                                    fileName={`web-monetization-logo${
-                                        this.state.paymentMade
-                                            ? '-confirmed'
-                                            : ''
-                                    }.svg`}
-                                />
-                            )}
-                            {this.state.makePaymentTaskState === 'error' && (
-                                <span>Whoops! Error!</span>
-                            )}
+                            {this.renderIcon()}
                         </CuratorSupportPopupContainer>
                     )}
             </Container>

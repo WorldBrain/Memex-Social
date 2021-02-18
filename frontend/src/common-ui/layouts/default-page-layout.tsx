@@ -37,25 +37,20 @@ const StyledHeader = styled.div<{
     align-items: center;
     height: 50px;
     box-shadow: #101e7308 0 4px 16px;
-
-    ${(props) =>
-        props.viewportWidth === 'small' &&
-        css`
-            height: 70px;
-        `}
-
-    ${(props) =>
-        props.viewportWidth === 'mobile' &&
-        css`
-            height: 60px;
-        `}
 `
 
-const LogoAndFeed = styled.div<{
+const LogoAndFeed = styled(Margin)<{
     viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
 }>`
     display: flex;
     flex: 1;
+    align-items: center;
+
+    ${(props) =>
+        (props.viewportWidth === 'small' || props.viewportWidth === 'mobile') &&
+        css`
+            padding-right: 30px;
+        `}
 `
 
 const HeaderLogoArea = styled.div<{
@@ -171,10 +166,6 @@ const HeaderTitle = styled.div<{
 const HeaderSubtitle = styled.div<{
     viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
 }>`
-    margin-left: ${(props) =>
-        props.viewportWidth === 'small' || props.viewportWidth === 'mobile'
-            ? '0px'
-            : '10px'};
     font-weight: 500;
     margin-top: 1px;
     font-size: 14px;
@@ -252,9 +243,28 @@ const PageMiddleAreaTopBox = styled(Margin)<{
         props.viewportWidth === 'mobile' ? 'column' : 'row'}; ;
 `
 
+const BetaFlag = styled.div`
+    color: ${(props) => props.theme.colors.primary};
+    font-size: 12px;
+    font-family: ${(props) => props.theme.fonts.primary};
+    border-radius: 3px;
+    width: 54px;
+    height: 20px;
+    display: flex;
+    background-color: ${(props) => props.theme.colors.secondary};
+    justify-content: center;
+    align-items: center;
+    font-weight: 600;
+`
+
 export default function DefaultPageLayout(props: {
     services: UIElementServices<
-        'auth' | 'overlay' | 'router' | 'activityStreams' | 'userManagement'
+        | 'auth'
+        | 'overlay'
+        | 'router'
+        | 'activityStreams'
+        | 'userManagement'
+        | 'webMonetization'
     >
     storage: Pick<StorageModules, 'users' | 'activityStreams'>
     headerTitle?: string
@@ -307,7 +317,7 @@ export default function DefaultPageLayout(props: {
         }
 
         return (
-            <FeedArea horizontal="medium">
+            <FeedArea>
                 <FeedLink
                     services={props.services}
                     route="homeFeed"
