@@ -25,7 +25,7 @@ export const PopupContainer = styled.div<{ theme: Theme }>`
     font-family: ${(props) => props.theme.fonts.primary};
     color: ${(props) => props.theme.colors.primary};
     background-color: ${(props) => props.theme.colors.background};
-    padding: 12px;
+    padding: 15px;
     border-radius: ${(props) => props.theme.borderRadii.default};
     z-index: ${(props) => props.theme.zIndices.overlay};
     box-shadow: 0px 2.21787px 3.69646px 1.47858px rgba(0, 0, 0, 0.2);
@@ -76,6 +76,7 @@ const ProfileBio = styled.div<{ theme: Theme }>`
     height: min-content;
     font-size: ${(props) => props.theme.fontSizes.text};
     line-height: ${(props) => props.theme.lineHeights.text};
+    text-align: left;
 `
 
 interface ProfilePopupProps {
@@ -139,19 +140,21 @@ export default class ProfilePopup extends PureComponent<ProfilePopupProps> {
                                     </ProfileHeaderInnerContainer>
                                 </Padding>
                             </ProfileHeader>
-                            <Margin vertical={'small'}>
-                                <ProfileBio theme={theme}>
-                                    {userPublicProfile?.bio}
-                                </ProfileBio>
-                            </Margin>
+                            {userPublicProfile?.bio && (
+                                <Margin top={'small'}>
+                                    <ProfileBio theme={theme}>
+                                        {userPublicProfile?.bio}
+                                    </ProfileBio>
+                                </Margin>
+                            )}
                         </ProfileContainer>
-                        {props.userRef && userPublicProfile?.paymentPointer && (
+                        {/*{props.userRef && userPublicProfile?.paymentPointer && (
                             <CuratorSupportButtonBlock
                                 services={props.services}
                                 storage={props.storage}
                                 curatorUserRef={props.userRef}
                             />
-                        )}
+                        )}*/}
                     </>
                 )}
             </PopupContainer>
