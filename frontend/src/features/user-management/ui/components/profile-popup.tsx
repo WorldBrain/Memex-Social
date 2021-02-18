@@ -123,16 +123,18 @@ export default class ProfilePopup extends PureComponent<ProfilePopupProps> {
                                                         { url, fileName },
                                                         index,
                                                     ) => (
-                                                        <Icon
-                                                            key={index}
-                                                            fileName={fileName}
-                                                            height="18px"
-                                                            onClick={() =>
-                                                                this.handleWebLinkClick(
-                                                                    url,
-                                                                )
-                                                            }
-                                                        />
+                                                        <Margin right="small">
+                                                            <Icon
+                                                                key={index}
+                                                                fileName={fileName}
+                                                                height="18px"
+                                                                onClick={() =>
+                                                                    this.handleWebLinkClick(
+                                                                        url,
+                                                                    )
+                                                                }
+                                                            />
+                                                        </Margin>
                                                     ),
                                                 )}
                                             </WebLinksContainer>

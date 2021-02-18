@@ -147,7 +147,6 @@ const HeaderTitle = styled.div<{
     font-family: ${(props) => props.theme.fonts.primary};
     font-size: 16px;
     overflow-wrap: break-word;
-    white-space: nowrap;
     max-width: ${(props) =>
         props.viewportWidth === 'small' || props.viewportWidth === 'mobile'
             ? '100%'
@@ -362,7 +361,7 @@ export default function DefaultPageLayout(props: {
         <MainContainer>
             {renderListsSidebar()}
             <StyledHeader viewportWidth={viewportWidth}>
-                {props.listsSidebarProps && props.onSidebarToggle && (
+                {props.listsSidebarProps && (
                     <ListsSidebarToggle
                         viewportWidth={viewportWidth}
                         isShown={props.listsSidebarProps.isShown}
