@@ -406,8 +406,8 @@ export default function DefaultPageLayout(props: {
                             })}
                     </PageMidleAreaTitles>
                     <PageMidleAreaAction>
-                        {props.followBtn && props.followBtn}
                         {props.webMonetizationIcon && props.webMonetizationIcon}
+                        {props.followBtn && props.followBtn}
                     </PageMidleAreaAction>
                 </PageMiddleAreaTopBox>
                 {props.children}
