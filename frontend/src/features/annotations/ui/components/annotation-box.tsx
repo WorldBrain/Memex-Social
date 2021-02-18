@@ -47,7 +47,6 @@ const AnnotationComment = styled.div`
     font-size: 14px;
     color: ${(props) => props.theme.colors.primary};
     padding: 10px 15px;
-    border-top: 0.5px solid #e0e0e0;
 
     & *:first-child {
         margin-top: 0;
@@ -56,6 +55,10 @@ const AnnotationComment = styled.div`
     & *:last-child {
         margin-bottom: 0;
     }
+`
+
+const Separator = styled.div`
+  border-top: 0.5px solid #e0e0e0;
 `
 
 const AnnotationTopBox = styled.div`
@@ -106,7 +109,7 @@ export default function AnnotationBox(props: AnnotationBoxProps) {
                     )}
                     {annotation.body && annotation.comment && (
                         <Margin top="small">
-                            <div />
+                            <Separator/>
                         </Margin>
                     )}
                     {annotation.comment && (
