@@ -361,14 +361,14 @@ export default function DefaultPageLayout(props: {
         <MainContainer>
             {renderListsSidebar()}
             <StyledHeader viewportWidth={viewportWidth}>
-                {props.listsSidebarProps && props.onSidebarToggle && (
+                <LogoAndFeed viewportWidth={viewportWidth}>
+                {props.listsSidebarProps && (
                     <ListsSidebarToggle
                         viewportWidth={viewportWidth}
                         isShown={props.listsSidebarProps.isShown}
                         onToggle={props.onSidebarToggle}
                     />
                 )}
-                <LogoAndFeed viewportWidth={viewportWidth}>
                     <HeaderLogoArea
                         onClick={() => window.open('https://getmemex.com')}
                         viewportWidth={viewportWidth}
