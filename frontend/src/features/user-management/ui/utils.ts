@@ -2,8 +2,11 @@ import { UserPublicProfile } from '@worldbrain/memex-common/ts/web-interface/typ
 import { ProfileWebLink } from '../types'
 
 export function getProfileLinks(
-    profileData: UserPublicProfile,
+    profileData: UserPublicProfile | null,
 ): ProfileWebLink[] {
+    if (!profileData) {
+        return []
+    }
     const { websiteURL, mediumURL, twitterURL, substackURL } = profileData
     const arr: ProfileWebLink[] = []
     if (websiteURL) {
