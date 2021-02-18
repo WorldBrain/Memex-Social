@@ -71,11 +71,14 @@ const WebLinksContainer = styled.div`
     padding-top: 10px;
 `
 
-const ProfileBio = styled.div<{ theme: Theme }>`
+const ProfileBio = styled(Margin)<{ theme: Theme }>`
     width: 100%;
     height: min-content;
     font-size: ${(props) => props.theme.fontSizes.text};
     line-height: ${(props) => props.theme.lineHeights.text};
+    display: block;
+    justify-content: flex-start;
+    float: left;
     text-align: left;
 `
 
@@ -141,11 +144,9 @@ export default class ProfilePopup extends PureComponent<ProfilePopupProps> {
                                 </Padding>
                             </ProfileHeader>
                             {userPublicProfile?.bio && (
-                                <Margin top={'small'}>
-                                    <ProfileBio theme={theme}>
+                                    <ProfileBio top={'small'} theme={theme}>
                                         {userPublicProfile?.bio}
                                     </ProfileBio>
-                                </Margin>
                             )}
                         </ProfileContainer>
                         {/*{props.userRef && userPublicProfile?.paymentPointer && (
