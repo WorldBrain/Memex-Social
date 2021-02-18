@@ -108,9 +108,7 @@ export default function AnnotationBox(props: AnnotationBoxProps) {
                       </HighlightBox>
                     )}
                     {annotation.body && annotation.comment && (
-                        <Margin top="small">
                             <Separator/>
-                        </Margin>
                     )}
                     {annotation.comment && (
                     <Margin>
