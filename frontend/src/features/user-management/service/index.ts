@@ -2,6 +2,12 @@ import { User, UserPublicProfile, UserReference } from '../types'
 import { AuthService } from '../../../services/auth/types'
 import UserStorage from '../storage/'
 import UserProfileCache from '../utils/user-profile-cache'
+import TypedEventEmitter from 'typed-emitter'
+import { EventEmitter } from 'events'
+
+interface UserManagementEvents {
+    userProfileChange(): void
+}
 
 export default class UserManagementService {
     constructor(
@@ -11,6 +17,7 @@ export default class UserManagementService {
         },
     ) {}
 
+    events: TypedEventEmitter<UserManagementEvents> = new EventEmitter()
     userPublicProfilesCache: { [id: string]: UserPublicProfile } = {}
 
     private _updateCache(
@@ -52,17 +59,27 @@ export default class UserManagementService {
         )
     }
 
+    /**
+     * This method takes a param profileData and updates collections.userPublicProfile
+     * for the current user with this object
+     * @param profileData Object of type UserPublicProfile with updated profile data
+     */
     async updateUserPublicProfile(
-        userRef: UserReference,
         profileData: UserPublicProfile,
     ): Promise<void> {
         try {
+            const userRef = await this.options.auth.getCurrentUserReference()
+            if (!userRef) {
+                console.error('Please login')
+                return
+            }
             await this.options.storage.createOrUpdateUserPublicProfile(
                 userRef,
                 { knownStatus: 'exists' },
                 profileData,
             )
             this._updateCache(userRef, profileData)
+            this.events.emit('userProfileChange')
         } catch (err) {
             console.log('userStorage.updateUserPublicProfile error')
             console.error(err)

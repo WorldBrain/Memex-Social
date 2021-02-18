@@ -29,6 +29,7 @@ import ErrorWithAction from '../../../../../common-ui/components/error-with-acti
 import ErrorBox from '../../../../../common-ui/components/error-box'
 import FollowBtn from '../../../../activity-follows/ui/components/follow-btn'
 import ProfilePopupContainer from '../../../../user-management/ui/containers/profile-popup-container'
+import WebMonetizationIcon from '../../../../web-monetization/ui/components/web-monetization-icon'
 const commentImage = require('../../../../../assets/img/comment.svg')
 
 const DocumentView = styled.div`
@@ -146,12 +147,23 @@ export default class CollectionDetailsPage extends UIElement<
         )
     }
 
+    renderWebMonetizationIcon() {
+        if (this.state.listData?.creatorReference) {
+            return (
+                <WebMonetizationIcon
+                    services={this.props.services}
+                    storage={this.props.storage}
+                    curatorUserRef={this.state.listData?.creatorReference}
+                />
+            )
+        }
+    }
+
     getPageEntryActions(
         entry: SharedListEntry,
     ): Array<PageInfoBoxAction> | undefined {
         const { state } = this
         const annotationEntries = this.state.annotationEntryData
-
         if (
             state.annotationEntriesLoadState === 'pristine' ||
             state.annotationEntriesLoadState === 'running'
@@ -340,6 +352,7 @@ export default class CollectionDetailsPage extends UIElement<
                         </ProfilePopupContainer>
                     )}
                     followBtn={this.renderFollowBtn()}
+                    webMonetizationIcon={this.renderWebMonetizationIcon()}
                     listsSidebarProps={{
                         isShown: this.state.isListSidebarShown,
                         followedLists: this.state.followedLists,

@@ -6,14 +6,14 @@ import { UITaskState } from '../../../../../main-ui/types'
 import { theme } from '../../../../../main-ui/styles/theme'
 import { Theme } from '../../../../../main-ui/styles/types'
 
-import {
-    CuratorSupportButtonBlockEvent,
-    CuratorSupportButtonBlockState,
-    CuratorSupportButtonBlockDependencies,
-} from './types'
 import CuratorSupportButtonBlockLogic from './logic'
 
 import LoadingScreen from '../../../../../common-ui/components/loading-screen'
+import {
+    WebMonetizationButtonDependencies,
+    WebMonetizationButtonState,
+    WebMonetizationButtonEvent,
+} from '../../../logic/buttons/types'
 
 const Container = styled.div`
     display: flex;
@@ -71,12 +71,13 @@ const BoldText = styled(ButtonInnerText)`
     font-weight: 700;
 `
 
-const Link = styled.a<{ theme: Theme }>`
+const Link = styled.div<{ theme: Theme }>`
     ${(props) => `font-size: ${props.theme.fontSizes.text};`}
     ${(props) => `line-height: ${props.theme.lineHeights.text};`}
     text-decoration: underline;
     ${(props) => `margin-left: ${props.theme.spacing.medium};`}
     color: ${(props) => props.theme.colors.primary};
+    cursor: pointer;
 `
 
 const ErrorMessage = styled.div<{ theme: Theme }>`
@@ -89,6 +90,10 @@ const ErrorMessage = styled.div<{ theme: Theme }>`
     align-items: center;
 `
 
+type CuratorSupportButtonBlockDependencies = WebMonetizationButtonDependencies
+type CuratorSupportButtonBlockState = WebMonetizationButtonState
+type CuratorSupportButtonBlockEvent = WebMonetizationButtonEvent
+
 export class CuratorSupportButtonBlock extends UIElement<
     CuratorSupportButtonBlockDependencies,
     CuratorSupportButtonBlockState,
@@ -99,7 +104,12 @@ export class CuratorSupportButtonBlock extends UIElement<
     }
 
     handleButtonClick: React.MouseEventHandler = () => {
-        this.processEvent('toggleSupporterRelationship', null)
+        this.processEvent('makeSupporterPayment', null)
+    }
+
+    handleWebLinkClick = (url: string): void => {
+        const newWindow = window.open(url, '_blank', 'noopener,noreferrer')
+        if (newWindow) newWindow.opener = null
     }
 
     renderErrorScreen() {
@@ -121,18 +131,17 @@ export class CuratorSupportButtonBlock extends UIElement<
     }
 
     renderButtonInnerHTML() {
-        const { toggleRelationshipTaskState } = this.state
-        if (toggleRelationshipTaskState === 'running') {
+        const { makePaymentTaskState } = this.state
+        if (makePaymentTaskState === 'running') {
             return <LoadingScreen />
         }
         return (
             <ButtonInnerText>
-                {toggleRelationshipTaskState === 'pristine' &&
-                    'Support Curator'}
-                {toggleRelationshipTaskState === 'success' && (
+                {makePaymentTaskState === 'pristine' && 'Support Curator'}
+                {makePaymentTaskState === 'success' && (
                     <BoldText>Supported</BoldText>
                 )}
-                {toggleRelationshipTaskState === 'error' && (
+                {makePaymentTaskState === 'error' && (
                     <div>
                         Error processing payment. <BoldText>Try again</BoldText>
                     </div>
@@ -141,46 +150,38 @@ export class CuratorSupportButtonBlock extends UIElement<
         )
     }
 
-    renderButtonBlock() {
-        const {
-            supporterRelationshipExists,
-            toggleRelationshipTaskState,
-        } = this.state
+    render() {
+        const { paymentMade, makePaymentTaskState, isDisplayed } = this.state
         return (
             <Container>
-                <Button
-                    onClick={this.handleButtonClick}
-                    isSupported={supporterRelationshipExists}
-                    supportedTaskState={toggleRelationshipTaskState}
-                    theme={theme}
-                >
-                    {/*<Icon theme={theme} />*/}
-                    {this.renderButtonInnerHTML()}
-                </Button>
-                <Link
-                    href={
-                        toggleRelationshipTaskState === 'error'
-                            ? 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
-                            : 'https://www.youtube.com/watch?v=at_f98qOGY0'
-                    }
-                    theme={theme}
-                >
-                    {toggleRelationshipTaskState === 'error'
-                        ? 'Help>>'
-                        : 'Learn More>>'}
-                </Link>
+                {isDisplayed && (
+                    <>
+                        <Button
+                            onClick={this.handleButtonClick}
+                            isSupported={paymentMade}
+                            supportedTaskState={makePaymentTaskState}
+                            theme={theme}
+                        >
+                            {this.renderButtonInnerHTML()}
+                        </Button>
+                        <Link
+                            onClick={() =>
+                                this.handleWebLinkClick(
+                                    makePaymentTaskState === 'error'
+                                        ? 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
+                                        : 'https://www.youtube.com/watch?v=at_f98qOGY0',
+                                )
+                            }
+                            theme={theme}
+                        >
+                            {makePaymentTaskState === 'error'
+                                ? 'Help>>'
+                                : 'Learn More>>'}
+                        </Link>
+                    </>
+                )}
             </Container>
         )
-    }
-
-    render() {
-        if (this.state.initialLoadTaskState === 'running') {
-            return this.renderLoadingSceen()
-        } else if (this.state.initialLoadTaskState === 'error') {
-            return this.renderErrorScreen()
-        } else {
-            return this.renderButtonBlock()
-        }
     }
 }
 

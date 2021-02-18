@@ -2,19 +2,24 @@ import React from 'react'
 import styled from 'styled-components'
 
 import { UIElement } from '../../../../../main-ui/classes'
-import CuratorSupportPopupContainerLogic, {
-    CuratorSupportPopupContainerDependencies,
-    CuratorSupportPopupContainerState,
-    CuratorSupportPopupContainerEvent,
-} from './logic'
+import CuratorSupportPopupContainerLogic from './logic'
+import {
+    ProfilePopupContainerDependencies,
+    ProfilePopupContainerState,
+    ProfilePopupContainerEvent,
+} from '../profile-popup-container/types'
 
 import CuratorSupportPopup from '../../components/curator-support-popup'
 
 const Container = styled.div`
-    height: 'min-content';
-    width: 'min-content';
+    height: min-content;
+    width: min-content;
     position: relative;
 `
+
+export type CuratorSupportPopupContainerDependencies = ProfilePopupContainerDependencies
+export type CuratorSupportPopupContainerState = ProfilePopupContainerState
+export type CuratorSupportPopupContainerEvent = ProfilePopupContainerEvent
 
 export default class CuratorSupportPopupContainer extends UIElement<
     CuratorSupportPopupContainerDependencies,
@@ -35,23 +40,24 @@ export default class CuratorSupportPopupContainer extends UIElement<
 
     render() {
         const { loadState, userPublicProfile } = this.state
+        const { props, state } = this
         return (
             <>
                 <Container
-                    onMouseEnter={this.handleMouseEnter}
-                    onMouseLeave={this.handleMouseLeave}
+                    onMouseEnter={() => this.handleMouseEnter()}
+                    onMouseLeave={() => this.handleMouseLeave()}
                 >
-                    {this.props.children}
+                    {state.isDisplayed &&
+                        userPublicProfile?.paymentPointer &&
+                        props.userRef && (
+                            <CuratorSupportPopup
+                                taskState={loadState}
+                                curatorUserRef={props.userRef}
+                                services={props.services}
+                                storage={props.storage}
+                            />
+                        )}
                 </Container>
-                {this.state.isDisplayed &&
-                    userPublicProfile?.paymentPointer && (
-                        <CuratorSupportPopup
-                            taskState={loadState}
-                            paymentPointer={userPublicProfile.paymentPointer}
-                            services={this.props.services}
-                            storage={this.props.storage}
-                        />
-                    )}
             </>
         )
     }

@@ -260,6 +260,7 @@ export default function DefaultPageLayout(props: {
     headerTitle?: string
     headerSubtitle?: string | null
     followBtn?: JSX.Element
+    webMonetizationIcon?: JSX.Element
     hideActivityIndicator?: boolean
     listsSidebarProps?: Omit<ListsSidebarProps, 'services'>
     renderSubtitle?: (props: { children: React.ReactNode }) => React.ReactNode
@@ -396,6 +397,7 @@ export default function DefaultPageLayout(props: {
                     </PageMidleAreaTitles>
                     <PageMidleAreaAction>
                         {props.followBtn && props.followBtn}
+                        {props.webMonetizationIcon && props.webMonetizationIcon}
                     </PageMidleAreaAction>
                 </PageMiddleAreaTopBox>
                 {props.children}

@@ -20,7 +20,6 @@ import {
 import TextInput from '../../../../../common-ui/components/text-input'
 import { VALID_URL_TEST } from '../../../../../constants'
 import TextArea from '../../../../../common-ui/components/text-area'
-import Icon from '../../../../../common-ui/components/icon'
 import Overlay from '../../../../../main-ui/containers/overlay'
 import { UITaskState } from '../../../../../main-ui/types'
 
@@ -80,29 +79,29 @@ const FormColumn = styled.div<{
     width: 100%;
 `
 
-const LargeUserAvatar = styled.div<{ path: string }>`
-    height: 100px;
-    width: 100px;
-    border-radius: 50px;
-    background-position: center;
-    background-size: contain;
-    background: url(${(props) => props.path});
-`
+// const LargeUserAvatar = styled.div<{ path: string }>`
+//     height: 100px;
+//     width: 100px;
+//     border-radius: 50px;
+//     background-position: center;
+//     background-size: contain;
+//     background: url(${(props) => props.path});
+// `
 
-const AvatarPlaceholder = styled.div<{ theme: Theme }>`
-    height: 100px;
-    width: 100px;
-    border-radius: 50px;
-    background: ${(props) => props.theme.colors.grey};
-    display: flex;
-    justify-content: center;
-    align-items: center;
-`
+// const AvatarPlaceholder = styled.div<{ theme: Theme }>`
+//     height: 100px;
+//     width: 100px;
+//     border-radius: 50px;
+//     background: ${(props) => props.theme.colors.grey};
+//     display: flex;
+//     justify-content: center;
+//     align-items: center;
+// `
 
-const CameraIcon = styled(Icon)`
-    background-position: center;
-    background-size: contain;
-`
+// const CameraIcon = styled(Icon)`
+//     background-position: center;
+//     background-size: contain;
+// `
 
 const StyledPrimaryButton = styled(PrimaryActionButton)<{
     theme: Theme
@@ -154,7 +153,7 @@ export default class ProfileEditModal extends UIElement<
             }
         })
         this.processEvent('saveProfile', {
-            profileData: this.state.userPublicProfile,
+            profileData: this.state.userPublicProfile!,
             displayName: this.state.user?.displayName ?? '',
         })
     }
@@ -162,10 +161,10 @@ export default class ProfileEditModal extends UIElement<
     runAllTests() {
         const newArray = []
         newArray[0] = this.testDisplayName()
-        this.state.webLinksArray.forEach(
+        this.state.profileLinks?.forEach?.(
             (val, idx) =>
                 (newArray[idx + 1] = this.testValidURL(
-                    this.state.userPublicProfile[val.urlPropName],
+                    this.state.userPublicProfile![val.urlPropName],
                 )),
         )
         this.processEvent('setErrorArray', { newArray })
@@ -269,7 +268,9 @@ export default class ProfileEditModal extends UIElement<
                                 <TextArea
                                     label="Bio"
                                     rows={5}
-                                    value={this.state.userPublicProfile.bio}
+                                    value={
+                                        this.state.userPublicProfile?.bio ?? ''
+                                    }
                                     onChange={(evt) =>
                                         this.handleSetProfileValue(
                                             'bio',
@@ -278,14 +279,14 @@ export default class ProfileEditModal extends UIElement<
                                     }
                                 />
                             </Margin>
-                            {this.state.webLinksArray.map((linkObj, idx) => (
+                            {this.state.profileLinks.map((linkObj, idx) => (
                                 <TextInput
                                     key={idx}
                                     label={linkObj.label}
                                     value={
-                                        this.state.userPublicProfile[
+                                        this.state.userPublicProfile?.[
                                             linkObj.urlPropName
-                                        ]
+                                        ] ?? ''
                                     }
                                     onChange={(evt) =>
                                         this.handleURLChange(
@@ -345,7 +346,8 @@ export default class ProfileEditModal extends UIElement<
                             <TextInput
                                 label=""
                                 value={
-                                    this.state.userPublicProfile.paymentPointer
+                                    this.state.userPublicProfile
+                                        ?.paymentPointer ?? ''
                                 }
                                 onChange={(evt) =>
                                     this.handleSetProfileValue(

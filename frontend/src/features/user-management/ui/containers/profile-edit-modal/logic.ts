@@ -75,20 +75,20 @@ export default class ProfileEditModalLogic extends UILogic<
 
     saveProfile: EventHandler<'saveProfile'> = async ({ event }) => {
         this._setSavingTaskState('running')
-        if (!this.userRef) {
-            try {
-                await this._setCurrentUserReference()
-            } catch (err) {
-                this._setSavingTaskState('error')
-            }
-        }
-        if (!this.userRef) {
-            return this._setSavingTaskState('error')
-        }
+        // if (!this.userRef) {
+        //     try {
+        //         await this._setCurrentUserReference()
+        //     } catch (err) {
+        //         this._setSavingTaskState('error')
+        //     }
+        // }
+        // if (!this.userRef) {
+        //     return this._setSavingTaskState('error')
+        // }
         try {
             await Promise.all([
                 this.dependencies.services.userManagement.updateUserPublicProfile(
-                    this.userRef,
+                    // this.userRef,
                     event.profileData,
                 ),
                 this._saveDisplayName(event.displayName),

@@ -11,7 +11,6 @@ import UserAvatar from '../../../../../common-ui/components/user-avatar'
 import { Margin } from 'styled-components-spacing'
 import { Closable } from '../../../../../common-ui/components/closable'
 import AuthMenu from '../../components/auth-menu'
-import AccountSettings from '../account-settings-dialog'
 import ProfileEditModal from '../profile-edit-modal'
 
 const StyledAuthHeader = styled.div``

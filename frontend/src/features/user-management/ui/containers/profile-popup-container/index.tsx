@@ -47,6 +47,7 @@ export default class ProfilePopupContainer extends UIElement<
         return (
             <ProfilePopup
                 user={user}
+                userRef={this.props.userRef}
                 taskState={profileTaskState}
                 userPublicProfile={userPublicProfile}
                 services={services}

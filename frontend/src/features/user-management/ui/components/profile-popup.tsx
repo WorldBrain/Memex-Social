@@ -3,14 +3,19 @@ import styled from 'styled-components'
 import { Margin, Padding } from 'styled-components-spacing'
 
 import { Theme } from '../../../../main-ui/styles/types'
-import { ProfileWebLink, User, UserPublicProfile } from '../../types'
+import {
+    ProfileWebLink,
+    User,
+    UserPublicProfile,
+    UserReference,
+} from '../../types'
 import { UITaskState } from '../../../../main-ui/types'
 
 import { theme } from '../../../../main-ui/styles/theme'
 import LoadingScreen from '../../../../common-ui/components/loading-screen'
 import { StorageModules } from '../../../../storage/types'
 import { UIElementServices } from '../../../../main-ui/classes'
-import CuratorSupportButtonBlock from './curator-support-button-block'
+import CuratorSupportButtonBlock from '../../../web-monetization/ui/containers/curator-support-button-block'
 import Icon from '../../../../common-ui/components/icon'
 
 export const PopupContainer = styled.div<{ theme: Theme }>`
@@ -75,7 +80,8 @@ const ProfileBio = styled.div<{ theme: Theme }>`
 
 interface ProfilePopupProps {
     user: User
-    services: UIElementServices<'userManagement'>
+    userRef: UserReference | null
+    services: UIElementServices<'userManagement' | 'webMonetization'>
     storage: Pick<StorageModules, 'users'>
     taskState: UITaskState
     userPublicProfile: UserPublicProfile | null
@@ -139,13 +145,11 @@ export default class ProfilePopup extends PureComponent<ProfilePopupProps> {
                                 </ProfileBio>
                             </Margin>
                         </ProfileContainer>
-                        {userPublicProfile?.paymentPointer && (
+                        {props.userRef && userPublicProfile?.paymentPointer && (
                             <CuratorSupportButtonBlock
                                 services={props.services}
                                 storage={props.storage}
-                                paymentPointer={
-                                    userPublicProfile.paymentPointer
-                                }
+                                curatorUserRef={props.userRef}
                             />
                         )}
                     </>
