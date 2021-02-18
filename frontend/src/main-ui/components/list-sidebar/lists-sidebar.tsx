@@ -8,6 +8,7 @@ import { UITaskState } from '../../types'
 import LoadingIndicator from '../../../common-ui/components/loading-indicator'
 import RouteLink from '../../../common-ui/components/route-link'
 import { Services } from '../../../services/types'
+import { SidebarToggleProps } from '../sidebar-toggle/types'
 
 const Container = styled.div`
     position: fixed;

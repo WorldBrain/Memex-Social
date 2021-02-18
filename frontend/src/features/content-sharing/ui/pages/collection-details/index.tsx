@@ -292,6 +292,7 @@ export default class CollectionDetailsPage extends UIElement<
                             followedLists: this.state.followedLists,
                             loadState: this.state.listSidebarLoadState,
                         }}
+                        onSidebarToggle={this.state.onListSidebarToggle}
                     >
                         <ErrorWithAction errorType="internal-error">
                             Error loading this collection. <br /> Reload page to

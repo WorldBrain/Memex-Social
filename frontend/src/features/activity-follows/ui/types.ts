@@ -8,6 +8,7 @@ import { UIEventHandler } from '../../../main-ui/classes/logic'
 export interface ActivityFollowsState {
     followedLists: Array<SharedList & { reference: SharedListReference }>
     isListSidebarShown: boolean
+    onListSidebarToggle: (newShownValue: boolean) => void
     listSidebarLoadState: UITaskState
 }
 

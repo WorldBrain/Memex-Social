@@ -73,6 +73,7 @@ export default class PageDetailsPage extends UIElement<
                         followedLists: state.followedLists,
                         loadState: state.listSidebarLoadState,
                     }}
+                    onSidebarToggle={this.state.onListSidebarToggle}
                 >
                     <DocumentTitle
                         documentTitle={this.props.services.documentTitle}
@@ -115,6 +116,7 @@ export default class PageDetailsPage extends UIElement<
                         followedLists: state.followedLists,
                         loadState: state.listSidebarLoadState,
                     }}
+                    onSidebarToggle={this.state.onListSidebarToggle}
                 >
                     <DocumentTitle
                         documentTitle={this.props.services.documentTitle}
@@ -162,6 +164,7 @@ export default class PageDetailsPage extends UIElement<
                         followedLists: state.followedLists,
                         loadState: state.listSidebarLoadState,
                     }}
+                    onSidebarToggle={this.state.onListSidebarToggle}
                 >
                     <PageInfoList>
                         <Margin bottom={'small'}>
