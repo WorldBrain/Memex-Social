@@ -147,7 +147,6 @@ const HeaderTitle = styled.div<{
     font-family: ${(props) => props.theme.fonts.primary};
     font-size: 16px;
     overflow-wrap: break-word;
-    white-space: nowrap;
     max-width: ${(props) =>
         props.viewportWidth === 'small' || props.viewportWidth === 'mobile'
             ? '100%'

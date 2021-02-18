@@ -9,10 +9,14 @@ const Container = styled(Margin)<{
     viewportWidth: ViewportBreakpoint
     isSidebarDisplayed: boolean
 }>`
+<<<<<<< HEAD
     display: ${(props) =>
         props.viewportWidth === 'mobile' || props.viewportWidth === 'small'
             ? 'block'
             : 'none'};
+=======
+    display: block;
+>>>>>>> 892658e9f671c4c6da4c2577eea0c1788cb09f4d
     margin-top: auto;
     margin-bottom: auto;
     ${(props) =>
@@ -36,14 +40,14 @@ const ListsSidebarToggle = (props: {
 }) => {
     return (
         <Container
-            horizontal="medium"
+            right="medium"
             viewportWidth={props.viewportWidth}
             isSidebarDisplayed={props.isShown}
         >
             <Icon
-                onClick={() => props.onToggle(!props.isShown)}
+                onClick={props.onToggle}
                 fileName="hamburger.svg"
-                height="30px"
+                height="24px"
             />
         </Container>
     )
