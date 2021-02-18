@@ -61,6 +61,7 @@ const AnnotationComment = styled.div`
 const AnnotationTopBox = styled.div`
     padding: 5px 0 0 0;
     display: flex;
+    flex-direction: column;
 `
 
 const DOM_PURIFY_CONFIG: DOMPurify.Config = {
@@ -93,6 +94,7 @@ export default function AnnotationBox(props: AnnotationBoxProps) {
             <StyledAnnotationBox>
                 <AnnotationTopBox>
                     {annotation.body && (
+                      <HighlightBox>
                         <Margin>
                             <AnnotationBody
                                 dangerouslySetInnerHTML={{
@@ -100,6 +102,7 @@ export default function AnnotationBox(props: AnnotationBoxProps) {
                                 }}
                             />
                         </Margin>
+                      </HighlightBox>
                     )}
                     {annotation.body && annotation.comment && (
                         <Margin top="small">
