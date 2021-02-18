@@ -159,7 +159,9 @@ export default class ProfileEditModalLogic extends UILogic<
                 profileData = EMPTY_USER_PROFILE
             }
         }
-        const profileLinks: ProfileWebLink[] = getProfileLinks(profileData)
+        const profileLinks: ProfileWebLink[] = getProfileLinks(profileData, {
+            withEmptyFields: true,
+        })
         this.emitMutation({
             profileLinks: { $set: profileLinks },
         })

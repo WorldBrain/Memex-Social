@@ -1,45 +1,46 @@
 import { UserPublicProfile } from '@worldbrain/memex-common/ts/web-interface/types/storex-generated/user-management'
-import { ProfileWebLink } from '../types'
+import { ProfileWebLink, ProfileWebLinkName } from '../types'
 
 export function getProfileLinks(
     profileData: UserPublicProfile | null,
+    options?: { withEmptyFields?: boolean },
 ): ProfileWebLink[] {
-    if (!profileData) {
+    if (!profileData && !options?.withEmptyFields) {
         return []
     }
-    const { websiteURL, mediumURL, twitterURL, substackURL } = profileData
+
     const arr: ProfileWebLink[] = []
-    if (websiteURL) {
+    const maybePush = (
+        property: keyof UserPublicProfile,
+        data: Omit<ProfileWebLink, 'url' | 'urlPropName'>,
+    ) => {
+        const url = profileData?.[property]
+        if (!url && !options?.withEmptyFields) {
+            return
+        }
         arr.push({
-            label: 'Website',
-            urlPropName: 'websiteURL',
-            url: websiteURL,
-            fileName: 'web-logo.svg',
+            label: data.label,
+            urlPropName: property as ProfileWebLinkName,
+            url: url ?? '',
+            fileName: data.fileName,
         })
     }
-    if (mediumURL) {
-        arr.push({
-            label: 'Medium',
-            urlPropName: 'mediumURL',
-            url: mediumURL,
-            fileName: 'medium-logo.svg',
-        })
-    }
-    if (twitterURL) {
-        arr.push({
-            label: 'Twitter',
-            urlPropName: 'twitterURL',
-            url: twitterURL,
-            fileName: 'twitter-logo.svg',
-        })
-    }
-    if (substackURL) {
-        arr.push({
-            label: 'Substack',
-            urlPropName: 'substackURL',
-            url: substackURL,
-            fileName: 'substack-logo.svg',
-        })
-    }
+
+    maybePush('websiteURL', {
+        label: 'Website',
+        fileName: 'web-logo.svg',
+    })
+    maybePush('mediumURL', {
+        label: 'Medium',
+        fileName: 'medium-logo.svg',
+    })
+    maybePush('twitterURL', {
+        label: 'Twitter',
+        fileName: 'twitter-logo.svg',
+    })
+    maybePush('substackURL', {
+        label: 'Substack',
+        fileName: 'substack-logo.svg',
+    })
     return arr
 }

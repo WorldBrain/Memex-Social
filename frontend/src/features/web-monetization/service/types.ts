@@ -1,21 +1,20 @@
 import TypedEventEmitter from 'typed-emitter'
 import { UserReference } from '../../user-management/types'
+import * as browserTypes from '../wm-types'
 
 export interface WebMonetizationEvents {
-    monetizationstart(event: CustomEvent<WebMonetizationStartEvent>): void
-    monetizationstop(event: CustomEvent<WebMonetizationStopEvent>): void
+    monetizationstart(event: WebMonetizationStartEvent): void
+    monetizationstop(event: WebMonetizationStopEvent): void
 }
 
-type WebMonetizationEventDetailBase = {
-    paymentPointer: string
-    requestId: string
-}
-
-export type WebMonetizationStartEvent = WebMonetizationEventDetailBase
-
-export type WebMonetizationStopEvent = WebMonetizationEventDetailBase & {
-    finalized: boolean
-}
+export type WebMonetizationStartEvent = Pick<
+    browserTypes.WebMonetizationStartEvent['detail'],
+    'paymentPointer' | 'requestId'
+>
+export type WebMonetizationStopEvent = Pick<
+    browserTypes.WebMonetizationStopEvent['detail'],
+    'paymentPointer' | 'requestId' | 'finalized'
+>
 
 export interface WebMonetizationService {
     events: TypedEventEmitter<WebMonetizationEvents>

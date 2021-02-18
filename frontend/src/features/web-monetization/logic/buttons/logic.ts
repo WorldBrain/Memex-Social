@@ -3,6 +3,7 @@ import { UITaskState } from '../../../../main-ui/types'
 import {
     WebMonetizationStartEvent,
     WebMonetizationStopEvent,
+    WebMonetizationEvents,
 } from '../../service/types'
 import {
     WebMonetizationButtonDependencies,
@@ -53,27 +54,33 @@ export default abstract class WebMonetizationButtonLogic extends UILogic<
 
         // attach listeners
         // this._attachMonetizationListeners()
-        const startListener = (
-            event: CustomEvent<WebMonetizationStartEvent>,
+        const startListener: WebMonetizationEvents['monetizationstart'] = (
+            event,
         ) => {
             console.log('webmonbut logic startListener triggered')
             console.log(event)
-            if (event.detail.paymentPointer === this.curatorPaymentPointer) {
+            if (event.paymentPointer === this.curatorPaymentPointer) {
                 this._setMakePaymentTaskState('success')
                 this._setPaymentMade(true)
             }
         }
-        const stopListener = (event: CustomEvent<WebMonetizationStopEvent>) => {
-            if (event.detail.paymentPointer === this.curatorPaymentPointer) {
+        const stopListener: WebMonetizationEvents['monetizationstop'] = (
+            event,
+        ) => {
+            if (event.paymentPointer === this.curatorPaymentPointer) {
                 this.dependencies.services.webMonetization.events.removeAllListeners()
             }
         }
 
-        document.monetization.addEventListener(
+        this.dependencies.services.webMonetization.events.addListener(
             'monetizationstart',
             startListener,
         )
-        document.monetization.addEventListener('monetizationstop', stopListener)
+        this.dependencies.services.webMonetization.events.addListener(
+            'monetizationstop',
+            stopListener,
+        )
+
         this.dependencies.services.userManagement.events.addListener(
             'userProfileChange',
             () => this._tryDisplayComponent(),
