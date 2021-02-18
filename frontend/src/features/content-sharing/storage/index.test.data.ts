@@ -1,8 +1,8 @@
 import flatten from 'lodash/flatten'
 import fromPairs from 'lodash/fromPairs'
-import ContentSharingStorage from "."
-import { SharedListReference } from "@worldbrain/memex-common/lib/content-sharing/types"
-import { UserReference } from "@worldbrain/memex-common/lib/web-interface/types/users"
+import ContentSharingStorage from '.'
+import { SharedListReference } from '@worldbrain/memex-common/lib/content-sharing/types'
+import { UserReference } from '@worldbrain/memex-common/lib/web-interface/types/users'
 
 export const TEST_ANNOTATIONS_BY_PAGE = {
     'foo.com/page-1': [
@@ -31,11 +31,18 @@ export const TEST_ANNOTATIONS_BY_PAGE = {
         },
     ],
 }
-export const TEST_ANNOTATION_PAGE_URLS_BY_LOCAL_ID = fromPairs(flatten(
-    Object.entries(TEST_ANNOTATIONS_BY_PAGE).map(([normalizedPageUrl, annotationDati]) =>
-        annotationDati.map(annotationData => [annotationData.localId, { normalizedPageUrl, ...annotationData }])
-    )
-))
+export const TEST_ANNOTATION_PAGE_URLS_BY_LOCAL_ID = fromPairs(
+    flatten(
+        Object.entries(
+            TEST_ANNOTATIONS_BY_PAGE,
+        ).map(([normalizedPageUrl, annotationDati]) =>
+            annotationDati.map((annotationData) => [
+                annotationData.localId,
+                { normalizedPageUrl, ...annotationData },
+            ]),
+        ),
+    ),
+)
 
 export const TEST_LIST_ENTRIES = [
     {
@@ -52,21 +59,25 @@ export const TEST_LIST_ENTRIES = [
 ]
 
 export async function createTestListEntries(params: {
-    contentSharing: ContentSharingStorage, listReference: SharedListReference, userReference: UserReference
+    contentSharing: ContentSharingStorage
+    listReference: SharedListReference
+    userReference: UserReference
 }) {
     await params.contentSharing.createListEntries({
         listReference: params.listReference,
         listEntries: TEST_LIST_ENTRIES,
-        userReference: params.userReference
+        userReference: params.userReference,
     })
 }
 
 export async function createTestAnnotations(params: {
-    contentSharing: ContentSharingStorage, listReference: SharedListReference, userReference: UserReference
+    contentSharing: ContentSharingStorage
+    listReference: SharedListReference
+    userReference: UserReference
 }) {
     return params.contentSharing.createAnnotations({
         listReferences: [params.listReference],
         creator: params.userReference,
-        annotationsByPage: TEST_ANNOTATIONS_BY_PAGE
+        annotationsByPage: TEST_ANNOTATIONS_BY_PAGE,
     })
 }

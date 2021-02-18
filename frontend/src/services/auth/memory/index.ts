@@ -1,12 +1,22 @@
-import { User, UserReference } from "@worldbrain/memex-common/lib/web-interface/types/users";
-import { AuthProvider } from "../../../types/auth";
-import { Storage } from "../../../storage/types";
-import { AuthMethod, AuthLoginFlow, AuthRequest, EmailPasswordCredentials, RegistrationResult, LoginResult } from "../types";
-import { AuthServiceBase } from "../base";
+import {
+    User,
+    UserReference,
+} from '@worldbrain/memex-common/lib/web-interface/types/users'
+import { AuthProvider } from '../../../types/auth'
+import { Storage } from '../../../storage/types'
+import {
+    AuthMethod,
+    AuthLoginFlow,
+    AuthRequest,
+    EmailPasswordCredentials,
+    RegistrationResult,
+    LoginResult,
+} from '../types'
+import { AuthServiceBase } from '../base'
 
 interface AuthenticatedUser {
-    user: User;
-    id: number | string;
+    user: User
+    id: number | string
 }
 
 export default class MemoryAuthService extends AuthServiceBase {
@@ -17,20 +27,31 @@ export default class MemoryAuthService extends AuthServiceBase {
         this._user = null
     }
 
-    getSupportedMethods(options: { method: AuthMethod, provider?: AuthProvider }): AuthMethod[] {
+    getSupportedMethods(options: {
+        method: AuthMethod
+        provider?: AuthProvider
+    }): AuthMethod[] {
         return ['external-provider']
     }
 
-    getLoginFlow(options: { method: AuthMethod, provider?: AuthProvider }): AuthLoginFlow | null {
+    getLoginFlow(options: {
+        method: AuthMethod
+        provider?: AuthProvider
+    }): AuthLoginFlow | null {
         return options.method === 'external-provider' ? 'direct' : null
     }
 
-    async loginWithProvider(provider: AuthProvider, options?: { request?: AuthRequest }): Promise<{ result: LoginResult }> {
+    async loginWithProvider(
+        provider: AuthProvider,
+        options?: { request?: AuthRequest },
+    ): Promise<{ result: LoginResult }> {
         await this._login({ id: 'default-user', user: {} })
         return { result: { status: 'authenticated' } }
     }
 
-    async loginWithEmailPassword(options: EmailPasswordCredentials): Promise<{ result: LoginResult }> {
+    async loginWithEmailPassword(
+        options: EmailPasswordCredentials,
+    ): Promise<{ result: LoginResult }> {
         if (options.email === 'invalid-email') {
             return { result: { status: 'error', reason: 'invalid-email' } }
         }
@@ -44,7 +65,9 @@ export default class MemoryAuthService extends AuthServiceBase {
         return { result: { status: 'authenticated' } }
     }
 
-    async registerWithEmailPassword(options: EmailPasswordCredentials): Promise<{ result: RegistrationResult }> {
+    async registerWithEmailPassword(
+        options: EmailPasswordCredentials,
+    ): Promise<{ result: RegistrationResult }> {
         if (options.email === 'invalid-email') {
             return { result: { status: 'error', reason: 'invalid-email' } }
         }
@@ -80,7 +103,10 @@ export default class MemoryAuthService extends AuthServiceBase {
 
     async refreshCurrentUser(): Promise<void> {
         if (this._user) {
-            this._user.user = await this.options.storage.serverModules.users.ensureUser(this._user.user, this.getCurrentUserReference()!)
+            this._user.user = await this.options.storage.serverModules.users.ensureUser(
+                this._user.user,
+                this.getCurrentUserReference()!,
+            )
         }
         this.events.emit('changed')
     }

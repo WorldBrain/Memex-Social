@@ -1,7 +1,7 @@
 import React from 'react'
 import { InputHTMLAttributes } from 'react'
 import styled from 'styled-components'
-import { Margin } from "styled-components-spacing";
+import { Margin } from 'styled-components-spacing'
 
 import { theme } from '../../main-ui/styles/theme'
 import { Theme } from '../../main-ui/styles/types'
@@ -118,11 +118,9 @@ export default class TextInput extends React.PureComponent<
             return (
                 <>
                     <Margin bottom="small">
-                    <StyledInputLabel>{label}</StyledInputLabel>
+                        <StyledInputLabel>{label}</StyledInputLabel>
                     </Margin>
-                    <Margin bottom="small">
-                    {this.renderElement()}
-                    </Margin>
+                    <Margin bottom="small">{this.renderElement()}</Margin>
                 </>
             )
         }

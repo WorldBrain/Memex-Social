@@ -1,28 +1,41 @@
-import { UIEvent, UISignal } from "../../main-ui/classes/logic";
-import { Scenario, ScenarioStep } from "./types";
-import { GetCallModifications, CallModification } from "../../utils/call-modifier";
+import { UIEvent, UISignal } from '../../main-ui/classes/logic'
+import { Scenario, ScenarioStep } from './types'
+import {
+    GetCallModifications,
+    CallModification,
+} from '../../utils/call-modifier'
 
 export function scenario<
-    Targets extends { [name: string]: { events: UIEvent<{}>, signals?: UISignal<any> } }
->(builder: (options: {
-    step: <Target extends keyof Targets, EventName extends keyof Targets[Target]['events']>(options: (
-        {
-            name: string,
-            target: Target,
-            eventName: EventName,
-            eventArgs: Targets[Target]['events'][EventName],
-            waitForSignal?: Targets[Target]['signals'],
-            waitForStep?: string
-        } |
-        {
-            name: string,
-            callModifications: GetCallModifications,
-            waitForSignal?: Targets[Target]['signals'],
-            waitForStep?: string
-        }
-    )) => ScenarioStep
-    callModification: <Object>(modification: CallModification<Object>) => CallModification<Object>
-}) => Scenario<Targets>) {
+    Targets extends {
+        [name: string]: { events: UIEvent<{}>; signals?: UISignal<any> }
+    }
+>(
+    builder: (options: {
+        step: <
+            Target extends keyof Targets,
+            EventName extends keyof Targets[Target]['events']
+        >(
+            options:
+                | {
+                      name: string
+                      target: Target
+                      eventName: EventName
+                      eventArgs: Targets[Target]['events'][EventName]
+                      waitForSignal?: Targets[Target]['signals']
+                      waitForStep?: string
+                  }
+                | {
+                      name: string
+                      callModifications: GetCallModifications
+                      waitForSignal?: Targets[Target]['signals']
+                      waitForStep?: string
+                  },
+        ) => ScenarioStep
+        callModification: <Object>(
+            modification: CallModification<Object>,
+        ) => CallModification<Object>
+    }) => Scenario<Targets>,
+) {
     return builder({
         step: (options) => {
             if ('target' in options) {
@@ -44,6 +57,7 @@ export function scenario<
                 }
             }
         },
-        callModification: <Object>(modification: CallModification<Object>) => modification
+        callModification: <Object>(modification: CallModification<Object>) =>
+            modification,
     })
 }

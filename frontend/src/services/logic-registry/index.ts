@@ -1,13 +1,22 @@
 import isMatch from 'lodash/isMatch'
-import { EventEmitter } from "events";
+import { EventEmitter } from 'events'
 import TypedEmitter from 'typed-emitter'
-import { LogicRegistryEvents, LogicUnit, LogicUnitData, EventProcessedArgs } from './types';
+import {
+    LogicRegistryEvents,
+    LogicUnit,
+    LogicUnitData,
+    EventProcessedArgs,
+} from './types'
 
 export default class LogicRegistryService {
     events: TypedEmitter<LogicRegistryEvents> = new EventEmitter()
     _logicUnits: { [name: string]: LogicUnit } = {}
     _logicUnitData: { [name: string]: LogicUnitData } = {}
-    eventLoggers: { [logicUnit: string]: { [event: string]: (args: EventProcessedArgs) => void } } = {}
+    eventLoggers: {
+        [logicUnit: string]: {
+            [event: string]: (args: EventProcessedArgs) => void
+        }
+    } = {}
 
     constructor(private options?: { logEvents?: boolean }) {
         // if (options && options.logEvents) {
@@ -39,10 +48,16 @@ export default class LogicRegistryService {
 
             this.eventLoggers[elementName] = {
                 eventIncoming: (args: EventProcessedArgs) => {
-                    console.log(`LOGIC/incoming/${elementName}/${args.event.type}`, args)
+                    console.log(
+                        `LOGIC/incoming/${elementName}/${args.event.type}`,
+                        args,
+                    )
                 },
                 eventProcessed: (args: EventProcessedArgs) => {
-                    console.log(`LOGIC/processed/${elementName}/${args.event.type}`, args)
+                    console.log(
+                        `LOGIC/processed/${elementName}/${args.event.type}`,
+                        args,
+                    )
                 },
             }
             // for (const [eventName, eventHandler] of Object.entries(this.eventLoggers[elementName])) {
@@ -58,16 +73,16 @@ export default class LogicRegistryService {
     }
 
     _ensureLogicUnitData(elementName: string): LogicUnitData {
-        const data =
-            this._logicUnitData[elementName] =
-            this._logicUnitData[elementName] ?? { attributes: {}, emittedSignals: [] }
+        const data = (this._logicUnitData[elementName] = this._logicUnitData[
+            elementName
+        ] ?? { attributes: {}, emittedSignals: [] })
         return data
     }
 
     async waitForElement(elementName: string) {
         if (!this.isRegistered(elementName)) {
-            await new Promise(resolve => {
-                const handler: LogicRegistryEvents['registered'] = event => {
+            await new Promise((resolve) => {
+                const handler: LogicRegistryEvents['registered'] = (event) => {
                     if (event.name === elementName) {
                         this.events.off('registered', handler)
                         resolve()
@@ -81,9 +96,14 @@ export default class LogicRegistryService {
     async waitForAttribute(elementName: string, attributeName: string) {
         await this.waitForElement(elementName)
         if (!this.getAttribute(elementName, attributeName)) {
-            await new Promise(resolve => {
-                const handler: LogicRegistryEvents['attribute.changed'] = event => {
-                    if (event.name === elementName && event.key === attributeName) {
+            await new Promise((resolve) => {
+                const handler: LogicRegistryEvents['attribute.changed'] = (
+                    event,
+                ) => {
+                    if (
+                        event.name === elementName &&
+                        event.key === attributeName
+                    ) {
                         this.events.off('attribute.changed', handler)
                         resolve()
                     }
@@ -96,15 +116,19 @@ export default class LogicRegistryService {
     async waitForSignal(elementName: string, expectedSignal: any) {
         await this.waitForElement(elementName)
 
-        for (const signal of this._logicUnitData[elementName]?.emittedSignals ?? []) {
+        for (const signal of this._logicUnitData[elementName]?.emittedSignals ??
+            []) {
             if (isMatch(signal, expectedSignal)) {
                 return
             }
         }
 
-        await new Promise(resolve => {
+        await new Promise((resolve) => {
             const handler: LogicRegistryEvents['signal'] = (event) => {
-                if (event.name === elementName && isMatch(event.signal, expectedSignal)) {
+                if (
+                    event.name === elementName &&
+                    isMatch(event.signal, expectedSignal)
+                ) {
                     this.events.off('signal', handler)
                     resolve()
                 }
@@ -114,7 +138,10 @@ export default class LogicRegistryService {
     }
 
     processEvent(elementName: string, eventName: string, eventArgs: any) {
-        return this._logicUnits[elementName].eventProcessor(eventName, eventArgs)
+        return this._logicUnits[elementName].eventProcessor(
+            eventName,
+            eventArgs,
+        )
     }
 
     unregisterLogic(elementName: string) {

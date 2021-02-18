@@ -1,217 +1,217 @@
 objects:
-  sharedLists:
-    - $store: default
-      id: default-list
-      creator: { $ref: users.default }
-      createdWhen: 1594225289914
-      updatedWhen: 1594225289914
-      title: "Productivity Tools: Networked Thoughts"
-      description: "A new breed of note-taking tools. Here is a collection of tools for networked thoughts. A new breed of note-taking tools. Here is a collection of tools for networked thoughts. A new breed of note-taking tools. Here is a collection of tools for networked thoughts. A new breed of note-taking tools. Here is a collection of tools for networked thoughts. A new breed of note-taking tools. Here is a collection of tools for networked thoughts. A new breed of note-taking tools. Here is a collection of tools for networked thoughts."
-  sharedListEntries:
-    - sharedList: { $ref: sharedLists.default }
-      creator: { $ref: users.default }
-      createdWhen: 1594225555555
-      updatedWhen: 1594225555555
-      entryTitle: "WorldBrain's Memex"
-      normalizedUrl: getmemex.com
-      originalUrl: "https://getmemex.com"
-    - sharedList: { $ref: sharedLists.default }
-      creator: { $ref: users.default }
-      createdWhen: 1594225289914
-      updatedWhen: 1594225289914
-      entryTitle: Page with notes with a title that is very very very very very very very very very very very long
-      normalizedUrl: notion.so
-      originalUrl: "https://notion.so"
-    - sharedList: { $ref: sharedLists.default }
-      creator: { $ref: users.default }
-      createdWhen: 1594225289914
-      updatedWhen: 1594225289914
-      entryTitle: Page without notes with a title that is very very very very very very very very very very very longry very very longry very very longry very very longry very very longry very very longry very very longry very very longry very very longry very very long
-      normalizedUrl: verylong.so
-      originalUrl: "https://verylong.so"
-    - sharedList: { $ref: sharedLists.default }
-      creator: { $ref: users.default }
-      createdWhen: 1594225289914
-      updatedWhen: 1594225289914
-      entryTitle: Roam Research
-      normalizedUrl: roamresearch.com
-      originalUrl: "https://roamresearch.com"
-    - sharedList: { $ref: sharedLists.default }
-      creator: { $ref: users.default }
-      createdWhen: 1594225289914
-      updatedWhen: 1594225289914
-      entryTitle: Obsidian
-      normalizedUrl: obsidian.md
-      originalUrl: "https://obsidian.md"
-    - sharedList: { $ref: sharedLists.default }
-      creator: { $ref: users.default }
-      createdWhen: 1594225289914
-      updatedWhen: 1594225289914
-      entryTitle: Bananas
-      normalizedUrl: bananas.so-3
-      originalUrl: "https://bananas.so"
-    - sharedList: { $ref: sharedLists.default }
-      creator: { $ref: users.default }
-      createdWhen: 1594225289914
-      updatedWhen: 1594225289914
-      entryTitle: Bananas
-      normalizedUrl: bananas.so-4
-      originalUrl: "https://bananas.so"
-    - sharedList: { $ref: sharedLists.default }
-      creator: { $ref: users.default }
-      createdWhen: 1594225289914
-      updatedWhen: 1594225289914
-      entryTitle: Bananas
-      normalizedUrl: bananas.so-5
-      originalUrl: "https://bananas.so"
-    - sharedList: { $ref: sharedLists.default }
-      creator: { $ref: users.default }
-      createdWhen: 1594225289914
-      updatedWhen: 1594225289914
-      entryTitle: Bananas
-      normalizedUrl: bananas.so-6
-      originalUrl: "https://bananas.so"
-    - sharedList: { $ref: sharedLists.default }
-      creator: { $ref: users.default }
-      createdWhen: 1594225289914
-      updatedWhen: 1594225289914
-      entryTitle: Bananas
-      normalizedUrl: bananas.so-7
-      originalUrl: "https://bananas.so"
-    - sharedList: { $ref: sharedLists.default }
-      creator: { $ref: users.default }
-      createdWhen: 1594225289914
-      updatedWhen: 1594225289914
-      entryTitle: Bananas
-      normalizedUrl: bananas.so-8
-      originalUrl: "https://bananas.so"
-    - sharedList: { $ref: sharedLists.default }
-      creator: { $ref: users.default }
-      createdWhen: 1594225289914
-      updatedWhen: 1594225289914
-      entryTitle: Bananas
-      normalizedUrl: bananas.so-9
-      originalUrl: "https://"
-    - sharedList: { $ref: sharedLists.default }
-      creator: { $ref: users.default }
-      createdWhen: 1594225289914
-      updatedWhen: 1594225289914
-      entryTitle: Twemex
-      normalizedUrl: twemex.app
-      originalUrl: "https://twemex.app"
-    - sharedList: { $ref: sharedLists.default }
-      creator: { $ref: users.default }
-      createdWhen: 1594225289914
-      updatedWhen: 1594225289914
-      entryTitle: Remnote
-      normalizedUrl: remnote.io
-      originalUrl: "https://remnote.io"
-    - sharedList: { $ref: sharedLists.default }
-      creator: { $ref: users.default }
-      createdWhen: 1594225289914
-      updatedWhen: 1594225289914
-      entryTitle: Obsidian
-      normalizedUrl: obsidian-2.md
-      originalUrl: "https://obsidian.md"
-    - sharedList: { $ref: sharedLists.default }
-      creator: { $ref: users.default }
-      createdWhen: 1594225289914
-      updatedWhen: 1594225289914
-      entryTitle: Roam Research
-      normalizedUrl: roamresearch-2.com
-      originalUrl: "https://roamresearch.com"
-    - sharedList: { $ref: sharedLists.default }
-      creator: { $ref: users.default }
-      createdWhen: 1594225255555
-      updatedWhen: 1594225255555
-      entryTitle: Apples
-      normalizedUrl: apples.so
-      originalUrl: "https://apples.so"
-  sharedPageInfo:
-    - id: default-page
-      creator: { $ref: users.default }
-      createdWhen: 1594225555555
-      updatedWhen: 1594225555555
-      fullTitle: "WorldBrain's Memex"
-      normalizedUrl: getmemex.com
-      originalUrl: "https://getmemex.com"
-    - id: notion-page
-      creator: { $ref: users.default }
-      createdWhen: 1594225555555
-      updatedWhen: 1594225555555
-      fullTitle: "Page with notes with a title that is very very very very very very very very very very very long"
-      normalizedUrl: notion.so
-      originalUrl: "https://getmemex.com"
-    - id: empty-page
-      creator: { $ref: users.default }
-      createdWhen: 1594225555555
-      updatedWhen: 1594225555555
-      fullTitle: Apples
-      normalizedUrl: apples.so
-      originalUrl: "https://apples.so"
-  sharedAnnotations:
-    - $store: annotation-1
-      id: default-annotation
-      creator: { $ref: users.default }
-      createdWhen: 1594225289914
-      updatedWhen: 1594225289914
-      normalizedPageUrl: "getmemex.com"
-      body: "Automatically indexes websites you visit. Instantly recover anything you've seen without upfront work."
-      comment: |
-        I have been waiting for this *forever*!
+    sharedLists:
+        - $store: default
+          id: default-list
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          title: 'Productivity Tools: Networked Thoughts'
+          description: 'A new breed of note-taking tools. Here is a collection of tools for networked thoughts. A new breed of note-taking tools. Here is a collection of tools for networked thoughts. A new breed of note-taking tools. Here is a collection of tools for networked thoughts. A new breed of note-taking tools. Here is a collection of tools for networked thoughts. A new breed of note-taking tools. Here is a collection of tools for networked thoughts. A new breed of note-taking tools. Here is a collection of tools for networked thoughts.'
+    sharedListEntries:
+        - sharedList: { $ref: sharedLists.default }
+          creator: { $ref: users.default }
+          createdWhen: 1594225555555
+          updatedWhen: 1594225555555
+          entryTitle: "WorldBrain's Memex"
+          normalizedUrl: getmemex.com
+          originalUrl: 'https://getmemex.com'
+        - sharedList: { $ref: sharedLists.default }
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          entryTitle: Page with notes with a title that is very very very very very very very very very very very long
+          normalizedUrl: notion.so
+          originalUrl: 'https://notion.so'
+        - sharedList: { $ref: sharedLists.default }
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          entryTitle: Page without notes with a title that is very very very very very very very very very very very longry very very longry very very longry very very longry very very longry very very longry very very longry very very longry very very longry very very long
+          normalizedUrl: verylong.so
+          originalUrl: 'https://verylong.so'
+        - sharedList: { $ref: sharedLists.default }
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          entryTitle: Roam Research
+          normalizedUrl: roamresearch.com
+          originalUrl: 'https://roamresearch.com'
+        - sharedList: { $ref: sharedLists.default }
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          entryTitle: Obsidian
+          normalizedUrl: obsidian.md
+          originalUrl: 'https://obsidian.md'
+        - sharedList: { $ref: sharedLists.default }
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          entryTitle: Bananas
+          normalizedUrl: bananas.so-3
+          originalUrl: 'https://bananas.so'
+        - sharedList: { $ref: sharedLists.default }
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          entryTitle: Bananas
+          normalizedUrl: bananas.so-4
+          originalUrl: 'https://bananas.so'
+        - sharedList: { $ref: sharedLists.default }
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          entryTitle: Bananas
+          normalizedUrl: bananas.so-5
+          originalUrl: 'https://bananas.so'
+        - sharedList: { $ref: sharedLists.default }
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          entryTitle: Bananas
+          normalizedUrl: bananas.so-6
+          originalUrl: 'https://bananas.so'
+        - sharedList: { $ref: sharedLists.default }
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          entryTitle: Bananas
+          normalizedUrl: bananas.so-7
+          originalUrl: 'https://bananas.so'
+        - sharedList: { $ref: sharedLists.default }
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          entryTitle: Bananas
+          normalizedUrl: bananas.so-8
+          originalUrl: 'https://bananas.so'
+        - sharedList: { $ref: sharedLists.default }
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          entryTitle: Bananas
+          normalizedUrl: bananas.so-9
+          originalUrl: 'https://'
+        - sharedList: { $ref: sharedLists.default }
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          entryTitle: Twemex
+          normalizedUrl: twemex.app
+          originalUrl: 'https://twemex.app'
+        - sharedList: { $ref: sharedLists.default }
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          entryTitle: Remnote
+          normalizedUrl: remnote.io
+          originalUrl: 'https://remnote.io'
+        - sharedList: { $ref: sharedLists.default }
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          entryTitle: Obsidian
+          normalizedUrl: obsidian-2.md
+          originalUrl: 'https://obsidian.md'
+        - sharedList: { $ref: sharedLists.default }
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          entryTitle: Roam Research
+          normalizedUrl: roamresearch-2.com
+          originalUrl: 'https://roamresearch.com'
+        - sharedList: { $ref: sharedLists.default }
+          creator: { $ref: users.default }
+          createdWhen: 1594225255555
+          updatedWhen: 1594225255555
+          entryTitle: Apples
+          normalizedUrl: apples.so
+          originalUrl: 'https://apples.so'
+    sharedPageInfo:
+        - id: default-page
+          creator: { $ref: users.default }
+          createdWhen: 1594225555555
+          updatedWhen: 1594225555555
+          fullTitle: "WorldBrain's Memex"
+          normalizedUrl: getmemex.com
+          originalUrl: 'https://getmemex.com'
+        - id: notion-page
+          creator: { $ref: users.default }
+          createdWhen: 1594225555555
+          updatedWhen: 1594225555555
+          fullTitle: 'Page with notes with a title that is very very very very very very very very very very very long'
+          normalizedUrl: notion.so
+          originalUrl: 'https://getmemex.com'
+        - id: empty-page
+          creator: { $ref: users.default }
+          createdWhen: 1594225555555
+          updatedWhen: 1594225555555
+          fullTitle: Apples
+          normalizedUrl: apples.so
+          originalUrl: 'https://apples.so'
+    sharedAnnotations:
+        - $store: annotation-1
+          id: default-annotation
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          normalizedPageUrl: 'getmemex.com'
+          body: "Automatically indexes websites you visit. Instantly recover anything you've seen without upfront work."
+          comment: |
+              I have been waiting for this *forever*!
 
-        * one
+              * one
 
-        ----
+              ----
 
-        test
-      selector: "Selector 1"
-    - $store: annotation-2
-      id: second-annotation
-      creator: { $ref: users.default }
-      createdWhen: 1594225289914
-      updatedWhen: 1594225289914
-      normalizedPageUrl: "getmemex.com"
-      comment: |
-        Memex is **great** and brings *networked thoughts* into online research.
-        But it is missing sharing features.
-        How else could I share what I find with my community?
+              test
+          selector: 'Selector 1'
+        - $store: annotation-2
+          id: second-annotation
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          normalizedPageUrl: 'getmemex.com'
+          comment: |
+              Memex is **great** and brings *networked thoughts* into online research.
+              But it is missing sharing features.
+              How else could I share what I find with my community?
 
-        * one
-        * two
+              * one
+              * two
 
-        <script>window.location.href='https://www.evil.com/xss-attack/'</script>
-        <img src="https://this-will-detonate-a-nuke.com/csrfing-your-cookies/" />
+              <script>window.location.href='https://www.evil.com/xss-attack/'</script>
+              <img src="https://this-will-detonate-a-nuke.com/csrfing-your-cookies/" />
 
-        -----------------------
+              -----------------------
 
-        _something else_
-      selector: "Selector 2"
-    - $store: annotation-3
-      id: third-annotation
-      creator: { $ref: users.default }
-      createdWhen: 1594225289914
-      updatedWhen: 1594225289914
-      normalizedPageUrl: "notion.so"
-      body: "Body 3"
-      comment: "Comment 3"
-      selector: "Selector 3"
-  sharedAnnotationListEntries:
-    - creator: { $ref: users.default }
-      sharedList: { $ref: sharedLists.default }
-      sharedAnnotation: { $ref: sharedAnnotations.annotation-1 }
-      createdWhen: 1594225289914
-      updatedWhen: 1594225289914
-      normalizedPageUrl: "getmemex.com"
-    - creator: { $ref: users.default }
-      sharedList: { $ref: sharedLists.default }
-      sharedAnnotation: { $ref: sharedAnnotations.annotation-2 }
-      createdWhen: 1594225289914
-      updatedWhen: 1594225289914
-      normalizedPageUrl: "getmemex.com"
-    - creator: { $ref: users.default }
-      sharedList: { $ref: sharedLists.default }
-      sharedAnnotation: { $ref: sharedAnnotations.annotation-3 }
-      createdWhen: 1594225289914
-      updatedWhen: 1594225289914
-      normalizedPageUrl: "notion.so"
+              _something else_
+          selector: 'Selector 2'
+        - $store: annotation-3
+          id: third-annotation
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          normalizedPageUrl: 'notion.so'
+          body: 'Body 3'
+          comment: 'Comment 3'
+          selector: 'Selector 3'
+    sharedAnnotationListEntries:
+        - creator: { $ref: users.default }
+          sharedList: { $ref: sharedLists.default }
+          sharedAnnotation: { $ref: sharedAnnotations.annotation-1 }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          normalizedPageUrl: 'getmemex.com'
+        - creator: { $ref: users.default }
+          sharedList: { $ref: sharedLists.default }
+          sharedAnnotation: { $ref: sharedAnnotations.annotation-2 }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          normalizedPageUrl: 'getmemex.com'
+        - creator: { $ref: users.default }
+          sharedList: { $ref: sharedLists.default }
+          sharedAnnotation: { $ref: sharedAnnotations.annotation-3 }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          normalizedPageUrl: 'notion.so'

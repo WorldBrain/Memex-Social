@@ -1,23 +1,31 @@
-import { History } from "history";
-import { RouteMap, RouteName } from "../../routes"
-import { AuthService } from "../auth/types";
-import Routes from "./routes";
+import { History } from 'history'
+import { RouteMap, RouteName } from '../../routes'
+import { AuthService } from '../auth/types'
+import Routes from './routes'
 
 export default class RouterService {
     private routes: Routes
     private blockLeaveMessage: string | null = null
 
-    constructor(private options: {
-        history: History, routes: RouteMap, auth: AuthService
-        setBeforeLeaveHandler(handler: null | (() => string)): void
-    }) {
+    constructor(
+        private options: {
+            history: History
+            routes: RouteMap
+            auth: AuthService
+            setBeforeLeaveHandler(handler: null | (() => string)): void
+        },
+    ) {
         this.routes = new Routes({
             routes: options.routes,
-            isAuthenticated: () => !!options.auth.getCurrentUser()
+            isAuthenticated: () => !!options.auth.getCurrentUser(),
         })
     }
 
-    goTo(route: RouteName, params: { [key: string]: string } = {}, options?: {}) {
+    goTo(
+        route: RouteName,
+        params: { [key: string]: string } = {},
+        options?: {},
+    ) {
         this.options.history.push(this.getUrl(route, params))
     }
 
@@ -27,25 +35,35 @@ export default class RouterService {
         }
     }
 
-    getUrl(route: RouteName, params: { [key: string]: string } = {}, options?: {}): string {
+    getUrl(
+        route: RouteName,
+        params: { [key: string]: string } = {},
+        options?: {},
+    ): string {
         return this.routes.getUrl(route, params)
     }
 
-    matchCurrentUrl(): { route: RouteName, params: { [key: string]: string } } {
+    matchCurrentUrl(): { route: RouteName; params: { [key: string]: string } } {
         const parsed = this.matchUrl(window.location.href)
         if (!parsed) {
-            throw new Error(`Tried to parse current URL, both are no routes matching current URL`)
+            throw new Error(
+                `Tried to parse current URL, both are no routes matching current URL`,
+            )
         }
         return parsed
     }
 
-    matchUrl(url: string): { route: RouteName, params: { [key: string]: string } } | null {
+    matchUrl(
+        url: string,
+    ): { route: RouteName; params: { [key: string]: string } } | null {
         return this.routes.matchUrl(url)
     }
 
     blockLeave(message: string) {
         if (this.blockLeaveMessage) {
-            throw new Error(`Tried to block user from leaving, but this is already blocked with this message: ${this.blockLeaveMessage}`)
+            throw new Error(
+                `Tried to block user from leaving, but this is already blocked with this message: ${this.blockLeaveMessage}`,
+            )
         }
 
         this.blockLeaveMessage = message

@@ -1,2 +1,2 @@
-import Markdown from "@worldbrain/memex-common/lib/common-ui/components/markdown";
-export default Markdown;
+import Markdown from '@worldbrain/memex-common/lib/common-ui/components/markdown'
+export default Markdown

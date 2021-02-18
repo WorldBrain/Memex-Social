@@ -1,7 +1,7 @@
-import { UIEvent, UISignal } from "../../../../../main-ui/classes/logic";
-import { UIElementServices } from "../../../../../main-ui/classes";
-import { User } from "@worldbrain/memex-common/lib/web-interface/types/users";
-import { StorageModules } from "../../../../../storage/types";
+import { UIEvent, UISignal } from '../../../../../main-ui/classes/logic'
+import { UIElementServices } from '../../../../../main-ui/classes'
+import { User } from '@worldbrain/memex-common/lib/web-interface/types/users'
+import { StorageModules } from '../../../../../storage/types'
 
 export interface AuthHeaderDependencies {
     services: UIElementServices<'auth' | 'overlay' | 'userManagement'>
@@ -26,6 +26,4 @@ export type AuthHeaderEvent = UIEvent<{
     logout: null
 }>
 
-export type AuthHeaderSignal = UISignal<
-    { type: 'nothing-yet' }
->
+export type AuthHeaderSignal = UISignal<{ type: 'nothing-yet' }>

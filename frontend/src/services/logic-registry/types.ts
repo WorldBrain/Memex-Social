@@ -1,13 +1,13 @@
-import TypedEmitter from 'typed-emitter';
-import { UIMutation } from 'ui-logic-core';
+import TypedEmitter from 'typed-emitter'
+import { UIMutation } from 'ui-logic-core'
 
 export interface LogicUnit {
-    events: TypedEmitter<LogicUnitEvents>;
-    eventProcessor: LogicEventProcessor;
-    getState(): any;
+    events: TypedEmitter<LogicUnitEvents>
+    eventProcessor: LogicEventProcessor
+    getState(): any
 }
 export interface LogicUnitEvents {
-    initialized(): void;
+    initialized(): void
     eventIncoming(event: EventIncomingArgs): void
     eventProcessed(event: EventProcessedArgs): void
     mutation(event: { mutation: UIMutation<any> }): void
@@ -15,38 +15,40 @@ export interface LogicUnitEvents {
 
 export interface LogicUnitData {
     attributes: {
-        [key: string]: any;
-    };
-    emittedSignals: any[];
+        [key: string]: any
+    }
+    emittedSignals: any[]
 }
 
-export type LogicEventProcessor = (eventName: string, eventArgs: any) => Promise<void>;
+export type LogicEventProcessor = (
+    eventName: string,
+    eventArgs: any,
+) => Promise<void>
 
 export interface EventIncomingArgs {
-    eventName: string;
-    eventArgs: any;
+    eventName: string
+    eventArgs: any
 }
 
 export interface EventProcessedArgs {
     event: {
-        type: string;
-        [key: string]: any;
-    };
-    mutation: UIMutation<any>;
-    state: any;
+        type: string
+        [key: string]: any
+    }
+    mutation: UIMutation<any>
+    state: any
 }
 
 export interface LogicRegistryEvents {
-    registered: (event: {
-        name: string;
-    } & LogicUnit) => void;
-    signal: (event: {
-        name: string;
-        signal: any;
-    }) => void;
+    registered: (
+        event: {
+            name: string
+        } & LogicUnit,
+    ) => void
+    signal: (event: { name: string; signal: any }) => void
     'attribute.changed': (event: {
-        name: string;
-        key: string;
-        value: any;
-    }) => void;
+        name: string
+        key: string
+        value: any
+    }) => void
 }

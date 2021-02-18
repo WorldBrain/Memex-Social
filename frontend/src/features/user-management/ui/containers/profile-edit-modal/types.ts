@@ -11,7 +11,10 @@ export type ProfileEditModalDependencies = {
     onCloseRequested: () => void
 }
 
-export type ProfileEditModalState = Omit<ProfilePopupContainerState,'isDisplayed'>&{
+export type ProfileEditModalState = Omit<
+    ProfilePopupContainerState,
+    'isDisplayed'
+> & {
     savingTaskState: UITaskState
     inputErrorArray: boolean[]
 }

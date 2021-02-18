@@ -266,17 +266,17 @@ export default class ProfileEditModal extends UIElement<
                                 errorMessage={this.displayNameErrorMessage}
                             />
                             <Margin vertical="small">
-                            <TextArea
-                                label="Bio"
-                                rows={5}
-                                value={this.state.userPublicProfile.bio}
-                                onChange={(evt) =>
-                                    this.handleSetProfileValue(
-                                        'bio',
-                                        evt.currentTarget.value,
-                                    )
-                                }
-                            />
+                                <TextArea
+                                    label="Bio"
+                                    rows={5}
+                                    value={this.state.userPublicProfile.bio}
+                                    onChange={(evt) =>
+                                        this.handleSetProfileValue(
+                                            'bio',
+                                            evt.currentTarget.value,
+                                        )
+                                    }
+                                />
                             </Margin>
                             {this.state.webLinksArray.map((linkObj, idx) => (
                                 <TextInput
@@ -325,8 +325,8 @@ export default class ProfileEditModal extends UIElement<
                             </SectionHeader>
                             <SectionHeaderDescription>
                                 People can pay for your curations with
-                                WebMonetization micropayments. <br/> Takes 5 minutes
-                                to set up.
+                                WebMonetization micropayments. <br /> Takes 5
+                                minutes to set up.
                                 <WebLink
                                     as="span"
                                     onClick={() =>

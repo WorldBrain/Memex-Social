@@ -1,7 +1,7 @@
 import kebabCase from 'lodash/kebabCase'
 import * as fs from 'fs'
 import * as path from 'path'
-import StorageManager, { StorageRegistry } from '@worldbrain/storex';
+import StorageManager, { StorageRegistry } from '@worldbrain/storex'
 import { StorageModule } from '@worldbrain/storex-pattern-modules'
 import { generateTypescriptInterfaces } from '@worldbrain/storex-typescript-generation'
 import { createStorage } from '../src/storage'
@@ -15,7 +15,10 @@ interface StorageModuleInfo {
 }
 
 export async function main() {
-    const rootTypesPath = path.join(__dirname, '../../external/@worldbrain/memex-common/ts/web-interface/types/storex-generated')
+    const rootTypesPath = path.join(
+        __dirname,
+        '../../external/@worldbrain/memex-common/ts/web-interface/types/storex-generated',
+    )
     if (!fs.existsSync(rootTypesPath)) {
         fs.mkdirSync(rootTypesPath)
     }
@@ -25,9 +28,15 @@ export async function main() {
     for (const storageModule of Object.values(storage.serverModules)) {
         const className = Object.getPrototypeOf(storageModule).constructor.name
         const storageModuleInfo = storageModuleInfoMap[className]
-        const types = generateTypesForStorageModule(storageModule, { storageModuleInfo, storageRegistry: storage.serverStorageManager.registry })
+        const types = generateTypesForStorageModule(storageModule, {
+            storageModuleInfo,
+            storageRegistry: storage.serverStorageManager.registry,
+        })
 
-        const moduleTypesPath = path.join(rootTypesPath, `${storageModuleInfo.baseNameWithoutExt}.ts`)
+        const moduleTypesPath = path.join(
+            rootTypesPath,
+            `${storageModuleInfo.baseNameWithoutExt}.ts`,
+        )
         console.log(`Writing types to ${moduleTypesPath}...`)
         fs.writeFileSync(moduleTypesPath, types)
     }
@@ -36,10 +45,19 @@ export async function main() {
 function collectStorageModuleInfo(): StorageModuleInfoMap {
     const infoMap: StorageModuleInfoMap = {}
 
-    const coreStorageModulesGlob = path.join(__dirname, '../src/storage/modules/*')
-    const featureStorageModulesGlob = path.join(__dirname, '../src/features/*/storage')
+    const coreStorageModulesGlob = path.join(
+        __dirname,
+        '../src/storage/modules/*',
+    )
+    const featureStorageModulesGlob = path.join(
+        __dirname,
+        '../src/features/*/storage',
+    )
     // const storageModuleBaseNames = fs.readdirSync(storageModulesPath)
-    for (const storageModulePath of glob.sync([coreStorageModulesGlob, featureStorageModulesGlob], { onlyFiles: false })) {
+    for (const storageModulePath of glob.sync(
+        [coreStorageModulesGlob, featureStorageModulesGlob],
+        { onlyFiles: false },
+    )) {
         const StorageModuleClass = require(storageModulePath).default
         if (typeof StorageModuleClass !== 'function') {
             console.log(`Skipping module: ${storageModulePath}`)
@@ -57,16 +75,22 @@ function collectStorageModuleInfo(): StorageModuleInfoMap {
         infoMap[storageModuleClasName] = {
             path: storageModulePath,
             isSingleFile,
-            baseNameWithoutExt: isSingleFile ? /(.+)\.ts$/.exec(baseName)[1] : baseName
+            baseNameWithoutExt: isSingleFile
+                ? /(.+)\.ts$/.exec(baseName)[1]
+                : baseName,
         }
     }
 
     return infoMap
 }
 
-function generateTypesForStorageModule(storageModule: StorageModule, options: {
-    storageModuleInfo: StorageModuleInfo, storageRegistry: StorageRegistry
-}): string {
+function generateTypesForStorageModule(
+    storageModule: StorageModule,
+    options: {
+        storageModuleInfo: StorageModuleInfo
+        storageRegistry: StorageRegistry
+    },
+): string {
     const collections = Object.keys(storageModule.getConfig().collections || {})
     const interfaces = generateTypescriptInterfaces(options.storageRegistry, {
         autoPkType: 'generic',
@@ -81,7 +105,7 @@ function generateTypesForStorageModule(storageModule: StorageModule, options: {
         },
         generateImport: (options) => {
             return { path: `./${kebabCase(options.collectionName)}.ts` }
-        }
+        },
     })
     return interfaces
 }

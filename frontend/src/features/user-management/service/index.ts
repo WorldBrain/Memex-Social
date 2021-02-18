@@ -18,7 +18,10 @@ export default class UserManagementService {
 
     userPublicProfilesCache: { [id: string]: UserPublicProfile } = {}
 
-    private _updateCache(userRef: UserReference, profileData: UserPublicProfile) {
+    private _updateCache(
+        userRef: UserReference,
+        profileData: UserPublicProfile,
+    ) {
         this.userPublicProfilesCache[userRef.id] = profileData
     }
 

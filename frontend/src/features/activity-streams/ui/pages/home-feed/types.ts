@@ -1,17 +1,49 @@
-import { SharedAnnotationReference, SharedPageInfo, SharedAnnotation, SharedListReference, SharedListEntryReference } from "@worldbrain/memex-common/lib/content-sharing/types";
-import { ConversationReplyReference, ConversationReply } from "@worldbrain/memex-common/lib/content-conversations/types";
-import { UserReference, User } from "@worldbrain/memex-common/lib/web-interface/types/users";
-import { UIEvent, UISignal } from "../../../../../main-ui/classes/logic";
-import { UIElementServices } from "../../../../../main-ui/classes";
-import { AnnotationConversationEvent, AnnotationConversationsState } from "../../../../content-conversations/ui/types";
-import { StorageModules } from "../../../../../storage/types";
-import { UITaskState } from "../../../../../main-ui/types";
-import { OrderedMap } from "../../../../../utils/ordered-map";
-import { ActivityFollowsState, ActivityFollowsEvent } from "../../../../activity-follows/ui/types";
+import {
+    SharedAnnotationReference,
+    SharedPageInfo,
+    SharedAnnotation,
+    SharedListReference,
+    SharedListEntryReference,
+} from '@worldbrain/memex-common/lib/content-sharing/types'
+import {
+    ConversationReplyReference,
+    ConversationReply,
+} from '@worldbrain/memex-common/lib/content-conversations/types'
+import {
+    UserReference,
+    User,
+} from '@worldbrain/memex-common/lib/web-interface/types/users'
+import { UIEvent, UISignal } from '../../../../../main-ui/classes/logic'
+import { UIElementServices } from '../../../../../main-ui/classes'
+import {
+    AnnotationConversationEvent,
+    AnnotationConversationsState,
+} from '../../../../content-conversations/ui/types'
+import { StorageModules } from '../../../../../storage/types'
+import { UITaskState } from '../../../../../main-ui/types'
+import { OrderedMap } from '../../../../../utils/ordered-map'
+import {
+    ActivityFollowsState,
+    ActivityFollowsEvent,
+} from '../../../../activity-follows/ui/types'
 
 export interface HomeFeedDependencies {
-    services: UIElementServices<'contentConversations' | 'auth' | 'overlay' | 'activityStreams' | 'router' | 'userManagement'>;
-    storage: Pick<StorageModules, 'contentSharing' | 'contentConversations' | 'users' | 'activityStreams' | 'activityFollows'>
+    services: UIElementServices<
+        | 'contentConversations'
+        | 'auth'
+        | 'overlay'
+        | 'activityStreams'
+        | 'router'
+        | 'userManagement'
+    >
+    storage: Pick<
+        StorageModules,
+        | 'contentSharing'
+        | 'contentConversations'
+        | 'users'
+        | 'activityStreams'
+        | 'activityFollows'
+    >
     listActivitiesLimit: number
 }
 
@@ -24,20 +56,24 @@ export type HomeFeedState = {
     users: { [userId: string]: Pick<User, 'displayName'> | null }
     lastSeenTimestamp?: number | null
     moreRepliesLoadStates: { [groupId: string]: UITaskState }
-} & AnnotationConversationsState & ActivityFollowsState
+} & AnnotationConversationsState &
+    ActivityFollowsState
 
-export type HomeFeedEvent = UIEvent<AnnotationConversationEvent & ActivityFollowsEvent & {
-    waypointHit: null
-    loadMoreReplies: {
-        groupId: string
-        annotationReference: SharedAnnotationReference
-    }
-    toggleListEntryActivityAnnotations: {
-        groupId: string
-        listReference: SharedListReference
-        listEntryReference: SharedListEntryReference
-    }
-}>
+export type HomeFeedEvent = UIEvent<
+    AnnotationConversationEvent &
+        ActivityFollowsEvent & {
+            waypointHit: null
+            loadMoreReplies: {
+                groupId: string
+                annotationReference: SharedAnnotationReference
+            }
+            toggleListEntryActivityAnnotations: {
+                groupId: string
+                listReference: SharedListReference
+                listEntryReference: SharedListEntryReference
+            }
+        }
+>
 
 export type ActivityItem = PageActivityItem | ListActivityItem
 
@@ -47,7 +83,7 @@ interface TopLevelActivityItem {
 }
 
 export interface ListActivityItem extends TopLevelActivityItem {
-    type: 'list-item',
+    type: 'list-item'
     reason: 'pages-added-to-list'
     listName: string
     listReference: SharedListReference
@@ -55,7 +91,7 @@ export interface ListActivityItem extends TopLevelActivityItem {
 }
 
 export interface ListEntryActivityItem {
-    type: 'list-entry-item',
+    type: 'list-entry-item'
     reference: SharedListEntryReference
     creator: UserReference
     entryTitle: string

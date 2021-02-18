@@ -1,18 +1,27 @@
-import { RouteMap, RouteName } from "../../routes"
+import { RouteMap, RouteName } from '../../routes'
 
 const RoutesExternal = require('routes')
 
 export default class Routes {
     private router: any = new RoutesExternal()
 
-    constructor(private options: { routes: RouteMap, isAuthenticated: () => boolean }) {
-        const byRoute: { [path: string]: { route?: string, authDependentRoutes?: { true?: string, false?: string } } } = {}
+    constructor(
+        private options: { routes: RouteMap; isAuthenticated: () => boolean },
+    ) {
+        const byRoute: {
+            [path: string]: {
+                route?: string
+                authDependentRoutes?: { true?: string; false?: string }
+            }
+        } = {}
         const resolver = (path: string) => {
             return () => {
                 const routeEntry = byRoute[path]
                 if (routeEntry.authDependentRoutes) {
                     const isAuthenticated = options.isAuthenticated()
-                    return routeEntry.authDependentRoutes[isAuthenticated ? 'true' : 'false']
+                    return routeEntry.authDependentRoutes[
+                        isAuthenticated ? 'true' : 'false'
+                    ]
                 } else {
                     return routeEntry.route
                 }
@@ -26,15 +35,22 @@ export default class Routes {
                 routeEntry = byRoute[route.path] = {}
             }
             if (typeof route.ifAuth !== 'undefined') {
-                routeEntry.authDependentRoutes = routeEntry.authDependentRoutes || {}
-                routeEntry.authDependentRoutes[route.ifAuth ? 'true' : 'false'] = name
+                routeEntry.authDependentRoutes =
+                    routeEntry.authDependentRoutes || {}
+                routeEntry.authDependentRoutes[
+                    route.ifAuth ? 'true' : 'false'
+                ] = name
             } else {
                 routeEntry.route = name
             }
         }
     }
 
-    getUrl(route: RouteName, params: { [key: string]: string } = {}, options?: {}): string {
+    getUrl(
+        route: RouteName,
+        params: { [key: string]: string } = {},
+        options?: {},
+    ): string {
         const routeConfig = this.options.routes[route]
         if (!routeConfig) {
             throw new Error(`No such route ${route}`)
@@ -48,7 +64,9 @@ export default class Routes {
         return url
     }
 
-    matchUrl(url: string): { route: RouteName, params: { [key: string]: string } } | null {
+    matchUrl(
+        url: string,
+    ): { route: RouteName; params: { [key: string]: string } } | null {
         const urlObject = new URL(url)
 
         const match = this.router.match(urlObject.pathname)

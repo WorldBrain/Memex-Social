@@ -1,7 +1,13 @@
-export type RouteName = 'landingPage' | 'userHome' | 'collectionDetails' | 'pageDetails' | 'annotationDetails' | 'homeFeed'
+export type RouteName =
+    | 'landingPage'
+    | 'userHome'
+    | 'collectionDetails'
+    | 'pageDetails'
+    | 'annotationDetails'
+    | 'homeFeed'
 export type RouteMap = { [Name in RouteName]: Route }
 export interface Route {
-    path: string,
+    path: string
     ifAuth?: boolean
 }
 

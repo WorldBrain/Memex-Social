@@ -1,19 +1,25 @@
-import createBrowserHistory from "history/createBrowserHistory";
+import createBrowserHistory from 'history/createBrowserHistory'
 import * as serviceWorker from './serviceWorker'
-import { BackendType } from './types';
-import { mainProgram } from "./setup/main";
-import { metaProgram } from "./setup/meta";
-import { ProgramQueryParams } from "./setup/types";
-import { runDevelopmentRpc } from "./rpc";
+import { BackendType } from './types'
+import { mainProgram } from './setup/main'
+import { metaProgram } from './setup/meta'
+import { ProgramQueryParams } from './setup/types'
+import { runDevelopmentRpc } from './rpc'
 
-export async function setup(options: { backend: BackendType, logLogicEvents?: boolean, queryParams: ProgramQueryParams }) {
+export async function setup(options: {
+    backend: BackendType
+    logLogicEvents?: boolean
+    queryParams: ProgramQueryParams
+}) {
     const runMetaProgram = options.queryParams.meta === 'true'
     if (!(process.env.NODE_ENV === 'development' && runMetaProgram)) {
         const setup = await mainProgram(options)
         Object.assign(window, setup)
     } else {
         if (options.backend !== 'memory') {
-            throw new Error(`You tried to run the Meta UI without using the 'memory' backend. Killing myself to avert disaster, goodbye!`)
+            throw new Error(
+                `You tried to run the Meta UI without using the 'memory' backend. Killing myself to avert disaster, goodbye!`,
+            )
         }
 
         const history = createBrowserHistory()
@@ -23,8 +29,15 @@ export async function setup(options: { backend: BackendType, logLogicEvents?: bo
     serviceWorker.unregister()
 }
 
-export async function main(options: { backend: BackendType, logLogicEvents?: boolean, queryParams: ProgramQueryParams }) {
-    if (process.env.NODE_ENV === 'development' && options.queryParams.rpc === 'true') {
+export async function main(options: {
+    backend: BackendType
+    logLogicEvents?: boolean
+    queryParams: ProgramQueryParams
+}) {
+    if (
+        process.env.NODE_ENV === 'development' &&
+        options.queryParams.rpc === 'true'
+    ) {
         runDevelopmentRpc()
     } else {
         await setup(options)

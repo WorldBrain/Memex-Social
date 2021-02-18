@@ -21,7 +21,8 @@ const Container = styled.div`
     height: min-content;
     justify-content: start;
     align-items: center;
-    ${(props) => `margin: ${props.theme.spacing.small} ${props.theme.spacing.small} 0 0;`}
+    ${(props) =>
+        `margin: ${props.theme.spacing.small} ${props.theme.spacing.small} 0 0;`}
 `
 
 const Button = styled.div<{
@@ -35,7 +36,8 @@ const Button = styled.div<{
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    ${(props) => `padding: ${props.theme.spacing.small} ${props.theme.spacing.medium};`}
+    ${(props) =>
+        `padding: ${props.theme.spacing.small} ${props.theme.spacing.medium};`}
     ${(props) =>
         props.supportedTaskState === 'pristine' &&
         `border: 2px solid ${props.theme.colors.grey};`}
@@ -133,8 +135,9 @@ export class CuratorSupportButtonBlock extends UIElement<
             <ButtonInnerText>
                 {toggleRelationshipTaskState === 'pristine' &&
                     'Support Curator'}
-                {toggleRelationshipTaskState === 'success' &&
-                    <BoldText>Supported</BoldText>}
+                {toggleRelationshipTaskState === 'success' && (
+                    <BoldText>Supported</BoldText>
+                )}
                 {toggleRelationshipTaskState === 'error' && (
                     <div>
                         Error processing payment. <BoldText>Try again</BoldText>

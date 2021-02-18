@@ -3,15 +3,15 @@ import styled from 'styled-components'
 import { theme } from '../../../../main-ui/styles/theme'
 import { Theme } from '../../../../main-ui/styles/types'
 
-const StyledActionButton = styled.div<{ 
+const StyledActionButton = styled.div<{
     theme: Theme
     disabled: boolean | undefined
     minWidth: string | undefined
     backgroundColor: string
 }>`
-    min-width: ${props => props.minWidth ? props.minWidth : 'min-content'};
+    min-width: ${(props) => (props.minWidth ? props.minWidth : 'min-content')};
     padding: 8px 20px;
-    border: 1px solid ${props => props.theme.colors.secondary};
+    border: 1px solid ${(props) => props.theme.colors.secondary};
     height: 35px;
     overflow: visible;
     white-space: nowrap;
@@ -19,10 +19,11 @@ const StyledActionButton = styled.div<{
     justify-content: center;
     align-items: center;
     vertical-align: middle;
-    background: ${(props) => (props.disabled ? props.theme.colors.lightgrey : props.backgroundColor)};
+    background: ${(props) =>
+        props.disabled ? props.theme.colors.lightgrey : props.backgroundColor};
 
     box-sizing: border-box;
-    border-radius: ${props => props.theme.borderRadii.default};
+    border-radius: ${(props) => props.theme.borderRadii.default};
     cursor: pointer;
 
     &:focus {
@@ -35,25 +36,25 @@ const StyledActionButton = styled.div<{
 `
 
 const StyledActionLinkText = styled.div<{ theme: Theme }>`
-    font-family: ${props => props.theme.fonts.primary};
-    font-weight: ${props => props.theme.fontWeights.bold};
-    font-size: ${props => props.theme.fontSizes.text};
-    line-height: ${props => props.theme.lineHeights.text};
-    color: ${props => props.theme.colors.primary};
+    font-family: ${(props) => props.theme.fonts.primary};
+    font-weight: ${(props) => props.theme.fontWeights.bold};
+    font-size: ${(props) => props.theme.fontSizes.text};
+    line-height: ${(props) => props.theme.lineHeights.text};
+    color: ${(props) => props.theme.colors.primary};
     text-align: center;
     overflow: visible;
     white-space: nowrap;
     display: flex;
     justify-content: center;
-    align-items: center
+    align-items: center;
 `
 
 export const PrimaryActionButton = ({
-    label, 
+    label,
     onClick,
     disabled,
     innerRef,
-    minWidth
+    minWidth,
 }: {
     label: React.ReactNode
     onClick: () => void
@@ -80,11 +81,11 @@ const StyledSecondaryActionButton = styled(StyledActionButton)`
 `
 
 export const SecondaryActionButton = ({
-    label, 
+    label,
     onClick,
     disabled,
     innerRef,
-    minWidth
+    minWidth,
 }: {
     label: React.ReactNode
     onClick: () => void

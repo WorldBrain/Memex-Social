@@ -1,18 +1,53 @@
-import flatten from "lodash/flatten"
-import sortBy from "lodash/sortBy"
-import orderBy from "lodash/orderBy"
-import { ActivityStreamResultGroup, ActivityStream } from "@worldbrain/memex-common/lib/activity-streams/types"
-import { UILogic, UIEventHandler, loadInitial, executeUITask, UIMutation } from "../../../../../main-ui/classes/logic"
-import { HomeFeedEvent, HomeFeedDependencies, HomeFeedState, PageActivityItem, AnnotationActivityItem, ActivityItem, ActivityData, ListEntryActivityItem, ListActivityItem } from "./types"
-import { getInitialAnnotationConversationStates } from "../../../../content-conversations/ui/utils"
-import { annotationConversationInitialState, annotationConversationEventHandlers } from "../../../../content-conversations/ui/logic"
-import { activityFollowsInitialState, activityFollowsEventHandlers } from '../../../../activity-follows/ui/logic'
-import UserProfileCache from "../../../../user-management/utils/user-profile-cache"
-import { createOrderedMap, arrayToOrderedMap } from "../../../../../utils/ordered-map"
+import flatten from 'lodash/flatten'
+import sortBy from 'lodash/sortBy'
+import orderBy from 'lodash/orderBy'
+import {
+    ActivityStreamResultGroup,
+    ActivityStream,
+} from '@worldbrain/memex-common/lib/activity-streams/types'
+import {
+    UILogic,
+    UIEventHandler,
+    loadInitial,
+    executeUITask,
+    UIMutation,
+} from '../../../../../main-ui/classes/logic'
+import {
+    HomeFeedEvent,
+    HomeFeedDependencies,
+    HomeFeedState,
+    PageActivityItem,
+    AnnotationActivityItem,
+    ActivityItem,
+    ActivityData,
+    ListEntryActivityItem,
+    ListActivityItem,
+} from './types'
+import { getInitialAnnotationConversationStates } from '../../../../content-conversations/ui/utils'
+import {
+    annotationConversationInitialState,
+    annotationConversationEventHandlers,
+} from '../../../../content-conversations/ui/logic'
+import {
+    activityFollowsInitialState,
+    activityFollowsEventHandlers,
+} from '../../../../activity-follows/ui/logic'
+import UserProfileCache from '../../../../user-management/utils/user-profile-cache'
+import {
+    createOrderedMap,
+    arrayToOrderedMap,
+} from '../../../../../utils/ordered-map'
 
-type EventHandler<EventName extends keyof HomeFeedEvent> = UIEventHandler<HomeFeedState, HomeFeedEvent, EventName>
+type EventHandler<EventName extends keyof HomeFeedEvent> = UIEventHandler<
+    HomeFeedState,
+    HomeFeedEvent,
+    EventName
+>
 
-export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent> {
+export default class HomeFeedLogic extends UILogic<
+    HomeFeedState,
+    HomeFeedEvent
+> {
     pageSize = 50
     itemOffset = 0
     hasMore = true
@@ -23,21 +58,30 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
 
         this.users = new UserProfileCache(dependencies)
 
-        Object.assign(this, annotationConversationEventHandlers<HomeFeedState>(this as any, {
-            ...this.dependencies,
-            getAnnotation: (state, reference) => {
-                const annotation = state.annotations[reference.id]
-                if (!annotation) {
-                    return null
-                }
-                return { annotation, pageCreatorReference: annotation.creatorReference }
-            },
-            loadUser: reference => this.users.loadUser(reference),
-        }))
+        Object.assign(
+            this,
+            annotationConversationEventHandlers<HomeFeedState>(this as any, {
+                ...this.dependencies,
+                getAnnotation: (state, reference) => {
+                    const annotation = state.annotations[reference.id]
+                    if (!annotation) {
+                        return null
+                    }
+                    return {
+                        annotation,
+                        pageCreatorReference: annotation.creatorReference,
+                    }
+                },
+                loadUser: (reference) => this.users.loadUser(reference),
+            }),
+        )
 
-        Object.assign(this, activityFollowsEventHandlers(this as any, {
-            ...this.dependencies,
-        }))
+        Object.assign(
+            this,
+            activityFollowsEventHandlers(this as any, {
+                ...this.dependencies,
+            }),
+        )
     }
 
     getInitialState(): HomeFeedState {
@@ -58,14 +102,17 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
         const userReference = this.dependencies.services.auth.getCurrentUserReference()
         if (!userReference) {
             // Firebase auth doesn't immediately detect authenticated users, so wait if needed
-            await new Promise(resolve => {
+            await new Promise((resolve) => {
                 this.dependencies.services.auth.events.once('changed', () => {
                     resolve()
                 })
             })
         }
         await this.loadNextActivities(previousState, { isInitial: true })
-        await this.processUIEvent('initActivityFollows', { previousState, event })
+        await this.processUIEvent('initActivityFollows', {
+            previousState,
+            event,
+        })
     }
 
     waypointHit: EventHandler<'waypointHit'> = async ({ previousState }) => {
@@ -74,8 +121,13 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
         }
     }
 
-    toggleListEntryActivityAnnotations: EventHandler<'toggleListEntryActivityAnnotations'> = async ({ event, previousState }) => {
-        const list = previousState.activityItems.items[event.listReference.id] as ListActivityItem
+    toggleListEntryActivityAnnotations: EventHandler<'toggleListEntryActivityAnnotations'> = async ({
+        event,
+        previousState,
+    }) => {
+        const list = previousState.activityItems.items[
+            event.listReference.id
+        ] as ListActivityItem
         const entry = list.entries.items[event.listEntryReference.id]
 
         // Things have already been loaded earlier, so just toggle the show state
@@ -87,179 +139,235 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
                             entries: {
                                 items: {
                                     [event.listEntryReference.id]: {
-                                        areAnnotationsShown: { $set: !entry.areAnnotationsShown }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+                                        areAnnotationsShown: {
+                                            $set: !entry.areAnnotationsShown,
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
             })
             return
         }
 
-        await executeUITask<HomeFeedState>(this, (taskState) => ({
-            activityItems: {
-                items: {
-                    [event.listReference.id]: {
-                        entries: {
-                            items: {
-                                [event.listEntryReference.id]: {
-                                    annotationsLoadState: { $set: taskState },
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }), async () => {
-            const { contentSharing, contentConversations } = this.dependencies.storage
-
-            const annotations = await contentSharing.getAnnotationsByCreatorAndPageUrl({
-                normalizedPageUrl: entry.normalizedPageUrl,
-                creatorReference: entry.creator,
-            })
-            const repliesByAnnotation = await contentConversations.getRepliesByAnnotations({
-                annotationReferences: annotations.map(a => a.reference),
-            })
-
-            const annotationItems: AnnotationActivityItem[] = annotations.map((a, i) => ({
-                type: 'annotation-item',
-                reference: a.reference,
-                hasEarlierReplies: i !== 0,
-                replies: repliesByAnnotation[a.reference.id],
-            }))
-
-            const annotationsData: ActivityData['annotations'] = {}
-            const repliesData: ActivityData['replies'] = {}
-
-            for (const annotation of annotations) {
-                annotationsData[annotation.reference.id] = {
-                    ...annotation,
-                    creatorReference: annotation.creator,
-                    linkId: annotation.reference.id as string,
-                }
-            }
-
-            for (const replies of Object.values(repliesByAnnotation)) {
-                for (const reply of replies) {
-                    repliesData[event.groupId] = {
-                        ...(repliesData[event.groupId] ?? {}),
-                        [reply.reference.id]: {
-                            creatorReference: reply.userReference,
-                            reference: reply.reference,
-                            reply: {
-                                content: reply.reply.content,
-                                createdWhen: reply.reply.createdWhen,
-                                normalizedPageUrl: reply.reply.normalizedPageUrl,
-                            },
-                        }
-                    }
-                }
-            }
-
-            const conversationsData: HomeFeedState['conversations'] = {
-                [event.groupId]: {
-                    loadState: 'pristine',
-                    expanded: false,
-                    newReply: {
-                        content: '',
-                        editing: false,
-                        saveState: 'pristine',
-                    },
-                    replies: await Promise.all(Object.values(repliesData[event.groupId]).map(async reply => ({
-                        reference: reply.reference,
-                        reply: reply.reply,
-                        user: await this.users.loadUser(reply.creatorReference),
-                    }))),
-                }
-            }
-
-            this.emitMutation({
-                replies: { $merge: repliesData },
-                annotations: { $merge: annotationsData },
-                conversations: { $merge: conversationsData },
+        await executeUITask<HomeFeedState>(
+            this,
+            (taskState) => ({
                 activityItems: {
                     items: {
                         [event.listReference.id]: {
                             entries: {
                                 items: {
                                     [event.listEntryReference.id]: {
-                                        areAnnotationsShown: { $set: !entry.areAnnotationsShown },
-                                        annotations: {
-                                            $set: arrayToOrderedMap(annotationItems, item => item.reference.id),
+                                        annotationsLoadState: {
+                                            $set: taskState,
                                         },
                                     },
                                 },
-                            }
+                            },
+                        },
+                    },
+                },
+            }),
+            async () => {
+                const {
+                    contentSharing,
+                    contentConversations,
+                } = this.dependencies.storage
+
+                const annotations = await contentSharing.getAnnotationsByCreatorAndPageUrl(
+                    {
+                        normalizedPageUrl: entry.normalizedPageUrl,
+                        creatorReference: entry.creator,
+                    },
+                )
+                const repliesByAnnotation = await contentConversations.getRepliesByAnnotations(
+                    {
+                        annotationReferences: annotations.map(
+                            (a) => a.reference,
+                        ),
+                    },
+                )
+
+                const annotationItems: AnnotationActivityItem[] = annotations.map(
+                    (a, i) => ({
+                        type: 'annotation-item',
+                        reference: a.reference,
+                        hasEarlierReplies: i !== 0,
+                        replies: repliesByAnnotation[a.reference.id],
+                    }),
+                )
+
+                const annotationsData: ActivityData['annotations'] = {}
+                const repliesData: ActivityData['replies'] = {}
+
+                for (const annotation of annotations) {
+                    annotationsData[annotation.reference.id] = {
+                        ...annotation,
+                        creatorReference: annotation.creator,
+                        linkId: annotation.reference.id as string,
+                    }
+                }
+
+                for (const replies of Object.values(repliesByAnnotation)) {
+                    for (const reply of replies) {
+                        repliesData[event.groupId] = {
+                            ...(repliesData[event.groupId] ?? {}),
+                            [reply.reference.id]: {
+                                creatorReference: reply.userReference,
+                                reference: reply.reference,
+                                reply: {
+                                    content: reply.reply.content,
+                                    createdWhen: reply.reply.createdWhen,
+                                    normalizedPageUrl:
+                                        reply.reply.normalizedPageUrl,
+                                },
+                            },
                         }
                     }
                 }
-            })
-        })
+
+                const conversationsData: HomeFeedState['conversations'] = {
+                    [event.groupId]: {
+                        loadState: 'pristine',
+                        expanded: false,
+                        newReply: {
+                            content: '',
+                            editing: false,
+                            saveState: 'pristine',
+                        },
+                        replies: await Promise.all(
+                            Object.values(repliesData[event.groupId]).map(
+                                async (reply) => ({
+                                    reference: reply.reference,
+                                    reply: reply.reply,
+                                    user: await this.users.loadUser(
+                                        reply.creatorReference,
+                                    ),
+                                }),
+                            ),
+                        ),
+                    },
+                }
+
+                this.emitMutation({
+                    replies: { $merge: repliesData },
+                    annotations: { $merge: annotationsData },
+                    conversations: { $merge: conversationsData },
+                    activityItems: {
+                        items: {
+                            [event.listReference.id]: {
+                                entries: {
+                                    items: {
+                                        [event.listEntryReference.id]: {
+                                            areAnnotationsShown: {
+                                                $set: !entry.areAnnotationsShown,
+                                            },
+                                            annotations: {
+                                                $set: arrayToOrderedMap(
+                                                    annotationItems,
+                                                    (item) => item.reference.id,
+                                                ),
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                })
+            },
+        )
     }
 
     loadMoreReplies: EventHandler<'loadMoreReplies'> = async (incoming) => {
         const { groupId } = incoming.event
 
-        await executeUITask<HomeFeedState>(this, (taskState) => ({
-            moreRepliesLoadStates: { [groupId]: { $set: taskState } }
-        }), async () => {
-            const replies = (await this.dependencies.storage.contentConversations.getRepliesByAnnotation({
-                annotationReference: incoming.event.annotationReference,
-            })).filter(replyData => (
-                // don't process already loaded replies
-                !incoming.previousState.replies[groupId][replyData.reference.id]
-            ))
-            const conversationsMutations: UIMutation<HomeFeedState['conversations']> = {}
-            conversationsMutations[groupId] = {
-                replies: {
-                    $unshift: await Promise.all(replies.map(async replyData => ({
-                        reference: replyData.reference,
-                        user: await this.users.loadUser(replyData.userReference),
-                        reply: replyData.reply,
-                    })))
+        await executeUITask<HomeFeedState>(
+            this,
+            (taskState) => ({
+                moreRepliesLoadStates: { [groupId]: { $set: taskState } },
+            }),
+            async () => {
+                const replies = (
+                    await this.dependencies.storage.contentConversations.getRepliesByAnnotation(
+                        {
+                            annotationReference:
+                                incoming.event.annotationReference,
+                        },
+                    )
+                ).filter(
+                    (replyData) =>
+                        // don't process already loaded replies
+                        !incoming.previousState.replies[groupId][
+                            replyData.reference.id
+                        ],
+                )
+                const conversationsMutations: UIMutation<
+                    HomeFeedState['conversations']
+                > = {}
+                conversationsMutations[groupId] = {
+                    replies: {
+                        $unshift: await Promise.all(
+                            replies.map(async (replyData) => ({
+                                reference: replyData.reference,
+                                user: await this.users.loadUser(
+                                    replyData.userReference,
+                                ),
+                                reply: replyData.reply,
+                            })),
+                        ),
+                    },
                 }
-            }
 
-            const repliesMutation: UIMutation<HomeFeedState['replies']> = {}
-            for (const replyData of replies) {
-                repliesMutation[groupId] = repliesMutation[groupId] ?? {}
-                repliesMutation[groupId] = {
-                    ...repliesMutation[groupId],
-                    [replyData.reference.id]: {
-                        $set: {
-                            reference: replyData.reference,
-                            creatorReference: replyData.userReference,
-                            reply: replyData.reply,
-                        }
+                const repliesMutation: UIMutation<HomeFeedState['replies']> = {}
+                for (const replyData of replies) {
+                    repliesMutation[groupId] = repliesMutation[groupId] ?? {}
+                    repliesMutation[groupId] = {
+                        ...repliesMutation[groupId],
+                        [replyData.reference.id]: {
+                            $set: {
+                                reference: replyData.reference,
+                                creatorReference: replyData.userReference,
+                                reply: replyData.reply,
+                            },
+                        },
                     }
                 }
-            }
 
-            return {
-                mutation: {
-                    conversations: conversationsMutations,
-                    replies: repliesMutation
+                return {
+                    mutation: {
+                        conversations: conversationsMutations,
+                        replies: repliesMutation,
+                    },
                 }
-            }
-        })
+            },
+        )
     }
 
-    private async checkAnnotationsExistForActivityItems({ activityItems }: HomeFeedState) {
+    private async checkAnnotationsExistForActivityItems({
+        activityItems,
+    }: HomeFeedState) {
         for (const activityItemKey of activityItems.order) {
             const activityItem = activityItems.items[activityItemKey]
-            if (activityItem.type !== 'list-item' || activityItem.reason !== 'pages-added-to-list') {
+            if (
+                activityItem.type !== 'list-item' ||
+                activityItem.reason !== 'pages-added-to-list'
+            ) {
                 continue
             }
 
             for (const entryKey of activityItem.entries.order) {
                 const listEntry = activityItem.entries.items[entryKey]
 
-                const hasAnnotations = await this.dependencies.storage.contentSharing.doesAnnotationExistForPageInList({
-                    listReference: activityItem.listReference,
-                    normalizedPageUrl: listEntry.normalizedPageUrl,
-                })
+                const hasAnnotations = await this.dependencies.storage.contentSharing.doesAnnotationExistForPageInList(
+                    {
+                        listReference: activityItem.listReference,
+                        normalizedPageUrl: listEntry.normalizedPageUrl,
+                    },
+                )
 
                 // They're set false by default, so only emit mutation if otherwise
                 if (!hasAnnotations) {
@@ -269,23 +377,28 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
                 this.emitMutation({
                     activityItems: {
                         items: {
-                            [activityItemKey]:  {
+                            [activityItemKey]: {
                                 entries: {
                                     items: {
                                         [entryKey]: {
-                                            hasAnnotations: { $set: hasAnnotations },
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                                            hasAnnotations: {
+                                                $set: hasAnnotations,
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
                 })
             }
         }
     }
 
-    async loadNextActivities(previousState: HomeFeedState, options?: { isInitial?: boolean }) {
+    async loadNextActivities(
+        previousState: HomeFeedState,
+        options?: { isInitial?: boolean },
+    ) {
         const userReference = this.dependencies.services.auth.getCurrentUserReference()
         if (!userReference) {
             return
@@ -305,7 +418,12 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
         const mainMutation: UIMutation<HomeFeedState> = {}
 
         await loader(async () => {
-            const { activityGroups, hasMore } = await this.dependencies.services.activityStreams.getHomeFeedActivities({ offset: this.itemOffset, limit: this.pageSize })
+            const {
+                activityGroups,
+                hasMore,
+            } = await this.dependencies.services.activityStreams.getHomeFeedActivities(
+                { offset: this.itemOffset, limit: this.pageSize },
+            )
             this.itemOffset += this.pageSize
             if (!activityGroups.length) {
                 this.hasMore = false
@@ -316,27 +434,37 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
             const organized = organizeActivities(activityGroups)
             activityData = organized.data
 
-            const conversations = getInitialAnnotationConversationStates(organized.activityItems.map((activityItem) => ({
-                linkId: activityItem.groupId,
-            })))
+            const conversations = getInitialAnnotationConversationStates(
+                organized.activityItems.map((activityItem) => ({
+                    linkId: activityItem.groupId,
+                })),
+            )
             for (const groupId of Object.keys(organized.data.replies)) {
-                const annotationReplies = activityData.annotationItems[groupId].replies
+                const annotationReplies =
+                    activityData.annotationItems[groupId].replies
                 conversations[groupId] = {
                     ...conversations[groupId],
                     loadState: 'success',
                     expanded: true,
-                    replies: annotationReplies.map(replyItem => {
-                        return activityData?.replies[groupId]?.[replyItem.reference.id]!
-                    }).filter(reply => !!reply)
+                    replies: annotationReplies
+                        .map((replyItem) => {
+                            return activityData?.replies[groupId]?.[
+                                replyItem.reference.id
+                            ]!
+                        })
+                        .filter((reply) => !!reply),
                 }
             }
 
-            const nextActivityItems = arrayToOrderedMap(organized.activityItems, item => {
-                if (item.type === 'list-item') {
-                    return item.listReference.id
-                }
-                return item.normalizedPageUrl
-            })
+            const nextActivityItems = arrayToOrderedMap(
+                organized.activityItems,
+                (item) => {
+                    if (item.type === 'list-item') {
+                        return item.listReference.id
+                    }
+                    return item.normalizedPageUrl
+                },
+            )
 
             mainMutation.activityItems = {
                 order: { $push: nextActivityItems.order },
@@ -351,32 +479,58 @@ export default class HomeFeedLogic extends UILogic<HomeFeedState, HomeFeedEvent>
 
         const nextState = this.withMutation(previousState, mainMutation)
 
-        const allReplies = flatten(Object.values(activityData?.replies ?? {}).map(
-            annotationReplies => Object.values(annotationReplies))
+        const allReplies = flatten(
+            Object.values(
+                activityData?.replies ?? {},
+            ).map((annotationReplies) => Object.values(annotationReplies)),
         )
         await Promise.all([
-            ...Object.values(activityData?.annotations ?? {}).map(async ({ creatorReference }) => {
-                this.emitMutation({
-                    users: { [creatorReference.id]: { $set: await this.users.loadUser(creatorReference) } }
-                })
-            }),
+            ...Object.values(activityData?.annotations ?? {}).map(
+                async ({ creatorReference }) => {
+                    this.emitMutation({
+                        users: {
+                            [creatorReference.id]: {
+                                $set: await this.users.loadUser(
+                                    creatorReference,
+                                ),
+                            },
+                        },
+                    })
+                },
+            ),
             ...allReplies.map(async ({ creatorReference }) => {
                 this.emitMutation({
-                    users: { [creatorReference.id]: { $set: await this.users.loadUser(creatorReference) } }
+                    users: {
+                        [creatorReference.id]: {
+                            $set: await this.users.loadUser(creatorReference),
+                        },
+                    },
                 })
             }),
-            ...(options?.isInitial ? [this.dependencies.storage.activityStreams.updateHomeFeedTimestamp({
-                user: userReference,
-                timestamp: Date.now(),
-            }).then(({ previousTimestamp }) => {
-                this.emitMutation({ lastSeenTimestamp: { $set: previousTimestamp } })
-            })] : []),
+            ...(options?.isInitial
+                ? [
+                      this.dependencies.storage.activityStreams
+                          .updateHomeFeedTimestamp({
+                              user: userReference,
+                              timestamp: Date.now(),
+                          })
+                          .then(({ previousTimestamp }) => {
+                              this.emitMutation({
+                                  lastSeenTimestamp: {
+                                      $set: previousTimestamp,
+                                  },
+                              })
+                          }),
+                  ]
+                : []),
             this.checkAnnotationsExistForActivityItems(nextState),
         ])
     }
 }
 
-export function organizeActivities(activities: Array<ActivityStreamResultGroup<keyof ActivityStream>>): {
+export function organizeActivities(
+    activities: Array<ActivityStreamResultGroup<keyof ActivityStream>>,
+): {
     activityItems: Array<ActivityItem>
     data: ActivityData
 } {
@@ -389,15 +543,27 @@ export function organizeActivities(activities: Array<ActivityStreamResultGroup<k
 
     const activityItems: ActivityItem[] = []
     for (const activityGroup of activities) {
-        if (activityGroup.entityType === 'sharedAnnotation' && activityGroup.activityType === 'conversationReply') {
-            const replyActivityGroup = activityGroup as ActivityStreamResultGroup<'sharedAnnotation', 'conversationReply'>
-            replyActivityGroup.activities = sortBy(replyActivityGroup.activities, ({ activity }) => activity.reply.createdWhen)
+        if (
+            activityGroup.entityType === 'sharedAnnotation' &&
+            activityGroup.activityType === 'conversationReply'
+        ) {
+            const replyActivityGroup = activityGroup as ActivityStreamResultGroup<
+                'sharedAnnotation',
+                'conversationReply'
+            >
+            replyActivityGroup.activities = sortBy(
+                replyActivityGroup.activities,
+                ({ activity }) => activity.reply.createdWhen,
+            )
 
             const annotationItem: AnnotationActivityItem = {
                 type: 'annotation-item',
-                reference: replyActivityGroup.activities[0].activity.annotation.reference,
-                hasEarlierReplies: !replyActivityGroup.activities[0].activity.isFirstReply,
-                replies: []
+                reference:
+                    replyActivityGroup.activities[0].activity.annotation
+                        .reference,
+                hasEarlierReplies: !replyActivityGroup.activities[0].activity
+                    .isFirstReply,
+                replies: [],
             }
             data.annotationItems[activityGroup.id] = annotationItem
 
@@ -405,9 +571,13 @@ export function organizeActivities(activities: Array<ActivityStreamResultGroup<k
                 type: 'page-item',
                 groupId: activityGroup.id,
                 reason: 'new-replies',
-                normalizedPageUrl: replyActivityGroup.activities[0].activity.normalizedPageUrl,
+                normalizedPageUrl:
+                    replyActivityGroup.activities[0].activity.normalizedPageUrl,
                 notifiedWhen: 0,
-                annotations: arrayToOrderedMap([annotationItem], item => item.reference.id),
+                annotations: arrayToOrderedMap(
+                    [annotationItem],
+                    (item) => item.reference.id,
+                ),
             }
             // data.pageItems[pageItem.normalizedPageUrl] = pageItem
             activityItems.push(pageItem)
@@ -415,17 +585,20 @@ export function organizeActivities(activities: Array<ActivityStreamResultGroup<k
             for (const activityInGroup of replyActivityGroup.activities) {
                 const replyActivity = activityInGroup.activity
                 const annotationReference = replyActivityGroup.entity
-                data.pageInfo[replyActivity.normalizedPageUrl] = replyActivity.pageInfo
+                data.pageInfo[replyActivity.normalizedPageUrl] =
+                    replyActivity.pageInfo
                 data.annotations[annotationReference.id] = {
                     linkId: annotationReference.id as string,
                     creatorReference: replyActivity.annotationCreator.reference,
-                    ...replyActivity.annotation
+                    ...replyActivity.annotation,
                 }
 
                 if (!data.replies[activityGroup.id]) {
                     data.replies[activityGroup.id] = {}
                 }
-                data.replies[activityGroup.id][replyActivity.reply.reference.id] = {
+                data.replies[activityGroup.id][
+                    replyActivity.reply.reference.id
+                ] = {
                     reference: replyActivity.reply.reference,
                     creatorReference: replyActivity.replyCreator.reference,
                     reply: {
@@ -441,30 +614,47 @@ export function organizeActivities(activities: Array<ActivityStreamResultGroup<k
             }
         }
 
-        if (activityGroup.entityType === 'sharedList' && activityGroup.activityType === 'sharedListEntry') {
-            const entryActivityGroup = activityGroup as ActivityStreamResultGroup<'sharedList', 'sharedListEntry'>
-            entryActivityGroup.activities = orderBy(entryActivityGroup.activities, [({ activity }) => activity.entry.createdWhen], ['desc'])
+        if (
+            activityGroup.entityType === 'sharedList' &&
+            activityGroup.activityType === 'sharedListEntry'
+        ) {
+            const entryActivityGroup = activityGroup as ActivityStreamResultGroup<
+                'sharedList',
+                'sharedListEntry'
+            >
+            entryActivityGroup.activities = orderBy(
+                entryActivityGroup.activities,
+                [({ activity }) => activity.entry.createdWhen],
+                ['desc'],
+            )
             const { activity: firstActivity } = entryActivityGroup.activities[0]
 
             activityItems.push({
                 type: 'list-item',
                 groupId: entryActivityGroup.id,
-                reason:'pages-added-to-list',
+                reason: 'pages-added-to-list',
                 listName: firstActivity.list.title,
                 listReference: firstActivity.list.reference,
                 notifiedWhen: firstActivity.entry.createdWhen,
-                entries: arrayToOrderedMap(entryActivityGroup.activities.map(({ activity }): ListEntryActivityItem => ({
-                    type: 'list-entry-item',
-                    areAnnotationsShown: false,
-                    annotations: createOrderedMap(),
-                    annotationsLoadState: 'pristine',
-                    reference: activity.entry.reference,
-                    entryTitle: activity.entry.entryTitle,
-                    originalUrl: activity.entry.originalUrl,
-                    creator: activity.entryCreator.reference,
-                    normalizedPageUrl: activity.entry.normalizedUrl,
-                    activityTimestamp: activity.entry.updatedWhen ?? activity.entry.createdWhen,
-                })), item => item.reference.id)
+                entries: arrayToOrderedMap(
+                    entryActivityGroup.activities.map(
+                        ({ activity }): ListEntryActivityItem => ({
+                            type: 'list-entry-item',
+                            areAnnotationsShown: false,
+                            annotations: createOrderedMap(),
+                            annotationsLoadState: 'pristine',
+                            reference: activity.entry.reference,
+                            entryTitle: activity.entry.entryTitle,
+                            originalUrl: activity.entry.originalUrl,
+                            creator: activity.entryCreator.reference,
+                            normalizedPageUrl: activity.entry.normalizedUrl,
+                            activityTimestamp:
+                                activity.entry.updatedWhen ??
+                                activity.entry.createdWhen,
+                        }),
+                    ),
+                    (item) => item.reference.id,
+                ),
             })
         }
     }

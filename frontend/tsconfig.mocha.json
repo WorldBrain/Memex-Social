@@ -27,11 +27,7 @@
             "src/*": ["src/*"]
         },
         "lib": ["es2017", "dom", "esnext.asynciterable"],
-        "types": [
-            "mocha",
-            "node",
-            "webpack-env"
-        ]
+        "types": ["mocha", "node", "webpack-env"]
     },
     "include": ["./src/**/*"],
     "exclude": ["node_modules", "./src/**/*.js", "./src/**/*.jsx"]

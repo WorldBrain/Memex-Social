@@ -1,106 +1,121 @@
-import React from "react";
-import { UIElement } from "../../../../../main-ui/classes";
-import Logic from "./logic";
+import React from 'react'
+import { UIElement } from '../../../../../main-ui/classes'
+import Logic from './logic'
 import {
-  AuthHeaderEvent,
-  AuthHeaderDependencies,
-  AuthHeaderState,
-} from "./types";
-import styled from "styled-components";
-import UserAvatar from "../../../../../common-ui/components/user-avatar";
-import { Margin } from "styled-components-spacing";
-import { Closable } from "../../../../../common-ui/components/closable";
-import AuthMenu from "../../components/auth-menu";
-import ProfileEditModal from "../profile-edit-modal";
+    AuthHeaderEvent,
+    AuthHeaderDependencies,
+    AuthHeaderState,
+} from './types'
+import styled from 'styled-components'
+import UserAvatar from '../../../../../common-ui/components/user-avatar'
+import { Margin } from 'styled-components-spacing'
+import { Closable } from '../../../../../common-ui/components/closable'
+import AuthMenu from '../../components/auth-menu'
+import ProfileEditModal from '../profile-edit-modal'
 
-const StyledAuthHeader = styled.div``;
+const StyledAuthHeader = styled.div``
 const LoginAction = styled.div`
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: bold;
-`;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+`
 const UserInfo = styled.div`
-  display: flex;
-  flex-direction: row-reverse;
-  align-items: center;
-  cursor: pointer;
-`;
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    cursor: pointer;
+`
 const DisplayName = styled.div`
-  display: inline-block;
-`;
+    display: inline-block;
+`
 const MenuContainerOuter = styled.div`
-  position: relative;
-`;
+    position: relative;
+`
 const MenuContainerInner = styled.div`
-  position: absolute;
-  display: flex;
-  top: 15px;
-  right: 0;
-`;
+    position: absolute;
+    display: flex;
+    top: 15px;
+    right: 0;
+`
 
 export default class AuthHeader extends UIElement<
-  AuthHeaderDependencies,
-  AuthHeaderState,
-  AuthHeaderEvent
+    AuthHeaderDependencies,
+    AuthHeaderState,
+    AuthHeaderEvent
 > {
-  constructor(props: AuthHeaderDependencies) {
-    super(props, { logic: new Logic(props) });
-  }
-
-  render() {
-    if (!this.state.user) {
-      return (
-        <LoginAction onClick={() => this.processEvent("login", null)}>
-          Login
-        </LoginAction>
-      );
+    constructor(props: AuthHeaderDependencies) {
+        super(props, { logic: new Logic(props) })
     }
 
-    return (
-      <>
-        <StyledAuthHeader>
-          <UserInfo onClick={() => this.processEvent("toggleMenu", null)}>
-            <UserAvatar user={this.state.user} />
-            <Margin right={"medium"}>
-              <DisplayName>{this.state.user.displayName}</DisplayName>
-            </Margin>
-          </UserInfo>
-          {this.state.showMenu && (
-            <Closable onClose={() => this.processEvent("hideMenu", null)}>
-              <MenuContainerOuter>
-                <MenuContainerInner>
-                  <AuthMenu
-                    onSettingsRequested={() => {
-                      this.processEvent('hideMenu', null)
-                      this.processEvent("showSettings", null)
-                    }
-                    }
-                    onLogoutRequested={() => this.processEvent("logout", null)}
-                    onAccountSettingsRequested={() => {
-                      this.processEvent('hideMenu', null)
-                      this.processEvent("showAccountSettings", null)
-                    }}
-                  />
-                </MenuContainerInner>
-              </MenuContainerOuter>
-            </Closable>
-          )}
-        </StyledAuthHeader>
-        {/* {this.state.showSettings && (
+    render() {
+        if (!this.state.user) {
+            return (
+                <LoginAction onClick={() => this.processEvent('login', null)}>
+                    Login
+                </LoginAction>
+            )
+        }
+
+        return (
+            <>
+                <StyledAuthHeader>
+                    <UserInfo
+                        onClick={() => this.processEvent('toggleMenu', null)}
+                    >
+                        <UserAvatar user={this.state.user} />
+                        <Margin right={'medium'}>
+                            <DisplayName>
+                                {this.state.user.displayName}
+                            </DisplayName>
+                        </Margin>
+                    </UserInfo>
+                    {this.state.showMenu && (
+                        <Closable
+                            onClose={() => this.processEvent('hideMenu', null)}
+                        >
+                            <MenuContainerOuter>
+                                <MenuContainerInner>
+                                    <AuthMenu
+                                        onSettingsRequested={() => {
+                                            this.processEvent('hideMenu', null)
+                                            this.processEvent(
+                                                'showSettings',
+                                                null,
+                                            )
+                                        }}
+                                        onLogoutRequested={() =>
+                                            this.processEvent('logout', null)
+                                        }
+                                        onAccountSettingsRequested={() => {
+                                            this.processEvent('hideMenu', null)
+                                            this.processEvent(
+                                                'showAccountSettings',
+                                                null,
+                                            )
+                                        }}
+                                    />
+                                </MenuContainerInner>
+                            </MenuContainerOuter>
+                        </Closable>
+                    )}
+                </StyledAuthHeader>
+                {/* {this.state.showSettings && (
           <AccountSettings
             services={this.props.services}
             storage={this.props.storage}
             onCloseRequested={() => this.processEvent("hideSettings", null)}
           />
         )} */}
-        {this.state.showAccountSettings && (
-          <ProfileEditModal
-            services={this.props.services}
-            storage={this.props.storage}
-            onCloseRequested={() => this.processEvent("hideAccountSettings", null)}
-          />
-        )}
-      </>
-    );
-  }
+                {this.state.showAccountSettings && (
+                    <ProfileEditModal
+                        services={this.props.services}
+                        storage={this.props.storage}
+                        onCloseRequested={() =>
+                            this.processEvent('hideAccountSettings', null)
+                        }
+                    />
+                )}
+            </>
+        )
+    }
 }

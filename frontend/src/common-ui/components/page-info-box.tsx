@@ -1,15 +1,15 @@
-import moment from "moment";
-import React from "react";
-import styled from "styled-components";
-import { Margin } from "styled-components-spacing";
-import { SharedPageInfo } from "@worldbrain/memex-common/lib/content-sharing/types";
-import ItemBox from "../components/item-box";
+import moment from 'moment'
+import React from 'react'
+import styled from 'styled-components'
+import { Margin } from 'styled-components-spacing'
+import { SharedPageInfo } from '@worldbrain/memex-common/lib/content-sharing/types'
+import ItemBox from '../components/item-box'
 
 const PageBox = styled.div`
-  display: flex;
-  width: 100%;
-  justify-content: space-between;
-`;
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+`
 
 const PageContentBox = styled.div`
     display: flex;
@@ -28,67 +28,67 @@ const PageContentBoxBottom = styled.div`
 `
 
 const PageInfoBoxLink = styled.a`
-  text-decoration: none;
-`;
+    text-decoration: none;
+`
 
 const PageInfoBoxLeft = styled.div`
-  text-decoration: none;
-`;
+    text-decoration: none;
+`
 
 const PageInfoBoxTop = styled.div`
-  display: flex;
-`;
+    display: flex;
+`
 const PageInfoBoxTitle = styled.div`
-  flex-grow: 2;
-  font-weight: 600;
-  color: ${(props) => props.theme.colors.primary};
-  text-decoration: none;
-  font-size: ${(props) => props.theme.fontSizes.listTitle};
-  text-overflow: ellipsis;
-  overflow-x: hidden;
-  text-decoration: none;
-  overflow-wrap: break-word;
-  white-space: nowrap;
-`;
+    flex-grow: 2;
+    font-weight: 600;
+    color: ${(props) => props.theme.colors.primary};
+    text-decoration: none;
+    font-size: ${(props) => props.theme.fontSizes.listTitle};
+    text-overflow: ellipsis;
+    overflow-x: hidden;
+    text-decoration: none;
+    overflow-wrap: break-word;
+    white-space: nowrap;
+`
 
 const PageInfoBoxUrl = styled.div`
-  font-weight: 400;
-  font-size: ${(props) => props.theme.fontSizes.url};
-  color: ${(props) => props.theme.colors.subText};
-  text-overflow: ellipsis;
-  overflow-x: hidden;
-  text-decoration: none;
-  overflow-wrap: break-word;
-  white-space: nowrap;
-  max-width: 100%;
-  padding-bottom: 5px;
-`;
+    font-weight: 400;
+    font-size: ${(props) => props.theme.fontSizes.url};
+    color: ${(props) => props.theme.colors.subText};
+    text-overflow: ellipsis;
+    overflow-x: hidden;
+    text-decoration: none;
+    overflow-wrap: break-word;
+    white-space: nowrap;
+    max-width: 100%;
+    padding-bottom: 5px;
+`
 
 const CreatedWhenDate = styled.div`
-  font-family: "Poppins";
-  font-weight: normal;
-  font-size: 12px;
-  color: ${(props) => props.theme.colors.darkgrey};
-`;
+    font-family: 'Poppins';
+    font-weight: normal;
+    font-size: 12px;
+    color: ${(props) => props.theme.colors.darkgrey};
+`
 
 const PageInfoBoxRight = styled.div`
-  text-decoration: none;
-  cursor: default;
-`;
+    text-decoration: none;
+    cursor: default;
+`
 
 const PageInfoBoxActions = styled.div`
-  display: flex;
-`;
+    display: flex;
+`
 const PageInfoBoxAction = styled.div<{ image: string }>`
-  display: block;
-  width: 20px;
-  height: 20px;
-  cursor: pointer;
-  background-image: url("${(props) => props.image}");
-  background-size: contain;
-  background-position: center center;
-  background-repeat: no-repeat;
-`;
+    display: block;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    background-image: url('${(props) => props.image}');
+    background-size: contain;
+    background-position: center center;
+    background-repeat: no-repeat;
+`
 
 const StyledPageResult = styled.div`
     display: flex;
@@ -114,63 +114,61 @@ const PageTitle = styled(Margin)`
 `
 
 export type PageInfoBoxAction =
-  | {
-      image: string;
-      onClick?: () => void;
-    }
-  | { node: React.ReactNode };
-
+    | {
+          image: string
+          onClick?: () => void
+      }
+    | { node: React.ReactNode }
 
 export default function PageInfoBox(props: {
-  pageInfo: Pick<
-    SharedPageInfo,
-    "fullTitle" | "createdWhen" | "originalUrl" | "normalizedUrl"
-  >;
-  actions?: Array<PageInfoBoxAction>;
-  children?: React.ReactNode;
+    pageInfo: Pick<
+        SharedPageInfo,
+        'fullTitle' | 'createdWhen' | 'originalUrl' | 'normalizedUrl'
+    >
+    actions?: Array<PageInfoBoxAction>
+    children?: React.ReactNode
 }) {
-  const { pageInfo } = props;
-  const domain = pageInfo.normalizedUrl.split('/');
+    const { pageInfo } = props
+    const domain = pageInfo.normalizedUrl.split('/')
 
-  return (
-    <ItemBox>
-        <StyledPageResult>
-          <PageInfoBoxLink href={pageInfo.originalUrl} target="_blank">
-            <PageContentBox>
-                <ResultContent>
-                  <PageUrl title={pageInfo.normalizedUrl}>{domain[0]}</PageUrl>
-                </ResultContent>
-                <PageTitle>
-                    {pageInfo.fullTitle}
-                </PageTitle>
-            </PageContentBox>
-          </PageInfoBoxLink>
-          <PageContentBoxBottom>
-            <PageInfoBoxLeft>
-            <CreatedWhenDate>
-                    {moment(pageInfo.createdWhen).format("LLL")}
-            </CreatedWhenDate>
-            </PageInfoBoxLeft>
-            {props.actions && (
-              <PageInfoBoxRight>
-                <PageInfoBoxActions>
-                  {props.actions.map((action, actionIndex) =>
-                    "image" in action ? (
-                      <PageInfoBoxAction
-                        key={actionIndex}
-                        image={action.image}
-                        onClick={action.onClick}
-                      />
-                    ) : (
-                      action.node
-                    )
-                  )}
-                </PageInfoBoxActions>
-              </PageInfoBoxRight>
-            )}
-          </PageContentBoxBottom>
-
-        </StyledPageResult>
-    </ItemBox>
-  );
+    return (
+        <ItemBox>
+            <StyledPageResult>
+                <PageInfoBoxLink href={pageInfo.originalUrl} target="_blank">
+                    <PageContentBox>
+                        <ResultContent>
+                            <PageUrl title={pageInfo.normalizedUrl}>
+                                {domain[0]}
+                            </PageUrl>
+                        </ResultContent>
+                        <PageTitle>{pageInfo.fullTitle}</PageTitle>
+                    </PageContentBox>
+                </PageInfoBoxLink>
+                <PageContentBoxBottom>
+                    <PageInfoBoxLeft>
+                        <CreatedWhenDate>
+                            {moment(pageInfo.createdWhen).format('LLL')}
+                        </CreatedWhenDate>
+                    </PageInfoBoxLeft>
+                    {props.actions && (
+                        <PageInfoBoxRight>
+                            <PageInfoBoxActions>
+                                {props.actions.map((action, actionIndex) =>
+                                    'image' in action ? (
+                                        <PageInfoBoxAction
+                                            key={actionIndex}
+                                            image={action.image}
+                                            onClick={action.onClick}
+                                        />
+                                    ) : (
+                                        action.node
+                                    ),
+                                )}
+                            </PageInfoBoxActions>
+                        </PageInfoBoxRight>
+                    )}
+                </PageContentBoxBottom>
+            </StyledPageResult>
+        </ItemBox>
+    )
 }

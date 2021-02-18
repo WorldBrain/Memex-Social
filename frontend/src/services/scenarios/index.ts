@@ -1,14 +1,24 @@
 import find from 'lodash/find'
 import createResolvable from '@josephg/resolvable'
-import { Services } from "../../services/types";
-import { Scenario, ScenarioStep, ScenarioModuleMap, ScenarioReplayQueryParams } from "./types";
-import FixtureService from '../fixtures';
-import { GetCallModifications } from '../../utils/call-modifier';
-import { Storage } from '../../storage/types';
-const scenariosContext = typeof __webpack_require__ !== 'undefined'
-    ? require.context('../../scenarios', true, /\.ts$/)
-    // eslint-disable-next-line
-    : require('require-context')(require('path').resolve(__dirname + '/../../scenarios'), true, /\.ts$/)
+import { Services } from '../../services/types'
+import {
+    Scenario,
+    ScenarioStep,
+    ScenarioModuleMap,
+    ScenarioReplayQueryParams,
+} from './types'
+import FixtureService from '../fixtures'
+import { GetCallModifications } from '../../utils/call-modifier'
+import { Storage } from '../../storage/types'
+const scenariosContext =
+    typeof __webpack_require__ !== 'undefined'
+        ? require.context('../../scenarios', true, /\.ts$/)
+        : // eslint-disable-next-line
+          require('require-context')(
+              require('path').resolve(__dirname + '/../../scenarios'),
+              true,
+              /\.ts$/,
+          )
 
 export function getDefaultScenarioModules() {
     const scenarios: ScenarioModuleMap = {}
@@ -28,7 +38,11 @@ export function getDefaultScenarioModules() {
     return scenarios
 }
 
-type ScenarioIdentifier = { pageName: string, scenarioName: string, stepName: '$start' | '$end' | string }
+type ScenarioIdentifier = {
+    pageName: string
+    scenarioName: string
+    stepName: '$start' | '$end' | string
+}
 type UntilScenarioStep = ScenarioStep | '$start' | '$end'
 
 export class ScenarioService {
@@ -39,31 +53,59 @@ export class ScenarioService {
     private stepCompletedPromise = createResolvable()
     private stepPromises: { [name: string]: Promise<void> } = {}
 
-    constructor(private options: {
-        services: Pick<Services, 'logicRegistry' | 'auth'> & { fixtures: FixtureService },
-        modifyCalls: (getModifications: GetCallModifications) => void
-        executeWithContext: (f: (context: { services: Services, storage: Storage }) => Promise<void>) => Promise<void>
-        scenarioModules?: ScenarioModuleMap
-    }) {
-        this.scenarioModules = options.scenarioModules || getDefaultScenarioModules()
+    constructor(
+        private options: {
+            services: Pick<Services, 'logicRegistry' | 'auth'> & {
+                fixtures: FixtureService
+            }
+            modifyCalls: (getModifications: GetCallModifications) => void
+            executeWithContext: (
+                f: (context: {
+                    services: Services
+                    storage: Storage
+                }) => Promise<void>,
+            ) => Promise<void>
+            scenarioModules?: ScenarioModuleMap
+        },
+    ) {
+        this.scenarioModules =
+            options.scenarioModules || getDefaultScenarioModules()
     }
 
     findScenario(scenarioIdentifierString: string): Scenario {
-        const scenarioIdentifier = parseScenarioIdentifier(scenarioIdentifierString)
-        const { scenario } = findScenario(this.scenarioModules, scenarioIdentifier)
+        const scenarioIdentifier = parseScenarioIdentifier(
+            scenarioIdentifierString,
+        )
+        const { scenario } = findScenario(
+            this.scenarioModules,
+            scenarioIdentifier,
+        )
         return scenario
     }
 
     async loadScenarioFixture(scenarioIdentifierString: string) {
-        const scenarioIdentifier = parseScenarioIdentifier(scenarioIdentifierString)
-        const { scenario, untilStep } = findScenario(this.scenarioModules, scenarioIdentifier)
+        const scenarioIdentifier = parseScenarioIdentifier(
+            scenarioIdentifierString,
+        )
+        const { scenario, untilStep } = findScenario(
+            this.scenarioModules,
+            scenarioIdentifier,
+        )
 
         await this._loadScenarioFixture(scenario)
     }
 
-    async startScenarioReplay(scenarioIdentifierString: string, options: { walkthrough: boolean }) {
-        const scenarioIdentifier = parseScenarioIdentifier(scenarioIdentifierString)
-        const { scenario, untilStep } = findScenario(this.scenarioModules, scenarioIdentifier)
+    async startScenarioReplay(
+        scenarioIdentifierString: string,
+        options: { walkthrough: boolean },
+    ) {
+        const scenarioIdentifier = parseScenarioIdentifier(
+            scenarioIdentifierString,
+        )
+        const { scenario, untilStep } = findScenario(
+            this.scenarioModules,
+            scenarioIdentifier,
+        )
 
         if (scenario.authenticated) {
             await this.options.services.auth.loginWithProvider('google')
@@ -93,15 +135,22 @@ export class ScenarioService {
         const context = { auth: { currentUser: userID } }
         if (typeof scenario.fixture === 'string') {
             await this.options.services.fixtures.loadFixture(scenario.fixture, {
-                context: context
+                context: context,
             })
         } else {
-            await this.options.services.fixtures.generateAndLoadFixture(scenario.fixture)
+            await this.options.services.fixtures.generateAndLoadFixture(
+                scenario.fixture,
+            )
         }
     }
 
-    async _executeScenario(scenario: Scenario, options: { untilStep: UntilScenarioStep, walkthrough: boolean }) {
-        const steps = filterScenarioSteps(scenario.steps, { untilStep: options.untilStep })
+    async _executeScenario(
+        scenario: Scenario,
+        options: { untilStep: UntilScenarioStep; walkthrough: boolean },
+    ) {
+        const steps = filterScenarioSteps(scenario.steps, {
+            untilStep: options.untilStep,
+        })
 
         if (scenario.setup?.execute) {
             await this.options.executeWithContext(scenario.setup.execute)
@@ -113,7 +162,10 @@ export class ScenarioService {
 
         const waitForSignal = scenario.setup?.waitForSignal
         if (waitForSignal) {
-            await this.options.services.logicRegistry.waitForSignal(waitForSignal.target, waitForSignal.signal)
+            await this.options.services.logicRegistry.waitForSignal(
+                waitForSignal.target,
+                waitForSignal.signal,
+            )
         }
         this.startStepCompleted.resolve()
 
@@ -140,9 +192,16 @@ export class ScenarioService {
 
         let stepPromise: Promise<void>
         if ('eventName' in step) {
-            const eventPromise = logicRegistry.processEvent(step.target, step.eventName, step.eventArgs)
+            const eventPromise = logicRegistry.processEvent(
+                step.target,
+                step.eventName,
+                step.eventArgs,
+            )
             if (step.waitForSignal) {
-                stepPromise = logicRegistry.waitForSignal(step.target, step.waitForSignal)
+                stepPromise = logicRegistry.waitForSignal(
+                    step.target,
+                    step.waitForSignal,
+                )
                 this.stepPromises[step.name] = eventPromise
             } else if (step.waitForStep) {
                 stepPromise = this.stepPromises[step.name]
@@ -156,7 +215,9 @@ export class ScenarioService {
                 stepPromise = Promise.resolve()
             }
         } else if ('auth' in step) {
-            stepPromise = this.options.services.auth.loginWithProvider('facebook').then(() => { })
+            stepPromise = this.options.services.auth
+                .loginWithProvider('facebook')
+                .then(() => {})
         } else {
             throw new Error(`Invalid scenario step: ${JSON.stringify(step)}`)
         }
@@ -164,21 +225,27 @@ export class ScenarioService {
     }
 }
 
-export function getReplayOptionsFromQueryParams(queryParams: ScenarioReplayQueryParams) {
+export function getReplayOptionsFromQueryParams(
+    queryParams: ScenarioReplayQueryParams,
+) {
     return {
-        walkthrough: queryParams.walkthrough === 'true'
+        walkthrough: queryParams.walkthrough === 'true',
     }
 }
 
-export function parseScenarioIdentifier(scenarioIdentifierString: string): ScenarioIdentifier {
-    let [pageName, scenarioName, stepName] = scenarioIdentifierString.split('.');
+export function parseScenarioIdentifier(
+    scenarioIdentifierString: string,
+): ScenarioIdentifier {
+    let [pageName, scenarioName, stepName] = scenarioIdentifierString.split('.')
     if (!stepName) {
         stepName = '$end'
     }
     return { pageName, scenarioName, stepName }
 }
 
-export function stringifyScenarioIdentifier(scenarioIdentifier: ScenarioIdentifier): string {
+export function stringifyScenarioIdentifier(
+    scenarioIdentifier: ScenarioIdentifier,
+): string {
     const parts = [scenarioIdentifier.pageName, scenarioIdentifier.scenarioName]
     if (scenarioIdentifier.stepName) {
         parts.push(scenarioIdentifier.stepName)
@@ -186,20 +253,30 @@ export function stringifyScenarioIdentifier(scenarioIdentifier: ScenarioIdentifi
     return parts.join('.')
 }
 
-export function findScenario(scenarioModules: ScenarioModuleMap, scenarioIdentifier: ScenarioIdentifier) {
+export function findScenario(
+    scenarioModules: ScenarioModuleMap,
+    scenarioIdentifier: ScenarioIdentifier,
+) {
     const scenarioString = stringifyScenarioIdentifier(scenarioIdentifier)
 
     const pageScenarios = findPageScenarios(scenarioModules, scenarioIdentifier)
     const scenario = pageScenarios[scenarioIdentifier.scenarioName]
     if (!scenario) {
-        throw new Error(`No such scenario (not found in page scenarios): ${scenarioString}`);
+        throw new Error(
+            `No such scenario (not found in page scenarios): ${scenarioString}`,
+        )
     }
 
     let untilStep: UntilScenarioStep = '$end'
-    if (scenarioIdentifier.stepName === '$start' || scenarioIdentifier.stepName === '$end') {
+    if (
+        scenarioIdentifier.stepName === '$start' ||
+        scenarioIdentifier.stepName === '$end'
+    ) {
         untilStep = scenarioIdentifier.stepName
     } else {
-        const maybeUntilStep = find(scenario.steps, { name: scenarioIdentifier.stepName })
+        const maybeUntilStep = find(scenario.steps, {
+            name: scenarioIdentifier.stepName,
+        })
         if (!maybeUntilStep) {
             throw new Error(`No such step in scenario: ${scenarioString}`)
         }
@@ -209,15 +286,23 @@ export function findScenario(scenarioModules: ScenarioModuleMap, scenarioIdentif
     return { scenario, untilStep }
 }
 
-export function findPageScenarios(scenarioModules: ScenarioModuleMap, scenarioIdentifier: Pick<ScenarioIdentifier, 'pageName'>) {
+export function findPageScenarios(
+    scenarioModules: ScenarioModuleMap,
+    scenarioIdentifier: Pick<ScenarioIdentifier, 'pageName'>,
+) {
     const pageScenarios = scenarioModules[scenarioIdentifier.pageName]
     if (!pageScenarios) {
-        throw new Error(`No such scenario (could not find page scenarios): ${scenarioIdentifier.pageName}`);
+        throw new Error(
+            `No such scenario (could not find page scenarios): ${scenarioIdentifier.pageName}`,
+        )
     }
     return pageScenarios
 }
 
-export function filterScenarioSteps(steps: ScenarioStep[], options: { untilStep: UntilScenarioStep }) {
+export function filterScenarioSteps(
+    steps: ScenarioStep[],
+    options: { untilStep: UntilScenarioStep },
+) {
     if (options.untilStep === '$start') {
         return []
     }

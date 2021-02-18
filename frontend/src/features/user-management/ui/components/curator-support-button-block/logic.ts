@@ -31,11 +31,15 @@ export default class CuratorSupportButtonBlockLogic extends UILogic<
     }
 
     init: EventHandler<'init'> = async () => {
-        try {const supporterRelationshipExists: boolean = await this.loadSupporterRelationship()
-        this.emitMutation({
-            supporterRelationshipExists: { $set: supporterRelationshipExists },
-        })
-        this._setInitialLoadTaskState('success')} catch(err) {
+        try {
+            const supporterRelationshipExists: boolean = await this.loadSupporterRelationship()
+            this.emitMutation({
+                supporterRelationshipExists: {
+                    $set: supporterRelationshipExists,
+                },
+            })
+            this._setInitialLoadTaskState('success')
+        } catch (err) {
             this._setInitialLoadTaskState('error')
             console.log(err)
         }
@@ -71,7 +75,7 @@ export default class CuratorSupportButtonBlockLogic extends UILogic<
 
     _setInitialLoadTaskState(taskState: UITaskState) {
         this.emitMutation({
-            initialLoadTaskState: { $set: taskState }
+            initialLoadTaskState: { $set: taskState },
         })
     }
 

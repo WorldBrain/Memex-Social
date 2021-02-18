@@ -1,13 +1,13 @@
-import { LimitedWebStorage } from "./types";
+import { LimitedWebStorage } from './types'
 
 export class MemoryLocalStorage implements LimitedWebStorage {
-    private items : {[key: string]: string} = {}
-    private changes : Array<
-        { type: 'set', key: string, value: string } |
-        { type: 'remove', key: string }
+    private items: { [key: string]: string } = {}
+    private changes: Array<
+        | { type: 'set'; key: string; value: string }
+        | { type: 'remove'; key: string }
     > = []
 
-    setItem(key: string, value : string) {
+    setItem(key: string, value: string) {
         this.changes.push({ type: 'set', key, value })
         this.items[key] = value
     }
