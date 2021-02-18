@@ -564,6 +564,7 @@ export default class HomeFeedPage extends UIElement<
                         followedLists: this.state.followedLists,
                         loadState: this.state.listSidebarLoadState,
                     }}
+                    onSidebarToggle={this.state.onListSidebarToggle}
                 >
                     {this.renderContent()}
                 </DefaultPageLayout>

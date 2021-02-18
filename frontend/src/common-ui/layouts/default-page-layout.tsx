@@ -10,6 +10,7 @@ import UnseenActivityIndicator from '../../features/activity-streams/ui/containe
 import ListsSidebar, {
     Props as ListsSidebarProps,
 } from '../../main-ui/components/list-sidebar/lists-sidebar'
+import ListsSidebarToggle from '../../main-ui/components/sidebar-toggle/'
 const logoImage = require('../../assets/img/memex-logo.svg')
 
 const middleMaxWidth = '800px'
@@ -273,6 +274,7 @@ export default function DefaultPageLayout(props: {
     webMonetizationIcon?: JSX.Element
     hideActivityIndicator?: boolean
     listsSidebarProps?: Omit<ListsSidebarProps, 'services'>
+    onSidebarToggle?: (isToggled: boolean) => void
     renderSubtitle?: (props: { children: React.ReactNode }) => React.ReactNode
     viewportBreakpoint: ViewportBreakpoint
     children: React.ReactNode
@@ -360,6 +362,13 @@ export default function DefaultPageLayout(props: {
         <MainContainer>
             {renderListsSidebar()}
             <StyledHeader viewportWidth={viewportWidth}>
+                {props.listsSidebarProps && props.onSidebarToggle && (
+                    <ListsSidebarToggle
+                        viewportWidth={viewportWidth}
+                        isShown={props.listsSidebarProps.isShown}
+                        onToggle={props.onSidebarToggle}
+                    />
+                )}
                 <LogoAndFeed viewportWidth={viewportWidth}>
                     <HeaderLogoArea
                         onClick={() => window.open('https://getmemex.com')}
