@@ -71,7 +71,7 @@ const ToggleAllBox = styled.div<{
   justify-content: flex-end;
   width: 100%;
   position: sticky;
-  top: 35px;
+  top: 50px;
   z-index: 2;
   border-radius: 5px;
   ${(props) =>

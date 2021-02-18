@@ -39,11 +39,18 @@ const StyledHeader = styled.div<{
     box-shadow: #101e7308 0 4px 16px;
 `
 
-const LogoAndFeed = styled.div<{
+const LogoAndFeed = styled(Margin)<{
     viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
 }>`
     display: flex;
     flex: 1;
+    align-items: center;
+
+    ${(props) =>
+        (props.viewportWidth === 'small' || props.viewportWidth === 'mobile') &&
+        css`
+            padding-right: 30px;
+        `}
 `
 
 const HeaderLogoArea = styled.div<{
@@ -239,6 +246,20 @@ const PageMiddleAreaTopBox = styled(Margin)<{
 
 `
 
+const BetaFlag = styled.div`
+  color: ${(props) => props.theme.colors.primary};
+  font-size: 12px;
+  font-family: ${(props) => props.theme.fonts.primary};
+  border-radius: 3px;
+  width: 54px;
+  height: 20px;
+  display: flex;
+  background-color: ${(props) => props.theme.colors.secondary};
+  justify-content: center;
+  align-items: center;
+  font-weight: 600;
+`
+
 export default function DefaultPageLayout(props: {
   services: UIElementServices<
     "auth" | "overlay" | "router" | "activityStreams" | 'userManagement' | 'webMonetization'
@@ -334,14 +355,15 @@ export default function DefaultPageLayout(props: {
     <MainContainer>
       {renderListsSidebar()}
       <StyledHeader viewportWidth={viewportWidth}>
-        <LogoAndFeed viewportWidth={viewportWidth}>
-          <HeaderLogoArea
-            onClick={() => window.open("https://getmemex.com")}
-            viewportWidth={viewportWidth}
-          >
-            <MemexLogo viewportWidth={viewportWidth} />
-          </HeaderLogoArea>
-        </LogoAndFeed>
+          <LogoAndFeed viewportWidth={viewportWidth}>
+            <HeaderLogoArea
+              onClick={() => window.open("https://getmemex.com")}
+              viewportWidth={viewportWidth}
+            >
+              <MemexLogo viewportWidth={viewportWidth} />
+            </HeaderLogoArea>
+            <BetaFlag>Beta</BetaFlag>
+          </LogoAndFeed>
         <HeaderMiddleArea viewportWidth={viewportWidth}>
         {renderFeedArea()}
         </HeaderMiddleArea>
