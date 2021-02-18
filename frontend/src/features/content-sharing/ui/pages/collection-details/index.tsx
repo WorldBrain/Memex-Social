@@ -360,6 +360,7 @@ export default class CollectionDetailsPage extends UIElement<
                         followedLists: this.state.followedLists,
                         loadState: this.state.listSidebarLoadState,
                     }}
+                    onSidebarToggle={this.state.onListSidebarToggle}
                 >
                     {data.list.description && (
                         <CollectionDescriptionBox

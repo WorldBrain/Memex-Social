@@ -41,7 +41,7 @@ const ListsSidebarToggle = (props: {
             isSidebarDisplayed={props.isShown}
         >
             <Icon
-                onClick={props.onToggle}
+                onClick={() => props.onToggle(!props.isShown)}
                 fileName="hamburger.svg"
                 height="30px"
             />
