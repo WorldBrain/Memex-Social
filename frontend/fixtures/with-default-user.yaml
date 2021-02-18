@@ -6,7 +6,6 @@ objects:
     userPublicProfiles:
         - $store: default
           user: { $ref: users.default }
-          id: { $ref: users.default }
           websiteURL: 'https://fortelabs.co/'
           mediumURL: 'https://medium.com/@fortelabs'
           twitterURL: 'https://twitter.com/fortelabs'

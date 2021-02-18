@@ -3,12 +3,12 @@ import {
     UIEventHandler,
     loadInitial,
 } from '../../../../../main-ui/classes/logic'
-import { UserPublicProfile, ProfileWebLink } from '../../../types'
 import {
     ProfilePopupContainerDependencies,
     ProfilePopupContainerEvent,
     ProfilePopupContainerState,
 } from './types'
+import { getProfileLinks } from '../../utils'
 
 type EventHandler<
     EventName extends keyof ProfilePopupContainerEvent
@@ -81,42 +81,4 @@ export default class ProfilePopupContainerLogic extends UILogic<
     hidePopup: EventHandler<'hidePopup'> = () => {
         this.emitMutation({ isDisplayed: { $set: false } })
     }
-}
-
-function getProfileLinks(profileData: UserPublicProfile): ProfileWebLink[] {
-    const { websiteURL, mediumURL, twitterURL, substackURL } = profileData
-    const arr: ProfileWebLink[] = []
-    if (websiteURL) {
-        arr.push({
-            label: 'Website',
-            urlPropName: 'websiteURL',
-            url: websiteURL,
-            fileName: 'web-logo.svg',
-        })
-    }
-    if (mediumURL) {
-        arr.push({
-            label: 'Medium',
-            urlPropName: 'mediumURL',
-            url: mediumURL,
-            fileName: 'medium-logo.svg',
-        })
-    }
-    if (twitterURL) {
-        arr.push({
-            label: 'Twitter',
-            urlPropName: 'twitterURL',
-            url: twitterURL,
-            fileName: 'twitter-logo.svg',
-        })
-    }
-    if (substackURL) {
-        arr.push({
-            label: 'Substack',
-            urlPropName: 'substackURL',
-            url: substackURL,
-            fileName: 'substack-logo.svg',
-        })
-    }
-    return arr
 }

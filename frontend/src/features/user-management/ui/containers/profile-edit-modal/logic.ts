@@ -1,4 +1,9 @@
-import { UILogic, UIEventHandler } from '../../../../../main-ui/classes/logic'
+import {
+    UILogic,
+    UIEventHandler,
+    loadInitial,
+    executeUITask,
+} from '../../../../../main-ui/classes/logic'
 import { UITaskState } from '../../../../../main-ui/types'
 import {
     UserPublicProfile,
@@ -11,11 +16,21 @@ import {
     ProfileEditModalEvent,
     ProfileEditModalState,
 } from './types'
+import { getProfileLinks } from '../../utils'
 
 type EventHandler<
     EventName extends keyof ProfileEditModalEvent
 > = UIEventHandler<ProfileEditModalState, ProfileEditModalEvent, EventName>
 
+const EMPTY_USER_PROFILE: UserPublicProfile = {
+    websiteURL: '',
+    mediumURL: '',
+    twitterURL: '',
+    substackURL: '',
+    bio: '',
+    avatarURL: '',
+    paymentPointer: '',
+}
 export default class ProfileEditModalLogic extends UILogic<
     ProfileEditModalState,
     ProfileEditModalEvent
@@ -28,35 +43,26 @@ export default class ProfileEditModalLogic extends UILogic<
 
     getInitialState(): ProfileEditModalState {
         return {
-            profileTaskState: 'pristine',
+            loadState: 'pristine',
             savingTaskState: 'pristine',
             user: {
                 displayName: '',
             },
-            userPublicProfile: {
-                websiteURL: '',
-                mediumURL: '',
-                twitterURL: '',
-                substackURL: '',
-                bio: '',
-                avatarURL: '',
-                paymentPointer: '',
-            },
-            webLinksArray: [],
+            userPublicProfile: EMPTY_USER_PROFILE,
+            profileLinks: [],
             inputErrorArray: [],
         }
     }
 
     init: EventHandler<'init'> = async () => {
-        this._setProfileTaskState('running')
-        try {
+        await loadInitial<ProfileEditModalState>(this, async () => {
             if (!this.userRef) {
                 await this._setCurrentUserReference()
             }
             if (!this.userRef) {
                 return // this is purely to fix type errors - error handling is in the catch statement
             }
-            const promises = await Promise.all([
+            const [user, userProfile] = await Promise.all([
                 this.dependencies.services.userManagement.loadUserData(
                     this.userRef,
                 ),
@@ -64,41 +70,29 @@ export default class ProfileEditModalLogic extends UILogic<
                     this.userRef,
                 ),
             ])
-            this._setUser(await promises[0])
-            this._setUserPublicProfileData(promises[1])
+            this._setUser(user)
+            this.emitMutation({
+                userPublicProfile: { $set: userProfile ?? EMPTY_USER_PROFILE },
+            })
             this._setWebLinksArray()
-            this._setProfileTaskState('success')
-        } catch (err) {
-            this._setProfileTaskState('error')
-        }
+        })
     }
 
     saveProfile: EventHandler<'saveProfile'> = async ({ event }) => {
-        this._setSavingTaskState('running')
-        // if (!this.userRef) {
-        //     try {
-        //         await this._setCurrentUserReference()
-        //     } catch (err) {
-        //         this._setSavingTaskState('error')
-        //     }
-        // }
-        // if (!this.userRef) {
-        //     return this._setSavingTaskState('error')
-        // }
-        try {
-            await Promise.all([
-                this.dependencies.services.userManagement.updateUserPublicProfile(
-                    // this.userRef,
-                    event.profileData,
-                ),
-                this._saveDisplayName(event.displayName),
-            ])
-            this._setSavingTaskState('success')
-            this.dependencies.onCloseRequested()
-        } catch (err) {
-            console.error(err)
-            this._setSavingTaskState('error')
-        }
+        await executeUITask<ProfileEditModalState>(
+            this,
+            'savingTaskState',
+            async () => {
+                await Promise.all([
+                    this.dependencies.services.userManagement.updateUserPublicProfile(
+                        event.profileData,
+                    ),
+                    this._saveDisplayName(event.displayName),
+                ])
+                this._setSavingTaskState('success')
+                this.dependencies.onCloseRequested()
+            },
+        )
     }
 
     setDisplayName: EventHandler<'setDisplayName'> = ({ event }) => {
@@ -137,15 +131,11 @@ export default class ProfileEditModalLogic extends UILogic<
     }
 
     private async _setCurrentUserReference(): Promise<void> {
-        this.userRef = await this.dependencies.services.auth.getCurrentUserReference()
+        this.userRef = this.dependencies.services.auth.getCurrentUserReference()
     }
 
     private _setSavingTaskState(taskState: UITaskState): void {
         this.emitMutation({ savingTaskState: { $set: taskState } })
-    }
-
-    private _setProfileTaskState(taskState: UITaskState): void {
-        this.emitMutation({ profileTaskState: { $set: taskState } })
     }
 
     private _setUser(user: User | null): void {
@@ -157,12 +147,6 @@ export default class ProfileEditModalLogic extends UILogic<
         this.emitMutation({ user: { $set: user } })
     }
 
-    private _setUserPublicProfileData(profileData: UserPublicProfile): void {
-        this.emitMutation({
-            userPublicProfile: { $set: profileData },
-        })
-    }
-
     private async _setWebLinksArray(
         profileData?: UserPublicProfile,
     ): Promise<void> {
@@ -172,22 +156,12 @@ export default class ProfileEditModalLogic extends UILogic<
                     this.userRef,
                 )
             } else {
-                profileData = {
-                    websiteURL: '',
-                    mediumURL: '',
-                    twitterURL: '',
-                    substackURL: '',
-                    bio: '',
-                    avatarURL: '',
-                    paymentPointer: '',
-                }
+                profileData = EMPTY_USER_PROFILE
             }
         }
-        const webLinksArray: ProfileWebLink[] = this.dependencies.services.userManagement.getWebLinksArray(
-            profileData,
-        )
+        const profileLinks: ProfileWebLink[] = getProfileLinks(profileData)
         this.emitMutation({
-            webLinksArray: { $set: webLinksArray },
+            profileLinks: { $set: profileLinks },
         })
     }
 }

@@ -431,7 +431,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
             step({
                 name: 'click-settings',
                 target: 'AuthHeader',
-                eventName: 'showSettings',
+                eventName: 'showAccountSettings',
                 eventArgs: null,
             }),
         ],
