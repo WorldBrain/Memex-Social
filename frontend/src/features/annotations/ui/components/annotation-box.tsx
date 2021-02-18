@@ -20,7 +20,6 @@ const HighlightBox = styled(Margin)`
     display: flex;
     align-items: center;
     padding: 10px 15px 10px 15px;
-    border-bottom: 0.5px solid #e0e0e0;
     width: 100%;
 `
 
@@ -48,6 +47,7 @@ const AnnotationComment = styled.div`
     font-size: 14px;
     color: ${(props) => props.theme.colors.primary};
     padding: 10px 15px;
+    border-top: 0.5px solid #e0e0e0;
 
     & *:first-child {
         margin-top: 0;
@@ -109,11 +109,13 @@ export default function AnnotationBox(props: AnnotationBoxProps) {
                             <div />
                         </Margin>
                     )}
+                    {annotation.comment && (
                     <Margin>
                         <AnnotationComment>
                             <Markdown>{annotation.comment}</Markdown>
                         </AnnotationComment>
                     </Margin>
+                    )}
                 </AnnotationTopBox>
                 <ItemBoxBottom
                     creationInfo={{
