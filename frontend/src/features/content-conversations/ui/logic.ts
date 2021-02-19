@@ -79,10 +79,15 @@ export function annotationConversationEventHandlers<
             const conversationId = event.conversationId ?? annotationId
             const conversation = previousState.conversations[conversationId]
 
+            const user = await dependencies.services.auth.getCurrentUser()
+
             logic.emitMutation({
                 conversations: {
                     [conversationId]: {
                         expanded: { $set: !conversation.expanded },
+                        newReply: {
+                            $set: { ...conversation.newReply, editing: !!user },
+                        },
                     },
                 },
             })

@@ -9,8 +9,8 @@ import ItemBoxBottom from '../../../../common-ui/components/item-box-bottom'
 import Markdown from '../../../../common-ui/components/markdown'
 import { ProfilePopupProps } from '../../../user-management/ui/containers/profile-popup-container'
 
-const commentImage = require('../../../../assets/img/comment.svg')
-const replyImage = require('../../../../assets/img/reply.svg')
+const withRepliesImage = require('../../../../assets/img/comment.svg')
+const withoutRepliesImage = require('../../../../assets/img/medium-logo.svg')
 
 const StyledAnnotationBox = styled.div`
     font-family: ${(props) => props.theme.fonts.primary};
@@ -129,16 +129,12 @@ export default function AnnotationBox(props: AnnotationBoxProps) {
                     }}
                     profilePopupProps={props.profilePopupProps}
                     actions={[
-                        props.hasReplies &&
-                            props.onToggleReplies && {
-                                key: 'toggle-replies',
-                                image: commentImage,
-                                onClick: props.onToggleReplies,
-                            },
-                        props.onInitiateReply && {
-                            key: 'new-reply',
-                            image: replyImage,
-                            onClick: props.onInitiateReply,
+                        props.onToggleReplies && {
+                            key: 'toggle-replies',
+                            image: props.hasReplies
+                                ? withRepliesImage
+                                : withoutRepliesImage,
+                            onClick: props.onToggleReplies,
                         },
                     ]}
                 />
