@@ -67,8 +67,6 @@ export default abstract class WebMonetizationService
 
     makePaymentAvailable(paymentPointer: string): void {
         const tag = document.querySelector('meta[name="monetization"]')
-        console.log(tag)
-        console.log(document.head)
         if (tag) {
             tag?.remove()
         }

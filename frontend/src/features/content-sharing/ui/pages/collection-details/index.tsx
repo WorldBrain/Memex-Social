@@ -158,7 +158,10 @@ export default class CollectionDetailsPage extends UIElement<
     }
 
     renderWebMonetizationIcon() {
-        if (this.state.listData?.creatorReference) {
+        if (
+            this.state.listData?.creatorReference &&
+            this.state.followLoadState === 'success'
+        ) {
             return (
                 <WebMonetizationIcon
                     services={this.props.services}
