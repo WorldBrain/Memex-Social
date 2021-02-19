@@ -64,11 +64,6 @@ export default class CuratorSupportPopup extends PureComponent<CuratorSupportPop
                         <Text theme={theme}>
                             For every visit you'll donate a few cents to this creator. 
                         </Text>
-                        <CuratorSupportButtonBlock
-                            services={services}
-                            storage={storage}
-                            curatorUserRef={curatorUserRef}
-                        />
                     </>
 
 

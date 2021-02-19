@@ -47,25 +47,30 @@ export default class WebMonetizationIcon extends UIElement<
         this.processEvent('makeSupporterPayment', null)
     }
 
+
     renderIcon() {
+
+        const paymentState = this.state.makePaymentTaskState
+        const isPaymentMade = this.state.makePaymentTaskState === 'success'
+
         return (
             <IconContainer iconHeight={this.iconHeight}>
-                {this.state.makePaymentTaskState === 'running' && (
+                {paymentState === 'running' && (
                     <LoadingScreen />
                 )}
-                {this.state.makePaymentTaskState === 'error' && (
+                {paymentState === 'error' && (
                     <span>Whoops! Error!</span>
                 )}
-                {(this.state.makePaymentTaskState === 'pristine' ||
-                    this.state.makePaymentTaskState === 'success') && (
+                {(paymentState === 'pristine' ||
+                    paymentState === 'success') && (
                     <StyledIcon
                         onClick={
-                            this.state.paymentMade ? () => {} : this.handleClick
+                            isPaymentMade ? () => {} : this.handleClick
                         }
                         height={this.iconHeight}
-                        isClickable={!this.state.paymentMade}
+                        isClickable={!isPaymentMade}
                         fileName={`web-monetization-logo${
-                            this.state.paymentMade ? '-confirmed' : ''
+                            isPaymentMade ? '-confirmed' : ''
                         }.svg`}
                     />
                 )}
