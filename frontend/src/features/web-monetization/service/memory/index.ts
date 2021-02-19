@@ -1,7 +1,7 @@
 import WebMonetizationBase from '../'
 
 export default class MemoryWebMonetizationService extends WebMonetizationBase {
-    initiatePayment(paymentPointer: string): void {
+    makePaymentAvailable(paymentPointer: string): void {
         this.events.emit('monetizationstart', {
             paymentPointer,
             requestId: 'bar',

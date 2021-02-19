@@ -21,5 +21,5 @@ export interface WebMonetizationService {
 
     getUserPaymentPointer(userRef: UserReference): Promise<string | null>
     getCurrentUserPaymentPointer(): Promise<string | null>
-    initiatePayment(paymentPointer: string): void
+    makePaymentAvailable(paymentPointer: string): void
 }

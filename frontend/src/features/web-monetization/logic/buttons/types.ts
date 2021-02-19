@@ -12,10 +12,10 @@ export interface WebMonetizationButtonDependencies {
 }
 
 export interface WebMonetizationButtonState {
+    loadState: UITaskState
     isDisplayed: boolean
     paymentMade: boolean
     curatorPaymentPointer: string
-    initialLoadTaskState: UITaskState
     makePaymentTaskState: UITaskState
 }
 

@@ -77,19 +77,16 @@ export default class WebMonetizationIcon extends UIElement<
         return (
             <Container>
                 {this.state.isDisplayed &&
-                    this.state.initialLoadTaskState === 'running' && (
-                        <LoadingScreen />
-                    )}
-                {this.state.isDisplayed &&
-                    this.state.initialLoadTaskState === 'success' && (
-                        <CuratorSupportPopupContainer
-                            services={this.props.services}
-                            storage={this.props.storage}
-                            userRef={this.props.curatorUserRef}
-                        >
-                            {this.renderIcon()}
-                        </CuratorSupportPopupContainer>
-                    )}
+                    this.state.loadState === 'running' && <LoadingScreen />}
+                {this.state.isDisplayed && this.state.loadState === 'success' && (
+                    <CuratorSupportPopupContainer
+                        services={this.props.services}
+                        storage={this.props.storage}
+                        userRef={this.props.curatorUserRef}
+                    >
+                        {this.renderIcon()}
+                    </CuratorSupportPopupContainer>
+                )}
             </Container>
         )
     }
