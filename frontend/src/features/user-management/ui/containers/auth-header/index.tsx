@@ -68,9 +68,9 @@ export default class AuthHeader extends UIElement<
     render() {
         if (!this.state.user) {
             return (
-                <LoginAction onClick={() => this.processEvent('login', null)}>
+                <DisplayName onClick={() => this.processEvent('login', null)}>
                     Login
-                </LoginAction>
+                </DisplayName>
             )
         }
 

@@ -26,15 +26,14 @@ import { UITaskState } from '../../../../../main-ui/types'
 const Container = styled.div<{ theme: Theme }>`
     margin: auto;
     min-height: 358px;
-    max-height: 70vh;
-    width: 648px;
-    overflow-y: scroll;
+    max-height: 100%;
+    width: 100%;
 
     background-color: ${(props) => props.theme.colors.background};
-    padding-left: ${(props) => props.theme.spacing.large};
-    padding-right: ${(props) => props.theme.spacing.large};
-    padding-top: ${(props) => props.theme.spacing.large};
-    padding-bottom: ${(props) => props.theme.spacing.large};
+    padding-left: ${(props) => props.theme.spacing.small};
+    padding-right: ${(props) => props.theme.spacing.small};
+    padding-top: ${(props) => props.theme.spacing.small};
+    padding-bottom: ${(props) => props.theme.spacing.small};
 `
 
 const ButtonContainer = styled.div`

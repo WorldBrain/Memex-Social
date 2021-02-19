@@ -50,7 +50,7 @@ const LogoAndFeed = styled(Margin)<{
     ${(props) =>
         (props.viewportWidth === 'small' || props.viewportWidth === 'mobile') &&
         css`
-            padding-right: 30px;
+            padding-right: 10px;
         `}
 `
 

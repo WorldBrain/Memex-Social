@@ -22,6 +22,9 @@ const OverlayContent = styled.div`
     top: 50%;
     padding: 20px;
     border-radius: 5px;
+    overflow-y: scroll;
+    max-height: 90%;
+    height: max-content;
 `
 
 interface OverlayContainerProps {
