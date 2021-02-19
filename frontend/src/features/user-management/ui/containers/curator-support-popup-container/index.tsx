@@ -51,6 +51,7 @@ export default class CuratorSupportPopupContainer extends UIElement<
                     onMouseEnter={() => this.handleMouseEnter()}
                     onMouseLeave={() => this.handleMouseLeave()}
                 >
+                    {props.children}
                     {state.isDisplayed &&
                         userPublicProfile?.paymentPointer &&
                         props.userRef && (
