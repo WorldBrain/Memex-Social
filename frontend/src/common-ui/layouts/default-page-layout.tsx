@@ -236,14 +236,14 @@ const PageMiddleAreaTopBox = styled(Margin)<{
 const BetaFlag = styled.div`
     color: #d0d0d0;
     background-color: #fff;
-    font-size: 14px;
+    font-size: 16px;
     font-family: ${(props) => props.theme.fonts.primary};
     border-radius: 3px;
-    width: 54px;
-    height: 20px;
+    width: 70px;
+    height: 30px;
     display: flex;
-    position: absolute;
-    top: 55px;
+    position: fixed;
+    bottom: 5px;
     right: 5px;
     justify-content: center;
     align-items: center;

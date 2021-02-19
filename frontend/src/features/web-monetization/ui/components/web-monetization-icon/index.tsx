@@ -13,7 +13,7 @@ import CuratorSupportPopupContainer from '../../../../user-management/ui/contain
 import LoadingScreen from '../../../../../common-ui/components/loading-screen'
 
 const Container = styled.div`
-    margin-left: auto;
+    margin-left: 10px;
     margin-right: 10px;
 `
 
