@@ -605,7 +605,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
             setup: {
                 callModifications: ({ storage }) => [
                     callModification({
-                        name: 'reply-running',
+                        name: 'reply-broken',
                         object: storage.serverModules.contentConversations,
                         property: 'createReply',
                         modifier: 'sabotage',

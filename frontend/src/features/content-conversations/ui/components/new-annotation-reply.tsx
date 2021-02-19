@@ -73,7 +73,7 @@ export interface NewAnnotationReplyEventHandlers {
 export default function NewAnnotationReply(
     props: {
         annotation: SharedAnnotationInPage
-        conversation: Pick<AnnotationConversationState, 'newReply'>
+        conversation: Pick<AnnotationConversationState, 'newReply' | 'thread'>
     } & NewAnnotationReplyEventHandlers,
 ) {
     const { annotation, conversation } = props
