@@ -63,11 +63,13 @@ const SectionHeaderDescription = styled(SectionHeader)`
     font-weight: ${(props) => props.theme.fontWeights.normal};
     font-size: ${(props) => props.theme.fontSizes.text};
     line-height: ${(props) => props.theme.lineHeights.text};
+    padding-bottom: ${(props) => props.theme.spacing.small};
 `
 
 const WebLink = styled(SectionHeaderDescription)`
     text-decoration: underline;
     cursor: pointer;
+    padding-left: 5px;
 `
 
 const FormColumn = styled.div<{
@@ -137,7 +139,7 @@ export default class ProfileEditModal extends UIElement<
     }
 
     private webMonetizationLearnMoreURL: string =
-        'https://www.worldbrain.io/WebMonetizationTutorial'
+        'https://worldbrain.io/tutorial/WebMonetization-Curator'
     private displayNameErrorMessage: string = 'Display Name must not be empty'
     private urlInputErrorMessage: string = 'This must be a valid URL'
 
@@ -335,7 +337,7 @@ export default class ProfileEditModal extends UIElement<
                                         )
                                     }
                                 >
-                                    {`Learn More >>`}
+                                    {`How to find your payment pointer >>`}
                                 </WebLink>
                             </SectionHeaderDescription>
                         </Margin>
