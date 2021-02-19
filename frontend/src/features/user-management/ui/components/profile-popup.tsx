@@ -102,7 +102,13 @@ export default class ProfilePopup extends PureComponent<ProfilePopupProps> {
         const { taskState, userPublicProfile, webLinksArray } = props
 
         if (taskState === 'pristine' || taskState === 'running') {
-            return <LoadingScreen />
+            return (
+                <PopupContainer theme={theme}>
+                    <ProfileContainer>
+                        <LoadingScreen />
+                    </ProfileContainer> 
+                </PopupContainer>
+            )  
         }
 
         return (
@@ -119,16 +125,18 @@ export default class ProfilePopup extends PureComponent<ProfilePopupProps> {
                                     <WebLinksContainer>
                                         {webLinksArray.map(
                                             ({ url, fileName }, index) => (
-                                                <Icon
-                                                    key={index}
-                                                    fileName={fileName}
-                                                    height="18px"
-                                                    onClick={() =>
-                                                        this.handleWebLinkClick(
-                                                            url,
-                                                        )
-                                                    }
-                                                />
+                                                <Margin right="small">
+                                                    <Icon
+                                                        key={index}
+                                                        fileName={fileName}
+                                                        height="18px"
+                                                        onClick={() =>
+                                                            this.handleWebLinkClick(
+                                                                url,
+                                                            )
+                                                        }
+                                                    />
+                                                </Margin>
                                             ),
                                         )}
                                     </WebLinksContainer>

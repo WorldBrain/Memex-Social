@@ -213,9 +213,8 @@ export default class HomeFeedPage extends UIElement<
     renderNoActivities() {
         return (
             <Margin vertical="largest">
-                <MessageBox title="Nothing to see (yet)">
-                    Follow collections to see updates or start a conversation by
-                    replying to someone’s notes and highlights
+                <MessageBox title="No Updates (yet)">
+                    Get updates from collections you follow or conversation you participate in. 
                 </MessageBox>
             </Margin>
         )
@@ -561,7 +560,7 @@ export default class HomeFeedPage extends UIElement<
                     hideActivityIndicator
                 >
                     <ErrorBox>
-                        You need to be logged in to view your feed.
+                        You need to login to view your feed.
                     </ErrorBox>
                 </DefaultPageLayout>
             </>

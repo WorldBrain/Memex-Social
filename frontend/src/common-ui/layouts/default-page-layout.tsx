@@ -172,6 +172,7 @@ const HeaderAuthArea = styled.div<{
     align-items: center;
     justify-content: flex-end;
     white-space: nowrap;
+
 `
 
 const PageMiddleArea = styled.div<{
@@ -232,19 +233,22 @@ const PageMiddleAreaTopBox = styled(Margin)<{
         props.viewportWidth === 'mobile' ? 'column' : 'row'};
 `
 
-// const BetaFlag = styled.div`
-//     color: ${(props) => props.theme.colors.primary};
-//     font-size: 12px;
-//     font-family: ${(props) => props.theme.fonts.primary};
-//     border-radius: 3px;
-//     width: 54px;
-//     height: 20px;
-//     display: flex;
-//     background-color: ${(props) => props.theme.colors.secondary};
-//     justify-content: center;
-//     align-items: center;
-//     font-weight: 600;
-// `
+const BetaFlag = styled.div`
+    color: #d0d0d0;
+    background-color: #fff;
+    font-size: 14px;
+    font-family: ${(props) => props.theme.fonts.primary};
+    border-radius: 3px;
+    width: 54px;
+    height: 20px;
+    display: flex;
+    position: absolute;
+    top: 55px;
+    right: 5px;
+    justify-content: center;
+    align-items: center;
+    font-weight: 600;
+`
 
 export default function DefaultPageLayout(props: {
     services: UIElementServices<
@@ -349,6 +353,7 @@ export default function DefaultPageLayout(props: {
 
     return (
         <MainContainer>
+            <BetaFlag>Beta</BetaFlag>
             {renderListsSidebar()}
             <StyledHeader viewportWidth={viewportWidth}>
                 <LogoAndFeed viewportWidth={viewportWidth}>
