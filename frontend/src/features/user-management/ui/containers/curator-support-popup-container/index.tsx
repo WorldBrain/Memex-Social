@@ -17,9 +17,9 @@ const Container = styled.div`
     position: relative;
 `
 
-const CuratorPopupBox = styled.div`
-    padding-top: 5px;
-`
+// const CuratorPopupBox = styled.div`
+//     padding-top: 5px;
+// `
 
 export type CuratorSupportPopupContainerDependencies = ProfilePopupContainerDependencies
 export type CuratorSupportPopupContainerState = ProfilePopupContainerState

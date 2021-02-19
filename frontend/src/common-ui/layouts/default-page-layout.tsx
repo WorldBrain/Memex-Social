@@ -243,19 +243,19 @@ const PageMiddleAreaTopBox = styled(Margin)<{
         props.viewportWidth === 'mobile' ? 'column' : 'row'}; ;
 `
 
-const BetaFlag = styled.div`
-    color: ${(props) => props.theme.colors.primary};
-    font-size: 12px;
-    font-family: ${(props) => props.theme.fonts.primary};
-    border-radius: 3px;
-    width: 54px;
-    height: 20px;
-    display: flex;
-    background-color: ${(props) => props.theme.colors.secondary};
-    justify-content: center;
-    align-items: center;
-    font-weight: 600;
-`
+// const BetaFlag = styled.div`
+//     color: ${(props) => props.theme.colors.primary};
+//     font-size: 12px;
+//     font-family: ${(props) => props.theme.fonts.primary};
+//     border-radius: 3px;
+//     width: 54px;
+//     height: 20px;
+//     display: flex;
+//     background-color: ${(props) => props.theme.colors.secondary};
+//     justify-content: center;
+//     align-items: center;
+//     font-weight: 600;
+// `
 
 export default function DefaultPageLayout(props: {
     services: UIElementServices<

@@ -4,10 +4,8 @@ import {
     loadInitial,
     executeUITask,
 } from '../../../../../main-ui/classes/logic'
-import { UITaskState } from '../../../../../main-ui/types'
 import {
     UserPublicProfile,
-    User,
     UserReference,
     ProfileWebLink,
 } from '../../../types'
@@ -68,11 +66,6 @@ export default class ProfileEditModalLogic extends UILogic<
                     this.userRef,
                 ),
             ])
-            this.emitMutation({ user: { $set: user ?? { displayName: '' } } })
-            this.emitMutation({
-                userPublicProfile: { $set: userProfile ?? EMPTY_USER_PROFILE },
-            })
-
             const profileLinks: ProfileWebLink[] = getProfileLinks(
                 userProfile ?? EMPTY_USER_PROFILE,
                 {
@@ -80,6 +73,8 @@ export default class ProfileEditModalLogic extends UILogic<
                 },
             )
             this.emitMutation({
+                user: { $set: user ?? { displayName: '' } },
+                userPublicProfile: { $set: userProfile ?? EMPTY_USER_PROFILE },
                 profileLinks: { $set: profileLinks },
             })
         })

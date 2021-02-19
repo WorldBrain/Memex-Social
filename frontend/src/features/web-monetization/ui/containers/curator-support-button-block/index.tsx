@@ -73,14 +73,14 @@ const BoldText = styled(ButtonInnerText)`
     font-weight: 700;
 `
 
-const Link = styled.div<{ theme: Theme }>`
-    ${(props) => `font-size: ${props.theme.fontSizes.text};`}
-    ${(props) => `line-height: ${props.theme.lineHeights.text};`}
-    text-decoration: underline;
-    ${(props) => `margin-left: ${props.theme.spacing.medium};`}
-    color: ${(props) => props.theme.colors.primary};
-    cursor: pointer;
-`
+// const Link = styled.div<{ theme: Theme }>`
+//     ${(props) => `font-size: ${props.theme.fontSizes.text};`}
+//     ${(props) => `line-height: ${props.theme.lineHeights.text};`}
+//     text-decoration: underline;
+//     ${(props) => `margin-left: ${props.theme.spacing.medium};`}
+//     color: ${(props) => props.theme.colors.primary};
+//     cursor: pointer;
+// `
 
 const ErrorMessage = styled.div<{ theme: Theme }>`
     width: 100%;
@@ -153,7 +153,7 @@ export class CuratorSupportButtonBlock extends UIElement<
     }
 
     render() {
-        const { paymentMade, makePaymentTaskState, isDisplayed } = this.state
+        const { makePaymentTaskState, isDisplayed } = this.state
         return (
             <Container>
                 {isDisplayed && (

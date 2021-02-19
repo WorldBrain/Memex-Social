@@ -1,10 +1,6 @@
 import { UILogic, UIEventHandler } from '../../../../main-ui/classes/logic'
 import { UITaskState } from '../../../../main-ui/types'
-import {
-    WebMonetizationStartEvent,
-    WebMonetizationStopEvent,
-    WebMonetizationEvents,
-} from '../../service/types'
+import { WebMonetizationEvents } from '../../service/types'
 import {
     WebMonetizationButtonDependencies,
     WebMonetizationButtonState,

@@ -7,8 +7,6 @@ import * as browserTypes from '../wm-types'
 import {
     WebMonetizationEvents,
     WebMonetizationService as WebMonetizationInterface,
-    WebMonetizationStartEvent,
-    WebMonetizationStopEvent,
 } from './types'
 
 export default abstract class WebMonetizationService

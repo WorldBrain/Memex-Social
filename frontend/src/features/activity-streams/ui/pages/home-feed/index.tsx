@@ -30,6 +30,7 @@ import {
 } from '../../../../../utils/ordered-map'
 import { SharedAnnotationReference } from '@worldbrain/memex-common/lib/content-sharing/types'
 import AnnotationReply from '../../../../content-conversations/ui/components/annotation-reply'
+import ErrorBox from '../../../../../common-ui/components/error-box'
 
 const commentImage = require('../../../../../assets/img/comment.svg')
 const collectionImage = require('../../../../../assets/img/collection.svg')
@@ -545,8 +546,35 @@ export default class HomeFeedPage extends UIElement<
         }
     }
 
+    renderNeedsAuth() {
+        const viewportWidth = this.getBreakPoints()
+
+        return (
+            <>
+                <DocumentTitle
+                    documentTitle={this.props.services.documentTitle}
+                    subTitle={`Collaboration Feed`}
+                />
+                <DefaultPageLayout
+                    services={this.props.services}
+                    storage={this.props.storage}
+                    viewportBreakpoint={viewportWidth}
+                    hideActivityIndicator
+                >
+                    <ErrorBox>
+                        You need to be logged in to view your feed.
+                    </ErrorBox>
+                </DefaultPageLayout>
+            </>
+        )
+    }
+
     render() {
         const viewportWidth = this.getBreakPoints()
+
+        if (this.state.needsAuth) {
+            return this.renderNeedsAuth()
+        }
 
         return (
             <>

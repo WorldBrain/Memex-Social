@@ -35,6 +35,7 @@ export interface HomeFeedDependencies {
         | 'activityStreams'
         | 'router'
         | 'userManagement'
+        | 'webMonetization'
     >
     storage: Pick<
         StorageModules,
@@ -49,6 +50,7 @@ export interface HomeFeedDependencies {
 
 export type HomeFeedState = {
     loadState: UITaskState
+    needsAuth?: boolean
     activityItems: OrderedMap<ActivityItem>
     replies: ActivityData['replies']
     pageInfo: ActivityData['pageInfo']

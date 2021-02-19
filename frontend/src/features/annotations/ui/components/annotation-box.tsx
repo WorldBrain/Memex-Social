@@ -23,14 +23,14 @@ const HighlightBox = styled(Margin)`
     width: 100%;
 `
 
-const HighlightIndicator = styled.div`
-    background-color: #d4e8ff;
-    border-radius: 5px;
-    min-width: 7px;
-    min-height: 40px;
-    margin-right: 10px;
-    height: 100%;
-`
+// const HighlightIndicator = styled.div`
+//     background-color: #d4e8ff;
+//     border-radius: 5px;
+//     min-width: 7px;
+//     min-height: 40px;
+//     margin-right: 10px;
+//     height: 100%;
+// `
 
 const AnnotationBody = styled.span`
     white-space: normal;
@@ -58,7 +58,7 @@ const AnnotationComment = styled.div`
 `
 
 const Separator = styled.div`
-  border-top: 0.5px solid #e0e0e0;
+    border-top: 0.5px solid #e0e0e0;
 `
 
 const AnnotationTopBox = styled.div`
@@ -97,25 +97,25 @@ export default function AnnotationBox(props: AnnotationBoxProps) {
             <StyledAnnotationBox>
                 <AnnotationTopBox>
                     {annotation.body && (
-                      <HighlightBox>
-                        <Margin>
-                            <AnnotationBody
-                                dangerouslySetInnerHTML={{
-                                    __html: preserveLinebreaks(annotation.body),
-                                }}
-                            />
-                        </Margin>
-                      </HighlightBox>
+                        <HighlightBox>
+                            <Margin>
+                                <AnnotationBody
+                                    dangerouslySetInnerHTML={{
+                                        __html: preserveLinebreaks(
+                                            annotation.body,
+                                        ),
+                                    }}
+                                />
+                            </Margin>
+                        </HighlightBox>
                     )}
-                    {annotation.body && annotation.comment && (
-                            <Separator/>
-                    )}
+                    {annotation.body && annotation.comment && <Separator />}
                     {annotation.comment && (
-                    <Margin>
-                        <AnnotationComment>
-                            <Markdown>{annotation.comment}</Markdown>
-                        </AnnotationComment>
-                    </Margin>
+                        <Margin>
+                            <AnnotationComment>
+                                <Markdown>{annotation.comment}</Markdown>
+                            </AnnotationComment>
+                        </Margin>
                     )}
                 </AnnotationTopBox>
                 <ItemBoxBottom
