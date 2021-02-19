@@ -3,7 +3,6 @@ import styled from 'styled-components'
 import { Margin } from 'styled-components-spacing'
 import Icon from '../../../common-ui/components/icon'
 import { ViewportBreakpoint } from '../../styles/types'
-import { SidebarToggleProps } from './types'
 
 const Container = styled(Margin)<{
     viewportWidth: ViewportBreakpoint
@@ -28,8 +27,8 @@ const Container = styled(Margin)<{
 
 const ListsSidebarToggle = (props: {
     viewportWidth: ViewportBreakpoint
+    onToggle: React.MouseEventHandler
     isShown: boolean
-    onToggle: (newShownValue: boolean) => void
 }) => {
     return (
         <Container

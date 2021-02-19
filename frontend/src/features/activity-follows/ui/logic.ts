@@ -13,7 +13,6 @@ export function activityFollowsInitialState(): ActivityFollowsState {
     return {
         followedLists: [],
         isListSidebarShown: false,
-        onListSidebarToggle: () => {},
         listSidebarLoadState: 'pristine',
     }
 }
@@ -74,12 +73,14 @@ export function activityFollowsEventHandlers(
                     logic.emitMutation({
                         followedLists: { $set: followedLists },
                         isListSidebarShown: { $set: true },
-                        onListSidebarToggle: (newShownValue: boolean) => logic.emitMutation({
-                            isListSidebarShown: { $set: newShownValue }
-                        })
                     })
                 },
             )
+        },
+        toggleListSidebar: ({ previousState }) => {
+            logic.emitMutation({
+                isListSidebarShown: { $set: !previousState.isListSidebarShown },
+            })
         },
     }
 }

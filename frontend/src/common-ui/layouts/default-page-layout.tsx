@@ -240,7 +240,7 @@ const PageMiddleAreaTopBox = styled(Margin)<{
     justify-content: space-between;
     align-items: flex-start;
     flex-direction: ${(props) =>
-        props.viewportWidth === 'mobile' ? 'column' : 'row'}; ;
+        props.viewportWidth === 'mobile' ? 'column' : 'row'};
 `
 
 const BetaFlag = styled.div`
@@ -272,8 +272,9 @@ export default function DefaultPageLayout(props: {
     followBtn?: JSX.Element
     webMonetizationIcon?: JSX.Element
     hideActivityIndicator?: boolean
-    listsSidebarProps?: Omit<ListsSidebarProps, 'services'>
-    onSidebarToggle?: (isToggled: boolean) => void
+    listsSidebarProps?: Omit<ListsSidebarProps, 'services'> & {
+        onSidebarToggle: React.MouseEventHandler
+    }
     renderSubtitle?: (props: { children: React.ReactNode }) => React.ReactNode
     viewportBreakpoint: ViewportBreakpoint
     children: React.ReactNode
@@ -362,13 +363,13 @@ export default function DefaultPageLayout(props: {
             {renderListsSidebar()}
             <StyledHeader viewportWidth={viewportWidth}>
                 <LogoAndFeed viewportWidth={viewportWidth}>
-                {props.listsSidebarProps && (
-                    <ListsSidebarToggle
-                        viewportWidth={viewportWidth}
-                        isShown={props.listsSidebarProps.isShown}
-                        onToggle={props.onSidebarToggle}
-                    />
-                )}
+                    {props.listsSidebarProps && (
+                        <ListsSidebarToggle
+                            viewportWidth={viewportWidth}
+                            onToggle={props.listsSidebarProps.onSidebarToggle}
+                            isShown={props.listsSidebarProps.isShown}
+                        />
+                    )}
                     <HeaderLogoArea
                         onClick={() => window.open('https://getmemex.com')}
                         viewportWidth={viewportWidth}
