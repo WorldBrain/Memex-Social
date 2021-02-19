@@ -57,8 +57,6 @@ export default abstract class WebMonetizationButtonLogic extends UILogic<
         const startListener: WebMonetizationEvents['monetizationstart'] = (
             event,
         ) => {
-            console.log('webmonbut logic startListener triggered')
-            console.log(event)
             if (event.paymentPointer === this.curatorPaymentPointer) {
                 this._setMakePaymentTaskState('success')
                 this._setPaymentMade(true)
@@ -133,7 +131,6 @@ export default abstract class WebMonetizationButtonLogic extends UILogic<
         try {
             this._setInitialLoadTaskState('running')
             const shouldDisplay = await this._shouldComponentDisplay()
-            console.log('try display web mon content: ', shouldDisplay)
             this._setIsDisplayed(shouldDisplay)
             this._setInitialLoadTaskState('success')
         } catch (err) {

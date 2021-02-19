@@ -22,6 +22,8 @@ import { VALID_URL_TEST } from '../../../../../constants'
 import TextArea from '../../../../../common-ui/components/text-area'
 import Overlay from '../../../../../main-ui/containers/overlay'
 import { UITaskState } from '../../../../../main-ui/types'
+import LoadingScreen from '../../../../../common-ui/components/loading-screen'
+import ErrorBox from '../../../../../common-ui/components/error-box'
 
 const Container = styled.div<{ theme: Theme }>`
     margin: auto;
@@ -215,150 +217,172 @@ export default class ProfileEditModal extends UIElement<
         }
     }
 
+    renderContent() {
+        const { loadState } = this.state
+        if (loadState === 'pristine' || loadState === 'running') {
+            return (
+                <Margin horizontal="large" vertical="large">
+                    <LoadingScreen />
+                </Margin>
+            )
+        }
+        if (loadState === 'error') {
+            return (
+                <Margin horizontal="large" vertical="large">
+                    <ErrorBox>
+                        Something went wrong loading your account settings
+                    </ErrorBox>
+                </Margin>
+            )
+        }
+
+        return (
+            <Container onKeyDown={this.handleEnterKeyDown}>
+                <Margin bottom="large">
+                    <ButtonContainer>
+                        <StyledPrimaryButton
+                            theme={theme}
+                            taskState={this.state.savingTaskState}
+                            disabled={this.state.inputErrorArray.some(
+                                (val) => val,
+                            )}
+                            label="Save"
+                            onClick={() => this.handleSaveClick()}
+                            minWidth="82px"
+                        />
+                        <StyledSecondaryButton
+                            label="Cancel"
+                            onClick={() => this.props.onCloseRequested()}
+                            minWidth="82px"
+                        />
+                    </ButtonContainer>
+                </Margin>
+                <FormRow>
+                    <Margin vertical="medium">
+                        <SectionHeader theme={theme}>
+                            Profile Information
+                        </SectionHeader>
+                    </Margin>
+                </FormRow>
+                <FormRow>
+                    <FormColumn maxWidth="263px">
+                        <TextInput
+                            label="Display Name"
+                            value={this.state.user?.displayName}
+                            onChange={(evt) => {
+                                if (this.state.inputErrorArray[0]) {
+                                    this.testDisplayName()
+                                }
+                                this.handleSetDisplayName(
+                                    evt.currentTarget.value,
+                                )
+                            }}
+                            error={this.state.inputErrorArray[0]}
+                            errorMessage={this.displayNameErrorMessage}
+                        />
+                        <Margin vertical="small">
+                            <TextArea
+                                label="Bio"
+                                rows={5}
+                                value={this.state.userPublicProfile?.bio ?? ''}
+                                onChange={(evt) =>
+                                    this.handleSetProfileValue(
+                                        'bio',
+                                        evt.currentTarget.value,
+                                    )
+                                }
+                            />
+                        </Margin>
+                        {this.state.profileLinks.map((linkObj, idx) => (
+                            <TextInput
+                                key={idx}
+                                label={linkObj.label}
+                                value={
+                                    this.state.userPublicProfile?.[
+                                        linkObj.urlPropName
+                                    ] ?? ''
+                                }
+                                onChange={(evt) =>
+                                    this.handleURLChange(
+                                        evt,
+                                        idx + 1,
+                                        linkObj.urlPropName,
+                                    )
+                                }
+                                error={this.state.inputErrorArray[idx + 1]}
+                                errorMessage={this.urlInputErrorMessage}
+                            />
+                        ))}
+                    </FormColumn>
+                    {/*<FormColumn maxWidth="186px">
+                    {this.state.userPublicProfile.avatarURL && (
+                        <LargeUserAvatar
+                            path={
+                                this.state.userPublicProfile.avatarURL
+                            }
+                        />
+                    )}
+                    {!this.state.userPublicProfile.avatarURL && (
+                        <AvatarPlaceholder>
+                            <CameraIcon
+                                height="30px"
+                                fileName="camera.svg"
+                            />
+                        </AvatarPlaceholder>
+                    )}
+                </FormColumn>
+            */}
+                </FormRow>
+                <FormRow>
+                    <Margin top="medium">
+                        <SectionHeader theme={theme}>
+                            Web Monetization Settings
+                        </SectionHeader>
+                        <SectionHeaderDescription>
+                            People can pay for your curations with
+                            WebMonetization micropayments. <br /> Takes 5
+                            minutes to set up.
+                            <WebLink
+                                as="span"
+                                onClick={() =>
+                                    this.handleWebLinkClick(
+                                        this.webMonetizationLearnMoreURL,
+                                    )
+                                }
+                            >
+                                {`Learn More >>`}
+                            </WebLink>
+                        </SectionHeaderDescription>
+                    </Margin>
+                </FormRow>
+                <FormRow>
+                    <FormColumn maxWidth="263px">
+                        <TextInput
+                            label=""
+                            value={
+                                this.state.userPublicProfile?.paymentPointer ??
+                                ''
+                            }
+                            onChange={(evt) =>
+                                this.handleSetProfileValue(
+                                    'paymentPointer',
+                                    evt.currentTarget.value,
+                                )
+                            }
+                        />
+                    </FormColumn>
+                </FormRow>
+            </Container>
+        )
+    }
+
     render() {
         return (
             <Overlay
                 services={this.props.services}
                 onCloseRequested={this.props.onCloseRequested}
             >
-                <Container onKeyDown={this.handleEnterKeyDown}>
-                    <Margin bottom="large">
-                        <ButtonContainer>
-                            <StyledPrimaryButton
-                                theme={theme}
-                                taskState={this.state.savingTaskState}
-                                disabled={this.state.inputErrorArray.some(
-                                    (val) => val,
-                                )}
-                                label="Save"
-                                onClick={() => this.handleSaveClick()}
-                                minWidth="82px"
-                            />
-                            <StyledSecondaryButton
-                                label="Cancel"
-                                onClick={() => this.props.onCloseRequested()}
-                                minWidth="82px"
-                            />
-                        </ButtonContainer>
-                    </Margin>
-                    <FormRow>
-                        <Margin vertical="medium">
-                            <SectionHeader theme={theme}>
-                                Profile Information
-                            </SectionHeader>
-                        </Margin>
-                    </FormRow>
-                    <FormRow>
-                        <FormColumn maxWidth="263px">
-                            <TextInput
-                                label="Display Name"
-                                value={this.state.user?.displayName}
-                                onChange={(evt) => {
-                                    if (this.state.inputErrorArray[0]) {
-                                        this.testDisplayName()
-                                    }
-                                    this.handleSetDisplayName(
-                                        evt.currentTarget.value,
-                                    )
-                                }}
-                                error={this.state.inputErrorArray[0]}
-                                errorMessage={this.displayNameErrorMessage}
-                            />
-                            <Margin vertical="small">
-                                <TextArea
-                                    label="Bio"
-                                    rows={5}
-                                    value={
-                                        this.state.userPublicProfile?.bio ?? ''
-                                    }
-                                    onChange={(evt) =>
-                                        this.handleSetProfileValue(
-                                            'bio',
-                                            evt.currentTarget.value,
-                                        )
-                                    }
-                                />
-                            </Margin>
-                            {this.state.profileLinks.map((linkObj, idx) => (
-                                <TextInput
-                                    key={idx}
-                                    label={linkObj.label}
-                                    value={
-                                        this.state.userPublicProfile?.[
-                                            linkObj.urlPropName
-                                        ] ?? ''
-                                    }
-                                    onChange={(evt) =>
-                                        this.handleURLChange(
-                                            evt,
-                                            idx + 1,
-                                            linkObj.urlPropName,
-                                        )
-                                    }
-                                    error={this.state.inputErrorArray[idx + 1]}
-                                    errorMessage={this.urlInputErrorMessage}
-                                />
-                            ))}
-                        </FormColumn>
-                        {/*<FormColumn maxWidth="186px">
-                                {this.state.userPublicProfile.avatarURL && (
-                                    <LargeUserAvatar
-                                        path={
-                                            this.state.userPublicProfile.avatarURL
-                                        }
-                                    />
-                                )}
-                                {!this.state.userPublicProfile.avatarURL && (
-                                    <AvatarPlaceholder>
-                                        <CameraIcon
-                                            height="30px"
-                                            fileName="camera.svg"
-                                        />
-                                    </AvatarPlaceholder>
-                                )}
-                            </FormColumn>
-                        */}
-                    </FormRow>
-                    <FormRow>
-                        <Margin top="medium">
-                            <SectionHeader theme={theme}>
-                                Web Monetization Settings
-                            </SectionHeader>
-                            <SectionHeaderDescription>
-                                People can pay for your curations with
-                                WebMonetization micropayments. <br /> Takes 5
-                                minutes to set up.
-                                <WebLink
-                                    as="span"
-                                    onClick={() =>
-                                        this.handleWebLinkClick(
-                                            this.webMonetizationLearnMoreURL,
-                                        )
-                                    }
-                                >
-                                    {`Learn More >>`}
-                                </WebLink>
-                            </SectionHeaderDescription>
-                        </Margin>
-                    </FormRow>
-                    <FormRow>
-                        <FormColumn maxWidth="263px">
-                            <TextInput
-                                label=""
-                                value={
-                                    this.state.userPublicProfile
-                                        ?.paymentPointer ?? ''
-                                }
-                                onChange={(evt) =>
-                                    this.handleSetProfileValue(
-                                        'paymentPointer',
-                                        evt.currentTarget.value,
-                                    )
-                                }
-                            />
-                        </FormColumn>
-                    </FormRow>
-                </Container>
+                {this.renderContent()}
             </Overlay>
         )
     }
