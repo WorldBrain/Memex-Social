@@ -10,7 +10,7 @@ import Markdown from '../../../../common-ui/components/markdown'
 import { ProfilePopupProps } from '../../../user-management/ui/containers/profile-popup-container'
 
 const withRepliesImage = require('../../../../assets/img/comment.svg')
-const withoutRepliesImage = require('../../../../assets/img/medium-logo.svg')
+const withoutRepliesImage = require('../../../../assets/img/comment-empty.svg')
 
 const StyledAnnotationBox = styled.div`
     font-family: ${(props) => props.theme.fonts.primary};
