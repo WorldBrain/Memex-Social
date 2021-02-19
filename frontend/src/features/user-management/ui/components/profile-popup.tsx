@@ -102,7 +102,13 @@ export default class ProfilePopup extends PureComponent<ProfilePopupProps> {
         const { taskState, userPublicProfile, webLinksArray } = props
 
         if (taskState === 'pristine' || taskState === 'running') {
-            return <LoadingScreen />
+            return (
+                <PopupContainer theme={theme}>
+                    <ProfileContainer>
+                        <LoadingScreen />
+                    </ProfileContainer> 
+                </PopupContainer>
+            )  
         }
 
         return (

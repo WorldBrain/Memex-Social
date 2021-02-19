@@ -12,8 +12,6 @@ import ProfilePopupContainerLogic from './logic'
 import ProfilePopup from '../../components/profile-popup'
 
 const Container = styled.div`
-    height: 'min-content';
-    width: 'min-content';
     position: relative;
 `
 
