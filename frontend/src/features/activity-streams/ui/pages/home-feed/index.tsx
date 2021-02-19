@@ -514,7 +514,6 @@ export default class HomeFeedPage extends UIElement<
                                                 : []
                                         }
                                     />
-                                </Margin>
                                 {entry.annotationsLoadState === 'running' && (
                                     <LoadingIndicator />
                                 )}
@@ -525,6 +524,7 @@ export default class HomeFeedPage extends UIElement<
                                         entry.annotations,
                                         options,
                                     )}
+                                </Margin>
                             </>
                         ),
                         (inputArr) =>

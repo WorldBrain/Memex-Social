@@ -422,14 +422,14 @@ export default class CollectionDetailsPage extends UIElement<
                         )}
                         {[...data.listEntries.entries()].map(
                             ([entryIndex, entry]) => (
+                                <Margin bottom={'small'}>
                                 <React.Fragment key={entry.normalizedUrl}>
-                                    <Margin bottom={'small'}>
+                                    
                                         {this.renderPageEntry(entry)}
-                                    </Margin>
                                     {state.pageAnnotationsExpanded[
                                         entry.normalizedUrl
                                     ] && (
-                                        <Margin left={'small'}>
+                                        <Margin>
                                             <Margin bottom={'smallest'}>
                                                 {this.renderPageAnnotations(
                                                     entry,
@@ -454,6 +454,7 @@ export default class CollectionDetailsPage extends UIElement<
                                             />
                                         )}
                                 </React.Fragment>
+                                </Margin>
                             ),
                         )}
                     </PageInfoList>

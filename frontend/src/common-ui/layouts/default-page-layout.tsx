@@ -164,17 +164,6 @@ const HeaderSubtitle = styled.div<{
     font-size: 14px;
     font-family: ${(props) => props.theme.fonts.primary};
     color: ${(props) => props.theme.colors.subText};
-
-    ${(props) =>
-        props.viewportWidth === 'small' &&
-        css`
-            font-size: 12px;
-        `}
-    ${(props) =>
-        props.viewportWidth === 'mobile' &&
-        css`
-            font-size: 10px;
-        `}
 `
 const HeaderAuthArea = styled.div<{
     viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
@@ -219,11 +208,19 @@ const PageMidleAreaTitles = styled.div`
     flex: 1;
 `
 
-const PageMidleAreaAction = styled.div`
+const PageMidleAreaAction = styled.div<{
+    viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
+}>`
     display: flex;
     justify-content: flex-end;
     align-items: flex-start;
     flex-direction: row;
+    ${(props) =>
+        props.viewportWidth === 'mobile' &&
+        css`
+            flex-direction: row-reverse;
+            margin-top: ${(props) => props.theme.spacing.medium};
+        `}
 `
 
 const PageMiddleAreaTopBox = styled(Margin)<{
@@ -403,7 +400,9 @@ export default function DefaultPageLayout(props: {
                                 ),
                             })}
                     </PageMidleAreaTitles>
-                    <PageMidleAreaAction>
+                    <PageMidleAreaAction
+                    viewportWidth={viewportWidth}
+                    >
                         {props.webMonetizationIcon && props.webMonetizationIcon}
                         {props.followBtn && props.followBtn}
                     </PageMidleAreaAction>

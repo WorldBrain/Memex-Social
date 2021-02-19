@@ -24,6 +24,10 @@ const Creator = styled.div`
     font-weight: 600;
     color: ${(props) => props.theme.colors.primary};
     font-size: 12px;
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 `
 const CreationDate = styled.div`
     font-family: 'Poppins';

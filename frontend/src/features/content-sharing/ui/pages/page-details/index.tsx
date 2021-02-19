@@ -163,7 +163,7 @@ export default class PageDetailsPage extends UIElement<
                     )}
                 >
                     <PageInfoList>
-                        <Margin bottom={'small'}>
+                        <Margin>
                             <PageInfoBox pageInfo={pageInfo} />
                         </Margin>
                         <Margin bottom="large">
