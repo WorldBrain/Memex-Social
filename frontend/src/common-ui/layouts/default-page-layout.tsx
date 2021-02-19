@@ -59,15 +59,6 @@ const HeaderLogoArea = styled.div<{
 }>`
     align-items: center;
 
-    ${(props) =>
-        (props.viewportWidth === 'small' || props.viewportWidth === 'mobile') &&
-        css`
-            background-position: center left;
-            background-size: cover;
-            width: 40px;
-            border: none;
-            flex: none;
-        `}
 `
 
 const MemexLogo = styled.div<{
@@ -79,10 +70,12 @@ const MemexLogo = styled.div<{
     width: 100px;
     border: none;
     cursor: pointer;
-    margin-right: 20px;
     background-repeat: no-repeat;
     background-image: url(${logoImage});
     display: flex;
+    width: 24px;
+    background-position: center left;
+            background-size: cover;
 
     ${(props) =>
         (props.viewportWidth === 'small' || props.viewportWidth === 'mobile') &&
@@ -370,12 +363,7 @@ export default function DefaultPageLayout(props: {
                             isShown={props.listsSidebarProps.isShown}
                         />
                     )}
-                    <HeaderLogoArea
-                        onClick={() => window.open('https://getmemex.com')}
-                        viewportWidth={viewportWidth}
-                    >
-                        <MemexLogo viewportWidth={viewportWidth} />
-                    </HeaderLogoArea>
+                    
                 </LogoAndFeed>
                 <HeaderMiddleArea viewportWidth={viewportWidth}>
                     {renderFeedArea()}
@@ -386,6 +374,7 @@ export default function DefaultPageLayout(props: {
                         storage={props.storage}
                     />
                 </HeaderAuthArea>
+
             </StyledHeader>
             <PageMiddleArea viewportWidth={viewportWidth}>
                 <PageMiddleAreaTopBox

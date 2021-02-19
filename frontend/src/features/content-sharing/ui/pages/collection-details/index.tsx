@@ -358,7 +358,7 @@ export default class CollectionDetailsPage extends UIElement<
                     webMonetizationIcon={this.renderWebMonetizationIcon()}
                     listsSidebarProps={this.listsSidebarProps}
                 >
-                    {data.list.description && (
+                    {/*{data.list.description && (
                         <CollectionDescriptionBox
                             viewportWidth={viewportBreakpoint}
                         >
@@ -386,6 +386,7 @@ export default class CollectionDetailsPage extends UIElement<
                             )}
                         </CollectionDescriptionBox>
                     )}
+                */}
                     {state.annotationEntriesLoadState === 'error' && (
                         <Margin bottom={'large'}>
                             <ErrorWithAction errorType="internal-error">

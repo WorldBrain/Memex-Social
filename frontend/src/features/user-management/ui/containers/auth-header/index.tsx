@@ -6,19 +6,34 @@ import {
     AuthHeaderDependencies,
     AuthHeaderState,
 } from './types'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import UserAvatar from '../../../../../common-ui/components/user-avatar'
 import { Margin } from 'styled-components-spacing'
 import { Closable } from '../../../../../common-ui/components/closable'
 import AuthMenu from '../../components/auth-menu'
 import ProfileEditModal from '../profile-edit-modal'
 
+const logoImage = require('../../../../../assets/img/memex-icon.svg')
+
 const StyledAuthHeader = styled.div``
 const LoginAction = styled.div`
     cursor: pointer;
-    font-size: 14px;
-    font-weight: bold;
 `
+
+const MemexIcon = styled.div`
+    height: 24px;
+    background-position: center;
+    background-size: contain;
+    border: none;
+    cursor: pointer;
+    background-repeat: no-repeat;
+    background-image: url(${logoImage});
+    display: flex;
+    width: 24px;
+    background-position: center;
+    background-size: contain;
+`
+
 const UserInfo = styled.div`
     display: flex;
     flex-direction: row-reverse;
@@ -27,6 +42,9 @@ const UserInfo = styled.div`
 `
 const DisplayName = styled.div`
     display: inline-block;
+    font-size: 14px;
+    font-weight: bold;
+    color: ${(props) => props.theme.colors.primary};
 `
 const MenuContainerOuter = styled.div`
     position: relative;
@@ -41,7 +59,7 @@ const MenuContainerInner = styled.div`
 export default class AuthHeader extends UIElement<
     AuthHeaderDependencies,
     AuthHeaderState,
-    AuthHeaderEvent
+    AuthHeaderEvent,
 > {
     constructor(props: AuthHeaderDependencies) {
         super(props, { logic: new Logic(props) })
@@ -62,12 +80,13 @@ export default class AuthHeader extends UIElement<
                     <UserInfo
                         onClick={() => this.processEvent('toggleMenu', null)}
                     >
-                        <UserAvatar user={this.state.user} />
-                        <Margin right={'medium'}>
+                        {/*<UserAvatar user={this.state.user} />*/}
+                            <Margin left="small">
+                                <MemexIcon/>
+                            </Margin>
                             <DisplayName>
                                 {this.state.user.displayName}
                             </DisplayName>
-                        </Margin>
                     </UserInfo>
                     {this.state.showMenu && (
                         <Closable
