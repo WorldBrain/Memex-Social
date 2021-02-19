@@ -112,9 +112,9 @@ export default class TextArea extends React.PureComponent<
                     onChange={this.handleChange}
                     onKeyDown={this.handleKeyDown}
                 />
-                <CharCount
+                {/*<CharCount
                     theme={theme}
-                >{`${this.state.charCount}/${USER_PROFILE_BIO_CHAR_LIMIT}`}</CharCount>
+                >{`${this.state.charCount}/${USER_PROFILE_BIO_CHAR_LIMIT}`}</CharCount>*/}
             </Container>
         )
     }
