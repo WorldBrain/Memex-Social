@@ -28,15 +28,14 @@ import ErrorBox from '../../../../../common-ui/components/error-box'
 const Container = styled.div<{ theme: Theme }>`
     margin: auto;
     min-height: 358px;
-    max-height: 70vh;
-    width: 648px;
-    overflow-y: scroll;
+    max-height: 100%;
+    width: 100%;
 
     background-color: ${(props) => props.theme.colors.background};
-    padding-left: ${(props) => props.theme.spacing.large};
-    padding-right: ${(props) => props.theme.spacing.large};
-    padding-top: ${(props) => props.theme.spacing.large};
-    padding-bottom: ${(props) => props.theme.spacing.large};
+    padding-left: ${(props) => props.theme.spacing.small};
+    padding-right: ${(props) => props.theme.spacing.small};
+    padding-top: ${(props) => props.theme.spacing.small};
+    padding-bottom: ${(props) => props.theme.spacing.small};
 `
 
 const ButtonContainer = styled.div`
@@ -66,11 +65,13 @@ const SectionHeaderDescription = styled(SectionHeader)`
     font-weight: ${(props) => props.theme.fontWeights.normal};
     font-size: ${(props) => props.theme.fontSizes.text};
     line-height: ${(props) => props.theme.lineHeights.text};
+    padding-bottom: ${(props) => props.theme.spacing.small};
 `
 
 const WebLink = styled(SectionHeaderDescription)`
     text-decoration: underline;
     cursor: pointer;
+    padding-left: 5px;
 `
 
 const FormColumn = styled.div<{
@@ -140,7 +141,7 @@ export default class ProfileEditModal extends UIElement<
     }
 
     private webMonetizationLearnMoreURL: string =
-        'https://www.worldbrain.io/WebMonetizationTutorial'
+        'https://worldbrain.io/tutorial/WebMonetization-Curator'
     private displayNameErrorMessage: string = 'Display Name must not be empty'
     private urlInputErrorMessage: string = 'This must be a valid URL'
 
@@ -313,6 +314,29 @@ export default class ProfileEditModal extends UIElement<
                                 errorMessage={this.urlInputErrorMessage}
                             />
                         ))}
+                        <FormRow>
+                            <Margin top="medium">
+                                <SectionHeader theme={theme}>
+                                    Web Monetization Settings
+                                </SectionHeader>
+                                <SectionHeaderDescription>
+                                    People can pay for your curations with
+                                    WebMonetization micropayments. <br /> Takes
+                                    5 minutes to set up.
+                                    <WebLink
+                                        as="span"
+                                        onClick={() =>
+                                            this.handleWebLinkClick(
+                                                this
+                                                    .webMonetizationLearnMoreURL,
+                                            )
+                                        }
+                                    >
+                                        {`How to find your payment pointer >>`}
+                                    </WebLink>
+                                </SectionHeaderDescription>
+                            </Margin>
+                        </FormRow>
                     </FormColumn>
                     {/*<FormColumn maxWidth="186px">
                     {this.state.userPublicProfile.avatarURL && (
@@ -332,28 +356,6 @@ export default class ProfileEditModal extends UIElement<
                     )}
                 </FormColumn>
             */}
-                </FormRow>
-                <FormRow>
-                    <Margin top="medium">
-                        <SectionHeader theme={theme}>
-                            Web Monetization Settings
-                        </SectionHeader>
-                        <SectionHeaderDescription>
-                            People can pay for your curations with
-                            WebMonetization micropayments. <br /> Takes 5
-                            minutes to set up.
-                            <WebLink
-                                as="span"
-                                onClick={() =>
-                                    this.handleWebLinkClick(
-                                        this.webMonetizationLearnMoreURL,
-                                    )
-                                }
-                            >
-                                {`Learn More >>`}
-                            </WebLink>
-                        </SectionHeaderDescription>
-                    </Margin>
                 </FormRow>
                 <FormRow>
                     <FormColumn maxWidth="263px">

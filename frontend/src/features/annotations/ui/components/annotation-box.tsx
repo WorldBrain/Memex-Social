@@ -55,6 +55,10 @@ const AnnotationComment = styled.div`
     & *:last-child {
         margin-bottom: 0;
     }
+
+    & * {
+        word-break: break-word;
+    }
 `
 
 const Separator = styled.div`

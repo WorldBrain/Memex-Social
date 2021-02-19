@@ -77,5 +77,10 @@ export function activityFollowsEventHandlers(
                 },
             )
         },
+        toggleListSidebar: ({ previousState }) => {
+            logic.emitMutation({
+                isListSidebarShown: { $set: !previousState.isListSidebarShown },
+            })
+        },
     }
 }

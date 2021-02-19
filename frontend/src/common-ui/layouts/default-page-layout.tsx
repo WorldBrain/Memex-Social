@@ -10,6 +10,7 @@ import UnseenActivityIndicator from '../../features/activity-streams/ui/containe
 import ListsSidebar, {
     Props as ListsSidebarProps,
 } from '../../main-ui/components/list-sidebar/lists-sidebar'
+import ListsSidebarToggle from '../../main-ui/components/sidebar-toggle/'
 const logoImage = require('../../assets/img/memex-logo.svg')
 
 const middleMaxWidth = '800px'
@@ -49,7 +50,7 @@ const LogoAndFeed = styled(Margin)<{
     ${(props) =>
         (props.viewportWidth === 'small' || props.viewportWidth === 'mobile') &&
         css`
-            padding-right: 30px;
+            padding-right: 10px;
         `}
 `
 
@@ -57,16 +58,6 @@ const HeaderLogoArea = styled.div<{
     viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
 }>`
     align-items: center;
-
-    ${(props) =>
-        (props.viewportWidth === 'small' || props.viewportWidth === 'mobile') &&
-        css`
-            background-position: center left;
-            background-size: cover;
-            width: 40px;
-            border: none;
-            flex: none;
-        `}
 `
 
 const MemexLogo = styled.div<{
@@ -78,10 +69,12 @@ const MemexLogo = styled.div<{
     width: 100px;
     border: none;
     cursor: pointer;
-    margin-right: 20px;
     background-repeat: no-repeat;
     background-image: url(${logoImage});
     display: flex;
+    width: 24px;
+    background-position: center left;
+    background-size: cover;
 
     ${(props) =>
         (props.viewportWidth === 'small' || props.viewportWidth === 'mobile') &&
@@ -146,7 +139,6 @@ const HeaderTitle = styled.div<{
     font-family: ${(props) => props.theme.fonts.primary};
     font-size: 16px;
     overflow-wrap: break-word;
-    white-space: nowrap;
     max-width: ${(props) =>
         props.viewportWidth === 'small' || props.viewportWidth === 'mobile'
             ? '100%'
@@ -171,17 +163,6 @@ const HeaderSubtitle = styled.div<{
     font-size: 14px;
     font-family: ${(props) => props.theme.fonts.primary};
     color: ${(props) => props.theme.colors.subText};
-
-    ${(props) =>
-        props.viewportWidth === 'small' &&
-        css`
-            font-size: 12px;
-        `}
-    ${(props) =>
-        props.viewportWidth === 'mobile' &&
-        css`
-            font-size: 10px;
-        `}
 `
 const HeaderAuthArea = styled.div<{
     viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
@@ -226,11 +207,19 @@ const PageMidleAreaTitles = styled.div`
     flex: 1;
 `
 
-const PageMidleAreaAction = styled.div`
+const PageMidleAreaAction = styled.div<{
+    viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
+}>`
     display: flex;
     justify-content: flex-end;
     align-items: flex-start;
     flex-direction: row;
+    ${(props) =>
+        props.viewportWidth === 'mobile' &&
+        css`
+            flex-direction: row-reverse;
+            margin-top: ${(props) => props.theme.spacing.medium};
+        `}
 `
 
 const PageMiddleAreaTopBox = styled(Margin)<{
@@ -240,7 +229,7 @@ const PageMiddleAreaTopBox = styled(Margin)<{
     justify-content: space-between;
     align-items: flex-start;
     flex-direction: ${(props) =>
-        props.viewportWidth === 'mobile' ? 'column' : 'row'}; ;
+        props.viewportWidth === 'mobile' ? 'column' : 'row'};
 `
 
 // const BetaFlag = styled.div`
@@ -272,7 +261,9 @@ export default function DefaultPageLayout(props: {
     followBtn?: JSX.Element
     webMonetizationIcon?: JSX.Element
     hideActivityIndicator?: boolean
-    listsSidebarProps?: Omit<ListsSidebarProps, 'services'>
+    listsSidebarProps?: Omit<ListsSidebarProps, 'services'> & {
+        onSidebarToggle: React.MouseEventHandler
+    }
     renderSubtitle?: (props: { children: React.ReactNode }) => React.ReactNode
     viewportBreakpoint: ViewportBreakpoint
     children: React.ReactNode
@@ -361,12 +352,13 @@ export default function DefaultPageLayout(props: {
             {renderListsSidebar()}
             <StyledHeader viewportWidth={viewportWidth}>
                 <LogoAndFeed viewportWidth={viewportWidth}>
-                    <HeaderLogoArea
-                        onClick={() => window.open('https://getmemex.com')}
-                        viewportWidth={viewportWidth}
-                    >
-                        <MemexLogo viewportWidth={viewportWidth} />
-                    </HeaderLogoArea>
+                    {props.listsSidebarProps && (
+                        <ListsSidebarToggle
+                            viewportWidth={viewportWidth}
+                            onToggle={props.listsSidebarProps.onSidebarToggle}
+                            isShown={props.listsSidebarProps.isShown}
+                        />
+                    )}
                 </LogoAndFeed>
                 <HeaderMiddleArea viewportWidth={viewportWidth}>
                     {renderFeedArea()}
@@ -405,7 +397,7 @@ export default function DefaultPageLayout(props: {
                                 ),
                             })}
                     </PageMidleAreaTitles>
-                    <PageMidleAreaAction>
+                    <PageMidleAreaAction viewportWidth={viewportWidth}>
                         {props.webMonetizationIcon && props.webMonetizationIcon}
                         {props.followBtn && props.followBtn}
                     </PageMidleAreaAction>

@@ -8,7 +8,6 @@ const StyledIcon = styled.div<{
 }>`
     height: ${(props) => props.height};
     width: ${(props) => props.width};
-    margin-right: 10px;
     background-position: center;
     background-size: contain;
     background-repeat: no-repeat;

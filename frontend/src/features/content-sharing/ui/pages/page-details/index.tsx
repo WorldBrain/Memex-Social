@@ -36,6 +36,16 @@ export default class PageDetailsPage extends UIElement<
         super(props, { logic: new Logic(props) })
     }
 
+    get listsSidebarProps() {
+        return {
+            isShown: this.state.isListSidebarShown,
+            followedLists: this.state.followedLists,
+            loadState: this.state.listSidebarLoadState,
+            onSidebarToggle: () =>
+                this.processEvent('toggleListSidebar', undefined),
+        }
+    }
+
     getBreakPoints() {
         let viewPortWidth = this.getViewportWidth()
 
@@ -68,11 +78,7 @@ export default class PageDetailsPage extends UIElement<
                     storage={this.props.storage}
                     viewportBreakpoint={viewportWidth}
                     headerTitle={'Loading page...'}
-                    listsSidebarProps={{
-                        isShown: state.isListSidebarShown,
-                        followedLists: state.followedLists,
-                        loadState: state.listSidebarLoadState,
-                    }}
+                    listsSidebarProps={this.listsSidebarProps}
                 >
                     <DocumentTitle
                         documentTitle={this.props.services.documentTitle}
@@ -89,6 +95,7 @@ export default class PageDetailsPage extends UIElement<
                     storage={this.props.storage}
                     viewportBreakpoint={viewportWidth}
                     headerTitle={'Could not load page'}
+                    listsSidebarProps={this.listsSidebarProps}
                 >
                     <DocumentTitle
                         documentTitle={this.props.services.documentTitle}
@@ -110,11 +117,7 @@ export default class PageDetailsPage extends UIElement<
                     storage={this.props.storage}
                     viewportBreakpoint={viewportWidth}
                     headerTitle={'Shared page not found'}
-                    listsSidebarProps={{
-                        isShown: state.isListSidebarShown,
-                        followedLists: state.followedLists,
-                        loadState: state.listSidebarLoadState,
-                    }}
+                    listsSidebarProps={this.listsSidebarProps}
                 >
                     <DocumentTitle
                         documentTitle={this.props.services.documentTitle}
@@ -147,6 +150,7 @@ export default class PageDetailsPage extends UIElement<
                     storage={this.props.storage}
                     viewportBreakpoint={viewportWidth}
                     headerTitle={this.getHeaderTitle()}
+                    listsSidebarProps={this.listsSidebarProps}
                     headerSubtitle={this.getHeaderSubtitle()}
                     renderSubtitle={(props) => (
                         <ProfilePopupContainer
@@ -157,14 +161,9 @@ export default class PageDetailsPage extends UIElement<
                             {props.children}
                         </ProfilePopupContainer>
                     )}
-                    listsSidebarProps={{
-                        isShown: state.isListSidebarShown,
-                        followedLists: state.followedLists,
-                        loadState: state.listSidebarLoadState,
-                    }}
                 >
                     <PageInfoList>
-                        <Margin bottom={'small'}>
+                        <Margin>
                             <PageInfoBox pageInfo={pageInfo} />
                         </Margin>
                         <Margin bottom="large">

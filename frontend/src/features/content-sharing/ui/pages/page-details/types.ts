@@ -31,6 +31,7 @@ export interface PageDetailsDependencies {
         | 'activityStreams'
         | 'router'
         | 'userManagement'
+        | 'webMonetization'
     >
     storage: Pick<
         StorageModules,

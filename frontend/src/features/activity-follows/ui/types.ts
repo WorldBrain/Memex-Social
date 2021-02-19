@@ -13,6 +13,7 @@ export interface ActivityFollowsState {
 
 export interface ActivityFollowsEvent {
     initActivityFollows: undefined
+    toggleListSidebar: undefined
 }
 
 export type ActivityFollowsHandlers = {

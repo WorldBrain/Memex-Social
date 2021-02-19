@@ -515,17 +515,16 @@ export default class HomeFeedPage extends UIElement<
                                                 : []
                                         }
                                     />
+                                    {entry.annotationsLoadState ===
+                                        'running' && <LoadingIndicator />}
+                                    {entry.areAnnotationsShown &&
+                                        this.renderAnnotationsInPage(
+                                            listItem.groupId,
+                                            listItem,
+                                            entry.annotations,
+                                            options,
+                                        )}
                                 </Margin>
-                                {entry.annotationsLoadState === 'running' && (
-                                    <LoadingIndicator />
-                                )}
-                                {entry.areAnnotationsShown &&
-                                    this.renderAnnotationsInPage(
-                                        listItem.groupId,
-                                        listItem,
-                                        entry.annotations,
-                                        options,
-                                    )}
                             </>
                         ),
                         (inputArr) =>
@@ -591,6 +590,8 @@ export default class HomeFeedPage extends UIElement<
                         isShown: this.state.isListSidebarShown,
                         followedLists: this.state.followedLists,
                         loadState: this.state.listSidebarLoadState,
+                        onSidebarToggle: () =>
+                            this.processEvent('toggleListSidebar', undefined),
                     }}
                 >
                     {this.renderContent()}

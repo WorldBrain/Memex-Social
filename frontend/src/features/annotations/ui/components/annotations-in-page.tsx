@@ -27,11 +27,11 @@ const AnnotationContainer = styled(Margin)`
     justify-content: center;
 `
 
-const AnnotationLine = styled.span`
+const AnnotationLine = styled.div`
     height: auto;
     width: 4px;
     background: #e0e0e0;
-    margin: -8px 10px 15px;
+    margin: 0 10px 5px;
 `
 
 const AnnotationReplyContainer = styled.div`
@@ -43,6 +43,8 @@ const AnnotationReplyContainer = styled.div`
 const AnnotationList = styled.div`
     min-height: 60px;
     width: 100%;
+    border-left: 4px solid #e0e0e0;
+    padding-left: 10px;
 `
 
 const CenteredContent = styled.div`
@@ -97,8 +99,7 @@ export default function AnnotationsInPage(
 ) {
     if (props.loadState === 'pristine' || props.loadState === 'running') {
         return (
-            <AnnotationContainer bottom="large">
-                <AnnotationLine />
+            <AnnotationContainer left="small" bottom="large">
                 <AnnotationList>
                     <CenteredContent>
                         <LoadingIndicator />
@@ -111,7 +112,6 @@ export default function AnnotationsInPage(
     if (props.loadState === 'error') {
         return (
             <AnnotationContainer>
-                <AnnotationLine />
                 <CenteredContent>
                     <Margin bottom={'medium'}>
                         <ErrorBox>
@@ -133,7 +133,7 @@ export default function AnnotationsInPage(
             props.getAnnotationConversation?.(annotation.reference) ??
             props.annotationConversations?.[annotation.linkId]
         return (
-            <Margin key={annotation.linkId} bottom={'medium'}>
+            <Margin key={annotation.linkId} bottom={'small'} top={'small'}>
                 <AnnotationWithReplies
                     {...props}
                     annotation={annotation}
@@ -157,8 +157,7 @@ export default function AnnotationsInPage(
     }
 
     return (
-        <AnnotationContainer bottom="large">
-            <AnnotationLine />
+        <AnnotationContainer left="small" bottom="large">
             <AnnotationList>
                 {props.annotations.map(
                     (annotation) => annotation && renderAnnotation(annotation),
@@ -260,7 +259,7 @@ export function AnnotationWithReplies(
                             return null
                         }
                         return (
-                            <Margin key={replyData.reference.id} left="small">
+                            <Margin left="small" key={replyData.reference.id}>
                                 <AnnotationReplyContainer>
                                     {renderedReply}
                                 </AnnotationReplyContainer>
