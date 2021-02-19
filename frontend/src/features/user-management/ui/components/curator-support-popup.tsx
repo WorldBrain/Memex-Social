@@ -43,16 +43,38 @@ interface CuratorSupportPopupProps {
     storage: Pick<StorageModules, 'users'>
     curatorUserRef: UserReference
     taskState: UITaskState
+    supported: string
 }
 
 export default class CuratorSupportPopup extends PureComponent<CuratorSupportPopupProps> {
     render() {
-        const { taskState, curatorUserRef, services, storage } = this.props
+        const { taskState, curatorUserRef, services, storage, supported} = this.props
         return (
             <PopupContainer theme={theme}>
                 {taskState === 'running' && <LoadingScreen />}
                 {(taskState === 'pristine' || taskState === 'success') && (
                     <>
+                    {supported === 'success' && (
+                        <>
+                        <Margin bottom="smallest">
+                            <Title theme={theme}>
+                                Curator Supported!
+                            </Title>
+                        </Margin>
+                        <Text theme={theme}>
+                            For every visit you'll donate a few cents to this creator. 
+                        </Text>
+                        <CuratorSupportButtonBlock
+                            services={services}
+                            storage={storage}
+                            curatorUserRef={curatorUserRef}
+                        />
+                    </>
+
+
+                    )}
+                    {supported !== 'success' && (
+                        <>
                         <Margin bottom="smallest">
                             <Title theme={theme}>
                                 Support Collection Curator
@@ -67,6 +89,9 @@ export default class CuratorSupportPopup extends PureComponent<CuratorSupportPop
                             storage={storage}
                             curatorUserRef={curatorUserRef}
                         />
+                    </>
+
+                    )}
                     </>
                 )}
             </PopupContainer>

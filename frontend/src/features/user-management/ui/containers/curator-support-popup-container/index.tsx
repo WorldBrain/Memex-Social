@@ -17,9 +17,9 @@ const Container = styled.div`
     position: relative;
 `
 
-// const CuratorPopupBox = styled.div`
-//     padding-top: 5px;
-// `
+const CuratorPopupBox = styled.div`
+    padding-top: 5px;
+`
 
 export type CuratorSupportPopupContainerDependencies = ProfilePopupContainerDependencies
 export type CuratorSupportPopupContainerState = ProfilePopupContainerState
@@ -55,12 +55,15 @@ export default class CuratorSupportPopupContainer extends UIElement<
                     {state.isDisplayed &&
                         userPublicProfile?.paymentPointer &&
                         props.userRef && (
+                        <CuratorPopupBox>
                             <CuratorSupportPopup
                                 taskState={loadState}
                                 curatorUserRef={props.userRef}
                                 services={props.services}
                                 storage={props.storage}
+                                supported={props.supported}
                             />
+                        </CuratorPopupBox>
                         )}
                 </Container>
             </>
