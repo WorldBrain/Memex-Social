@@ -35,6 +35,7 @@ export interface HomeFeedDependencies {
         | 'activityStreams'
         | 'router'
         | 'userManagement'
+        | 'webMonetization'
     >
     storage: Pick<
         StorageModules,

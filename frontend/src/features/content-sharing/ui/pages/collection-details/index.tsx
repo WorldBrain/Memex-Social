@@ -127,6 +127,16 @@ export default class CollectionDetailsPage extends UIElement<
         super(props, { logic: new Logic(props) })
     }
 
+    get listsSidebarProps() {
+        return {
+            isShown: this.state.isListSidebarShown,
+            followedLists: this.state.followedLists,
+            loadState: this.state.listSidebarLoadState,
+            onSidebarToggle: () =>
+                this.processEvent('toggleListSidebar', undefined),
+        }
+    }
+
     async componentDidUpdate(prevProps: CollectionDetailsDependencies) {
         if (this.props.listID !== prevProps.listID) {
             await this.processEvent('loadListData', {
@@ -287,12 +297,7 @@ export default class CollectionDetailsPage extends UIElement<
                         services={this.props.services}
                         storage={this.props.storage}
                         viewportBreakpoint={viewportBreakpoint}
-                        listsSidebarProps={{
-                            isShown: this.state.isListSidebarShown,
-                            followedLists: this.state.followedLists,
-                            loadState: this.state.listSidebarLoadState,
-                        }}
-                        onSidebarToggle={this.state.onListSidebarToggle}
+                        listsSidebarProps={this.listsSidebarProps}
                     >
                         <ErrorWithAction errorType="internal-error">
                             Error loading this collection. <br /> Reload page to
@@ -310,11 +315,7 @@ export default class CollectionDetailsPage extends UIElement<
                     services={this.props.services}
                     storage={this.props.storage}
                     viewportBreakpoint={viewportBreakpoint}
-                    listsSidebarProps={{
-                        isShown: this.state.isListSidebarShown,
-                        followedLists: this.state.followedLists,
-                        loadState: this.state.listSidebarLoadState,
-                    }}
+                    listsSidebarProps={this.listsSidebarProps}
                 >
                     <ErrorWithAction
                         errorType="not-found"
@@ -355,12 +356,7 @@ export default class CollectionDetailsPage extends UIElement<
                     )}
                     followBtn={this.renderFollowBtn()}
                     webMonetizationIcon={this.renderWebMonetizationIcon()}
-                    listsSidebarProps={{
-                        isShown: this.state.isListSidebarShown,
-                        followedLists: this.state.followedLists,
-                        loadState: this.state.listSidebarLoadState,
-                    }}
-                    onSidebarToggle={this.state.onListSidebarToggle}
+                    listsSidebarProps={this.listsSidebarProps}
                 >
                     {data.list.description && (
                         <CollectionDescriptionBox
