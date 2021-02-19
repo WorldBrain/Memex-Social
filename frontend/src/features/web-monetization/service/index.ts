@@ -15,6 +15,7 @@ export default abstract class WebMonetizationService
         (typeof document !== 'undefined' && (document as any).monetization) ||
         null
     readonly isAvailable = !!this._monetization
+    // readonly isAvailable = true
 
     constructor(
         private options: {
@@ -64,7 +65,7 @@ export default abstract class WebMonetizationService
         }
     }
 
-    initiatePayment(paymentPointer: string): void {
+    makePaymentAvailable(paymentPointer: string): void {
         const tag = document.querySelector('meta[name="monetization"]')
         console.log(tag)
         console.log(document.head)
