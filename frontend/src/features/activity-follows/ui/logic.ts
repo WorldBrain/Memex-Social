@@ -8,6 +8,7 @@ import { Services } from '../../../services/types'
 import ActivityFollowsStorage from '../storage'
 import ContentSharingStorage from '../../content-sharing/storage'
 import { SharedListReference } from '@worldbrain/memex-common/lib/content-sharing/types'
+import { LOCAL_STORAGE_KEYS } from '../../../constants'
 
 export function activityFollowsInitialState(): ActivityFollowsState {
     return {
@@ -20,6 +21,7 @@ export function activityFollowsInitialState(): ActivityFollowsState {
 export function activityFollowsEventHandlers(
     logic: UILogic<ActivityFollowsState, ActivityFollowsEvent>,
     dependencies: {
+        localStorage: Storage
         services: Pick<Services, 'auth'>
         storage: {
             activityFollows: ActivityFollowsStorage
@@ -37,6 +39,11 @@ export function activityFollowsEventHandlers(
             if (userReference == null) {
                 return
             }
+
+            const isListSidebarShown =
+                (dependencies.localStorage.getItem(
+                    LOCAL_STORAGE_KEYS.isListSidebarShown,
+                ) ?? 'true') === 'true'
 
             await executeUITask<ActivityFollowsState>(
                 logic,
@@ -72,15 +79,19 @@ export function activityFollowsEventHandlers(
 
                     logic.emitMutation({
                         followedLists: { $set: followedLists },
-                        isListSidebarShown: { $set: true },
+                        isListSidebarShown: { $set: isListSidebarShown },
                     })
                 },
             )
         },
         toggleListSidebar: ({ previousState }) => {
-            logic.emitMutation({
-                isListSidebarShown: { $set: !previousState.isListSidebarShown },
-            })
+            const nextState = !previousState.isListSidebarShown
+
+            dependencies.localStorage.setItem(
+                LOCAL_STORAGE_KEYS.isListSidebarShown,
+                nextState.toString(),
+            )
+            logic.emitMutation({ isListSidebarShown: { $set: nextState } })
         },
     }
 }

@@ -86,6 +86,7 @@ export default class HomeFeedLogic extends UILogic<
             this,
             activityFollowsEventHandlers(this as any, {
                 ...this.dependencies,
+                localStorage: window.localStorage,
             }),
         )
     }

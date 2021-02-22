@@ -83,6 +83,7 @@ export default class CollectionDetailsLogic extends UILogic<
             this,
             activityFollowsEventHandlers(this as any, {
                 ...this.dependencies,
+                localStorage: window.localStorage,
             }),
         )
     }

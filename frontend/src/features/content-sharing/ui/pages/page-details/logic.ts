@@ -68,6 +68,7 @@ export default class PageDetailsLogic extends UILogic<
             this,
             activityFollowsEventHandlers(this as any, {
                 ...this.dependencies,
+                localStorage: window.localStorage,
             }),
         )
     }
