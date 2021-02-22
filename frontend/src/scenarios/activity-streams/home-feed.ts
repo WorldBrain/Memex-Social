@@ -52,13 +52,63 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                         // this reply should bump the group for the default annotation above the seen line
                         { type: 'reply', annotation: 'default-annotation' },
                         { type: 'login', user: 'default-user' },
-                        // { type: 'reply', page: 'notion.so', annotation: 'third-annotation' },
-                        // { type: 'reply', page: 'new.com/one', createdAnnotation: 'first' },
                     ],
                 }),
         },
         steps: [],
     })),
+    'bump-seen-list-entries': scenario<Targets>(
+        ({ step, callModification }) => ({
+            fixture: 'annotated-list-with-user',
+            startRoute: { route: 'homeFeed', params: {} },
+            setup: {
+                execute: (context) =>
+                    setupTestActivities({
+                        ...context,
+                        script: [
+                            { type: 'login', user: 'default-user' },
+                            { type: 'follow-list', list: 'default-list' },
+                            { type: 'follow-list', list: 'empty-list' },
+                            {
+                                type: 'follow-annotation',
+                                annotation: 'default-annotation',
+                            },
+                            {
+                                type: 'login',
+                                user: 'two@user.com',
+                                createProfile: true,
+                            },
+                            {
+                                type: 'list-entries',
+                                list: 'empty-list',
+                                pages: ['empty.com/one', 'empty.com/two'],
+                                time: '$now',
+                            },
+                            {
+                                type: 'list-entries',
+                                list: 'default-list',
+                                pages: ['new.com/one'],
+                                time: '$now',
+                            },
+                            { type: 'reply', annotation: 'default-annotation' },
+                            {
+                                type: 'home-feed-timestamp',
+                                user: 'default-user',
+                                time: '$now',
+                            },
+                            {
+                                type: 'list-entries',
+                                list: 'default-list',
+                                pages: ['new.com/two'],
+                                time: '$now',
+                            },
+                            { type: 'login', user: 'default-user' },
+                        ],
+                    }),
+            },
+            steps: [],
+        }),
+    ),
     'load-more-replies': scenario<Targets>(({ step, callModification }) => ({
         fixture: 'annotated-list-with-user',
         startRoute: { route: 'homeFeed', params: {} },

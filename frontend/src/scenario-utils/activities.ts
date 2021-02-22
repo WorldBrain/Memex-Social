@@ -14,7 +14,7 @@ type ActivityScriptStep =
     | { type: 'reply'; createdAnnotation: string }
     | { type: 'follow-annotation'; annotation: string }
     | { type: 'follow-list'; list: string }
-    | { type: 'list-entries'; list: string; pages: string[] }
+    | { type: 'list-entries'; list: string; pages: string[]; time?: '$now' }
     | { type: 'home-feed-timestamp'; user: string; time: '$now' }
     | { type: 'create-page-info'; page: string }
     | {
@@ -180,7 +180,10 @@ async function setup({
             await storage.serverModules.contentSharing.createListEntries({
                 listReference: { type: 'shared-list-reference', id: step.list },
                 listEntries: step.pages.map((page) => ({
-                    createdWhen: goBackInTime(1000 * 60 * 60),
+                    createdWhen:
+                        step.time === '$now'
+                            ? Date.now()
+                            : goBackInTime(1000 * 60 * 60),
                     entryTitle: `${page} title`,
                     normalizedUrl: page,
                     originalUrl: `https://www.${page}`,

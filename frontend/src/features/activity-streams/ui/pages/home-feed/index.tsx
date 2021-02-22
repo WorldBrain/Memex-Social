@@ -214,7 +214,8 @@ export default class HomeFeedPage extends UIElement<
         return (
             <Margin vertical="largest">
                 <MessageBox title="No Updates (yet)">
-                    Get updates from collections you follow or conversation you participate in. 
+                    Get updates from collections you follow or conversation you
+                    participate in.
                 </MessageBox>
             </Margin>
         )
@@ -465,11 +466,12 @@ export default class HomeFeedPage extends UIElement<
         listItem,
         options,
     ) => {
+        const { state } = this
         return {
             key:
                 listItem.listReference.id +
                 ':' +
-                getOrderedMapIndex(listItem.entries, 0).normalizedPageUrl,
+                getOrderedMapIndex(listItem.entries, 0).normalizedUrl,
             rendered: (
                 <Margin bottom="large">
                     <Margin bottom="small">
@@ -477,55 +479,69 @@ export default class HomeFeedPage extends UIElement<
                     </Margin>
                     {mapOrderedMap(
                         listItem.entries,
-                        (entry) => (
-                            <>
-                                <Margin
-                                    bottom="small"
-                                    key={entry.normalizedPageUrl}
-                                >
-                                    <PageInfoBox
-                                        pageInfo={{
-                                            fullTitle: entry.entryTitle,
-                                            originalUrl: entry.originalUrl,
-                                            createdWhen:
-                                                entry.activityTimestamp,
-                                            normalizedUrl:
-                                                entry.normalizedPageUrl,
-                                        }}
-                                        actions={
-                                            entry.hasAnnotations
-                                                ? [
-                                                      {
-                                                          image: commentImage,
-                                                          onClick: () =>
-                                                              this.processEvent(
-                                                                  'toggleListEntryActivityAnnotations',
-                                                                  {
-                                                                      listReference:
-                                                                          listItem.listReference,
-                                                                      listEntryReference:
-                                                                          entry.reference,
-                                                                      groupId:
-                                                                          listItem.groupId,
-                                                                  },
-                                                              ),
-                                                      },
-                                                  ]
-                                                : []
-                                        }
-                                    />
-                                    {entry.annotationsLoadState ===
-                                        'running' && <LoadingIndicator />}
-                                    {entry.areAnnotationsShown &&
-                                        this.renderAnnotationsInPage(
-                                            listItem.groupId,
-                                            listItem,
-                                            entry.annotations,
-                                            options,
-                                        )}
-                                </Margin>
-                            </>
-                        ),
+                        (entry) => {
+                            const seenState =
+                                state.lastSeenTimestamp &&
+                                (state.lastSeenTimestamp >
+                                entry.activityTimestamp
+                                    ? 'seen'
+                                    : 'unseen')
+                            const shouldRender =
+                                options.groupAlreadySeen || seenState !== 'seen'
+                            if (!shouldRender) {
+                                return null
+                            }
+
+                            return (
+                                <>
+                                    <Margin
+                                        bottom="small"
+                                        key={entry.normalizedUrl}
+                                    >
+                                        <PageInfoBox
+                                            pageInfo={{
+                                                fullTitle: entry.entryTitle,
+                                                originalUrl: entry.originalUrl,
+                                                createdWhen:
+                                                    entry.activityTimestamp,
+                                                normalizedUrl:
+                                                    entry.normalizedUrl,
+                                            }}
+                                            actions={
+                                                entry.hasAnnotations
+                                                    ? [
+                                                          {
+                                                              image: commentImage,
+                                                              onClick: () =>
+                                                                  this.processEvent(
+                                                                      'toggleListEntryActivityAnnotations',
+                                                                      {
+                                                                          listReference:
+                                                                              listItem.listReference,
+                                                                          listEntryReference:
+                                                                              entry.reference,
+                                                                          groupId:
+                                                                              listItem.groupId,
+                                                                      },
+                                                                  ),
+                                                          },
+                                                      ]
+                                                    : []
+                                            }
+                                        />
+                                        {entry.annotationsLoadState ===
+                                            'running' && <LoadingIndicator />}
+                                        {entry.areAnnotationsShown &&
+                                            this.renderAnnotationsInPage(
+                                                listItem.groupId,
+                                                listItem,
+                                                entry.annotations,
+                                                options,
+                                            )}
+                                    </Margin>
+                                </>
+                            )
+                        },
                         (inputArr) =>
                             inputArr.slice(0, this.props.listActivitiesLimit),
                     )}
@@ -559,9 +575,7 @@ export default class HomeFeedPage extends UIElement<
                     viewportBreakpoint={viewportWidth}
                     hideActivityIndicator
                 >
-                    <ErrorBox>
-                        You need to login to view your feed.
-                    </ErrorBox>
+                    <ErrorBox>You need to login to view your feed.</ErrorBox>
                 </DefaultPageLayout>
             </>
         )

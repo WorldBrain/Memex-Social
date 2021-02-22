@@ -4,6 +4,7 @@ import {
     SharedAnnotation,
     SharedListReference,
     SharedListEntryReference,
+    SharedListEntry,
 } from '@worldbrain/memex-common/lib/content-sharing/types'
 import {
     ConversationReplyReference,
@@ -92,19 +93,16 @@ export interface ListActivityItem extends TopLevelActivityItem {
     entries: OrderedMap<ListEntryActivityItem>
 }
 
-export interface ListEntryActivityItem {
+export type ListEntryActivityItem = {
     type: 'list-entry-item'
     reference: SharedListEntryReference
     creator: UserReference
-    entryTitle: string
-    originalUrl: string
-    normalizedPageUrl: string
     activityTimestamp: number
     hasAnnotations?: boolean
     areAnnotationsShown?: boolean
     annotationsLoadState: UITaskState
     annotations: OrderedMap<AnnotationActivityItem>
-}
+} & Pick<SharedListEntry, 'entryTitle' | 'originalUrl' | 'normalizedUrl'>
 
 export interface PageActivityItem extends TopLevelActivityItem {
     type: 'page-item'

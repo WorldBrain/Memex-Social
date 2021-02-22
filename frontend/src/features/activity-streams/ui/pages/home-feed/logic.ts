@@ -195,7 +195,7 @@ export default class HomeFeedLogic extends UILogic<
 
                 const annotations = await contentSharing.getAnnotationsByCreatorAndPageUrl(
                     {
-                        normalizedPageUrl: entry.normalizedPageUrl,
+                        normalizedPageUrl: entry.normalizedUrl,
                         creatorReference: entry.creator,
                     },
                 )
@@ -411,7 +411,7 @@ export default class HomeFeedLogic extends UILogic<
                 const hasAnnotations = await this.dependencies.storage.contentSharing.doesAnnotationExistForPageInList(
                     {
                         listReference: activityItem.listReference,
-                        normalizedPageUrl: listEntry.normalizedPageUrl,
+                        normalizedPageUrl: listEntry.normalizedUrl,
                     },
                 )
 
@@ -697,7 +697,7 @@ export function organizeActivities(
                             entryTitle: activity.entry.entryTitle,
                             originalUrl: activity.entry.originalUrl,
                             creator: activity.entryCreator.reference,
-                            normalizedPageUrl: activity.entry.normalizedUrl,
+                            normalizedUrl: activity.entry.normalizedUrl,
                             activityTimestamp:
                                 activity.entry.updatedWhen ??
                                 activity.entry.createdWhen,
