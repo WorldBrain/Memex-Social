@@ -19,8 +19,10 @@ export default class AuthHeaderLogic extends UILogic<
         super()
 
         const { auth } = this.dependencies.services
-        auth.events.on('changed', ({ displayName }) => {
-            this.emitMutation({ user: { $set: { displayName } } })
+        auth.events.on('changed', (user) => {
+            this.emitMutation({
+                user: { $set: user ? { displayName: user.displayName } : null },
+            })
         })
     }
 
