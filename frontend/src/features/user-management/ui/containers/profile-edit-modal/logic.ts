@@ -81,6 +81,7 @@ export default class ProfileEditModalLogic extends UILogic<
     }
 
     saveProfile: EventHandler<'saveProfile'> = async ({ event }) => {
+        const { userManagement, auth } = this.dependencies.services
         const userRef = this.userRef
         if (!userRef) {
             throw new Error(`Cannot save profile without being logged in`)
@@ -90,14 +91,13 @@ export default class ProfileEditModalLogic extends UILogic<
             'savingTaskState',
             async () => {
                 await Promise.all([
-                    this.dependencies.services.userManagement.updateUserPublicProfile(
-                        event.profileData,
-                    ),
-                    this.dependencies.services.userManagement.updateUserDisplayName(
+                    userManagement.updateUserPublicProfile(event.profileData),
+                    userManagement.updateUserDisplayName(
                         userRef,
                         event.displayName,
                     ),
                 ])
+                auth.events.emit('changed', { displayName: event.displayName })
                 this.dependencies.onCloseRequested()
             },
         )

@@ -90,7 +90,7 @@ export default class MemoryAuthService extends AuthServiceBase {
 
     async logout(): Promise<void> {
         this._user = null
-        this.events.emit('changed')
+        this.events.emit('changed', undefined)
     }
 
     getCurrentUser() {
@@ -108,6 +108,6 @@ export default class MemoryAuthService extends AuthServiceBase {
                 this.getCurrentUserReference()!,
             )
         }
-        this.events.emit('changed')
+        this.events.emit('changed', this._user?.user)
     }
 }
