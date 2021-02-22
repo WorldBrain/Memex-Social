@@ -18,7 +18,7 @@ export default class AuthHeaderLogic extends UILogic<
     constructor(private dependencies: AuthHeaderDependencies) {
         super()
 
-        this.dependencies.services.auth.events.on('changed', (user) => {
+        this.dependencies.services.auth.events.on('changed', () => {
             this._updateUser()
         })
     }

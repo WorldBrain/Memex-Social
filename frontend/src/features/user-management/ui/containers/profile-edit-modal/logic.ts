@@ -97,6 +97,7 @@ export default class ProfileEditModalLogic extends UILogic<
                         event.displayName,
                     ),
                 ])
+                await auth.refreshCurrentUser()
                 auth.events.emit('changed', { displayName: event.displayName })
                 this.dependencies.onCloseRequested()
             },
