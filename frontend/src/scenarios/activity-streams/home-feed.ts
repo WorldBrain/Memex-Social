@@ -183,6 +183,61 @@ export const SCENARIOS: ScenarioMap<Targets> = {
             ],
         }),
     ),
+    'list-item-multi-annots-single-reply': scenario<Targets>(
+        ({ step, callModification }) => ({
+            fixture: 'annotated-list-with-user',
+            authenticated: true,
+            startRoute: { route: 'homeFeed', params: {} },
+            setup: {
+                execute: (context) =>
+                    setupTestActivities({
+                        ...context,
+                        script: [
+                            { type: 'login', user: 'default-user' },
+                            { type: 'follow-list', list: 'default-list' },
+                            {
+                                type: 'login',
+                                user: 'two@user.com',
+                                createProfile: true,
+                            },
+
+                            {
+                                type: 'list-entries',
+                                list: 'default-list',
+                                pages: ['new.com/one'],
+                            },
+                            {
+                                type: 'create-annotation',
+                                page: 'new.com/one',
+                                list: 'default-list',
+                                createdId: 'first',
+                            },
+                            {
+                                type: 'create-annotation',
+                                page: 'new.com/one',
+                                list: 'default-list',
+                                createdId: 'second',
+                            },
+                            { type: 'reply', createdAnnotation: 'first' },
+                            { type: 'reply', createdAnnotation: 'second' },
+                            { type: 'login', user: 'default-user' },
+                        ],
+                    }),
+            },
+            steps: [
+                // step({
+                //     name: 'load-more-replies',
+                //     target: 'HomeFeedPage',
+                //     eventName: 'toggleListEntryActivityAnnotations',
+                //     eventArgs: {
+                //         groupId: 'act-1',
+                //         listReference: { type: 'shared-list-reference', id: 'default-list' },
+                //         listEntryReference: { type: 'shared-list-entry-reference', id:  },
+                //     }
+                // })
+            ],
+        }),
+    ),
     'list-item-without-replies': scenario<Targets>(
         ({ step, callModification }) => ({
             fixture: 'annotated-list-with-user',

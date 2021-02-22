@@ -6,7 +6,13 @@ import { BackendType } from '../types'
 import { UiRunner } from '../main-ui/types'
 import { FixtureFetcher } from '../services/fixtures/types'
 
-export type DevQueryParams = { meta?: string; rpc?: string }
+export type MetaScreenSize = 'small' | 'large'
+
+export type DevQueryParams = {
+    meta?: string
+    rpc?: string
+    metaScreenSize?: MetaScreenSize
+}
 export type ProgramQueryParams = DevQueryParams & ScenarioReplayQueryParams
 export interface MainProgramOptions {
     backend: BackendType

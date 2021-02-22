@@ -7,8 +7,16 @@ import { Margin } from 'styled-components-spacing'
 import Routes from '../services/router/routes'
 import ROUTES, { RouteName } from '../routes'
 import { Scenario } from '../services/scenarios/types'
+import { MetaScreenSize } from '../setup/types'
 
 export type MetaScenarios = Array<MetaScenario>
+
+const PROGRAM_CONTAINER_SIZES: {
+    [Size in MetaScreenSize]: { width: string; height: string }
+} = {
+    small: { width: '360px', height: '640px' },
+    large: { width: '90vw', height: '800px' },
+}
 export interface MetaScenario {
     scenario: Scenario
     pageName: string
@@ -38,19 +46,31 @@ const StepTitle = styled.a`
     font-family: ${(props) => props.theme.fonts.primary};
 `
 
-const ProgramContainer = styled.div`
+const ProgramContainer = styled.div<{ size: MetaScreenSize }>`
     position: relative;
     border: 1px solid rgba(0, 0, 0, 0.1);
     box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.2);
     border-radius: 5px;
     overflow-y: auto;
     transform: translateZ(0);
+    width: ${({ size }) => PROGRAM_CONTAINER_SIZES[size].width};
+    height: ${({ size }) => PROGRAM_CONTAINER_SIZES[size].height};
 `
 
-export default async function runMetaUi(options: {
+interface MetaUIOptions {
     history: history.History
     scenarios: MetaScenarios
-}) {
+    screenSize: MetaScreenSize
+}
+
+export default async function runMetaUi(options: MetaUIOptions) {
+    ReactDOM.render(
+        <MetaUI options={options} />,
+        document.getElementById('root'),
+    )
+}
+
+function MetaUI({ options }: { options: MetaUIOptions }) {
     const routes = new Routes({
         routes: ROUTES,
         isAuthenticated: () => false,
@@ -89,7 +109,7 @@ export default async function runMetaUi(options: {
         return steps
     }
 
-    ReactDOM.render(
+    return (
         <ThemeProvider theme={theme}>
             {options.scenarios.map((metaScenario, scenarioIndex) => (
                 <>
@@ -116,10 +136,7 @@ export default async function runMetaUi(options: {
                                         </StepTitle>
                                     </Margin>
                                     <ProgramContainer
-                                        style={{
-                                            width: '360px',
-                                            height: '640px',
-                                        }}
+                                        size={options.screenSize}
                                         ref={(element) => {
                                             if (!element) {
                                                 throw new Error(
@@ -137,7 +154,6 @@ export default async function runMetaUi(options: {
                     </StepsContainer>
                 </>
             ))}
-        </ThemeProvider>,
-        document.getElementById('root'),
+        </ThemeProvider>
     )
 }

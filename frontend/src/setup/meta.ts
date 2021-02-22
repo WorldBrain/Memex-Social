@@ -87,5 +87,9 @@ export async function metaProgram(options: {
         })(scenarioPair)
     }
 
-    runMetaUi({ history: options.history, scenarios })
+    runMetaUi({
+        history: options.history,
+        scenarios,
+        screenSize: options.queryParams.metaScreenSize ?? 'small',
+    })
 }

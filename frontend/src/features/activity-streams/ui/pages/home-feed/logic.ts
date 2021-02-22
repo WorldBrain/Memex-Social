@@ -43,6 +43,7 @@ import {
     UserReference,
 } from '@worldbrain/memex-common/lib/web-interface/types/users'
 import { AuthService, AuthRequest } from '../../../../../services/auth/types'
+import { SharedAnnotationReference } from '@worldbrain/memex-common/lib/content-sharing/types'
 
 type EventHandler<EventName extends keyof HomeFeedEvent> = UIEventHandler<
     HomeFeedState,
@@ -202,18 +203,18 @@ export default class HomeFeedLogic extends UILogic<
                 const repliesByAnnotation = await contentConversations.getRepliesByAnnotations(
                     {
                         annotationReferences: annotations.map(
-                            (a) => a.reference,
+                            (annotation) => annotation.reference,
                         ),
                     },
                 )
 
                 const annotationItems: AnnotationActivityItem[] = annotations.map(
-                    (a, i) => ({
+                    (annotation) => ({
                         type: 'annotation-item',
-                        reference: a.reference,
+                        reference: annotation.reference,
                         hasEarlierReplies: false,
                         replies: (
-                            repliesByAnnotation[a.reference.id] ?? []
+                            repliesByAnnotation[annotation.reference.id] ?? []
                         ).map((reply) => ({ reference: reply.reference })),
                     }),
                 )
@@ -243,27 +244,42 @@ export default class HomeFeedLogic extends UILogic<
                     }
                 }
 
-                for (const replies of Object.values(repliesByAnnotation)) {
+                for (const [annotationId, replies] of Object.entries(
+                    repliesByAnnotation,
+                )) {
+                    const annotationReference: SharedAnnotationReference = {
+                        type: 'shared-annotation-reference',
+                        id: annotationId,
+                    }
+                    const conversationKey = getConversationKey({
+                        groupId: event.groupId,
+                        annotationReference,
+                    })
+
+                    repliesData[conversationKey] =
+                        repliesData[event.groupId] ?? {}
                     for (const replyData of replies) {
-                        repliesData[event.groupId] = {
-                            ...(repliesData[event.groupId] ?? {}),
-                            [replyData.reference.id]: {
-                                creatorReference: replyData.userReference,
-                                reference: replyData.reference,
-                                previousReplyReference: replyData.previousReply,
-                                reply: {
-                                    content: replyData.reply.content,
-                                    createdWhen: replyData.reply.createdWhen,
-                                    normalizedPageUrl:
-                                        replyData.reply.normalizedPageUrl,
-                                },
+                        repliesData[conversationKey][replyData.reference.id] = {
+                            creatorReference: replyData.userReference,
+                            reference: replyData.reference,
+                            previousReplyReference: replyData.previousReply,
+                            reply: {
+                                content: replyData.reply.content,
+                                createdWhen: replyData.reply.createdWhen,
+                                normalizedPageUrl:
+                                    replyData.reply.normalizedPageUrl,
                             },
                         }
                     }
                 }
 
-                const conversationsData: HomeFeedState['conversations'] = {
-                    [event.groupId]: {
+                const conversationsData: HomeFeedState['conversations'] = {}
+                for (const annotation of Object.values(annotations)) {
+                    const conversationKey = getConversationKey({
+                        groupId: event.groupId,
+                        annotationReference: annotation.reference,
+                    })
+                    conversationsData[conversationKey] = {
                         loadState: 'pristine',
                         expanded: false,
                         newReply: {
@@ -272,17 +288,17 @@ export default class HomeFeedLogic extends UILogic<
                             saveState: 'pristine',
                         },
                         replies: await Promise.all(
-                            Object.values(repliesData[event.groupId] ?? []).map(
-                                async (reply) => ({
-                                    reference: reply.reference,
-                                    reply: reply.reply,
-                                    user: await this.users.loadUser(
-                                        reply.creatorReference,
-                                    ),
-                                }),
-                            ),
+                            Object.values(
+                                repliesData[conversationKey] ?? [],
+                            ).map(async (reply) => ({
+                                reference: reply.reference,
+                                reply: reply.reply,
+                                user: await this.users.loadUser(
+                                    reply.creatorReference,
+                                ),
+                            })),
                         ),
-                    },
+                    }
                 }
 
                 this.emitMutation({
@@ -301,7 +317,13 @@ export default class HomeFeedLogic extends UILogic<
                                             annotations: {
                                                 $set: arrayToOrderedMap(
                                                     annotationItems,
-                                                    (item) => item.reference.id,
+                                                    (item) =>
+                                                        getConversationKey({
+                                                            groupId:
+                                                                event.groupId,
+                                                            annotationReference:
+                                                                item.reference,
+                                                        }),
                                                 ),
                                             },
                                         },
@@ -317,12 +339,18 @@ export default class HomeFeedLogic extends UILogic<
     }
 
     loadMoreReplies: EventHandler<'loadMoreReplies'> = async (incoming) => {
-        const { groupId } = incoming.event
+        const { groupId, annotationReference } = incoming.event
+        const conversationKey = getConversationKey({
+            groupId,
+            annotationReference,
+        })
 
         await executeUITask<HomeFeedState>(
             this,
             (taskState) => ({
-                moreRepliesLoadStates: { [groupId]: { $set: taskState } },
+                moreRepliesLoadStates: {
+                    [conversationKey]: { $set: taskState },
+                },
             }),
             async () => {
                 const replies = (
@@ -335,7 +363,7 @@ export default class HomeFeedLogic extends UILogic<
                 ).filter(
                     (replyData) =>
                         // don't process already loaded replies
-                        !incoming.previousState.replies[groupId][
+                        !incoming.previousState.replies[conversationKey][
                             replyData.reference.id
                         ],
                 )
@@ -353,7 +381,7 @@ export default class HomeFeedLogic extends UILogic<
                 const conversationsMutations: UIMutation<
                     HomeFeedState['conversations']
                 > = {
-                    [groupId]: {
+                    [conversationKey]: {
                         replies: {
                             $apply: (
                                 prevReplies: AnnotationConversationState['replies'], // TODO: Why aren't $apply ops getting typed?A
@@ -369,9 +397,10 @@ export default class HomeFeedLogic extends UILogic<
 
                 const repliesMutation: UIMutation<HomeFeedState['replies']> = {}
                 for (const replyData of replies) {
-                    repliesMutation[groupId] = repliesMutation[groupId] ?? {}
-                    repliesMutation[groupId] = {
-                        ...repliesMutation[groupId],
+                    repliesMutation[conversationKey] =
+                        repliesMutation[conversationKey] ?? {}
+                    repliesMutation[conversationKey] = {
+                        ...repliesMutation[conversationKey],
                         [replyData.reference.id]: {
                             $set: {
                                 reference: replyData.reference,
@@ -481,20 +510,24 @@ export default class HomeFeedLogic extends UILogic<
             activityData = organized.data
 
             const conversations = getInitialAnnotationConversationStates(
-                organized.activityItems.map((activityItem) => ({
-                    linkId: activityItem.groupId,
-                })),
+                Object.keys(activityData.replies)
+                    .map((conversationKey) => {
+                        return {
+                            linkId: conversationKey,
+                        }
+                    })
+                    .filter((linkId) => !!linkId),
             )
-            for (const groupId of Object.keys(organized.data.replies)) {
+            for (const conversationKey of Object.keys(organized.data.replies)) {
                 const annotationReplies =
-                    activityData.annotationItems[groupId].replies
-                conversations[groupId] = {
-                    ...conversations[groupId],
+                    activityData.annotationItems[conversationKey].replies
+                conversations[conversationKey] = {
+                    ...conversations[conversationKey],
                     loadState: 'success',
                     expanded: true,
                     replies: annotationReplies
                         .map((replyItem) => {
-                            return activityData?.replies[groupId]?.[
+                            return activityData?.replies[conversationKey]?.[
                                 replyItem.reference.id
                             ]!
                         })
@@ -602,15 +635,20 @@ export function organizeActivities(
                 ({ activity }) => activity.reply.createdWhen,
             )
 
+            const groupAnnotation =
+                replyActivityGroup.activities[0].activity.annotation
             const annotationItem: AnnotationActivityItem = {
                 type: 'annotation-item',
-                reference:
-                    replyActivityGroup.activities[0].activity.annotation
-                        .reference,
+                reference: groupAnnotation.reference,
                 hasEarlierReplies: false, // This gets determined after all replies processed
                 replies: [],
             }
-            data.annotationItems[activityGroup.id] = annotationItem
+            data.annotationItems[
+                getConversationKey({
+                    groupId: activityGroup.id,
+                    annotationReference: groupAnnotation.reference,
+                })
+            ] = annotationItem
 
             const pageItem: PageActivityItem = {
                 type: 'page-item',
@@ -624,13 +662,15 @@ export function organizeActivities(
                     (item) => item.reference.id,
                 ),
             }
-            // data.pageItems[pageItem.normalizedPageUrl] = pageItem
             activityItems.push(pageItem)
 
+            const annotationReference = groupAnnotation.reference
+            const conversationKey = getConversationKey({
+                groupId: activityGroup.id,
+                annotationReference,
+            })
             for (const activityInGroup of replyActivityGroup.activities) {
                 const replyActivity = activityInGroup.activity
-                const annotationReference =
-                    activityInGroup.activity.annotation.reference
                 data.pageInfo[replyActivity.normalizedPageUrl] =
                     replyActivity.pageInfo
                 data.annotations[annotationReference.id] = {
@@ -639,10 +679,10 @@ export function organizeActivities(
                     ...replyActivity.annotation,
                 }
 
-                if (!data.replies[activityGroup.id]) {
-                    data.replies[activityGroup.id] = {}
+                if (!data.replies[conversationKey]) {
+                    data.replies[conversationKey] = {}
                 }
-                data.replies[activityGroup.id][
+                data.replies[conversationKey][
                     replyActivity.reply.reference.id
                 ] = {
                     reference: replyActivity.reply.reference,
@@ -661,7 +701,7 @@ export function organizeActivities(
                 pageItem.notifiedWhen = replyActivity.reply.createdWhen
             }
             annotationItem.hasEarlierReplies =
-                data.replies[activityGroup.id][
+                data.replies[conversationKey][
                     annotationItem.replies[0].reference.id
                 ].previousReplyReference !== null
         } else if (
@@ -717,6 +757,13 @@ export function organizeActivities(
         activityItems,
         data,
     }
+}
+
+export function getConversationKey(input: {
+    groupId: string
+    annotationReference: SharedAnnotationReference
+}) {
+    return `${input.groupId}:${input.annotationReference.id}`
 }
 
 async function enforceAuth(
