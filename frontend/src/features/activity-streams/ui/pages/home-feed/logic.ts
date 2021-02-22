@@ -212,9 +212,9 @@ export default class HomeFeedLogic extends UILogic<
                         type: 'annotation-item',
                         reference: a.reference,
                         hasEarlierReplies: false,
-                        replies: repliesByAnnotation[
-                            a.reference.id
-                        ].map((reply) => ({ reference: reply.reference })),
+                        replies: (
+                            repliesByAnnotation[a.reference.id] ?? []
+                        ).map((reply) => ({ reference: reply.reference })),
                     }),
                 )
 
@@ -272,7 +272,7 @@ export default class HomeFeedLogic extends UILogic<
                             saveState: 'pristine',
                         },
                         replies: await Promise.all(
-                            Object.values(repliesData[event.groupId]).map(
+                            Object.values(repliesData[event.groupId] ?? []).map(
                                 async (reply) => ({
                                     reference: reply.reference,
                                     reply: reply.reply,
