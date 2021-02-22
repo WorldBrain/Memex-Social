@@ -18,11 +18,8 @@ export default class AuthHeaderLogic extends UILogic<
     constructor(private dependencies: AuthHeaderDependencies) {
         super()
 
-        const { auth } = this.dependencies.services
-        auth.events.on('changed', (user) => {
-            this.emitMutation({
-                user: { $set: user ? { displayName: user.displayName } : null },
-            })
+        this.dependencies.services.auth.events.on('changed', (user) => {
+            this._updateUser()
         })
     }
 
@@ -37,7 +34,16 @@ export default class AuthHeaderLogic extends UILogic<
         }
     }
 
-    init: EventHandler<'init'> = async () => {}
+    _updateUser() {
+        const user = this.dependencies.services.auth.getCurrentUser()
+        this.emitMutation({
+            user: { $set: user ? { displayName: user.displayName } : null },
+        })
+    }
+
+    init: EventHandler<'init'> = async () => {
+        this._updateUser()
+    }
 
     toggleMenu: EventHandler<'toggleMenu'> = () => {
         return { $toggle: ['showMenu'] }
