@@ -47,26 +47,18 @@ export default class WebMonetizationIcon extends UIElement<
         this.processEvent('makeSupporterPayment', null)
     }
 
-
     renderIcon() {
-
         const paymentState = this.state.makePaymentTaskState
         const isPaymentMade = this.state.makePaymentTaskState === 'success'
 
         return (
             <IconContainer iconHeight={this.iconHeight}>
-                {paymentState === 'running' && (
-                    <LoadingScreen />
-                )}
-                {paymentState === 'error' && (
-                    <span>Whoops! Error!</span>
-                )}
+                {paymentState === 'running' && <LoadingScreen />}
+                {paymentState === 'error' && <span>Whoops! Error!</span>}
                 {(paymentState === 'pristine' ||
                     paymentState === 'success') && (
                     <StyledIcon
-                        onClick={
-                            isPaymentMade ? () => {} : this.handleClick
-                        }
+                        onClick={isPaymentMade ? () => {} : this.handleClick}
                         height={this.iconHeight}
                         isClickable={!isPaymentMade}
                         fileName={`web-monetization-logo${
@@ -88,7 +80,6 @@ export default class WebMonetizationIcon extends UIElement<
                         services={this.props.services}
                         storage={this.props.storage}
                         userRef={this.props.curatorUserRef}
-                        supported={this.state.makePaymentTaskState}
                     >
                         {this.renderIcon()}
                     </CuratorSupportPopupContainer>

@@ -33,6 +33,8 @@ export default abstract class WebMonetizationButtonLogic extends UILogic<
     getInitialState(): WebMonetizationButtonState {
         return {
             isDisplayed: false,
+            isMonetizationAvailable: this.dependencies.services.webMonetization
+                .isAvailable,
             paymentMade: false,
             curatorPaymentPointer: '',
             loadState: 'pristine',
@@ -41,6 +43,8 @@ export default abstract class WebMonetizationButtonLogic extends UILogic<
     }
 
     init: EventHandler<'init'> = async () => {
+        this._setupMonetizationListeners()
+
         // ensure curator payment pointer is available
         await loadInitial<WebMonetizationButtonState>(this, async () => {
             this.curatorPaymentPointer = await this.dependencies.services.webMonetization.getUserPaymentPointer(
@@ -50,28 +54,19 @@ export default abstract class WebMonetizationButtonLogic extends UILogic<
                 return
             }
             this.emitMutation({
-                isDisplayed: { $set: await this._shouldComponentDisplay() },
+                isDisplayed: { $set: !!this.curatorPaymentPointer },
                 curatorPaymentPointer: {
                     $set: this.curatorPaymentPointer ?? '',
                 },
             })
+
+            // if user follows collection, initiate payment
+            if (this.dependencies.isCollectionFollowed) {
+                await this.dependencies.services.webMonetization.makePaymentAvailable(
+                    this.curatorPaymentPointer,
+                )
+            }
         })
-
-        this._setupMonetizationListeners()
-
-        // attempt to display component (requires current user to have payment pointer)
-        this.dependencies.services.userManagement.events.addListener(
-            'userProfileChange',
-            async () =>
-                this.emitMutation({
-                    isDisplayed: { $set: await this._shouldComponentDisplay() },
-                }),
-        )
-
-        // if user follows collection, initiate payment
-        if (this.dependencies.isCollectionFollowed) {
-            await this._makePaymentAvailable()
-        }
     }
 
     cleanup: EventHandler<'cleanup'> = () => {
@@ -80,10 +75,6 @@ export default abstract class WebMonetizationButtonLogic extends UILogic<
     }
 
     makeSupporterPayment: EventHandler<'makeSupporterPayment'> = async () => {
-        await this._makePaymentAvailable()
-    }
-
-    private _makePaymentAvailable = async (): Promise<void> => {
         const { curatorPaymentPointer } = this
         if (!curatorPaymentPointer) {
             throw new Error('Curator does not have web monetization set up')
@@ -97,12 +88,6 @@ export default abstract class WebMonetizationButtonLogic extends UILogic<
                 )
             },
         )
-    }
-
-    private _shouldComponentDisplay = async (): Promise<boolean> => {
-        const { webMonetization } = this.dependencies.services
-        const currentUserPaymentPointer = await webMonetization.getCurrentUserPaymentPointer()
-        return !!currentUserPaymentPointer && webMonetization.isAvailable
     }
 
     private _setupMonetizationListeners() {
