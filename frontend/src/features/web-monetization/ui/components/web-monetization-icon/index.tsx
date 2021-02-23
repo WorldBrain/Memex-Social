@@ -81,6 +81,10 @@ export default class WebMonetizationIcon extends UIElement<
                         storage={this.props.storage}
                         userRef={this.props.curatorUserRef}
                         paymentMade={this.state.paymentMade}
+                        paymentState={this.state.paymentState}
+                        isMonetizationAvailable={
+                            this.state.isMonetizationAvailable
+                        }
                     >
                         {this.renderIcon()}
                     </CuratorSupportPopupContainer>

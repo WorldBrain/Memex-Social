@@ -41,9 +41,11 @@ const Text = styled.div<{ theme: Theme }>`
 interface CuratorSupportPopupProps {
     services: UIElementServices<'userManagement' | 'webMonetization'>
     storage: Pick<StorageModules, 'users'>
-    curatorUserRef: UserReference
     loadState: UITaskState
+    paymentSate: UITaskState
+    curatorUserRef: UserReference
     paymentMade: boolean
+    isMonetizationAvailable: boolean
 }
 
 export default class CuratorSupportPopup extends PureComponent<CuratorSupportPopupProps> {

@@ -10,6 +10,7 @@ import {
 } from '../profile-popup-container/types'
 
 import CuratorSupportPopup from '../../components/curator-support-popup'
+import { UITaskState } from '../../../../../main-ui/types'
 
 const Container = styled.div`
     height: min-content;
@@ -23,6 +24,8 @@ const CuratorPopupBox = styled.div`
 
 export type CuratorSupportPopupContainerDependencies = ProfilePopupContainerDependencies & {
     paymentMade: boolean
+    paymentState: UITaskState
+    isMonetizationAvailable: boolean
 }
 export type CuratorSupportPopupContainerState = ProfilePopupContainerState
 export type CuratorSupportPopupContainerEvent = ProfilePopupContainerEvent
@@ -64,6 +67,10 @@ export default class CuratorSupportPopupContainer extends UIElement<
                                     services={props.services}
                                     storage={props.storage}
                                     paymentMade={props.paymentMade}
+                                    paymentSate={props.paymentState}
+                                    isMonetizationAvailable={
+                                        props.isMonetizationAvailable
+                                    }
                                 />
                             </CuratorPopupBox>
                         )}
