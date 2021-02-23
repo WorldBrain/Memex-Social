@@ -55,14 +55,20 @@ export default abstract class WebMonetizationService
     async getCurrentUserPaymentPointer(): Promise<string | null> {
         const userRef = this.options.services.auth.getCurrentUserReference()
         if (!userRef) {
-            console.error('Please login')
+            console.warn('No payment pointer found: user not logged in')
             return null
-        } else {
-            const userProfile = await this.options.services.userManagement.loadUserPublicProfile(
-                userRef,
-            )
-            return userProfile.paymentPointer
         }
+
+        const userProfile = await this.options.services.userManagement.loadUserPublicProfile(
+            userRef,
+        )
+        if (!userProfile) {
+            console.warn(
+                'No payment pointer found: user does not have a profile',
+            )
+            return null
+        }
+        return userProfile?.paymentPointer ?? null
     }
 
     makePaymentAvailable(paymentPointer: string): void {

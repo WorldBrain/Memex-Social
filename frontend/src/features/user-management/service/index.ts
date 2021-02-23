@@ -34,17 +34,18 @@ export default class UserManagementService {
      */
     async loadUserPublicProfile(
         userRef: UserReference,
-    ): Promise<UserPublicProfile> {
+    ): Promise<UserPublicProfile | null> {
         if (this.userPublicProfilesCache[userRef.id]) {
             return this.userPublicProfilesCache[userRef.id]
         }
-        const userReference: UserReference = userRef
-            ? userRef
-            : await this.options.auth.getCurrentUserReference()!
-        const publicProfile: UserPublicProfile = await this.options.storage.getUserPublicProfile(
+        const userReference: UserReference =
+            userRef ?? (await this.options.auth.getCurrentUserReference()!)
+        const publicProfile = await this.options.storage.getUserPublicProfile(
             userReference,
         )
-        this.userPublicProfilesCache[userRef.id] = publicProfile
+        if (publicProfile) {
+            this.userPublicProfilesCache[userRef.id] = publicProfile
+        }
         return publicProfile
     }
 
