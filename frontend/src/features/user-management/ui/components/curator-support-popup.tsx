@@ -86,11 +86,13 @@ export default class CuratorSupportPopup extends PureComponent<CuratorSupportPop
                                     Automatically donate a few cents for every
                                     visit to this collection.
                                 </Text>
-                                <CuratorSupportButtonBlock
-                                    services={services}
-                                    storage={storage}
-                                    curatorUserRef={curatorUserRef}
-                                />
+                                {this.props.isMonetizationAvailable &&(
+                                    <CuratorSupportButtonBlock
+                                        services={services}
+                                        storage={storage}
+                                        curatorUserRef={curatorUserRef}
+                                    />
+                                )}
                             </>
                         )}
                     </>
