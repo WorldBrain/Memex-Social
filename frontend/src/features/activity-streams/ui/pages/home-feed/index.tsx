@@ -299,7 +299,7 @@ export default class HomeFeedPage extends UIElement<
             key: getOrderedMapIndex(pageItem.annotations, 0).reference.id,
             rendered: (
                 <Margin bottom="large">
-                    <Margin bottom="small">
+                    <Margin>
                         <Margin bottom="small">
                             {this.renderActivityReason(pageItem)}
                         </Margin>
