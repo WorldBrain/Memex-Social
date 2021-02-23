@@ -4,8 +4,6 @@ import styled from 'styled-components'
 import { Theme } from '../../main-ui/styles/types'
 import { theme } from '../../main-ui/styles/theme'
 
-import { USER_PROFILE_BIO_CHAR_LIMIT } from '../../constants'
-
 import { StyledInputLabel } from './text-input'
 
 const Container = styled.div`
@@ -28,17 +26,6 @@ const StyledTextArea = styled.textarea<{
         (props) => (props.padding ? 'padding: 10px;' : '') // hacky workaround as this component is already used in several places
     };
     ${(props) => props.error && 'border: solid 2px red;'}
-`
-
-const CharCount = styled.div<{
-    theme: Theme
-}>`
-    width: 100%;
-    font-family: ${(props) => props.theme.fonts.primary};
-    font-weight: ${(props) => props.theme.fontWeights.bold};
-    font-size: ${(props) => props.theme.fontSizes.text};
-    line-height: ${(props) => props.theme.lineHeights.text};
-    text-align: right;
 `
 
 interface State {

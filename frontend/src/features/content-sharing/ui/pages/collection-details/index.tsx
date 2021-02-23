@@ -36,34 +36,34 @@ const DocumentView = styled.div`
     height: 100vh;
 `
 
-const CollectionDescriptionBox = styled.div<{
-    viewportWidth: ViewportBreakpoint
-}>`
-    font-family: ${(props) => props.theme.fonts.primary};
-    font-size: 14px;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    margin: ${(props) =>
-        props.viewportWidth === 'small' || props.viewportWidth === 'mobile'
-            ? '20px 5px'
-            : '20px auto'};
-`
-const CollectionDescriptionText = styled.div<{
-    viewportWidth: ViewportBreakpoint
-}>``
-const CollectionDescriptionToggle = styled.div<{
-    viewportWidth: ViewportBreakpoint
-}>`
-    cursor: pointer;
-    padding: 3px 5px;
-    margin-left: -5px;
-    border-radius: ${(props) => props.theme.borderRadii.default};
-    color: ${(props) => props.theme.colors.subText};
-    &:hover {
-        background-color: ${(props) => props.theme.hoverBackgrounds.primary};
-    }
-`
+// const CollectionDescriptionBox = styled.div<{
+//     viewportWidth: ViewportBreakpoint
+// }>`
+//     font-family: ${(props) => props.theme.fonts.primary};
+//     font-size: 14px;
+//     display: flex;
+//     flex-direction: column;
+//     align-items: flex-start;
+//     margin: ${(props) =>
+//         props.viewportWidth === 'small' || props.viewportWidth === 'mobile'
+//             ? '20px 5px'
+//             : '20px auto'};
+// `
+// const CollectionDescriptionText = styled.div<{
+//     viewportWidth: ViewportBreakpoint
+// }>``
+// const CollectionDescriptionToggle = styled.div<{
+//     viewportWidth: ViewportBreakpoint
+// }>`
+//     cursor: pointer;
+//     padding: 3px 5px;
+//     margin-left: -5px;
+//     border-radius: ${(props) => props.theme.borderRadii.default};
+//     color: ${(props) => props.theme.colors.subText};
+//     &:hover {
+//         background-color: ${(props) => props.theme.hoverBackgrounds.primary};
+//     }
+// `
 
 const ToggleAllBox = styled.div<{
     viewportWidth: ViewportBreakpoint

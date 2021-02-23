@@ -11,7 +11,6 @@ import ListsSidebar, {
     Props as ListsSidebarProps,
 } from '../../main-ui/components/list-sidebar/lists-sidebar'
 import ListsSidebarToggle from '../../main-ui/components/sidebar-toggle/'
-const logoImage = require('../../assets/img/memex-logo.svg')
 
 const middleMaxWidth = '800px'
 
@@ -51,38 +50,6 @@ const LogoAndFeed = styled(Margin)<{
         (props.viewportWidth === 'small' || props.viewportWidth === 'mobile') &&
         css`
             padding-right: 10px;
-        `}
-`
-
-const HeaderLogoArea = styled.div<{
-    viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
-}>`
-    align-items: center;
-`
-
-const MemexLogo = styled.div<{
-    viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
-}>`
-    height: 24px;
-    background-position: center;
-    background-size: contain;
-    width: 100px;
-    border: none;
-    cursor: pointer;
-    background-repeat: no-repeat;
-    background-image: url(${logoImage});
-    display: flex;
-    width: 24px;
-    background-position: center left;
-    background-size: cover;
-
-    ${(props) =>
-        (props.viewportWidth === 'small' || props.viewportWidth === 'mobile') &&
-        css`
-            background-position: center left;
-            background-size: cover;
-            width: 24px;
-            border: none;
         `}
 `
 
@@ -172,7 +139,6 @@ const HeaderAuthArea = styled.div<{
     align-items: center;
     justify-content: flex-end;
     white-space: nowrap;
-
 `
 
 const PageMiddleArea = styled.div<{

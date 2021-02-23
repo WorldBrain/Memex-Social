@@ -71,7 +71,7 @@ export default abstract class WebMonetizationService
         return userProfile?.paymentPointer ?? null
     }
 
-    makePaymentAvailable(paymentPointer: string): void {
+    initiatePayment(paymentPointer: string): void {
         const tag = document.querySelector('meta[name="monetization"]')
         if (tag) {
             tag?.remove()

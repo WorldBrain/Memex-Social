@@ -27,13 +27,6 @@ const AnnotationContainer = styled(Margin)`
     justify-content: center;
 `
 
-const AnnotationLine = styled.div`
-    height: auto;
-    width: 4px;
-    background: #e0e0e0;
-    margin: 0 10px 5px;
-`
-
 const AnnotationReplyContainer = styled.div`
     padding-top: 0.5rem;
     border-left: 4px solid #e0e0e0;

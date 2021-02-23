@@ -6,8 +6,7 @@ import {
     AuthHeaderDependencies,
     AuthHeaderState,
 } from './types'
-import styled, { css } from 'styled-components'
-import UserAvatar from '../../../../../common-ui/components/user-avatar'
+import styled from 'styled-components'
 import { Margin } from 'styled-components-spacing'
 import { Closable } from '../../../../../common-ui/components/closable'
 import AuthMenu from '../../components/auth-menu'
@@ -16,9 +15,6 @@ import ProfileEditModal from '../profile-edit-modal'
 const logoImage = require('../../../../../assets/img/memex-icon.svg')
 
 const StyledAuthHeader = styled.div``
-const LoginAction = styled.div`
-    cursor: pointer;
-`
 
 const MemexIcon = styled.div`
     height: 24px;

@@ -4,7 +4,6 @@ import {
     loadInitial,
     executeUITask,
 } from '../../../../main-ui/classes/logic'
-import { UITaskState } from '../../../../main-ui/types'
 import { WebMonetizationEvents } from '../../service/types'
 import {
     WebMonetizationButtonDependencies,
@@ -62,9 +61,7 @@ export default abstract class WebMonetizationButtonLogic extends UILogic<
 
             // if user follows collection, initiate payment
             if (this.dependencies.isCollectionFollowed) {
-                await this.dependencies.services.webMonetization.makePaymentAvailable(
-                    this.curatorPaymentPointer,
-                )
+                await this._makeSupporterPayment()
             }
         })
     }
@@ -75,6 +72,10 @@ export default abstract class WebMonetizationButtonLogic extends UILogic<
     }
 
     makeSupporterPayment: EventHandler<'makeSupporterPayment'> = async () => {
+        await this._makeSupporterPayment()
+    }
+
+    private async _makeSupporterPayment() {
         const { curatorPaymentPointer } = this
         if (!curatorPaymentPointer) {
             throw new Error('Curator does not have web monetization set up')
@@ -83,7 +84,7 @@ export default abstract class WebMonetizationButtonLogic extends UILogic<
             this,
             'makePaymentTaskState',
             async () => {
-                await this.dependencies.services.webMonetization.makePaymentAvailable(
+                await this.dependencies.services.webMonetization.initiatePayment(
                     curatorPaymentPointer,
                 )
             },
