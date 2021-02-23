@@ -76,13 +76,11 @@ export default abstract class WebMonetizationService
         if (tag) {
             tag?.remove()
         }
-        try {
-            const meta = document.createElement('meta')
-            meta.setAttribute('name', 'monetization')
-            meta.setAttribute('content', paymentPointer)
-            document.head.appendChild(meta)
-        } catch (err) {
-            console.error(err)
-        }
+        this.events.emit('paymentInitiated', { paymentPointer })
+
+        const meta = document.createElement('meta')
+        meta.setAttribute('name', 'monetization')
+        meta.setAttribute('content', paymentPointer)
+        document.head.appendChild(meta)
     }
 }

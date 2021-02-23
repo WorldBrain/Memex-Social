@@ -3,6 +3,7 @@ import { UserReference } from '../../user-management/types'
 import * as browserTypes from '../wm-types'
 
 export interface WebMonetizationEvents {
+    paymentInitiated(event: { paymentPointer: string }): void
     monetizationstart(event: WebMonetizationStartEvent): void
     monetizationstop(event: WebMonetizationStopEvent): void
 }

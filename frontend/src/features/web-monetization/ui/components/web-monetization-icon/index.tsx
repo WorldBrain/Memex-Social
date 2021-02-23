@@ -48,8 +48,8 @@ export default class WebMonetizationIcon extends UIElement<
     }
 
     renderIcon() {
-        const paymentState = this.state.makePaymentTaskState
-        const isPaymentMade = this.state.makePaymentTaskState === 'success'
+        const paymentState = this.state.paymentState
+        const isPaymentMade = this.state.paymentState === 'success'
 
         return (
             <IconContainer iconHeight={this.iconHeight}>
@@ -80,6 +80,7 @@ export default class WebMonetizationIcon extends UIElement<
                         services={this.props.services}
                         storage={this.props.storage}
                         userRef={this.props.curatorUserRef}
+                        paymentMade={this.state.paymentMade}
                     >
                         {this.renderIcon()}
                     </CuratorSupportPopupContainer>

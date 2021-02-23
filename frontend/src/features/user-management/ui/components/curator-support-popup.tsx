@@ -42,51 +42,55 @@ interface CuratorSupportPopupProps {
     services: UIElementServices<'userManagement' | 'webMonetization'>
     storage: Pick<StorageModules, 'users'>
     curatorUserRef: UserReference
-    taskState: UITaskState
-    supported: string
+    loadState: UITaskState
+    paymentMade: boolean
 }
 
 export default class CuratorSupportPopup extends PureComponent<CuratorSupportPopupProps> {
     render() {
-        const { taskState, curatorUserRef, services, storage, supported} = this.props
+        const {
+            loadState,
+            curatorUserRef,
+            services,
+            storage,
+            paymentMade,
+        } = this.props
         return (
             <PopupContainer theme={theme}>
-                {taskState === 'running' && <LoadingScreen />}
-                {(taskState === 'pristine' || taskState === 'success') && (
+                {loadState === 'running' && <LoadingScreen />}
+                {loadState === 'success' && (
                     <>
-                    {supported === 'success' && (
-                        <>
-                        <Margin bottom="smallest">
-                            <Title theme={theme}>
-                                Curator Supported!
-                            </Title>
-                        </Margin>
-                        <Text theme={theme}>
-                            For every visit you'll donate a few cents to this creator. 
-                        </Text>
-                    </>
-
-
-                    )}
-                    {supported !== 'success' && (
-                        <>
-                        <Margin bottom="smallest">
-                            <Title theme={theme}>
-                                Support Collection Curator
-                            </Title>
-                        </Margin>
-                        <Text theme={theme}>
-                            Automatically donate a few cents for every visit to
-                            this collection.
-                        </Text>
-                        <CuratorSupportButtonBlock
-                            services={services}
-                            storage={storage}
-                            curatorUserRef={curatorUserRef}
-                        />
-                    </>
-
-                    )}
+                        {paymentMade && (
+                            <>
+                                <Margin bottom="smallest">
+                                    <Title theme={theme}>
+                                        Curator Supported!
+                                    </Title>
+                                </Margin>
+                                <Text theme={theme}>
+                                    For every visit you'll donate a few cents to
+                                    this creator.
+                                </Text>
+                            </>
+                        )}
+                        {!paymentMade && (
+                            <>
+                                <Margin bottom="smallest">
+                                    <Title theme={theme}>
+                                        Support Collection Curator
+                                    </Title>
+                                </Margin>
+                                <Text theme={theme}>
+                                    Automatically donate a few cents for every
+                                    visit to this collection.
+                                </Text>
+                                <CuratorSupportButtonBlock
+                                    services={services}
+                                    storage={storage}
+                                    curatorUserRef={curatorUserRef}
+                                />
+                            </>
+                        )}
                     </>
                 )}
             </PopupContainer>

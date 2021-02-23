@@ -23,21 +23,22 @@ export default abstract class WebMonetizationButtonLogic extends UILogic<
     WebMonetizationButtonState,
     WebMonetizationButtonEvent
 > {
+    curatorPaymentPointer: string | null = ''
+    destroyEventHandlers = () => {}
+
     constructor(private dependencies: WebMonetizationButtonDependencies) {
         super()
     }
 
-    curatorPaymentPointer: string | null = ''
-
     getInitialState(): WebMonetizationButtonState {
         return {
+            loadState: 'pristine',
+            paymentState: 'pristine',
             isDisplayed: false,
             isMonetizationAvailable: this.dependencies.services.webMonetization
                 .isAvailable,
             paymentMade: false,
             curatorPaymentPointer: '',
-            loadState: 'pristine',
-            makePaymentTaskState: 'pristine',
         }
     }
 
@@ -58,46 +59,41 @@ export default abstract class WebMonetizationButtonLogic extends UILogic<
                     $set: this.curatorPaymentPointer ?? '',
                 },
             })
-
-            // if user follows collection, initiate payment
-            if (this.dependencies.isCollectionFollowed) {
-                await this._makeSupporterPayment()
-            }
         })
     }
 
     cleanup: EventHandler<'cleanup'> = () => {
-        this.dependencies.services.userManagement.events.removeAllListeners()
-        this.dependencies.services.webMonetization.events.removeAllListeners()
+        this.destroyEventHandlers()
     }
 
     makeSupporterPayment: EventHandler<'makeSupporterPayment'> = async () => {
-        await this._makeSupporterPayment()
-    }
-
-    private async _makeSupporterPayment() {
         const { curatorPaymentPointer } = this
         if (!curatorPaymentPointer) {
             throw new Error('Curator does not have web monetization set up')
         }
-        await executeUITask<WebMonetizationButtonState>(
-            this,
-            'makePaymentTaskState',
-            async () => {
-                await this.dependencies.services.webMonetization.initiatePayment(
-                    curatorPaymentPointer,
-                )
-            },
+        this.dependencies.services.webMonetization.initiatePayment(
+            curatorPaymentPointer,
         )
     }
 
     private _setupMonetizationListeners() {
+        const initiatedListener: WebMonetizationEvents['paymentInitiated'] = (
+            event,
+        ) => {
+            if (event.paymentPointer === this.curatorPaymentPointer) {
+                this.emitMutation({
+                    paymentState: { $set: 'running' },
+                    paymentMade: { $set: false },
+                })
+            }
+        }
+
         const startListener: WebMonetizationEvents['monetizationstart'] = (
             event,
         ) => {
             if (event.paymentPointer === this.curatorPaymentPointer) {
                 this.emitMutation({
-                    makePaymentTaskState: { $set: 'success' },
+                    paymentState: { $set: 'success' },
                     paymentMade: { $set: true },
                 })
             }
@@ -106,16 +102,28 @@ export default abstract class WebMonetizationButtonLogic extends UILogic<
             event,
         ) => {
             if (event.paymentPointer === this.curatorPaymentPointer) {
-                this.dependencies.services.webMonetization.events.removeAllListeners()
+                this.emitMutation({
+                    paymentState: { $set: 'pristine' },
+                    paymentMade: { $set: false },
+                })
             }
         }
-        this.dependencies.services.webMonetization.events.addListener(
-            'monetizationstart',
-            startListener,
-        )
-        this.dependencies.services.webMonetization.events.addListener(
-            'monetizationstop',
-            stopListener,
-        )
+
+        const monetizationEvents = this.dependencies.services.webMonetization
+            .events
+        monetizationEvents.addListener('paymentInitiated', initiatedListener)
+        monetizationEvents.addListener('monetizationstart', startListener)
+        monetizationEvents.addListener('monetizationstop', stopListener)
+        this.destroyEventHandlers = () => {
+            monetizationEvents.removeListener(
+                'paymentInitiated',
+                initiatedListener,
+            )
+            monetizationEvents.removeListener(
+                'monetizationstart',
+                startListener,
+            )
+            monetizationEvents.removeListener('monetizationstop', stopListener)
+        }
     }
 }

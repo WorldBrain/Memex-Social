@@ -133,17 +133,15 @@ export class CuratorSupportButtonBlock extends UIElement<
     }
 
     renderButtonInnerHTML() {
-        const { makePaymentTaskState } = this.state
-        if (makePaymentTaskState === 'running') {
+        const { paymentState } = this.state
+        if (paymentState === 'running') {
             return <LoadingScreen />
         }
         return (
             <ButtonInnerText>
-                {makePaymentTaskState === 'pristine' && 'Support Curator'}
-                {makePaymentTaskState === 'success' && (
-                    <BoldText>Supported</BoldText>
-                )}
-                {makePaymentTaskState === 'error' && (
+                {paymentState === 'pristine' && 'Support Curator'}
+                {paymentState === 'success' && <BoldText>Supported</BoldText>}
+                {paymentState === 'error' && (
                     <div>
                         Error processing payment. <BoldText>Try again</BoldText>
                     </div>
@@ -154,7 +152,7 @@ export class CuratorSupportButtonBlock extends UIElement<
 
     render() {
         const {
-            makePaymentTaskState,
+            paymentState,
             isDisplayed,
             isMonetizationAvailable,
         } = this.state
@@ -180,7 +178,7 @@ export class CuratorSupportButtonBlock extends UIElement<
                             theme={theme}
                         >
                             <ButtonInnerText>
-                                {makePaymentTaskState === 'error'
+                                {paymentState === 'error'
                                     ? 'Help>>'
                                     : 'Setup Payments'}
                             </ButtonInnerText>

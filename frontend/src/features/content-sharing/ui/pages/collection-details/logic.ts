@@ -31,6 +31,7 @@ import {
     activityFollowsInitialState,
     activityFollowsEventHandlers,
 } from '../../../../activity-follows/ui/logic'
+import { UserReference } from '../../../../user-management/types'
 const truncate = require('truncate')
 
 const LIST_DESCRIPTION_CHAR_LIMIT = 200
@@ -49,6 +50,7 @@ export default class CollectionDetailsLogic extends UILogic<
     } = {}
     latestPageSeenIndex = 0
     _users: UserProfileCache
+    _creatorReference: UserReference | null = null
 
     constructor(private dependencies: CollectionDetailsDependencies) {
         super()
@@ -129,6 +131,7 @@ export default class CollectionDetailsLogic extends UILogic<
 
                 const result = await contentSharing.retrieveList(listReference)
                 if (result) {
+                    this._creatorReference = result.creator
                     const user = await users.getUser(result.creator)
 
                     const listDescription = result.sharedList.description ?? ''
@@ -212,6 +215,17 @@ export default class CollectionDetailsLogic extends UILogic<
                 this.emitMutation({
                     isCollectionFollowed: { $set: isAlreadyFollowed },
                 })
+
+                if (isAlreadyFollowed && this._creatorReference) {
+                    const webMonetization = this.dependencies.services
+                        .webMonetization
+                    const paymentPointer = await webMonetization.getUserPaymentPointer(
+                        this._creatorReference,
+                    )
+                    if (paymentPointer) {
+                        webMonetization.initiatePayment(paymentPointer)
+                    }
+                }
             },
         )
     }
