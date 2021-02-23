@@ -200,17 +200,18 @@ const PageMiddleAreaTopBox = styled(Margin)<{
 `
 
 const BetaFlag = styled.div`
-    color: #d0d0d0;
+    color: #757575;
     background-color: #fff;
-    font-size: 16px;
+    font-size: 14px;
     font-family: ${(props) => props.theme.fonts.primary};
     border-radius: 3px;
-    width: 70px;
-    height: 30px;
+    padding: 0 8px;
+    height: 24px;
     display: flex;
     position: fixed;
     bottom: 5px;
     right: 5px;
+    cursor: pointer;
     justify-content: center;
     align-items: center;
     font-weight: 600;
@@ -319,7 +320,9 @@ export default function DefaultPageLayout(props: {
 
     return (
         <MainContainer>
-            <BetaFlag>Beta</BetaFlag>
+            <BetaFlag
+                onClick={()=>window.open('https://worldbrain.io/feedback')}
+            >Beta | Feedback</BetaFlag>
             {renderListsSidebar()}
             <StyledHeader viewportWidth={viewportWidth}>
                 <LogoAndFeed viewportWidth={viewportWidth}>

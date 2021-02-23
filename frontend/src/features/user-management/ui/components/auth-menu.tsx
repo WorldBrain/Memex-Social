@@ -18,7 +18,22 @@ const MenuItem = styled.div`
         background: ${(props) => props.theme.colors.grey};
     }
 `
-const MenuItemText = styled.div``
+const MenuItemText = styled.div`
+   font-family: ${(props) => props.theme.fonts.primary};
+   font-size: 14px;
+   font-weight: 600;
+`
+
+const BetaDisclaimer = styled(Margin)`
+   font-family: ${(props) => props.theme.fonts.primary};
+   font-size: 12px;
+   display: flex;
+   justify-content: center;
+   text-align: center;
+   border-top: 1px solid #e0e0e0;
+   padding: 10px 20px;
+`
+
 
 export default function AuthMenu(props: {
     onSettingsRequested(): void
@@ -36,6 +51,8 @@ export default function AuthMenu(props: {
                 onClick={props.onAccountSettingsRequested}
             />
             <AuthMenuItem label={'Logout'} onClick={props.onLogoutRequested} />
+            <AuthMenuItem label={'Feedback'} onClick={()=>window.open('https://worldbrain.io/feedback')} />
+            <BetaDisclaimer top="small">Memex.Social is in Beta. <br/> Feedback and use cases welcome</BetaDisclaimer>
         </StyledAuthMenu>
     )
 }
