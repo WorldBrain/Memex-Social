@@ -51,6 +51,7 @@ export default class WebMonetizationIcon extends UIElement<
         const paymentState = this.state.paymentState
         const isPaymentMade = this.state.paymentState === 'success'
 
+        const isClickable = this.state.isMonetizationAvailable && !isPaymentMade
         return (
             <IconContainer iconHeight={this.iconHeight}>
                 {paymentState === 'running' && <LoadingScreen />}
@@ -58,9 +59,9 @@ export default class WebMonetizationIcon extends UIElement<
                 {(paymentState === 'pristine' ||
                     paymentState === 'success') && (
                     <StyledIcon
-                        onClick={isPaymentMade ? () => {} : this.handleClick}
+                        onClick={isClickable ? this.handleClick : () => {}}
                         height={this.iconHeight}
-                        isClickable={!isPaymentMade}
+                        isClickable={isClickable}
                         fileName={`web-monetization-logo${
                             isPaymentMade ? '-confirmed' : ''
                         }.svg`}
