@@ -45,7 +45,6 @@ export default abstract class WebMonetizationButtonLogic extends UILogic<
     init: EventHandler<'init'> = async () => {
         this._setupMonetizationListeners()
 
-        // ensure curator payment pointer is available
         await loadInitial<WebMonetizationButtonState>(this, async () => {
             this.curatorPaymentPointer = await this.dependencies.services.webMonetization.getUserPaymentPointer(
                 this.dependencies.curatorUserRef,
@@ -54,9 +53,9 @@ export default abstract class WebMonetizationButtonLogic extends UILogic<
                 return
             }
             this.emitMutation({
-                isDisplayed: { $set: !!this.curatorPaymentPointer },
+                isDisplayed: { $set: true },
                 curatorPaymentPointer: {
-                    $set: this.curatorPaymentPointer ?? '',
+                    $set: this.curatorPaymentPointer,
                 },
             })
         })
