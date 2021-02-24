@@ -21,12 +21,12 @@ const PopupContainer = styled.div<{ theme: Theme }>`
     font-family: ${(props) => props.theme.fonts.primary};
     color: ${(props) => props.theme.colors.primary};
     box-shadow: 0px 0px 4.19178px rgba(0, 0, 0, 0.14);
-    width: 240px;
-    left: -100px;
+    width: 260px;
+    left: -110px;
 `
 
 const Title = styled.div<{ theme: Theme }>`
-    font-size: ${(props) => props.theme.fontSizes.text};
+    font-size: ${(props) => props.theme.fontSizes.url};
     line-height: ${(props) => props.theme.lineHeights.text};
     font-weight: 700;
 `
@@ -75,7 +75,25 @@ export default class CuratorSupportPopup extends PureComponent<CuratorSupportPop
                                 </Text>
                             </>
                         )}
-                        {!paymentMade && (
+                        {!paymentMade && this.props.isMonetizationAvailable && (
+                            <>
+                                <Margin bottom="smallest">
+                                    <Title theme={theme}>
+                                        Support Collection Curator
+                                    </Title>
+                                </Margin>
+                                <Text theme={theme}>
+                                    Use <i>WebMonetizations</i> to donate a few cents for every
+                                    visit to this collection.
+                                </Text>
+                                <CuratorSupportButtonBlock
+                                    services={services}
+                                    storage={storage}
+                                    curatorUserRef={curatorUserRef}
+                                />
+                            </>
+                        )}
+                        {!paymentMade && !this.props.isMonetizationAvailable && (
                             <>
                                 <Margin bottom="smallest">
                                     <Title theme={theme}>
@@ -86,13 +104,6 @@ export default class CuratorSupportPopup extends PureComponent<CuratorSupportPop
                                     Automatically donate a few cents for every
                                     visit to this collection.
                                 </Text>
-                                {!this.props.isMonetizationAvailable && (
-                                    <CuratorSupportButtonBlock
-                                        services={services}
-                                        storage={storage}
-                                        curatorUserRef={curatorUserRef}
-                                    />
-                                )}
                             </>
                         )}
                     </>

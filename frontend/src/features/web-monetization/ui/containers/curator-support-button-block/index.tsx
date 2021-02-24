@@ -31,18 +31,19 @@ const Button = styled.div<{
     isSupported?: boolean
 }>`
     height: 40px;
-    width: 140px;
     display: flex;
+    width: 100%;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    ${(props) => `border: 2px solid ${props.theme.colors.grey};`}
+    justify-self: center;
+    ${(props) => `border: 2px solid ${props.theme.colors.secondary};`}
 
     ${(props) =>
         `padding: ${props.theme.spacing.small} ${props.theme.spacing.medium};`}
     ${(props) =>
         props.supportedTaskState === 'pristine' &&
-        `border: 2px solid ${props.theme.colors.grey};`}
+        `border: 2px solid ${props.theme.colors.secondary};`}
     ${(props) =>
         props.supportedTaskState === 'running' &&
         `border: 2px solid ${props.theme.colors.secondary};`}
@@ -65,8 +66,9 @@ const ButtonInnerText = styled.div<{
 }>`
     color: ${(props) => props.theme.colors.primary};
     font-family: ${(props) => props.theme.fonts.primary};
-    font-size: ${(props) => props.theme.fontSizes.text};
+    font-size: 12px;
     line-height: ${(props) => props.theme.lineHeights.text};
+    text-align: center;
 `
 
 const BoldText = styled(ButtonInnerText)`
@@ -178,9 +180,7 @@ export class CuratorSupportButtonBlock extends UIElement<
                             theme={theme}
                         >
                             <ButtonInnerText>
-                                {paymentState === 'error'
-                                    ? 'Help>>'
-                                    : 'Setup Payments'}
+                                Learn more & Setup Payments
                             </ButtonInnerText>
                         </Button>
                     </>
