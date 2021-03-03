@@ -4,6 +4,7 @@ import sortBy from 'lodash/sortBy'
 import expect from 'expect'
 import { createStorageTestSuite } from '../../../tests/storage-tests'
 import * as data from './index.test.data'
+import orderBy from 'lodash/orderBy'
 
 createStorageTestSuite('Content sharing storage', ({ it }) => {
     it(
@@ -471,11 +472,12 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 listReference: listReference,
                 userReference,
             })
-            const retrievedAnnotations = await contentSharing.getAnnotationsByCreatorAndPageUrl(
-                {
+            const retrievedAnnotations = orderBy(
+                await contentSharing.getAnnotationsByCreatorAndPageUrl({
                     creatorReference: userReference,
                     normalizedPageUrl: 'foo.com/page-1',
-                },
+                }),
+                ['createdWhen', 'asc'],
             )
             expect(retrievedAnnotations).toEqual([
                 {

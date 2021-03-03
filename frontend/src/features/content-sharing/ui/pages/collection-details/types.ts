@@ -35,6 +35,7 @@ export interface CollectionDetailsDependencies {
         | 'activityStreams'
         | 'userManagement'
         | 'webMonetization'
+        | 'localStorage'
     >
     storage: Pick<
         StorageModules,

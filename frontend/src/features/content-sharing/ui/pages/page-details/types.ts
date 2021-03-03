@@ -32,6 +32,7 @@ export interface PageDetailsDependencies {
         | 'router'
         | 'userManagement'
         | 'webMonetization'
+        | 'localStorage'
     >
     storage: Pick<
         StorageModules,

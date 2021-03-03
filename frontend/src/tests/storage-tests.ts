@@ -89,7 +89,7 @@ export function createStorageTestFactory(suiteOptions: {
                 const firebaseApp = firebase.initializeTestApp({
                     projectId: projectId,
                     auth: testOptions.withTestUser
-                        ? { uid: 'test-user-1' }
+                        ? { uid: 'default-user' }
                         : undefined,
                 })
 
@@ -105,14 +105,14 @@ export function createStorageTestFactory(suiteOptions: {
                     await firebase.loadFirestoreRules({
                         projectId,
                         rules: `
-                    service cloud.firestore {
-                        match /databases/{database}/documents {
-                            match /{document=**} {
-                                allow read, write; // or allow read, write: if true;
-                             }
-                        }
-                      }                      
-                    `,
+                        service cloud.firestore {
+                            match /databases/{database}/documents {
+                                match /{document=**} {
+                                    allow read, write; // or allow read, write: if true;
+                                }
+                            }
+                        }                      
+                        `,
                     })
                 } else {
                     const ast = await generateRulesAstFromStorageModules(
@@ -123,7 +123,9 @@ export function createStorageTestFactory(suiteOptions: {
                         },
                     )
                     const rules = serializeRulesAST(ast)
-                    // console.log(rules)
+                    if (process.env.PRINT_FIRESTORE_RULES === 'true') {
+                        console.log(rules)
+                    }
                     await firebase.loadFirestoreRules({
                         projectId,
                         rules: rules,

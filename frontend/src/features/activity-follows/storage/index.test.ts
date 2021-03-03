@@ -3,6 +3,7 @@ import expect from 'expect'
 import { createStorageTestSuite } from '../../../tests/storage-tests'
 import { UserReference } from '@worldbrain/memex-common/lib/web-interface/types/users'
 import { ActivityFollow } from '@worldbrain/memex-common/lib/activity-follows/storage/types'
+import orderBy from 'lodash/orderBy'
 
 createStorageTestSuite('Activity Following storage', ({ it }) => {
     it(
@@ -225,7 +226,9 @@ createStorageTestSuite('Activity Following storage', ({ it }) => {
                 },
             )
 
-            expect(followsOfCollection).toEqual(follows)
+            expect(orderBy(followsOfCollection, ['objectId', 'asc'])).toEqual(
+                orderBy(follows, ['objectId', 'asc']),
+            )
         },
     )
 

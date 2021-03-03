@@ -10,6 +10,7 @@ import ContentConversationsService from '../features/content-conversations/servi
 import { ActivityStreamsService } from '@worldbrain/memex-common/lib/activity-streams/types'
 import UserManagementService from '../features/user-management/service'
 import WebMonetizationService from '../features/web-monetization/service'
+import { LocalStorageService } from './local-storage/types'
 
 export interface Services {
     router: RouterService
@@ -22,8 +23,9 @@ export interface Services {
     documentTitle: DocumentTitleService
     activityStreams: ActivityStreamsService
     userManagement: UserManagementService
+    webMonetization: WebMonetizationService
+    localStorage: LocalStorageService
 
     // Feature specific services
     contentConversations: ContentConversationsService
-    webMonetization: WebMonetizationService
 }

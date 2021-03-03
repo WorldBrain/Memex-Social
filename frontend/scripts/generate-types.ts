@@ -27,6 +27,7 @@ export async function main() {
     const storageModuleInfoMap = collectStorageModuleInfo()
     for (const storageModule of Object.values(storage.serverModules)) {
         const className = Object.getPrototypeOf(storageModule).constructor.name
+        console.log(`Generating types for module ${className}...`)
         const storageModuleInfo = storageModuleInfoMap[className]
         const types = generateTypesForStorageModule(storageModule, {
             storageModuleInfo,
@@ -39,6 +40,7 @@ export async function main() {
         )
         console.log(`Writing types to ${moduleTypesPath}...`)
         fs.writeFileSync(moduleTypesPath, types)
+        console.log(`Successfuly written types to ${moduleTypesPath}!\n`)
     }
 }
 

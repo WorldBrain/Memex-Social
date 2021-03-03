@@ -14,6 +14,8 @@
     "build:deptree": "depcruise --exclude '^node_modules' --output-type dot ./src | dot -T svg > /tmp/dependencygraph.svg",
     "test": "TS_NODE_PROJECT=tsconfig.mocha.json mocha --require ts-node/register --require ignore.loader.js 'src/**/*.test.ts'",
     "test:watch": "TS_NODE_PROJECT=tsconfig.mocha.json mocha --watch --watch-extensions ts --require ts-node/register  --require ignore.loader.js 'src/**/*.test.ts'",
+    "firebase-emulator:setup": "yarn firebase setup:emulators:firestore && yarn firebase setup:emulators:firestore",
+    "firebase-emulator:start": "yarn firebase -P worldbrain-staging emulators:start --only functions,database,firestore,auth",
     "create:storage-module": "cp -r code-templates/storage-module.ts src/storage/modules/${MODULE}.ts",
     "create:ui-component": "cp -r code-templates/ui-element src/main-ui/components/${ELEMENT}",
     "create:ui-container": "cp -r code-templates/ui-element src/main-ui/containers/${ELEMENT}",

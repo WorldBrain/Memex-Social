@@ -24,6 +24,8 @@ import CallModifier from '../utils/call-modifier'
 import { DocumentTitleService } from './document-title'
 import UserManagementService from '../features/user-management/service'
 import FirebaseWebMonetizationService from '../features/web-monetization/service/firebase'
+import { MemoryLocalStorageService } from './local-storage/memory'
+import { BrowserLocalStorageService } from './local-storage/browser'
 
 export function createServices(options: {
     backend: BackendType
@@ -118,6 +120,10 @@ export function createServices(options: {
     const webMonetization = new FirebaseWebMonetizationService({
         services: { userManagement, auth },
     })
+    const localStorage =
+        options.backend === 'memory'
+            ? new MemoryLocalStorageService()
+            : new BrowserLocalStorageService(options.localStorage)
     const services: Services = {
         overlay: new OverlayService(),
         logicRegistry,
@@ -125,6 +131,7 @@ export function createServices(options: {
         auth,
         router,
         fixtures,
+        localStorage,
         scenarios: new ScenarioService({
             services: { fixtures: fixtures, logicRegistry, auth },
             modifyCalls: (getModifications) => {

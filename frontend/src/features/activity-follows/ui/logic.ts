@@ -9,6 +9,7 @@ import ActivityFollowsStorage from '../storage'
 import ContentSharingStorage from '../../content-sharing/storage'
 import { SharedListReference } from '@worldbrain/memex-common/lib/content-sharing/types'
 import { LOCAL_STORAGE_KEYS } from '../../../constants'
+import { LocalStorageService } from '../../../services/local-storage/types'
 
 export function activityFollowsInitialState(): ActivityFollowsState {
     return {
@@ -21,7 +22,7 @@ export function activityFollowsInitialState(): ActivityFollowsState {
 export function activityFollowsEventHandlers(
     logic: UILogic<ActivityFollowsState, ActivityFollowsEvent>,
     dependencies: {
-        localStorage: Storage
+        localStorage: LocalStorageService
         services: Pick<Services, 'auth'>
         storage: {
             activityFollows: ActivityFollowsStorage

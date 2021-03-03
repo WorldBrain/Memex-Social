@@ -37,6 +37,7 @@ export interface HomeFeedDependencies {
         | 'router'
         | 'userManagement'
         | 'webMonetization'
+        | 'localStorage'
     >
     storage: Pick<
         StorageModules,
