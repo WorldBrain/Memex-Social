@@ -5,7 +5,7 @@ createStorageTestSuite('User management storage', ({ it }) => {
     it(
         'should create a user object for a new user',
         { withTestUser: true },
-        async ({ storage, services, auth }) => {
+        async ({ storage, services }) => {
             const { users } = storage.serverModules
             const userReference = services.auth.getCurrentUserReference()!
             await users.updateUser(
@@ -28,7 +28,7 @@ createStorageTestSuite('User management storage', ({ it }) => {
     it(
         `should create a user object when trying to update a user object that doesn't exist yet`,
         { withTestUser: true },
-        async ({ storage, services, auth }) => {
+        async ({ storage, services }) => {
             const { users } = storage.serverModules
             const userReference = services.auth.getCurrentUserReference()!
             await users.updateUser(
@@ -58,7 +58,7 @@ createStorageTestSuite('User management storage', ({ it }) => {
     it(
         'should create and update a public user profile for a new user',
         { withTestUser: true },
-        async ({ storage, services, auth }) => {
+        async ({ storage, services }) => {
             const { users } = storage.serverModules
             const userReference = services.auth.getCurrentUserReference()!
 

@@ -247,7 +247,7 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
     it(
         'should be able to follow and unfollow the current list',
         { withTestUser: true },
-        async ({ storage, services, auth }) => {
+        async ({ storage, services }) => {
             const contentSharing = storage.serverModules.contentSharing
             const userReference = services.auth.getCurrentUserReference()!
             const listReference = await contentSharing.createSharedList({
