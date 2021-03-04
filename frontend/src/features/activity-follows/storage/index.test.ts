@@ -1,6 +1,9 @@
 import expect from 'expect'
 
-import { createStorageTestSuite } from '../../../tests/storage-tests'
+import {
+    createStorageTestSuite,
+    createMultiDeviceStorageTestSuite,
+} from '../../../tests/storage-tests'
 import { UserReference } from '@worldbrain/memex-common/lib/web-interface/types/users'
 import { ActivityFollow } from '@worldbrain/memex-common/lib/activity-follows/storage/types'
 import orderBy from 'lodash/orderBy'
@@ -128,39 +131,6 @@ createStorageTestSuite('Activity Following storage', ({ it }) => {
     )
 
     it(
-        'should be able to get all followers for an entity',
-        { withTestUser: false },
-        async ({ storage, services }) => {
-            const { activityFollows } = storage.serverModules
-            const createdWhen = new Date()
-            const collection = 'sharedList'
-            const objectId = 'list-a'
-
-            const userReferences: UserReference[] = [
-                { type: 'user-reference', id: 'user-A' },
-                { type: 'user-reference', id: 'user-B' },
-                { type: 'user-reference', id: 'user-C' },
-            ]
-
-            for (const userReference of userReferences) {
-                await activityFollows.storeFollow({
-                    userReference,
-                    createdWhen,
-                    collection,
-                    objectId,
-                })
-            }
-
-            const followers = await activityFollows.getAllEntityFollowers({
-                collection,
-                objectId,
-            })
-
-            expect(followers).toEqual(userReferences)
-        },
-    )
-
-    it(
         'should be able to check whether an entity is being followed by a user',
         { withTestUser: true },
         async ({ storage, services }) => {
@@ -231,43 +201,99 @@ createStorageTestSuite('Activity Following storage', ({ it }) => {
             )
         },
     )
-
-    it(
-        'should be able to get all follows of specific entity',
-        { withTestUser: false },
-        async ({ storage, services }) => {
-            const { activityFollows } = storage.serverModules
-            const createdWhen = new Date()
-            const collection = 'sharedList'
-            const objectId = 'list-a'
-
-            const userReferences: UserReference[] = [
-                { type: 'user-reference', id: 'user-A' },
-                { type: 'user-reference', id: 'user-B' },
-                { type: 'user-reference', id: 'user-C' },
-            ]
-
-            const follows: ActivityFollow[] = []
-
-            for (const userReference of userReferences) {
-                const follow = await activityFollows.storeFollow({
-                    userReference,
-                    createdWhen,
-                    collection,
-                    objectId,
-                })
-
-                follows.push(follow)
-            }
-
-            const followsOfEntity = await activityFollows.getAllFollowsByEntity(
-                {
-                    collection,
-                    objectId,
-                },
-            )
-
-            expect(followsOfEntity).toEqual(follows)
-        },
-    )
 })
+
+createMultiDeviceStorageTestSuite(
+    'Activity Following storage (multi-device)',
+    ({ it }) => {
+        it(
+            'should be able to get all followers for an entity',
+            { withTestUser: false },
+            async ({ createDevice }) => {
+                const createdWhen = new Date()
+                const collection = 'sharedList'
+                const objectId = 'list-a'
+
+                const userIds = ['follower-a', 'follower-b', 'follower-c']
+                const userReferences = userIds.map(
+                    (id): UserReference => ({ type: 'user-reference', id }),
+                )
+                const devices = await Promise.all(
+                    userIds.map((userId) =>
+                        createDevice({ withTestUser: { uid: userId } }),
+                    ),
+                )
+
+                for (let i = 0; i < userIds.length; ++i) {
+                    const userReference = userReferences[i]
+                    const device = devices[i]
+                    await device.storage.serverModules.activityFollows.storeFollow(
+                        {
+                            userReference,
+                            createdWhen,
+                            collection,
+                            objectId,
+                        },
+                    )
+                }
+
+                const followers = await devices[0].storage.serverModules.activityFollows.getAllEntityFollowers(
+                    {
+                        collection,
+                        objectId,
+                    },
+                )
+
+                expect(orderBy(followers, ['id', 'asc'])).toEqual(
+                    userReferences,
+                )
+            },
+        )
+
+        it(
+            'should be able to get all follows of specific entity',
+            { withTestUser: false },
+            async ({ createDevice }) => {
+                const startTime = Date.now()
+                const collection = 'sharedList'
+                const objectId = 'list-a'
+
+                const userIds = ['follower-a', 'follower-b', 'follower-c']
+                const userReferences = userIds.map(
+                    (id): UserReference => ({ type: 'user-reference', id }),
+                )
+                const devices = await Promise.all(
+                    userIds.map((userId) =>
+                        createDevice({ withTestUser: { uid: userId } }),
+                    ),
+                )
+
+                const follows: ActivityFollow[] = []
+                for (let i = 0; i < userIds.length; ++i) {
+                    const userReference = userReferences[i]
+                    const device = devices[i]
+                    const follow = await device.storage.serverModules.activityFollows.storeFollow(
+                        {
+                            userReference,
+                            createdWhen: new Date(startTime + i),
+                            collection,
+                            objectId,
+                        },
+                    )
+                    follows.push(follow)
+                }
+
+                const followsOfEntity = await devices[0].storage.serverModules.activityFollows.getAllFollowsByEntity(
+                    {
+                        collection,
+                        objectId,
+                    },
+                )
+
+                expect(
+                    orderBy(followsOfEntity, ['createdWhen', 'asc']),
+                ).toEqual(orderBy(follows, ['createdWhen', 'asc']))
+            },
+        )
+    },
+)

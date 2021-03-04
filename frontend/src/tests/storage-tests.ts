@@ -60,10 +60,11 @@ const STORAGE_TEST_BACKENDS = {
 }
 
 async function createMemoryTestDevice(
-    testOptions: StorageTestOptions,
+    testOptions: StorageTestOptions & { storage?: Storage },
 ): Promise<StorageTestDeviceWithCleanup> {
     const storageHooksChangeWatcher = new StorageHooksChangeWatcher()
-    const storage = await createStorage({ backend: 'memory' })
+    const storage =
+        testOptions.storage ?? (await createStorage({ backend: 'memory' }))
     const services = createServices({
         backend: 'memory',
         storage,
@@ -195,11 +196,15 @@ export function createMultiDeviceStorageTestFactory(suiteOptions: {
         })
         it(description, async () => {
             const createdDevices: Array<StorageTestDeviceWithCleanup> = []
+            const storage = await createStorage({ backend: 'memory' })
             try {
                 if (suiteOptions.backend === 'memory') {
                     await test({
                         createDevice: async (options) => {
-                            const device = await createMemoryTestDevice(options)
+                            const device = await createMemoryTestDevice({
+                                ...options,
+                                storage,
+                            })
                             createdDevices.push(device)
                             return device
                         },
