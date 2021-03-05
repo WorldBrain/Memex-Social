@@ -2,9 +2,14 @@ import flatten from 'lodash/flatten'
 import omit from 'lodash/omit'
 import sortBy from 'lodash/sortBy'
 import expect from 'expect'
-import { createStorageTestSuite } from '../../../tests/storage-tests'
+import {
+    createStorageTestSuite,
+    createMultiDeviceStorageTestSuite,
+} from '../../../tests/storage-tests'
 import * as data from './index.test.data'
 import orderBy from 'lodash/orderBy'
+import { SharedListReference } from '@worldbrain/memex-common/lib/content-sharing/types'
+import { isAccessRulesPermissionError } from '@worldbrain/memex-common/lib/storage/utils'
 
 createStorageTestSuite('Content sharing storage', ({ it }) => {
     it(
@@ -976,3 +981,52 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
         },
     )
 })
+
+createMultiDeviceStorageTestSuite(
+    'Content sharing storage (multi-device)',
+    ({ it }) => {
+        it(`should by default not allow users to add to each others' lists`, async ({
+            createDevice,
+        }) => {
+            const userIds = ['user-a', 'user-b']
+            const devices = await Promise.all(
+                userIds.map((uid) => createDevice({ withTestUser: { uid } })),
+            )
+            const listReferences: SharedListReference[] = []
+            for (const device of devices) {
+                const { contentSharing } = device.storage.serverModules
+                const userReference = device.services.auth.getCurrentUserReference()!
+                const listReference = await contentSharing.createSharedList({
+                    listData: {
+                        title: 'My list',
+                    },
+                    localListId: 55,
+                    userReference,
+                })
+                listReferences.push(listReference)
+            }
+
+            let triggeredPermissionError = false
+            try {
+                await data.createTestListEntries({
+                    listReference: listReferences[0],
+                    contentSharing:
+                        devices[1].storage.serverModules.contentSharing,
+                    userReference: devices[1].services.auth.getCurrentUserReference()!,
+                })
+            } catch (e) {
+                if (!isAccessRulesPermissionError(e)) {
+                    throw e
+                }
+                triggeredPermissionError = true
+            }
+            expect({ triggeredPermissionError }).toEqual({
+                triggeredPermissionError: true,
+            })
+        })
+
+        it(`should by default not allow users to remove from each others' lists`, async ({
+            createDevice,
+        }) => {})
+    },
+)

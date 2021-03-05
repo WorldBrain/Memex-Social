@@ -38,7 +38,7 @@ export interface MultiDeviceStorageTestOptions {}
 export type StorageTestFactory<
     Context = StorageTestContext,
     Options = StorageTestOptions
-> = ((description: string, test: StorageTest) => void) &
+> = ((description: string, test: StorageTest<Context>) => void) &
     ((
         description: string,
         options: Options,
