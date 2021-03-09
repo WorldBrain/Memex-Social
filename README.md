@@ -13,6 +13,8 @@ $ cd frontend
 $ REACT_APP_BACKEND=memory yarn start
 ```
 
+You can then access development scenarios using the instructions in [Scenarios and the Meta UI](#scenarios).
+
 ## Architecture overview
 
 When viewing a page, the code in `frontend/src/main.ts` gets triggered and decides whether to start the main UI, or the Meta UI (more below.) The main UI setup (`frontend/src/setup/main.ts`) creates the services and storage it needs, and kicks off the UI. These services and storage abstract the edge of the system (backend communication, browser APIs, etc.) so they can have different implementations, most notably an in-memory one during development. The storage layer is handled by Storex, allowing us to have both an in-memory database during development, and a Firestore database during production. The main UI uses React in combination with a modified version of [UILogic](https://github.com/ShishKabab/ui-logic/), decoupling the UI logic from React, leaving React only with the responsibilities of rendering state and collecting events.
@@ -28,7 +30,7 @@ The services get created after the storage layer in `frontend/src/services` and 
 -   `router`: go to different application routes, reverse route URLs, get route parameters
 -   `scenarios`: replay scenarios composed of a series of user interactions for testing purposes
 
-### Scenarios and the Meta UI
+### <a name='scenarios'></a>Scenarios and the Meta UI
 
 There are two common, time-consuming tasks during UI development:
 
