@@ -40,6 +40,7 @@ const DisplayName = styled.div`
     display: inline-block;
     font-size: 14px;
     font-weight: bold;
+    cursor: pointer;
     color: ${(props) => props.theme.colors.primary};
 `
 const MenuContainerOuter = styled.div`
