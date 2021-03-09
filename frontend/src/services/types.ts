@@ -8,6 +8,7 @@ import { DeviceService } from './device'
 import { DocumentTitleService } from './document-title'
 import ContentConversationsService from '../features/content-conversations/services/content-conversations'
 import { ActivityStreamsService } from '@worldbrain/memex-common/lib/activity-streams/types'
+import { ContentSharingServiceInterface } from '@worldbrain/memex-common/lib/content-sharing/service/types'
 import UserManagementService from '../features/user-management/service'
 import WebMonetizationService from '../features/web-monetization/service'
 import { LocalStorageService } from './local-storage/types'
@@ -21,11 +22,12 @@ export interface Services {
     fixtures: FixtureService
     scenarios: ScenarioService
     documentTitle: DocumentTitleService
-    activityStreams: ActivityStreamsService
-    userManagement: UserManagementService
-    webMonetization: WebMonetizationService
     localStorage: LocalStorageService
 
     // Feature specific services
+    contentSharing: ContentSharingServiceInterface
     contentConversations: ContentConversationsService
+    activityStreams: ActivityStreamsService
+    userManagement: UserManagementService
+    webMonetization: WebMonetizationService
 }

@@ -8,6 +8,7 @@
     "prepare": "true",
     "dev-server": "nodemon --watch ./dev-server --exec 'ts-node --project dev-server/tsconfig.json' dev-server/src/main.ts",
     "generate-types": "ts-node --project scripts/tsconfig.json scripts/generate-types.ts",
+    "generate-rules": "ts-node --project scripts/tsconfig.json scripts/generate-rules.ts ../firebase",
     "karma": "karma",
     "firebase": "cd ../firebase && firebase",
     "build": "node scripts/build.js",

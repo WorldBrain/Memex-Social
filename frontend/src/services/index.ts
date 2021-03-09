@@ -1,5 +1,6 @@
 import { History } from 'history'
 import firebaseModule from 'firebase'
+import { firebaseService } from '@worldbrain/memex-common/lib/firebase-backend/services/client'
 import FirebaseFunctionsActivityStreamsService from '@worldbrain/memex-common/lib/activity-streams/services/firebase-functions/client'
 import MemoryStreamsService from '@worldbrain/memex-common/lib/activity-streams/services/memory'
 import { BackendType } from '../types'
@@ -26,6 +27,8 @@ import UserManagementService from '../features/user-management/service'
 import FirebaseWebMonetizationService from '../features/web-monetization/service/firebase'
 import { MemoryLocalStorageService } from './local-storage/memory'
 import { BrowserLocalStorageService } from './local-storage/browser'
+import { ContentSharingService } from '@worldbrain/memex-common/lib/content-sharing/service'
+import { ContentSharingServiceInterface } from '@worldbrain/memex-common/lib/content-sharing/service/types'
 
 export function createServices(options: {
     backend: BackendType
@@ -92,6 +95,14 @@ export function createServices(options: {
         storage: options.storage,
         fixtureFetcher: options.fixtureFetcher ?? defaultFixtureFetcher,
     })
+    const executeFirebaseCall: (
+        name: string,
+        params: any,
+    ) => Promise<any> = async (name, params) => {
+        const functions = (options.firebase ?? firebaseModule).functions()
+        const result = await functions.httpsCallable(name)(params)
+        return result.data
+    }
     const activityStreams =
         options.backend === 'memory'
             ? new MemoryStreamsService({
@@ -100,13 +111,7 @@ export function createServices(options: {
                       services.auth.getCurrentUserReference()?.id,
               })
             : new FirebaseFunctionsActivityStreamsService({
-                  executeCall: async (name, params) => {
-                      const functions = (
-                          options.firebase ?? firebaseModule
-                      ).functions()
-                      const result = await functions.httpsCallable(name)(params)
-                      return result.data
-                  },
+                  executeCall: executeFirebaseCall,
               })
     const userManagement = new UserManagementService({
         storage: options.storage.serverModules.users,
@@ -124,6 +129,16 @@ export function createServices(options: {
         options.backend === 'memory'
             ? new MemoryLocalStorageService()
             : new BrowserLocalStorageService(options.localStorage)
+    const contentSharing =
+        options.backend === 'memory'
+            ? new ContentSharingService({
+                  contentSharing: options.storage.serverModules.contentSharing,
+                  getCurrentUserId: async () =>
+                      auth.getCurrentUserReference()?.id ?? null,
+              })
+            : firebaseService<ContentSharingServiceInterface>(
+                  executeFirebaseCall,
+              )
     const services: Services = {
         overlay: new OverlayService(),
         logicRegistry,
@@ -152,6 +167,7 @@ export function createServices(options: {
         }),
         activityStreams,
         userManagement,
+        contentSharing: contentSharing,
         contentConversations: new ContentConversationsService({
             storage: options.storage.serverModules.contentConversations,
             services: { activityStreams, router },

@@ -26,7 +26,10 @@ export interface StorageTestDeviceOptions {
 }
 export interface StorageTestContext extends StorageTestDevice {}
 export interface MultiDeviceStorageTestContext {
-    createDevice(options: StorageTestDeviceOptions): Promise<StorageTestDevice>
+    createDevice(options?: StorageTestDeviceOptions): Promise<StorageTestDevice>
+    createSuperuserDevice(options?: {
+        printProjectId?: boolean
+    }): Promise<StorageTestDevice>
 }
 
 export type StorageTest<Context = StorageTestContext> = (
@@ -88,17 +91,24 @@ async function createMemoryTestDevice(
 }
 
 async function createFirebaseTestDevice(
-    testOptions: StorageTestOptions & { firebaseProjectId: string },
+    testOptions: StorageTestOptions & {
+        firebaseProjectId: string
+        superuser?: boolean
+    },
 ): Promise<StorageTestDeviceWithCleanup> {
     const userId = testOptions.withTestUser
         ? testOptions.withTestUser === true
             ? 'default-user'
             : testOptions.withTestUser.uid
         : undefined
-    const firebaseApp = firebase.initializeTestApp({
-        projectId: testOptions.firebaseProjectId,
-        auth: userId ? { uid: userId } : undefined,
-    })
+    const firebaseApp = testOptions.superuser
+        ? firebase.initializeAdminApp({
+              projectId: testOptions.firebaseProjectId,
+          })
+        : firebase.initializeTestApp({
+              projectId: testOptions.firebaseProjectId,
+              auth: userId ? { uid: userId } : undefined,
+          })
 
     const firestore = firebaseApp.firestore()
     const storageBackend = new FirestoreStorageBackend({
@@ -208,6 +218,13 @@ export function createMultiDeviceStorageTestFactory(suiteOptions: {
                             createdDevices.push(device)
                             return device
                         },
+                        createSuperuserDevice: async () => {
+                            const device = await createMemoryTestDevice({
+                                storage,
+                            })
+                            createdDevices.push(device)
+                            return device
+                        },
                     })
                 } else if (suiteOptions.backend === 'firebase-emulator') {
                     const firebaseProjectId = `unit-test-${Date.now()}`
@@ -222,6 +239,15 @@ export function createMultiDeviceStorageTestFactory(suiteOptions: {
                             const device = await createFirebaseTestDevice({
                                 ...options,
                                 firebaseProjectId,
+                            })
+                            createdDevices.push(device)
+                            return device
+                        },
+                        createSuperuserDevice: async (options) => {
+                            const device = await createFirebaseTestDevice({
+                                ...options,
+                                firebaseProjectId,
+                                superuser: true,
                             })
                             createdDevices.push(device)
                             return device
