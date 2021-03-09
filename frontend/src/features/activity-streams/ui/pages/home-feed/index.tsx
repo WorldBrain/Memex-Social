@@ -86,6 +86,13 @@ const ActivityReasonIcon = styled.img`
     max-height: 15px;
 `
 
+const LoadingIndicatorBox = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50px;
+`
+
 const ActivityReasonLabel = styled.div`
   font-family: ${(props) => props.theme.fonts.primary};
   font-weight: normal;
@@ -569,7 +576,7 @@ export default class HomeFeedPage extends UIElement<
                                             }
                                         />
                                         {entry.annotationsLoadState ===
-                                            'running' && <LoadingIndicator />}
+                                            'running' && <LoadingIndicatorBox><LoadingIndicator /></LoadingIndicatorBox>}
                                         {entry.areAnnotationsShown &&
                                             this.renderAnnotationsInPage(
                                                 listItem.groupId,
