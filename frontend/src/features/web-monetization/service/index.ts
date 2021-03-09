@@ -72,6 +72,9 @@ export default abstract class WebMonetizationService
     }
 
     initiatePayment(paymentPointer: string): void {
+        if (!this.isAvailable) {
+            return console.warn('Browser does not support Web Monetization')
+        }
         const tag = document.querySelector('meta[name="monetization"]')
         if (tag) {
             tag?.remove()
