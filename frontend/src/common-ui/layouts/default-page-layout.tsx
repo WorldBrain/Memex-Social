@@ -321,6 +321,8 @@ export default function DefaultPageLayout(props: {
         )
     }
 
+    const isLoggedIn = props.services.auth.getCurrentUser()
+
     return (
         <MainContainer>
             <BetaFlag
@@ -329,7 +331,7 @@ export default function DefaultPageLayout(props: {
             {renderListsSidebar()}
             <StyledHeader viewportWidth={viewportWidth}>
                 <LogoAndFeed viewportWidth={viewportWidth}>
-                    {props.listsSidebarProps && (
+                    {props.listsSidebarProps && isLoggedIn && (
                         <ListsSidebarToggle
                             viewportWidth={viewportWidth}
                             onToggle={props.listsSidebarProps.onSidebarToggle}
