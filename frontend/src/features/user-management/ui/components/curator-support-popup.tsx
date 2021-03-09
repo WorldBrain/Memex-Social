@@ -83,7 +83,7 @@ export default class CuratorSupportPopup extends PureComponent<CuratorSupportPop
                                     </Title>
                                 </Margin>
                                 <Text theme={theme}>
-                                    Use <i>WebMonetizations</i> to donate a few cents for every
+                                    Use <i>WebMonetization</i> to donate a few cents for every
                                     visit to this collection.
                                 </Text>
                                 <CuratorSupportButtonBlock
