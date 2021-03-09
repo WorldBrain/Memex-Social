@@ -3,6 +3,8 @@ import firebaseModule from 'firebase'
 import { firebaseService } from '@worldbrain/memex-common/lib/firebase-backend/services/client'
 import FirebaseFunctionsActivityStreamsService from '@worldbrain/memex-common/lib/activity-streams/services/firebase-functions/client'
 import MemoryStreamsService from '@worldbrain/memex-common/lib/activity-streams/services/memory'
+import { MemoryUserMessageService } from '@worldbrain/memex-common/lib/user-messages/service/memory'
+import { FirebaseUserMessageService } from '@worldbrain/memex-common/lib/user-messages/service/firebase'
 import { BackendType } from '../types'
 import { Storage } from '../storage/types'
 import ROUTES from '../routes'
@@ -139,6 +141,16 @@ export function createServices(options: {
             : firebaseService<ContentSharingServiceInterface>(
                   executeFirebaseCall,
               )
+    const userMessages =
+        options.backend === 'memory'
+            ? new MemoryUserMessageService()
+            : new FirebaseUserMessageService({
+                  firebase: options.firebase as any,
+                  auth,
+                  getLastSeen: async () => null,
+                  setLastSeen: async () => {},
+              })
+
     const services: Services = {
         overlay: new OverlayService(),
         logicRegistry,
@@ -147,6 +159,7 @@ export function createServices(options: {
         router,
         fixtures,
         localStorage,
+        userMessages,
         scenarios: new ScenarioService({
             services: { fixtures: fixtures, logicRegistry, auth },
             modifyCalls: (getModifications) => {
