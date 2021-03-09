@@ -55,7 +55,7 @@ export default class WebMonetizationIcon extends UIElement<
         return (
             <IconContainer iconHeight={this.iconHeight}>
                 {paymentState === 'running' && <LoadingScreen />}
-                {paymentState === 'error' && <span>Whoops! Error!</span>}
+                {paymentState === 'error' && <span>Error!</span>}
                 {(paymentState === 'pristine' ||
                     paymentState === 'success') && (
                     <StyledIcon
