@@ -5,6 +5,8 @@ import FirebaseFunctionsActivityStreamsService from '@worldbrain/memex-common/li
 import MemoryStreamsService from '@worldbrain/memex-common/lib/activity-streams/services/memory'
 import { MemoryUserMessageService } from '@worldbrain/memex-common/lib/user-messages/service/memory'
 import { FirebaseUserMessageService } from '@worldbrain/memex-common/lib/user-messages/service/firebase'
+import { ContentSharingBackend } from '@worldbrain/memex-common/lib/content-sharing/backend/index'
+import { ContentSharingBackendInterface } from '@worldbrain/memex-common/lib/content-sharing/backend/types'
 import { BackendType } from '../types'
 import { Storage } from '../storage/types'
 import ROUTES from '../routes'
@@ -29,8 +31,7 @@ import UserManagementService from '../features/user-management/service'
 import FirebaseWebMonetizationService from '../features/web-monetization/service/firebase'
 import { MemoryLocalStorageService } from './local-storage/memory'
 import { BrowserLocalStorageService } from './local-storage/browser'
-import { ContentSharingService } from '@worldbrain/memex-common/lib/content-sharing/service'
-import { ContentSharingServiceInterface } from '@worldbrain/memex-common/lib/content-sharing/service/types'
+import { ContentSharingService } from '../features/content-sharing/service'
 
 export function createServices(options: {
     backend: BackendType
@@ -142,15 +143,15 @@ export function createServices(options: {
                           services.auth.getCurrentUserReference()?.id ?? null,
                   },
               })
-    const contentSharing =
+    const contentSharingBackend =
         options.backend === 'memory'
-            ? new ContentSharingService({
+            ? new ContentSharingBackend({
                   contentSharing: options.storage.serverModules.contentSharing,
                   userMessages,
                   getCurrentUserId: async () =>
                       auth.getCurrentUserReference()?.id ?? null,
               })
-            : firebaseService<ContentSharingServiceInterface>(
+            : firebaseService<ContentSharingBackendInterface>(
                   executeFirebaseCall,
               )
 
@@ -183,7 +184,9 @@ export function createServices(options: {
         }),
         activityStreams,
         userManagement,
-        contentSharing: contentSharing,
+        contentSharing: new ContentSharingService({
+            backend: contentSharingBackend,
+        }),
         contentConversations: new ContentConversationsService({
             storage: options.storage.serverModules.contentConversations,
             services: { activityStreams, router },
