@@ -42,6 +42,7 @@ export function createServices(options: {
     logLogicEvents?: boolean
     fixtureFetcher?: FixtureFetcher
 }): Services {
+    const firebase = options.firebase ?? firebaseModule
     const logicRegistry = new LogicRegistryService({
         logEvents: options.logLogicEvents,
     })
@@ -57,10 +58,10 @@ export function createServices(options: {
         options.backend === 'firebase' ||
         options.backend === 'firebase-emulator'
     ) {
-        const firebase = options.firebase ?? firebaseModule
         auth = new FirebaseAuthService(firebase, { storage: options.storage })
         if (process.env.NODE_ENV === 'development') {
             if (options.backend === 'firebase-emulator') {
+                firebase.database().useEmulator('localhost', 9000)
                 firebase.firestore().useEmulator('localhost', 8080)
                 firebase.auth().useEmulator('http://localhost:9099/')
             }
@@ -101,7 +102,7 @@ export function createServices(options: {
         name: string,
         params: any,
     ) => Promise<any> = async (name, params) => {
-        const functions = (options.firebase ?? firebaseModule).functions()
+        const functions = firebase.functions()
         const result = await functions.httpsCallable(name)(params)
         return result.data
     }
@@ -131,25 +132,27 @@ export function createServices(options: {
         options.backend === 'memory'
             ? new MemoryLocalStorageService()
             : new BrowserLocalStorageService(options.localStorage)
+    const userMessages =
+        options.backend === 'memory'
+            ? new MemoryUserMessageService()
+            : new FirebaseUserMessageService({
+                  firebase: firebase as any,
+                  auth: {
+                      getCurrentUserId: async () =>
+                          services.auth.getCurrentUserReference()?.id ?? null,
+                  },
+              })
     const contentSharing =
         options.backend === 'memory'
             ? new ContentSharingService({
                   contentSharing: options.storage.serverModules.contentSharing,
+                  userMessages,
                   getCurrentUserId: async () =>
                       auth.getCurrentUserReference()?.id ?? null,
               })
             : firebaseService<ContentSharingServiceInterface>(
                   executeFirebaseCall,
               )
-    const userMessages =
-        options.backend === 'memory'
-            ? new MemoryUserMessageService()
-            : new FirebaseUserMessageService({
-                  firebase: options.firebase as any,
-                  auth,
-                  getLastSeen: async () => null,
-                  setLastSeen: async () => {},
-              })
 
     const services: Services = {
         overlay: new OverlayService(),
