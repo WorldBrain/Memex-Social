@@ -103,6 +103,7 @@ export function createServices(options: {
         name: string,
         params: any,
     ) => Promise<any> = async (name, params) => {
+        console.log('executing Firebase call', name, params)
         const functions = firebase.functions()
         const result = await functions.httpsCallable(name)(params)
         return result.data
@@ -152,6 +153,7 @@ export function createServices(options: {
                       auth.getCurrentUserReference()?.id ?? null,
               })
             : firebaseService<ContentSharingBackendInterface>(
+                  'contentSharing',
                   executeFirebaseCall,
               )
 
