@@ -339,7 +339,10 @@ export default function DefaultPageLayout(props: {
                 </LogoAndFeed>
                 <HeaderMiddleArea viewportWidth={viewportWidth}>
                     <LeftRightBlock>{renderFeedArea()}</LeftRightBlock>
-                    <MemexLogo src={logoImage}/>
+                    <MemexLogo 
+                        src={logoImage}
+                        onClick={()=>window.open('https://getmemex.com')}
+                    />
                     <LeftRightBlock/>
                 </HeaderMiddleArea>
                 <HeaderAuthArea viewportWidth={viewportWidth}>
