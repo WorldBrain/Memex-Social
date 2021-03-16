@@ -13,6 +13,7 @@ import ListsSidebar, {
 import ListsSidebarToggle from '../../main-ui/components/sidebar-toggle/'
 
 const middleMaxWidth = '800px'
+const logoImage = require('../../assets/img/memex-logo.svg')
 
 const MainContainer = styled.div`
     background: #f6f8fb;
@@ -87,15 +88,9 @@ const HeaderMiddleArea = styled.div<{
     max-width: ${middleMaxWidth};
     display: flex;
     padding-right: 20px;
-    align-items: ${(props) =>
-        props.viewportWidth === 'small' || props.viewportWidth === 'mobile'
-            ? 'flex-start'
-            : 'center'};
-    justify-content: flex-start;
-    flex-direction: ${(props) =>
-        props.viewportWidth === 'small' || props.viewportWidth === 'mobile'
-            ? 'column'
-            : 'row'};
+    align-items: center;
+    justify-content: space-between;
+    flex-direction: row;
 `
 const HeaderTitle = styled.div<{
     viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
@@ -217,6 +212,14 @@ const BetaFlag = styled.div`
     font-weight: 600;
 `
 
+const LeftRightBlock = styled.div`
+    width: 10px;
+`
+
+const MemexLogo = styled.img`
+    height: 20px;
+`
+
 export default function DefaultPageLayout(props: {
     services: UIElementServices<
         | 'auth'
@@ -335,7 +338,9 @@ export default function DefaultPageLayout(props: {
                     )}
                 </LogoAndFeed>
                 <HeaderMiddleArea viewportWidth={viewportWidth}>
-                    {renderFeedArea()}
+                    <LeftRightBlock>{renderFeedArea()}</LeftRightBlock>
+                    <MemexLogo src={logoImage}/>
+                    <LeftRightBlock/>
                 </HeaderMiddleArea>
                 <HeaderAuthArea viewportWidth={viewportWidth}>
                     <AuthHeader
