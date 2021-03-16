@@ -406,7 +406,7 @@ export default class CollectionDetailsPage extends UIElement<
                 </Overlay>
             )
         }
-        if (this.state.permissionKeyResult === 'no-key-present') {
+        if (this.state.permissionKeyResult === 'success') {
             return (
                 <Overlay
                     services={this.props.services}
@@ -453,12 +453,42 @@ export default class CollectionDetailsPage extends UIElement<
                     services={this.props.services}
                     onCloseRequested={() => {}}
                 >
-                    Here the login screen should appear
+                    <OverlayInternalBox>
+                        <InternalBoxTitle>
+                            You've been invited as a Contributor to this collection
+                        </InternalBoxTitle>
+                        <Margin top={'small'}>
+                        <InternalBoxSubTitle>
+                            Log in or sign up to continue
+                        </InternalBoxSubTitle>
+                        </Margin>
+                        <Margin top={'small'}>
+                        <BrowserIconsBox>
+                            <BrowserIcon src={braveLogo}/>
+                            <BrowserIcon src={firefoxLogo}/>
+                            <BrowserIcon src={chromeLogo}/>
+                        </BrowserIconsBox>
+                        </Margin>
+                        <Margin top={'medium'}>
+                        <ButtonsBox>
+                            <PrimaryButton
+                                onClick={()=>window.open('https://getmemex.com')}
+                            >
+                                Download
+                            </PrimaryButton>
+                            <SecondaryButton
+                                onClick={() => {}}
+                            >
+                                Continue without
+                            </SecondaryButton>
+                        </ButtonsBox>
+                        </Margin>
+                    </OverlayInternalBox>
                 </Overlay>
             )
         }
 
-         if (this.state.permissionKeyResult === 'success' ) {
+         if (this.state.permissionKeyResult === 'no-key-present' ) {
             return (
                 <Overlay
                     services={this.props.services}
