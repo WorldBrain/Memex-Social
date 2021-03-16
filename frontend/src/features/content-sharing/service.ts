@@ -53,7 +53,6 @@ export class ContentSharingService {
     }
 
     async processCurrentKey() {
-        // test
         const resultString = <S extends string>(s: S) => ({ result: s })
 
         const routeMatch = this.dependencies.router.matchCurrentUrl()
