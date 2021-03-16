@@ -37,6 +37,11 @@ const DocumentView = styled.div`
     height: 100vh;
 `
 
+const braveLogo = require('../../../../../assets/img/logo-brave.svg')
+const firefoxLogo = require('../../../../../assets/img/logo-firefox.svg')
+const chromeLogo = require('../../../../../assets/img/logo-chrome.svg')
+
+
 // const CollectionDescriptionBox = styled.div<{
 //     viewportWidth: ViewportBreakpoint
 // }>`
@@ -117,6 +122,69 @@ const EmptyListBox = styled.div`
     align-items: center;
     flex-direction: column;
     text-align: center;
+`
+
+const OverlayInternalBox = styled.div`
+    width: 800px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding: 40px;
+
+    > * {
+        font-family: ${(props) => props.theme.fonts.primary};
+    }
+`
+const InternalBoxTitle = styled.div`
+    font-weight: bold;
+    font-size: 24px;
+    color: ${(props) => props.theme.colors.primary};
+    text-align: center;
+`
+const InternalBoxSubTitle = styled.div`
+    font-weight: 500;
+    font-size: 16px;
+    text-align: center;
+    color: ${(props) => props.theme.colors.secondary};
+`
+const BrowserIconsBox = styled.div`
+    display: flex;
+    padding: 15px 0px;
+    justify-content: space-between;
+    width: 140px;
+`
+
+const BrowserIcon = styled.img`
+    height: 40px;
+`
+
+const ButtonsBox = styled.div`
+    display: flex;
+    justify-content: center;
+    width: 250px;
+    padding: 15px 0px;
+`
+const PrimaryButton = styled.div`
+    display: flex;
+    justify-content: center;
+    padding: 5px 10px;
+    font-size: 14px;
+    background-color: ${(props) => props.theme.colors.secondary};
+    border-radius: 3px;
+    cursor: pointer;
+    font-weight: 600;
+    color: ${(props) => props.theme.colors.primary};
+`
+const SecondaryButton = styled.div`
+    display: flex;
+    justify-content: center;
+    padding: 5px 10px;
+    font-size: 14px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-weight: 600;
+    color: ${(props) => props.theme.colors.primary};
 `
 
 export default class CollectionDetailsPage extends UIElement<
@@ -278,7 +346,30 @@ export default class CollectionDetailsPage extends UIElement<
                     services={this.props.services}
                     onCloseRequested={() => {}}
                 >
-                    Error trying to process your key
+                    <OverlayInternalBox>
+                        <InternalBoxTitle>
+                            Error opening invite link
+                        </InternalBoxTitle>
+                        <Margin top='smallest'>
+                        <InternalBoxSubTitle>
+                            There has been an error with this link. <br/> Try again and contact support if the problem persists.
+                        </InternalBoxSubTitle>
+                        </Margin>
+                        <Margin top='medium'>
+                        <ButtonsBox>
+                            <PrimaryButton
+                                onClick={()=>window.open('https://getmemex.com')}
+                            >
+                                Close
+                            </PrimaryButton>
+                            <SecondaryButton
+                                onClick={()=>window.open('mailto:support@worldbrain.io')}
+                            >
+                                Contact Support
+                            </SecondaryButton>
+                        </ButtonsBox>
+                        </Margin>
+                    </OverlayInternalBox>
                 </Overlay>
             )
         }
@@ -286,9 +377,119 @@ export default class CollectionDetailsPage extends UIElement<
             return (
                 <Overlay
                     services={this.props.services}
+                    onCloseRequested={this.props.onCloseRequested}
+                >
+                    <OverlayInternalBox>
+                        <InternalBoxTitle>
+                            Invite link invalid
+                        </InternalBoxTitle>
+                        <Margin top='small'>
+                        <InternalBoxSubTitle>
+                            The link you used is invalid or has been revoked by the creator.
+                        </InternalBoxSubTitle>
+                        </Margin>
+                        <Margin top={'medium'}>
+                            <ButtonsBox>
+                                <PrimaryButton
+                                    onClick={()=>window.open('https://getmemex.com')}
+                                >
+                                    Close
+                                </PrimaryButton>
+                                <SecondaryButton
+                                    onClick={()=>window.open('mailto:support@worldbrain.io')}
+                                >
+                                    Contact Support
+                                </SecondaryButton>
+                            </ButtonsBox>
+                        </Margin>
+                    </OverlayInternalBox>
+                </Overlay>
+            )
+        }
+        if (this.state.permissionKeyResult === 'no-key-present') {
+            return (
+                <Overlay
+                    services={this.props.services}
                     onCloseRequested={() => {}}
                 >
-                    Invalid key
+                    <OverlayInternalBox>
+                        <InternalBoxTitle>
+                            You’re now a Contributor to this collection
+                        </InternalBoxTitle>
+                        <Margin top={'small'}>
+                        <InternalBoxSubTitle>
+                            Install the Memex Browser extension to add pages and annotations
+                        </InternalBoxSubTitle>
+                        </Margin>
+                        <Margin top={'small'}>
+                        <BrowserIconsBox>
+                            <BrowserIcon src={braveLogo}/>
+                            <BrowserIcon src={firefoxLogo}/>
+                            <BrowserIcon src={chromeLogo}/>
+                        </BrowserIconsBox>
+                        </Margin>
+                        <Margin top={'medium'}>
+                        <ButtonsBox>
+                            <PrimaryButton
+                                onClick={()=>window.open('https://getmemex.com')}
+                            >
+                                Download
+                            </PrimaryButton>
+                            <SecondaryButton
+                                onClick={() => {}}
+                            >
+                                Continue without
+                            </SecondaryButton>
+                        </ButtonsBox>
+                        </Margin>
+                    </OverlayInternalBox>
+                </Overlay>
+            )
+        }
+
+        if (!this.state.permissionKeyResult) {
+            return (
+                <Overlay
+                    services={this.props.services}
+                    onCloseRequested={() => {}}
+                >
+                    Here the login screen should appear
+                </Overlay>
+            )
+        }
+
+         if (this.state.permissionKeyResult === 'success' ) {
+            return (
+                <Overlay
+                    services={this.props.services}
+                    onCloseRequested={() => {}}
+                >
+                    <OverlayInternalBox>
+                        <InternalBoxTitle>
+                            Install the Memex Browser extension<br/>to add pages and annotations
+                        </InternalBoxTitle>
+                        <Margin top={'small'}>
+                        <BrowserIconsBox>
+                            <BrowserIcon src={braveLogo}/>
+                            <BrowserIcon src={firefoxLogo}/>
+                            <BrowserIcon src={chromeLogo}/>
+                        </BrowserIconsBox>
+                        </Margin>
+                        <Margin top={'medium'}>
+                        <ButtonsBox>
+                            <PrimaryButton
+                                onClick={()=>window.open('https://getmemex.com')}
+                            >
+                                Download
+                            </PrimaryButton>
+                            <SecondaryButton
+                                onClick={() => {}}
+                            >
+                                Continue without
+                            </SecondaryButton>
+                        </ButtonsBox>
+                        </Margin>
+                    </OverlayInternalBox>
                 </Overlay>
             )
         }
