@@ -2,6 +2,7 @@ import { History } from 'history'
 import { RouteMap, RouteName } from '../../routes'
 import { AuthService } from '../auth/types'
 import Routes from './routes'
+import { ProgramQueryParams } from '../../setup/types'
 
 export default class RouterService {
     private routes: Routes
@@ -12,6 +13,7 @@ export default class RouterService {
             history: History
             routes: RouteMap
             auth: AuthService
+            queryParams: ProgramQueryParams
             setBeforeLeaveHandler(handler: null | (() => string)): void
         },
     ) {
@@ -57,6 +59,10 @@ export default class RouterService {
         url: string,
     ): { route: RouteName; params: { [key: string]: string } } | null {
         return this.routes.matchUrl(url)
+    }
+
+    getQueryParam(key: keyof ProgramQueryParams): string | null {
+        return this.options.queryParams[key] ?? null
     }
 
     blockLeave(message: string) {

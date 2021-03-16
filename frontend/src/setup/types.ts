@@ -5,6 +5,7 @@ import { Storage } from '../storage/types'
 import { BackendType } from '../types'
 import { UiRunner } from '../main-ui/types'
 import { FixtureFetcher } from '../services/fixtures/types'
+import { ContentSharingQueryParams } from '../features/content-sharing/types'
 
 export type MetaScreenSize = 'small' | 'large'
 
@@ -13,7 +14,9 @@ export type DevQueryParams = {
     rpc?: string
     metaScreenSize?: MetaScreenSize
 }
-export type ProgramQueryParams = DevQueryParams & ScenarioReplayQueryParams
+export type ProgramQueryParams = DevQueryParams &
+    ScenarioReplayQueryParams &
+    ContentSharingQueryParams
 export interface MainProgramOptions {
     backend: BackendType
     queryParams: ProgramQueryParams

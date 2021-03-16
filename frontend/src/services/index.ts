@@ -32,11 +32,13 @@ import FirebaseWebMonetizationService from '../features/web-monetization/service
 import { MemoryLocalStorageService } from './local-storage/memory'
 import { BrowserLocalStorageService } from './local-storage/browser'
 import { ContentSharingService } from '../features/content-sharing/service'
+import { ProgramQueryParams } from '../setup/types'
 
 export function createServices(options: {
     backend: BackendType
     storage: Storage
     history: History
+    queryParams: ProgramQueryParams
     localStorage: LimitedWebStorage
     uiMountPoint?: Element
     firebase?: typeof firebaseModule
@@ -89,6 +91,7 @@ export function createServices(options: {
         routes: ROUTES,
         auth,
         history: options.history,
+        queryParams: options.queryParams,
         setBeforeLeaveHandler: (handler) => {
             window.onbeforeunload = handler
         },
@@ -187,6 +190,8 @@ export function createServices(options: {
         userManagement,
         contentSharing: new ContentSharingService({
             backend: contentSharingBackend,
+            router,
+            storage: options.storage.serverModules,
         }),
         contentConversations: new ContentConversationsService({
             storage: options.storage.serverModules.contentConversations,
