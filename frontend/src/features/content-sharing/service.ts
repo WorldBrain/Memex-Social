@@ -64,15 +64,10 @@ export class ContentSharingService {
             return resultString('no-key-present')
         }
 
-        try {
-            const { success } = await this.backend.processListKey({
-                listId: routeMatch.params.id,
-                keyString,
-            })
-            return resultString(success ? 'success' : 'denied')
-        } catch (e) {
-            console.log(e)
-            return resultString('error')
-        }
+        const { success } = await this.backend.processListKey({
+            listId: routeMatch.params.id,
+            keyString,
+        })
+        return resultString(success ? 'success' : 'denied')
     }
 }

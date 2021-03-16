@@ -46,7 +46,9 @@ export default class RouterService {
     }
 
     matchCurrentUrl(): { route: RouteName; params: { [key: string]: string } } {
-        const parsed = this.matchUrl(window.location.href)
+        const parsed = this.matchUrl(
+            window.location.origin + this.options.history.location.pathname,
+        )
         if (!parsed) {
             throw new Error(
                 `Tried to parse current URL, both are no routes matching current URL`,

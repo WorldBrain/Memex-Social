@@ -8,6 +8,7 @@ import { createServices } from '../services'
 import { Services } from '../services/types'
 import { StorageHooksChangeWatcher } from '../storage/hooks'
 import FirebaseAuthService from '../services/auth/firebase'
+import { ProgramQueryParams } from '../setup/types'
 
 export interface StorageTestDevice {
     storage: Storage
@@ -21,6 +22,7 @@ type StorageTestDeviceWithCleanup = StorageTestDevice & {
     cleanup: () => Promise<void>
 }
 export interface StorageTestDeviceOptions {
+    queryParams?: ProgramQueryParams
     withTestUser?: boolean | { uid: string }
     printProjectId?: boolean
 }
@@ -71,6 +73,7 @@ async function createMemoryTestDevice(
     const services = createServices({
         backend: 'memory',
         storage,
+        queryParams: testOptions.queryParams ?? {},
         history: null!,
         uiMountPoint: null!,
         localStorage: null!,
@@ -152,6 +155,7 @@ async function createFirebaseTestDevice(
         backend: 'memory',
         firebase: firebaseApp as any,
         storage,
+        queryParams: testOptions.queryParams ?? {},
         history: null!,
         uiMountPoint: null!,
         localStorage: null!,

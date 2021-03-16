@@ -29,6 +29,7 @@ export interface CollectionDetailsDependencies {
     services: UIElementServices<
         | 'auth'
         | 'overlay'
+        | 'contentSharing'
         | 'contentConversations'
         | 'activityStreams'
         | 'router'
@@ -51,6 +52,11 @@ export type CollectionDetailsState = AnnotationConversationsState &
     ActivityFollowsState & {
         listLoadState: UITaskState
         followLoadState: UITaskState
+
+        permissionKeyState: UITaskState
+        permissionKeyResult?: 'no-key-present' | 'success' | 'denied'
+        showPermissionKeyIssue?: boolean
+
         annotationEntriesLoadState: UITaskState
         annotationLoadStates: { [normalizedPageUrl: string]: UITaskState }
         listData?: {
@@ -75,6 +81,7 @@ export type CollectionDetailsEvent = UIEvent<
             togglePageAnnotations: { normalizedUrl: string }
             toggleAllAnnotations: {}
             loadListData: { listID: string }
+            processPermissionKey: {}
             pageBreakpointHit: { entryIndex: number }
             clickFollowBtn: null
         }

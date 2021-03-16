@@ -30,6 +30,7 @@ import ErrorWithAction from '../../../../../common-ui/components/error-with-acti
 import ErrorBox from '../../../../../common-ui/components/error-box'
 import FollowBtn from '../../../../activity-follows/ui/components/follow-btn'
 import WebMonetizationIcon from '../../../../web-monetization/ui/components/web-monetization-icon'
+import Overlay from '../../../../../main-ui/containers/overlay'
 const commentImage = require('../../../../../assets/img/comment.svg')
 
 const DocumentView = styled.div`
@@ -205,6 +206,7 @@ export default class CollectionDetailsPage extends UIElement<
             <FollowBtn
                 onClick={() => this.processEvent('clickFollowBtn', null)}
                 isFollowed={this.state.isCollectionFollowed}
+                isContributor={this.state.permissionKeyResult === 'success'}
                 loadState={this.state.followLoadState}
             />
         )
@@ -267,6 +269,30 @@ export default class CollectionDetailsPage extends UIElement<
         )
         const annotation = state.annotations[annotationID]
         return annotation ?? null
+    }
+
+    renderOverlay() {
+        if (this.state.permissionKeyState === 'error') {
+            return (
+                <Overlay
+                    services={this.props.services}
+                    onCloseRequested={() => {}}
+                >
+                    Error trying to process your key
+                </Overlay>
+            )
+        }
+        if (this.state.permissionKeyResult === 'denied') {
+            return (
+                <Overlay
+                    services={this.props.services}
+                    onCloseRequested={() => {}}
+                >
+                    Invalid key
+                </Overlay>
+            )
+        }
+        return null
     }
 
     render() {
@@ -336,6 +362,7 @@ export default class CollectionDetailsPage extends UIElement<
                     documentTitle={this.props.services.documentTitle}
                     subTitle={data.list.title}
                 />
+                {this.renderOverlay()}
                 <DefaultPageLayout
                     services={this.props.services}
                     storage={this.props.storage}

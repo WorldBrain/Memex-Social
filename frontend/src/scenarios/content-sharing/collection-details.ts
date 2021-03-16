@@ -4,7 +4,10 @@ import {
     CollectionDetailsEvent,
     CollectionDetailsSignal,
 } from '../../features/content-sharing/ui/pages/collection-details/types'
-import { SharedAnnotationReference } from '@worldbrain/memex-common/lib/content-sharing/types'
+import {
+    SharedAnnotationReference,
+    SharedListRoleID,
+} from '@worldbrain/memex-common/lib/content-sharing/types'
 import { WebMonetizationEvents } from '../../features/web-monetization/service/types'
 
 type Targets = {
@@ -740,7 +743,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
             ],
         }),
     ),
-    'profile-popup-sabotage-loading': scenario<Targets>(
+    'profile-popup-load-error': scenario<Targets>(
         ({ step, callModification }) => ({
             fixture: 'annotated-list-with-user',
             authenticated: true,
@@ -771,7 +774,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
             ],
         }),
     ),
-    'web-monetization-initial-load-error': scenario<Targets>(
+    'web-monetization-load-error': scenario<Targets>(
         ({ step, callModification }) => ({
             fixture: 'annotated-list-with-user-and-follows',
             authenticated: true,
@@ -789,17 +792,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                     }),
                 ],
             },
-            steps: [
-                step({
-                    name: 'profile-loaded',
-                    callModifications: ({ storage }) => [
-                        {
-                            name: 'profile-error',
-                            modifier: 'undo',
-                        },
-                    ],
-                }),
-            ],
+            steps: [],
         }),
     ),
     'web-monetization-make-payment': scenario<Targets>(
@@ -820,4 +813,95 @@ export const SCENARIOS: ScenarioMap<Targets> = {
             ],
         }),
     ),
+    'permission-key-accepted': scenario<Targets>(
+        ({ step, callModification }) => ({
+            fixture: 'annotated-list-with-user-and-follows',
+            startRoute: {
+                route: 'collectionDetails',
+                params: { id: 'default-list' },
+            },
+            setup: {
+                execute: async ({ services }) => {
+                    await services.auth.loginWithEmailPassword({
+                        email: 'default-user',
+                        password: 'testing',
+                    })
+                    const {
+                        keyString,
+                    } = await services.contentSharing.generateKeyLink({
+                        key: { roleID: SharedListRoleID.AddOnly },
+                        listReference: {
+                            type: 'shared-list-reference',
+                            id: 'default-list',
+                        },
+                    })
+                    await services.auth.logout()
+                    await services.auth.loginWithEmailPassword({
+                        email: 'two@test.com',
+                        password: 'testing',
+                    })
+                    services.router.getQueryParam = () => {
+                        return keyString
+                    }
+                },
+                callModifications: ({ services }) => [
+                    callModification({
+                        name: 'key-processing',
+                        object: services.contentSharing,
+                        property: 'processCurrentKey',
+                        modifier: 'block',
+                    }),
+                ],
+            },
+            steps: [
+                step({
+                    name: 'key-processed',
+                    callModifications: () => [
+                        {
+                            name: 'key-processing',
+                            modifier: 'undo',
+                        },
+                    ],
+                }),
+            ],
+        }),
+    ),
+    'permission-key-denied': scenario<Targets>(
+        ({ step, callModification }) => ({
+            fixture: 'annotated-list-with-user-and-follows',
+            startRoute: {
+                route: 'collectionDetails',
+                params: { id: 'default-list' },
+            },
+            setup: {
+                execute: async ({ services }) => {
+                    await services.auth.loginWithEmailPassword({
+                        email: 'two@test.com',
+                        password: 'testing',
+                    })
+                    services.router.getQueryParam = () => 'invalid-key'
+                },
+            },
+            steps: [],
+        }),
+    ),
+    'permission-key-error': scenario<Targets>(({ step, callModification }) => ({
+        fixture: 'annotated-list-with-user-and-follows',
+        authenticated: true,
+        startRoute: {
+            route: 'collectionDetails',
+            params: { id: 'default-list' },
+        },
+        setup: {
+            callModifications: ({ services }) => [
+                callModification({
+                    name: 'process-key-error',
+                    object: services.contentSharing,
+                    property: 'processCurrentKey',
+                    modifier: 'sabotage',
+                }),
+            ],
+        },
+        steps: [],
+    })),
 }

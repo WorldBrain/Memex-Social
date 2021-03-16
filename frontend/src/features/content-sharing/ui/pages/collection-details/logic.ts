@@ -94,6 +94,7 @@ export default class CollectionDetailsLogic extends UILogic<
         return {
             listLoadState: 'pristine',
             followLoadState: 'pristine',
+            permissionKeyState: 'pristine',
             annotationEntriesLoadState: 'pristine',
             annotationLoadStates: {},
             annotations: {},
@@ -106,12 +107,37 @@ export default class CollectionDetailsLogic extends UILogic<
     }
 
     init: EventHandler<'init'> = async (incoming) => {
-        await this.processUIEvent('loadListData', {
-            ...incoming,
-            event: { listID: this.dependencies.listID },
-        })
+        await Promise.all([
+            await this.processUIEvent('loadListData', {
+                ...incoming,
+                event: { listID: this.dependencies.listID },
+            }),
+            await this.processUIEvent('processPermissionKey', {
+                ...incoming,
+                event: {},
+            }),
+        ])
         await this.processUIEvent('initActivityFollows', incoming)
         await this.loadFollowBtnState()
+    }
+
+    processPermissionKey: EventHandler<'processPermissionKey'> = async (
+        incoming,
+    ) => {
+        await executeUITask<CollectionDetailsState>(
+            this,
+            'permissionKeyState',
+            async () => {
+                const {
+                    result,
+                } = await this.dependencies.services.contentSharing.processCurrentKey()
+                return {
+                    mutation: {
+                        permissionKeyResult: { $set: result },
+                    },
+                }
+            },
+        )
     }
 
     loadListData: EventHandler<'loadListData'> = async ({ event }) => {

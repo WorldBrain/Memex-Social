@@ -150,6 +150,8 @@ export function createServices(options: {
         options.backend === 'memory'
             ? new ContentSharingBackend({
                   contentSharing: options.storage.serverModules.contentSharing,
+                  activityFollows:
+                      options.storage.serverModules.activityFollows,
                   userMessages,
                   getCurrentUserId: async () =>
                       auth.getCurrentUserReference()?.id ?? null,
