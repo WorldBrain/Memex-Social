@@ -124,8 +124,11 @@ const EmptyListBox = styled.div`
     text-align: center;
 `
 
-const OverlayInternalBox = styled.div`
-    width: 800px;
+const OverlayInternalBox = styled.div<{
+    viewportWidth: ViewportBreakpoint
+}>`
+    max-width: 800px;
+    min-width: 70%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -135,6 +138,17 @@ const OverlayInternalBox = styled.div`
     > * {
         font-family: ${(props) => props.theme.fonts.primary};
     }
+
+    ${(props) =>
+      props.viewportWidth === 'small' &&
+      css`
+          max-width: 90%;
+      `}
+    ${(props) =>
+        props.viewportWidth === 'mobile' &&
+          css`
+              max-width: 90%;
+          `}
 `
 const InternalBoxTitle = styled.div`
     font-weight: bold;
@@ -340,6 +354,11 @@ export default class CollectionDetailsPage extends UIElement<
     }
 
     renderOverlay() {
+
+        const viewportBreakpoint = getViewportBreakpoint(
+            this.getViewportWidth(),
+        )
+
         if (this.state.permissionKeyState === 'error') {
             return (
                 <Overlay
@@ -379,7 +398,7 @@ export default class CollectionDetailsPage extends UIElement<
                     services={this.props.services}
                     onCloseRequested={this.props.onCloseRequested}
                 >
-                    <OverlayInternalBox>
+                    <OverlayInternalBox viewportBreakpoint={viewportBreakpoint}>
                         <InternalBoxTitle>
                             Invite link invalid
                         </InternalBoxTitle>
@@ -412,7 +431,7 @@ export default class CollectionDetailsPage extends UIElement<
                     services={this.props.services}
                     onCloseRequested={() => {}}
                 >
-                    <OverlayInternalBox>
+                    <OverlayInternalBox viewportBreakpoint={viewportBreakpoint}>
                         <InternalBoxTitle>
                             You’re now a Contributor to this collection
                         </InternalBoxTitle>
@@ -453,7 +472,7 @@ export default class CollectionDetailsPage extends UIElement<
                     services={this.props.services}
                     onCloseRequested={() => {}}
                 >
-                    <OverlayInternalBox>
+                    <OverlayInternalBox viewportBreakpoint={viewportBreakpoint}>
                         <InternalBoxTitle>
                             You've been invited as a Contributor to this collection
                         </InternalBoxTitle>
@@ -494,7 +513,7 @@ export default class CollectionDetailsPage extends UIElement<
                     services={this.props.services}
                     onCloseRequested={() => {}}
                 >
-                    <OverlayInternalBox>
+                    <OverlayInternalBox viewportBreakpoint={viewportBreakpoint}>
                         <InternalBoxTitle>
                             Install the Memex Browser extension<br/>to add pages and annotations
                         </InternalBoxTitle>
