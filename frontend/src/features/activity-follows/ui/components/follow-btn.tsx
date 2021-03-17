@@ -21,7 +21,11 @@ const Container = styled.button<{
     height: 34px;
     cursor: pointer;
     outline: none;
+    justify-content: center;
+    align-items: center;
+    display: flex;
 `
+
 
 const PlusIcon = styled.span`
     padding-right: 5px;
