@@ -11,6 +11,7 @@ import {
     SharedListEntry,
     SharedList,
     SharedListReference,
+    SharedListRoleID,
 } from '@worldbrain/memex-common/lib/content-sharing/types'
 import { UITaskState } from '../../../../../main-ui/types'
 import {
@@ -24,6 +25,7 @@ import {
     ActivityFollowsEvent,
 } from '../../../../activity-follows/ui/types'
 import { ProcessSharedListKeyResult } from '../../../service'
+import { SharedListRole } from '@worldbrain/memex-common/lib/web-interface/types/storex-generated/content-sharing'
 
 export interface CollectionDetailsDependencies {
     listID: string
@@ -57,6 +59,10 @@ export type CollectionDetailsState = AnnotationConversationsState &
         permissionKeyState: UITaskState
         permissionKeyResult?: ProcessSharedListKeyResult
         showPermissionKeyIssue?: boolean
+
+        listRolesLoadState: UITaskState
+        listRoleID?: SharedListRoleID
+        listRoles?: Array<SharedListRole & { user: UserReference }>
 
         annotationEntriesLoadState: UITaskState
         annotationLoadStates: { [normalizedPageUrl: string]: UITaskState }

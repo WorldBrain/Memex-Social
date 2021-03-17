@@ -31,6 +31,7 @@ import ErrorBox from '../../../../../common-ui/components/error-box'
 import FollowBtn from '../../../../activity-follows/ui/components/follow-btn'
 import WebMonetizationIcon from '../../../../web-monetization/ui/components/web-monetization-icon'
 import PermissionKeyOverlay from './permission-key-overlay'
+import { mergeTaskStates } from '../../../../../main-ui/classes/logic'
 const commentImage = require('../../../../../assets/img/comment.svg')
 
 const DocumentView = styled.div`
@@ -205,8 +206,14 @@ export default class CollectionDetailsPage extends UIElement<
             <FollowBtn
                 onClick={() => this.processEvent('clickFollowBtn', null)}
                 isFollowed={this.state.isCollectionFollowed}
-                isContributor={this.state.permissionKeyResult === 'success'}
-                loadState={this.state.followLoadState}
+                isContributor={
+                    this.state.permissionKeyResult === 'success' ||
+                    !!this.state.listRoleID
+                }
+                loadState={mergeTaskStates([
+                    this.state.followLoadState,
+                    this.state.listRolesLoadState,
+                ])}
             />
         )
     }

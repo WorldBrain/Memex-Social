@@ -110,3 +110,15 @@ export async function executeUITask<State extends {}>(
         return { success: false }
     }
 }
+
+export function mergeTaskStates(states: Array<UITaskState>): UITaskState {
+    const statesToCheck: Array<UITaskState> = ['pristine', 'running', 'error']
+    for (const stateToCheck of statesToCheck) {
+        for (const state of states) {
+            if (state === stateToCheck) {
+                return state
+            }
+        }
+    }
+    return 'success'
+}

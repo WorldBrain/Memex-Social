@@ -813,6 +813,61 @@ export const SCENARIOS: ScenarioMap<Targets> = {
             ],
         }),
     ),
+    collaborating: scenario<Targets>(({ step, callModification }) => ({
+        fixture: 'annotated-list-with-user-and-follows',
+        startRoute: {
+            route: 'collectionDetails',
+            params: { id: 'default-list' },
+        },
+        setup: {
+            execute: async ({ services }) => {
+                await services.auth.loginWithEmailPassword({
+                    email: 'default-user',
+                    password: 'testing',
+                })
+                const {
+                    keyString,
+                } = await services.contentSharing.generateKeyLink({
+                    key: { roleID: SharedListRoleID.AddOnly },
+                    listReference: {
+                        type: 'shared-list-reference',
+                        id: 'default-list',
+                    },
+                })
+                await services.auth.logout()
+                await services.auth.loginWithEmailPassword({
+                    email: 'two@test.com',
+                    password: 'testing',
+                })
+                services.router.getQueryParam = () => {
+                    return keyString
+                }
+                await services.contentSharing.processCurrentKey()
+                services.router.getQueryParam = () => {
+                    return null
+                }
+            },
+            callModifications: ({ storage, services }) => [
+                callModification({
+                    name: 'roles-loading',
+                    object: storage.serverModules.contentSharing,
+                    property: 'getListRoles',
+                    modifier: 'block',
+                }),
+            ],
+        },
+        steps: [
+            step({
+                name: 'roles-loaded',
+                callModifications: () => [
+                    {
+                        name: 'roles-loading',
+                        modifier: 'undo',
+                    },
+                ],
+            }),
+        ],
+    })),
     'permission-key-accepted': scenario<Targets>(
         ({ step, callModification }) => ({
             fixture: 'annotated-list-with-user-and-follows',
