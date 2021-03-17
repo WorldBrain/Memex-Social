@@ -1,5 +1,6 @@
 import { UIEvent } from '../../../../../main-ui/classes/logic'
 import { UITaskState } from '../../../../../main-ui/types'
+import { UIElementServices } from '../../../../../main-ui/classes'
 
 export type LinkAccessType = 'reader' | 'contributor'
 
@@ -9,7 +10,9 @@ export interface InviteLink {
 }
 
 export interface ListShareModalDependencies {
+    services: UIElementServices<'contentSharing' | 'overlay'>
     copyLink: (link: string) => void
+    onCloseRequested: () => void
 }
 
 export interface ListShareModalState {
