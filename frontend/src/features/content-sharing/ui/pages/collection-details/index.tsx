@@ -41,7 +41,6 @@ const braveLogo = require('../../../../../assets/img/logo-brave.svg')
 const firefoxLogo = require('../../../../../assets/img/logo-firefox.svg')
 const chromeLogo = require('../../../../../assets/img/logo-chrome.svg')
 
-
 // const CollectionDescriptionBox = styled.div<{
 //     viewportWidth: ViewportBreakpoint
 // }>`
@@ -125,7 +124,7 @@ const EmptyListBox = styled.div`
 `
 
 const OverlayInternalBox = styled.div<{
-    viewportWidth: ViewportBreakpoint
+    viewportBreakpoint: ViewportBreakpoint
 }>`
     max-width: 800px;
     min-width: 70%;
@@ -140,15 +139,15 @@ const OverlayInternalBox = styled.div<{
     }
 
     ${(props) =>
-      props.viewportWidth === 'small' &&
-      css`
-          max-width: 90%;
-      `}
+        props.viewportBreakpoint === 'small' &&
+        css`
+            max-width: 90%;
+        `}
     ${(props) =>
-        props.viewportWidth === 'mobile' &&
-          css`
-              max-width: 90%;
-          `}
+        props.viewportBreakpoint === 'mobile' &&
+        css`
+            max-width: 90%;
+        `}
 `
 const InternalBoxTitle = styled.div`
     font-weight: bold;
@@ -354,7 +353,6 @@ export default class CollectionDetailsPage extends UIElement<
     }
 
     renderOverlay() {
-
         const viewportBreakpoint = getViewportBreakpoint(
             this.getViewportWidth(),
         )
@@ -365,28 +363,36 @@ export default class CollectionDetailsPage extends UIElement<
                     services={this.props.services}
                     onCloseRequested={() => {}}
                 >
-                    <OverlayInternalBox>
+                    <OverlayInternalBox viewportBreakpoint={viewportBreakpoint}>
                         <InternalBoxTitle>
                             Error opening invite link
                         </InternalBoxTitle>
-                        <Margin top='smallest'>
-                        <InternalBoxSubTitle>
-                            There has been an error with this link. <br/> Try again and contact support if the problem persists.
-                        </InternalBoxSubTitle>
+                        <Margin top="smallest">
+                            <InternalBoxSubTitle>
+                                There has been an error with this link. <br />{' '}
+                                Try again and contact support if the problem
+                                persists.
+                            </InternalBoxSubTitle>
                         </Margin>
-                        <Margin top='medium'>
-                        <ButtonsBox>
-                            <PrimaryButton
-                                onClick={()=>window.open('https://getmemex.com')}
-                            >
-                                Close
-                            </PrimaryButton>
-                            <SecondaryButton
-                                onClick={()=>window.open('mailto:support@worldbrain.io')}
-                            >
-                                Contact Support
-                            </SecondaryButton>
-                        </ButtonsBox>
+                        <Margin top="medium">
+                            <ButtonsBox>
+                                <PrimaryButton
+                                    onClick={() =>
+                                        window.open('https://getmemex.com')
+                                    }
+                                >
+                                    Close
+                                </PrimaryButton>
+                                <SecondaryButton
+                                    onClick={() =>
+                                        window.open(
+                                            'mailto:support@worldbrain.io',
+                                        )
+                                    }
+                                >
+                                    Contact Support
+                                </SecondaryButton>
+                            </ButtonsBox>
                         </Margin>
                     </OverlayInternalBox>
                 </Overlay>
@@ -396,26 +402,31 @@ export default class CollectionDetailsPage extends UIElement<
             return (
                 <Overlay
                     services={this.props.services}
-                    onCloseRequested={this.props.onCloseRequested}
+                    onCloseRequested={() => {}}
                 >
                     <OverlayInternalBox viewportBreakpoint={viewportBreakpoint}>
-                        <InternalBoxTitle>
-                            Invite link invalid
-                        </InternalBoxTitle>
-                        <Margin top='small'>
-                        <InternalBoxSubTitle>
-                            The link you used is invalid or has been revoked by the creator.
-                        </InternalBoxSubTitle>
+                        <InternalBoxTitle>Invite link invalid</InternalBoxTitle>
+                        <Margin top="small">
+                            <InternalBoxSubTitle>
+                                The link you used is invalid or has been revoked
+                                by the creator.
+                            </InternalBoxSubTitle>
                         </Margin>
                         <Margin top={'medium'}>
                             <ButtonsBox>
                                 <PrimaryButton
-                                    onClick={()=>window.open('https://getmemex.com')}
+                                    onClick={() =>
+                                        window.open('https://getmemex.com')
+                                    }
                                 >
                                     Close
                                 </PrimaryButton>
                                 <SecondaryButton
-                                    onClick={()=>window.open('mailto:support@worldbrain.io')}
+                                    onClick={() =>
+                                        window.open(
+                                            'mailto:support@worldbrain.io',
+                                        )
+                                    }
                                 >
                                     Contact Support
                                 </SecondaryButton>
@@ -436,30 +447,31 @@ export default class CollectionDetailsPage extends UIElement<
                             You’re now a Contributor to this collection
                         </InternalBoxTitle>
                         <Margin top={'small'}>
-                        <InternalBoxSubTitle>
-                            Install the Memex Browser extension to add pages and annotations
-                        </InternalBoxSubTitle>
+                            <InternalBoxSubTitle>
+                                Install the Memex Browser extension to add pages
+                                and annotations
+                            </InternalBoxSubTitle>
                         </Margin>
                         <Margin top={'small'}>
-                        <BrowserIconsBox>
-                            <BrowserIcon src={braveLogo}/>
-                            <BrowserIcon src={firefoxLogo}/>
-                            <BrowserIcon src={chromeLogo}/>
-                        </BrowserIconsBox>
+                            <BrowserIconsBox>
+                                <BrowserIcon src={braveLogo} />
+                                <BrowserIcon src={firefoxLogo} />
+                                <BrowserIcon src={chromeLogo} />
+                            </BrowserIconsBox>
                         </Margin>
                         <Margin top={'medium'}>
-                        <ButtonsBox>
-                            <PrimaryButton
-                                onClick={()=>window.open('https://getmemex.com')}
-                            >
-                                Download
-                            </PrimaryButton>
-                            <SecondaryButton
-                                onClick={() => {}}
-                            >
-                                Continue without
-                            </SecondaryButton>
-                        </ButtonsBox>
+                            <ButtonsBox>
+                                <PrimaryButton
+                                    onClick={() =>
+                                        window.open('https://getmemex.com')
+                                    }
+                                >
+                                    Download
+                                </PrimaryButton>
+                                <SecondaryButton onClick={() => {}}>
+                                    Continue without
+                                </SecondaryButton>
+                            </ButtonsBox>
                         </Margin>
                     </OverlayInternalBox>
                 </Overlay>
@@ -474,40 +486,41 @@ export default class CollectionDetailsPage extends UIElement<
                 >
                     <OverlayInternalBox viewportBreakpoint={viewportBreakpoint}>
                         <InternalBoxTitle>
-                            You've been invited as a Contributor to this collection
+                            You've been invited as a Contributor to this
+                            collection
                         </InternalBoxTitle>
                         <Margin top={'small'}>
-                        <InternalBoxSubTitle>
-                            Log in or sign up to continue
-                        </InternalBoxSubTitle>
+                            <InternalBoxSubTitle>
+                                Log in or sign up to continue
+                            </InternalBoxSubTitle>
                         </Margin>
                         <Margin top={'small'}>
-                        <BrowserIconsBox>
-                            <BrowserIcon src={braveLogo}/>
-                            <BrowserIcon src={firefoxLogo}/>
-                            <BrowserIcon src={chromeLogo}/>
-                        </BrowserIconsBox>
+                            <BrowserIconsBox>
+                                <BrowserIcon src={braveLogo} />
+                                <BrowserIcon src={firefoxLogo} />
+                                <BrowserIcon src={chromeLogo} />
+                            </BrowserIconsBox>
                         </Margin>
                         <Margin top={'medium'}>
-                        <ButtonsBox>
-                            <PrimaryButton
-                                onClick={()=>window.open('https://getmemex.com')}
-                            >
-                                Download
-                            </PrimaryButton>
-                            <SecondaryButton
-                                onClick={() => {}}
-                            >
-                                Continue without
-                            </SecondaryButton>
-                        </ButtonsBox>
+                            <ButtonsBox>
+                                <PrimaryButton
+                                    onClick={() =>
+                                        window.open('https://getmemex.com')
+                                    }
+                                >
+                                    Download
+                                </PrimaryButton>
+                                <SecondaryButton onClick={() => {}}>
+                                    Continue without
+                                </SecondaryButton>
+                            </ButtonsBox>
                         </Margin>
                     </OverlayInternalBox>
                 </Overlay>
             )
         }
 
-         if (this.state.permissionKeyResult === 'no-key-present' ) {
+        if (this.state.permissionKeyResult === 'no-key-present') {
             return (
                 <Overlay
                     services={this.props.services}
@@ -515,28 +528,30 @@ export default class CollectionDetailsPage extends UIElement<
                 >
                     <OverlayInternalBox viewportBreakpoint={viewportBreakpoint}>
                         <InternalBoxTitle>
-                            Install the Memex Browser extension<br/>to add pages and annotations
+                            Install the Memex Browser extension
+                            <br />
+                            to add pages and annotations
                         </InternalBoxTitle>
                         <Margin top={'small'}>
-                        <BrowserIconsBox>
-                            <BrowserIcon src={braveLogo}/>
-                            <BrowserIcon src={firefoxLogo}/>
-                            <BrowserIcon src={chromeLogo}/>
-                        </BrowserIconsBox>
+                            <BrowserIconsBox>
+                                <BrowserIcon src={braveLogo} />
+                                <BrowserIcon src={firefoxLogo} />
+                                <BrowserIcon src={chromeLogo} />
+                            </BrowserIconsBox>
                         </Margin>
                         <Margin top={'medium'}>
-                        <ButtonsBox>
-                            <PrimaryButton
-                                onClick={()=>window.open('https://getmemex.com')}
-                            >
-                                Download
-                            </PrimaryButton>
-                            <SecondaryButton
-                                onClick={() => {}}
-                            >
-                                Continue without
-                            </SecondaryButton>
-                        </ButtonsBox>
+                            <ButtonsBox>
+                                <PrimaryButton
+                                    onClick={() =>
+                                        window.open('https://getmemex.com')
+                                    }
+                                >
+                                    Download
+                                </PrimaryButton>
+                                <SecondaryButton onClick={() => {}}>
+                                    Continue without
+                                </SecondaryButton>
+                            </ButtonsBox>
                         </Margin>
                     </OverlayInternalBox>
                 </Overlay>
