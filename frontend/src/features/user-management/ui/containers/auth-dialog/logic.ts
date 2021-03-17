@@ -33,9 +33,15 @@ export default class AuthDialogLogic extends UILogic<
         const { auth } = this.dependencies.services
         auth.events.on('authRequested', (event) => {
             this.emitAuthResult = event.emitResult
-            this._setMode(
-                event.reason === 'login-requested' ? 'login' : 'register',
-            )
+            this.emitMutation({
+                mode: {
+                    $set:
+                        event.reason === 'login-requested'
+                            ? 'login'
+                            : 'register',
+                },
+                header: { $set: event.header ?? undefined },
+            })
         })
     }
 
@@ -46,6 +52,7 @@ export default class AuthDialogLogic extends UILogic<
             email: '',
             password: '',
             displayName: '',
+            header: null,
         }
     }
 
@@ -64,7 +71,11 @@ export default class AuthDialogLogic extends UILogic<
             return
         }
 
-        this._setMode(previousState.mode === 'register' ? 'login' : 'register')
+        this.emitMutation({
+            mode: {
+                $set: previousState.mode === 'register' ? 'login' : 'register',
+            },
+        })
     }
 
     editEmail: EventHandler<'editEmail'> = ({ event }) => {
@@ -92,7 +103,7 @@ export default class AuthDialogLogic extends UILogic<
                 if (result.status === 'error') {
                     this.emitMutation({ error: { $set: result.reason } })
                 } else {
-                    this._setMode('profile')
+                    this.emitMutation({ mode: { $set: 'profile' } })
                 }
             } else if (previousState.mode === 'login') {
                 const { result } = await auth.loginWithEmailPassword(
@@ -105,7 +116,7 @@ export default class AuthDialogLogic extends UILogic<
                 if ((await auth.getCurrentUser())?.displayName) {
                     this._result({ status: 'authenticated' })
                 } else {
-                    this._setMode('profile')
+                    this.emitMutation({ mode: { $set: 'profile' } })
                 }
             }
         })
@@ -151,12 +162,8 @@ export default class AuthDialogLogic extends UILogic<
         })
     }
 
-    _setMode(mode: AuthDialogMode) {
-        this.emitMutation({ mode: { $set: mode } })
-    }
-
     _result(result: AuthResult) {
-        this._setMode('hidden')
+        this.emitMutation({ mode: { $set: 'hidden' } })
         this.emitAuthResult?.(result)
         delete this.emitAuthResult
     }

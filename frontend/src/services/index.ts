@@ -193,6 +193,7 @@ export function createServices(options: {
         contentSharing: new ContentSharingService({
             backend: contentSharingBackend,
             router,
+            isAuthenticated: () => !!auth.getCurrentUser(),
             storage: options.storage.serverModules,
         }),
         contentConversations: new ContentConversationsService({

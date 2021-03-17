@@ -866,6 +866,37 @@ export const SCENARIOS: ScenarioMap<Targets> = {
             ],
         }),
     ),
+    'permission-key-unauthenticated': scenario<Targets>(
+        ({ step, callModification }) => ({
+            fixture: 'annotated-list-with-user-and-follows',
+            startRoute: {
+                route: 'collectionDetails',
+                params: { id: 'default-list' },
+            },
+            setup: {
+                execute: async ({ services }) => {
+                    await services.auth.loginWithEmailPassword({
+                        email: 'default-user',
+                        password: 'testing',
+                    })
+                    const {
+                        keyString,
+                    } = await services.contentSharing.generateKeyLink({
+                        key: { roleID: SharedListRoleID.AddOnly },
+                        listReference: {
+                            type: 'shared-list-reference',
+                            id: 'default-list',
+                        },
+                    })
+                    await services.auth.logout()
+                    services.router.getQueryParam = () => {
+                        return keyString
+                    }
+                },
+            },
+            steps: [],
+        }),
+    ),
     'permission-key-denied': scenario<Targets>(
         ({ step, callModification }) => ({
             fixture: 'annotated-list-with-user-and-follows',

@@ -6,6 +6,12 @@ import {
 import RouterService from '../../services/router'
 import ContentSharingStorage from './storage'
 
+export type ProcessSharedListKeyResult =
+    | 'no-key-present'
+    | 'not-authenticated'
+    | 'success'
+    | 'denied'
+
 export class ContentSharingService {
     backend: ContentSharingBackendInterface
 
@@ -13,6 +19,7 @@ export class ContentSharingService {
         private dependencies: {
             backend: ContentSharingBackendInterface
             router: RouterService
+            isAuthenticated: () => boolean
             storage: {
                 contentSharing: Pick<ContentSharingStorage, 'createListKey'>
             }
@@ -52,22 +59,23 @@ export class ContentSharingService {
         }
     }
 
-    async processCurrentKey() {
-        const resultString = <S extends string>(s: S) => ({ result: s })
-
+    async processCurrentKey(): Promise<{ result: ProcessSharedListKeyResult }> {
         const routeMatch = this.dependencies.router.matchCurrentUrl()
         if (routeMatch.route !== 'collectionDetails') {
-            return resultString('no-key-present')
+            return { result: 'no-key-present' }
         }
         const keyString = this.dependencies.router.getQueryParam('key')
         if (!keyString) {
-            return resultString('no-key-present')
+            return { result: 'no-key-present' }
+        }
+        if (!this.dependencies.isAuthenticated()) {
+            return { result: 'not-authenticated' }
         }
 
         const { success } = await this.backend.processListKey({
             listId: routeMatch.params.id,
             keyString,
         })
-        return resultString(success ? 'success' : 'denied')
+        return { result: success ? 'success' : 'denied' }
     }
 }

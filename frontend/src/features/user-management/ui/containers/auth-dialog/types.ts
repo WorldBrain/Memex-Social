@@ -1,7 +1,7 @@
 import { UIEvent, UISignal } from '../../../../../main-ui/classes/logic'
 import { UIElementServices } from '../../../../../main-ui/classes'
 import { AuthProvider } from '../../../../../types/auth'
-import { AuthError } from '../../../../../services/auth/types'
+import { AuthError, AuthRequest } from '../../../../../services/auth/types'
 import { StorageModules } from '../../../../../storage/types'
 import { UITaskState } from '../../../../../main-ui/types'
 
@@ -13,6 +13,7 @@ export interface AuthDialogDependencies {
 export interface AuthDialogState {
     saveState: UITaskState
     mode: AuthDialogMode
+    header: AuthRequest['header'] | null
     email: string
     password: string
     displayName: string

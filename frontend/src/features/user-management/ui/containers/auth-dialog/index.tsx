@@ -60,6 +60,9 @@ const EmailPasswordError = styled.div`
     text-align: center;
 `
 
+const FormTitle = styled.div``
+const FormSubtitle = styled.div``
+
 // const SocialLogins = styled.div`
 //   display: flex;
 //   flex-direction: column;
@@ -95,6 +98,8 @@ export default class AuthDialog extends UIElement<
     }
 
     renderAuthError() {
+        const { state } = this
+
         const error = (text: string) => {
             return (
                 <Margin vertical={'medium'}>
@@ -103,13 +108,12 @@ export default class AuthDialog extends UIElement<
             )
         }
 
-        if (this.state.error) {
-            return error(FRIENDLY_ERRORS[this.state.error])
+        if (state.error) {
+            return error(FRIENDLY_ERRORS[state.error])
         }
 
-        if (this.state.saveState === 'error') {
-            const action =
-                this.state.mode === 'login' ? 'log you in' : 'sign you up'
+        if (state.saveState === 'error') {
+            const action = state.mode === 'login' ? 'log you in' : 'sign you up'
             return error(
                 `Something went wrong trying to ${action}. Please try again later.`,
             )
@@ -119,15 +123,23 @@ export default class AuthDialog extends UIElement<
     }
 
     renderAuthForm() {
-        // const onSocialLogin = (event: { provider: AuthProvider }) =>
-        //   this.processEvent("socialSignIn", event);
+        const { state } = this
+        const { header } = state
 
         return (
             <StyledAuthDialog>
+                {header && (
+                    <Margin bottom="largest">
+                        <FormTitle>{header.title}</FormTitle>
+                        {header.subtitle && (
+                            <FormSubtitle>{header.subtitle}</FormSubtitle>
+                        )}
+                    </Margin>
+                )}
                 <Margin bottom="medium">
                     <Header>
-                        {this.state.mode === 'login' && 'Login'}
-                        {this.state.mode === 'register' && 'Sign up'}
+                        {state.mode === 'login' && 'Login'}
+                        {state.mode === 'register' && 'Sign up'}
                     </Header>
                 </Margin>
                 <Margin top="large">
@@ -175,9 +187,8 @@ export default class AuthDialog extends UIElement<
                                         )
                                     }
                                 >
-                                    {this.state.mode === 'login' && 'Log in'}
-                                    {this.state.mode === 'register' &&
-                                        'Register'}
+                                    {state.mode === 'login' && 'Log in'}
+                                    {state.mode === 'register' && 'Register'}
                                 </Button>
                             </Margin>
                             {this.renderAuthError()}
@@ -207,7 +218,7 @@ export default class AuthDialog extends UIElement<
                     </AuthenticationMethods>
                 </Margin>
                 <Footer>
-                    {this.state.mode === 'login' && (
+                    {state.mode === 'login' && (
                         <>
                             Don’t have an account?{' '}
                             <ModeSwitch
@@ -219,7 +230,7 @@ export default class AuthDialog extends UIElement<
                             </ModeSwitch>
                         </>
                     )}
-                    {this.state.mode === 'register' && (
+                    {state.mode === 'register' && (
                         <>
                             Already have an account?{' '}
                             <ModeSwitch

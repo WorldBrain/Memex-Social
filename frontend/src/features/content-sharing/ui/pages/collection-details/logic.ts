@@ -107,15 +107,17 @@ export default class CollectionDetailsLogic extends UILogic<
     }
 
     init: EventHandler<'init'> = async (incoming) => {
+        // NOTE: Following promises are made to return void because
+        // without this the IDE slows down a lot trying to infer types
         await Promise.all([
             await this.processUIEvent('loadListData', {
                 ...incoming,
                 event: { listID: this.dependencies.listID },
-            }),
+            }).then(() => {}),
             await this.processUIEvent('processPermissionKey', {
                 ...incoming,
                 event: {},
-            }),
+            }).then(() => {}),
         ])
         await this.processUIEvent('initActivityFollows', incoming)
         await this.loadFollowBtnState()
@@ -131,13 +133,48 @@ export default class CollectionDetailsLogic extends UILogic<
                 const {
                     result,
                 } = await this.dependencies.services.contentSharing.processCurrentKey()
+                if (result !== 'not-authenticated') {
+                    return {
+                        mutation: {
+                            permissionKeyResult: { $set: result },
+                        },
+                    }
+                }
+                const {
+                    result: authResult,
+                } = await this.dependencies.services.auth.requestAuth({
+                    reason: 'login-requested',
+                    header: {
+                        title:
+                            'You’ve been invited as a Contributor to this collection',
+                        subtitle: 'Signup or login to continue',
+                    },
+                })
+                if (
+                    authResult.status === 'cancelled' ||
+                    authResult.status === 'error'
+                ) {
+                    return
+                }
+                const {
+                    result: secondKeyResult,
+                } = await this.dependencies.services.contentSharing.processCurrentKey()
                 return {
                     mutation: {
-                        permissionKeyResult: { $set: result },
+                        permissionKeyResult: { $set: secondKeyResult },
                     },
                 }
             },
         )
+    }
+
+    closePermissionOverlay: EventHandler<'closePermissionOverlay'> = (
+        incoming,
+    ) => {
+        return {
+            permissionKeyState: { $set: 'success' },
+            permissionKeyResult: { $set: 'no-key-present' },
+        }
     }
 
     loadListData: EventHandler<'loadListData'> = async ({ event }) => {

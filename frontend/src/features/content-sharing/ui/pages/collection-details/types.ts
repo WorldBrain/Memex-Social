@@ -23,6 +23,7 @@ import {
     ActivityFollowsState,
     ActivityFollowsEvent,
 } from '../../../../activity-follows/ui/types'
+import { ProcessSharedListKeyResult } from '../../../service'
 
 export interface CollectionDetailsDependencies {
     listID: string
@@ -54,7 +55,7 @@ export type CollectionDetailsState = AnnotationConversationsState &
         followLoadState: UITaskState
 
         permissionKeyState: UITaskState
-        permissionKeyResult?: 'no-key-present' | 'success' | 'denied'
+        permissionKeyResult?: ProcessSharedListKeyResult
         showPermissionKeyIssue?: boolean
 
         annotationEntriesLoadState: UITaskState
@@ -82,6 +83,7 @@ export type CollectionDetailsEvent = UIEvent<
             toggleAllAnnotations: {}
             loadListData: { listID: string }
             processPermissionKey: {}
+            closePermissionOverlay: {}
             pageBreakpointHit: { entryIndex: number }
             clickFollowBtn: null
         }
