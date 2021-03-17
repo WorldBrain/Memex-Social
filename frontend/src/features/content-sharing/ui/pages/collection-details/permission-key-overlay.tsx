@@ -217,43 +217,5 @@ export default function PermissionKeyOverlay(props: {
             </Overlay>
         )
     }
-
-    // if (props.permissionKeyResult === 'no-key-present') {
-    //     return (
-    //         <Overlay
-    //             services={props.services}
-    //             onCloseRequested={props.onCloseRequested}
-    //         >
-    //             <OverlayInternalBox viewportBreakpoint={props.viewportBreakpoint}>
-    //                 <InternalBoxTitle>
-    //                     Install the Memex Browser extension
-    //                     <br />
-    //                     to add pages and annotations
-    //                 </InternalBoxTitle>
-    //                 <Margin top={'small'}>
-    //                     <BrowserIconsBox>
-    //                         <BrowserIcon src={braveLogo} />
-    //                         <BrowserIcon src={firefoxLogo} />
-    //                         <BrowserIcon src={chromeLogo} />
-    //                     </BrowserIconsBox>
-    //                 </Margin>
-    //                 <Margin top={'medium'}>
-    //                     <ButtonsBox>
-    //                         <PrimaryButton
-    //                             onClick={() =>
-    //                                 window.open('https://getmemex.com')
-    //                             }
-    //                         >
-    //                             Download
-    //                         </PrimaryButton>
-    //                         <SecondaryButton onClick={() => {}}>
-    //                             Continue without
-    //                         </SecondaryButton>
-    //                     </ButtonsBox>
-    //                 </Margin>
-    //             </OverlayInternalBox>
-    //         </Overlay>
-    //     )
-    // }
     return null
 }
