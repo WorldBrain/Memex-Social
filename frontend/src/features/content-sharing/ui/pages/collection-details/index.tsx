@@ -5,6 +5,7 @@ import { Margin } from 'styled-components-spacing'
 import { UIElement } from '../../../../../main-ui/classes'
 import Logic from './logic'
 import LoadingIndicator from '../../../../../common-ui/components/loading-indicator'
+import Icon from '../../../../../common-ui/components/icon'
 import {
     CollectionDetailsEvent,
     CollectionDetailsDependencies,
@@ -32,6 +33,7 @@ import FollowBtn from '../../../../activity-follows/ui/components/follow-btn'
 import WebMonetizationIcon from '../../../../web-monetization/ui/components/web-monetization-icon'
 import PermissionKeyOverlay from './permission-key-overlay'
 import { mergeTaskStates } from '../../../../../main-ui/classes/logic'
+import { UserReference } from '../../../../user-management/types'
 const commentImage = require('../../../../../assets/img/comment.svg')
 
 const DocumentView = styled.div`
@@ -146,6 +148,11 @@ export default class CollectionDetailsPage extends UIElement<
         }
     }
 
+    private isCurrentUser({ id: userId }: UserReference): boolean {
+        const currentUserReference = this.props.services.auth.getCurrentUserReference()
+        return currentUserReference?.id === userId
+    }
+
     renderPageEntry(entry: SharedListEntry) {
         return (
             <PageInfoBox
@@ -158,16 +165,32 @@ export default class CollectionDetailsPage extends UIElement<
         )
     }
 
-    renderWebMonetizationIcon() {
-        if (this.state.listData?.creatorReference) {
+    private renderWebMonetizationIcon() {
+        const creatorReference = this.state.listData?.creatorReference
+
+        if (!creatorReference) {
+            return
+        }
+
+        if (this.isCurrentUser(creatorReference)) {
             return (
-                <WebMonetizationIcon
-                    services={this.props.services}
-                    storage={this.props.storage}
-                    curatorUserRef={this.state.listData?.creatorReference}
+                <Icon
+                    height="34px"
+                    fileName="camera.svg"
+                    onClick={() =>
+                        this.processEvent('toggleListShareModal', {})
+                    }
                 />
             )
         }
+
+        return (
+            <WebMonetizationIcon
+                services={this.props.services}
+                storage={this.props.storage}
+                curatorUserRef={creatorReference}
+            />
+        )
     }
 
     getPageEntryActions(

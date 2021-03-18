@@ -77,6 +77,7 @@ export type CollectionDetailsState = AnnotationConversationsState &
         }
         isCollectionFollowed: boolean
         allAnnotationExpanded: boolean
+        isListShareModalShown: boolean
         pageAnnotationsExpanded: { [normalizedPageUrl: string]: true }
         annotationEntryData?: GetAnnotationListEntriesResult
         annotations: GetAnnotationsResult
@@ -88,6 +89,7 @@ export type CollectionDetailsEvent = UIEvent<
             toggleDescriptionTruncation: {}
             togglePageAnnotations: { normalizedUrl: string }
             toggleAllAnnotations: {}
+            toggleListShareModal: {}
             loadListData: { listID: string }
             processPermissionKey: {}
             closePermissionOverlay: {}
