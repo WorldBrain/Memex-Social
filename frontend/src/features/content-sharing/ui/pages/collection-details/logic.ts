@@ -115,11 +115,11 @@ export default class CollectionDetailsLogic extends UILogic<
         // NOTE: Following promises are made to return void because
         // without this the IDE slows down a lot trying to infer types
         await Promise.all([
-            await this.processUIEvent('loadListData', {
+            this.processUIEvent('loadListData', {
                 ...incoming,
                 event: { listID: this.dependencies.listID },
             }).then(() => {}),
-            await this.processUIEvent('processPermissionKey', {
+            this.processUIEvent('processPermissionKey', {
                 ...incoming,
                 event: {},
             }).then(() => {}),
@@ -255,6 +255,12 @@ export default class CollectionDetailsLogic extends UILogic<
                                         LIST_DESCRIPTION_CHAR_LIMIT,
                                     ),
                                 },
+                            },
+                            isListOwner: {
+                                $set:
+                                    result.creator.id ===
+                                    this.dependencies.services.auth.getCurrentUserReference()
+                                        ?.id,
                             },
                         },
                     }
@@ -433,6 +439,13 @@ export default class CollectionDetailsLogic extends UILogic<
             listID,
         } = this.dependencies
         let userReference = auth.getCurrentUserReference()
+
+        if (previousState.listRoleID) {
+            return
+        }
+        if (previousState.isListOwner) {
+            return
+        }
 
         // TODO: figure out what to properly do here
         if (userReference === null) {

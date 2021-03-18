@@ -26,7 +26,6 @@ const Container = styled.button<{
     display: flex;
 `
 
-
 const PlusIcon = styled.span`
     padding-right: 5px;
 `
@@ -36,19 +35,27 @@ const BtnText = styled.span``
 export interface Props {
     onClick: React.MouseEventHandler
     loadState: UITaskState
+    isOwner?: boolean
     isFollowed?: boolean
     isContributor?: boolean
 }
 
 export default class FollowBtn extends PureComponent<Props> {
     getText() {
-        if (this.props.isContributor) {
+        if (this.props.isOwner) {
+            return 'Owner'
+        } else if (this.props.isContributor) {
             return 'Contributor'
         } else if (this.props.isFollowed) {
             return 'Unfollow'
         } else {
             return 'Follow Updates'
         }
+    }
+
+    isActive() {
+        const { props } = this
+        return props.isFollowed || props.isContributor || props.isOwner
     }
 
     private renderBody() {
@@ -58,9 +65,7 @@ export default class FollowBtn extends PureComponent<Props> {
             return <LoadingIndicator />
         }
 
-        const isActive = props.isFollowed || props.isContributor
-        const icon = !isActive && '+'
-
+        const icon = !this.isActive() && '+'
         return (
             <>
                 {icon && <PlusIcon>{icon}</PlusIcon>}
@@ -71,9 +76,8 @@ export default class FollowBtn extends PureComponent<Props> {
 
     render() {
         const { props } = this
-        const isActive = (props.isFollowed || props.isContributor) ?? false
         return (
-            <Container isActive={isActive} onClick={this.props.onClick}>
+            <Container isActive={this.isActive()} onClick={this.props.onClick}>
                 {this.renderBody()}
             </Container>
         )

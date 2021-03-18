@@ -210,6 +210,7 @@ export default class CollectionDetailsPage extends UIElement<
                     this.state.permissionKeyResult === 'success' ||
                     !!this.state.listRoleID
                 }
+                isOwner={this.state.isListOwner}
                 loadState={mergeTaskStates([
                     this.state.followLoadState,
                     this.state.listRolesLoadState,
