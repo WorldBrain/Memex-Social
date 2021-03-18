@@ -2,7 +2,7 @@ import React from 'react'
 import styled, { css } from 'styled-components'
 
 interface StyledButtonProps {
-    type: 'primary-action' | 'small'
+    type: 'primary-action' | 'small' | 'alternative-small'
 }
 
 const VARIATIONS: {
@@ -13,6 +13,11 @@ const VARIATIONS: {
         font-size: 14px;
     `,
     small: css`
+        padding: 3px 10px;
+        font-size: 12px;
+    `,
+    'alternative-small': css`
+        background-color: none !important;
         padding: 3px 10px;
         font-size: 12px;
     `,

@@ -183,13 +183,15 @@ export default class CollectionDetailsPage extends UIElement<
 
         if (this.isCurrentUser(creatorReference)) {
             return (
-                <Icon
-                    height="34px"
-                    fileName="web-logo.svg"
-                    onClick={() =>
-                        this.processEvent('toggleListShareModal', {})
-                    }
-                />
+                <Margin right="medium">
+                    <Icon
+                        height="30px"
+                        fileName="addPeople.svg"
+                        onClick={() =>
+                            this.processEvent('toggleListShareModal', {})
+                        }
+                    />
+                </Margin>
             )
         }
 

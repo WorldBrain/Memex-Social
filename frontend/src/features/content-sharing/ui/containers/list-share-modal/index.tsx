@@ -37,24 +37,28 @@ export default class ListShareModal extends UIElement<
                 <DeleteModalContainer>
                     <Header>Sure you want to delete this link?</Header>
                     <Text>This action cannnot be undone.</Text>
-                    <DeleteModalBtnContainer>
-                        <Button
-                            type="small"
-                            onClick={() =>
-                                this.processEvent('confirmLinkDelete', null)
-                            }
-                        >
-                            Delete
-                        </Button>
-                        <Button
-                            type="small"
-                            onClick={() =>
-                                this.processEvent('cancelLinkDelete', null)
-                            }
-                        >
-                            Cancel
-                        </Button>
-                    </DeleteModalBtnContainer>
+                    <Margin top="medium">
+                        <DeleteModalBtnContainer>
+                            <Margin right="small">
+                            <Button
+                                type="small"
+                                onClick={() =>
+                                    this.processEvent('confirmLinkDelete', null)
+                                }
+                            >
+                                Delete
+                            </Button>
+                            </Margin>
+                            <Button
+                                type="alternative-small"
+                                onClick={() =>
+                                    this.processEvent('cancelLinkDelete', null)
+                                }
+                            >
+                                Cancel
+                            </Button>
+                        </DeleteModalBtnContainer>
+                    </Margin>
                 </DeleteModalContainer>
             </Overlay>
         )
@@ -206,9 +210,25 @@ const ModalContainer = styled.div`
     }
 `
 
-const DeleteModalContainer = styled.div``
+const DeleteModalContainer = styled(ModalContainer)`
+    align-items: flex-start;
+    justify-content: center;
 
-const DeleteModalBtnContainer = styled.div``
+    & span {
+        text-align: center;
+        width: 100%;
+    }
+
+    & > div {
+        width: 100%;
+    }
+`
+
+const DeleteModalBtnContainer = styled.div`
+    display: flex;
+    width: 100%;
+    justify-content: center;
+`
 
 const Header = styled.div`
     font-size: 18px;
