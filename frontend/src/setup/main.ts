@@ -44,6 +44,7 @@ export async function mainProgram(
     })
     const services = createServices({
         ...options,
+        queryParams: options.queryParams,
         history,
         storage,
         uiMountPoint,

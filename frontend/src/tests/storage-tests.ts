@@ -8,6 +8,7 @@ import { createServices } from '../services'
 import { Services } from '../services/types'
 import { StorageHooksChangeWatcher } from '../storage/hooks'
 import FirebaseAuthService from '../services/auth/firebase'
+import { ProgramQueryParams } from '../setup/types'
 
 export interface StorageTestDevice {
     storage: Storage
@@ -21,12 +22,16 @@ type StorageTestDeviceWithCleanup = StorageTestDevice & {
     cleanup: () => Promise<void>
 }
 export interface StorageTestDeviceOptions {
+    queryParams?: ProgramQueryParams
     withTestUser?: boolean | { uid: string }
     printProjectId?: boolean
 }
 export interface StorageTestContext extends StorageTestDevice {}
 export interface MultiDeviceStorageTestContext {
-    createDevice(options: StorageTestDeviceOptions): Promise<StorageTestDevice>
+    createDevice(options?: StorageTestDeviceOptions): Promise<StorageTestDevice>
+    createSuperuserDevice(options?: {
+        printProjectId?: boolean
+    }): Promise<StorageTestDevice>
 }
 
 export type StorageTest<Context = StorageTestContext> = (
@@ -38,7 +43,7 @@ export interface MultiDeviceStorageTestOptions {}
 export type StorageTestFactory<
     Context = StorageTestContext,
     Options = StorageTestOptions
-> = ((description: string, test: StorageTest) => void) &
+> = ((description: string, test: StorageTest<Context>) => void) &
     ((
         description: string,
         options: Options,
@@ -68,6 +73,7 @@ async function createMemoryTestDevice(
     const services = createServices({
         backend: 'memory',
         storage,
+        queryParams: testOptions.queryParams ?? {},
         history: null!,
         uiMountPoint: null!,
         localStorage: null!,
@@ -88,17 +94,24 @@ async function createMemoryTestDevice(
 }
 
 async function createFirebaseTestDevice(
-    testOptions: StorageTestOptions & { firebaseProjectId: string },
+    testOptions: StorageTestOptions & {
+        firebaseProjectId: string
+        superuser?: boolean
+    },
 ): Promise<StorageTestDeviceWithCleanup> {
     const userId = testOptions.withTestUser
         ? testOptions.withTestUser === true
             ? 'default-user'
             : testOptions.withTestUser.uid
         : undefined
-    const firebaseApp = firebase.initializeTestApp({
-        projectId: testOptions.firebaseProjectId,
-        auth: userId ? { uid: userId } : undefined,
-    })
+    const firebaseApp = testOptions.superuser
+        ? firebase.initializeAdminApp({
+              projectId: testOptions.firebaseProjectId,
+          })
+        : firebase.initializeTestApp({
+              projectId: testOptions.firebaseProjectId,
+              auth: userId ? { uid: userId } : undefined,
+          })
 
     const firestore = firebaseApp.firestore()
     const storageBackend = new FirestoreStorageBackend({
@@ -142,6 +155,7 @@ async function createFirebaseTestDevice(
         backend: 'memory',
         firebase: firebaseApp as any,
         storage,
+        queryParams: testOptions.queryParams ?? {},
         history: null!,
         uiMountPoint: null!,
         localStorage: null!,
@@ -208,6 +222,13 @@ export function createMultiDeviceStorageTestFactory(suiteOptions: {
                             createdDevices.push(device)
                             return device
                         },
+                        createSuperuserDevice: async () => {
+                            const device = await createMemoryTestDevice({
+                                storage,
+                            })
+                            createdDevices.push(device)
+                            return device
+                        },
                     })
                 } else if (suiteOptions.backend === 'firebase-emulator') {
                     const firebaseProjectId = `unit-test-${Date.now()}`
@@ -222,6 +243,15 @@ export function createMultiDeviceStorageTestFactory(suiteOptions: {
                             const device = await createFirebaseTestDevice({
                                 ...options,
                                 firebaseProjectId,
+                            })
+                            createdDevices.push(device)
+                            return device
+                        },
+                        createSuperuserDevice: async (options) => {
+                            const device = await createFirebaseTestDevice({
+                                ...options,
+                                firebaseProjectId,
+                                superuser: true,
                             })
                             createdDevices.push(device)
                             return device

@@ -1,6 +1,9 @@
 import chunk from 'lodash/chunk'
 import fromPairs from 'lodash/fromPairs'
-import { SharedAnnotationReference } from '@worldbrain/memex-common/lib/content-sharing/types'
+import {
+    SharedAnnotationReference,
+    SharedListReference,
+} from '@worldbrain/memex-common/lib/content-sharing/types'
 import {
     GetAnnotationListEntriesResult,
     GetAnnotationsResult,
@@ -32,6 +35,7 @@ import {
     activityFollowsEventHandlers,
 } from '../../../../activity-follows/ui/logic'
 import { UserReference } from '../../../../user-management/types'
+import { makeStorageReference } from '@worldbrain/memex-common/lib/storage/references'
 const truncate = require('truncate')
 
 const LIST_DESCRIPTION_CHAR_LIMIT = 200
@@ -94,6 +98,8 @@ export default class CollectionDetailsLogic extends UILogic<
         return {
             listLoadState: 'pristine',
             followLoadState: 'pristine',
+            permissionKeyState: 'pristine',
+            listRolesLoadState: 'pristine',
             annotationEntriesLoadState: 'pristine',
             annotationLoadStates: {},
             annotations: {},
@@ -106,17 +112,112 @@ export default class CollectionDetailsLogic extends UILogic<
     }
 
     init: EventHandler<'init'> = async (incoming) => {
-        await this.processUIEvent('loadListData', {
-            ...incoming,
-            event: { listID: this.dependencies.listID },
-        })
-        await this.processUIEvent('initActivityFollows', incoming)
-        await this.loadFollowBtnState()
+        // NOTE: Following promises are made to return void because
+        // without this the IDE slows down a lot trying to infer types
+        await Promise.all([
+            await this.processUIEvent('loadListData', {
+                ...incoming,
+                event: { listID: this.dependencies.listID },
+            }).then(() => {}),
+            await this.processUIEvent('processPermissionKey', {
+                ...incoming,
+                event: {},
+            }).then(() => {}),
+        ])
+
+        await Promise.all([
+            this.processUIEvent('initActivityFollows', incoming).then(() => {}),
+            this.loadFollowBtnState().then(() => {}),
+            this.loadListRoles(),
+        ])
+    }
+
+    processPermissionKey: EventHandler<'processPermissionKey'> = async (
+        incoming,
+    ) => {
+        await executeUITask<CollectionDetailsState>(
+            this,
+            'permissionKeyState',
+            async () => {
+                const {
+                    result,
+                } = await this.dependencies.services.contentSharing.processCurrentKey()
+                if (result !== 'not-authenticated') {
+                    return {
+                        mutation: {
+                            permissionKeyResult: { $set: result },
+                        },
+                    }
+                }
+                const {
+                    result: authResult,
+                } = await this.dependencies.services.auth.requestAuth({
+                    reason: 'login-requested',
+                    header: {
+                        title:
+                            'You’ve been invited as a Contributor to this collection',
+                        subtitle: 'Signup or login to continue',
+                    },
+                })
+                if (
+                    authResult.status === 'cancelled' ||
+                    authResult.status === 'error'
+                ) {
+                    return
+                }
+                const {
+                    result: secondKeyResult,
+                } = await this.dependencies.services.contentSharing.processCurrentKey()
+                return {
+                    mutation: {
+                        permissionKeyResult: { $set: secondKeyResult },
+                    },
+                }
+            },
+        )
+    }
+
+    closePermissionOverlay: EventHandler<'closePermissionOverlay'> = (
+        incoming,
+    ) => {
+        return {
+            permissionKeyState: { $set: 'success' },
+            permissionKeyResult: { $set: 'no-key-present' },
+        }
+    }
+
+    async loadListRoles() {
+        const listReference = makeStorageReference<SharedListReference>(
+            'shared-list-reference',
+            this.dependencies.listID,
+        )
+        await executeUITask<CollectionDetailsState>(
+            this,
+            'listRolesLoadState',
+            async () => {
+                const userReference = this.dependencies.services.auth.getCurrentUserReference()
+                const listRoles = await this.dependencies.storage.contentSharing.getListRoles(
+                    { listReference },
+                )
+                this.emitMutation({
+                    listRoleID: {
+                        $set:
+                            (userReference &&
+                                listRoles.find(
+                                    (role) => role.user.id === userReference.id,
+                                )?.roleID) ??
+                            undefined,
+                    },
+                    listRoles: { $set: listRoles },
+                })
+            },
+        )
     }
 
     loadListData: EventHandler<'loadListData'> = async ({ event }) => {
         const { contentSharing, users } = this.dependencies.storage
-        const listReference = contentSharing.getSharedListReferenceFromLinkID(
+        const listReference = makeStorageReference<SharedListReference>(
+            'shared-list-reference',
             event.listID,
         )
         const {

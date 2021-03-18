@@ -30,6 +30,8 @@ import ErrorWithAction from '../../../../../common-ui/components/error-with-acti
 import ErrorBox from '../../../../../common-ui/components/error-box'
 import FollowBtn from '../../../../activity-follows/ui/components/follow-btn'
 import WebMonetizationIcon from '../../../../web-monetization/ui/components/web-monetization-icon'
+import PermissionKeyOverlay from './permission-key-overlay'
+import { mergeTaskStates } from '../../../../../main-ui/classes/logic'
 const commentImage = require('../../../../../assets/img/comment.svg')
 
 const DocumentView = styled.div`
@@ -117,7 +119,6 @@ const EmptyListBox = styled.div`
     flex-direction: column;
     text-align: center;
 `
-
 export default class CollectionDetailsPage extends UIElement<
     CollectionDetailsDependencies,
     CollectionDetailsState,
@@ -205,7 +206,14 @@ export default class CollectionDetailsPage extends UIElement<
             <FollowBtn
                 onClick={() => this.processEvent('clickFollowBtn', null)}
                 isFollowed={this.state.isCollectionFollowed}
-                loadState={this.state.followLoadState}
+                isContributor={
+                    this.state.permissionKeyResult === 'success' ||
+                    !!this.state.listRoleID
+                }
+                loadState={mergeTaskStates([
+                    this.state.followLoadState,
+                    this.state.listRolesLoadState,
+                ])}
             />
         )
     }
@@ -335,6 +343,15 @@ export default class CollectionDetailsPage extends UIElement<
                 <DocumentTitle
                     documentTitle={this.props.services.documentTitle}
                     subTitle={data.list.title}
+                />
+                <PermissionKeyOverlay
+                    services={this.props.services}
+                    viewportBreakpoint={viewportBreakpoint}
+                    permissionKeyState={this.state.permissionKeyState}
+                    permissionKeyResult={this.state.permissionKeyResult}
+                    onCloseRequested={() =>
+                        this.processEvent('closePermissionOverlay', {})
+                    }
                 />
                 <DefaultPageLayout
                     services={this.props.services}

@@ -98,6 +98,7 @@ describe('Browser scenario tests', () => {
         auth: null as any,
         routes: ROUTES,
         setBeforeLeaveHandler: () => {},
+        queryParams: {},
     })
 
     function maybeIt(description: string, test: () => void) {

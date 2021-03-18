@@ -1,5 +1,452 @@
+rules_version = '2';
 service cloud.firestore {
-  match /{document=**} {
-    allow read, write; // or allow read, write: if true;
-  }
+    match /databases/{database}/documents {
+        match /activityFollow/{activityFollow} {
+            allow list: if 
+              // Permission rules
+              true
+            ;
+            allow get: if 
+              // Permission rules
+              true
+            ;
+            allow create: if 
+              // Type checks
+              request.resource.data.objectId is string &&
+              request.resource.data.collection is string &&
+              request.resource.data.createdWhen is timestamp &&
+            
+            
+              // Ownership rules
+              request.auth.uid == request.resource.data.user
+            ;
+            allow delete: if 
+              // Ownership rules
+              request.auth.uid == resource.data.user
+            ;
+        }
+        match /user/{id} {
+            allow get: if 
+              // Permission rules
+              true
+            ;
+            allow create: if 
+              // Type checks
+              (!('displayName' in request.resource.data.keys()) || request.resource.data.displayName == null || request.resource.data.displayName is string) &&
+            
+            
+              // Ownership rules
+              request.auth.uid == id
+            ;
+            allow update: if 
+              // Type checks
+              (!('displayName' in request.resource.data.keys()) || request.resource.data.displayName == null || request.resource.data.displayName is string) &&
+            
+            
+              // Ownership rules
+              request.auth.uid == id
+            ;
+        }
+        match /userPublicProfile/{user} {
+            allow get: if 
+              // Permission rules
+              true
+            ;
+            allow create: if 
+              // Type checks
+              (!('websiteURL' in request.resource.data.keys()) || request.resource.data.websiteURL == null || request.resource.data.websiteURL is string) &&
+              (!('mediumURL' in request.resource.data.keys()) || request.resource.data.mediumURL == null || request.resource.data.mediumURL is string) &&
+              (!('twitterURL' in request.resource.data.keys()) || request.resource.data.twitterURL == null || request.resource.data.twitterURL is string) &&
+              (!('substackURL' in request.resource.data.keys()) || request.resource.data.substackURL == null || request.resource.data.substackURL is string) &&
+              (!('bio' in request.resource.data.keys()) || request.resource.data.bio == null || request.resource.data.bio is string) &&
+              (!('avatarURL' in request.resource.data.keys()) || request.resource.data.avatarURL == null || request.resource.data.avatarURL is string) &&
+              (!('paymentPointer' in request.resource.data.keys()) || request.resource.data.paymentPointer == null || request.resource.data.paymentPointer is string) &&
+            
+            
+              // Ownership rules
+              request.auth.uid == user
+            ;
+            allow update: if 
+              // Type checks
+              (!('websiteURL' in request.resource.data.keys()) || request.resource.data.websiteURL == null || request.resource.data.websiteURL is string) &&
+              (!('mediumURL' in request.resource.data.keys()) || request.resource.data.mediumURL == null || request.resource.data.mediumURL is string) &&
+              (!('twitterURL' in request.resource.data.keys()) || request.resource.data.twitterURL == null || request.resource.data.twitterURL is string) &&
+              (!('substackURL' in request.resource.data.keys()) || request.resource.data.substackURL == null || request.resource.data.substackURL is string) &&
+              (!('bio' in request.resource.data.keys()) || request.resource.data.bio == null || request.resource.data.bio is string) &&
+              (!('avatarURL' in request.resource.data.keys()) || request.resource.data.avatarURL == null || request.resource.data.avatarURL is string) &&
+              (!('paymentPointer' in request.resource.data.keys()) || request.resource.data.paymentPointer == null || request.resource.data.paymentPointer is string) &&
+            
+            
+              // Ownership rules
+              request.auth.uid == user
+            ;
+        }
+        match /sharedList/{sharedList} {
+            allow list: if 
+              // Permission rules
+              true
+            ;
+            allow get: if 
+              // Permission rules
+              true
+            ;
+            allow create: if 
+              // Type checks
+              request.resource.data.createdWhen is timestamp &&
+              request.resource.data.updatedWhen is timestamp &&
+              request.resource.data.title is string &&
+              (!('description' in request.resource.data.keys()) || request.resource.data.description == null || request.resource.data.description is string) &&
+            
+            
+              // Ownership rules
+              request.auth.uid == request.resource.data.creator
+            ;
+            allow update: if 
+              // Type checks
+              (!('createdWhen' in request.resource.data.keys()) || request.resource.data.createdWhen is timestamp) &&
+              (!('updatedWhen' in request.resource.data.keys()) || request.resource.data.updatedWhen is timestamp) &&
+              (!('title' in request.resource.data.keys()) || request.resource.data.title is string) &&
+              (!('description' in request.resource.data.keys()) || request.resource.data.description == null || request.resource.data.description is string) &&
+            
+            
+              // Ownership rules
+              request.auth.uid == resource.data.creator && ((!('creator' in request.resource.data.keys())) || request.auth.uid == request.resource.data.creator)
+            ;
+            allow delete: if 
+              // Ownership rules
+              request.auth.uid == resource.data.creator
+            ;
+        }
+        match /sharedListCreatorInfo/{creator} {
+            match /lists/{sharedListCreatorInfo} {
+                allow list: if 
+                  // Permission rules
+                  true
+                ;
+                allow get: if 
+                  // Permission rules
+                  true
+                ;
+                allow create: if 
+                  // Type checks
+                  request.resource.data.localListId is timestamp &&
+                
+                
+                  // Ownership rules
+                  request.auth.uid == creator
+                ;
+                allow update: if 
+                  // Type checks
+                  (!('localListId' in request.resource.data.keys()) || request.resource.data.localListId is timestamp) &&
+                
+                
+                  // Ownership rules
+                  request.auth.uid == creator
+                ;
+                allow delete: if 
+                  // Ownership rules
+                  request.auth.uid == creator
+                ;
+            }
+        }
+        match /sharedListEntry/{sharedListEntry} {
+            allow list: if 
+              // Permission rules
+              true
+            ;
+            allow get: if 
+              // Permission rules
+              true
+            ;
+            allow create: if 
+              // Type checks
+              request.resource.data.createdWhen is timestamp &&
+              request.resource.data.updatedWhen is timestamp &&
+              request.resource.data.entryTitle is string &&
+              request.resource.data.normalizedUrl is string &&
+              request.resource.data.originalUrl is string &&
+            
+            
+              // Permission rules
+              (request.auth.uid == request.resource.data.creator && ((get(/databases/$(database)/documents/sharedList/$(request.resource.data.sharedList)).data.creator == request.resource.data.creator) || (exists(/databases/$(database)/documents/sharedListRole/$(request.resource.data.sharedList)/users/$(request.auth.uid)) && (get(/databases/$(database)/documents/sharedListRole/$(request.resource.data.sharedList)/users/$(request.auth.uid)).data.roleID >= 400))))
+            ;
+            allow update: if 
+              // Type checks
+              (!('createdWhen' in request.resource.data.keys()) || request.resource.data.createdWhen is timestamp) &&
+              (!('updatedWhen' in request.resource.data.keys()) || request.resource.data.updatedWhen is timestamp) &&
+              (!('entryTitle' in request.resource.data.keys()) || request.resource.data.entryTitle is string) &&
+              (!('normalizedUrl' in request.resource.data.keys()) || request.resource.data.normalizedUrl is string) &&
+              (!('originalUrl' in request.resource.data.keys()) || request.resource.data.originalUrl is string) &&
+            
+            
+              // Permission rules
+              (request.auth.uid == resource.data.creator && ((!('creator' in request.resource.data.keys())) || request.auth.uid == request.resource.data.creator) && ((get(/databases/$(database)/documents/sharedList/$(request.resource.data.sharedList)).data.creator == request.resource.data.creator) || (exists(/databases/$(database)/documents/sharedListRole/$(request.resource.data.sharedList)/users/$(request.auth.uid)) && (get(/databases/$(database)/documents/sharedListRole/$(request.resource.data.sharedList)/users/$(request.auth.uid)).data.roleID >= 400))))
+            ;
+            allow delete: if 
+              // Permission rules
+              (request.auth.uid == resource.data.creator && ((get(/databases/$(database)/documents/sharedList/$(resource.data.sharedList)).data.creator == resource.data.creator) || (exists(/databases/$(database)/documents/sharedListRole/$(resource.data.sharedList)/users/$(request.auth.uid)) && (get(/databases/$(database)/documents/sharedListRole/$(resource.data.sharedList)/users/$(request.auth.uid)).data.roleID >= 400))))
+            ;
+        }
+        match /sharedListRole/{sharedList} {
+            match /users/{user} {
+                allow list: if 
+                  // Permission rules
+                  true
+                ;
+                allow get: if 
+                  // Permission rules
+                  true
+                ;
+                allow create: if 
+                  // Type checks
+                  request.resource.data.createdWhen is timestamp &&
+                  request.resource.data.updatedWhen is timestamp &&
+                  request.resource.data.roleID is number &&
+                
+                
+                  // Permission rules
+                  (get(/databases/$(database)/documents/sharedList/$(sharedList)).data.creator == request.auth.uid)
+                ;
+            }
+        }
+        match /sharedListRoleByUser/{user} {
+            match /lists/{sharedList} {
+                allow list: if 
+                  // Permission rules
+                  true
+                ;
+                allow get: if 
+                  // Permission rules
+                  true
+                ;
+                allow create: if 
+                  // Type checks
+                  request.resource.data.createdWhen is timestamp &&
+                  request.resource.data.updatedWhen is timestamp &&
+                  request.resource.data.roleID is number &&
+                
+                
+                  // Permission rules
+                  (get(/databases/$(database)/documents/sharedList/$(request.resource.data.sharedList)).data.creator == request.auth.uid)
+                ;
+            }
+        }
+        match /sharedListKey/{sharedList} {
+            match /keys/{sharedListKey} {
+                allow list: if 
+                  // Permission rules
+                  (get(/databases/$(database)/documents/sharedList/$(sharedList)).data.creator == request.auth.uid)
+                ;
+                allow get: if 
+                  // Permission rules
+                  (get(/databases/$(database)/documents/sharedList/$(sharedList)).data.creator == request.auth.uid)
+                ;
+                allow create: if 
+                  // Type checks
+                  request.resource.data.createdWhen is timestamp &&
+                  request.resource.data.updatedWhen is timestamp &&
+                  (!('disabled' in request.resource.data.keys()) || request.resource.data.disabled == null || request.resource.data.disabled is bool) &&
+                  request.resource.data.roleID is number &&
+                
+                
+                  // Permission rules
+                  (get(/databases/$(database)/documents/sharedList/$(sharedList)).data.creator == request.auth.uid)
+                ;
+                allow update: if 
+                  // Type checks
+                  (!('createdWhen' in request.resource.data.keys()) || request.resource.data.createdWhen is timestamp) &&
+                  (!('updatedWhen' in request.resource.data.keys()) || request.resource.data.updatedWhen is timestamp) &&
+                  (!('disabled' in request.resource.data.keys()) || request.resource.data.disabled == null || request.resource.data.disabled is bool) &&
+                  (!('roleID' in request.resource.data.keys()) || request.resource.data.roleID is number) &&
+                
+                
+                  // Permission rules
+                  (get(/databases/$(database)/documents/sharedList/$(sharedList)).data.creator == request.auth.uid)
+                ;
+                allow delete: if 
+                  // Permission rules
+                  (get(/databases/$(database)/documents/sharedList/$(sharedList)).data.creator == request.auth.uid)
+                ;
+            }
+        }
+        match /sharedPageInfo/{sharedPageInfo} {
+            allow list: if 
+              // Permission rules
+              true
+            ;
+            allow get: if 
+              // Permission rules
+              true
+            ;
+            allow create: if 
+              // Type checks
+              request.resource.data.createdWhen is timestamp &&
+              request.resource.data.updatedWhen is timestamp &&
+              request.resource.data.normalizedUrl is string &&
+              request.resource.data.originalUrl is string &&
+              request.resource.data.fullTitle is string &&
+            
+            
+              // Ownership rules
+              request.auth.uid == request.resource.data.creator
+            ;
+            allow update: if 
+              // Type checks
+              (!('createdWhen' in request.resource.data.keys()) || request.resource.data.createdWhen is timestamp) &&
+              (!('updatedWhen' in request.resource.data.keys()) || request.resource.data.updatedWhen is timestamp) &&
+              (!('normalizedUrl' in request.resource.data.keys()) || request.resource.data.normalizedUrl is string) &&
+              (!('originalUrl' in request.resource.data.keys()) || request.resource.data.originalUrl is string) &&
+              (!('fullTitle' in request.resource.data.keys()) || request.resource.data.fullTitle is string) &&
+            
+            
+              // Ownership rules
+              request.auth.uid == resource.data.creator && ((!('creator' in request.resource.data.keys())) || request.auth.uid == request.resource.data.creator)
+            ;
+            allow delete: if 
+              // Ownership rules
+              request.auth.uid == resource.data.creator
+            ;
+        }
+        match /sharedAnnotation/{sharedAnnotation} {
+            allow list: if 
+              // Permission rules
+              true
+            ;
+            allow get: if 
+              // Permission rules
+              true
+            ;
+            allow create: if 
+              // Type checks
+              request.resource.data.normalizedPageUrl is string &&
+              request.resource.data.createdWhen is timestamp &&
+              request.resource.data.uploadedWhen is timestamp &&
+              request.resource.data.updatedWhen is timestamp &&
+              (!('body' in request.resource.data.keys()) || request.resource.data.body == null || request.resource.data.body is string) &&
+              (!('comment' in request.resource.data.keys()) || request.resource.data.comment == null || request.resource.data.comment is string) &&
+              (!('selector' in request.resource.data.keys()) || request.resource.data.selector == null || request.resource.data.selector is string) &&
+            
+            
+              // Ownership rules
+              request.auth.uid == request.resource.data.creator
+            ;
+            allow update: if 
+              // Type checks
+              (!('normalizedPageUrl' in request.resource.data.keys()) || request.resource.data.normalizedPageUrl is string) &&
+              (!('createdWhen' in request.resource.data.keys()) || request.resource.data.createdWhen is timestamp) &&
+              (!('uploadedWhen' in request.resource.data.keys()) || request.resource.data.uploadedWhen is timestamp) &&
+              (!('updatedWhen' in request.resource.data.keys()) || request.resource.data.updatedWhen is timestamp) &&
+              (!('body' in request.resource.data.keys()) || request.resource.data.body == null || request.resource.data.body is string) &&
+              (!('comment' in request.resource.data.keys()) || request.resource.data.comment == null || request.resource.data.comment is string) &&
+              (!('selector' in request.resource.data.keys()) || request.resource.data.selector == null || request.resource.data.selector is string) &&
+            
+            
+              // Ownership rules
+              request.auth.uid == resource.data.creator && ((!('creator' in request.resource.data.keys())) || request.auth.uid == request.resource.data.creator)
+            ;
+            allow delete: if 
+              // Ownership rules
+              request.auth.uid == resource.data.creator
+            ;
+        }
+        match /sharedAnnotationListEntry/{sharedAnnotationListEntry} {
+            allow list: if 
+              // Permission rules
+              true
+            ;
+            allow get: if 
+              // Permission rules
+              true
+            ;
+            allow create: if 
+              // Type checks
+              request.resource.data.createdWhen is timestamp &&
+              request.resource.data.uploadedWhen is timestamp &&
+              request.resource.data.updatedWhen is timestamp &&
+              request.resource.data.normalizedPageUrl is string &&
+            
+            
+              // Permission rules
+              (request.auth.uid == request.resource.data.creator && ((get(/databases/$(database)/documents/sharedList/$(request.resource.data.sharedList)).data.creator == request.resource.data.creator) || (exists(/databases/$(database)/documents/sharedListRole/$(request.resource.data.sharedList)/users/$(request.auth.uid)) && (get(/databases/$(database)/documents/sharedListRole/$(request.resource.data.sharedList)/users/$(request.auth.uid)).data.roleID >= 400))))
+            ;
+            allow update: if 
+              // Type checks
+              (!('createdWhen' in request.resource.data.keys()) || request.resource.data.createdWhen is timestamp) &&
+              (!('uploadedWhen' in request.resource.data.keys()) || request.resource.data.uploadedWhen is timestamp) &&
+              (!('updatedWhen' in request.resource.data.keys()) || request.resource.data.updatedWhen is timestamp) &&
+              (!('normalizedPageUrl' in request.resource.data.keys()) || request.resource.data.normalizedPageUrl is string) &&
+            
+            
+              // Permission rules
+              (request.auth.uid == resource.data.creator && ((!('creator' in request.resource.data.keys())) || request.auth.uid == request.resource.data.creator) && ((get(/databases/$(database)/documents/sharedList/$(request.resource.data.sharedList)).data.creator == request.resource.data.creator) || (exists(/databases/$(database)/documents/sharedListRole/$(request.resource.data.sharedList)/users/$(request.auth.uid)) && (get(/databases/$(database)/documents/sharedListRole/$(request.resource.data.sharedList)/users/$(request.auth.uid)).data.roleID >= 400))))
+            ;
+            allow delete: if 
+              // Permission rules
+              (request.auth.uid == resource.data.creator && ((get(/databases/$(database)/documents/sharedList/$(resource.data.sharedList)).data.creator == resource.data.creator) || (exists(/databases/$(database)/documents/sharedListRole/$(resource.data.sharedList)/users/$(request.auth.uid)) && (get(/databases/$(database)/documents/sharedListRole/$(resource.data.sharedList)/users/$(request.auth.uid)).data.roleID >= 400))))
+            ;
+        }
+        match /conversationThread/{conversationThread} {
+            allow list: if 
+              // Permission rules
+              true
+            ;
+            allow get: if 
+              // Permission rules
+              true
+            ;
+            allow create: if 
+              // Type checks
+              request.resource.data.updatedWhen is timestamp &&
+              request.resource.data.normalizedPageUrl is string &&
+            
+            
+              // Permission rules
+              true
+            ;
+        }
+        match /conversationReply/{sharedAnnotation} {
+            match /replies/{conversationReply} {
+                allow list: if 
+                  // Permission rules
+                  true
+                ;
+                allow get: if 
+                  // Permission rules
+                  true
+                ;
+                allow create: if 
+                  // Type checks
+                  request.resource.data.createdWhen is timestamp &&
+                  request.resource.data.normalizedPageUrl is string &&
+                  request.resource.data.content is string &&
+                
+                
+                  // Ownership rules
+                  request.auth.uid == request.resource.data.user
+                ;
+            }
+        }
+        match /homeFeedInfo/{user} {
+            allow get: if 
+              // Ownership rules
+              request.auth.uid == user
+            ;
+            allow create: if 
+              // Type checks
+              request.resource.data.lastSeen is timestamp &&
+            
+            
+              // Ownership rules
+              request.auth.uid == user
+            ;
+            allow update: if 
+              // Type checks
+              (!('lastSeen' in request.resource.data.keys()) || request.resource.data.lastSeen is timestamp) &&
+            
+            
+              // Ownership rules
+              request.auth.uid == user
+            ;
+        }
+    }
 }

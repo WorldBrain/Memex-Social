@@ -1,7 +1,12 @@
 import { History } from 'history'
 import firebaseModule from 'firebase'
+import { firebaseService } from '@worldbrain/memex-common/lib/firebase-backend/services/client'
 import FirebaseFunctionsActivityStreamsService from '@worldbrain/memex-common/lib/activity-streams/services/firebase-functions/client'
 import MemoryStreamsService from '@worldbrain/memex-common/lib/activity-streams/services/memory'
+import { MemoryUserMessageService } from '@worldbrain/memex-common/lib/user-messages/service/memory'
+import { FirebaseUserMessageService } from '@worldbrain/memex-common/lib/user-messages/service/firebase'
+import { ContentSharingBackend } from '@worldbrain/memex-common/lib/content-sharing/backend/index'
+import { ContentSharingBackendInterface } from '@worldbrain/memex-common/lib/content-sharing/backend/types'
 import { BackendType } from '../types'
 import { Storage } from '../storage/types'
 import ROUTES from '../routes'
@@ -26,17 +31,21 @@ import UserManagementService from '../features/user-management/service'
 import FirebaseWebMonetizationService from '../features/web-monetization/service/firebase'
 import { MemoryLocalStorageService } from './local-storage/memory'
 import { BrowserLocalStorageService } from './local-storage/browser'
+import { ContentSharingService } from '../features/content-sharing/service'
+import { ProgramQueryParams } from '../setup/types'
 
 export function createServices(options: {
     backend: BackendType
     storage: Storage
     history: History
+    queryParams: ProgramQueryParams
     localStorage: LimitedWebStorage
     uiMountPoint?: Element
     firebase?: typeof firebaseModule
     logLogicEvents?: boolean
     fixtureFetcher?: FixtureFetcher
 }): Services {
+    const firebase = options.firebase ?? firebaseModule
     const logicRegistry = new LogicRegistryService({
         logEvents: options.logLogicEvents,
     })
@@ -52,10 +61,10 @@ export function createServices(options: {
         options.backend === 'firebase' ||
         options.backend === 'firebase-emulator'
     ) {
-        const firebase = options.firebase ?? firebaseModule
         auth = new FirebaseAuthService(firebase, { storage: options.storage })
         if (process.env.NODE_ENV === 'development') {
             if (options.backend === 'firebase-emulator') {
+                firebase.database().useEmulator('localhost', 9000)
                 firebase.firestore().useEmulator('localhost', 8080)
                 firebase.auth().useEmulator('http://localhost:9099/')
             }
@@ -82,6 +91,7 @@ export function createServices(options: {
         routes: ROUTES,
         auth,
         history: options.history,
+        queryParams: options.queryParams,
         setBeforeLeaveHandler: (handler) => {
             window.onbeforeunload = handler
         },
@@ -92,6 +102,14 @@ export function createServices(options: {
         storage: options.storage,
         fixtureFetcher: options.fixtureFetcher ?? defaultFixtureFetcher,
     })
+    const executeFirebaseCall: (
+        name: string,
+        params: any,
+    ) => Promise<any> = async (name, params) => {
+        const functions = firebase.functions()
+        const result = await functions.httpsCallable(name)(params)
+        return result.data
+    }
     const activityStreams =
         options.backend === 'memory'
             ? new MemoryStreamsService({
@@ -100,13 +118,7 @@ export function createServices(options: {
                       services.auth.getCurrentUserReference()?.id,
               })
             : new FirebaseFunctionsActivityStreamsService({
-                  executeCall: async (name, params) => {
-                      const functions = (
-                          options.firebase ?? firebaseModule
-                      ).functions()
-                      const result = await functions.httpsCallable(name)(params)
-                      return result.data
-                  },
+                  executeCall: executeFirebaseCall,
               })
     const userManagement = new UserManagementService({
         storage: options.storage.serverModules.users,
@@ -124,6 +136,31 @@ export function createServices(options: {
         options.backend === 'memory'
             ? new MemoryLocalStorageService()
             : new BrowserLocalStorageService(options.localStorage)
+    const userMessages =
+        options.backend === 'memory'
+            ? new MemoryUserMessageService()
+            : new FirebaseUserMessageService({
+                  firebase: firebase as any,
+                  auth: {
+                      getCurrentUserId: async () =>
+                          services.auth.getCurrentUserReference()?.id ?? null,
+                  },
+              })
+    const contentSharingBackend =
+        options.backend === 'memory'
+            ? new ContentSharingBackend({
+                  contentSharing: options.storage.serverModules.contentSharing,
+                  activityFollows:
+                      options.storage.serverModules.activityFollows,
+                  userMessages,
+                  getCurrentUserId: async () =>
+                      auth.getCurrentUserReference()?.id ?? null,
+              })
+            : firebaseService<ContentSharingBackendInterface>(
+                  'contentSharing',
+                  executeFirebaseCall,
+              )
+
     const services: Services = {
         overlay: new OverlayService(),
         logicRegistry,
@@ -132,6 +169,7 @@ export function createServices(options: {
         router,
         fixtures,
         localStorage,
+        userMessages,
         scenarios: new ScenarioService({
             services: { fixtures: fixtures, logicRegistry, auth },
             modifyCalls: (getModifications) => {
@@ -152,6 +190,12 @@ export function createServices(options: {
         }),
         activityStreams,
         userManagement,
+        contentSharing: new ContentSharingService({
+            backend: contentSharingBackend,
+            router,
+            isAuthenticated: () => !!auth.getCurrentUser(),
+            storage: options.storage.serverModules,
+        }),
         contentConversations: new ContentConversationsService({
             storage: options.storage.serverModules.contentConversations,
             services: { activityStreams, router },

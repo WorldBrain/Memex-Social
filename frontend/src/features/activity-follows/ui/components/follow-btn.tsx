@@ -4,7 +4,7 @@ import { UITaskState } from '../../../../main-ui/types'
 import LoadingIndicator from '../../../../common-ui/components/loading-indicator'
 
 const Container = styled.button<{
-    followStatus: boolean
+    isActive: boolean
 }>`
     font-family: ${(props) => props.theme.fonts.primary};
     border-radius: 5px;
@@ -12,16 +12,20 @@ const Container = styled.button<{
     font-weight: bold;
     margin-left: auto;
     color: ${(props) =>
-        !props.followStatus ? props.theme.colors.purple : 'white'};
+        !props.isActive ? props.theme.colors.purple : 'white'};
     border: 1px solid ${(props) => props.theme.colors.purple};
     padding: 5px 20px;
     background: ${(props) =>
-        props.followStatus ? props.theme.colors.purple : 'white'};
+        props.isActive ? props.theme.colors.purple : 'white'};
     min-width: 100px;
     height: 34px;
     cursor: pointer;
     outline: none;
+    justify-content: center;
+    align-items: center;
+    display: flex;
 `
+
 
 const PlusIcon = styled.span`
     padding-right: 5px;
@@ -33,40 +37,45 @@ export interface Props {
     onClick: React.MouseEventHandler
     loadState: UITaskState
     isFollowed?: boolean
+    isContributor?: boolean
 }
 
 export default class FollowBtn extends PureComponent<Props> {
+    getText() {
+        if (this.props.isContributor) {
+            return 'Contributor'
+        } else if (this.props.isFollowed) {
+            return 'Unfollow'
+        } else {
+            return 'Follow Updates'
+        }
+    }
+
     private renderBody() {
-        if (this.props.loadState === 'running') {
+        const { props } = this
+
+        if (props.loadState === 'running') {
             return <LoadingIndicator />
         }
 
-        const text = this.props.isFollowed ? 'Unfollow' : 'Follow Updates'
-        const icon = !this.props.isFollowed && '+'
+        const isActive = props.isFollowed || props.isContributor
+        const icon = !isActive && '+'
 
         return (
             <>
-                {!this.props.isFollowed && <PlusIcon>{icon}</PlusIcon>}
-                <BtnText>{text}</BtnText>
+                {icon && <PlusIcon>{icon}</PlusIcon>}
+                <BtnText>{this.getText()}</BtnText>
             </>
         )
     }
 
     render() {
-        if (this.props.isFollowed) {
-            return (
-                <Container followStatus={true} onClick={this.props.onClick}>
-                    {this.renderBody()}
-                </Container>
-            )
-        }
-
-        if (!this.props.isFollowed) {
-            return (
-                <Container followStatus={false} onClick={this.props.onClick}>
-                    {this.renderBody()}
-                </Container>
-            )
-        }
+        const { props } = this
+        const isActive = (props.isFollowed || props.isContributor) ?? false
+        return (
+            <Container isActive={isActive} onClick={this.props.onClick}>
+                {this.renderBody()}
+            </Container>
+        )
     }
 }

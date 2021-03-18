@@ -1,10 +1,19 @@
 import flatten from 'lodash/flatten'
-import omit from 'lodash/omit'
-import sortBy from 'lodash/sortBy'
 import expect from 'expect'
-import { createStorageTestSuite } from '../../../tests/storage-tests'
+import {
+    createStorageTestSuite,
+    createMultiDeviceStorageTestSuite,
+    StorageTestDevice,
+    MultiDeviceStorageTestContext,
+} from '../../../tests/storage-tests'
 import * as data from './index.test.data'
 import orderBy from 'lodash/orderBy'
+import {
+    SharedListReference,
+    SharedListRoleID,
+} from '@worldbrain/memex-common/lib/content-sharing/types'
+import { processListKey } from '@worldbrain/memex-common/lib/content-sharing/keys'
+import { isAccessRulesPermissionError } from '@worldbrain/memex-common/lib/storage/utils'
 
 createStorageTestSuite('Content sharing storage', ({ it }) => {
     it(
@@ -976,3 +985,302 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
         },
     )
 })
+
+createMultiDeviceStorageTestSuite(
+    'Content sharing storage (multi-device)',
+    ({ it }) => {
+        async function setupTest(
+            context: MultiDeviceStorageTestContext,
+            options?: {
+                withTestListEntries?: boolean
+            },
+        ) {
+            const userIds = ['user-a', 'user-b']
+            const devices = await Promise.all(
+                userIds.map((uid) =>
+                    context.createDevice({ withTestUser: { uid } }),
+                ),
+            )
+            const { contentSharing } = devices[0].storage.serverModules
+            const userReference = devices[0].services.auth.getCurrentUserReference()!
+            const listReference = await contentSharing.createSharedList({
+                listData: {
+                    title: 'My list',
+                },
+                localListId: 55,
+                userReference,
+            })
+            if (options?.withTestListEntries) {
+                await data.createTestListEntries({
+                    listReference: listReference,
+                    contentSharing:
+                        devices[0].storage.serverModules.contentSharing,
+                    userReference: devices[0].services.auth.getCurrentUserReference()!,
+                })
+            }
+
+            return {
+                devices,
+                devicesByRole: { listOwner: devices[0] },
+                contentSharing,
+                listReference,
+            }
+        }
+
+        it(`should by default not allow users to add to each others' lists`, async (context) => {
+            const { devices, devicesByRole, listReference } = await setupTest(
+                context,
+            )
+
+            await expectPermissions({
+                allowedDevices: [devicesByRole.listOwner],
+                deniedDevices: [devices[1]],
+                operation: (device) =>
+                    data.createTestListEntries({
+                        listReference: listReference,
+                        contentSharing:
+                            device.storage.serverModules.contentSharing,
+                        userReference: device.services.auth.getCurrentUserReference()!,
+                    }),
+            })
+            await expectPermissions({
+                allowedDevices: [devicesByRole.listOwner],
+                deniedDevices: [devices[1]],
+                operation: async (device) => {
+                    await data.createTestAnnotations({
+                        contentSharing:
+                            device.storage.serverModules.contentSharing,
+                        listReference: listReference,
+                        userReference: device.services.auth.getCurrentUserReference()!,
+                    })
+                },
+            })
+        })
+
+        it(`should by default not allow users to update each others' list entries`, async (context) => {
+            const {
+                devices,
+                devicesByRole,
+                listReference,
+            } = await setupTest(context, { withTestListEntries: true })
+            const creationResult = await data.createTestAnnotations({
+                contentSharing: devices[0].storage.serverModules.contentSharing,
+                listReference: listReference,
+                userReference: devices[0].services.auth.getCurrentUserReference()!,
+            })
+            const sharedAnnotationReference =
+                creationResult.sharedAnnotationReferences[
+                    data.TEST_ANNOTATIONS_BY_PAGE['foo.com/page-1'][1].localId
+                ]
+            await expectPermissions({
+                allowedDevices: [devicesByRole.listOwner],
+                deniedDevices: [devices[1]],
+                operation: (device) =>
+                    device.storage.serverModules.contentSharing.updateAnnotationComment(
+                        {
+                            sharedAnnotationReference,
+                            updatedComment: 'Updated comment',
+                        },
+                    ),
+            })
+        })
+
+        it(`should by default not allow users to remove entries that are not their own from each others' lists`, async (context) => {
+            const {
+                devices,
+                devicesByRole,
+                listReference,
+            } = await setupTest(context, { withTestListEntries: true })
+            const creationResult = await data.createTestAnnotations({
+                contentSharing: devices[0].storage.serverModules.contentSharing,
+                listReference: listReference,
+                userReference: devices[0].services.auth.getCurrentUserReference()!,
+            })
+            const sharedAnnotationReference =
+                creationResult.sharedAnnotationReferences[
+                    data.TEST_ANNOTATIONS_BY_PAGE['foo.com/page-1'][1].localId
+                ]
+            await expectPermissions({
+                allowedDevices: [devicesByRole.listOwner],
+                deniedDevices: [devices[1]],
+                operation: (device) =>
+                    device.storage.serverModules.contentSharing.removeListEntries(
+                        {
+                            listReference,
+                            normalizedUrl: 'bar.com/page-2',
+                        },
+                    ),
+            })
+            await expectPermissions({
+                allowedDevices: [devicesByRole.listOwner],
+                deniedDevices: [devices[1]],
+                operation: (device) =>
+                    device.storage.serverModules.contentSharing.removeAnnotationsFromLists(
+                        {
+                            sharedListReferences: [listReference],
+                            sharedAnnotationReferences: [
+                                sharedAnnotationReference,
+                            ],
+                        },
+                    ),
+            })
+        })
+
+        it(`should by default not allow users to add roles to each others' lists`, async (context) => {
+            const { devices, devicesByRole, listReference } = await setupTest(
+                context,
+            )
+
+            await expectPermissions({
+                allowedDevices: [devicesByRole.listOwner],
+                deniedDevices: [devices[1]],
+                operation: (device) =>
+                    device.storage.serverModules.contentSharing.createListRole({
+                        listReference,
+                        userReference: device.services.auth.getCurrentUserReference()!,
+                        roleID: SharedListRoleID.AddOnly,
+                    }),
+            })
+        })
+
+        // it(`should by default not allow users to remove roles from each others' lists`, async (context) => {
+        //     const { devices, listReference } = await setupTest(context)
+
+        //     await devices[0].storage.serverModules.contentSharing.createListRole({
+        //         listReference,
+        //         userReference: devices[0].services.auth.getCurrentUserReference()!,
+        //         roleID: SharedListRoleID.AddOnly,
+        //     })
+
+        //     await expectPermissions({
+        //         allowedDevices: [devicesByRole.listOwner],
+        //         deniedDevices: [devices[1]],
+        //         operation: device => device.storage.serverModules.contentSharing.removeListRole({
+        //             listReference,
+        //             userReference: device.services.auth.getCurrentUserReference()!,
+        //         })
+        //     })
+        // })
+
+        it('should support the entire flow of generating a list key and using it to get add only access', async (context) => {
+            const superuserDevice = await context.createSuperuserDevice()
+            const { devices, devicesByRole, listReference } = await setupTest(
+                context,
+            )
+            const {
+                keyString,
+            } = await devicesByRole.listOwner.storage.serverModules.contentSharing.createListKey(
+                {
+                    listReference,
+                    key: {
+                        roleID: SharedListRoleID.AddOnly,
+                    },
+                },
+            )
+            expect(
+                await devicesByRole.listOwner.storage.serverModules.contentSharing.getListKeys(
+                    {
+                        listReference,
+                    },
+                ),
+            ).toEqual([
+                {
+                    id: keyString,
+                    createdWhen: expect.any(Number),
+                    updatedWhen: expect.any(Number),
+                    sharedList: listReference.id,
+                    roleID: SharedListRoleID.AddOnly,
+                    disabled: false,
+                },
+            ])
+            await processListKey({
+                keyString,
+                listReference,
+                userReference: devices[1].services.auth.getCurrentUserReference()!,
+                contentSharing:
+                    superuserDevice.storage.serverModules.contentSharing,
+            })
+            expect(
+                await devicesByRole.listOwner.storage.serverModules.contentSharing.getListRole(
+                    {
+                        listReference,
+                        userReference: devices[1].services.auth.getCurrentUserReference()!,
+                    },
+                ),
+            ).toEqual(
+                expect.objectContaining({
+                    roleID: SharedListRoleID.AddOnly,
+                }),
+            )
+            expect(
+                await devicesByRole.listOwner.storage.serverModules.contentSharing.getListRoles(
+                    {
+                        listReference,
+                    },
+                ),
+            ).toEqual([
+                expect.objectContaining({
+                    user: devices[1].services.auth.getCurrentUserReference()!,
+                    roleID: SharedListRoleID.AddOnly,
+                }),
+            ])
+            await data.createTestListEntries({
+                listReference: listReference,
+                contentSharing: devices[1].storage.serverModules.contentSharing,
+                userReference: devices[1].services.auth.getCurrentUserReference()!,
+            })
+            expect(
+                await devices[0].storage.serverModules.contentSharing.retrieveList(
+                    listReference,
+                ),
+            ).toEqual(
+                expect.objectContaining({
+                    creator: devices[0].services.auth.getCurrentUserReference()!,
+                    entries: [
+                        expect.objectContaining({}),
+                        expect.objectContaining({}),
+                    ],
+                }),
+            )
+        })
+    },
+)
+
+async function expectPermissions(params: {
+    allowedDevices: StorageTestDevice[]
+    deniedDevices: StorageTestDevice[]
+    operation: (device: StorageTestDevice) => Promise<void>
+}) {
+    for (const device of params.deniedDevices) {
+        await expectPermissionsError(() => params.operation(device))
+    }
+    for (const device of params.allowedDevices) {
+        await expectNoPermissionsError(() => params.operation(device))
+    }
+}
+
+async function expectPermissionsError(f: () => Promise<void>) {
+    await _expectPermissionsError(f, true)
+}
+
+async function expectNoPermissionsError(f: () => Promise<void>) {
+    await f()
+}
+
+async function _expectPermissionsError(
+    f: () => Promise<void>,
+    expected: boolean,
+) {
+    let triggeredPermissionError = false
+    try {
+        await f()
+    } catch (e) {
+        if (!isAccessRulesPermissionError(e)) {
+            throw e
+        }
+        triggeredPermissionError = true
+    }
+    expect({ triggeredPermissionError }).toEqual({
+        triggeredPermissionError: expected,
+    })
+}

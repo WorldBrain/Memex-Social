@@ -27,6 +27,11 @@ const FRIENDLY_ERRORS: { [Key in AuthError['reason']]: string } = {
 
 const StyledAuthDialog = styled.div`
     font-family: ${(props) => props.theme.fonts.primary};
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding: 40px;
 `
 const Header = styled.div`
     text-align: center;
@@ -35,7 +40,6 @@ const Header = styled.div`
 `
 const AuthenticationMethods = styled.div`
   display: flex;
-  height: 260px;
   align-items: flex-start;
   }
 
@@ -60,6 +64,19 @@ const EmailPasswordError = styled.div`
     text-align: center;
 `
 
+const FormTitle = styled.div`
+    font-weight: bold;
+    font-size: 24px;
+    color: ${(props) => props.theme.colors.primary};
+    text-align: center;
+`
+const FormSubtitle = styled.div`
+    font-weight: 500;
+    font-size: 16px;
+    text-align: center;
+    color: ${(props) => props.theme.colors.secondary};
+`
+
 // const SocialLogins = styled.div`
 //   display: flex;
 //   flex-direction: column;
@@ -79,6 +96,9 @@ const EmailPasswordError = styled.div`
 const Footer = styled.div`
     text-align: center;
     user-select: none;
+    color: ${(props) => props.theme.colors.primary};
+    font-size: 12px;
+    opacity: 0.8;
 `
 const ModeSwitch = styled.span`
     cursor: pointer;
@@ -95,6 +115,8 @@ export default class AuthDialog extends UIElement<
     }
 
     renderAuthError() {
+        const { state } = this
+
         const error = (text: string) => {
             return (
                 <Margin vertical={'medium'}>
@@ -103,13 +125,12 @@ export default class AuthDialog extends UIElement<
             )
         }
 
-        if (this.state.error) {
-            return error(FRIENDLY_ERRORS[this.state.error])
+        if (state.error) {
+            return error(FRIENDLY_ERRORS[state.error])
         }
 
-        if (this.state.saveState === 'error') {
-            const action =
-                this.state.mode === 'login' ? 'log you in' : 'sign you up'
+        if (state.saveState === 'error') {
+            const action = state.mode === 'login' ? 'log you in' : 'sign you up'
             return error(
                 `Something went wrong trying to ${action}. Please try again later.`,
             )
@@ -119,18 +140,54 @@ export default class AuthDialog extends UIElement<
     }
 
     renderAuthForm() {
-        // const onSocialLogin = (event: { provider: AuthProvider }) =>
-        //   this.processEvent("socialSignIn", event);
+        const { state } = this
+        const { header } = state
 
         return (
             <StyledAuthDialog>
-                <Margin bottom="medium">
+                {header && (
+                    <Margin bottom="largest">
+                        <FormTitle>{header.title}</FormTitle>
+                        {header.subtitle && (
+                            <Margin top="medium">
+                                <FormSubtitle>{header.subtitle}</FormSubtitle>
+                            </Margin>
+                        )}
+                    </Margin>
+                )}
+                <Margin bottom="small">
                     <Header>
-                        {this.state.mode === 'login' && 'Login'}
-                        {this.state.mode === 'register' && 'Sign up'}
+                        {state.mode === 'login' && 'Login'}
+                        {state.mode === 'register' && 'Sign up'}
                     </Header>
                 </Margin>
-                <Margin top="large">
+                <Footer>
+                    {state.mode === 'login' && (
+                        <>
+                            Don’t have an account?{' '}
+                            <ModeSwitch
+                                onClick={() =>
+                                    this.processEvent('toggleMode', null)
+                                }
+                            >
+                                Sign up
+                            </ModeSwitch>
+                        </>
+                    )}
+                    {state.mode === 'register' && (
+                        <>
+                            Already have an account?{' '}
+                            <ModeSwitch
+                                onClick={() =>
+                                    this.processEvent('toggleMode', null)
+                                }
+                            >
+                                Log in
+                            </ModeSwitch>
+                        </>
+                    )}
+                </Footer>
+                <Margin top="medium">
                     <AuthenticationMethods>
                         <EmailPasswordLogin>
                             <TextInput
@@ -175,9 +232,8 @@ export default class AuthDialog extends UIElement<
                                         )
                                     }
                                 >
-                                    {this.state.mode === 'login' && 'Log in'}
-                                    {this.state.mode === 'register' &&
-                                        'Register'}
+                                    {state.mode === 'login' && 'Log in'}
+                                    {state.mode === 'register' && 'Register'}
                                 </Button>
                             </Margin>
                             {this.renderAuthError()}
@@ -206,32 +262,6 @@ export default class AuthDialog extends UIElement<
               </SocialLogins> */}
                     </AuthenticationMethods>
                 </Margin>
-                <Footer>
-                    {this.state.mode === 'login' && (
-                        <>
-                            Don’t have an account?{' '}
-                            <ModeSwitch
-                                onClick={() =>
-                                    this.processEvent('toggleMode', null)
-                                }
-                            >
-                                Sign up
-                            </ModeSwitch>
-                        </>
-                    )}
-                    {this.state.mode === 'register' && (
-                        <>
-                            Already have an account?{' '}
-                            <ModeSwitch
-                                onClick={() =>
-                                    this.processEvent('toggleMode', null)
-                                }
-                            >
-                                Log in
-                            </ModeSwitch>
-                        </>
-                    )}
-                </Footer>
             </StyledAuthDialog>
         )
     }
