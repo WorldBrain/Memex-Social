@@ -12,6 +12,7 @@ import {
 import Overlay from '../../../../../main-ui/containers/overlay'
 import Icon from '../../../../../common-ui/components/icon'
 import Button from '../../../../../common-ui/components/button'
+import Select from '../../../../../common-ui/components/select'
 import { linkAccessTypeToString } from './util'
 
 export interface Props extends ListShareModalDependencies {}
@@ -21,48 +22,9 @@ export default class ListShareModal extends UIElement<
     ListShareModalState,
     ListShareModalEvent
 > {
-    private static accessTypeValues: Array<{
-        accessType: LinkAccessType
-        header: string
-        subtext: string
-        isDisabled?: boolean
-    }> = [
-        {
-            accessType: 'reader',
-            header: linkAccessTypeToString('reader'),
-            subtext: 'Can view content and reply to notes',
-        },
-        {
-            accessType: 'contributor',
-            header: linkAccessTypeToString('contributor'),
-            subtext: 'Add pages, notes, replies and delete own entries',
-        },
-    ]
-
     constructor(props: Props) {
         super(props, { logic: new Logic(props) })
     }
-
-    private handleAccessTypeChange: React.ChangeEventHandler<HTMLSelectElement> = (
-        e,
-    ) => {
-        this.processEvent('setAddLinkAccessType', {
-            accessType: e.target.value as LinkAccessType,
-        })
-    }
-
-    private renderAccessTypeSelect = () => (
-        <Select
-            value={this.state.addLinkAccessType}
-            onChange={this.handleAccessTypeChange}
-        >
-            {ListShareModal.accessTypeValues.map((value) => (
-                <Option key={value.accessType} value={value.accessType}>
-                    {value.header}
-                </Option>
-            ))}
-        </Select>
-    )
 
     private renderCopyableLink = ({
         link,
@@ -86,6 +48,29 @@ export default class ListShareModal extends UIElement<
                 }
             />
         </LinkContainer>
+    )
+
+    renderAccessTypeSelect = () => (
+        <Select
+            value={this.state.addLinkAccessType}
+            onChange={(accessType) =>
+                this.processEvent('setAddLinkAccessType', {
+                    accessType,
+                })
+            }
+            options={[
+                {
+                    value: 'reader',
+                    headerText: linkAccessTypeToString('reader'),
+                    subText: 'Can view content and reply to notes',
+                },
+                {
+                    value: 'contributor',
+                    headerText: linkAccessTypeToString('contributor'),
+                    subText: 'Add pages, notes, replies and delete own entries',
+                },
+            ]}
+        />
     )
 
     render() {
@@ -126,8 +111,6 @@ export default class ListShareModal extends UIElement<
 const ModalContainer = styled.div``
 
 const Header = styled.h1``
-const Select = styled.select``
-const Option = styled.option``
 
 const Text = styled.span``
 
