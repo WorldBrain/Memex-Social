@@ -40,7 +40,7 @@ export class ContentSharingService {
             'collectionDetails',
             { id: params.listReference.id.toString() },
         )
-        return `${origin}/${relativePath}?key=${params.keyString}`
+        return `${origin}${relativePath}?key=${params.keyString}`
     }
 
     async generateKeyLink(params: {
