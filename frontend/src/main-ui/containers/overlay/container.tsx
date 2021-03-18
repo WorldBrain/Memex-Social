@@ -76,10 +76,12 @@ export class OverlayContainer extends UIElement<
         })
     }
 
-    handleContainerClick(event: any) {
+    handleContainerClick: React.MouseEventHandler = (event) => {
         const isDirectContainerClick = event.target === this.rootElement
         if (isDirectContainerClick) {
-            this.props.services.overlay.events.emit('closeRequest')
+            this.props.services.overlay.events.emit('closeRequest', {
+                id: this.overlayStack[this.overlayStack.length - 1],
+            })
         }
     }
 
@@ -93,7 +95,7 @@ export class OverlayContainer extends UIElement<
                 ref={(element) => {
                     this.rootElement = element
                 }}
-                onClick={(event) => this.handleContainerClick(event)}
+                onClick={this.handleContainerClick}
             >
                 <OverlayContent>{this.state.content}</OverlayContent>
             </StyledOverlayContainer>

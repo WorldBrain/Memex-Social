@@ -41,7 +41,11 @@ export default class Overlay extends UIElement<OverlayProps> {
     }
 
     componentWillMount() {
-        this.props.services.overlay.events.on('closeRequest', this.closeHandler)
+        this.props.services.overlay.events.on('closeRequest', ({ id }) => {
+            if (id === this.id) {
+                this.closeHandler()
+            }
+        })
     }
 
     componentWillUnmount() {
