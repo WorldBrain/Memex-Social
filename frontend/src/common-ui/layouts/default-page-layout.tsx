@@ -321,17 +321,17 @@ export default function DefaultPageLayout(props: {
         )
     }
 
-    const isLoggedIn = props.services.auth.getCurrentUser()
-
     return (
         <MainContainer>
             <BetaFlag
-                onClick={()=>window.open('https://worldbrain.io/feedback')}
-            >Beta | Feedback</BetaFlag>
+                onClick={() => window.open('https://worldbrain.io/feedback')}
+            >
+                Beta | Feedback
+            </BetaFlag>
             {renderListsSidebar()}
             <StyledHeader viewportWidth={viewportWidth}>
                 <LogoAndFeed viewportWidth={viewportWidth}>
-                    {props.listsSidebarProps && isLoggedIn && (
+                    {props.listsSidebarProps && isAuthenticated && (
                         <ListsSidebarToggle
                             viewportWidth={viewportWidth}
                             onToggle={props.listsSidebarProps.onSidebarToggle}
@@ -341,11 +341,11 @@ export default function DefaultPageLayout(props: {
                 </LogoAndFeed>
                 <HeaderMiddleArea viewportWidth={viewportWidth}>
                     <LeftRightBlock>{renderFeedArea()}</LeftRightBlock>
-                    <MemexLogo 
+                    <MemexLogo
                         src={logoImage}
-                        onClick={()=>window.open('https://getmemex.com')}
+                        onClick={() => window.open('https://getmemex.com')}
                     />
-                    <LeftRightBlock/>
+                    <LeftRightBlock />
                 </HeaderMiddleArea>
                 <HeaderAuthArea viewportWidth={viewportWidth}>
                     <AuthHeader
