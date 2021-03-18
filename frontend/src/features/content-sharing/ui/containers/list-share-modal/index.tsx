@@ -7,7 +7,6 @@ import {
     ListShareModalEvent,
     ListShareModalState,
     InviteLink,
-    LinkAccessType,
 } from './types'
 import Overlay from '../../../../../main-ui/containers/overlay'
 import Icon from '../../../../../common-ui/components/icon'
@@ -26,14 +25,47 @@ export default class ListShareModal extends UIElement<
         super(props, { logic: new Logic(props) })
     }
 
+    private renderDeleteModal = () =>
+        this.state.linkDeleteIndex != null && (
+            <Overlay
+                services={this.props.services}
+                onCloseRequested={() =>
+                    this.processEvent('cancelLinkDelete', null)
+                }
+            >
+                <DeleteModalContainer>
+                    <Header>Sure you want to delete this link?</Header>
+                    <Text>This action cannnot be undone.</Text>
+                    <DeleteModalBtnContainer>
+                        <Button
+                            type="small"
+                            onClick={() =>
+                                this.processEvent('confirmLinkDelete', null)
+                            }
+                        >
+                            Delete
+                        </Button>
+                        <Button
+                            type="small"
+                            onClick={() =>
+                                this.processEvent('cancelLinkDelete', null)
+                            }
+                        >
+                            Cancel
+                        </Button>
+                    </DeleteModalBtnContainer>
+                </DeleteModalContainer>
+            </Overlay>
+        )
+
     private renderCopyableLink = ({
         link,
         accessType,
         linkIndex,
     }: InviteLink & { linkIndex: number }) => (
-        <LinkContainer>
+        <LinkContainer key={linkIndex}>
             <Icon
-                fileName="camera.svg"
+                fileName="web-logo.svg"
                 height="18px"
                 onClick={() => this.processEvent('copyLink', { linkIndex })}
             />
@@ -41,7 +73,7 @@ export default class ListShareModal extends UIElement<
             <Text> invite as </Text>
             <BoldText>{linkAccessTypeToString(accessType)}</BoldText>
             <Icon
-                fileName="camera.svg"
+                fileName="web-logo.svg"
                 height="18px"
                 onClick={() =>
                     this.processEvent('requestLinkDelete', { linkIndex })
@@ -75,40 +107,57 @@ export default class ListShareModal extends UIElement<
 
     render() {
         return (
-            <Overlay
-                services={this.props.services}
-                onCloseRequested={this.props.onCloseRequested}
-            >
-                <ModalContainer>
-                    <Header>Invite by Link</Header>
-                    <Text>Invite other people to view or collaborate</Text>
-                    <AddLinkBox>
-                        <AddLinkBoxTextContainer>
-                            <Text>Create an invite link that grants </Text>
-                            {this.renderAccessTypeSelect()}
-                            <Text> access to anyone who opens it.</Text>
-                        </AddLinkBoxTextContainer>
-                        <Button
-                            type="primary-action"
-                            onClick={() => this.processEvent('addLink', null)}
-                        >
-                            Add Link
-                        </Button>
-                    </AddLinkBox>
+            <>
+                <Overlay
+                    services={this.props.services}
+                    onCloseRequested={this.props.onCloseRequested}
+                >
+                    <ModalContainer>
+                        <Header>Invite by Link</Header>
+                        <Text>Invite other people to view or collaborate</Text>
+                        <AddLinkBox>
+                            <AddLinkBoxTextContainer>
+                                <Text>Create an invite link that grants </Text>
+                                {this.renderAccessTypeSelect()}
+                                <Text> access to anyone who opens it.</Text>
+                            </AddLinkBoxTextContainer>
+                            <Button
+                                type="primary-action"
+                                onClick={() =>
+                                    this.processEvent('addLink', null)
+                                }
+                            >
+                                Add Link
+                            </Button>
+                        </AddLinkBox>
 
-                    <Header>Invite Links</Header>
-                    <InviteLinksContainer>
-                        {this.state.inviteLinks.map((link, linkIndex) =>
-                            this.renderCopyableLink({ ...link, linkIndex }),
+                        <Header>Invite Links</Header>
+                        <InviteLinksContainer>
+                            {this.state.inviteLinks.map((link, linkIndex) =>
+                                this.renderCopyableLink({ ...link, linkIndex }),
+                            )}
+                        </InviteLinksContainer>
+                        {this.state.showSuccessMsg && (
+                            <AddSuccessBox>
+                                <Icon fileName="memex-icon.svg" height="28px" />
+                                <Text>
+                                    Link created and copied to clipboard
+                                </Text>
+                            </AddSuccessBox>
                         )}
-                    </InviteLinksContainer>
-                </ModalContainer>
-            </Overlay>
+                    </ModalContainer>
+                </Overlay>
+                {this.renderDeleteModal()}
+            </>
         )
     }
 }
 
 const ModalContainer = styled.div``
+
+const DeleteModalContainer = styled.div``
+
+const DeleteModalBtnContainer = styled.div``
 
 const Header = styled.h1``
 
@@ -120,7 +169,14 @@ const AddLinkBox = styled.div``
 
 const AddLinkBoxTextContainer = styled.div``
 
-const LinkContainer = styled.div``
+const LinkContainer = styled.div`
+    display: flex;
+`
+
 const InviteLinksContainer = styled.div``
+
+const AddSuccessBox = styled.div`
+    display: flex;
+`
 
 const LinkBox = styled.div``

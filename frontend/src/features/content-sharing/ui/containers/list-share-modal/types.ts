@@ -19,6 +19,7 @@ export interface ListShareModalState {
     addLinkAccessType: LinkAccessType
     inviteLinks: InviteLink[]
     linkDeleteIndex: number | null
+    showSuccessMsg: boolean
 
     deleteLinkState: UITaskState
     addLinkState: UITaskState

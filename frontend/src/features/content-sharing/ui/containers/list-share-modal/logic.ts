@@ -31,6 +31,7 @@ export default class ListShareModalLogic extends UILogic<
             deleteLinkState: 'pristine',
             addLinkState: 'pristine',
             loadState: 'pristine',
+            showSuccessMsg: false,
             linkDeleteIndex: null,
             inviteLinks: [],
         }
@@ -58,13 +59,20 @@ export default class ListShareModalLogic extends UILogic<
                     accessType: previousState.addLinkAccessType,
                     link: 'https://memex.social/c/test?key=TEST',
                 }
-                this.emitMutation({ inviteLinks: { $push: [mockLink] } })
+                this.emitMutation({
+                    inviteLinks: { $push: [mockLink] },
+                    showSuccessMsg: { $set: true },
+                })
+                this.dependencies.copyLink(mockLink.link)
             },
         )
     }
 
     requestLinkDelete: EventHandler<'requestLinkDelete'> = ({ event }) => {
-        this.emitMutation({ linkDeleteIndex: { $set: event.linkIndex } })
+        this.emitMutation({
+            linkDeleteIndex: { $set: event.linkIndex },
+            showSuccessMsg: { $set: false },
+        })
     }
 
     cancelLinkDelete: EventHandler<'cancelLinkDelete'> = () => {
@@ -74,7 +82,7 @@ export default class ListShareModalLogic extends UILogic<
     confirmLinkDelete: EventHandler<'confirmLinkDelete'> = async ({
         previousState,
     }) => {
-        const { linkDeleteIndex } = previousState
+        const { linkDeleteIndex, inviteLinks } = previousState
         if (linkDeleteIndex == null) {
             throw new Error(
                 'Index of link to delete is not set - cannot confirm deletion',
@@ -89,8 +97,8 @@ export default class ListShareModalLogic extends UILogic<
                     linkDeleteIndex: { $set: null },
                     inviteLinks: {
                         $apply: (links: InviteLink[]) => [
-                            ...links.splice(0, linkDeleteIndex),
-                            ...links.splice(linkDeleteIndex + 1),
+                            ...links.slice(0, linkDeleteIndex),
+                            ...links.slice(linkDeleteIndex + 1),
                         ],
                     },
                 })
@@ -105,6 +113,7 @@ export default class ListShareModalLogic extends UILogic<
             throw new Error('Link to copy does not exist - cannot copy')
         }
 
+        console.log('copy:', event)
         this.dependencies.copyLink(inviteLink.link)
     }
 }

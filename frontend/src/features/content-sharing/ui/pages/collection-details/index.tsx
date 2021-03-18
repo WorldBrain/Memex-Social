@@ -178,7 +178,7 @@ export default class CollectionDetailsPage extends UIElement<
             return (
                 <Icon
                     height="34px"
-                    fileName="camera.svg"
+                    fileName="web-logo.svg"
                     onClick={() =>
                         this.processEvent('toggleListShareModal', {})
                     }
