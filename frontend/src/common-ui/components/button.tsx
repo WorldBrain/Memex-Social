@@ -22,7 +22,7 @@ const StyledButton = (props: StyledButtonProps) => css`
     ${VARIATIONS[props.type]}
     display: block;
     font-family: ${(props) => props.theme.fonts.primary};
-    padding: ${props.type === 'primary-action' ? '10px' : '3px'} 10px;
+    padding: ${props.type === 'primary-action' ? '10px' : '3px'} 20px;
     text-align: center;
     font-weight: 500;
     background-color: #5cd9a6;

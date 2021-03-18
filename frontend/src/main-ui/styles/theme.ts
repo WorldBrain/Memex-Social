@@ -17,7 +17,7 @@ export const theme: Theme = {
         subText: '#aeaeae',
         secondary: '#5cd9a6',
         purple: '#5671cf',
-        lightgrey: 'lightgrey',
+        lightgrey: '#f0f0f0',
         grey: '#e0e0e0',
         darkgrey: '#545454',
         black: '000',
