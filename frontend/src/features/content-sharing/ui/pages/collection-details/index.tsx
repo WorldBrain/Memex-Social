@@ -142,6 +142,13 @@ export default class CollectionDetailsPage extends UIElement<
         }
     }
 
+    get isListContributor(): boolean {
+        return (
+            this.state.permissionKeyResult === 'success' ||
+            !!this.state.listRoleID
+        )
+    }
+
     async componentDidUpdate(prevProps: CollectionDetailsDependencies) {
         if (this.props.listID !== prevProps.listID) {
             await this.processEvent('loadListData', {
@@ -184,6 +191,10 @@ export default class CollectionDetailsPage extends UIElement<
                     }
                 />
             )
+        }
+
+        if (this.isListContributor) {
+            return
         }
 
         return (
@@ -231,11 +242,8 @@ export default class CollectionDetailsPage extends UIElement<
             <FollowBtn
                 onClick={() => this.processEvent('clickFollowBtn', null)}
                 isFollowed={this.state.isCollectionFollowed}
-                isContributor={
-                    this.state.permissionKeyResult === 'success' ||
-                    !!this.state.listRoleID
-                }
                 isOwner={this.state.isListOwner}
+                isContributor={this.isListContributor}
                 loadState={mergeTaskStates([
                     this.state.followLoadState,
                     this.state.listRolesLoadState,
