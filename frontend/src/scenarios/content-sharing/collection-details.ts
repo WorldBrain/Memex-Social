@@ -9,6 +9,7 @@ import {
     SharedListRoleID,
 } from '@worldbrain/memex-common/lib/content-sharing/types'
 import { WebMonetizationEvents } from '../../features/web-monetization/service/types'
+import { ListShareModalEvent } from '../../features/content-sharing/ui/containers/list-share-modal/types'
 
 type Targets = {
     CollectionDetailsPage: {
@@ -17,6 +18,9 @@ type Targets = {
     }
     WebMonetizationIcon: {
         events: WebMonetizationEvents
+    }
+    ListShareModal: {
+        events: ListShareModalEvent
     }
 }
 
@@ -691,6 +695,36 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                     target: 'CollectionDetailsPage',
                     eventName: 'clickFollowBtn',
                     eventArgs: null,
+                }),
+            ],
+        }),
+    ),
+    'collection-share-modal': scenario<Targets>(
+        ({ step, callModification }) => ({
+            fixture: 'annotated-list-with-user-and-follows',
+            authenticated: true,
+            startRoute: {
+                route: 'collectionDetails',
+                params: { id: 'default-list' },
+            },
+            steps: [
+                step({
+                    name: 'collection-share-modal-clicked',
+                    target: 'CollectionDetailsPage',
+                    eventName: 'toggleListShareModal',
+                    eventArgs: {},
+                }),
+                step({
+                    name: 'collection-share-modal-added',
+                    target: 'ListShareModal',
+                    eventName: 'addLink',
+                    eventArgs: null,
+                }),
+                step({
+                    name: 'collection-share-modal-clicked-away',
+                    target: 'CollectionDetailsPage',
+                    eventName: 'toggleListShareModal',
+                    eventArgs: {},
                 }),
             ],
         }),

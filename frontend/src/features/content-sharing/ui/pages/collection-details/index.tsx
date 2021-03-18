@@ -34,6 +34,8 @@ import WebMonetizationIcon from '../../../../web-monetization/ui/components/web-
 import PermissionKeyOverlay from './permission-key-overlay'
 import { mergeTaskStates } from '../../../../../main-ui/classes/logic'
 import { UserReference } from '../../../../user-management/types'
+import ListShareModal from '../../containers/list-share-modal'
+
 const commentImage = require('../../../../../assets/img/comment.svg')
 
 const DocumentView = styled.div`
@@ -498,6 +500,15 @@ export default class CollectionDetailsPage extends UIElement<
                         )}
                     </PageInfoList>
                 </DefaultPageLayout>
+                {this.state.isListShareModalShown && (
+                    <ListShareModal
+                        services={this.props.services}
+                        copyLink={(link) => console.log('TODO: copy:', link)}
+                        onCloseRequested={() =>
+                            this.processEvent('toggleListShareModal', {})
+                        }
+                    />
+                )}
             </>
         )
     }
