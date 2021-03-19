@@ -39,8 +39,17 @@ export default class ListShareModalLogic extends UILogic<
     }
 
     init: EventHandler<'init'> = async ({ previousState }) => {
+        const { contentSharing } = this.dependencies.services
+
         await loadInitial<ListShareModalState>(this, async () => {
-            // TODO: figure out how to load existing links
+            const { links } = await contentSharing.getExistingKeyLinksForList({
+                listReference: {
+                    type: 'shared-list-reference',
+                    id: this.dependencies.listID,
+                },
+            })
+
+            this.emitMutation({ inviteLinks: { $set: links } })
         })
     }
 

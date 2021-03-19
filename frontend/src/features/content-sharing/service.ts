@@ -2,6 +2,7 @@ import { ContentSharingBackendInterface } from '@worldbrain/memex-common/lib/con
 import {
     SharedListReference,
     SharedListKey,
+    SharedListRoleID,
 } from '@worldbrain/memex-common/lib/content-sharing/types'
 import RouterService from '../../services/router'
 import ContentSharingStorage from './storage'
@@ -21,7 +22,10 @@ export class ContentSharingService {
             router: RouterService
             isAuthenticated: () => boolean
             storage: {
-                contentSharing: Pick<ContentSharingStorage, 'createListKey'>
+                contentSharing: Pick<
+                    ContentSharingStorage,
+                    'createListKey' | 'getListKeys'
+                >
             }
         },
     ) {
@@ -41,6 +45,34 @@ export class ContentSharingService {
             { id: params.listReference.id.toString() },
         )
         return `${origin}${relativePath}?key=${params.keyString}`
+    }
+
+    async getExistingKeyLinksForList(params: {
+        listReference: SharedListReference
+    }): Promise<{
+        links: Array<{
+            link: string
+            keyString: string
+            roleID: SharedListRoleID
+        }>
+    }> {
+        const sharedListKeys = await this.dependencies.storage.contentSharing.getListKeys(
+            { listReference: params.listReference },
+        )
+
+        return {
+            links: sharedListKeys.map((key) => {
+                const keyString = key.reference.id as string
+                return {
+                    keyString,
+                    roleID: key.roleID,
+                    link: this.getKeyLink({
+                        listReference: params.listReference,
+                        keyString,
+                    }),
+                }
+            }),
+        }
     }
 
     async generateKeyLink(params: {
