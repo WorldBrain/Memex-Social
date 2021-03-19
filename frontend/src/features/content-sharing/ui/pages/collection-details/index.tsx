@@ -513,7 +513,6 @@ export default class CollectionDetailsPage extends UIElement<
                 {this.state.isListShareModalShown && (
                     <ListShareModal
                         services={this.props.services}
-                        copyLink={(link) => console.log('TODO: copy:', link)}
                         onCloseRequested={() =>
                             this.processEvent('toggleListShareModal', {})
                         }

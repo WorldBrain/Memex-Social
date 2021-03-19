@@ -50,6 +50,7 @@ export default class ListShareModalLogic extends UILogic<
     }
 
     addLink: EventHandler<'addLink'> = async ({ previousState }) => {
+        const { clipboard } = this.dependencies.services
         await executeUITask<ListShareModalState>(
             this,
             'addLinkState',
@@ -63,7 +64,7 @@ export default class ListShareModalLogic extends UILogic<
                     inviteLinks: { $push: [mockLink] },
                     showSuccessMsg: { $set: true },
                 })
-                this.dependencies.copyLink(mockLink.link)
+                await clipboard.copy(mockLink.link)
             },
         )
     }
@@ -106,14 +107,14 @@ export default class ListShareModalLogic extends UILogic<
         )
     }
 
-    copyLink: EventHandler<'copyLink'> = ({ event, previousState }) => {
+    copyLink: EventHandler<'copyLink'> = async ({ event, previousState }) => {
+        const { clipboard } = this.dependencies.services
         const inviteLink = previousState.inviteLinks[event.linkIndex]
 
         if (inviteLink == null) {
             throw new Error('Link to copy does not exist - cannot copy')
         }
 
-        console.log('copy:', event)
-        this.dependencies.copyLink(inviteLink.link)
+        await clipboard.copy(inviteLink.link)
     }
 }

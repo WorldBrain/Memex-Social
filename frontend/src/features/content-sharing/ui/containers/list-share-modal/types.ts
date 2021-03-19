@@ -10,8 +10,7 @@ export interface InviteLink {
 }
 
 export interface ListShareModalDependencies {
-    services: UIElementServices<'contentSharing' | 'overlay'>
-    copyLink: (link: string) => void
+    services: UIElementServices<'contentSharing' | 'overlay' | 'clipboard'>
     onCloseRequested: () => void
 }
 
