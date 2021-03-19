@@ -33,6 +33,7 @@ import { MemoryLocalStorageService } from './local-storage/memory'
 import { BrowserLocalStorageService } from './local-storage/browser'
 import { ContentSharingService } from '../features/content-sharing/service'
 import { ProgramQueryParams } from '../setup/types'
+import ClipboardService from './clipboard'
 
 export function createServices(options: {
     backend: BackendType
@@ -44,6 +45,7 @@ export function createServices(options: {
     firebase?: typeof firebaseModule
     logLogicEvents?: boolean
     fixtureFetcher?: FixtureFetcher
+    clipboard?: Pick<Clipboard, 'writeText'>
 }): Services {
     const firebase = options.firebase ?? firebaseModule
     const logicRegistry = new LogicRegistryService({
@@ -163,6 +165,9 @@ export function createServices(options: {
 
     const services: Services = {
         overlay: new OverlayService(),
+        clipboard: new ClipboardService({
+            clipboard: options.clipboard ?? navigator.clipboard,
+        }),
         logicRegistry,
         device,
         auth,

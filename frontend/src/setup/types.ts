@@ -22,6 +22,7 @@ export interface MainProgramOptions {
     queryParams: ProgramQueryParams
     navigateToScenarioStart?: boolean
     history?: History
+    clipboard?: Pick<Clipboard, 'writeText'>
     logLogicEvents?: boolean
     mountPoint?: Element
     domUnavailable?: boolean // when running tests, don't use DOM

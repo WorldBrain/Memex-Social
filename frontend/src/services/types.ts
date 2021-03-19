@@ -1,5 +1,6 @@
 import { AuthService } from './auth/types'
 import OverlayService from './overlay'
+import ClipboardService from './clipboard'
 import LogicRegistryService from './logic-registry'
 import FixtureService from './fixtures'
 import RouterService from './router'
@@ -18,6 +19,7 @@ export interface Services {
     router: RouterService
     auth: AuthService
     overlay: OverlayService
+    clipboard: ClipboardService
     logicRegistry: LogicRegistryService
     device: DeviceService
     fixtures: FixtureService

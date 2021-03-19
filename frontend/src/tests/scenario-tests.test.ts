@@ -18,6 +18,7 @@ import ROUTES, { RouteName } from '../routes'
 import { mainProgram } from '../setup/main'
 import { renderMainUi } from '../main-ui'
 import { loadFixture, loadSingleFixture } from '../services/fixtures/utils'
+import { mockClipboardAPI } from '../services/clipboard'
 const io = require('socket.io-client')
 const injectJsDom = require('jsdom-global')
 // import * as webdriver from 'selenium-webdriver'
@@ -221,6 +222,7 @@ describe('In-memory scenario tests', () => {
                 walkthrough: 'true',
             },
             backend: 'memory',
+            clipboard: mockClipboardAPI,
             domUnavailable: true,
             navigateToScenarioStart: true,
             history,
