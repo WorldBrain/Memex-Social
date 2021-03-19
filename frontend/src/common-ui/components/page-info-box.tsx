@@ -106,7 +106,9 @@ export default function PageInfoBox(props: {
                                 {domain[0]}
                             </PageUrl>
                         </ResultContent>
-                        <PageTitle>{pageInfo.fullTitle}</PageTitle>
+                        <PageTitle>
+                            {pageInfo.fullTitle ?? pageInfo.normalizedUrl}
+                        </PageTitle>
                     </PageContentBox>
                 </PageInfoBoxLink>
                 <PageContentBoxBottom>
