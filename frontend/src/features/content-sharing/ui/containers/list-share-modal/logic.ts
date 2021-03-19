@@ -99,9 +99,9 @@ export default class ListShareModalLogic extends UILogic<
     }
 
     confirmLinkDelete: EventHandler<'confirmLinkDelete'> = async ({
-        previousState,
+        previousState: { linkDeleteIndex, inviteLinks },
     }) => {
-        const { linkDeleteIndex } = previousState
+        const { contentSharing } = this.dependencies.services
         if (linkDeleteIndex == null) {
             throw new Error(
                 'Index of link to delete is not set - cannot confirm deletion',
@@ -111,7 +111,10 @@ export default class ListShareModalLogic extends UILogic<
             this,
             'deleteLinkState',
             async () => {
-                // TODO: figure out how to delete link
+                await contentSharing.deleteKeyLink({
+                    link: inviteLinks[linkDeleteIndex].link,
+                })
+
                 this.emitMutation({
                     linkDeleteIndex: { $set: null },
                     inviteLinks: {

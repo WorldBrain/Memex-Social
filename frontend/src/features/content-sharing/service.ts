@@ -24,7 +24,7 @@ export class ContentSharingService {
             storage: {
                 contentSharing: Pick<
                     ContentSharingStorage,
-                    'createListKey' | 'getListKeys'
+                    'createListKey' | 'getListKeys' | 'deleteListKey'
                 >
             }
         },
@@ -32,10 +32,10 @@ export class ContentSharingService {
         this.backend = dependencies.backend
     }
 
-    getKeyLink(params: {
+    private getKeyLink(params: {
         listReference: SharedListReference
         keyString: string
-    }) {
+    }): string {
         const origin =
             typeof window !== 'undefined'
                 ? window.location.origin
@@ -45,6 +45,16 @@ export class ContentSharingService {
             { id: params.listReference.id.toString() },
         )
         return `${origin}${relativePath}?key=${params.keyString}`
+    }
+
+    private getKeyStringFromLink(params: { link: string }): string {
+        const matchRes = params.link.match(/\?key=(\w+)/)
+
+        if (matchRes == null || matchRes.length < 2) {
+            throw new Error('Could not find key string in link')
+        }
+
+        return matchRes[1]
     }
 
     async getExistingKeyLinksForList(params: {
@@ -89,6 +99,12 @@ export class ContentSharingService {
                 keyString,
             }),
         }
+    }
+
+    async deleteKeyLink(params: { link: string }): Promise<void> {
+        await this.dependencies.storage.contentSharing.deleteListKey({
+            keyString: this.getKeyStringFromLink(params),
+        })
     }
 
     async processCurrentKey(): Promise<{ result: ProcessSharedListKeyResult }> {
