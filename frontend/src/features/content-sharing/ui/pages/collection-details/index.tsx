@@ -157,11 +157,6 @@ export default class CollectionDetailsPage extends UIElement<
         }
     }
 
-    private isCurrentUser({ id: userId }: UserReference): boolean {
-        const currentUserReference = this.props.services.auth.getCurrentUserReference()
-        return currentUserReference?.id === userId
-    }
-
     renderPageEntry(entry: SharedListEntry) {
         return (
             <PageInfoBox
@@ -181,7 +176,7 @@ export default class CollectionDetailsPage extends UIElement<
             return
         }
 
-        if (this.isCurrentUser(creatorReference)) {
+        if (this.state.isListOwner) {
             return (
                 <Margin right="medium">
                     <Icon
@@ -512,6 +507,7 @@ export default class CollectionDetailsPage extends UIElement<
                 </DefaultPageLayout>
                 {this.state.isListShareModalShown && (
                     <ListShareModal
+                        listID={this.props.listID}
                         services={this.props.services}
                         onCloseRequested={() =>
                             this.processEvent('toggleListShareModal', {})

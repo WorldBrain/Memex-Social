@@ -13,15 +13,15 @@ export interface SelectProps<T> {
     onChange: (nextValue: T) => void
 }
 
-export default function Select<ValueType extends string>(
+export default function Select<ValueType extends string | number>(
     props: SelectProps<ValueType>,
 ) {
-    const handleAccessTypeChange: React.ChangeEventHandler<HTMLSelectElement> = (
+    const handleValueChange: React.ChangeEventHandler<HTMLSelectElement> = (
         e,
     ) => props.onChange(e.target.value as ValueType)
 
     return (
-        <StyledSelect value={props.value} onChange={handleAccessTypeChange}>
+        <StyledSelect value={props.value} onChange={handleValueChange}>
             {props.options.map(({ value, headerText, subText }) => (
                 <StyledOption key={value} value={value}>
                     {headerText}

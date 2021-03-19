@@ -12,8 +12,9 @@ import Overlay from '../../../../../main-ui/containers/overlay'
 import Icon from '../../../../../common-ui/components/icon'
 import Button from '../../../../../common-ui/components/button'
 import Select from '../../../../../common-ui/components/select'
-import { linkAccessTypeToString } from './util'
+import { sharedListRoleIDToString } from './util'
 import { Margin } from 'styled-components-spacing'
+import { SharedListRoleID } from '@worldbrain/memex-common/lib/content-sharing/types'
 
 export interface Props extends ListShareModalDependencies {}
 
@@ -40,14 +41,17 @@ export default class ListShareModal extends UIElement<
                     <Margin top="medium">
                         <DeleteModalBtnContainer>
                             <Margin right="small">
-                            <Button
-                                type="small"
-                                onClick={() =>
-                                    this.processEvent('confirmLinkDelete', null)
-                                }
-                            >
-                                Delete
-                            </Button>
+                                <Button
+                                    type="small"
+                                    onClick={() =>
+                                        this.processEvent(
+                                            'confirmLinkDelete',
+                                            null,
+                                        )
+                                    }
+                                >
+                                    Delete
+                                </Button>
                             </Margin>
                             <Button
                                 type="alternative-small"
@@ -63,68 +67,62 @@ export default class ListShareModal extends UIElement<
             </Overlay>
         )
 
-    private AddLink = () => {
-        this.processEvent('addLink', null)
-        setTimeout(() => {
-            this.setState({
-                showSuccessMsg: false
-            })
-            console.log(this.state.showSuccessMsg)
-        }
-            ,2000)
-    }
-
     private renderCopyableLink = ({
         link,
-        accessType,
+        roleID,
         linkIndex,
     }: InviteLink & { linkIndex: number }) => (
         <Margin bottom="smallest">
-        <LinkContainer key={linkIndex}>
-            <CopyLinkBox>
+            <LinkContainer key={linkIndex}>
+                <CopyLinkBox>
+                    <Icon
+                        fileName="copy.svg"
+                        height="16px"
+                        onClick={() =>
+                            this.processEvent('copyLink', { linkIndex })
+                        }
+                    />
+                    <Margin horizontal="small">
+                        <LinkBox>{link}</LinkBox>
+                    </Margin>
+                    <PermissionText>
+                        <Margin right="smallest">invite as</Margin>
+                        <BoldText>{sharedListRoleIDToString(roleID)}</BoldText>
+                    </PermissionText>
+                </CopyLinkBox>
                 <Icon
-                    fileName="copy.svg"
+                    fileName="remove.svg"
                     height="16px"
-                    onClick={() => this.processEvent('copyLink', { linkIndex })}
+                    onClick={() =>
+                        this.processEvent('requestLinkDelete', { linkIndex })
+                    }
                 />
-                <Margin horizontal="small">
-                    <LinkBox>{link}</LinkBox>
-                </Margin>
-                <PermissionText> 
-                    <Margin right="smallest">invite as</Margin>
-                    <BoldText>{linkAccessTypeToString(accessType)}</BoldText>
-                </PermissionText>
-            </CopyLinkBox>
-            <Icon
-                fileName="remove.svg"
-                height="16px"
-                onClick={() =>
-                    this.processEvent('requestLinkDelete', { linkIndex })
-                }
-            />
-        </LinkContainer>
+            </LinkContainer>
         </Margin>
     )
 
-    renderAccessTypeSelect = () => (
+    renderRoleIDSelect = () => (
         <Margin horizontal="small">
             <Select
-                value={this.state.addLinkAccessType}
-                onChange={(accessType) =>
-                    this.processEvent('setAddLinkAccessType', {
-                        accessType,
-                    })
+                value={this.state.addLinkRoleID}
+                onChange={(roleID) =>
+                    this.processEvent('setAddLinkRoleID', { roleID })
                 }
                 options={[
                     {
-                        value: 'reader',
-                        headerText: linkAccessTypeToString('reader'),
+                        value: SharedListRoleID.Reader,
+                        headerText: sharedListRoleIDToString(
+                            SharedListRoleID.Reader,
+                        ),
                         subText: 'Can view content and reply to notes',
                     },
                     {
-                        value: 'contributor',
-                        headerText: linkAccessTypeToString('contributor'),
-                        subText: 'Add pages, notes, replies and delete own entries',
+                        value: SharedListRoleID.ReadWrite,
+                        headerText: sharedListRoleIDToString(
+                            SharedListRoleID.ReadWrite,
+                        ),
+                        subText:
+                            'Add pages, notes, replies and delete own entries',
                     },
                 ]}
             />
@@ -132,7 +130,6 @@ export default class ListShareModal extends UIElement<
     )
 
     render() {
-
         return (
             <>
                 <Overlay
@@ -141,35 +138,49 @@ export default class ListShareModal extends UIElement<
                 >
                     <ModalContainer>
                         <Header>Invite by Link</Header>
-                        <Text>Invite other people to view or collaborate on this collection</Text>
+                        <Text>
+                            Invite other people to view or collaborate on this
+                            collection
+                        </Text>
                         <Margin top="medium">
                             <AddLinkBox>
                                 <Margin bottom="small">
                                     <AddLinkBoxTextContainer>
-                                        <Text>Create an invite link that grants </Text>
-                                        {this.renderAccessTypeSelect()}
-                                        <Text> access to anyone who opens it.</Text>
+                                        <Text>
+                                            Create an invite link that grants{' '}
+                                        </Text>
+                                        {this.renderRoleIDSelect()}
+                                        <Text>
+                                            {' '}
+                                            access to anyone who opens it.
+                                        </Text>
                                     </AddLinkBoxTextContainer>
                                 </Margin>
                                 <ButtonBox>
                                     <Button
                                         type="primary-action"
-                                        onClick={()=> this.AddLink()}
+                                        onClick={() =>
+                                            this.processEvent('addLink', null)
+                                        }
                                     >
                                         Add Link
                                     </Button>
                                     {this.state.showSuccessMsg && (
                                         <Margin left="medium">
-                                        <SuccessContainer>
+                                            <SuccessContainer>
                                                 <AddSuccessBox>
                                                     <Margin right="small">
-                                                    <Icon fileName="checkRound.svg" height="20px" />
+                                                        <Icon
+                                                            fileName="checkRound.svg"
+                                                            height="20px"
+                                                        />
                                                     </Margin>
                                                     <SuccessText>
-                                                        Link created and copied to clipboard
+                                                        Link created and copied
+                                                        to clipboard
                                                     </SuccessText>
                                                 </AddSuccessBox>
-                                        </SuccessContainer>
+                                            </SuccessContainer>
                                         </Margin>
                                     )}
                                 </ButtonBox>
@@ -182,8 +193,12 @@ export default class ListShareModal extends UIElement<
                                         <Header>Invite Links</Header>
                                     </Margin>
                                     <InviteLinksContainer>
-                                        {this.state.inviteLinks.map((link, linkIndex) =>
-                                            this.renderCopyableLink({ ...link, linkIndex }),
+                                        {this.state.inviteLinks.map(
+                                            (link, linkIndex) =>
+                                                this.renderCopyableLink({
+                                                    ...link,
+                                                    linkIndex,
+                                                }),
                                         )}
                                     </InviteLinksContainer>
                                 </Margin>
@@ -199,7 +214,7 @@ export default class ListShareModal extends UIElement<
 
 const ModalContainer = styled.div`
     width: 100%;
-    Padding: 20px;
+    padding: 20px;
     display: flex;
     justify-content: flex-start;
     align-items: flex-start;
@@ -268,8 +283,8 @@ const AddLinkBox = styled.div`
     align-items: flex-start;
     background: ${(props) => props.theme.colors.lightgrey};
     border-radius: 5px;
-    padding 20px 20px; 
-    flex-direction: column;   
+    padding 20px 20px;
+    flex-direction: column;
 `
 
 const AddLinkBoxTextContainer = styled.div`
@@ -298,9 +313,7 @@ const PrimaryButton = styled.div`
     text-decoration: none;
 `
 
-const InviteLinksContainer = styled.div`
-    
-`
+const InviteLinksContainer = styled.div``
 
 const AddSuccessBox = styled.div`
     display: flex;
@@ -311,7 +324,7 @@ const AddSuccessBox = styled.div`
     border-radius: 3px;
 `
 
-const InviteLinksBox = styled.div `
+const InviteLinksBox = styled.div`
     width: 100%;
 `
 
@@ -330,7 +343,6 @@ const CopyLinkBox = styled.div`
 `
 
 const SuccessContainer = styled.div`
-
     > div {
         width: 100%;
     }
@@ -341,6 +353,3 @@ const ButtonBox = styled.div`
     justify-content: flex-start;
     align-items: center;
 `
-
-
-

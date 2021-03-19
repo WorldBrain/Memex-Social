@@ -1,21 +1,23 @@
 import { UIEvent } from '../../../../../main-ui/classes/logic'
 import { UITaskState } from '../../../../../main-ui/types'
 import { UIElementServices } from '../../../../../main-ui/classes'
-
-export type LinkAccessType = 'reader' | 'contributor'
+import { SharedListRoleID } from '@worldbrain/memex-common/lib/content-sharing/types'
 
 export interface InviteLink {
-    accessType: LinkAccessType
+    roleID: SharedListRoleID
     link: string
 }
 
 export interface ListShareModalDependencies {
-    services: UIElementServices<'contentSharing' | 'overlay' | 'clipboard'>
+    services: UIElementServices<
+        'contentSharing' | 'overlay' | 'clipboard' | 'router'
+    >
+    listID: string
     onCloseRequested: () => void
 }
 
 export interface ListShareModalState {
-    addLinkAccessType: LinkAccessType
+    addLinkRoleID: SharedListRoleID
     inviteLinks: InviteLink[]
     linkDeleteIndex: number | null
     showSuccessMsg: boolean
@@ -26,7 +28,7 @@ export interface ListShareModalState {
 }
 
 export type ListShareModalEvent = UIEvent<{
-    setAddLinkAccessType: { accessType: LinkAccessType }
+    setAddLinkRoleID: { roleID: SharedListRoleID }
     addLink: null
 
     requestLinkDelete: { linkIndex: number }

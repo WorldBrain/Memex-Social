@@ -1,11 +1,17 @@
-import { LinkAccessType } from './types'
+import { SharedListRoleID } from '@worldbrain/memex-common/lib/content-sharing/types'
 
-export const linkAccessTypeToString = (accessType: LinkAccessType): string => {
-    if (accessType === 'reader') {
+export const sharedListRoleIDToString = (roleID: SharedListRoleID): string => {
+    if (roleID === SharedListRoleID.Reader) {
         return 'Reader'
     }
-    if (accessType === 'contributor') {
+    if (roleID === SharedListRoleID.ReadWrite) {
         return 'Contributor'
+    }
+    if (roleID === SharedListRoleID.Owner) {
+        return 'Owner'
+    }
+    if (roleID === SharedListRoleID.Admin) {
+        return 'Admin'
     }
     return ''
 }

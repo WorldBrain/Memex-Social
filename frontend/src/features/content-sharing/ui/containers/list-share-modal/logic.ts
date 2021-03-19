@@ -10,6 +10,7 @@ import {
     ListShareModalState,
     InviteLink,
 } from './types'
+import { SharedListRoleID } from '@worldbrain/memex-common/lib/content-sharing/types'
 
 type EventHandler<EventName extends keyof ListShareModalEvent> = UIEventHandler<
     ListShareModalState,
@@ -27,7 +28,7 @@ export default class ListShareModalLogic extends UILogic<
 
     getInitialState(): ListShareModalState {
         return {
-            addLinkAccessType: 'reader',
+            addLinkRoleID: SharedListRoleID.Reader,
             deleteLinkState: 'pristine',
             addLinkState: 'pristine',
             loadState: 'pristine',
@@ -39,40 +40,48 @@ export default class ListShareModalLogic extends UILogic<
 
     init: EventHandler<'init'> = async ({ previousState }) => {
         await loadInitial<ListShareModalState>(this, async () => {
-            // TODO: figure out how to load links
+            // TODO: figure out how to load existing links
         })
     }
 
-    setAddLinkAccessType: EventHandler<'setAddLinkAccessType'> = ({
-        event,
-    }) => {
-        this.emitMutation({ addLinkAccessType: { $set: event.accessType } })
+    setAddLinkRoleID: EventHandler<'setAddLinkRoleID'> = ({ event }) => {
+        this.emitMutation({ addLinkRoleID: { $set: Number(event.roleID) } })
     }
 
     addLink: EventHandler<'addLink'> = async ({ previousState }) => {
-        const { clipboard } = this.dependencies.services
+        const { clipboard, contentSharing } = this.dependencies.services
+        const roleID = previousState.addLinkRoleID
+
         await executeUITask<ListShareModalState>(
             this,
             'addLinkState',
             async () => {
-                // TODO: figure out how to create link
-                const mockLink: InviteLink = {
-                    accessType: previousState.addLinkAccessType,
-                    link: 'https://memex.social/c/test?key=TEST',
-                }
+                const { link } = await contentSharing.generateKeyLink({
+                    key: { roleID },
+                    listReference: {
+                        id: this.dependencies.listID,
+                        type: 'shared-list-reference',
+                    },
+                })
+
                 this.emitMutation({
-                    inviteLinks: { $push: [mockLink] },
+                    inviteLinks: { $push: [{ link, roleID }] },
                     showSuccessMsg: { $set: true },
                 })
-                await clipboard.copy(mockLink.link)
+
+                await clipboard.copy(link)
             },
+        )
+
+        setTimeout(
+            () => this.emitMutation({ showSuccessMsg: { $set: false } }),
+            2000,
         )
     }
 
     requestLinkDelete: EventHandler<'requestLinkDelete'> = ({ event }) => {
         this.emitMutation({
             linkDeleteIndex: { $set: event.linkIndex },
-            showSuccessMsg: { $set: false },
         })
     }
 
@@ -83,7 +92,7 @@ export default class ListShareModalLogic extends UILogic<
     confirmLinkDelete: EventHandler<'confirmLinkDelete'> = async ({
         previousState,
     }) => {
-        const { linkDeleteIndex, inviteLinks } = previousState
+        const { linkDeleteIndex } = previousState
         if (linkDeleteIndex == null) {
             throw new Error(
                 'Index of link to delete is not set - cannot confirm deletion',
