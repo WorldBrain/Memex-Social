@@ -3,6 +3,7 @@ import styled, { css } from 'styled-components'
 
 interface StyledButtonProps {
     type: 'primary-action' | 'small' | 'alternative-small'
+    isDisabled?: boolean
 }
 
 const VARIATIONS: {
@@ -34,7 +35,7 @@ const StyledButton = (props: StyledButtonProps) => css`
     border-radius: 3px;
     color: ${(props) => props.theme.colors.primary};
     background-color: ${(props) => props.theme.colors.secondary};
-    cursor: pointer;
+    cursor: ${props.isDisabled ? 'not-allowed' : 'pointer'};
     white-space: nowrap;
     text-decoration: none;
 
@@ -63,11 +64,26 @@ export default function Button(
               }
         ),
 ) {
+    const handleClick: React.MouseEventHandler = (e) => {
+        if ('externalHref' in props) {
+            if (props.isDisabled) {
+                e.preventDefault()
+            }
+            return
+        }
+
+        if (!props.isDisabled) {
+            props.onClick?.()
+            return
+        }
+    }
+
     return (
         <>
             {'externalHref' in props && (
                 <ButtonWithLink
                     type={props.type}
+                    onClick={handleClick}
                     href={props.externalHref}
                     target="_blank"
                 >
@@ -75,7 +91,7 @@ export default function Button(
                 </ButtonWithLink>
             )}
             {!('externalHref' in props) && (
-                <ButtonWithOnClick type={props.type} onClick={props.onClick}>
+                <ButtonWithOnClick type={props.type} onClick={handleClick}>
                     {props.children}
                 </ButtonWithOnClick>
             )}

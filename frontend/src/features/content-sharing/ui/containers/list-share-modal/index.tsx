@@ -11,6 +11,7 @@ import {
 import Overlay from '../../../../../main-ui/containers/overlay'
 import Icon from '../../../../../common-ui/components/icon'
 import Button from '../../../../../common-ui/components/button'
+import LoadingIndicator from '../../../../../common-ui/components/loading-indicator'
 import Select from '../../../../../common-ui/components/select'
 import { sharedListRoleIDToString } from './util'
 import { Margin } from 'styled-components-spacing'
@@ -43,6 +44,9 @@ export default class ListShareModal extends UIElement<
                             <Margin right="small">
                                 <Button
                                     type="small"
+                                    isDisabled={
+                                        this.state.deleteLinkState === 'running'
+                                    }
                                     onClick={() =>
                                         this.processEvent(
                                             'confirmLinkDelete',
@@ -55,6 +59,9 @@ export default class ListShareModal extends UIElement<
                             </Margin>
                             <Button
                                 type="alternative-small"
+                                isDisabled={
+                                    this.state.deleteLinkState === 'running'
+                                }
                                 onClick={() =>
                                     this.processEvent('cancelLinkDelete', null)
                                 }
@@ -72,8 +79,8 @@ export default class ListShareModal extends UIElement<
         roleID,
         linkIndex,
     }: InviteLink & { linkIndex: number }) => (
-        <Margin bottom="smallest">
-            <LinkContainer key={linkIndex}>
+        <Margin key={linkIndex} bottom="smallest">
+            <LinkContainer>
                 <CopyLinkBox>
                     <Icon
                         fileName="copy.svg"
@@ -101,7 +108,48 @@ export default class ListShareModal extends UIElement<
         </Margin>
     )
 
-    renderRoleIDSelect = () => (
+    private renderInviteLinks = () => {
+        if (this.state.loadState === 'running') {
+            return <LoadingIndicator />
+        }
+
+        if (
+            this.state.inviteLinks.length === 0 &&
+            this.state.addLinkState !== 'running'
+        ) {
+            return
+        }
+
+        const renderedLinks = this.state.inviteLinks.map((link, linkIndex) =>
+            this.renderCopyableLink({
+                ...link,
+                linkIndex,
+            }),
+        )
+
+        if (this.state.addLinkState === 'running') {
+            renderedLinks.push(
+                <Margin key="add-link-loader" bottom="smallest">
+                    <LinkContainer>
+                        <LoadingIndicator />
+                    </LinkContainer>
+                </Margin>,
+            )
+        }
+
+        return (
+            <InviteLinksBox>
+                <Margin top="medium">
+                    <Margin bottom="small">
+                        <Header>Invite Links</Header>
+                    </Margin>
+                    <InviteLinksContainer>{renderedLinks}</InviteLinksContainer>
+                </Margin>
+            </InviteLinksBox>
+        )
+    }
+
+    private renderRoleIDSelect = () => (
         <Margin horizontal="small">
             <Select
                 value={this.state.addLinkRoleID}
@@ -159,6 +207,10 @@ export default class ListShareModal extends UIElement<
                                 <ButtonBox>
                                     <Button
                                         type="primary-action"
+                                        isDisabled={
+                                            this.state.addLinkState ===
+                                            'running'
+                                        }
                                         onClick={() =>
                                             this.processEvent('addLink', null)
                                         }
@@ -186,24 +238,7 @@ export default class ListShareModal extends UIElement<
                                 </ButtonBox>
                             </AddLinkBox>
                         </Margin>
-                        {this.state.inviteLinks.length !== 0 && (
-                            <InviteLinksBox>
-                                <Margin top="medium">
-                                    <Margin bottom="small">
-                                        <Header>Invite Links</Header>
-                                    </Margin>
-                                    <InviteLinksContainer>
-                                        {this.state.inviteLinks.map(
-                                            (link, linkIndex) =>
-                                                this.renderCopyableLink({
-                                                    ...link,
-                                                    linkIndex,
-                                                }),
-                                        )}
-                                    </InviteLinksContainer>
-                                </Margin>
-                            </InviteLinksBox>
-                        )}
+                        {this.renderInviteLinks()}
                     </ModalContainer>
                 </Overlay>
                 {this.renderDeleteModal()}

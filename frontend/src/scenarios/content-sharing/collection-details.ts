@@ -707,25 +707,81 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                 route: 'collectionDetails',
                 params: { id: 'default-list' },
             },
+            setup: {
+                callModifications: ({ storage }) => [
+                    callModification({
+                        name: 'collection-share-modal-loading-block',
+                        object: storage.serverModules.contentSharing,
+                        property: 'getListKeys',
+                        modifier: 'block',
+                    }),
+                    // TODO: figure out how to do multiple blocks
+                    // callModification({
+                    //     name: 'collection-share-modal-add-block',
+                    //     object: storage.serverModules.contentSharing,
+                    //     property: 'createListKey',
+                    //     modifier: 'block',
+                    // }),
+                    // callModification({
+                    //     name: 'collection-share-modal-delete-block',
+                    //     object: storage.serverModules.contentSharing,
+                    //     property: 'deleteListKey',
+                    //     modifier: 'block',
+                    // }),
+                ],
+            },
             steps: [
                 step({
-                    name: 'collection-share-modal-clicked',
+                    name: 'collection-share-modal-loading',
                     target: 'CollectionDetailsPage',
                     eventName: 'toggleListShareModal',
                     eventArgs: {},
                 }),
                 step({
-                    name: 'collection-share-modal-added',
+                    name: 'collection-share-modal-loaded',
+                    callModifications: ({ storage }) => [
+                        {
+                            name: 'collection-share-modal-loading-block',
+                            modifier: 'undo',
+                        },
+                    ],
+                }),
+                step({
+                    name: 'collection-share-modal-adding',
                     target: 'ListShareModal',
                     eventName: 'addLink',
                     eventArgs: null,
                 }),
+                // step({
+                //     name: 'collection-share-modal-added',
+                //     callModifications: ({ storage }) => [
+                //         {
+                //             name: 'collection-share-modal-add-block',
+                //             modifier: 'undo',
+                //         },
+                //     ],
+                // }),
                 step({
                     name: 'collection-share-modal-delete-modal',
                     target: 'ListShareModal',
                     eventName: 'requestLinkDelete',
                     eventArgs: { linkIndex: 0 },
                 }),
+                step({
+                    name: 'collection-share-modal-delete-modal-confirm',
+                    target: 'ListShareModal',
+                    eventName: 'confirmLinkDelete',
+                    eventArgs: null,
+                }),
+                // step({
+                //     name: 'collection-share-modal-delete-modal-done',
+                //     callModifications: ({ storage }) => [
+                //         {
+                //             name: 'collection-share-modal-delete-block',
+                //             modifier: 'undo',
+                //         },
+                //     ],
+                // }),
                 step({
                     name: 'collection-share-modal-clicked-away',
                     target: 'CollectionDetailsPage',
