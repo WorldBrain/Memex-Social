@@ -103,46 +103,52 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 localListId: 55,
                 userReference,
             })
-            await data.createTestListEntries({
-                contentSharing,
-                listReference,
-                userReference,
-            })
-            const retrieved = (await contentSharing.retrieveList(
-                listReference,
-            ))!
-            expect(retrieved).toEqual({
-                creator: userReference,
-                sharedList: expect.objectContaining({
-                    id: expect.anything(),
-                    creator: userReference.id,
-                    createdWhen: expect.any(Number),
-                    updatedWhen: expect.any(Number),
-                    title: 'My list',
-                }),
-                entries: [
-                    {
+            const test = async () => {
+                await data.createTestListEntries({
+                    contentSharing,
+                    listReference,
+                    userReference,
+                })
+                const retrieved = (await contentSharing.retrieveList(
+                    listReference,
+                ))!
+                expect(retrieved).toEqual({
+                    creator: userReference,
+                    sharedList: expect.objectContaining({
                         id: expect.anything(),
                         creator: userReference.id,
-                        sharedList: listReference,
                         createdWhen: expect.any(Number),
                         updatedWhen: expect.any(Number),
-                        entryTitle: 'Page 1',
-                        originalUrl: 'https://www.foo.com/page-1',
-                        normalizedUrl: 'foo.com/page-1',
-                    },
-                    {
-                        id: expect.anything(),
-                        creator: userReference.id,
-                        sharedList: listReference,
-                        createdWhen: 592,
-                        updatedWhen: expect.any(Number),
-                        entryTitle: 'Page 2',
-                        originalUrl: 'https://www.bar.com/page-2',
-                        normalizedUrl: 'bar.com/page-2',
-                    },
-                ],
-            })
+                        title: 'My list',
+                    }),
+                    entries: [
+                        {
+                            id: expect.anything(),
+                            creator: userReference.id,
+                            sharedList: listReference,
+                            createdWhen: expect.any(Number),
+                            updatedWhen: expect.any(Number),
+                            entryTitle: 'Page 1',
+                            originalUrl: 'https://www.foo.com/page-1',
+                            normalizedUrl: 'foo.com/page-1',
+                        },
+                        {
+                            id: expect.anything(),
+                            creator: userReference.id,
+                            sharedList: listReference,
+                            createdWhen: 592,
+                            updatedWhen: expect.any(Number),
+                            entryTitle: 'Page 2',
+                            originalUrl: 'https://www.bar.com/page-2',
+                            normalizedUrl: 'bar.com/page-2',
+                        },
+                    ],
+                })
+            }
+            await test()
+
+            // should not upload duplicate list entries
+            await test()
         },
     )
 
