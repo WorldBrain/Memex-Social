@@ -995,6 +995,10 @@ createMultiDeviceStorageTestSuite(
                 withTestListEntries?: boolean
             },
         ) {
+            if (!context.enforcesAccessRules) {
+                context.skipTest()
+            }
+
             const userIds = ['user-a', 'user-b']
             const devices = await Promise.all(
                 userIds.map((uid) =>
@@ -1199,6 +1203,9 @@ createMultiDeviceStorageTestSuite(
                 userReference: devices[1].services.auth.getCurrentUserReference()!,
                 contentSharing:
                     superuserDevice.storage.serverModules.contentSharing,
+                activityFollows:
+                    devices[1].storage.serverModules.activityFollows,
+                userMessages: devices[1].services.userMessages,
             })
             expect(
                 await devicesByRole.listOwner.storage.serverModules.contentSharing.getListRole(

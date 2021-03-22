@@ -13,6 +13,7 @@ import { ProgramQueryParams } from '../setup/types'
 export interface StorageTestDevice {
     storage: Storage
     services: Services
+    enforcesAccessRules: boolean
     // auth: {
     //     signInTestUser: () => Promise<void>
     //     signOutTestUser: () => Promise<void>
@@ -26,12 +27,17 @@ export interface StorageTestDeviceOptions {
     withTestUser?: boolean | { uid: string }
     printProjectId?: boolean
 }
-export interface StorageTestContext extends StorageTestDevice {}
+export interface StorageTestContext extends StorageTestDevice {
+    enforcesAccessRules: boolean
+    skipTest(): void
+}
 export interface MultiDeviceStorageTestContext {
+    enforcesAccessRules: boolean
     createDevice(options?: StorageTestDeviceOptions): Promise<StorageTestDevice>
     createSuperuserDevice(options?: {
         printProjectId?: boolean
     }): Promise<StorageTestDevice>
+    skipTest(): void
 }
 
 export type StorageTest<Context = StorageTestContext> = (
@@ -90,7 +96,12 @@ async function createMemoryTestDevice(
     //         await services.auth.logout()
     //     },
     // }
-    return { storage, services, cleanup: async () => {} }
+    return {
+        storage,
+        services,
+        enforcesAccessRules: false,
+        cleanup: async () => {},
+    }
 }
 
 async function createFirebaseTestDevice(
@@ -169,6 +180,7 @@ async function createFirebaseTestDevice(
     return {
         storage,
         services,
+        enforcesAccessRules: true,
         cleanup: async () => {
             await firebaseApp.delete()
         },
@@ -208,12 +220,13 @@ export function createMultiDeviceStorageTestFactory(suiteOptions: {
             maybeTest,
             defaultOptions: {},
         })
-        it(description, async () => {
+        it(description, async function () {
             const createdDevices: Array<StorageTestDeviceWithCleanup> = []
             const storage = await createStorage({ backend: 'memory' })
             try {
                 if (suiteOptions.backend === 'memory') {
                     await test({
+                        enforcesAccessRules: false,
                         createDevice: async (options) => {
                             const device = await createMemoryTestDevice({
                                 ...options,
@@ -229,6 +242,7 @@ export function createMultiDeviceStorageTestFactory(suiteOptions: {
                             createdDevices.push(device)
                             return device
                         },
+                        skipTest: () => this.skip(),
                     })
                 } else if (suiteOptions.backend === 'firebase-emulator') {
                     const firebaseProjectId = `unit-test-${Date.now()}`
@@ -239,6 +253,7 @@ export function createMultiDeviceStorageTestFactory(suiteOptions: {
                     }
 
                     await test({
+                        enforcesAccessRules: true,
                         createDevice: async (options) => {
                             const device = await createFirebaseTestDevice({
                                 ...options,
@@ -256,6 +271,7 @@ export function createMultiDeviceStorageTestFactory(suiteOptions: {
                             createdDevices.push(device)
                             return device
                         },
+                        skipTest: () => this.skip(),
                     })
                 } else {
                     throw new Error(
@@ -289,11 +305,12 @@ export function createStorageTestFactory(suiteOptions: {
             defaultOptions: {},
         })
 
-        it(description, async () => {
+        it(description, async function () {
             if (suiteOptions.backend === 'memory') {
                 const device = await createMemoryTestDevice(testOptions)
                 await test({
                     ...device,
+                    skipTest: () => this.skip(),
                 })
             } else if (suiteOptions.backend === 'firebase-emulator') {
                 const firebaseProjectId = `unit-test-${Date.now()}`
@@ -308,7 +325,10 @@ export function createStorageTestFactory(suiteOptions: {
                     firebaseProjectId,
                 })
                 try {
-                    await test(device)
+                    await test({
+                        ...device,
+                        skipTest: () => this.skip(),
+                    })
                 } finally {
                     await device.cleanup()
                 }
