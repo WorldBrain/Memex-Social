@@ -716,72 +716,96 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 listReference: listReference2,
                 userReference,
             })
-            await contentSharing.addAnnotationsToLists({
-                creator: userReference,
-                sharedListReferences: [listReference2],
-                sharedAnnotations: Object.entries(
-                    sharedAnnotationReferences,
-                ).map(([localId, reference]) => ({
-                    reference,
-                    normalizedPageUrl:
-                        data.TEST_ANNOTATION_PAGE_URLS_BY_LOCAL_ID[localId]
-                            .normalizedPageUrl,
-                    createdWhen:
-                        data.TEST_ANNOTATION_PAGE_URLS_BY_LOCAL_ID[localId]
-                            .createdWhen,
-                })),
-            })
 
-            expect(
-                await contentSharing.getAnnotationsForPagesInList({
-                    listReference: listReference2,
-                    normalizedPageUrls: ['foo.com/page-1', 'bar.com/page-2'],
-                }),
-            ).toEqual({
-                'foo.com/page-1': [
-                    {
-                        annotation: {
-                            id: expect.anything(),
-                            createdWhen: 500,
-                            uploadedWhen: expect.any(Number),
-                            updatedWhen: expect.any(Number),
-                            creator: userReference.id,
-                            normalizedPageUrl: 'foo.com/page-1',
-                            body: 'Body 1',
-                            comment: 'Comment 1',
-                            selector: 'Selector 1',
+            const test = async () => {
+                await contentSharing.addAnnotationsToLists({
+                    creator: userReference,
+                    sharedListReferences: [listReference2],
+                    sharedAnnotations: Object.entries(
+                        sharedAnnotationReferences,
+                    ).map(([localId, reference]) => ({
+                        reference,
+                        normalizedPageUrl:
+                            data.TEST_ANNOTATION_PAGE_URLS_BY_LOCAL_ID[localId]
+                                .normalizedPageUrl,
+                        createdWhen:
+                            data.TEST_ANNOTATION_PAGE_URLS_BY_LOCAL_ID[localId]
+                                .createdWhen,
+                    })),
+                })
+
+                const annotationEntries = await storage.serverStorageManager.operation(
+                    'findObjects',
+                    'sharedAnnotationListEntry',
+                    {},
+                )
+                expect(annotationEntries).toEqual([
+                    expect.objectContaining({}),
+                    expect.objectContaining({}),
+                    expect.objectContaining({}),
+                    expect.objectContaining({}),
+                    expect.objectContaining({}),
+                    expect.objectContaining({}),
+                ])
+
+                expect(
+                    await contentSharing.getAnnotationsForPagesInList({
+                        listReference: listReference2,
+                        normalizedPageUrls: [
+                            'foo.com/page-1',
+                            'bar.com/page-2',
+                        ],
+                    }),
+                ).toEqual({
+                    'foo.com/page-1': [
+                        {
+                            annotation: {
+                                id: expect.anything(),
+                                createdWhen: 500,
+                                uploadedWhen: expect.any(Number),
+                                updatedWhen: expect.any(Number),
+                                creator: userReference.id,
+                                normalizedPageUrl: 'foo.com/page-1',
+                                body: 'Body 1',
+                                comment: 'Comment 1',
+                                selector: 'Selector 1',
+                            },
                         },
-                    },
-                    {
-                        annotation: {
-                            id: expect.anything(),
-                            createdWhen: 1500,
-                            uploadedWhen: expect.any(Number),
-                            updatedWhen: expect.any(Number),
-                            creator: userReference.id,
-                            normalizedPageUrl: 'foo.com/page-1',
-                            body: 'Body 2',
-                            comment: 'Comment 2',
-                            selector: 'Selector 2',
+                        {
+                            annotation: {
+                                id: expect.anything(),
+                                createdWhen: 1500,
+                                uploadedWhen: expect.any(Number),
+                                updatedWhen: expect.any(Number),
+                                creator: userReference.id,
+                                normalizedPageUrl: 'foo.com/page-1',
+                                body: 'Body 2',
+                                comment: 'Comment 2',
+                                selector: 'Selector 2',
+                            },
                         },
-                    },
-                ],
-                'bar.com/page-2': [
-                    {
-                        annotation: {
-                            id: expect.anything(),
-                            createdWhen: 2000,
-                            uploadedWhen: expect.any(Number),
-                            updatedWhen: expect.any(Number),
-                            creator: userReference.id,
-                            normalizedPageUrl: 'bar.com/page-2',
-                            body: 'Body 3',
-                            comment: 'Comment 3',
-                            selector: 'Selector 3',
+                    ],
+                    'bar.com/page-2': [
+                        {
+                            annotation: {
+                                id: expect.anything(),
+                                createdWhen: 2000,
+                                uploadedWhen: expect.any(Number),
+                                updatedWhen: expect.any(Number),
+                                creator: userReference.id,
+                                normalizedPageUrl: 'bar.com/page-2',
+                                body: 'Body 3',
+                                comment: 'Comment 3',
+                                selector: 'Selector 3',
+                            },
                         },
-                    },
-                ],
-            })
+                    ],
+                })
+            }
+            await test()
+
+            // should not create duplicate entries
+            await test()
         },
     )
 
