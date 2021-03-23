@@ -9,6 +9,7 @@ import { Services } from '../services/types'
 import { StorageHooksChangeWatcher } from '../storage/hooks'
 import FirebaseAuthService from '../services/auth/firebase'
 import { ProgramQueryParams } from '../setup/types'
+import { mockClipboardAPI } from '../services/clipboard'
 
 export interface StorageTestDevice {
     storage: Storage
@@ -80,6 +81,7 @@ async function createMemoryTestDevice(
         backend: 'memory',
         storage,
         queryParams: testOptions.queryParams ?? {},
+        clipboard: mockClipboardAPI,
         history: null!,
         uiMountPoint: null!,
         localStorage: null!,
@@ -142,7 +144,7 @@ async function createFirebaseTestDevice(
                         allow read, write; // or allow read, write: if true;
                     }
                 }
-            }                      
+            }
             `,
         })
     } else {
