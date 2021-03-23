@@ -7,7 +7,7 @@ import type {
     LogicUnitData,
     EventProcessedArgs,
     LogicRegistryServiceInterface,
-} from './types'
+} from '@worldbrain/memex-common/lib/services/logic-registry/types'
 
 export default class LogicRegistryService
     implements LogicRegistryServiceInterface {

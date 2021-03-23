@@ -1,3 +1,4 @@
+import type { Services as SharedServices } from '@worldbrain/memex-common/lib/services/types'
 import { AuthService } from './auth/types'
 import FixtureService from './fixtures'
 import RouterService from './router'
@@ -10,18 +11,10 @@ import UserManagementService from '../features/user-management/service'
 import WebMonetizationService from '../features/web-monetization/service'
 import { LocalStorageService } from './local-storage/types'
 import { ContentSharingService } from '../features/content-sharing/service'
-import type { DeviceServiceInterface } from './device/types'
-import type { OverlayServiceInterface } from './overlay/types'
-import type { ClipboardServiceInterface } from './clipboard/types'
-import type { LogicRegistryServiceInterface } from './logic-registry/types'
 
-export interface Services {
+export type Services = SharedServices & {
     router: RouterService
     auth: AuthService
-    overlay: OverlayServiceInterface
-    clipboard: ClipboardServiceInterface
-    logicRegistry: LogicRegistryServiceInterface
-    device: DeviceServiceInterface
     fixtures: FixtureService
     scenarios: ScenarioService
     documentTitle: DocumentTitleService

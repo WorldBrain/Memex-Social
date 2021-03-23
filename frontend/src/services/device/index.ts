@@ -1,6 +1,8 @@
 import { EventEmitter } from 'events'
-
-import type { DeviceServiceInterface, RectSize } from './types'
+import type {
+    DeviceServiceInterface,
+    RectSize,
+} from '@worldbrain/memex-common/lib/services/device/types'
 
 export class DeviceService implements DeviceServiceInterface {
     events = new EventEmitter()

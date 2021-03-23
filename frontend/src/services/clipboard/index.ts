@@ -1,7 +1,5 @@
-import type {
-    ClipboardServiceInterface,
-    ClipboardServiceDependencies as Dependencies,
-} from './types'
+import type { ClipboardServiceInterface } from '@worldbrain/memex-common/lib/services/clipboard/types'
+import type { ClipboardServiceDependencies as Dependencies } from './types'
 
 export default class ClipboardService implements ClipboardServiceInterface {
     constructor(private dependencies: Dependencies) {}
