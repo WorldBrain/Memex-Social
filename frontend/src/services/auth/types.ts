@@ -34,6 +34,9 @@ export interface AuthService {
 
     logout(): Promise<void>
 
+    enforceAuth(options?: AuthRequest): Promise<boolean>
+    waitForAuthReady(): Promise<void>
+    waitForAuth(): Promise<void>
     requestAuth(options?: AuthRequest): Promise<{ result: AuthResult }>
 }
 

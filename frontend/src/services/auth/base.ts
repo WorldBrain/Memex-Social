@@ -19,6 +19,20 @@ import TypedEventEmitter from 'typed-emitter'
 
 export abstract class AuthServiceBase implements AuthService {
     events: TypedEventEmitter<AuthEvents> = new EventEmitter()
+    _initialWaitForAuth?: Promise<void>
+
+    constructor() {
+        this._initialWaitForAuth = (async () => {
+            const { waitingForAuth, stopWaiting } = waitForAuth(this)
+            await Promise.race([
+                waitingForAuth,
+                // There's reports of Firebase detecting auth state between 1.5 and 2 seconds after load  :(
+                new Promise((resolve) => setTimeout(resolve, 3000)),
+            ])
+            stopWaiting()
+            delete this._initialWaitForAuth
+        })()
+    }
 
     abstract loginWithProvider(
         provider: AuthProvider,
@@ -46,6 +60,30 @@ export abstract class AuthServiceBase implements AuthService {
 
     abstract logout(): Promise<void>
 
+    async enforceAuth(options?: AuthRequest): Promise<boolean> {
+        await this._initialWaitForAuth
+        if (this.getCurrentUser()) {
+            return true
+        }
+        const {
+            result: { status },
+        } = await this.requestAuth(options)
+        return (
+            status === 'authenticated' ||
+            status === 'registered-and-authenticated'
+        )
+    }
+
+    async waitForAuthReady(): Promise<void> {
+        await this._initialWaitForAuth
+    }
+
+    async waitForAuth() {
+        const { waitingForAuth, stopWaiting } = waitForAuth(this)
+        await waitingForAuth
+        stopWaiting()
+    }
+
     requestAuth(request?: AuthRequest): Promise<{ result: AuthResult }> {
         return new Promise<{ result: AuthResult }>((resolve) => {
             this.events.emit('authRequested', {
@@ -53,5 +91,29 @@ export abstract class AuthServiceBase implements AuthService {
                 emitResult: (result) => resolve({ result }),
             })
         })
+    }
+}
+
+function waitForAuth(
+    auth: AuthService,
+): { waitingForAuth: Promise<void>; stopWaiting: () => void } {
+    let destroyHandler = () => {}
+    const stopWaiting = () => {
+        destroyHandler()
+        destroyHandler = () => {}
+    }
+    return {
+        waitingForAuth: new Promise((resolve) => {
+            const handler = () => {
+                if (auth.getCurrentUser()) {
+                    stopWaiting()
+                    resolve()
+                }
+            }
+            destroyHandler = () =>
+                auth.events.removeListener('changed', handler)
+            auth.events.addListener('changed', handler)
+        }),
+        stopWaiting,
     }
 }
