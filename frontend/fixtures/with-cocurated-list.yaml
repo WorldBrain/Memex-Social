@@ -1,0 +1,70 @@
+objects:
+    sharedLists:
+        - $store: cocurated
+          id: cocurated-list
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          title: 'Productivity Tools: Networked Thoughts Thoughts Thoughts Thoughts Thoughts Thoughts Thoughts Thoughts'
+          description: 'A new breed of note-taking tools. Here is a collection of tools for networked thoughts. A new breed of note-taking tools. Here is a collection of tools for networked thoughts. A new breed of note-taking tools. Here is a collection of tools for networked thoughts. A new breed of note-taking tools. Here is a collection of tools for networked thoughts. A new breed of note-taking tools. Here is a collection of tools for networked thoughts. A new breed of note-taking tools. Here is a collection of tools for networked thoughts.'
+    sharedListEntries:
+        - sharedList: { $ref: sharedLists.cocurated }
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          fullTitle: "WorldBrain's Memex"
+          normalizedUrl: getmemex.com
+          originalUrl: 'https://getmemex.com'
+        - sharedList: { $ref: sharedLists.cocurated }
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          fullTitle: Notion
+          normalizedUrl: notion.so
+          originalUrl: 'https://notion.so'
+    sharedPageInfo:
+        - id: default-page
+          creator: { $ref: users.default }
+          createdWhen: 1594225555555
+          updatedWhen: 1594225555555
+          fullTitle: "WorldBrain's Memex"
+          normalizedUrl: getmemex.com
+          originalUrl: 'https://getmemex.com'
+        - id: notion-page
+          creator: { $ref: users.default }
+          createdWhen: 1594225555555
+          updatedWhen: 1594225555555
+          fullTitle: 'Notion'
+          normalizedUrl: notion.so
+          originalUrl: 'https://notion.so'
+    sharedAnnotations:
+        - $store: annotation-1
+          id: default-annotation
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          normalizedPageUrl: 'getmemex.com'
+          body: 'Annotation highlight by default user'
+          comment: 'Annotation text by default user'
+          selector: 'Selector 1'
+        - $store: annotation-2
+          id: second-annotation
+          creator: { $ref: users.second }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          normalizedPageUrl: 'notion.so'
+          comment: 'Annotation text by second user'
+          selector: 'Selector 2'
+    sharedAnnotationListEntries:
+        - creator: { $ref: users.default }
+          sharedList: { $ref: sharedLists.cocurated }
+          sharedAnnotation: { $ref: sharedAnnotations.annotation-1 }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          normalizedPageUrl: 'getmemex.com'
+        - creator: { $ref: users.default }
+          sharedList: { $ref: sharedLists.cocurated }
+          sharedAnnotation: { $ref: sharedAnnotations.annotation-2 }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          normalizedPageUrl: 'notion.so'

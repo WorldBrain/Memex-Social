@@ -235,7 +235,13 @@ export default class CollectionDetailsPage extends UIElement<
                     )
                 }
                 annotationConversations={this.state.conversations}
-                getAnnotationCreator={() => this.state.listData?.creator}
+                getAnnotationCreator={(annotationReference) => {
+                    const creatorRef = this.state.annotations[
+                        annotationReference.id.toString()
+                    ]?.creator
+                    console.log(creatorRef, this.state.users)
+                    return creatorRef && this.state.users[creatorRef.id]
+                }}
                 getAnnotationCreatorRef={() =>
                     this.state.listData?.creatorReference ?? {
                         type: 'user-reference',

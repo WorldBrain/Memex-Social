@@ -42,7 +42,6 @@ import {
     User,
     UserReference,
 } from '@worldbrain/memex-common/lib/web-interface/types/users'
-import { AuthService, AuthRequest } from '../../../../../services/auth/types'
 import { SharedAnnotationReference } from '@worldbrain/memex-common/lib/content-sharing/types'
 
 type EventHandler<EventName extends keyof HomeFeedEvent> = UIEventHandler<
@@ -526,7 +525,7 @@ export default class HomeFeedLogic extends UILogic<
                     expanded: true,
                     replies: annotationReplies
                         .map((replyItem) => {
-                            return activityData?.replies[conversationKey]?.[
+                            return organized.data?.replies[conversationKey]?.[
                                 replyItem.reference.id
                             ]!
                         })

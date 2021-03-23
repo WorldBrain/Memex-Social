@@ -59,7 +59,12 @@ export default class CollectionDetailsLogic extends UILogic<
     constructor(private dependencies: CollectionDetailsDependencies) {
         super()
 
-        this._users = new UserProfileCache(dependencies)
+        this._users = new UserProfileCache({
+            ...dependencies,
+            onUsersLoad: (users) => {
+                this.emitMutation({ users: { $merge: users } })
+            },
+        })
 
         Object.assign(
             this,
@@ -100,6 +105,7 @@ export default class CollectionDetailsLogic extends UILogic<
             followLoadState: 'pristine',
             permissionKeyState: 'pristine',
             listRolesLoadState: 'pristine',
+            users: {},
             annotationEntriesLoadState: 'pristine',
             annotationLoadStates: {},
             annotations: {},
@@ -578,6 +584,7 @@ export default class CollectionDetailsLogic extends UILogic<
             annotationChunks.push(promise)
         }
 
+        const usersToLoad = new Set<UserReference['id']>()
         for (const promisesByPageEntry of Object.entries(promisesByPage)) {
             this.pageAnnotationPromises[promisesByPageEntry[0]] = (async ([
                 normalizedPageUrl,
@@ -599,6 +606,9 @@ export default class CollectionDetailsLogic extends UILogic<
                         )) {
                             newAnnotations[annotationId] = annotation
                         }
+                    }
+                    for (const newAnnotation of Object.values(newAnnotations)) {
+                        usersToLoad.add(newAnnotation.creator.id)
                     }
 
                     const mutation = {
@@ -648,6 +658,14 @@ export default class CollectionDetailsLogic extends UILogic<
                 normalizedPageUrls.map(
                     (normalizedPageUrl) =>
                         this.pageAnnotationPromises[normalizedPageUrl],
+                ),
+            )
+            await this._users.loadUsers(
+                [...usersToLoad].map(
+                    (id): UserReference => ({
+                        type: 'user-reference',
+                        id,
+                    }),
                 ),
             )
             this.emitSignal<CollectionDetailsSignal>({

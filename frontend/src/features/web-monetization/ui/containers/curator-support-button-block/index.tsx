@@ -153,11 +153,7 @@ export class CuratorSupportButtonBlock extends UIElement<
     }
 
     render() {
-        const {
-            paymentState,
-            isDisplayed,
-            isMonetizationAvailable,
-        } = this.state
+        const { isDisplayed } = this.state
         return (
             <Container>
                 {isDisplayed && (

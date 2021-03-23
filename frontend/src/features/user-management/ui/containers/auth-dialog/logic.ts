@@ -7,7 +7,6 @@ import {
     AuthDialogEvent,
     AuthDialogDependencies,
     AuthDialogState,
-    AuthDialogMode,
 } from './types'
 import {
     AuthResult,

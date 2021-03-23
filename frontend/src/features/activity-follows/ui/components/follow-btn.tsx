@@ -75,7 +75,6 @@ export default class FollowBtn extends PureComponent<Props> {
     }
 
     render() {
-        const { props } = this
         return (
             <Container isActive={this.isActive()} onClick={this.props.onClick}>
                 {this.renderBody()}

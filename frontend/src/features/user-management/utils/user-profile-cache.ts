@@ -10,6 +10,7 @@ export default class UserProfileCache {
     constructor(
         private dependencies: {
             storage: Pick<StorageModules, 'users'>
+            onUsersLoad?(users: { [id: string]: User | null }): void
         },
     ) {}
 
@@ -20,6 +21,21 @@ export default class UserProfileCache {
 
         const user = this.dependencies.storage.users.getUser(userReference)
         this.users[userReference.id] = user
+        user.then((userData) =>
+            this.dependencies.onUsersLoad?.({ [userReference.id]: userData }),
+        )
         return user
+    }
+
+    loadUsers = async (
+        userReferences: Array<UserReference>,
+    ): Promise<{ [id: string]: User | null }> => {
+        const users: { [id: string]: User | null } = {}
+        await Promise.all(
+            userReferences.map(async (userReference) => {
+                users[userReference.id] = await this.loadUser(userReference)
+            }),
+        )
+        return users
     }
 }

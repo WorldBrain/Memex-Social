@@ -12,12 +12,14 @@ import {
     LoginResult,
 } from './types'
 import { AuthServiceBase } from './base'
+import { waitForAuth } from './utils'
 
 export default class FirebaseAuthService extends AuthServiceBase {
     events = new EventEmitter()
     private _firebase: typeof firebase
     private _user: User | null = null
     private _initialized = false
+    _initialWaitForAuth?: Promise<void>
 
     constructor(
         firebaseRoot: typeof firebase,
@@ -26,6 +28,17 @@ export default class FirebaseAuthService extends AuthServiceBase {
         },
     ) {
         super()
+
+        this._initialWaitForAuth = (async () => {
+            const { waitingForAuth, stopWaiting } = waitForAuth(this)
+            await Promise.race([
+                waitingForAuth,
+                // There's reports of Firebase detecting auth state between 1.5 and 2 seconds after load  :(
+                new Promise((resolve) => setTimeout(resolve, 3000)),
+            ])
+            stopWaiting()
+            delete this._initialWaitForAuth
+        })()
 
         this._firebase = firebaseRoot
         this._user = null
@@ -160,6 +173,10 @@ export default class FirebaseAuthService extends AuthServiceBase {
         }
 
         this.events.emit('changed')
+    }
+
+    async waitForAuthReady() {
+        await this._initialWaitForAuth
     }
 }
 

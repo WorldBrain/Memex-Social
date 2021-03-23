@@ -65,6 +65,8 @@ export type CollectionDetailsState = AnnotationConversationsState &
         listRoles?: Array<SharedListRole & { user: UserReference }>
         isListOwner?: boolean
 
+        users: { [id: string]: Pick<User, 'displayName'> }
+
         annotationEntriesLoadState: UITaskState
         annotationLoadStates: { [normalizedPageUrl: string]: UITaskState }
         listData?: {

@@ -990,4 +990,30 @@ export const SCENARIOS: ScenarioMap<Targets> = {
         },
         steps: [],
     })),
+    cocurated: scenario<Targets>(({ step, callModification }) => ({
+        fixture: 'cocurated-list',
+        startRoute: {
+            route: 'collectionDetails',
+            params: { id: 'cocurated-list' },
+        },
+        setup: {},
+        steps: [
+            step({
+                name: 'first-annotations-toggle',
+                target: 'CollectionDetailsPage',
+                eventName: 'togglePageAnnotations',
+                eventArgs: {
+                    normalizedUrl: 'notion.so',
+                },
+            }),
+            step({
+                name: 'second-annotations-toggle',
+                target: 'CollectionDetailsPage',
+                eventName: 'togglePageAnnotations',
+                eventArgs: {
+                    normalizedUrl: 'getmemex.com',
+                },
+            }),
+        ],
+    })),
 }

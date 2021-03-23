@@ -2,7 +2,6 @@ import {
     UILogic,
     UIEventHandler,
     loadInitial,
-    executeUITask,
 } from '../../../../main-ui/classes/logic'
 import { WebMonetizationEvents } from '../../service/types'
 import {
