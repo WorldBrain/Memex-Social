@@ -16,7 +16,7 @@ objects:
           normalizedUrl: getmemex.com
           originalUrl: 'https://getmemex.com'
         - sharedList: { $ref: sharedLists.cocurated }
-          creator: { $ref: users.default }
+          creator: { $ref: users.second }
           createdWhen: 1594225289914
           updatedWhen: 1594225289914
           fullTitle: Notion
@@ -31,7 +31,7 @@ objects:
           normalizedUrl: getmemex.com
           originalUrl: 'https://getmemex.com'
         - id: notion-page
-          creator: { $ref: users.default }
+          creator: { $ref: users.second }
           createdWhen: 1594225555555
           updatedWhen: 1594225555555
           fullTitle: 'Notion'
