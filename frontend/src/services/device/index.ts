@@ -1,8 +1,8 @@
 import { EventEmitter } from 'events'
 
-type RectSize = { width: number; height: number }
+import type { DeviceServiceInterface, RectSize } from './types'
 
-export class DeviceService {
+export class DeviceService implements DeviceServiceInterface {
     events = new EventEmitter()
     private cachedRootSize: RectSize
 

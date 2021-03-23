@@ -52,3 +52,24 @@ export interface LogicRegistryEvents {
         value: any
     }) => void
 }
+
+export interface LogicRegistryServiceInterface {
+    emitSignal: (elementName: string, signal: any) => void
+    getAttribute: (elementName: string, key: string) => any
+    setAttribute: (elementName: string, key: string, value: any) => void
+
+    waitForElement: (elementName: string) => Promise<void>
+    waitForSignal: (elementName: string, expectedSignal: any) => Promise<void>
+    waitForAttribute: (
+        elementName: string,
+        attributeName: string,
+    ) => Promise<void>
+
+    unregisterLogic: (elementName: string) => void
+    registerLogic: (elementName: string, logicUnit: LogicUnit) => void
+    processEvent: (
+        elementName: string,
+        eventName: string,
+        eventArgs: any,
+    ) => Promise<void>
+}

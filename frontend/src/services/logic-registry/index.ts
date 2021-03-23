@@ -1,14 +1,16 @@
 import isMatch from 'lodash/isMatch'
 import { EventEmitter } from 'events'
-import TypedEmitter from 'typed-emitter'
-import {
+import type TypedEmitter from 'typed-emitter'
+import type {
     LogicRegistryEvents,
     LogicUnit,
     LogicUnitData,
     EventProcessedArgs,
+    LogicRegistryServiceInterface,
 } from './types'
 
-export default class LogicRegistryService {
+export default class LogicRegistryService
+    implements LogicRegistryServiceInterface {
     events: TypedEmitter<LogicRegistryEvents> = new EventEmitter()
     _logicUnits: { [name: string]: LogicUnit } = {}
     _logicUnitData: { [name: string]: LogicUnitData } = {}

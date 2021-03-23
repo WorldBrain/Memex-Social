@@ -1,9 +1,7 @@
 import { AuthService } from './auth/types'
-import LogicRegistryService from './logic-registry'
 import FixtureService from './fixtures'
 import RouterService from './router'
 import { ScenarioService } from './scenarios'
-import { DeviceService } from './device'
 import { DocumentTitleService } from './document-title'
 import ContentConversationsService from '../features/content-conversations/services/content-conversations'
 import { ActivityStreamsService } from '@worldbrain/memex-common/lib/activity-streams/types'
@@ -12,16 +10,18 @@ import UserManagementService from '../features/user-management/service'
 import WebMonetizationService from '../features/web-monetization/service'
 import { LocalStorageService } from './local-storage/types'
 import { ContentSharingService } from '../features/content-sharing/service'
+import type { DeviceServiceInterface } from './device/types'
 import type { OverlayServiceInterface } from './overlay/types'
 import type { ClipboardServiceInterface } from './clipboard/types'
+import type { LogicRegistryServiceInterface } from './logic-registry/types'
 
 export interface Services {
     router: RouterService
     auth: AuthService
     overlay: OverlayServiceInterface
     clipboard: ClipboardServiceInterface
-    logicRegistry: LogicRegistryService
-    device: DeviceService
+    logicRegistry: LogicRegistryServiceInterface
+    device: DeviceServiceInterface
     fixtures: FixtureService
     scenarios: ScenarioService
     documentTitle: DocumentTitleService
