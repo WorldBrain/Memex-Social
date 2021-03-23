@@ -10,7 +10,7 @@ import {
 } from '../services/scenarios'
 import { Scenario } from '../services/scenarios/types'
 import { mainProgram } from './main'
-import { mockClipboardAPI } from '../services/clipboard'
+import { mockClipboardAPI } from '../services/clipboard/mock'
 
 export async function metaProgram(options: {
     history: History
