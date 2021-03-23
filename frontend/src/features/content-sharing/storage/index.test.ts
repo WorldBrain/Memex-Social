@@ -1219,10 +1219,16 @@ createMultiDeviceStorageTestSuite(
                 ),
             ).toEqual([
                 {
-                    id: keyString,
+                    reference: {
+                        id: keyString,
+                        type: 'shared-list-key-reference',
+                    },
+                    sharedList: {
+                        id: listReference.id,
+                        type: 'shared-list-reference',
+                    },
                     createdWhen: expect.any(Number),
                     updatedWhen: expect.any(Number),
-                    sharedList: listReference.id,
                     roleID: SharedListRoleID.AddOnly,
                     disabled: false,
                 },
@@ -1279,6 +1285,107 @@ createMultiDeviceStorageTestSuite(
                     ],
                 }),
             )
+        })
+
+        it(`should support deletion of created list keys`, async (context) => {
+            const { devicesByRole, listReference } = await setupTest(context)
+            const {
+                keyString: adderKeyString,
+            } = await devicesByRole.listOwner.storage.serverModules.contentSharing.createListKey(
+                {
+                    listReference,
+                    key: {
+                        roleID: SharedListRoleID.AddOnly,
+                    },
+                },
+            )
+
+            const {
+                keyString: readerKeyString,
+            } = await devicesByRole.listOwner.storage.serverModules.contentSharing.createListKey(
+                {
+                    listReference,
+                    key: {
+                        roleID: SharedListRoleID.Reader,
+                    },
+                },
+            )
+
+            expect(
+                await devicesByRole.listOwner.storage.serverModules.contentSharing.getListKeys(
+                    {
+                        listReference,
+                    },
+                ),
+            ).toEqual([
+                {
+                    reference: {
+                        id: adderKeyString,
+                        type: 'shared-list-key-reference',
+                    },
+                    sharedList: {
+                        id: listReference.id,
+                        type: 'shared-list-reference',
+                    },
+                    createdWhen: expect.any(Number),
+                    updatedWhen: expect.any(Number),
+                    roleID: SharedListRoleID.AddOnly,
+                    disabled: false,
+                },
+                {
+                    reference: {
+                        id: readerKeyString,
+                        type: 'shared-list-key-reference',
+                    },
+                    sharedList: {
+                        id: listReference.id,
+                        type: 'shared-list-reference',
+                    },
+                    createdWhen: expect.any(Number),
+                    updatedWhen: expect.any(Number),
+                    roleID: SharedListRoleID.Reader,
+                    disabled: false,
+                },
+            ])
+
+            await devicesByRole.listOwner.storage.serverModules.contentSharing.deleteListKey(
+                { keyString: adderKeyString },
+            )
+
+            expect(
+                await devicesByRole.listOwner.storage.serverModules.contentSharing.getListKeys(
+                    {
+                        listReference,
+                    },
+                ),
+            ).toEqual([
+                {
+                    reference: {
+                        id: readerKeyString,
+                        type: 'shared-list-key-reference',
+                    },
+                    sharedList: {
+                        id: listReference.id,
+                        type: 'shared-list-reference',
+                    },
+                    createdWhen: expect.any(Number),
+                    updatedWhen: expect.any(Number),
+                    roleID: SharedListRoleID.Reader,
+                    disabled: false,
+                },
+            ])
+
+            await devicesByRole.listOwner.storage.serverModules.contentSharing.deleteListKey(
+                { keyString: readerKeyString },
+            )
+
+            expect(
+                await devicesByRole.listOwner.storage.serverModules.contentSharing.getListKeys(
+                    {
+                        listReference,
+                    },
+                ),
+            ).toEqual([])
         })
     },
 )
