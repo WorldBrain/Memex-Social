@@ -37,15 +37,15 @@ export class OverlayContainer extends UIElement<
     styleModule = 'Overlay'
 
     private rootElement?: HTMLElement | null
-    private overlaysById: { [id: string]: any } = {}
-    private overlayStack: string[] = []
+    private overlaysById: { [id: number]: any } = {}
+    private overlayStack: number[] = []
 
     constructor(props: OverlayContainerProps) {
         super(props)
 
         this.state = { content: null }
         this.props.services.overlay.events.on(
-            'content.updated',
+            'contentUpdated',
             this.handleOverlayContentUpdate,
         )
     }
@@ -53,7 +53,7 @@ export class OverlayContainer extends UIElement<
     componentDidMount() {}
 
     handleOverlayContentUpdate = (event: {
-        id: string
+        id: number
         content: React.ReactNode
     }) => {
         if (event.content) {

@@ -1,5 +1,4 @@
 import { AuthService } from './auth/types'
-import OverlayService from './overlay'
 import ClipboardService from './clipboard'
 import LogicRegistryService from './logic-registry'
 import FixtureService from './fixtures'
@@ -14,11 +13,12 @@ import UserManagementService from '../features/user-management/service'
 import WebMonetizationService from '../features/web-monetization/service'
 import { LocalStorageService } from './local-storage/types'
 import { ContentSharingService } from '../features/content-sharing/service'
+import type { OverlayServiceInterface } from './overlay/types'
 
 export interface Services {
     router: RouterService
     auth: AuthService
-    overlay: OverlayService
+    overlay: OverlayServiceInterface
     clipboard: ClipboardService
     logicRegistry: LogicRegistryService
     device: DeviceService

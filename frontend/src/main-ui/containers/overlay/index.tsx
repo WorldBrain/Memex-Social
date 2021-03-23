@@ -27,14 +27,14 @@ export default class Overlay extends UIElement<OverlayProps> {
         this.closeHandler = () => {
             this.props.onCloseRequested()
         }
-        this.props.services.overlay.events.emit('content.updated', {
+        this.props.services.overlay.events.emit('contentUpdated', {
             id: this.id,
             content: props.children,
         })
     }
 
     componentWillReceiveProps(props: OverlayProps) {
-        this.props.services.overlay.events.emit('content.updated', {
+        this.props.services.overlay.events.emit('contentUpdated', {
             id: this.id,
             content: props.children,
         })
@@ -53,7 +53,7 @@ export default class Overlay extends UIElement<OverlayProps> {
             'closeRequest',
             this.closeHandler,
         )
-        this.props.services.overlay.events.emit('content.updated', {
+        this.props.services.overlay.events.emit('contentUpdated', {
             id: this.id,
             content: null,
         })
