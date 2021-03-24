@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import { theme } from '../../../../main-ui/styles/theme'
 import { Theme } from '../../../../main-ui/styles/types'
 import { UITaskState } from '../../../../main-ui/types'
-import { UIElementServices } from '../../../../main-ui/classes'
+import { UIElementServices } from '../../../../services/types'
 import { StorageModules } from '../../../../storage/types'
 
 import LoadingScreen from '../../../../common-ui/components/loading-screen'
@@ -39,7 +39,9 @@ const Text = styled.div<{ theme: Theme }>`
 `
 
 interface CuratorSupportPopupProps {
-    services: UIElementServices<'userManagement' | 'webMonetization'>
+    services: UIElementServices<
+        'userManagement' | 'webMonetization' | 'documentTitle'
+    >
     storage: Pick<StorageModules, 'users'>
     loadState: UITaskState
     paymentSate: UITaskState
@@ -83,8 +85,8 @@ export default class CuratorSupportPopup extends PureComponent<CuratorSupportPop
                                     </Title>
                                 </Margin>
                                 <Text theme={theme}>
-                                    Use <i>WebMonetization</i> to donate a few cents for every
-                                    visit to this collection.
+                                    Use <i>WebMonetization</i> to donate a few
+                                    cents for every visit to this collection.
                                 </Text>
                                 <CuratorSupportButtonBlock
                                     services={services}

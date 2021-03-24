@@ -1,5 +1,5 @@
 import { UIEvent } from '../../../../../main-ui/classes/logic'
-import { UIElementServices } from '../../../../../main-ui/classes'
+import { UIElementServices } from '../../../../../services/types'
 import { StorageModules } from '../../../../../storage/types'
 import {
     UserReference,

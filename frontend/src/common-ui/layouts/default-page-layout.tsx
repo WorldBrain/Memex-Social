@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import styled, { css } from 'styled-components'
 import { ViewportBreakpoint } from '../../main-ui/styles/types'
-import { UIElementServices } from '../../main-ui/classes'
+import { UIElementServices } from '../../services/types'
 import AuthHeader from '../../features/user-management/ui/containers/auth-header'
 import { StorageModules } from '../../storage/types'
 import { Margin } from 'styled-components-spacing'

@@ -12,6 +12,12 @@ import WebMonetizationService from '../features/web-monetization/service'
 import { LocalStorageService } from './local-storage/types'
 import { ContentSharingService } from '../features/content-sharing/service'
 
+type UIServices = 'logicRegistry' | 'device'
+export type UIElementServices<Wanted extends keyof Services = never> = Pick<
+    Services,
+    UIServices | Wanted
+>
+
 export type Services = SharedServices & {
     router: RouterService
     auth: AuthService

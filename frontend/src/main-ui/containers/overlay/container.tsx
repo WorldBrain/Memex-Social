@@ -1,6 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
-import { UIElement, UIElementServices } from '../../classes'
+import { UIElement } from '../../classes'
+import { UIElementServices } from '../../../services/types'
 
 const StyledOverlayContainer = styled.div`
     position: fixed;

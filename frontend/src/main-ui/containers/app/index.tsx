@@ -1,5 +1,6 @@
 import React from 'react'
-import { UIElement, UIElementServices } from '../../classes'
+import { UIElement } from '../../classes'
+import { UIElementServices } from '../../../services/types'
 import { EventHandlers } from '../../classes/events'
 import AuthDialog from '../../../features/user-management/ui/containers/auth-dialog'
 import { StorageModules } from '../../../storage/types'

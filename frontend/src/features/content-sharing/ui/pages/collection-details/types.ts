@@ -18,7 +18,7 @@ import {
     UserReference,
     User,
 } from '@worldbrain/memex-common/lib/web-interface/types/users'
-import { UIElementServices } from '../../../../../main-ui/classes'
+import { UIElementServices } from '../../../../../services/types'
 import { StorageModules } from '../../../../../storage/types'
 import {
     ActivityFollowsState,
@@ -37,6 +37,7 @@ export interface CollectionDetailsDependencies {
         | 'activityStreams'
         | 'router'
         | 'activityStreams'
+        | 'documentTitle'
         | 'userManagement'
         | 'webMonetization'
         | 'localStorage'

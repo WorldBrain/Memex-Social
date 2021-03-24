@@ -1,5 +1,6 @@
 import React from 'react'
-import { UIElement, UIElementServices } from '../../classes'
+import { UIElement } from '../../classes'
+import { UIElementServices } from '../../../services/types'
 import Logic, { State, Event } from './logic'
 import { RouteName } from '../../../routes'
 

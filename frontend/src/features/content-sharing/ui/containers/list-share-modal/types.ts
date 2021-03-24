@@ -1,6 +1,6 @@
 import { UIEvent } from '../../../../../main-ui/classes/logic'
 import { UITaskState } from '../../../../../main-ui/types'
-import { UIElementServices } from '../../../../../main-ui/classes'
+import { UIElementServices } from '../../../../../services/types'
 import { SharedListRoleID } from '@worldbrain/memex-common/lib/content-sharing/types'
 
 export interface InviteLink {

@@ -14,7 +14,7 @@ import { UITaskState } from '../../../../main-ui/types'
 import { theme } from '../../../../main-ui/styles/theme'
 import LoadingScreen from '../../../../common-ui/components/loading-screen'
 import { StorageModules } from '../../../../storage/types'
-import { UIElementServices } from '../../../../main-ui/classes'
+import { UIElementServices } from '../../../../services/types'
 import Icon from '../../../../common-ui/components/icon'
 
 export const PopupContainer = styled.div<{ theme: Theme }>`
@@ -106,9 +106,9 @@ export default class ProfilePopup extends PureComponent<ProfilePopupProps> {
                 <PopupContainer theme={theme}>
                     <ProfileContainer>
                         <LoadingScreen />
-                    </ProfileContainer> 
+                    </ProfileContainer>
                 </PopupContainer>
-            )  
+            )
         }
 
         return (

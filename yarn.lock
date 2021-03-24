@@ -2594,6 +2594,11 @@ ignore@^5.1.4:
   resolved "https://registry.yarnpkg.com/ignore/-/ignore-5.1.8.tgz#f150a8b50a34289b33e22f5889abd4d8016f0e57"
   integrity sha512-BMpfD7PpiETpBl/A6S498BaIJ6Y/ABT93ETbby2fP00v4EbvPBXWEoaR1UBPKs3iR53pJY7EtZk5KACI57i1Uw==
 
+immutability-helper@^3.0.0:
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/immutability-helper/-/immutability-helper-3.1.1.tgz#2b86b2286ed3b1241c9e23b7b21e0444f52f77b7"
+  integrity sha512-Q0QaXjPjwIju/28TsugCHNEASwoCcJSyJV3uO1sOIQGI0jKgm9f41Lvz0DZj3n46cNCyAZTsEYoY4C2bVRUzyQ==
+
 import-fresh@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/import-fresh/-/import-fresh-2.0.0.tgz#d81355c15612d386c61f9ddd3922d4304822a546"
@@ -5150,6 +5155,14 @@ uglify-js@^3.1.4:
   dependencies:
     commander "~2.20.0"
     source-map "~0.6.1"
+
+ui-logic-core@^0.2.1:
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/ui-logic-core/-/ui-logic-core-0.2.1.tgz#00b903e3f83a75e3e6d7979aa387602d4363eab1"
+  integrity sha512-Baylw50isDsWCY4Qv9ek1p/6dl20Vuz2oKcBgnmnXjwVO99Yai1fm1ALamesFg3iC8ePaGxY7sHh3kT0h3Z3kA==
+  dependencies:
+    events "^3.0.0"
+    source-map-support "^0.4.18"
 
 ui-logic-react@^0.1.4:
   version "0.1.4"
