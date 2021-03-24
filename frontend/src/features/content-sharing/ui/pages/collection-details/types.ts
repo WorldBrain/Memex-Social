@@ -73,7 +73,7 @@ export type CollectionDetailsState = AnnotationConversationsState &
             creatorReference?: UserReference
             creator?: Pick<User, 'displayName'> | null
             list: SharedList
-            listEntries: SharedListEntry[]
+            listEntries: Array<SharedListEntry & { creator: UserReference }>
             listDescriptionState: 'fits' | 'collapsed' | 'expanded'
             listDescriptionTruncated: string
         }

@@ -32,6 +32,7 @@ import FollowBtn from '../../../../activity-follows/ui/components/follow-btn'
 import WebMonetizationIcon from '../../../../web-monetization/ui/components/web-monetization-icon'
 import PermissionKeyOverlay from './permission-key-overlay'
 import { mergeTaskStates } from '../../../../../main-ui/classes/logic'
+import { UserReference } from '../../../../user-management/types'
 const commentImage = require('../../../../../assets/img/comment.svg')
 
 const DocumentView = styled.div`
@@ -146,13 +147,14 @@ export default class CollectionDetailsPage extends UIElement<
         }
     }
 
-    renderPageEntry(entry: SharedListEntry) {
+    renderPageEntry(entry: SharedListEntry & { creator: UserReference }) {
         return (
             <PageInfoBox
                 pageInfo={{
                     ...entry,
                     fullTitle: entry.entryTitle,
                 }}
+                creator={this.state.users[entry.creator.id]}
                 actions={this.getPageEntryActions(entry)}
             />
         )

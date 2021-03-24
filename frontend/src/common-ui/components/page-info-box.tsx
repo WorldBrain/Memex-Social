@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import { Margin } from 'styled-components-spacing'
 import { SharedPageInfo } from '@worldbrain/memex-common/lib/content-sharing/types'
 import ItemBox from '../components/item-box'
+import { User } from '@worldbrain/memex-common/lib/web-interface/types/users'
 
 const PageContentBox = styled.div`
     display: flex;
@@ -26,8 +27,11 @@ const PageInfoBoxLink = styled.a`
 `
 
 const PageInfoBoxLeft = styled.div`
+    display: flex;
     text-decoration: none;
 `
+
+const CreatorName = styled.div``
 
 const CreatedWhenDate = styled.div`
     font-family: 'Poppins';
@@ -90,6 +94,7 @@ export default function PageInfoBox(props: {
         SharedPageInfo,
         'fullTitle' | 'createdWhen' | 'originalUrl' | 'normalizedUrl'
     >
+    creator?: Pick<User, 'displayName'>
     actions?: Array<PageInfoBoxAction>
     children?: React.ReactNode
 }) {
@@ -113,6 +118,11 @@ export default function PageInfoBox(props: {
                 </PageInfoBoxLink>
                 <PageContentBoxBottom>
                     <PageInfoBoxLeft>
+                        {props.creator?.displayName && (
+                            <CreatorName>
+                                {props.creator?.displayName}
+                            </CreatorName>
+                        )}
                         <CreatedWhenDate>
                             {moment(pageInfo.createdWhen).format('LLL')}
                         </CreatedWhenDate>
