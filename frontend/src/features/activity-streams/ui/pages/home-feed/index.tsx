@@ -555,6 +555,9 @@ export default class HomeFeedPage extends UIElement<
                                                 normalizedUrl:
                                                     entry.normalizedUrl,
                                             }}
+                                            creator={
+                                                state.users[entry.creator.id]
+                                            }
                                             actions={
                                                 entry.hasAnnotations
                                                     ? [
