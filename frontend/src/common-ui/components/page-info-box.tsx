@@ -5,6 +5,7 @@ import { Margin } from 'styled-components-spacing'
 import { SharedPageInfo } from '@worldbrain/memex-common/lib/content-sharing/types'
 import ItemBox from '../components/item-box'
 import { User } from '@worldbrain/memex-common/lib/web-interface/types/users'
+import CreationInfo from './creation-info'
 
 const PageContentBox = styled.div`
     display: flex;
@@ -94,7 +95,7 @@ export default function PageInfoBox(props: {
         SharedPageInfo,
         'fullTitle' | 'createdWhen' | 'originalUrl' | 'normalizedUrl'
     >
-    creator?: Pick<User, 'displayName'>
+    creator?: Pick<User, 'displayName'> | null
     actions?: Array<PageInfoBoxAction>
     children?: React.ReactNode
 }) {
@@ -117,7 +118,11 @@ export default function PageInfoBox(props: {
                     </PageContentBox>
                 </PageInfoBoxLink>
                 <PageContentBoxBottom>
-                    <PageInfoBoxLeft>
+                    <CreationInfo
+                        createdWhen={pageInfo.createdWhen}
+                        creator={props.creator}
+                    />
+                    {/* <PageInfoBoxLeft>
                         {props.creator?.displayName && (
                             <CreatorName>
                                 {props.creator?.displayName}
@@ -126,7 +131,7 @@ export default function PageInfoBox(props: {
                         <CreatedWhenDate>
                             {moment(pageInfo.createdWhen).format('LLL')}
                         </CreatedWhenDate>
-                    </PageInfoBoxLeft>
+                    </PageInfoBoxLeft> */}
                     {props.actions && (
                         <PageInfoBoxRight>
                             <PageInfoBoxActions>

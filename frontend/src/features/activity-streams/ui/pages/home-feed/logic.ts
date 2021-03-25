@@ -62,7 +62,12 @@ export default class HomeFeedLogic extends UILogic<
     constructor(private dependencies: HomeFeedDependencies) {
         super()
 
-        this.users = new UserProfileCache(dependencies)
+        this.users = new UserProfileCache({
+            ...dependencies,
+            onUsersLoad: (users) => {
+                this.emitMutation({ users: { $merge: users } })
+            },
+        })
 
         Object.assign(
             this,
@@ -551,6 +556,7 @@ export default class HomeFeedLogic extends UILogic<
             mainMutation.annotations = { $merge: organized.data.annotations }
             mainMutation.pageInfo = { $merge: organized.data.pageInfo }
             mainMutation.replies = { $merge: organized.data.replies }
+            mainMutation.users = { $merge: organized.data.users }
             this.emitMutation(mainMutation)
         })
 
@@ -562,28 +568,10 @@ export default class HomeFeedLogic extends UILogic<
             ).map((annotationReplies) => Object.values(annotationReplies)),
         )
         await Promise.all([
-            ...Object.values(activityData?.annotations ?? {}).map(
-                async ({ creatorReference }) => {
-                    this.emitMutation({
-                        users: {
-                            [creatorReference.id]: {
-                                $set: await this.users.loadUser(
-                                    creatorReference,
-                                ),
-                            },
-                        },
-                    })
-                },
-            ),
-            ...allReplies.map(async ({ creatorReference }) => {
-                this.emitMutation({
-                    users: {
-                        [creatorReference.id]: {
-                            $set: await this.users.loadUser(creatorReference),
-                        },
-                    },
-                })
-            }),
+            // this.users.loadUsers(Object.values(activityData?.annotations ?? {}).map(
+            //     ({ creatorReference }) => creatorReference,
+            // )).then(() => { }),
+            // this.users.loadUsers(allReplies.map(({ creatorReference }) => creatorReference)).then(() => { }),
             ...(options?.isInitial
                 ? [
                       this.dependencies.storage.activityStreams
@@ -616,6 +604,7 @@ export function organizeActivities(
         annotations: {},
         replies: {},
         annotationItems: {},
+        users: {},
     }
 
     const activityItems: ActivityItem[] = []
@@ -633,34 +622,40 @@ export function organizeActivities(
                 ({ activity }) => activity.reply.createdWhen,
             )
 
-            const groupAnnotation =
-                replyActivityGroup.activities[0].activity.annotation
+            const firstReplyActivity = replyActivityGroup.activities[0].activity
+            const groupAnnotation = firstReplyActivity.annotation
             const annotationItem: AnnotationActivityItem = {
                 type: 'annotation-item',
                 reference: groupAnnotation.reference,
                 hasEarlierReplies: false, // This gets determined after all replies processed
                 replies: [],
             }
+
             data.annotationItems[
                 getConversationKey({
                     groupId: activityGroup.id,
                     annotationReference: groupAnnotation.reference,
                 })
             ] = annotationItem
+            data.users[firstReplyActivity.annotationCreator.reference.id] =
+                firstReplyActivity.annotationCreator
 
             const pageItem: PageActivityItem = {
                 type: 'page-item',
                 groupId: activityGroup.id,
                 reason: 'new-replies',
-                normalizedPageUrl:
-                    replyActivityGroup.activities[0].activity.normalizedPageUrl,
+                normalizedPageUrl: firstReplyActivity.normalizedPageUrl,
                 notifiedWhen: 0,
+                // TODO: When the correct page creator is stored in the feed, set it here
+                creatorReference:
+                    firstReplyActivity.annotationCreator.reference,
                 annotations: arrayToOrderedMap(
                     [annotationItem],
                     (item) => item.reference.id,
                 ),
             }
             activityItems.push(pageItem)
+            // TODO: When the correct page creator is stored in the feed, load it here
 
             const annotationReference = groupAnnotation.reference
             const conversationKey = getConversationKey({
@@ -696,6 +691,8 @@ export function organizeActivities(
                 annotationItem.replies.push({
                     reference: replyActivity.reply.reference,
                 })
+                data.users[replyActivity.replyCreator.reference.id] =
+                    replyActivity.replyCreator
                 pageItem.notifiedWhen = replyActivity.reply.createdWhen
             }
             annotationItem.hasEarlierReplies =

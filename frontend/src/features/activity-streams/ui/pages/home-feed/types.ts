@@ -91,7 +91,7 @@ export interface ListActivityItem extends TopLevelActivityItem {
     reason: 'pages-added-to-list'
     listName: string
     listReference: SharedListReference
-    entries: OrderedMap<ListEntryActivityItem>
+    entries: OrderedMap<ListEntryActivityItem & { creator: UserReference }>
 }
 
 export type ListEntryActivityItem = {
@@ -109,6 +109,7 @@ export interface PageActivityItem extends TopLevelActivityItem {
     type: 'page-item'
     reason: 'new-replies'
     normalizedPageUrl: string
+    creatorReference: UserReference
     annotations: OrderedMap<AnnotationActivityItem>
 }
 
@@ -126,7 +127,7 @@ export interface ActivityData {
         [normalizedPageUrl: string]: Pick<
             SharedPageInfo,
             'fullTitle' | 'originalUrl'
-        >
+        > & { creator?: UserReference }
     }
     // pageItems: { [normalizedPageUrl: string]: PageActivityItem }
     annotations: {
@@ -149,4 +150,5 @@ export interface ActivityData {
             }
         }
     }
+    users: { [id: string]: Pick<User, 'displayName'> }
 }

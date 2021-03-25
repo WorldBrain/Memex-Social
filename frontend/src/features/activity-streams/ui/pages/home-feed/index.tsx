@@ -302,6 +302,7 @@ export default class HomeFeedPage extends UIElement<
         options,
     ) => {
         const pageInfo = this.state.pageInfo[pageItem.normalizedPageUrl]
+        const pageCreator = this.state.users[pageItem.creatorReference.id]
         return {
             key: getOrderedMapIndex(pageItem.annotations, 0).reference.id,
             rendered: (
@@ -317,6 +318,7 @@ export default class HomeFeedPage extends UIElement<
                                 normalizedUrl: pageItem?.normalizedPageUrl,
                                 originalUrl: pageInfo?.originalUrl,
                             }}
+                            creator={pageCreator}
                             actions={[]}
                         />
                     </Margin>
@@ -576,7 +578,11 @@ export default class HomeFeedPage extends UIElement<
                                             }
                                         />
                                         {entry.annotationsLoadState ===
-                                            'running' && <LoadingIndicatorBox><LoadingIndicator /></LoadingIndicatorBox>}
+                                            'running' && (
+                                            <LoadingIndicatorBox>
+                                                <LoadingIndicator />
+                                            </LoadingIndicatorBox>
+                                        )}
                                         {entry.areAnnotationsShown &&
                                             this.renderAnnotationsInPage(
                                                 listItem.groupId,
