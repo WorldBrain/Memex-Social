@@ -9,7 +9,7 @@ import {
     SharedListRoleID,
 } from '@worldbrain/memex-common/lib/content-sharing/types'
 import { WebMonetizationEvents } from '../../features/web-monetization/service/types'
-import { ListShareModalEvent } from '../../features/content-sharing/ui/containers/list-share-modal/types'
+import { ListShareModalEvent } from '@worldbrain/memex-common/lib/content-sharing/ui/list-share-modal/types'
 
 type Targets = {
     CollectionDetailsPage: {

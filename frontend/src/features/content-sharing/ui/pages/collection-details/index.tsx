@@ -33,8 +33,7 @@ import FollowBtn from '../../../../activity-follows/ui/components/follow-btn'
 import WebMonetizationIcon from '../../../../web-monetization/ui/components/web-monetization-icon'
 import PermissionKeyOverlay from './permission-key-overlay'
 import { mergeTaskStates } from '../../../../../main-ui/classes/logic'
-import { UserReference } from '../../../../user-management/types'
-import ListShareModal from '../../containers/list-share-modal'
+import ListShareModal from '@worldbrain/memex-common/lib/content-sharing/ui/list-share-modal'
 
 const commentImage = require('@worldbrain/memex-common/lib/assets/img/comment.svg')
 
