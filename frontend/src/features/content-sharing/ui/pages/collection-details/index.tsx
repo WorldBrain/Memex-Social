@@ -36,7 +36,7 @@ import { mergeTaskStates } from '../../../../../main-ui/classes/logic'
 import { UserReference } from '../../../../user-management/types'
 import ListShareModal from '../../containers/list-share-modal'
 
-const commentImage = require('../../../../../assets/img/comment.svg')
+const commentImage = require('@worldbrain/memex-common/lib/assets/img/comment.svg')
 
 const DocumentView = styled.div`
     height: 100vh;

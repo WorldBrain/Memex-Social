@@ -9,9 +9,9 @@ import { Margin } from 'styled-components-spacing'
 import ExternalLink from '../../../../../common-ui/components/external-link'
 import LoadingScreen from '../../../../../common-ui/components/loading-screen'
 
-const braveLogo = require('../../../../../assets/img/logo-brave.svg')
-const firefoxLogo = require('../../../../../assets/img/logo-firefox.svg')
-const chromeLogo = require('../../../../../assets/img/logo-chrome.svg')
+const braveLogo = require('@worldbrain/memex-common/lib/assets/img/logo-brave.svg')
+const firefoxLogo = require('@worldbrain/memex-common/lib/assets/img/logo-firefox.svg')
+const chromeLogo = require('@worldbrain/memex-common/lib/assets/img/logo-chrome.svg')
 
 const Content = styled.div<{
     viewportBreakpoint: ViewportBreakpoint
