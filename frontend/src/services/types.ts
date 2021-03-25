@@ -10,7 +10,6 @@ import { UserMessageService } from '@worldbrain/memex-common/lib/user-messages/s
 import UserManagementService from '../features/user-management/service'
 import WebMonetizationService from '../features/web-monetization/service'
 import { LocalStorageService } from './local-storage/types'
-import { ContentSharingService } from '../features/content-sharing/service'
 
 type UIServices = 'logicRegistry' | 'device'
 export type UIElementServices<Wanted extends keyof Services = never> = Pick<
@@ -28,7 +27,6 @@ export type Services = SharedServices & {
     userMessages: UserMessageService
 
     // Feature specific services
-    contentSharing: ContentSharingService
     contentConversations: ContentConversationsService
     activityStreams: ActivityStreamsService
     userManagement: UserManagementService

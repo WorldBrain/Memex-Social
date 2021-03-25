@@ -1,19 +1,10 @@
 import { ContentSharingBackendInterface } from '@worldbrain/memex-common/lib/content-sharing/backend/types'
-import {
-    SharedListReference,
-    SharedListKey,
-    SharedListRoleID,
-} from '@worldbrain/memex-common/lib/content-sharing/types'
+import { ContentSharingServiceInterface } from '@worldbrain/memex-common/lib/content-sharing/service/types'
+import { SharedListReference } from '@worldbrain/memex-common/lib/content-sharing/types'
 import RouterService from '../../services/router'
 import ContentSharingStorage from './storage'
 
-export type ProcessSharedListKeyResult =
-    | 'no-key-present'
-    | 'not-authenticated'
-    | 'success'
-    | 'denied'
-
-export class ContentSharingService {
+export class ContentSharingService implements ContentSharingServiceInterface {
     backend: ContentSharingBackendInterface
 
     constructor(
@@ -57,15 +48,9 @@ export class ContentSharingService {
         return matchRes[1]
     }
 
-    async getExistingKeyLinksForList(params: {
-        listReference: SharedListReference
-    }): Promise<{
-        links: Array<{
-            link: string
-            keyString: string
-            roleID: SharedListRoleID
-        }>
-    }> {
+    getExistingKeyLinksForList: ContentSharingServiceInterface['getExistingKeyLinksForList'] = async (
+        params,
+    ) => {
         const sharedListKeys = await this.dependencies.storage.contentSharing.getListKeys(
             { listReference: params.listReference },
         )
@@ -85,10 +70,9 @@ export class ContentSharingService {
         }
     }
 
-    async generateKeyLink(params: {
-        key: Pick<SharedListKey, 'roleID' | 'disabled'>
-        listReference: SharedListReference
-    }): Promise<{ link: string; keyString: string }> {
+    generateKeyLink: ContentSharingServiceInterface['generateKeyLink'] = async (
+        params,
+    ) => {
         const {
             keyString,
         } = await this.dependencies.storage.contentSharing.createListKey(params)
@@ -101,13 +85,15 @@ export class ContentSharingService {
         }
     }
 
-    async deleteKeyLink(params: { link: string }): Promise<void> {
+    deleteKeyLink: ContentSharingServiceInterface['deleteKeyLink'] = async (
+        params,
+    ) => {
         await this.dependencies.storage.contentSharing.deleteListKey({
             keyString: this.getKeyStringFromLink(params),
         })
     }
 
-    async processCurrentKey(): Promise<{ result: ProcessSharedListKeyResult }> {
+    processCurrentKey: ContentSharingServiceInterface['processCurrentKey'] = async () => {
         const routeMatch = this.dependencies.router.matchCurrentUrl()
         if (routeMatch.route !== 'collectionDetails') {
             return { result: 'no-key-present' }
