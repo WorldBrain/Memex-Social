@@ -314,7 +314,7 @@ export default class CollectionDetailsPage extends UIElement<
             return (
                 <React.Fragment key={userReference.id}>
                     {!isFirst && !isLast && ', '}
-                    {isLast && ' and '}
+                    {!isFirst && isLast && ' and '}
                     <ProfilePopupContainer
                         services={this.props.services}
                         storage={this.props.storage}
