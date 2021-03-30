@@ -33,6 +33,7 @@ import WebMonetizationIcon from '../../../../web-monetization/ui/components/web-
 import PermissionKeyOverlay from './permission-key-overlay'
 import { mergeTaskStates } from '../../../../../main-ui/classes/logic'
 import { UserReference } from '../../../../user-management/types'
+import { User } from '@worldbrain/memex-common/lib/web-interface/types/users'
 const commentImage = require('../../../../../assets/img/comment.svg')
 
 const DocumentView = styled.div`
@@ -119,6 +120,11 @@ const EmptyListBox = styled.div`
     align-items: center;
     flex-direction: column;
     text-align: center;
+`
+
+const ShowMoreCollaborators = styled.span`
+    cursor: pointer;
+    font-weight: bold;
 `
 export default class CollectionDetailsPage extends UIElement<
     CollectionDetailsDependencies,
@@ -286,6 +292,57 @@ export default class CollectionDetailsPage extends UIElement<
         return annotation ?? null
     }
 
+    renderSubtitle() {
+        const { state } = this
+        const { listData: data } = state
+        if (!data) {
+            return null
+        }
+
+        const users: Array<[UserReference, User]> = []
+        if (data.creatorReference && data.creator) {
+            users.push([data.creatorReference, data.creator])
+        }
+        for (const role of state.listRoles ?? []) {
+            const user = state.users[role.user.id]
+            if (user) {
+                users.push([role.user, user])
+            }
+        }
+        const rendered = users.map(([userReference, user], index) => {
+            const isFirst = index === 0
+            const isLast = index === users.length - 1
+            return (
+                <React.Fragment key={userReference.id}>
+                    {!isFirst && !isLast && ', '}
+                    {isLast && ' and '}
+                    <ProfilePopupContainer
+                        services={this.props.services}
+                        storage={this.props.storage}
+                        userRef={userReference!}
+                    >
+                        {user.displayName}
+                    </ProfilePopupContainer>
+                </React.Fragment>
+            )
+        })
+        if (!state.listRoleLimit || users.length <= state.listRoleLimit) {
+            return rendered
+        }
+        return (
+            <>
+                {rendered.slice(0, state.listRoleLimit)} and{' '}
+                <ShowMoreCollaborators
+                    onClick={() =>
+                        this.processEvent('showMoreCollaborators', {})
+                    }
+                >
+                    {users.length - state.listRoleLimit} more
+                </ShowMoreCollaborators>
+            </>
+        )
+    }
+
     render() {
         const viewportBreakpoint = getViewportBreakpoint(
             this.getViewportWidth(),
@@ -367,51 +424,40 @@ export default class CollectionDetailsPage extends UIElement<
                     storage={this.props.storage}
                     viewportBreakpoint={viewportBreakpoint}
                     headerTitle={data.list.title}
-                    headerSubtitle={
-                        data.creator && `${data.creator.displayName}`
-                    }
-                    renderSubtitle={(props) => (
-                        <ProfilePopupContainer
-                            services={this.props.services}
-                            storage={this.props.storage}
-                            userRef={data.creatorReference ?? null}
-                        >
-                            {props.children}
-                        </ProfilePopupContainer>
-                    )}
+                    headerSubtitle={this.renderSubtitle()}
                     followBtn={this.renderFollowBtn()}
                     webMonetizationIcon={this.renderWebMonetizationIcon()}
                     listsSidebarProps={this.listsSidebarProps}
                 >
                     {/*{data.list.description && (
-                        <CollectionDescriptionBox
+                    <CollectionDescriptionBox
+                        viewportWidth={viewportBreakpoint}
+                    >
+                        <CollectionDescriptionText
                             viewportWidth={viewportBreakpoint}
                         >
-                            <CollectionDescriptionText
+                            {data.listDescriptionState === 'collapsed'
+                                ? data.listDescriptionTruncated
+                                : data.list.description}
+                        </CollectionDescriptionText>
+                        {data.listDescriptionState !== 'fits' && (
+                            <CollectionDescriptionToggle
+                                onClick={() =>
+                                    this.processEvent(
+                                        'toggleDescriptionTruncation',
+                                        {},
+                                    )
+                                }
                                 viewportWidth={viewportBreakpoint}
                             >
                                 {data.listDescriptionState === 'collapsed'
-                                    ? data.listDescriptionTruncated
-                                    : data.list.description}
-                            </CollectionDescriptionText>
-                            {data.listDescriptionState !== 'fits' && (
-                                <CollectionDescriptionToggle
-                                    onClick={() =>
-                                        this.processEvent(
-                                            'toggleDescriptionTruncation',
-                                            {},
-                                        )
-                                    }
-                                    viewportWidth={viewportBreakpoint}
-                                >
-                                    {data.listDescriptionState === 'collapsed'
-                                        ? '▸ Show more'
-                                        : '◂ Show less'}
-                                </CollectionDescriptionToggle>
-                            )}
-                        </CollectionDescriptionBox>
-                    )}
-                */}
+                                    ? '▸ Show more'
+                                    : '◂ Show less'}
+                            </CollectionDescriptionToggle>
+                        )}
+                    </CollectionDescriptionBox>
+                )}
+            */}
                     {state.annotationEntriesLoadState === 'error' && (
                         <Margin bottom={'large'}>
                             <ErrorWithAction errorType="internal-error">
