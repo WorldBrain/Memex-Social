@@ -180,7 +180,7 @@ export default class CollectionDetailsPage extends UIElement<
                 <Margin right="medium">
                     <Icon
                         height="30px"
-                        fileName="addPeople.svg"
+                        icon="addPeople"
                         onClick={() =>
                             this.processEvent('toggleListShareModal', {})
                         }
@@ -506,7 +506,7 @@ export default class CollectionDetailsPage extends UIElement<
                 </DefaultPageLayout>
                 {this.state.isListShareModalShown && (
                     <ListShareModal
-                        listID={this.props.listID}
+                        listId={this.props.listID}
                         services={this.props.services}
                         onCloseRequested={() =>
                             this.processEvent('toggleListShareModal', {})

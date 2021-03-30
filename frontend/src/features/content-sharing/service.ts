@@ -90,6 +90,7 @@ export class ContentSharingService implements ContentSharingServiceInterface {
     ) => {
         await this.dependencies.storage.contentSharing.deleteListKey({
             keyString: this.getKeyStringFromLink(params),
+            listReference: params.listReference,
         })
     }
 

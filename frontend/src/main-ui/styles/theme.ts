@@ -58,4 +58,18 @@ export const theme: Theme = {
     zIndices: {
         overlay: 50000,
     },
+    icons: {
+        copy: require('../../assets/img/copy.svg'),
+        removeX: require('../../assets/img/remove.svg'),
+        hamburger: require('../../assets/img/hamburger.svg'),
+        addPeople: require('../../assets/img/addPeople.svg'),
+        checkRound: require('../../assets/img/checkRound.svg'),
+        alertRound: require('../../assets/img/alertRound.svg'),
+        webLogo: require('../../assets/img/web-logo.svg'),
+        mediumLogo: require('../../assets/img/medium-logo.svg'),
+        twitterLogo: require('../../assets/img/twitter-logo.svg'),
+        substackLogo: require('../../assets/img/substack-logo.svg'),
+        webMonetizationLogo: require('../../assets/img/web-monetization-logo.svg'),
+        webMonetizationLogoConfirmed: require('../../assets/img/web-monetization-logo-confirmed.svg'),
+    },
 }

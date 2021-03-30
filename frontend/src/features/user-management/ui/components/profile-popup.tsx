@@ -124,11 +124,14 @@ export default class ProfilePopup extends PureComponent<ProfilePopupProps> {
                                 {!!webLinksArray.length && (
                                     <WebLinksContainer>
                                         {webLinksArray.map(
-                                            ({ url, fileName }, index) => (
+                                            (
+                                                { url, icon: fileName },
+                                                index,
+                                            ) => (
                                                 <Margin right="small">
                                                     <Icon
                                                         key={index}
-                                                        fileName={fileName}
+                                                        icon={fileName}
                                                         height="18px"
                                                         onClick={() =>
                                                             this.handleWebLinkClick(

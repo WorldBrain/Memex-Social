@@ -22,25 +22,25 @@ export function getProfileLinks(
             label: data.label,
             urlPropName: property as ProfileWebLinkName,
             url: url ?? '',
-            fileName: data.fileName,
+            icon: data.icon,
         })
     }
 
     maybePush('websiteURL', {
         label: 'Website',
-        fileName: 'web-logo.svg',
+        icon: 'webLogo',
     })
     maybePush('mediumURL', {
         label: 'Medium',
-        fileName: 'medium-logo.svg',
+        icon: 'mediumLogo',
     })
     maybePush('twitterURL', {
         label: 'Twitter',
-        fileName: 'twitter-logo.svg',
+        icon: 'twitterLogo',
     })
     maybePush('substackURL', {
         label: 'Substack',
-        fileName: 'substack-logo.svg',
+        icon: 'substackLogo',
     })
     return arr
 }

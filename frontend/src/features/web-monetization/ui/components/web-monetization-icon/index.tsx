@@ -62,9 +62,11 @@ export default class WebMonetizationIcon extends UIElement<
                         onClick={isClickable ? this.handleClick : () => {}}
                         height={this.iconHeight}
                         isClickable={isClickable}
-                        fileName={`web-monetization-logo${
-                            isPaymentMade ? '-confirmed' : ''
-                        }.svg`}
+                        icon={
+                            'webMonetizationLogo' + isPaymentMade
+                                ? 'Confirmed'
+                                : ''
+                        }
                     />
                 )}
             </IconContainer>
