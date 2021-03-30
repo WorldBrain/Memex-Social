@@ -91,6 +91,37 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
     )
 
     it(
+        'should get lists by references',
+        { withTestUser: true },
+        async ({ storage, services }) => {
+            const { contentSharing } = storage.serverModules
+            const userReference = services.auth.getCurrentUserReference()!
+            const listReferences: SharedListReference[] = []
+            const titles: string[] = []
+            for (let i = 0; i < 15; ++i) {
+                const title = `My list ${i}`
+                titles.push(title)
+                listReferences.push(
+                    await contentSharing.createSharedList({
+                        listData: {
+                            title,
+                        },
+                        localListId: 55 + i,
+                        userReference,
+                    }),
+                )
+            }
+
+            const retrieved = await contentSharing.getListsByReferences(
+                listReferences,
+            )
+            expect(retrieved.map((list) => list.title).sort()).toEqual(
+                titles.sort(),
+            )
+        },
+    )
+
+    it(
         'should save list entries and retrieve them',
         { withTestUser: true },
         async ({ storage, services }) => {
