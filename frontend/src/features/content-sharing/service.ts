@@ -88,11 +88,16 @@ export class ContentSharingService implements ContentSharingServiceInterface {
     generateKeyLink: ContentSharingServiceInterface['generateKeyLink'] = async (
         params,
     ) => {
-        const {
-            keyString,
-        } = await this.dependencies.storage.contentSharing.createListKey(params)
+        let keyString: string | undefined
+
+        if (params.key.roleID !== SharedListRoleID.Reader) {
+            const createListResult = await this.dependencies.storage.contentSharing.createListKey(
+                params,
+            )
+            keyString = createListResult.keyString
+        }
+
         return {
-            keyString,
             link: this.getKeyLink({
                 listReference: params.listReference,
                 keyString,
