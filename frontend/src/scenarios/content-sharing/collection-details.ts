@@ -765,7 +765,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                     name: 'collection-share-modal-delete-modal',
                     target: 'ListShareModal',
                     eventName: 'requestLinkDelete',
-                    eventArgs: { linkIndex: 0 },
+                    eventArgs: { linkIndex: 1 },
                 }),
                 step({
                     name: 'collection-share-modal-delete-modal-confirm',

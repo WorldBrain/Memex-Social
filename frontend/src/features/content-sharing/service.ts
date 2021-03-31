@@ -1,6 +1,9 @@
 import { ContentSharingBackendInterface } from '@worldbrain/memex-common/lib/content-sharing/backend/types'
 import { ContentSharingServiceInterface } from '@worldbrain/memex-common/lib/content-sharing/service/types'
-import { SharedListReference } from '@worldbrain/memex-common/lib/content-sharing/types'
+import {
+    SharedListReference,
+    SharedListRoleID,
+} from '@worldbrain/memex-common/lib/content-sharing/types'
 import RouterService from '../../services/router'
 import ContentSharingStorage from './storage'
 
@@ -25,7 +28,7 @@ export class ContentSharingService implements ContentSharingServiceInterface {
 
     private getKeyLink(params: {
         listReference: SharedListReference
-        keyString: string
+        keyString?: string
     }): string {
         const origin =
             typeof window !== 'undefined'
@@ -35,7 +38,10 @@ export class ContentSharingService implements ContentSharingServiceInterface {
             'collectionDetails',
             { id: params.listReference.id.toString() },
         )
-        return `${origin}${relativePath}?key=${params.keyString}`
+
+        const link = origin + relativePath
+
+        return params.keyString ? `${link}?key=${params.keyString}` : link
     }
 
     private getKeyStringFromLink(params: { link: string }): string {
@@ -55,18 +61,27 @@ export class ContentSharingService implements ContentSharingServiceInterface {
             { listReference: params.listReference },
         )
 
-        return {
-            links: sharedListKeys.map((key) => {
-                const keyString = key.reference.id as string
-                return {
+        const foundLinks = sharedListKeys.map((key) => {
+            const keyString = key.reference.id as string
+            return {
+                keyString,
+                roleID: key.roleID,
+                link: this.getKeyLink({
+                    listReference: params.listReference,
                     keyString,
-                    roleID: key.roleID,
-                    link: this.getKeyLink({
-                        listReference: params.listReference,
-                        keyString,
-                    }),
-                }
-            }),
+                }),
+            }
+        })
+
+        // In Memex-Social, there will always be a static reader link for collections,
+        //  as they are "shared" already and lack the ability to unshare
+        const readerLink = {
+            link: this.getKeyLink({ listReference: params.listReference }),
+            roleID: SharedListRoleID.Reader,
+        }
+
+        return {
+            links: [readerLink, ...foundLinks],
         }
     }
 
