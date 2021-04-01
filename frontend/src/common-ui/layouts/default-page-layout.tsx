@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import styled, { css } from 'styled-components'
 import { ViewportBreakpoint } from '../../main-ui/styles/types'
-import { UIElementServices } from '../../main-ui/classes'
+import { UIElementServices } from '../../services/types'
 import AuthHeader from '../../features/user-management/ui/containers/auth-header'
 import { StorageModules } from '../../storage/types'
 import { Margin } from 'styled-components-spacing'
@@ -13,7 +13,7 @@ import ListsSidebar, {
 import ListsSidebarToggle from '../../main-ui/components/sidebar-toggle/'
 
 const middleMaxWidth = '800px'
-const logoImage = require('../../assets/img/memex-logo.svg')
+const logoImage = require('@worldbrain/memex-common/lib/assets/img/memex-logo.svg')
 
 const MainContainer = styled.div`
     background: #f6f8fb;
@@ -174,7 +174,7 @@ const PageMidleAreaAction = styled.div<{
 }>`
     display: flex;
     justify-content: flex-end;
-    align-items: flex-start;
+    align-items: center;
     flex-direction: row;
     ${(props) =>
         props.viewportWidth === 'mobile' &&

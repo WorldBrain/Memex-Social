@@ -1,6 +1,7 @@
 import React from 'react'
 import { Storage } from '../../../storage/types'
-import { UIElement, UIElementServices } from '../../classes'
+import { UIElement } from '../../classes'
+import { UIElementServices } from '../../../services/types'
 import Logic, { State, Event } from './logic'
 
 interface Props {

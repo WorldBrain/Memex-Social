@@ -9,6 +9,7 @@ import {
     SharedListRoleID,
 } from '@worldbrain/memex-common/lib/content-sharing/types'
 import { WebMonetizationEvents } from '../../features/web-monetization/service/types'
+import { ListShareModalEvent } from '@worldbrain/memex-common/lib/content-sharing/ui/list-share-modal/types'
 
 type Targets = {
     CollectionDetailsPage: {
@@ -18,7 +19,12 @@ type Targets = {
     WebMonetizationIcon: {
         events: WebMonetizationEvents
     }
+    ListShareModal: {
+        events: ListShareModalEvent
+    }
 }
+
+const getKeyStringFromLink = (link: string): string => link.split('key=')[1]
 
 export const SCENARIOS: ScenarioMap<Targets> = {
     default: scenario<Targets>(({ step, callModification }) => ({
@@ -695,6 +701,162 @@ export const SCENARIOS: ScenarioMap<Targets> = {
             ],
         }),
     ),
+    'collection-share-modal': scenario<Targets>(
+        ({ step, callModification }) => ({
+            fixture: 'annotated-list-with-user-and-follows',
+            authenticated: true,
+            startRoute: {
+                route: 'collectionDetails',
+                params: { id: 'default-list' },
+            },
+            setup: {
+                callModifications: ({ storage }) => [
+                    callModification({
+                        name: 'collection-share-modal-loading-block',
+                        object: storage.serverModules.contentSharing,
+                        property: 'getListKeys',
+                        modifier: 'block',
+                    }),
+                    // TODO: figure out how to do multiple blocks
+                    // callModification({
+                    //     name: 'collection-share-modal-add-block',
+                    //     object: storage.serverModules.contentSharing,
+                    //     property: 'createListKey',
+                    //     modifier: 'block',
+                    // }),
+                    // callModification({
+                    //     name: 'collection-share-modal-delete-block',
+                    //     object: storage.serverModules.contentSharing,
+                    //     property: 'deleteListKey',
+                    //     modifier: 'block',
+                    // }),
+                ],
+            },
+            steps: [
+                step({
+                    name: 'collection-share-modal-loading',
+                    target: 'CollectionDetailsPage',
+                    eventName: 'toggleListShareModal',
+                    eventArgs: {},
+                }),
+                step({
+                    name: 'collection-share-modal-loaded',
+                    callModifications: ({ storage }) => [
+                        {
+                            name: 'collection-share-modal-loading-block',
+                            modifier: 'undo',
+                        },
+                    ],
+                }),
+                step({
+                    name: 'collection-share-modal-adding',
+                    target: 'ListShareModal',
+                    eventName: 'addLink',
+                    eventArgs: null,
+                }),
+                // step({
+                //     name: 'collection-share-modal-added',
+                //     callModifications: ({ storage }) => [
+                //         {
+                //             name: 'collection-share-modal-add-block',
+                //             modifier: 'undo',
+                //         },
+                //     ],
+                // }),
+                step({
+                    name: 'collection-share-modal-delete-modal',
+                    target: 'ListShareModal',
+                    eventName: 'requestLinkDelete',
+                    eventArgs: { linkIndex: 1 },
+                }),
+                step({
+                    name: 'collection-share-modal-delete-modal-confirm',
+                    target: 'ListShareModal',
+                    eventName: 'confirmLinkDelete',
+                    eventArgs: null,
+                }),
+                // step({
+                //     name: 'collection-share-modal-delete-modal-done',
+                //     callModifications: ({ storage }) => [
+                //         {
+                //             name: 'collection-share-modal-delete-block',
+                //             modifier: 'undo',
+                //         },
+                //     ],
+                // }),
+                step({
+                    name: 'collection-share-modal-clicked-away',
+                    target: 'CollectionDetailsPage',
+                    eventName: 'toggleListShareModal',
+                    eventArgs: {},
+                }),
+            ],
+        }),
+    ),
+    // 'collection-share-modal-add-link': scenario<Targets>(
+    //     ({ step, callModification }) => ({
+    //         fixture: 'annotated-list-with-user-and-follows',
+    //         authenticated: true,
+    //         startRoute: {
+    //             route: 'collectionDetails',
+    //             params: { id: 'default-list' },
+    //         },
+    //         setup: {
+    //             callModifications: ({ storage }) => [
+    //                 callModification({
+    //                     name: 'collection-share-modal-add-sabotage',
+    //                     object: storage.serverModules.contentSharing,
+    //                     property: 'createListKey',
+    //                     modifier: 'sabotage',
+    //                 }),
+    //                 callModification({
+    //                     name: 'collection-share-modal-add-block',
+    //                     object: storage.serverModules.contentSharing,
+    //                     property: 'createListKey',
+    //                     modifier: 'block',
+    //                 }),
+    //             ],
+    //         },
+    //         steps: [
+    //             step({
+    //                 name: 'collection-share-modal-loaded',
+    //                 target: 'CollectionDetailsPage',
+    //                 eventName: 'toggleListShareModal',
+    //                 eventArgs: {},
+    //             }),
+    //             step({
+    //                 name: 'collection-share-modal-failed-add',
+    //                 target: 'ListShareModal',
+    //                 eventName: 'addLink',
+    //                 eventArgs: null,
+    //             }),
+    //             step({
+    //                 name: 'collection-share-modal-fix-failure',
+    //                 callModifications: ({ storage }) => [
+    //                     {
+    //                         name: 'collection-share-modal-add-sabotage',
+    //                         modifier: 'undo',
+    //                     },
+    //                 ],
+    //             }),
+    //             step({
+    //                 name: 'collection-share-modal-adding',
+    //                 target: 'ListShareModal',
+    //                 eventName: 'addLink',
+    //                 eventArgs: null,
+    //             }),
+    //             step({
+    //                 name: 'collection-share-modal-added',
+    //                 callModifications: ({ storage }) => [
+    //                     {
+    //                         name: 'collection-share-modal-add-block',
+    //                         modifier: 'undo',
+    //                     },
+    //                 ],
+    //             }),
+    //         ],
+    //     }),
+    // ),
     'login-on-follow-button-click': scenario<Targets>(
         ({ step, callModification }) => ({
             fixture: 'annotated-list-with-user',
@@ -825,15 +987,14 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                     email: 'default-user',
                     password: 'testing',
                 })
-                const {
-                    keyString,
-                } = await services.contentSharing.generateKeyLink({
+                const { link } = await services.contentSharing.generateKeyLink({
                     key: { roleID: SharedListRoleID.AddOnly },
                     listReference: {
                         type: 'shared-list-reference',
                         id: 'default-list',
                     },
                 })
+                const keyString = getKeyStringFromLink(link)
                 await services.auth.logout()
                 await services.auth.loginWithEmailPassword({
                     email: 'two@test.com',
@@ -882,7 +1043,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                         password: 'testing',
                     })
                     const {
-                        keyString,
+                        link,
                     } = await services.contentSharing.generateKeyLink({
                         key: { roleID: SharedListRoleID.AddOnly },
                         listReference: {
@@ -890,6 +1051,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                             id: 'default-list',
                         },
                     })
+                    const keyString = getKeyStringFromLink(link)
                     await services.auth.logout()
                     await services.auth.loginWithEmailPassword({
                         email: 'two@test.com',
@@ -935,7 +1097,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                         password: 'testing',
                     })
                     const {
-                        keyString,
+                        link,
                     } = await services.contentSharing.generateKeyLink({
                         key: { roleID: SharedListRoleID.AddOnly },
                         listReference: {
@@ -943,6 +1105,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                             id: 'default-list',
                         },
                     })
+                    const keyString = getKeyStringFromLink(link)
                     await services.auth.logout()
                     services.router.getQueryParam = () => {
                         return keyString

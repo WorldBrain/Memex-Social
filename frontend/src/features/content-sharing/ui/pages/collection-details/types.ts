@@ -18,7 +18,7 @@ import {
     UserReference,
     User,
 } from '@worldbrain/memex-common/lib/web-interface/types/users'
-import { UIElementServices } from '../../../../../main-ui/classes'
+import { UIElementServices } from '../../../../../services/types'
 import { StorageModules } from '../../../../../storage/types'
 import {
     ActivityFollowsState,
@@ -37,9 +37,11 @@ export interface CollectionDetailsDependencies {
         | 'activityStreams'
         | 'router'
         | 'activityStreams'
+        | 'documentTitle'
         | 'userManagement'
         | 'webMonetization'
         | 'localStorage'
+        | 'clipboard'
     >
     storage: Pick<
         StorageModules,
@@ -79,6 +81,7 @@ export type CollectionDetailsState = AnnotationConversationsState &
         }
         isCollectionFollowed: boolean
         allAnnotationExpanded: boolean
+        isListShareModalShown: boolean
         pageAnnotationsExpanded: { [normalizedPageUrl: string]: true }
         annotationEntryData?: GetAnnotationListEntriesResult
         annotations: GetAnnotationsResult
@@ -90,6 +93,7 @@ export type CollectionDetailsEvent = UIEvent<
             toggleDescriptionTruncation: {}
             togglePageAnnotations: { normalizedUrl: string }
             toggleAllAnnotations: {}
+            toggleListShareModal: {}
             loadListData: { listID: string }
             processPermissionKey: {}
             closePermissionOverlay: {}

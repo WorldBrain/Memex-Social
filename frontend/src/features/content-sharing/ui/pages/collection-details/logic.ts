@@ -111,6 +111,7 @@ export default class CollectionDetailsLogic extends UILogic<
             annotations: {},
             isCollectionFollowed: false,
             allAnnotationExpanded: false,
+            isListShareModalShown: false,
             pageAnnotationsExpanded: {},
             ...activityFollowsInitialState(),
             ...annotationConversationInitialState(),
@@ -342,6 +343,12 @@ export default class CollectionDetailsLogic extends UILogic<
                 }
             },
         )
+    }
+
+    toggleListShareModal: EventHandler<'toggleListShareModal'> = () => {
+        this.emitMutation({
+            isListShareModalShown: { $apply: (shown) => !shown },
+        })
     }
 
     toggleDescriptionTruncation: EventHandler<'toggleDescriptionTruncation'> = () => {

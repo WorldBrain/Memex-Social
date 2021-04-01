@@ -9,7 +9,7 @@ import DefaultPageLayout from '../../../../../common-ui/layouts/default-page-lay
 import LoadingIndicator from '../../../../../common-ui/components/loading-indicator'
 import ErrorWithAction from '../../../../../common-ui/components/error-with-action'
 import Markdown from '../../../../../common-ui/components/markdown'
-const logoImage = require('../../../../../assets/img/memex-logo.svg')
+const logoImage = require('@worldbrain/memex-common/lib/assets/img/memex-logo.svg')
 
 export default class AnnotationDetailsPage extends UIElement<
     AnnotationDetailsDependencies,

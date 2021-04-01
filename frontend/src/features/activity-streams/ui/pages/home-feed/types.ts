@@ -15,7 +15,7 @@ import {
     User,
 } from '@worldbrain/memex-common/lib/web-interface/types/users'
 import { UIEvent, UISignal } from '../../../../../main-ui/classes/logic'
-import { UIElementServices } from '../../../../../main-ui/classes'
+import { UIElementServices } from '../../../../../services/types'
 import {
     AnnotationConversationEvent,
     AnnotationConversationsState,
@@ -38,6 +38,7 @@ export interface HomeFeedDependencies {
         | 'userManagement'
         | 'webMonetization'
         | 'localStorage'
+        | 'documentTitle'
     >
     storage: Pick<
         StorageModules,

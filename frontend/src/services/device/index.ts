@@ -1,8 +1,10 @@
 import { EventEmitter } from 'events'
+import type {
+    DeviceServiceInterface,
+    RectSize,
+} from '@worldbrain/memex-common/lib/services/device/types'
 
-type RectSize = { width: number; height: number }
-
-export class DeviceService {
+export class DeviceService implements DeviceServiceInterface {
     events = new EventEmitter()
     private cachedRootSize: RectSize
 

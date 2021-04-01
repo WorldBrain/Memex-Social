@@ -6,7 +6,7 @@ import {
 } from '@worldbrain/memex-common/lib/content-sharing/types'
 import UserStorage from '../../../../user-management/storage'
 import { UIEvent, UISignal } from '../../../../../main-ui/classes/logic'
-import { UIElementServices } from '../../../../../main-ui/classes'
+import { UIElementServices } from '../../../../../services/types'
 import {
     AnnotationConversationEvent,
     AnnotationConversationsState,
@@ -33,6 +33,7 @@ export interface PageDetailsDependencies {
         | 'userManagement'
         | 'webMonetization'
         | 'localStorage'
+        | 'documentTitle'
     >
     storage: Pick<
         StorageModules,

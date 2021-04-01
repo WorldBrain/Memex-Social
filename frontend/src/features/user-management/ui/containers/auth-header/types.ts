@@ -1,5 +1,5 @@
 import { UIEvent, UISignal } from '../../../../../main-ui/classes/logic'
-import { UIElementServices } from '../../../../../main-ui/classes'
+import { UIElementServices } from '../../../../../services/types'
 import { User } from '@worldbrain/memex-common/lib/web-interface/types/users'
 import { StorageModules } from '../../../../../storage/types'
 

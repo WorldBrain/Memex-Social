@@ -5,6 +5,7 @@ import { Margin } from 'styled-components-spacing'
 import { UIElement } from '../../../../../main-ui/classes'
 import Logic from './logic'
 import LoadingIndicator from '../../../../../common-ui/components/loading-indicator'
+import Icon from '../../../../../common-ui/components/icon'
 import {
     CollectionDetailsEvent,
     CollectionDetailsDependencies,
@@ -33,6 +34,8 @@ import WebMonetizationIcon from '../../../../web-monetization/ui/components/web-
 import PermissionKeyOverlay from './permission-key-overlay'
 import { mergeTaskStates } from '../../../../../main-ui/classes/logic'
 import { UserReference } from '../../../../user-management/types'
+import ListShareModal from '@worldbrain/memex-common/lib/content-sharing/ui/list-share-modal'
+
 const commentImage = require('../../../../../assets/img/comment.svg')
 
 const DocumentView = styled.div`
@@ -139,6 +142,13 @@ export default class CollectionDetailsPage extends UIElement<
         }
     }
 
+    get isListContributor(): boolean {
+        return (
+            this.state.permissionKeyResult === 'success' ||
+            !!this.state.listRoleID
+        )
+    }
+
     async componentDidUpdate(prevProps: CollectionDetailsDependencies) {
         if (this.props.listID !== prevProps.listID) {
             await this.processEvent('loadListData', {
@@ -160,16 +170,38 @@ export default class CollectionDetailsPage extends UIElement<
         )
     }
 
-    renderWebMonetizationIcon() {
-        if (this.state.listData?.creatorReference) {
+    private renderWebMonetizationIcon() {
+        const creatorReference = this.state.listData?.creatorReference
+
+        if (!creatorReference) {
+            return
+        }
+
+        if (this.state.isListOwner) {
             return (
-                <WebMonetizationIcon
-                    services={this.props.services}
-                    storage={this.props.storage}
-                    curatorUserRef={this.state.listData?.creatorReference}
-                />
+                <Margin right="medium">
+                    <Icon
+                        height="30px"
+                        icon="addPeople"
+                        onClick={() =>
+                            this.processEvent('toggleListShareModal', {})
+                        }
+                    />
+                </Margin>
             )
         }
+
+        if (this.isListContributor) {
+            return
+        }
+
+        return (
+            <WebMonetizationIcon
+                services={this.props.services}
+                storage={this.props.storage}
+                curatorUserRef={creatorReference}
+            />
+        )
     }
 
     getPageEntryActions(
@@ -208,11 +240,8 @@ export default class CollectionDetailsPage extends UIElement<
             <FollowBtn
                 onClick={() => this.processEvent('clickFollowBtn', null)}
                 isFollowed={this.state.isCollectionFollowed}
-                isContributor={
-                    this.state.permissionKeyResult === 'success' ||
-                    !!this.state.listRoleID
-                }
                 isOwner={this.state.isListOwner}
+                isContributor={this.isListContributor}
                 loadState={mergeTaskStates([
                     this.state.followLoadState,
                     this.state.listRolesLoadState,
@@ -483,6 +512,15 @@ export default class CollectionDetailsPage extends UIElement<
                         )}
                     </PageInfoList>
                 </DefaultPageLayout>
+                {this.state.isListShareModalShown && (
+                    <ListShareModal
+                        listId={this.props.listID}
+                        services={this.props.services}
+                        onCloseRequested={() =>
+                            this.processEvent('toggleListShareModal', {})
+                        }
+                    />
+                )}
             </>
         )
     }

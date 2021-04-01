@@ -1,7 +1,8 @@
 import { Trans } from 'react-i18next'
 import React from 'react'
 // import styled from "styled-components";
-import { UIElement, UIElementServices } from '../../classes'
+import { UIElement } from '../../classes'
+import { UIElementServices } from '../../../services/types'
 import Logic, { LandingPageState } from './logic'
 import { LandingPageEvent } from './types'
 

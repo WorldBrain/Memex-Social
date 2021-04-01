@@ -1,5 +1,5 @@
 import { UIEvent, UISignal } from '../../../../../main-ui/classes/logic'
-import { UIElementServices } from '../../../../../main-ui/classes'
+import { UIElementServices } from '../../../../../services/types'
 import { StorageModules } from '../../../../../storage/types'
 
 export interface AnnotationDetailsDependencies {
@@ -11,6 +11,7 @@ export interface AnnotationDetailsDependencies {
         | 'activityStreams'
         | 'userManagement'
         | 'webMonetization'
+        | 'documentTitle'
     >
     storage: Pick<
         StorageModules,

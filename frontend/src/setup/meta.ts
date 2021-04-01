@@ -10,6 +10,7 @@ import {
 } from '../services/scenarios'
 import { Scenario } from '../services/scenarios/types'
 import { mainProgram } from './main'
+import { mockClipboardAPI } from '../services/clipboard/mock'
 
 export async function metaProgram(options: {
     history: History
@@ -53,6 +54,7 @@ export async function metaProgram(options: {
                         backend: 'memory',
                         history,
                         mountPoint,
+                        clipboard: mockClipboardAPI,
                         navigateToScenarioStart: true,
                         queryParams: {
                             scenario: `${scenarioIdentifier.pageName}.${scenarioName}.$start`,
@@ -70,6 +72,7 @@ export async function metaProgram(options: {
                         backend: 'memory',
                         history,
                         mountPoint,
+                        clipboard: mockClipboardAPI,
                         navigateToScenarioStart: true,
                         queryParams: {
                             scenario: `${scenarioIdentifier.pageName}.${scenarioName}.${step.name}`,
