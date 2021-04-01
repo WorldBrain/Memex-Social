@@ -21,5 +21,5 @@ export interface ProfileWebLink {
     urlPropName: ProfileWebLinkName
     label: ProfileWebLinkLabel
     url: string
-    logo: IconKeys
+    icon: IconKeys
 }

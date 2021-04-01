@@ -3,11 +3,11 @@ import styled, { css } from 'styled-components'
 import Overlay from '../../../../../main-ui/containers/overlay'
 import { ViewportBreakpoint } from '../../../../../main-ui/styles/types'
 import { UIElementServices } from '../../../../../services/types'
-import { ProcessSharedListKeyResult } from '../../../service'
 import { UITaskState } from '../../../../../main-ui/types'
 import { Margin } from 'styled-components-spacing'
 import ExternalLink from '../../../../../common-ui/components/external-link'
 import LoadingScreen from '../../../../../common-ui/components/loading-screen'
+import { ProcessSharedListKeyResult } from '@worldbrain/memex-common/lib/content-sharing/service/types'
 
 const braveLogo = require('@worldbrain/memex-common/lib/assets/img/logo-brave.svg')
 const firefoxLogo = require('@worldbrain/memex-common/lib/assets/img/logo-firefox.svg')

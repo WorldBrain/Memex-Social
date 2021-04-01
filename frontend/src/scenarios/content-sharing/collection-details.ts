@@ -24,6 +24,8 @@ type Targets = {
     }
 }
 
+const getKeyStringFromLink = (link: string): string => link.split('key=')[1]
+
 export const SCENARIOS: ScenarioMap<Targets> = {
     default: scenario<Targets>(({ step, callModification }) => ({
         fixture: 'default-lists-with-user',
@@ -985,15 +987,14 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                     email: 'default-user',
                     password: 'testing',
                 })
-                const {
-                    keyString,
-                } = await services.contentSharing.generateKeyLink({
+                const { link } = await services.contentSharing.generateKeyLink({
                     key: { roleID: SharedListRoleID.AddOnly },
                     listReference: {
                         type: 'shared-list-reference',
                         id: 'default-list',
                     },
                 })
+                const keyString = getKeyStringFromLink(link)
                 await services.auth.logout()
                 await services.auth.loginWithEmailPassword({
                     email: 'two@test.com',
@@ -1042,7 +1043,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                         password: 'testing',
                     })
                     const {
-                        keyString,
+                        link,
                     } = await services.contentSharing.generateKeyLink({
                         key: { roleID: SharedListRoleID.AddOnly },
                         listReference: {
@@ -1050,6 +1051,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                             id: 'default-list',
                         },
                     })
+                    const keyString = getKeyStringFromLink(link)
                     await services.auth.logout()
                     await services.auth.loginWithEmailPassword({
                         email: 'two@test.com',
@@ -1095,7 +1097,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                         password: 'testing',
                     })
                     const {
-                        keyString,
+                        link,
                     } = await services.contentSharing.generateKeyLink({
                         key: { roleID: SharedListRoleID.AddOnly },
                         listReference: {
@@ -1103,6 +1105,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                             id: 'default-list',
                         },
                     })
+                    const keyString = getKeyStringFromLink(link)
                     await services.auth.logout()
                     services.router.getQueryParam = () => {
                         return keyString

@@ -1081,6 +1081,7 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
 
         await storage.serverModules.contentSharing.deleteListKey({
             keyString: adderKeyString,
+            listReference,
         })
 
         expect(
@@ -1106,6 +1107,7 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
 
         await storage.serverModules.contentSharing.deleteListKey({
             keyString: readerKeyString,
+            listReference,
         })
 
         expect(
