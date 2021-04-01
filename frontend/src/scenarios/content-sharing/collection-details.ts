@@ -791,6 +791,70 @@ export const SCENARIOS: ScenarioMap<Targets> = {
             ],
         }),
     ),
+    // 'collection-share-modal-add-link': scenario<Targets>(
+    //     ({ step, callModification }) => ({
+    //         fixture: 'annotated-list-with-user-and-follows',
+    //         authenticated: true,
+    //         startRoute: {
+    //             route: 'collectionDetails',
+    //             params: { id: 'default-list' },
+    //         },
+    //         setup: {
+    //             callModifications: ({ storage }) => [
+    //                 callModification({
+    //                     name: 'collection-share-modal-add-sabotage',
+    //                     object: storage.serverModules.contentSharing,
+    //                     property: 'createListKey',
+    //                     modifier: 'sabotage',
+    //                 }),
+    //                 callModification({
+    //                     name: 'collection-share-modal-add-block',
+    //                     object: storage.serverModules.contentSharing,
+    //                     property: 'createListKey',
+    //                     modifier: 'block',
+    //                 }),
+    //             ],
+    //         },
+    //         steps: [
+    //             step({
+    //                 name: 'collection-share-modal-loaded',
+    //                 target: 'CollectionDetailsPage',
+    //                 eventName: 'toggleListShareModal',
+    //                 eventArgs: {},
+    //             }),
+    //             step({
+    //                 name: 'collection-share-modal-failed-add',
+    //                 target: 'ListShareModal',
+    //                 eventName: 'addLink',
+    //                 eventArgs: null,
+    //             }),
+    //             step({
+    //                 name: 'collection-share-modal-fix-failure',
+    //                 callModifications: ({ storage }) => [
+    //                     {
+    //                         name: 'collection-share-modal-add-sabotage',
+    //                         modifier: 'undo',
+    //                     },
+    //                 ],
+    //             }),
+    //             step({
+    //                 name: 'collection-share-modal-adding',
+    //                 target: 'ListShareModal',
+    //                 eventName: 'addLink',
+    //                 eventArgs: null,
+    //             }),
+    //             step({
+    //                 name: 'collection-share-modal-added',
+    //                 callModifications: ({ storage }) => [
+    //                     {
+    //                         name: 'collection-share-modal-add-block',
+    //                         modifier: 'undo',
+    //                     },
+    //                 ],
+    //             }),
+    //         ],
+    //     }),
+    // ),
     'login-on-follow-button-click': scenario<Targets>(
         ({ step, callModification }) => ({
             fixture: 'annotated-list-with-user',
