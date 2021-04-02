@@ -160,6 +160,11 @@ export default class CollectionDetailsPage extends UIElement<
     renderPageEntry(entry: SharedListEntry & { creator: UserReference }) {
         return (
             <PageInfoBox
+                profilePopup={{
+                    services: this.props.services,
+                    storage: this.props.storage,
+                    userRef: entry.creator,
+                }}
                 pageInfo={{
                     ...entry,
                     fullTitle: entry.entryTitle,

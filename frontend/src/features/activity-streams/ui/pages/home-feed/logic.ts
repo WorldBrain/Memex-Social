@@ -562,11 +562,6 @@ export default class HomeFeedLogic extends UILogic<
 
         const nextState = this.withMutation(previousState, mainMutation)
 
-        const allReplies = flatten(
-            Object.values(
-                activityData?.replies ?? {},
-            ).map((annotationReplies) => Object.values(annotationReplies)),
-        )
         await Promise.all([
             // this.users.loadUsers(Object.values(activityData?.annotations ?? {}).map(
             //     ({ creatorReference }) => creatorReference,

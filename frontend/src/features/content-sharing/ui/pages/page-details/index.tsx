@@ -66,7 +66,8 @@ export default class PageDetailsPage extends UIElement<
 
     render() {
         const viewportWidth = this.getBreakPoints()
-        const { state } = this
+        const { state, props } = this
+        const { services, storage } = props
 
         if (
             state.pageInfoLoadState === 'pristine' ||
@@ -74,14 +75,14 @@ export default class PageDetailsPage extends UIElement<
         ) {
             return (
                 <DefaultPageLayout
-                    services={this.props.services}
-                    storage={this.props.storage}
+                    services={services}
+                    storage={storage}
                     viewportBreakpoint={viewportWidth}
                     headerTitle={'Loading page...'}
                     listsSidebarProps={this.listsSidebarProps}
                 >
                     <DocumentTitle
-                        documentTitle={this.props.services.documentTitle}
+                        documentTitle={services.documentTitle}
                         subTitle="Loading page..."
                     />
                     <LoadingScreen />
@@ -91,14 +92,14 @@ export default class PageDetailsPage extends UIElement<
         if (state.pageInfoLoadState === 'error') {
             return (
                 <DefaultPageLayout
-                    services={this.props.services}
-                    storage={this.props.storage}
+                    services={services}
+                    storage={storage}
                     viewportBreakpoint={viewportWidth}
                     headerTitle={'Could not load page'}
                     listsSidebarProps={this.listsSidebarProps}
                 >
                     <DocumentTitle
-                        documentTitle={this.props.services.documentTitle}
+                        documentTitle={props.services.documentTitle}
                         subTitle="Error loading page  :("
                     />
                     <ErrorWithAction errorType="internal-error">
@@ -113,14 +114,14 @@ export default class PageDetailsPage extends UIElement<
         if (!pageInfo) {
             return (
                 <DefaultPageLayout
-                    services={this.props.services}
-                    storage={this.props.storage}
+                    services={services}
+                    storage={storage}
                     viewportBreakpoint={viewportWidth}
                     headerTitle={'Shared page not found'}
                     listsSidebarProps={this.listsSidebarProps}
                 >
                     <DocumentTitle
-                        documentTitle={this.props.services.documentTitle}
+                        documentTitle={services.documentTitle}
                         subTitle="Shared page not found"
                     />
                     <ErrorWithAction
@@ -140,22 +141,22 @@ export default class PageDetailsPage extends UIElement<
         return (
             <>
                 <DocumentTitle
-                    documentTitle={this.props.services.documentTitle}
+                    documentTitle={services.documentTitle}
                     subTitle={`Shared page${
                         creator ? ` by ${creator.displayName}` : ''
                     }`}
                 />
                 <DefaultPageLayout
-                    services={this.props.services}
-                    storage={this.props.storage}
+                    services={services}
+                    storage={storage}
                     viewportBreakpoint={viewportWidth}
                     headerTitle={this.getHeaderTitle()}
                     listsSidebarProps={this.listsSidebarProps}
                     headerSubtitle={this.getHeaderSubtitle()}
                     renderSubtitle={(props) => (
                         <ProfilePopupContainer
-                            services={this.props.services}
-                            storage={this.props.storage}
+                            services={services}
+                            storage={storage}
                             userRef={this.state.creatorReference ?? null}
                         >
                             {props.children}
@@ -164,7 +165,17 @@ export default class PageDetailsPage extends UIElement<
                 >
                     <PageInfoList>
                         <Margin>
-                            <PageInfoBox pageInfo={pageInfo} />
+                            <PageInfoBox
+                                pageInfo={pageInfo}
+                                creator={creator}
+                                profilePopup={
+                                    state.creatorReference && {
+                                        services: services,
+                                        storage: storage,
+                                        userRef: state.creatorReference,
+                                    }
+                                }
+                            />
                         </Margin>
                         <Margin bottom="large">
                             {(state.annotationLoadState === 'pristine' ||

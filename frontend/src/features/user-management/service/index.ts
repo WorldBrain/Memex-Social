@@ -102,6 +102,7 @@ export default class UserManagementService {
         const userProfileCache = new UserProfileCache({
             storage: { users: this.options.storage },
         })
-        return userProfileCache.loadUser(userRef)
+        const result = userProfileCache.loadUser(userRef)
+        return result
     }
 }

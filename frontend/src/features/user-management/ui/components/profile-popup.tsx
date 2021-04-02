@@ -123,25 +123,19 @@ export default class ProfilePopup extends PureComponent<ProfilePopupProps> {
                                 </DisplayName>
                                 {!!webLinksArray.length && (
                                     <WebLinksContainer>
-                                        {webLinksArray.map(
-                                            (
-                                                { url, icon: fileName },
-                                                index,
-                                            ) => (
-                                                <Margin right="small">
-                                                    <Icon
-                                                        key={index}
-                                                        icon={fileName}
-                                                        height="18px"
-                                                        onClick={() =>
-                                                            this.handleWebLinkClick(
-                                                                url,
-                                                            )
-                                                        }
-                                                    />
-                                                </Margin>
-                                            ),
-                                        )}
+                                        {webLinksArray.map(({ url, icon }) => (
+                                            <Margin right="small" key={icon}>
+                                                <Icon
+                                                    icon={icon}
+                                                    height="18px"
+                                                    onClick={() =>
+                                                        this.handleWebLinkClick(
+                                                            url,
+                                                        )
+                                                    }
+                                                />
+                                            </Margin>
+                                        ))}
                                     </WebLinksContainer>
                                 )}
                             </ProfileHeaderInnerContainer>
