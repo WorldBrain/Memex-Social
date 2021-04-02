@@ -312,6 +312,11 @@ export default class HomeFeedPage extends UIElement<
                             {this.renderActivityReason(pageItem)}
                         </Margin>
                         <PageInfoBox
+                            profilePopup={{
+                                services: this.props.services,
+                                storage: this.props.storage,
+                                userRef: pageItem.creatorReference,
+                            }}
                             pageInfo={{
                                 createdWhen: Date.now(),
                                 fullTitle: pageInfo?.fullTitle,
@@ -540,6 +545,7 @@ export default class HomeFeedPage extends UIElement<
                                 return null
                             }
 
+                            const creator = state.users[entry.creator.id]
                             return (
                                 <>
                                     <Margin
@@ -547,6 +553,11 @@ export default class HomeFeedPage extends UIElement<
                                         key={entry.normalizedUrl}
                                     >
                                         <PageInfoBox
+                                            profilePopup={{
+                                                services: this.props.services,
+                                                storage: this.props.storage,
+                                                userRef: entry.creator,
+                                            }}
                                             pageInfo={{
                                                 fullTitle: entry.entryTitle,
                                                 originalUrl: entry.originalUrl,
@@ -555,9 +566,7 @@ export default class HomeFeedPage extends UIElement<
                                                 normalizedUrl:
                                                     entry.normalizedUrl,
                                             }}
-                                            creator={
-                                                state.users[entry.creator.id]
-                                            }
+                                            creator={creator}
                                             actions={
                                                 entry.hasAnnotations
                                                     ? [
