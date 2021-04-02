@@ -20,7 +20,6 @@ import Icon from '../../../../common-ui/components/icon'
 export const PopupContainer = styled.div<{ theme: Theme }>`
     position: absolute;
     width: 270px;
-    min-height: 111px;
     font-family: ${(props) => props.theme.fonts.primary};
     color: ${(props) => props.theme.colors.primary};
     background-color: ${(props) => props.theme.colors.background};
