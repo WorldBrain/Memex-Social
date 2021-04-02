@@ -1,7 +1,5 @@
-import {} from 'styled-components'
-import { theme } from './main-ui/styles/theme'
+import type { MemexTheme } from '@worldbrain/memex-common/lib/common-ui/styles/types'
 
 declare module 'styled-components' {
-    type Theme = typeof theme
-    export interface DefaultTheme extends Theme {}
+    export interface DefaultTheme extends MemexTheme {}
 }
