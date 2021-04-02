@@ -13,7 +13,7 @@ import ListsSidebar, {
 import ListsSidebarToggle from '../../main-ui/components/sidebar-toggle/'
 
 const middleMaxWidth = '800px'
-const logoImage = require('@worldbrain/memex-common/lib/assets/img/memex-logo.svg')
+const logoImage = require('../../assets/img/memex-logo.svg')
 
 const MainContainer = styled.div`
     background: #f6f8fb;

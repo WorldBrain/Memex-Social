@@ -9,8 +9,8 @@ import ItemBoxBottom from '../../../../common-ui/components/item-box-bottom'
 import Markdown from '../../../../common-ui/components/markdown'
 import { ProfilePopupProps } from '../../../user-management/ui/containers/profile-popup-container'
 
-const withRepliesImage = require('@worldbrain/memex-common/lib/assets/img/comment.svg')
-const withoutRepliesImage = require('@worldbrain/memex-common/lib/assets/img/comment-empty.svg')
+const withRepliesImage = require('../../../../assets/img/comment.svg')
+const withoutRepliesImage = require('../../../../assets/img/comment-empty.svg')
 
 const StyledAnnotationBox = styled.div`
     font-family: ${(props) => props.theme.fonts.primary};

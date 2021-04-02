@@ -32,8 +32,8 @@ import { SharedAnnotationReference } from '@worldbrain/memex-common/lib/content-
 import AnnotationReply from '../../../../content-conversations/ui/components/annotation-reply'
 import ErrorBox from '../../../../../common-ui/components/error-box'
 
-const commentImage = require('@worldbrain/memex-common/lib/assets/img/comment.svg')
-const collectionImage = require('@worldbrain/memex-common/lib/assets/img/collection.svg')
+const commentImage = require('../../../../../assets/img/comment.svg')
+const collectionImage = require('../../../../../assets/img/collection.svg')
 
 const StyledIconMargin = styled(Margin)`
     display: flex;
