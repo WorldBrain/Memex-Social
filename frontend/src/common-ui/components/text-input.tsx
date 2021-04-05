@@ -3,11 +3,7 @@ import { InputHTMLAttributes } from 'react'
 import styled from 'styled-components'
 import { Margin } from 'styled-components-spacing'
 
-import { theme } from '../../main-ui/styles/theme'
-import { Theme } from '../../main-ui/styles/types'
-
 const StyledInput = styled.input<{
-    theme: Theme
     padding?: boolean
     error?: boolean
 }>`
@@ -23,9 +19,7 @@ const StyledInput = styled.input<{
     outline: none;
 `
 
-export const StyledInputLabel = styled.div<{
-    theme: Theme
-}>`
+export const StyledInputLabel = styled.div`
     font-family: ${(props) => props.theme.fonts.primary};
     font-weight: ${(props) => props.theme.fontWeights.bold};
     font-size: ${(props) => props.theme.fontSizes.text};
@@ -33,9 +27,7 @@ export const StyledInputLabel = styled.div<{
     color: ${(props) => props.theme.colors.primary};
 `
 
-export const ErrorMessage = styled.div<{
-    theme: Theme
-}>`
+export const ErrorMessage = styled.div`
     font-family: ${(props) => props.theme.fonts.primary};
     font-size: ${(props) => props.theme.fontSizes.smallText};
     line-height: ${(props) => props.theme.lineHeights.smallText};
@@ -85,15 +77,13 @@ export default class TextInput extends React.PureComponent<
     }
 
     renderElement(padding?: boolean) {
-        const { onConfirm, value, error, errorMessage, ...props } = this.props
+        const { onConfirm, value, error, errorMessage } = this.props
         return (
             <>
                 <StyledInput
                     padding={padding}
-                    theme={theme}
                     type="text"
                     error={error}
-                    {...props}
                     onChange={this.handleChange}
                     value={this.state.value}
                     onKeyDown={(event) => {
@@ -104,7 +94,7 @@ export default class TextInput extends React.PureComponent<
                     }}
                 />
                 {error && errorMessage && (
-                    <ErrorMessage theme={theme}>{errorMessage}</ErrorMessage>
+                    <ErrorMessage>{errorMessage}</ErrorMessage>
                 )}
             </>
         )

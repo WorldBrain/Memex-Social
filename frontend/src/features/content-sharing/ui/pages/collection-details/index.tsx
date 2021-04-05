@@ -275,7 +275,6 @@ export default class CollectionDetailsPage extends UIElement<
                     const creatorRef = this.state.annotations[
                         annotationReference.id.toString()
                     ]?.creator
-                    console.log(creatorRef, this.state.users)
                     return creatorRef && this.state.users[creatorRef.id]
                 }}
                 getAnnotationCreatorRef={() =>

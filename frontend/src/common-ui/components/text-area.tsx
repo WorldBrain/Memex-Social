@@ -1,9 +1,6 @@
 import React, { TextareaHTMLAttributes } from 'react'
 import styled from 'styled-components'
 
-import { Theme } from '../../main-ui/styles/types'
-import { theme } from '../../main-ui/styles/theme'
-
 import { StyledInputLabel } from './text-input'
 
 const Container = styled.div`
@@ -11,7 +8,6 @@ const Container = styled.div`
     flex-direction: column;
 `
 const StyledTextArea = styled.textarea<{
-    theme: Theme
     padding?: boolean
     error?: boolean
 }>`
@@ -91,17 +87,12 @@ export default class TextArea extends React.PureComponent<
         return (
             <Container>
                 <StyledTextArea
-                    padding={padding}
-                    theme={theme}
-                    value={this.state.value}
                     error={error}
-                    {...props}
+                    padding={padding}
+                    value={this.state.value}
                     onChange={this.handleChange}
                     onKeyDown={this.handleKeyDown}
                 />
-                {/*<CharCount
-                    theme={theme}
-                >{`${this.state.charCount}/${USER_PROFILE_BIO_CHAR_LIMIT}`}</CharCount>*/}
             </Container>
         )
     }

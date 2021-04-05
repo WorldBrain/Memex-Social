@@ -1,8 +1,6 @@
 import React, { PureComponent } from 'react'
 import styled from 'styled-components'
 
-import { theme } from '../../../../main-ui/styles/theme'
-import { Theme } from '../../../../main-ui/styles/types'
 import { UITaskState } from '../../../../main-ui/types'
 import { UIElementServices } from '../../../../services/types'
 import { StorageModules } from '../../../../storage/types'
@@ -12,7 +10,7 @@ import CuratorSupportButtonBlock from '../../../web-monetization/ui/containers/c
 import { UserReference } from '../../types'
 import { Margin } from 'styled-components-spacing'
 
-const PopupContainer = styled.div<{ theme: Theme }>`
+const PopupContainer = styled.div`
     position: absolute;
     z-index: ${(props) => props.theme.zIndices.overlay};
     padding: ${(props) => props.theme.spacing.medium};
@@ -25,13 +23,13 @@ const PopupContainer = styled.div<{ theme: Theme }>`
     left: -110px;
 `
 
-const Title = styled.div<{ theme: Theme }>`
+const Title = styled.div`
     font-size: ${(props) => props.theme.fontSizes.url};
     line-height: ${(props) => props.theme.lineHeights.text};
     font-weight: 700;
 `
 
-const Text = styled.div<{ theme: Theme }>`
+const Text = styled.div`
     width: 100%;
     height: min-content;
     font-size: ${(props) => props.theme.fontSizes.text};
@@ -60,18 +58,16 @@ export default class CuratorSupportPopup extends PureComponent<CuratorSupportPop
             paymentMade,
         } = this.props
         return (
-            <PopupContainer theme={theme}>
+            <PopupContainer>
                 {loadState === 'running' && <LoadingScreen />}
                 {loadState === 'success' && (
                     <>
                         {paymentMade && (
                             <>
                                 <Margin bottom="smallest">
-                                    <Title theme={theme}>
-                                        Curator Supported!
-                                    </Title>
+                                    <Title>Curator Supported!</Title>
                                 </Margin>
-                                <Text theme={theme}>
+                                <Text>
                                     For every visit you'll donate a few cents to
                                     this creator.
                                 </Text>
@@ -80,11 +76,9 @@ export default class CuratorSupportPopup extends PureComponent<CuratorSupportPop
                         {!paymentMade && this.props.isMonetizationAvailable && (
                             <>
                                 <Margin bottom="smallest">
-                                    <Title theme={theme}>
-                                        Support Collection Curator
-                                    </Title>
+                                    <Title>Support Collection Curator</Title>
                                 </Margin>
-                                <Text theme={theme}>
+                                <Text>
                                     Use <i>WebMonetization</i> to donate a few
                                     cents for every visit to this collection.
                                 </Text>
@@ -98,11 +92,9 @@ export default class CuratorSupportPopup extends PureComponent<CuratorSupportPop
                         {!paymentMade && !this.props.isMonetizationAvailable && (
                             <>
                                 <Margin bottom="smallest">
-                                    <Title theme={theme}>
-                                        Support Collection Curator
-                                    </Title>
+                                    <Title>Support Collection Curator</Title>
                                 </Margin>
-                                <Text theme={theme}>
+                                <Text>
                                     Automatically donate a few cents for every
                                     visit to this collection.
                                 </Text>

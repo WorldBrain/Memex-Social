@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import Icon from '../../../../../common-ui/components/icon'
+import Icon, { IconProps } from '../../../../../common-ui/components/icon'
 import { UIElement } from '../../../../../main-ui/classes'
 
 import Logic from './logic'
@@ -22,10 +22,8 @@ const IconContainer = styled.div<{ iconHeight: string }>`
     width: ${(props) => props.iconHeight};
 `
 
-const StyledIcon = styled(Icon)<{
-    isClickable: boolean
-}>`
-    ${(props) => !props.isClickable && `cursor: auto`}
+const StyledIcon = styled(Icon)<IconProps & { isClickable: boolean }>`
+    ${(props) => !props.onClick && `cursor: auto`}
 `
 
 type WebMonetizationIconDependencies = WebMonetizationButtonDependencies
@@ -43,15 +41,22 @@ export default class WebMonetizationIcon extends UIElement<
         super(props, { logic: new Logic(props) })
     }
 
-    handleClick: React.MouseEventHandler = () => {
-        this.processEvent('makeSupporterPayment', null)
+    private get isClickable(): boolean {
+        return (
+            this.state.isMonetizationAvailable &&
+            this.state.paymentState !== 'success'
+        )
+    }
+
+    private handleClick = () => {
+        if (this.isClickable) {
+            this.processEvent('makeSupporterPayment', null)
+        }
     }
 
     renderIcon() {
-        const paymentState = this.state.paymentState
-        const isPaymentMade = this.state.paymentState === 'success'
+        const { paymentState } = this.state
 
-        const isClickable = this.state.isMonetizationAvailable && !isPaymentMade
         return (
             <IconContainer iconHeight={this.iconHeight}>
                 {paymentState === 'running' && <LoadingScreen />}
@@ -59,13 +64,13 @@ export default class WebMonetizationIcon extends UIElement<
                 {(paymentState === 'pristine' ||
                     paymentState === 'success') && (
                     <StyledIcon
-                        onClick={isClickable ? this.handleClick : () => {}}
+                        isClickable={this.isClickable}
+                        onClick={this.handleClick}
                         height={this.iconHeight}
-                        isClickable={isClickable}
                         icon={
-                            'webMonetizationLogo' + isPaymentMade
-                                ? 'Confirmed'
-                                : ''
+                            paymentState === 'success'
+                                ? 'webMonetizationLogoConfirmed'
+                                : 'webMonetizationLogo'
                         }
                     />
                 )}

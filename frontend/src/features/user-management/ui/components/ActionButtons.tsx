@@ -1,13 +1,10 @@
 import React from 'react'
 import styled from 'styled-components'
-import { theme } from '../../../../main-ui/styles/theme'
-import { Theme } from '../../../../main-ui/styles/types'
 
 const StyledActionButton = styled.div<{
-    theme: Theme
-    disabled: boolean | undefined
-    minWidth: string | undefined
-    backgroundColor: string
+    disabled?: boolean
+    minWidth?: string
+    backgroundColor?: string
 }>`
     min-width: ${(props) => (props.minWidth ? props.minWidth : 'min-content')};
     padding: 8px 20px;
@@ -20,7 +17,9 @@ const StyledActionButton = styled.div<{
     align-items: center;
     vertical-align: middle;
     background: ${(props) =>
-        props.disabled ? props.theme.colors.lightgrey : props.backgroundColor};
+        props.disabled
+            ? props.theme.colors.lightgrey
+            : props.backgroundColor ?? props.theme.colors.secondary};
 
     box-sizing: border-box;
     border-radius: ${(props) => props.theme.borderRadii.default};
@@ -35,7 +34,7 @@ const StyledActionButton = styled.div<{
     }
 `
 
-const StyledActionLinkText = styled.div<{ theme: Theme }>`
+const StyledActionLinkText = styled.div`
     font-family: ${(props) => props.theme.fonts.primary};
     font-weight: ${(props) => props.theme.fontWeights.bold};
     font-size: ${(props) => props.theme.fontSizes.text};
@@ -64,8 +63,6 @@ export const PrimaryActionButton = ({
 }) => (
     <StyledActionButton
         minWidth={minWidth}
-        theme={theme}
-        backgroundColor={theme.colors.secondary}
         tabIndex={0}
         onClick={disabled === true ? undefined : onClick}
         disabled={disabled}
@@ -95,7 +92,6 @@ export const SecondaryActionButton = ({
 }) => (
     <StyledSecondaryActionButton
         minWidth={minWidth}
-        theme={theme}
         tabIndex={0}
         backgroundColor="transparent"
         onClick={disabled === true ? undefined : onClick}
