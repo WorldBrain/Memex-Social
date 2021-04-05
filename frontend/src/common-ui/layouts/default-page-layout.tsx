@@ -231,7 +231,7 @@ export default function DefaultPageLayout(props: {
     >
     storage: Pick<StorageModules, 'users' | 'activityStreams'>
     headerTitle?: string
-    headerSubtitle?: string | null
+    headerSubtitle?: React.ReactNode
     followBtn?: JSX.Element
     webMonetizationIcon?: JSX.Element
     hideActivityIndicator?: boolean

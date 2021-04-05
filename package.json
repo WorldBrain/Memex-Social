@@ -1,41 +1,41 @@
 {
-  "name": "website",
-  "private": true,
-  "scripts": {
-    "bootstrap": "yarn && yarn install-dependencies && yarn prepare-packages",
-    "prepare-packages": "for scope in `ts-node tools/ordered-packages.ts`; do lerna exec --scope $scope 'yarn prepare'; done",
-    "update-packages": "git submodule update --remote",
-    "install-dependencies": "lerna bootstrap --force-local --ignore-scripts && npm rebuild",
-    "test": "yarn lerna run test",
-    "test:watch": "lerna run --parallel --stream test:watch -- --colors",
-    "prepare:watch": "lerna run --parallel --stream prepare:watch"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "pretty-quick --staged"
+    "name": "website",
+    "private": true,
+    "scripts": {
+        "bootstrap": "yarn && yarn install-dependencies && yarn prepare-packages",
+        "prepare-packages": "for scope in `ts-node tools/ordered-packages.ts`; do lerna exec --scope $scope 'yarn prepare'; done",
+        "update-packages": "git submodule update --remote",
+        "install-dependencies": "lerna bootstrap --force-local --ignore-scripts && npm rebuild",
+        "test": "yarn lerna run test",
+        "test:watch": "lerna run --parallel --stream test:watch -- --colors",
+        "prepare:watch": "lerna run --parallel --stream prepare:watch"
+    },
+    "husky": {
+        "hooks": {
+            "pre-commit": "pretty-quick --staged"
+        }
+    },
+    "dependencies": {
+        "immutability-helper": "^3.0.0",
+        "react": "^17.0.1",
+        "styled-components": "^5.1.1",
+        "ui-logic-core": "^0.2.1",
+        "ui-logic-react": "^0.1.4"
+    },
+    "devDependencies": {
+        "@types/glob": "5.0.35",
+        "@types/lodash": "^4.14.108",
+        "@types/node": "^14.0.14",
+        "@types/react": "^17.0.3",
+        "@types/styled-components": "^5.1.9",
+        "glob": "^7.1.6",
+        "husky": "^4.3.8",
+        "lerna": "^3.13.2",
+        "lodash": "^4.17.15",
+        "prettier": "2.2.1",
+        "pretty-quick": "^3.1.0",
+        "toposort": "^2.0.2",
+        "ts-node": "^8.10.2",
+        "typescript": "^3.9.5"
     }
-  },
-  "dependencies": {
-    "immutability-helper": "^3.0.0",
-    "react": "^17.0.1",
-    "styled-components": "^5.1.1",
-    "ui-logic-core": "^0.2.1",
-    "ui-logic-react": "^0.1.4"
-  },
-  "devDependencies": {
-    "@types/glob": "5.0.35",
-    "@types/lodash": "^4.14.108",
-    "@types/node": "^14.0.14",
-    "@types/react": "^17.0.3",
-    "@types/styled-components": "^5.1.9",
-    "glob": "^7.1.6",
-    "husky": "^4.3.8",
-    "lerna": "^3.13.2",
-    "lodash": "^4.17.15",
-    "prettier": "2.2.1",
-    "pretty-quick": "^3.1.0",
-    "toposort": "^2.0.2",
-    "ts-node": "^8.10.2",
-    "typescript": "^3.9.5"
-  }
 }

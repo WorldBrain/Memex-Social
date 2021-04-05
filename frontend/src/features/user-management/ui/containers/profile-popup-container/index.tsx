@@ -13,6 +13,7 @@ import ProfilePopup from '../../components/profile-popup'
 
 const Container = styled.div`
     position: relative;
+    display: inline;
 `
 
 export type ProfilePopupProps = ProfilePopupContainerDependencies

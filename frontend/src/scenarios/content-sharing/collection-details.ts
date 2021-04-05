@@ -1179,4 +1179,44 @@ export const SCENARIOS: ScenarioMap<Targets> = {
             }),
         ],
     })),
+    'cocurated-with-collaborators': scenario<Targets>(
+        ({ step, callModification }) => ({
+            fixture: 'cocurated-list',
+            startRoute: {
+                route: 'collectionDetails',
+                params: { id: 'cocurated-list' },
+            },
+            setup: {
+                execute: async ({ storage, services }) => {
+                    await services.auth.loginWithEmailPassword({
+                        email: 'default-user',
+                        password: '123',
+                    })
+                    await storage.serverModules.contentSharing.createListRole({
+                        listReference: {
+                            type: 'shared-list-reference',
+                            id: 'cocurated-list',
+                        },
+                        userReference: {
+                            type: 'user-reference',
+                            id: 'second-user',
+                        },
+                        roleID: SharedListRoleID.AddOnly,
+                    })
+                    await storage.serverModules.contentSharing.createListRole({
+                        listReference: {
+                            type: 'shared-list-reference',
+                            id: 'cocurated-list',
+                        },
+                        userReference: {
+                            type: 'user-reference',
+                            id: 'third-user',
+                        },
+                        roleID: SharedListRoleID.AddOnly,
+                    })
+                },
+            },
+            steps: [],
+        }),
+    ),
 }

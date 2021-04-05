@@ -65,6 +65,7 @@ export type CollectionDetailsState = AnnotationConversationsState &
         listRolesLoadState: UITaskState
         listRoleID?: SharedListRoleID
         listRoles?: Array<SharedListRole & { user: UserReference }>
+        listRoleLimit: number | null // how many collaborators to show in the subtitle
         isListOwner?: boolean
 
         users: { [id: string]: Pick<User, 'displayName'> }
@@ -99,6 +100,7 @@ export type CollectionDetailsEvent = UIEvent<
             closePermissionOverlay: {}
             pageBreakpointHit: { entryIndex: number }
             clickFollowBtn: null
+            showMoreCollaborators: {}
         }
 >
 

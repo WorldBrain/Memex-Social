@@ -105,6 +105,7 @@ export default class CollectionDetailsLogic extends UILogic<
             followLoadState: 'pristine',
             permissionKeyState: 'pristine',
             listRolesLoadState: 'pristine',
+            listRoleLimit: 3,
             users: {},
             annotationEntriesLoadState: 'pristine',
             annotationLoadStates: {},
@@ -199,6 +200,8 @@ export default class CollectionDetailsLogic extends UILogic<
             'shared-list-reference',
             this.dependencies.listID,
         )
+
+        let usersToLoad: UserReference[] = []
         await executeUITask<CollectionDetailsState>(
             this,
             'listRolesLoadState',
@@ -207,6 +210,7 @@ export default class CollectionDetailsLogic extends UILogic<
                 const listRoles = await this.dependencies.storage.contentSharing.getListRoles(
                     { listReference },
                 )
+                usersToLoad = listRoles.map((role) => role.user)
                 this.emitMutation({
                     listRoleID: {
                         $set:
@@ -220,6 +224,7 @@ export default class CollectionDetailsLogic extends UILogic<
                 })
             },
         )
+        await this._users.loadUsers(usersToLoad)
     }
 
     loadListData: EventHandler<'loadListData'> = async ({ event }) => {
@@ -519,6 +524,10 @@ export default class CollectionDetailsLogic extends UILogic<
                 this.emitMutation(mutation)
             },
         )
+    }
+
+    showMoreCollaborators: EventHandler<'showMoreCollaborators'> = () => {
+        return { listRoleLimit: { $set: null } }
     }
 
     getFirstPagesWithoutLoadedAnnotations(state: CollectionDetailsState) {

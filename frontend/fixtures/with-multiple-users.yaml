@@ -6,6 +6,9 @@ objects:
         - $store: second
           id: second-user
           displayName: 'Jane Miller'
+        - $store: third
+          id: third-user
+          displayName: 'Janice Klunk'
     userPublicProfiles:
         - $store: default
           user: { $ref: users.default }
@@ -23,4 +26,12 @@ objects:
           twitterURL: 'https://twitter.com/jane'
           substackURL: 'https://every.to/@jane'
           bio: 'Second test user'
+          avatarURL: ''
+        - $store: third
+          user: { $ref: users.third }
+          websiteURL: 'https://janice.co/'
+          mediumURL: 'https://medium.com/@janice'
+          twitterURL: 'https://twitter.com/janice'
+          substackURL: 'https://every.to/@janice'
+          bio: 'Third test user'
           avatarURL: ''
