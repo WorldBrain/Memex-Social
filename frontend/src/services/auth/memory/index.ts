@@ -111,5 +111,7 @@ export default class MemoryAuthService extends AuthServiceBase {
         this.events.emit('changed', this._user?.user)
     }
 
-    async waitForAuthReady() {}
+    async waitForAuthReady() {
+        // return new Promise<void>(() => { })
+    }
 }

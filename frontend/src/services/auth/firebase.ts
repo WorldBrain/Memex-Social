@@ -13,6 +13,9 @@ import {
 } from './types'
 import { AuthServiceBase } from './base'
 import { waitForAuth } from './utils'
+import { LimitedWebStorage } from '../../utils/web-storage/types'
+
+const FIREBASE_AUTH_CACHE_KEY = 'firebase.wasAuthenticated'
 
 export default class FirebaseAuthService extends AuthServiceBase {
     events = new EventEmitter()
@@ -24,27 +27,37 @@ export default class FirebaseAuthService extends AuthServiceBase {
     constructor(
         firebaseRoot: typeof firebase,
         private options: {
+            localStorage: LimitedWebStorage
             storage: Storage
         },
     ) {
         super()
 
-        this._initialWaitForAuth = (async () => {
-            const { waitingForAuth, stopWaiting } = waitForAuth(this)
-            await Promise.race([
-                waitingForAuth,
-                // There's reports of Firebase detecting auth state between 1.5 and 2 seconds after load  :(
-                new Promise((resolve) => setTimeout(resolve, 3000)),
-            ])
-            stopWaiting()
-            delete this._initialWaitForAuth
-        })()
+        this._initialWaitForAuth = options.localStorage.getItem(
+            FIREBASE_AUTH_CACHE_KEY,
+        )
+            ? (async () => {
+                  const { waitingForAuth, stopWaiting } = waitForAuth(this)
+                  await Promise.race([
+                      waitingForAuth,
+                      // There's reports of Firebase detecting auth state between 1.5 and 2 seconds after load  :(
+                      // We've also observed this can even be slower on a slow internet connection
+                      new Promise((resolve) => setTimeout(resolve, 10000)),
+                  ])
+                  stopWaiting()
+                  delete this._initialWaitForAuth
+              })()
+            : undefined
 
         this._firebase = firebaseRoot
         this._user = null
 
-        this._firebase.auth().onAuthStateChanged(async () => {
-            // this will get once on load, and then for every change
+        this._firebase.auth().onAuthStateChanged(async (user) => {
+            if (user) {
+                options.localStorage.setItem(FIREBASE_AUTH_CACHE_KEY, 'true')
+            } else {
+                options.localStorage.removeItem(FIREBASE_AUTH_CACHE_KEY)
+            }
             await this.refreshCurrentUser()
         })
     }

@@ -114,6 +114,15 @@ export class ContentSharingService implements ContentSharingServiceInterface {
         })
     }
 
+    hasCurrentKey: ContentSharingServiceInterface['hasCurrentKey'] = () => {
+        const routeMatch = this.dependencies.router.matchCurrentUrl()
+        if (routeMatch.route !== 'collectionDetails') {
+            return false
+        }
+        const keyString = this.dependencies.router.getQueryParam('key')
+        return !!keyString
+    }
+
     processCurrentKey: ContentSharingServiceInterface['processCurrentKey'] = async () => {
         const routeMatch = this.dependencies.router.matchCurrentUrl()
         if (routeMatch.route !== 'collectionDetails') {

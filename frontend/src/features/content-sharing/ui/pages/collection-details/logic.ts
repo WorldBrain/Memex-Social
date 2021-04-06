@@ -143,11 +143,14 @@ export default class CollectionDetailsLogic extends UILogic<
     processPermissionKey: EventHandler<'processPermissionKey'> = async (
         incoming,
     ) => {
-        await this.dependencies.services.auth.waitForAuthReady()
+        if (!this.dependencies.services.contentSharing.hasCurrentKey()) {
+            return
+        }
         await executeUITask<CollectionDetailsState>(
             this,
             'permissionKeyState',
             async () => {
+                await this.dependencies.services.auth.waitForAuthReady()
                 const {
                     result,
                 } = await this.dependencies.services.contentSharing.processCurrentKey()

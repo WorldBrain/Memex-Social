@@ -63,7 +63,10 @@ export function createServices(options: {
         options.backend === 'firebase' ||
         options.backend === 'firebase-emulator'
     ) {
-        auth = new FirebaseAuthService(firebase, { storage: options.storage })
+        auth = new FirebaseAuthService(firebase, {
+            storage: options.storage,
+            localStorage: options.localStorage,
+        })
         if (process.env.NODE_ENV === 'development') {
             if (options.backend === 'firebase-emulator') {
                 firebase.database().useEmulator('localhost', 9000)

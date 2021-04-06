@@ -1,4 +1,8 @@
-import { UILogic, UIEventHandler } from '../../../../../main-ui/classes/logic'
+import {
+    UILogic,
+    UIEventHandler,
+    loadInitial,
+} from '../../../../../main-ui/classes/logic'
 import {
     AuthHeaderEvent,
     AuthHeaderDependencies,
@@ -25,6 +29,7 @@ export default class AuthHeaderLogic extends UILogic<
 
     getInitialState(): AuthHeaderState {
         return {
+            loadState: 'pristine',
             user: this.dependencies.services.auth.getCurrentUser(),
             // user: { displayName: 'bla' },
             showMenu: false,
@@ -42,6 +47,9 @@ export default class AuthHeaderLogic extends UILogic<
     }
 
     init: EventHandler<'init'> = async () => {
+        await loadInitial<AuthHeaderState>(this, async () => {
+            await this.dependencies.services.auth.waitForAuthReady()
+        })
         this._updateUser()
     }
 

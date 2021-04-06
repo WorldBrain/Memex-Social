@@ -11,6 +11,7 @@ import { Margin } from 'styled-components-spacing'
 import { Closable } from '../../../../../common-ui/components/closable'
 import AuthMenu from '../../components/auth-menu'
 import ProfileEditModal from '../profile-edit-modal'
+import LoadingIndicator from '../../../../../common-ui/components/loading-indicator'
 
 const logoImage = require('../../../../../assets/img/memex-icon.svg')
 
@@ -63,6 +64,10 @@ export default class AuthHeader extends UIElement<
     }
 
     render() {
+        if (this.state.loadState !== 'success') {
+            return <LoadingIndicator />
+        }
+
         if (!this.state.user) {
             return (
                 <DisplayName onClick={() => this.processEvent('login', null)}>
