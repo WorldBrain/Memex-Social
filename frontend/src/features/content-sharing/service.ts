@@ -77,7 +77,7 @@ export class ContentSharingService implements ContentSharingServiceInterface {
         //  as they are "shared" already and lack the ability to unshare
         const readerLink = {
             link: this.getKeyLink({ listReference: params.listReference }),
-            roleID: SharedListRoleID.Reader,
+            roleID: SharedListRoleID.Commenter,
         }
 
         return {
@@ -90,7 +90,7 @@ export class ContentSharingService implements ContentSharingServiceInterface {
     ) => {
         let keyString: string | undefined
 
-        if (params.key.roleID !== SharedListRoleID.Reader) {
+        if (params.key.roleID !== SharedListRoleID.Commenter) {
             const createListResult = await this.dependencies.storage.contentSharing.createListKey(
                 params,
             )

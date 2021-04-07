@@ -1071,7 +1071,7 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
         } = await storage.serverModules.contentSharing.createListKey({
             listReference,
             key: {
-                roleID: SharedListRoleID.Reader,
+                roleID: SharedListRoleID.Commenter,
             },
         })
 
@@ -1105,7 +1105,7 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 },
                 createdWhen: expect.any(Number),
                 updatedWhen: expect.any(Number),
-                roleID: SharedListRoleID.Reader,
+                roleID: SharedListRoleID.Commenter,
                 disabled: false,
             },
         ])
@@ -1131,7 +1131,7 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 },
                 createdWhen: expect.any(Number),
                 updatedWhen: expect.any(Number),
-                roleID: SharedListRoleID.Reader,
+                roleID: SharedListRoleID.Commenter,
                 disabled: false,
             },
         ])
@@ -1178,7 +1178,7 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
         } = await storage.serverModules.contentSharing.createListKey({
             listReference: listReferenceA,
             key: {
-                roleID: SharedListRoleID.Reader,
+                roleID: SharedListRoleID.Commenter,
             },
         })
 
@@ -1187,7 +1187,7 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
         } = await storage.serverModules.contentSharing.createListKey({
             listReference: listReferenceB,
             key: {
-                roleID: SharedListRoleID.Reader,
+                roleID: SharedListRoleID.Commenter,
             },
         })
 
@@ -1223,7 +1223,7 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 },
                 createdWhen: expect.any(Number),
                 updatedWhen: expect.any(Number),
-                roleID: SharedListRoleID.Reader,
+                roleID: SharedListRoleID.Commenter,
                 disabled: false,
             },
         ])
@@ -1240,7 +1240,7 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 },
                 createdWhen: expect.any(Number),
                 updatedWhen: expect.any(Number),
-                roleID: SharedListRoleID.Reader,
+                roleID: SharedListRoleID.Commenter,
                 disabled: false,
             },
         ])
