@@ -252,7 +252,19 @@ export default class CollectionDetailsLogic extends UILogic<
                 const result = await contentSharing.retrieveList(listReference)
                 if (result) {
                     this._creatorReference = result.creator
-                    const user = await users.getUser(result.creator)
+                    const userIds = [
+                        ...new Set(
+                            result.entries.map((entry) => entry.creator.id),
+                        ),
+                    ]
+                    await this._users.loadUsers(
+                        userIds.map(
+                            (id): UserReference => ({
+                                type: 'user-reference',
+                                id,
+                            }),
+                        ),
+                    )
 
                     const listDescription = result.sharedList.description ?? ''
                     const listDescriptionFits =
@@ -263,7 +275,9 @@ export default class CollectionDetailsLogic extends UILogic<
                             listData: {
                                 $set: {
                                     creatorReference: result.creator,
-                                    creator: user,
+                                    creator: await this._users.loadUser(
+                                        result.creator,
+                                    ),
                                     list: result.sharedList,
                                     listEntries: result.entries,
                                     listDescriptionState: listDescriptionFits

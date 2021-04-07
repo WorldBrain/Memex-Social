@@ -164,6 +164,9 @@ export default class CollectionDetailsPage extends UIElement<
     }
 
     renderPageEntry(entry: SharedListEntry & { creator: UserReference }) {
+        if (entry.normalizedUrl === 'notion.so/#17') {
+            console.log(entry.creator.id)
+        }
         return (
             <PageInfoBox
                 profilePopup={{
