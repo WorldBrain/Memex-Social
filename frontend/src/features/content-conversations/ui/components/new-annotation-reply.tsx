@@ -7,6 +7,7 @@ import { SharedAnnotationReference } from '@worldbrain/memex-common/lib/content-
 import { AnnotationConversationState } from '../../../content-conversations/ui/types'
 import { keyPressAction } from '../../../../common-ui/utils/dom-events'
 import { SharedAnnotationInPage } from '../../../annotations/ui/components/types'
+import TextArea from '../../../../common-ui/components/text-area'
 
 const NewReplyTextArea = styled.textarea<{ editing: boolean }>`
     width: 100%;
@@ -98,10 +99,10 @@ export default function NewAnnotationReply(
                     </ErrorBox>
                 </Margin>
             )}
-            <NewReplyTextArea
+            <TextArea
                 autoFocus={newReply.editing}
                 value={newReply.editing ? newReply.content : ''}
-                editing={newReply.editing}
+                // editing={newReply.editing}
                 placeholder={'Add a new reply'}
                 onClick={() => {
                     props.onNewReplyInitiate?.({
@@ -126,6 +127,12 @@ export default function NewAnnotationReply(
                         })
                     }
                 }}
+                renderTextarea={(inputProps) => (
+                    <NewReplyTextArea
+                        {...inputProps}
+                        editing={newReply.editing}
+                    />
+                )}
             />
             {newReply.editing && (
                 <NewReplyActions>

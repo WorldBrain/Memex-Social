@@ -36,6 +36,12 @@ interface Props {
     label?: string
     error?: boolean
     errorMessage?: string
+    renderTextarea?: (
+        props: TextareaHTMLAttributes<HTMLTextAreaElement> & {
+            padding?: boolean
+            error?: boolean
+        },
+    ) => React.ReactNode
 }
 export default class TextArea extends React.PureComponent<
     TextareaHTMLAttributes<HTMLTextAreaElement> & Props,
@@ -83,16 +89,19 @@ export default class TextArea extends React.PureComponent<
     }
 
     renderElement(padding?: boolean) {
-        const { onConfirm, value, error, errorMessage, ...props } = this.props
+        const renderTextarea =
+            this.props.renderTextarea ??
+            ((props) => <StyledTextArea {...props} />)
         return (
             <Container>
-                <StyledTextArea
-                    error={error}
-                    padding={padding}
-                    value={this.state.value}
-                    onChange={this.handleChange}
-                    onKeyDown={this.handleKeyDown}
-                />
+                {renderTextarea({
+                    ...this.props,
+                    error: this.props.error,
+                    padding: padding,
+                    value: this.state.value,
+                    onChange: this.handleChange,
+                    onKeyDown: this.handleKeyDown,
+                })}
             </Container>
         )
     }
