@@ -59,7 +59,7 @@ export default class TextArea extends React.PureComponent<
     }
 
     componentWillReceiveProps(
-        props: TextareaHTMLAttributes<HTMLInputElement> & Props,
+        props: Readonly<TextareaHTMLAttributes<HTMLTextAreaElement> & Props>,
     ) {
         const { state } = this
         if (props.value !== state.value) {
