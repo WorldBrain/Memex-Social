@@ -35,8 +35,8 @@ export const ErrorMessage = styled.div`
 `
 
 interface State {
-    value: string
-    prevValue: string
+    value?: string
+    prevValue?: string
 }
 
 interface Props {
@@ -51,7 +51,7 @@ export default class TextInput extends React.PureComponent<
     InputHTMLAttributes<HTMLInputElement> & Props,
     State
 > {
-    state = { prevValue: '', value: '' }
+    state: State = {}
 
     constructor(props: Props) {
         super(props)
@@ -59,16 +59,13 @@ export default class TextInput extends React.PureComponent<
         this.state.prevValue = props?.value ?? ''
     }
 
-    static getDerivedStateFromProps(props: Props, state: State) {
-        if (state.value !== state.prevValue) {
-            return { value: state.value }
+    componentWillReceiveProps(
+        props: InputHTMLAttributes<HTMLInputElement> & Props,
+    ) {
+        const { state } = this
+        if (props.value !== state.value) {
+            this.setState({ value: props.value })
         }
-
-        if (props?.value && props?.value !== state.value) {
-            return { value: props.value }
-        }
-
-        return null
     }
 
     handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -81,8 +78,8 @@ export default class TextInput extends React.PureComponent<
         return (
             <>
                 <StyledInput
+                    {...this.props}
                     padding={padding}
-                    type="text"
                     error={error}
                     onChange={this.handleChange}
                     value={this.state.value}

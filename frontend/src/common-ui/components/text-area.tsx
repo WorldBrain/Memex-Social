@@ -25,8 +25,8 @@ const StyledTextArea = styled.textarea<{
 `
 
 interface State {
-    value: string
-    prevValue: string
+    value?: string
+    prevValue?: string
     charCount: number
 }
 
@@ -47,9 +47,7 @@ export default class TextArea extends React.PureComponent<
     TextareaHTMLAttributes<HTMLTextAreaElement> & Props,
     State
 > {
-    state = {
-        prevValue: '',
-        value: '',
+    state: State = {
         charCount: 0,
     }
 
@@ -60,16 +58,13 @@ export default class TextArea extends React.PureComponent<
         this.state.charCount = props.value?.length ?? 0
     }
 
-    static getDerivedStateFromProps(props: Props, state: State) {
-        if (state.value !== state.prevValue) {
-            return { value: state.value }
+    componentWillReceiveProps(
+        props: TextareaHTMLAttributes<HTMLInputElement> & Props,
+    ) {
+        const { state } = this
+        if (props.value !== state.value) {
+            this.setState({ value: props.value })
         }
-
-        if (props?.value && props?.value !== state.value) {
-            return { value: props.value }
-        }
-
-        return null
     }
 
     handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {

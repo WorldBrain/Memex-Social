@@ -193,6 +193,7 @@ export default class AuthDialog extends UIElement<
                             <TextInput
                                 type="email"
                                 placeholder="E-mail"
+                                value={this.state.email}
                                 onChange={(e) =>
                                     this.processEvent('editEmail', {
                                         value: e.target.value,
@@ -209,6 +210,7 @@ export default class AuthDialog extends UIElement<
                                 <TextInput
                                     type="password"
                                     placeholder="Password"
+                                    value={this.state.password}
                                     onChange={(e) =>
                                         this.processEvent('editPassword', {
                                             value: e.target.value,
