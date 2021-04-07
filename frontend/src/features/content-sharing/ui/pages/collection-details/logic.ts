@@ -161,6 +161,8 @@ export default class CollectionDetailsLogic extends UILogic<
                         },
                     }
                 }
+
+                this.emitMutation({ requestingAuth: { $set: true } })
                 const {
                     result: authResult,
                 } = await this.dependencies.services.auth.requestAuth({
@@ -171,6 +173,7 @@ export default class CollectionDetailsLogic extends UILogic<
                         subtitle: 'Signup or login to continue',
                     },
                 })
+                this.emitMutation({ requestingAuth: { $set: false } })
                 if (
                     authResult.status === 'cancelled' ||
                     authResult.status === 'error'

@@ -1,5 +1,8 @@
 import { ContentSharingBackendInterface } from '@worldbrain/memex-common/lib/content-sharing/backend/types'
-import { ContentSharingServiceInterface } from '@worldbrain/memex-common/lib/content-sharing/service/types'
+import {
+    ContentSharingServiceInterface,
+    ProcessSharedListKeyResult,
+} from '@worldbrain/memex-common/lib/content-sharing/service/types'
 import {
     SharedListReference,
     SharedListRoleID,
@@ -123,7 +126,9 @@ export class ContentSharingService implements ContentSharingServiceInterface {
         return !!keyString
     }
 
-    processCurrentKey: ContentSharingServiceInterface['processCurrentKey'] = async () => {
+    processCurrentKey: ContentSharingServiceInterface['processCurrentKey'] = async (): Promise<{
+        result: ProcessSharedListKeyResult
+    }> => {
         const routeMatch = this.dependencies.router.matchCurrentUrl()
         if (routeMatch.route !== 'collectionDetails') {
             return { result: 'no-key-present' }

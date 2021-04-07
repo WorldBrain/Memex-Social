@@ -376,6 +376,23 @@ export default class CollectionDetailsPage extends UIElement<
         )
     }
 
+    renderPermissionKeyOverlay() {
+        const viewportBreakpoint = getViewportBreakpoint(
+            this.getViewportWidth(),
+        )
+        return !this.state.requestingAuth ? (
+            <PermissionKeyOverlay
+                services={this.props.services}
+                viewportBreakpoint={viewportBreakpoint}
+                permissionKeyState={this.state.permissionKeyState}
+                permissionKeyResult={this.state.permissionKeyResult}
+                onCloseRequested={() =>
+                    this.processEvent('closePermissionOverlay', {})
+                }
+            />
+        ) : null
+    }
+
     render() {
         const viewportBreakpoint = getViewportBreakpoint(
             this.getViewportWidth(),
@@ -393,6 +410,7 @@ export default class CollectionDetailsPage extends UIElement<
                         subTitle="Loading list..."
                     />
                     <LoadingScreen />
+                    {this.renderPermissionKeyOverlay()}
                 </DocumentView>
             )
         }
@@ -443,15 +461,7 @@ export default class CollectionDetailsPage extends UIElement<
                     documentTitle={this.props.services.documentTitle}
                     subTitle={data.list.title}
                 />
-                <PermissionKeyOverlay
-                    services={this.props.services}
-                    viewportBreakpoint={viewportBreakpoint}
-                    permissionKeyState={this.state.permissionKeyState}
-                    permissionKeyResult={this.state.permissionKeyResult}
-                    onCloseRequested={() =>
-                        this.processEvent('closePermissionOverlay', {})
-                    }
-                />
+                {this.renderPermissionKeyOverlay()}
                 <DefaultPageLayout
                     services={this.props.services}
                     storage={this.props.storage}
