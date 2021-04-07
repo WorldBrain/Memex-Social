@@ -45,7 +45,7 @@ export function createServices(options: {
     firebase?: typeof firebaseModule
     logLogicEvents?: boolean
     fixtureFetcher?: FixtureFetcher
-    clipboard?: Pick<Clipboard, 'writeText'>
+    clipboard: Pick<Clipboard, 'writeText'>
 }): Services {
     const firebase = options.firebase ?? firebaseModule
     const logicRegistry = new LogicRegistryService({
@@ -169,7 +169,7 @@ export function createServices(options: {
     const services: Services = {
         overlay: new OverlayService(),
         clipboard: new ClipboardService({
-            clipboard: options.clipboard ?? navigator.clipboard,
+            clipboard: options.clipboard,
         }),
         logicRegistry,
         device,

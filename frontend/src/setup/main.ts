@@ -49,6 +49,7 @@ export async function mainProgram(
         storage,
         uiMountPoint,
         fixtureFetcher: options.fixtureFetcher,
+        clipboard: options.clipboard ?? navigator.clipboard,
         localStorage:
             options.backend.indexOf('memory') === 0
                 ? new MemoryLocalStorage()

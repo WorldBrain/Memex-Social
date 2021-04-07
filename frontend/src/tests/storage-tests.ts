@@ -172,6 +172,7 @@ async function createFirebaseTestDevice(
         history: null!,
         uiMountPoint: null!,
         localStorage: null!,
+        clipboard: mockClipboardAPI,
     })
     if (userId) {
         await services.auth.loginWithEmailPassword({
