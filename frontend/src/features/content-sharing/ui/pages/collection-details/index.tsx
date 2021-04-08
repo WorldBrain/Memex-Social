@@ -283,12 +283,12 @@ export default class CollectionDetailsPage extends UIElement<
                     ]?.creator
                     return creatorRef && this.state.users[creatorRef.id]
                 }}
-                getAnnotationCreatorRef={() =>
-                    this.state.listData?.creatorReference ?? {
-                        type: 'user-reference',
-                        id: '',
-                    }
-                }
+                getAnnotationCreatorRef={(annotationReference) => {
+                    const creatorRef = this.state.annotations[
+                        annotationReference.id.toString()
+                    ]?.creator
+                    return creatorRef
+                }}
                 profilePopupProps={{
                     storage: this.props.storage,
                     services: this.props.services,
@@ -394,6 +394,8 @@ export default class CollectionDetailsPage extends UIElement<
     }
 
     render() {
+        ;(window as any)['blurt'] = () => console.log(this.state)
+
         const viewportBreakpoint = getViewportBreakpoint(
             this.getViewportWidth(),
         )
