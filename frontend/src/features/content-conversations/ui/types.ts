@@ -7,6 +7,7 @@ import { UITaskState } from '../../../main-ui/types'
 import { User } from '@worldbrain/memex-common/lib/web-interface/types/users'
 import { SharedAnnotationReference } from '@worldbrain/memex-common/lib/content-sharing/types'
 import { UIEventHandler } from '../../../main-ui/classes/logic'
+import { UserReference } from '../../user-management/types'
 
 export interface AnnotationConversationState {
     expanded: boolean
@@ -16,6 +17,7 @@ export interface AnnotationConversationState {
         reference: ConversationReplyReference
         reply: ConversationReply
         user?: Pick<User, 'displayName'> | null
+        creatorReference?: UserReference
     }>
     newReply: {
         saveState: UITaskState

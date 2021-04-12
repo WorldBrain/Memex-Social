@@ -233,7 +233,13 @@ export function AnnotationWithReplies(
                             ...replyData,
                             annotationReference: annotation.reference,
                             replyReference: replyData.reference,
-                            profilePopupProps: props.profilePopupProps,
+                            profilePopupProps: props.profilePopupProps
+                                ? {
+                                      ...props.profilePopupProps,
+                                      userRef:
+                                          replyData.creatorReference ?? null,
+                                  }
+                                : undefined,
                             user:
                                 props.getReplyCreator?.(
                                     annotation.reference,
