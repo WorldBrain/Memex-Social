@@ -736,6 +736,10 @@ export function organizeActivities(
                     (item) => item.reference.id,
                 ),
             })
+            for (const entryActivity of entryActivityGroup.activities) {
+                data.users[entryActivity.activity.entryCreator.reference.id] =
+                    entryActivity.activity.entryCreator
+            }
         } else {
             console.warn(
                 `Ignored unknown activity ${activityGroup.entityType}:${activityGroup.activityType}`,
