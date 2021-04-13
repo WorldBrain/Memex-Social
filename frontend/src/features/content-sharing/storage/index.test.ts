@@ -33,8 +33,8 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
             expect(retrieved).toEqual({
                 creator: userReference,
                 sharedList: expect.objectContaining({
-                    id: expect.anything(),
-                    creator: userReference.id,
+                    reference: listReference,
+                    creator: userReference,
                     createdWhen: expect.any(Number),
                     updatedWhen: expect.any(Number),
                     title: 'My list',
@@ -79,8 +79,8 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
             expect(retrieved).toEqual({
                 creator: userReference,
                 sharedList: expect.objectContaining({
-                    id: expect.anything(),
-                    creator: userReference.id,
+                    reference: listReference,
+                    creator: userReference,
                     createdWhen: expect.any(Number),
                     updatedWhen: expect.any(Number),
                     title: 'Updated list title',
@@ -146,16 +146,19 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 expect(retrieved).toEqual({
                     creator: userReference,
                     sharedList: expect.objectContaining({
-                        id: expect.anything(),
-                        creator: userReference.id,
+                        reference: listReference,
+                        creator: userReference,
                         createdWhen: expect.any(Number),
                         updatedWhen: expect.any(Number),
                         title: 'My list',
                     }),
                     entries: [
                         {
-                            id: expect.anything(),
-                            creator: userReference.id,
+                            reference: {
+                                type: 'shared-list-entry-reference',
+                                id: expect.anything(),
+                            },
+                            creator: userReference,
                             sharedList: listReference,
                             createdWhen: expect.any(Number),
                             updatedWhen: expect.any(Number),
@@ -164,8 +167,11 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                             normalizedUrl: 'foo.com/page-1',
                         },
                         {
-                            id: expect.anything(),
-                            creator: userReference.id,
+                            reference: {
+                                type: 'shared-list-entry-reference',
+                                id: expect.anything(),
+                            },
+                            creator: userReference,
                             sharedList: listReference,
                             createdWhen: 592,
                             updatedWhen: expect.any(Number),
