@@ -25,7 +25,7 @@
     "create:ui-page": "cp -r code-templates/ui-element src/main-ui/pages/${ELEMENT}",
     "storybook": "start-storybook -p 9009 -s public",
     "build-storybook": "build-storybook -s public",
-    "build:base": "REACT_APP_BACKEND=firebase env-cmd -f $ENV_FILE node scripts/build.js && rm -rf ../firebase/public/* && mv build/* ../firebase/public/",
+    "build:base": "REACT_APP_BACKEND=firebase env-cmd -f $ENV_FILE node scripts/build.js && mkdir -p ../firebase/public && rm -rf ../firebase/public/* && mv build/* ../firebase/public/",
     "build:staging": "ENV_FILE=.env.staging yarn build:base",
     "build:production": "ENV_FILE=.env.production.local yarn build:base",
     "deploy:base": "yarn firebase -P $FIREBASE_PROJECT deploy --only hosting",
