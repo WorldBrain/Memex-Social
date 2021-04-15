@@ -127,6 +127,7 @@ export default class ProfilePopup extends PureComponent<ProfilePopupProps> {
                                                 <Icon
                                                     icon={icon}
                                                     height="18px"
+                                                    color="primary"
                                                     onClick={() =>
                                                         this.handleWebLinkClick(
                                                             url,

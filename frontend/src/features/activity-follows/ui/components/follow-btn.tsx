@@ -1,33 +1,78 @@
 import React, { PureComponent } from 'react'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { UITaskState } from '../../../../main-ui/types'
 import LoadingIndicator from '../../../../common-ui/components/loading-indicator'
+import Icon from '../../../../common-ui/components/icon'
 
-const Container = styled.button<{
-    isActive: boolean
+
+const Container = styled.div<{
+    isOwner: boolean
+    isContributor: boolean
+    isFollowed: boolean
 }>`
     font-family: ${(props) => props.theme.fonts.primary};
     border-radius: 5px;
     border-width: 1px;
     font-weight: bold;
     margin-left: auto;
-    color: ${(props) =>
-        !props.isActive ? props.theme.colors.purple : 'white'};
-    border: 1px solid ${(props) => props.theme.colors.purple};
-    padding: 5px 20px;
-    background: ${(props) =>
-        props.isActive ? props.theme.colors.purple : 'white'};
+    ${(props) =>
+        (props.isContributor && props.isFollowed) &&
+        css`
+            background: transparent;
+            color: ${(props) => props.theme.colors.purple};
+            cursor: default; 
+            border: 1px solid ${(props) => props.theme.colors.grey};
+
+            & div {
+                cursor:default;
+            }
+        `}
+    ${(props) =>
+        (props.isOwner && props.isFollowed) &&
+        css`
+            background: transparent;
+            color: ${(props) => props.theme.colors.purple};
+            cursor: default;
+            border: 1px solid ${(props) => props.theme.colors.grey};
+
+            & div {
+                cursor:default;
+            }
+            
+        `}
+    ${(props) =>
+        (props.isFollowed && !props.isOwner && !props.isContributor) &&
+        css`
+            background-color: ${(props) => props.theme.colors.purple};
+            color: white;
+            cursor: pointer;
+            border: 1px solid ${(props) => props.theme.colors.purple};
+        `}
+    ${(props) =>
+        (!props.isFollowed) &&
+        css`
+            background-color: transparent;
+            color: ${(props) => props.theme.colors.purple};
+            cursor: pointer;
+            border: 1px solid ${(props) => props.theme.colors.purple};
+        `}
+    padding: 5px 15px;
     min-width: 100px;
     height: 34px;
-    cursor: pointer;
     outline: none;
     justify-content: center;
     align-items: center;
+    font-size: 14px;
     display: flex;
 `
 
 const PlusIcon = styled.span`
-    padding-right: 5px;
+    padding-right: 10px;
+`
+
+const ButtonBox = styled.div`
+    display: flex;
+    align-items: center;
 `
 
 const BtnText = styled.span``
@@ -41,22 +86,73 @@ export interface Props {
 }
 
 export default class FollowBtn extends PureComponent<Props> {
+
+    state= {
+        hoverButton: false
+    }
+
+
+    handleMouseEnter() {
+        this.setState({
+            hoverButton: true
+        })
+    }
+
+    handleMouseLeave() {
+        this.setState({
+            hoverButton: false
+        })
+    }
+
     getText() {
         if (this.props.isOwner) {
             return 'Owner'
         } else if (this.props.isContributor) {
             return 'Contributor'
         } else if (this.props.isFollowed) {
-            return 'Unfollow'
+            if(this.state.hoverButton){
+                return 'Unfollow'
+            } else {
+            return 'Following' 
+            }
         } else {
             return 'Follow Updates'
         }
     }
 
-    isActive() {
+    followStateIcon() {
         const { props } = this
-        return props.isFollowed || props.isContributor || props.isOwner
+        if (props.isOwner) {
+            return 'check'
+        } else if (props.isContributor) {
+            return 'people'
+        } else if (!props.isOwner && !props.isContributor && props.isFollowed) {
+            if(this.state.hoverButton){
+                return 'removeX'
+            } else {
+             return 'check' 
+            }
+        } else {
+            return 'plusIcon'
+        }
     }
+
+    followStateIconColor() {
+        const { props } = this
+        if (props.isContributor) {
+            return 'purple'
+        }
+        if (props.isOwner) {
+            return 'purple'
+        } 
+        if (!props.isOwner && !props.isContributor && props.isFollowed) {
+            return 'white'
+        } 
+        else {
+            return 'purple'
+        }
+    }
+
 
     private renderBody() {
         const { props } = this
@@ -65,18 +161,31 @@ export default class FollowBtn extends PureComponent<Props> {
             return <LoadingIndicator />
         }
 
-        const icon = !this.isActive() && '+'
+        const icon = (<Icon
+                        height="16px"
+                        icon={this.followStateIcon()}
+                        color={this.followStateIconColor()}
+                    />)
+        
+
         return (
-            <>
+            <ButtonBox>
                 {icon && <PlusIcon>{icon}</PlusIcon>}
                 <BtnText>{this.getText()}</BtnText>
-            </>
+            </ButtonBox>
         )
     }
 
     render() {
         return (
-            <Container isActive={this.isActive()} onClick={this.props.onClick}>
+            <Container 
+                onMouseEnter={() => this.handleMouseEnter()}
+                onMouseLeave={() => this.handleMouseLeave()}
+                onClick={this.props.onClick}
+                isContributor={this.props.isContributor} 
+                isFollowed={this.props.isFollowed} 
+                isOwner={this.props.isOwner} 
+            >
                 {this.renderBody()}
             </Container>
         )

@@ -39,6 +39,7 @@ const ListsSidebarToggle = (props: {
             <Icon
                 onClick={props.onToggle as any}
                 icon="hamburger"
+                color="primary"
                 height="24px"
             />
         </Container>

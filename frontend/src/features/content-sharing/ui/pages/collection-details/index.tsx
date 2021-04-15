@@ -192,8 +192,9 @@ export default class CollectionDetailsPage extends UIElement<
             return (
                 <Margin right="medium">
                     <Icon
-                        height="30px"
+                        height="24px"
                         icon="addPeople"
+                        color="darkgrey"
                         onClick={() =>
                             this.processEvent('toggleListShareModal', {})
                         }
