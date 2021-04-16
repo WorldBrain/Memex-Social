@@ -1,3 +1,4 @@
-export type { MemexTheme as Theme } from '@worldbrain/memex-common/lib/common-ui/styles/types'
-
-export type ViewportBreakpoint = 'mobile' | 'small' | 'big' | 'normal'
+export type {
+    MemexTheme as Theme,
+    ViewportBreakpoint,
+} from '@worldbrain/memex-common/lib/common-ui/styles/types'
