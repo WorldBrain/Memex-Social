@@ -1,5 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
+import { MemexTheme } from '@worldbrain/memex-common/lib/common-ui/styles/types'
 import Icon, { IconProps } from '../../../../../common-ui/components/icon'
 import { UIElement } from '../../../../../main-ui/classes'
 
@@ -28,7 +29,7 @@ const StyledIcon = styled(Icon)<IconProps & { isClickable: boolean }>`
 
 const StyledImg = styled.div<{
     height: string
-    icon: string
+    icon: keyof MemexTheme['icons']
 }>`
     cursor: pointer;
     height: ${(props) => props.height};
