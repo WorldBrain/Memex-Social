@@ -4,7 +4,6 @@ import { UITaskState } from '../../../../main-ui/types'
 import LoadingIndicator from '../../../../common-ui/components/loading-indicator'
 import Icon from '../../../../common-ui/components/icon'
 
-
 const Container = styled.div<{
     isOwner: boolean
     isContributor: boolean
@@ -16,19 +15,8 @@ const Container = styled.div<{
     font-weight: bold;
     margin-left: auto;
     ${(props) =>
-        (props.isContributor && props.isFollowed) &&
-        css`
-            background: transparent;
-            color: ${(props) => props.theme.colors.purple};
-            cursor: default; 
-            border: 1px solid ${(props) => props.theme.colors.grey};
-
-            & div {
-                cursor:default;
-            }
-        `}
-    ${(props) =>
-        (props.isOwner && props.isFollowed) &&
+        props.isContributor &&
+        props.isFollowed &&
         css`
             background: transparent;
             color: ${(props) => props.theme.colors.purple};
@@ -36,12 +24,26 @@ const Container = styled.div<{
             border: 1px solid ${(props) => props.theme.colors.grey};
 
             & div {
-                cursor:default;
+                cursor: default;
             }
-
         `}
     ${(props) =>
-        (props.isFollowed && !props.isOwner && !props.isContributor) &&
+        props.isOwner &&
+        props.isFollowed &&
+        css`
+            background: transparent;
+            color: ${(props) => props.theme.colors.purple};
+            cursor: default;
+            border: 1px solid ${(props) => props.theme.colors.grey};
+
+            & div {
+                cursor: default;
+            }
+        `}
+    ${(props) =>
+        props.isFollowed &&
+        !props.isOwner &&
+        !props.isContributor &&
         css`
             background-color: transparent;
             color: ${(props) => props.theme.colors.purple};
@@ -49,7 +51,7 @@ const Container = styled.div<{
             border: 1px solid ${(props) => props.theme.colors.purple};
         `}
     ${(props) =>
-        (!props.isFollowed) &&
+        !props.isFollowed &&
         css`
             background-color: ${(props) => props.theme.colors.purple};
             color: white;
@@ -86,21 +88,19 @@ export interface Props {
 }
 
 export default class FollowBtn extends PureComponent<Props> {
-
-    state= {
-        hoverButton: false
+    state = {
+        hoverButton: false,
     }
-
 
     handleMouseEnter() {
         this.setState({
-            hoverButton: true
+            hoverButton: true,
         })
     }
 
     handleMouseLeave() {
         this.setState({
-            hoverButton: false
+            hoverButton: false,
         })
     }
 
@@ -110,10 +110,10 @@ export default class FollowBtn extends PureComponent<Props> {
         } else if (this.props.isContributor) {
             return 'Contributor'
         } else if (this.props.isFollowed) {
-            if(this.state.hoverButton){
+            if (this.state.hoverButton) {
                 return 'Unfollow'
             } else {
-            return 'Following' 
+                return 'Following'
             }
         } else {
             return 'Follow Updates'
@@ -127,10 +127,10 @@ export default class FollowBtn extends PureComponent<Props> {
         } else if (props.isContributor) {
             return 'people'
         } else if (!props.isOwner && !props.isContributor && props.isFollowed) {
-            if(this.state.hoverButton){
+            if (this.state.hoverButton) {
                 return 'removeX'
             } else {
-             return 'check' 
+                return 'check'
             }
         } else {
             return 'plusIcon'
@@ -144,15 +144,13 @@ export default class FollowBtn extends PureComponent<Props> {
         }
         if (props.isOwner) {
             return 'purple'
-        } 
+        }
         if (!props.isOwner && !props.isContributor && props.isFollowed) {
             return 'purple'
-        } 
-        else {
+        } else {
             return 'white'
         }
     }
-
 
     private renderBody() {
         const { props } = this
@@ -161,12 +159,13 @@ export default class FollowBtn extends PureComponent<Props> {
             return <LoadingIndicator />
         }
 
-        const icon = (<Icon
-                        height="16px"
-                        icon={this.followStateIcon()}
-                        color={this.followStateIconColor()}
-                    />)
-        
+        const icon = (
+            <Icon
+                height="16px"
+                icon={this.followStateIcon()}
+                color={this.followStateIconColor()}
+            />
+        )
 
         return (
             <ButtonBox>
@@ -178,13 +177,13 @@ export default class FollowBtn extends PureComponent<Props> {
 
     render() {
         return (
-            <Container 
+            <Container
                 onMouseEnter={() => this.handleMouseEnter()}
                 onMouseLeave={() => this.handleMouseLeave()}
                 onClick={this.props.onClick}
-                isContributor={this.props.isContributor} 
-                isFollowed={this.props.isFollowed} 
-                isOwner={this.props.isOwner} 
+                isContributor={this.props.isContributor}
+                isFollowed={this.props.isFollowed}
+                isOwner={this.props.isOwner}
             >
                 {this.renderBody()}
             </Container>

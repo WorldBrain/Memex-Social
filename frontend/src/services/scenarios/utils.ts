@@ -4,6 +4,8 @@ import {
     GetCallModifications,
     CallModification,
 } from '../../utils/call-modifier'
+import { Services } from '../types'
+import { Storage } from '../../storage/types'
 
 export function scenario<
     Targets extends {
@@ -29,6 +31,15 @@ export function scenario<
                       callModifications: GetCallModifications
                       waitForSignal?: Targets[Target]['signals']
                       waitForStep?: string
+                  }
+                | {
+                      name: string
+                      execute: (context: {
+                          services: Services
+                          storage: Storage
+                      }) => Promise<void>
+                      waitForSignal?: Targets[Target]['signals']
+                      waitForStep?: string
                   },
         ) => ScenarioStep
         callModification: <Object>(
@@ -48,10 +59,17 @@ export function scenario<
                     waitForStep: options.waitForStep,
                     // callModifications: options.callModifications
                 }
-            } else {
+            } else if ('callModifications' in options) {
                 return {
                     name: options.name,
                     callModifications: options.callModifications,
+                    waitForSignal: options.waitForSignal,
+                    waitForStep: options.waitForStep,
+                }
+            } else {
+                return {
+                    name: options.name,
+                    execute: options.execute,
                     waitForSignal: options.waitForSignal,
                     waitForStep: options.waitForStep,
                 }
