@@ -135,7 +135,7 @@ export default class CollectionDetailsPage extends UIElement<
     CollectionDetailsEvent
 > {
     constructor(props: CollectionDetailsDependencies) {
-        super(props, { logic: new Logic(props) })
+        super(props, { logic: new Logic({ ...props }) })
     }
 
     get listsSidebarProps() {
@@ -159,6 +159,7 @@ export default class CollectionDetailsPage extends UIElement<
         if (this.props.listID !== prevProps.listID) {
             await this.processEvent('load', {
                 isUpdate: true,
+                listID: this.props.listID,
             })
         }
     }

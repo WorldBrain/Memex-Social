@@ -127,6 +127,10 @@ export default class CollectionDetailsLogic extends UILogic<
     }
 
     load: EventHandler<'load'> = async (incoming) => {
+        if (incoming.event.listID) {
+            this.dependencies.listID = incoming.event.listID
+        }
+
         // NOTE: Following promises are made to return void because
         // without this the IDE slows down a lot trying to infer types
         await Promise.all([

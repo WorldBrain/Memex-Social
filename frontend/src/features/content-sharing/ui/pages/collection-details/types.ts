@@ -92,7 +92,7 @@ export type CollectionDetailsState = AnnotationConversationsState &
 export type CollectionDetailsEvent = UIEvent<
     AnnotationConversationEvent &
         ActivityFollowsEvent & {
-            load: { isUpdate?: boolean }
+            load: { isUpdate?: boolean; listID?: string }
             processCollectionSwitch: {}
             toggleDescriptionTruncation: {}
             togglePageAnnotations: { normalizedUrl: string }
