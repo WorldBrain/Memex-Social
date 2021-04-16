@@ -190,7 +190,7 @@ export default class CollectionDetailsPage extends UIElement<
 
         if (this.state.isListOwner) {
             return (
-                <Margin right="medium">
+                <Margin horizontal="medium">
                     <Icon
                         height="24px"
                         icon="addPeople"
