@@ -26,6 +26,18 @@ const StyledIcon = styled(Icon)<IconProps & { isClickable: boolean }>`
     ${(props) => !props.onClick && `cursor: auto`}
 `
 
+const StyledImg = styled.div<{
+    height: string
+    icon: string
+}>`
+    cursor: pointer;
+    height: ${(props) => props.height};
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-image: url(${(props) => props.theme.icons[props.icon]});
+`
+
 type WebMonetizationIconDependencies = WebMonetizationButtonDependencies
 type WebMonetizationIconState = WebMonetizationButtonState
 type WebMonetizationIconEvent = WebMonetizationButtonEvent
@@ -61,17 +73,19 @@ export default class WebMonetizationIcon extends UIElement<
             <IconContainer iconHeight={this.iconHeight}>
                 {paymentState === 'running' && <LoadingScreen />}
                 {paymentState === 'error' && <span>Error!</span>}
-                {(paymentState === 'pristine' ||
-                    paymentState === 'success') && (
+                {paymentState === 'pristine' && (
                     <StyledIcon
                         isClickable={this.isClickable}
                         onClick={this.handleClick}
                         height={this.iconHeight}
-                        icon={
-                            paymentState === 'success'
-                                ? 'webMonetizationLogoConfirmed'
-                                : 'webMonetizationLogo'
-                        }
+                        color="secondary"
+                        icon={'webMonetizationLogo'}
+                    />
+                )}
+                {paymentState === 'success' && (
+                    <StyledImg
+                        height={this.iconHeight}
+                        icon={'webMonetizationLogoConfirmed'}
                     />
                 )}
             </IconContainer>

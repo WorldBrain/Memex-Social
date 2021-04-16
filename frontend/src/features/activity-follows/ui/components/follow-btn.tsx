@@ -38,21 +38,21 @@ const Container = styled.div<{
             & div {
                 cursor:default;
             }
-            
+
         `}
     ${(props) =>
         (props.isFollowed && !props.isOwner && !props.isContributor) &&
         css`
-            background-color: ${(props) => props.theme.colors.purple};
-            color: white;
+            background-color: transparent;
+            color: ${(props) => props.theme.colors.purple};
             cursor: pointer;
             border: 1px solid ${(props) => props.theme.colors.purple};
         `}
     ${(props) =>
         (!props.isFollowed) &&
         css`
-            background-color: transparent;
-            color: ${(props) => props.theme.colors.purple};
+            background-color: ${(props) => props.theme.colors.purple};
+            color: white;
             cursor: pointer;
             border: 1px solid ${(props) => props.theme.colors.purple};
         `}
@@ -146,10 +146,10 @@ export default class FollowBtn extends PureComponent<Props> {
             return 'purple'
         } 
         if (!props.isOwner && !props.isContributor && props.isFollowed) {
-            return 'white'
+            return 'purple'
         } 
         else {
-            return 'purple'
+            return 'white'
         }
     }
 
