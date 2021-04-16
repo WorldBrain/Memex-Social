@@ -14,6 +14,8 @@ import { Margin } from 'styled-components-spacing'
 import { AuthError } from '../../../../../services/auth/types'
 import ProfileSetupForm from '../../components/profile-setup-form'
 import LoadingScreen from '../../../../../common-ui/components/loading-screen'
+import { ViewportBreakpoint } from '../../main-ui/styles/types'
+
 
 const FRIENDLY_ERRORS: { [Key in AuthError['reason']]: string } = {
     'popup-blocked': 'Could not open a popup for you to log in',
@@ -31,7 +33,7 @@ const StyledAuthDialog = styled.div`
     justify-content: center;
     align-items: center;
     flex-direction: column;
-    padding: 40px;
+    padding: 20px;
 `
 const Header = styled.div`
     text-align: center;
@@ -41,10 +43,13 @@ const Header = styled.div`
 const AuthenticationMethods = styled.div`
   display: flex;
   align-items: flex-start;
+  justify-content: center;
+  width: 100%;
   }
 
   & > div {
-    width: 350px;
+      width: 100%;
+    max-width: 350px;
   }
 `
 const EmailPasswordLogin = styled.div`
@@ -75,6 +80,12 @@ const FormSubtitle = styled.div`
     font-size: 16px;
     text-align: center;
     color: ${(props) => props.theme.colors.secondary};
+`
+
+const AuthBox = styled(Margin)`
+    display: flex;
+    justify-content: center;
+    width: 100%;
 `
 
 // const SocialLogins = styled.div`
@@ -187,7 +198,7 @@ export default class AuthDialog extends UIElement<
                         </>
                     )}
                 </Footer>
-                <Margin top="medium">
+                <AuthBox top="medium">
                     <AuthenticationMethods>
                         <EmailPasswordLogin>
                             <TextInput
@@ -263,7 +274,7 @@ export default class AuthDialog extends UIElement<
                 />
               </SocialLogins> */}
                     </AuthenticationMethods>
-                </Margin>
+                </AuthBox>
             </StyledAuthDialog>
         )
     }
