@@ -218,6 +218,8 @@ export class ScenarioService {
             stepPromise = this.options.services.auth
                 .loginWithProvider('facebook')
                 .then(() => {})
+        } else if ('execute' in step) {
+            stepPromise = this.options.executeWithContext(step.execute)
         } else {
             throw new Error(`Invalid scenario step: ${JSON.stringify(step)}`)
         }

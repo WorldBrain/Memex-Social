@@ -1,1 +1,7 @@
-extends: [with-multiple-users, with-cocurated-list]
+extends:
+    [
+        with-multiple-users,
+        with-cocurated-list,
+        with-annotated-list,
+        with-list-follows,
+    ]

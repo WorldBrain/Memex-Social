@@ -1219,4 +1219,23 @@ export const SCENARIOS: ScenarioMap<Targets> = {
             steps: [],
         }),
     ),
+    'switch-lists': scenario<Targets>(({ step, callModification }) => ({
+        fixture: 'cocurated-list',
+        authenticated: true,
+        startRoute: {
+            route: 'collectionDetails',
+            params: { id: 'cocurated-list' },
+        },
+        setup: {},
+        steps: [
+            step({
+                name: 'switch-lists',
+                execute: async ({ services }) => {
+                    services.router.goTo('collectionDetails', {
+                        id: 'default-list',
+                    })
+                },
+            }),
+        ],
+    })),
 }

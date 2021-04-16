@@ -47,7 +47,10 @@ export interface Scenario<
     excludeFromMetaUI?: boolean
 }
 
-export type ScenarioStep = ElementEventScenarioStep | CallModificationStep
+export type ScenarioStep =
+    | ElementEventScenarioStep
+    | CallModificationStep
+    | ExecuteStep
 // | AuthStep
 
 interface BaseScenarioStep {
@@ -73,4 +76,8 @@ export interface AuthStep extends BaseScenarioStep {
 
 export interface CallModificationStep extends BaseScenarioStep {
     callModifications: GetCallModifications
+}
+
+export interface ExecuteStep extends BaseScenarioStep {
+    execute(context: { services: Services; storage: Storage }): Promise<void>
 }

@@ -120,6 +120,13 @@ export default class CollectionDetailsLogic extends UILogic<
     }
 
     init: EventHandler<'init'> = async (incoming) => {
+        await this.processUIEvent('load', {
+            ...incoming,
+            event: { isUpdate: false },
+        })
+    }
+
+    load: EventHandler<'load'> = async (incoming) => {
         // NOTE: Following promises are made to return void because
         // without this the IDE slows down a lot trying to infer types
         await Promise.all([
@@ -127,14 +134,19 @@ export default class CollectionDetailsLogic extends UILogic<
                 ...incoming,
                 event: { listID: this.dependencies.listID },
             }).then(() => {}),
-            this.processUIEvent('processPermissionKey', {
-                ...incoming,
-                event: {},
-            }).then(() => {}),
+            !incoming.event.isUpdate
+                ? this.processUIEvent('processPermissionKey', {
+                      ...incoming,
+                      event: {},
+                  }).then(() => {})
+                : null,
         ])
 
         await Promise.all([
-            this.processUIEvent('initActivityFollows', incoming).then(() => {}),
+            this.processUIEvent('initActivityFollows', {
+                ...incoming,
+                event: undefined,
+            }).then(() => {}),
             this.loadFollowBtnState().then(() => {}),
             this.loadListRoles(),
         ])

@@ -92,6 +92,8 @@ export type CollectionDetailsState = AnnotationConversationsState &
 export type CollectionDetailsEvent = UIEvent<
     AnnotationConversationEvent &
         ActivityFollowsEvent & {
+            load: { isUpdate?: boolean }
+            processCollectionSwitch: {}
             toggleDescriptionTruncation: {}
             togglePageAnnotations: { normalizedUrl: string }
             toggleAllAnnotations: {}

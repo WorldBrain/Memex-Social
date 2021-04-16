@@ -157,8 +157,8 @@ export default class CollectionDetailsPage extends UIElement<
 
     async componentDidUpdate(prevProps: CollectionDetailsDependencies) {
         if (this.props.listID !== prevProps.listID) {
-            await this.processEvent('loadListData', {
-                listID: this.props.listID,
+            await this.processEvent('load', {
+                isUpdate: true,
             })
         }
     }

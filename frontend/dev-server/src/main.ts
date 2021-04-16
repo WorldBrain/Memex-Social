@@ -64,6 +64,7 @@ export async function main() {
     })
 
     app.use(router.routes()).use(router.allowedMethods()).listen(5030)
+    console.log('Dev server started!')
 }
 
 if (require.main === module) {
