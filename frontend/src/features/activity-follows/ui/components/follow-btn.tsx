@@ -176,14 +176,17 @@ export default class FollowBtn extends PureComponent<Props> {
     }
 
     render() {
+        const { props } = this
         return (
             <Container
                 onMouseEnter={() => this.handleMouseEnter()}
                 onMouseLeave={() => this.handleMouseLeave()}
-                onClick={this.props.onClick}
-                isContributor={this.props.isContributor}
-                isFollowed={this.props.isFollowed}
-                isOwner={this.props.isOwner}
+                onClick={props.onClick}
+                isContributor={props.isContributor}
+                isFollowed={
+                    props.isFollowed || props.isOwner || props.isContributor
+                }
+                isOwner={props.isOwner}
             >
                 {this.renderBody()}
             </Container>
