@@ -38,6 +38,7 @@ export async function mainProgram(
         options.backend === 'memory'
             ? new StorageHooksChangeWatcher()
             : undefined
+
     const storage = await createStorage({
         ...options,
         changeWatcher: storageHooksChangeWatcher,

@@ -1,22 +1,5 @@
 import * as admin from 'firebase-admin'
 import * as functions from 'firebase-functions'
-import { activityStreamFunctions } from '@worldbrain/memex-common/lib/activity-streams/services/firebase-functions/server'
-import { contentSharingFunctions } from '@worldbrain/memex-common/lib/content-sharing/backend/firebase-functions'
-import { createFirestoreTriggers } from '@worldbrain/memex-common/lib/firebase-backend/setup'
-import { runningInEmulator, emulatedConfig } from './constants'
-admin.initializeApp(runningInEmulator ? emulatedConfig : undefined)
+import { main } from '@worldbrain/memex-common/lib/firebase-backend/main'
 
-module.exports = {
-    activityStreams: activityStreamFunctions({
-        firebase: admin as any,
-        functions,
-    }),
-    contentSharing: contentSharingFunctions({
-        firebase: admin as any,
-        functions,
-    }),
-    triggers: createFirestoreTriggers({
-        firebase: admin as any,
-        functions,
-    }),
-}
+module.exports = main(admin as any, functions)
