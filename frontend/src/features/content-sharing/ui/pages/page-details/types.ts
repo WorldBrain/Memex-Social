@@ -64,10 +64,22 @@ export type PageDetailsState = AnnotationConversationsState &
         creatorLoadState: UITaskState
         creator?: User | null
         creatorReference?: UserReference | null
+
+        newReply: {
+            saveState: UITaskState
+            editing: boolean
+            content: string
+        }
     }
 
 export type PageDetailsEvent = UIEvent<
-    AnnotationConversationEvent & ActivityFollowsEvent
+    AnnotationConversationEvent &
+        ActivityFollowsEvent & {
+            initiateNewReplyToPage: null
+            editNewReplyToPage: { content: string }
+            cancelNewReplyToPage: null
+            confirmNewReplyToPage: null
+        }
 >
 
 export type PageDetailsSignal = UISignal<
