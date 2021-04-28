@@ -38,6 +38,7 @@ import { UserReference } from '../../../../user-management/types'
 import ListShareModal from '@worldbrain/memex-common/lib/content-sharing/ui/list-share-modal'
 
 const commentImage = require('../../../../../assets/img/comment.svg')
+const commentEmptyImage = require('../../../../../assets/img/comment-empty.svg')
 
 const DocumentView = styled.div`
     height: 100vh;
@@ -229,16 +230,17 @@ export default class CollectionDetailsPage extends UIElement<
             return [{ node: <LoadingIndicator key="loading" /> }]
         }
 
-        const shouldShowAnnotationsButton =
-            state.annotationEntriesLoadState === 'success' &&
+        const toggleAnnotationsIcon =
             annotationEntries &&
             annotationEntries[entry.normalizedUrl] &&
             annotationEntries[entry.normalizedUrl].length
+                ? commentImage
+                : commentEmptyImage
 
-        if (shouldShowAnnotationsButton) {
+        if (state.annotationEntriesLoadState === 'success') {
             return [
                 {
-                    image: commentImage,
+                    image: toggleAnnotationsIcon,
                     onClick: () =>
                         this.processEvent('togglePageAnnotations', {
                             normalizedUrl: entry.normalizedUrl,

@@ -118,10 +118,6 @@ export default function AnnotationsInPage(
         )
     }
 
-    if (!props.annotations) {
-        return null
-    }
-
     const renderAnnotation = (annotation: SharedAnnotationInPage) => {
         const conversation =
             props.getAnnotationConversation?.(annotation.reference) ??
@@ -152,11 +148,15 @@ export default function AnnotationsInPage(
 
     return (
         <AnnotationContainer left="small" bottom="large">
-            <AnnotationList>
-                {props.annotations.map(
-                    (annotation) => annotation && renderAnnotation(annotation),
-                )}
-            </AnnotationList>
+            <div>Add a note to this page</div>
+            {props.annotations && (
+                <AnnotationList>
+                    {props.annotations.map(
+                        (annotation) =>
+                            annotation && renderAnnotation(annotation),
+                    )}
+                </AnnotationList>
+            )}
         </AnnotationContainer>
     )
 }
