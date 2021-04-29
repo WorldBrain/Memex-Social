@@ -17,7 +17,6 @@ import AnnotationsInPage from '../../../../annotations/ui/components/annotations
 import LoadingIndicator from '../../../../../common-ui/components/loading-indicator'
 import ErrorWithAction from '../../../../../common-ui/components/error-with-action'
 import ProfilePopupContainer from '../../../../user-management/ui/containers/profile-popup-container'
-import { SharedPageInfoReference } from '@worldbrain/memex-common/lib/content-sharing/types'
 
 const PageInfoList = styled.div`
     width: 100%;
@@ -70,10 +69,6 @@ export default class PageDetailsPage extends UIElement<
         const { state, props } = this
         const { services, storage } = props
         const { annotations, creator, pageInfo } = state
-        const pageReference: SharedPageInfoReference = {
-            type: 'shared-page-info-reference',
-            id: props.pageID,
-        }
 
         if (
             state.pageInfoLoadState === 'pristine' ||
@@ -143,6 +138,8 @@ export default class PageDetailsPage extends UIElement<
             )
         }
 
+        const { normalizedUrl: normalizedPageUrl } = pageInfo
+
         return (
             <>
                 <DocumentTitle
@@ -202,7 +199,7 @@ export default class PageDetailsPage extends UIElement<
                                         annotations={annotations}
                                         newPageReply={
                                             state.newPageReplies[
-                                                pageInfo.normalizedUrl
+                                                normalizedPageUrl
                                             ]
                                         }
                                         getAnnotationCreator={() =>
@@ -228,22 +225,28 @@ export default class PageDetailsPage extends UIElement<
                                             onNewReplyInitiate: () =>
                                                 this.processEvent(
                                                     'initiateNewReplyToPage',
-                                                    { pageReference },
+                                                    { normalizedPageUrl },
                                                 ),
                                             onNewReplyEdit: ({ content }) =>
                                                 this.processEvent(
                                                     'editNewReplyToPage',
-                                                    { pageReference, content },
+                                                    {
+                                                        content,
+                                                        normalizedPageUrl,
+                                                    },
                                                 ),
                                             onNewReplyCancel: () =>
                                                 this.processEvent(
                                                     'cancelNewReplyToPage',
-                                                    { pageReference },
+                                                    { normalizedPageUrl },
                                                 ),
                                             onNewReplyConfirm: () =>
                                                 this.processEvent(
                                                     'confirmNewReplyToPage',
-                                                    { pageReference },
+                                                    {
+                                                        normalizedPageUrl,
+                                                        pageCreatorReference: state.creatorReference!,
+                                                    },
                                                 ),
                                         }}
                                         newAnnotationReplyEventHandlers={{

@@ -5,10 +5,7 @@ import {
 } from '@worldbrain/memex-common/lib/content-conversations/types'
 import { UITaskState } from '../../../main-ui/types'
 import { User } from '@worldbrain/memex-common/lib/web-interface/types/users'
-import {
-    SharedAnnotationReference,
-    SharedPageInfoReference,
-} from '@worldbrain/memex-common/lib/content-sharing/types'
+import { SharedAnnotationReference } from '@worldbrain/memex-common/lib/content-sharing/types'
 import { UIEventHandler } from '../../../main-ui/classes/logic'
 import { UserReference } from '../../user-management/types'
 
@@ -62,17 +59,18 @@ export interface AnnotationConversationEvent {
         conversationId?: string
     }
     initiateNewReplyToPage: {
-        pageReference: SharedPageInfoReference
+        normalizedPageUrl: string
     }
     editNewReplyToPage: {
-        pageReference: SharedPageInfoReference
+        normalizedPageUrl: string
         content: string
     }
     cancelNewReplyToPage: {
-        pageReference: SharedPageInfoReference
+        normalizedPageUrl: string
     }
     confirmNewReplyToPage: {
-        pageReference: SharedPageInfoReference
+        normalizedPageUrl: string
+        pageCreatorReference: UserReference
     }
 }
 

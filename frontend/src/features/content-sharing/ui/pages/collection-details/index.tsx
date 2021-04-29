@@ -15,7 +15,6 @@ import {
     SharedListEntry,
     SharedAnnotationListEntry,
     SharedAnnotationReference,
-    SharedPageInfoReference,
 } from '@worldbrain/memex-common/lib/content-sharing/types'
 import { User } from '@worldbrain/memex-common/lib/web-interface/types/users'
 import { PAGE_SIZE } from './constants'
@@ -266,12 +265,8 @@ export default class CollectionDetailsPage extends UIElement<
         )
     }
 
-    renderPageAnnotations(entry: SharedListEntry) {
+    renderPageAnnotations(entry: SharedListEntry & { creator: UserReference }) {
         const { state } = this
-        const pageReference: SharedPageInfoReference = {
-            type: 'shared-page-info-reference',
-            id: entry.normalizedUrl,
-        }
         return (
             <AnnotationsInPage
                 newPageReply={state.newPageReplies[entry.normalizedUrl]}
@@ -309,19 +304,20 @@ export default class CollectionDetailsPage extends UIElement<
                 newPageReplyEventHandlers={{
                     onNewReplyInitiate: () =>
                         this.processEvent('initiateNewReplyToPage', {
-                            pageReference,
+                            normalizedPageUrl: entry.normalizedUrl,
                         }),
                     onNewReplyCancel: () =>
                         this.processEvent('cancelNewReplyToPage', {
-                            pageReference,
+                            normalizedPageUrl: entry.normalizedUrl,
                         }),
                     onNewReplyConfirm: () =>
                         this.processEvent('confirmNewReplyToPage', {
-                            pageReference,
+                            normalizedPageUrl: entry.normalizedUrl,
+                            pageCreatorReference: entry.creator,
                         }),
                     onNewReplyEdit: ({ content }) =>
                         this.processEvent('editNewReplyToPage', {
-                            pageReference,
+                            normalizedPageUrl: entry.normalizedUrl,
                             content,
                         }),
                 }}

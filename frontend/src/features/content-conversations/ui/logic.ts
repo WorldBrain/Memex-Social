@@ -6,8 +6,6 @@ import {
     AnnotationConversationSignal,
 } from './types'
 import { UILogic, executeUITask } from '../../../main-ui/classes/logic'
-import ContentSharingStorage from '../../content-sharing/storage'
-import ContentConversationStorage from '../storage'
 import {
     UserReference,
     User,
@@ -17,7 +15,11 @@ import {
     SharedAnnotation,
 } from '@worldbrain/memex-common/lib/content-sharing/types'
 import { Services } from '../../../services/types'
-import { getInitialNewReplyState } from './utils'
+import {
+    getInitialNewReplyState,
+    getInitialAnnotationConversationState,
+} from './utils'
+import { StorageModules } from '../../../storage/types'
 
 export function annotationConversationInitialState(): AnnotationConversationsState {
     return {
@@ -30,9 +32,7 @@ export async function detectAnnotationConversationsThreads(
     logic: UILogic<AnnotationConversationsState, AnnotationConversationEvent>,
     normalizedPageUrls: string[],
     dependencies: {
-        storage: {
-            contentConversations: ContentConversationStorage
-        }
+        storage: Pick<StorageModules, 'contentConversations'>
     },
 ) {
     const threads = await dependencies.storage.contentConversations.getThreadsForPages(
@@ -48,8 +48,8 @@ export async function detectAnnotationConversationsThreads(
             ]),
         ),
         newPageReplies: fromPairs(
-            normalizedPageUrls.map((pageId) => [
-                pageId,
+            normalizedPageUrls.map((normalizedUrl) => [
+                normalizedUrl,
                 { $set: getInitialNewReplyState() },
             ]),
         ),
@@ -65,10 +65,7 @@ export function annotationConversationEventHandlers<
             Services,
             'contentConversations' | 'auth' | 'activityStreams'
         >
-        storage: {
-            contentSharing: ContentSharingStorage
-            contentConversations: ContentConversationStorage
-        }
+        storage: Pick<StorageModules, 'contentSharing' | 'contentConversations'>
         loadUser(reference: UserReference): Promise<User | null>
         getAnnotation(
             state: State,
@@ -279,11 +276,10 @@ export function annotationConversationEventHandlers<
             )
         },
         initiateNewReplyToPage: async ({ event }) => {
-            const user = await dependencies.services.auth.getCurrentUser()
+            const { services } = dependencies
+            const user = services.auth.getCurrentUser()
             if (!user) {
-                const {
-                    result,
-                } = await dependencies.services.auth.requestAuth()
+                const { result } = await services.auth.requestAuth()
                 logic.emitSignal<AnnotationConversationSignal>({
                     type: 'auth-requested',
                 })
@@ -295,74 +291,90 @@ export function annotationConversationEventHandlers<
                 }
             }
 
+            console.log('init:', event)
+
             return {
                 newPageReplies: {
-                    [event.pageReference.id]: {
+                    [event.normalizedPageUrl]: {
                         editing: { $set: true },
-                        expanded: { $set: true },
                     },
                 },
             }
         },
         editNewReplyToPage: ({ event }) => ({
             newPageReplies: {
-                [event.pageReference.id]: {
+                [event.normalizedPageUrl]: {
                     content: { $set: event.content },
                 },
             },
         }),
-        cancelNewReplyToPage: ({ event }) => {
-            return {
-                newPageReplies: {
-                    [event.pageReference.id]: {
-                        $set: getInitialNewReplyState(),
-                    },
+        cancelNewReplyToPage: ({ event }) => ({
+            newPageReplies: {
+                [event.normalizedPageUrl]: {
+                    $set: getInitialNewReplyState(),
                 },
-            }
-        },
+            },
+        }),
         confirmNewReplyToPage: async ({ event, previousState }) => {
-            const { storage, loadUser } = dependencies
+            const { storage, services } = dependencies
+            const userReference = services.auth.getCurrentUserReference()!
 
             const comment = previousState.newPageReplies[
-                event.pageReference.id
+                event.normalizedPageUrl
             ].content.trim()
             const createdWhen = Date.now()
 
-            // TODO: figure out how to create annot
-            // await storage.contentSharing.createAnnotations({
-            //     annotationsByPage: {
-            //         [pageID]: [{
-            //             createdWhen, localId: 'dsfdfsdf', comment,
-            //         }]
-            //     },
-            //     creator: {
-            //         type: 'user-reference',
-            //         id: dependencies.userManagement.
-            //     }
-            // })
-            return {
-                newPageReplies: {
-                    [event.pageReference.id]: {
-                        $set: getInitialNewReplyState(),
+            await executeUITask<AnnotationConversationsState>(
+                logic,
+                (taskState) => ({
+                    newPageReplies: {
+                        [event.normalizedPageUrl]: {
+                            saveState: { $set: taskState },
+                        },
                     },
-                },
-                annotations: {
-                    $push: [
+                }),
+                async () => {
+                    const localId = '???' // TODO: figure this out
+                    const {
+                        sharedAnnotationReferences,
+                    } = await storage.contentSharing.createAnnotations({
+                        annotationsByPage: {
+                            [event.normalizedPageUrl]: [
+                                {
+                                    createdWhen,
+                                    localId,
+                                    comment,
+                                },
+                            ],
+                        },
+                        creator: userReference,
+                        listReferences: [], // TODO: opt. list refs
+                    })
+
+                    const conversationThread = await storage.contentConversations.getOrCreateThread(
                         {
-                            comment,
-                            createdWhen,
-                            updatedWhen: createdWhen,
-                            uploadedWhen: createdWhen,
-                            // normalizedPageUrl: pageID,
-                            linkId: 'sdafasdfasdfaf',
-                            reference: {
-                                id: '23423',
-                                type: 'shared-annotation-reference',
+                            normalizedPageUrl: event.normalizedPageUrl,
+                            annotationReference:
+                                sharedAnnotationReferences[localId],
+                            sharedListReference: null,
+                            pageCreatorReference: event.pageCreatorReference,
+                        },
+                    )
+
+                    logic.emitMutation({
+                        newPageReplies: {
+                            [event.normalizedPageUrl]: {
+                                $set: getInitialNewReplyState(),
                             },
                         },
-                    ],
+                        conversations: {
+                            [conversationThread.reference.id]: {
+                                $set: getInitialAnnotationConversationState(),
+                            },
+                        },
+                    })
                 },
-            }
+            )
         },
     }
 }

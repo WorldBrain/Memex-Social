@@ -28,10 +28,7 @@ import {
     getOrderedMapIndex,
     OrderedMap,
 } from '../../../../../utils/ordered-map'
-import {
-    SharedAnnotationReference,
-    SharedPageInfoReference,
-} from '@worldbrain/memex-common/lib/content-sharing/types'
+import { SharedAnnotationReference } from '@worldbrain/memex-common/lib/content-sharing/types'
 import AnnotationReply from '../../../../content-conversations/ui/components/annotation-reply'
 import ErrorBox from '../../../../../common-ui/components/error-box'
 import { NewReplyState } from '../../../../content-conversations/ui/types'
@@ -356,23 +353,25 @@ export default class HomeFeedPage extends UIElement<
         let newPageReplyState: NewReplyState | undefined = undefined
 
         if (parentItem.type === 'page-item') {
-            const pageReference: SharedPageInfoReference = {
-                type: 'shared-page-info-reference',
-                id: parentItem.normalizedPageUrl,
-            }
-
             newPageReplyState =
                 state.newPageReplies[parentItem.normalizedPageUrl]
 
             newPageReplyHandlers.onNewReplyInitiate = () =>
-                this.processEvent('initiateNewReplyToPage', { pageReference })
+                this.processEvent('initiateNewReplyToPage', {
+                    normalizedPageUrl: parentItem.normalizedPageUrl,
+                })
             newPageReplyHandlers.onNewReplyCancel = () =>
-                this.processEvent('cancelNewReplyToPage', { pageReference })
+                this.processEvent('cancelNewReplyToPage', {
+                    normalizedPageUrl: parentItem.normalizedPageUrl,
+                })
             newPageReplyHandlers.onNewReplyConfirm = () =>
-                this.processEvent('confirmNewReplyToPage', { pageReference })
+                this.processEvent('confirmNewReplyToPage', {
+                    normalizedPageUrl: parentItem.normalizedPageUrl,
+                    pageCreatorReference: parentItem.creatorReference,
+                })
             newPageReplyHandlers.onNewReplyEdit = ({ content }) =>
                 this.processEvent('editNewReplyToPage', {
-                    pageReference,
+                    normalizedPageUrl: parentItem.normalizedPageUrl,
                     content,
                 })
         }
