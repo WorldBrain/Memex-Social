@@ -5,10 +5,18 @@ import {
 } from '@worldbrain/memex-common/lib/content-conversations/types'
 import { UITaskState } from '../../../main-ui/types'
 import { User } from '@worldbrain/memex-common/lib/web-interface/types/users'
-import { SharedAnnotationReference } from '@worldbrain/memex-common/lib/content-sharing/types'
+import {
+    SharedAnnotationReference,
+    SharedPageInfoReference,
+} from '@worldbrain/memex-common/lib/content-sharing/types'
 import { UIEventHandler } from '../../../main-ui/classes/logic'
 import { UserReference } from '../../user-management/types'
-import { NewReplyState } from '../../content-sharing/ui/pages/page-details/types'
+
+export interface NewReplyState {
+    saveState: UITaskState
+    editing: boolean
+    content: string
+}
 
 export interface AnnotationConversationState {
     expanded: boolean
@@ -27,7 +35,11 @@ export type AnnotationConversationStates = {
     [conversationId: string]: AnnotationConversationState
 }
 
-export type AnnotationConversationEvent = {
+export type NewPageReplyStates = {
+    [pageId: string]: NewReplyState
+}
+
+export interface AnnotationConversationEvent {
     initiateNewReplyToAnnotation: {
         annotationReference: SharedAnnotationReference
         conversationId?: string
@@ -49,13 +61,28 @@ export type AnnotationConversationEvent = {
         annotationReference: SharedAnnotationReference
         conversationId?: string
     }
+    initiateNewReplyToPage: {
+        pageReference: SharedPageInfoReference
+    }
+    editNewReplyToPage: {
+        pageReference: SharedPageInfoReference
+        content: string
+    }
+    cancelNewReplyToPage: {
+        pageReference: SharedPageInfoReference
+    }
+    confirmNewReplyToPage: {
+        pageReference: SharedPageInfoReference
+    }
 }
+
 export type AnnotationConversationSignal =
     | { type: 'auth-requested' }
     | { type: 'reply-submitting' }
 
 export interface AnnotationConversationsState {
     conversations: AnnotationConversationStates
+    newPageReplies: NewPageReplyStates
 }
 
 export type AnnotationConversationsHandlers = {

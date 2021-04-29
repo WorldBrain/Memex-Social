@@ -195,6 +195,11 @@ export default class PageDetailsPage extends UIElement<
                                     <AnnotationsInPage
                                         loadState={state.annotationLoadState}
                                         annotations={annotations}
+                                        newPageReply={
+                                            state.newPageReplies[
+                                                pageInfo.normalizedUrl
+                                            ]
+                                        }
                                         getAnnotationCreator={() =>
                                             state.creator
                                         }

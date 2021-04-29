@@ -78,11 +78,6 @@ export default class PageDetailsLogic extends UILogic<
             creatorLoadState: 'pristine',
             annotationLoadState: 'pristine',
             pageInfoLoadState: 'pristine',
-            newReply: {
-                saveState: 'pristine',
-                editing: false,
-                content: '',
-            },
             ...activityFollowsInitialState(),
             ...annotationConversationInitialState(),
         }
@@ -186,96 +181,5 @@ export default class PageDetailsLogic extends UILogic<
         ])
         this.emitSignal<PageDetailsSignal>({ type: 'loaded' })
         await this.processUIEvent('initActivityFollows', incoming)
-    }
-
-    initiateNewReplyToPage: EventHandler<'initiateNewReplyToPage'> = async ({
-        event,
-    }) => {
-        const user = await this.dependencies.services.auth.getCurrentUser()
-        if (!user) {
-            const {
-                result,
-            } = await this.dependencies.services.auth.requestAuth()
-            this.emitSignal<PageDetailsSignal>({ type: 'auth-requested' })
-            if (
-                result.status !== 'authenticated' &&
-                result.status !== 'registered-and-authenticated'
-            ) {
-                return {}
-            }
-        }
-
-        return {
-            newReply: {
-                editing: { $set: true },
-                expanded: { $set: true },
-            },
-        }
-    }
-
-    editNewReplyToPage: EventHandler<'editNewReplyToPage'> = ({ event }) => {
-        return {
-            newReply: {
-                content: { $set: event.content },
-            },
-        }
-    }
-
-    cancelNewReplyToPage: EventHandler<'cancelNewReplyToPage'> = ({
-        event,
-    }) => {
-        return {
-            newReply: {
-                $set: {
-                    ...this.getInitialState().newReply,
-                },
-            },
-        }
-    }
-
-    confirmNewReplyToPage: EventHandler<'confirmNewReplyToPage'> = async ({
-        event,
-        previousState,
-    }) => {
-        const { pageID, storage } = this.dependencies
-
-        const comment = previousState.newReply.content.trim()
-        const createdWhen = Date.now()
-
-        // TODO: figure out how to create annot
-        // await storage.contentSharing.createAnnotations({
-        //     annotationsByPage: {
-        //         [pageID]: [{
-        //             createdWhen, localId: 'dsfdfsdf', comment,
-        //         }]
-        //     },
-        //     creator: {
-        //         type: 'user-reference',
-        //         id: this.dependencies.userManagement.
-        //     }
-        // })
-        return {
-            newReply: {
-                $set: {
-                    ...this.getInitialState().newReply,
-                },
-            },
-            annotations: {
-                $push: [
-                    {
-                        comment,
-                        createdWhen,
-                        updatedWhen: createdWhen,
-                        uploadedWhen: createdWhen,
-                        normalizedPageUrl: pageID,
-                        linkId: 'sdafasdfasdfaf',
-                        reference: {
-                            id: '23423',
-                            type: 'shared-annotation-reference',
-                        },
-                    },
-                ],
-            },
-        }
     }
 }

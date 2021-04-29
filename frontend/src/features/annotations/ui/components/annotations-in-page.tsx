@@ -9,6 +9,7 @@ import AnnotationBox, { AnnotationBoxProps } from './annotation-box'
 import {
     AnnotationConversationStates,
     AnnotationConversationState,
+    NewReplyState,
 } from '../../../content-conversations/ui/types'
 import { User } from '@worldbrain/memex-common/lib/web-interface/types/users'
 import AnnotationReply, {
@@ -24,6 +25,7 @@ import { UserReference } from '../../../user-management/types'
 
 const AnnotationContainer = styled(Margin)`
     display: flex;
+    flex-direction: column;
     justify-content: center;
 `
 
@@ -58,6 +60,7 @@ export type NewAnnotationReplyEventHandlers = {
 export default function AnnotationsInPage(
     props: {
         loadState: UITaskState
+        newPageReply?: NewReplyState
         annotations?: Array<SharedAnnotationInPage | null> | null
         annotationConversations?: AnnotationConversationStates | null
         renderAnnotationBox?: (
@@ -166,7 +169,7 @@ export default function AnnotationsInPage(
 
     return (
         <AnnotationContainer left="small" bottom="large">
-            <div>Add a note to this page</div>
+            {props.newPageReply && <NewReply newReply={props.newPageReply} />}
             {props.annotations && (
                 <AnnotationList>
                     {props.annotations.map(

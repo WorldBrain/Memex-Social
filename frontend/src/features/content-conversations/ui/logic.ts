@@ -17,9 +17,11 @@ import {
     SharedAnnotation,
 } from '@worldbrain/memex-common/lib/content-sharing/types'
 import { Services } from '../../../services/types'
+import { getInitialNewReplyState } from './utils'
 
 export function annotationConversationInitialState(): AnnotationConversationsState {
     return {
+        newPageReplies: {},
         conversations: {},
     }
 }
@@ -43,6 +45,12 @@ export async function detectAnnotationConversationsThreads(
             threads.map((threadData) => [
                 threadData.sharedAnnotation.id,
                 { thread: { $set: threadData.thread } },
+            ]),
+        ),
+        newPageReplies: fromPairs(
+            normalizedPageUrls.map((pageId) => [
+                pageId,
+                { $set: getInitialNewReplyState() },
             ]),
         ),
     })
@@ -246,13 +254,7 @@ export function annotationConversationEventHandlers<
                     logic.emitMutation({
                         conversations: {
                             [conversationId]: {
-                                newReply: {
-                                    $set: {
-                                        saveState: 'pristine',
-                                        editing: false,
-                                        content: '',
-                                    },
-                                },
+                                newReply: { $set: getInitialNewReplyState() },
                                 replies: {
                                     $push: [
                                         {
@@ -275,6 +277,92 @@ export function annotationConversationEventHandlers<
                     })
                 },
             )
+        },
+        initiateNewReplyToPage: async ({ event }) => {
+            const user = await dependencies.services.auth.getCurrentUser()
+            if (!user) {
+                const {
+                    result,
+                } = await dependencies.services.auth.requestAuth()
+                logic.emitSignal<AnnotationConversationSignal>({
+                    type: 'auth-requested',
+                })
+                if (
+                    result.status !== 'authenticated' &&
+                    result.status !== 'registered-and-authenticated'
+                ) {
+                    return {}
+                }
+            }
+
+            return {
+                newPageReplies: {
+                    [event.pageReference.id]: {
+                        editing: { $set: true },
+                        expanded: { $set: true },
+                    },
+                },
+            }
+        },
+        editNewReplyToPage: ({ event }) => ({
+            newPageReplies: {
+                [event.pageReference.id]: {
+                    content: { $set: event.content },
+                },
+            },
+        }),
+        cancelNewReplyToPage: ({ event }) => {
+            return {
+                newPageReplies: {
+                    [event.pageReference.id]: {
+                        $set: getInitialNewReplyState(),
+                    },
+                },
+            }
+        },
+        confirmNewReplyToPage: async ({ event, previousState }) => {
+            const { storage, loadUser } = dependencies
+
+            const comment = previousState.newPageReplies[
+                event.pageReference.id
+            ].content.trim()
+            const createdWhen = Date.now()
+
+            // TODO: figure out how to create annot
+            // await storage.contentSharing.createAnnotations({
+            //     annotationsByPage: {
+            //         [pageID]: [{
+            //             createdWhen, localId: 'dsfdfsdf', comment,
+            //         }]
+            //     },
+            //     creator: {
+            //         type: 'user-reference',
+            //         id: dependencies.userManagement.
+            //     }
+            // })
+            return {
+                newPageReplies: {
+                    [event.pageReference.id]: {
+                        $set: getInitialNewReplyState(),
+                    },
+                },
+                annotations: {
+                    $push: [
+                        {
+                            comment,
+                            createdWhen,
+                            updatedWhen: createdWhen,
+                            uploadedWhen: createdWhen,
+                            // normalizedPageUrl: pageID,
+                            linkId: 'sdafasdfasdfaf',
+                            reference: {
+                                id: '23423',
+                                type: 'shared-annotation-reference',
+                            },
+                        },
+                    ],
+                },
+            }
         },
     }
 }

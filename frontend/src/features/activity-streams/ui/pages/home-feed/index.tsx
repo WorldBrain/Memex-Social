@@ -350,6 +350,11 @@ export default class HomeFeedPage extends UIElement<
         return (
             <AnnotationsInPage
                 loadState="success"
+                newPageReply={
+                    parentItem.type === 'list-item'
+                        ? undefined
+                        : state.newPageReplies[parentItem.normalizedPageUrl]
+                }
                 annotations={mapOrderedMap(
                     annotationItems,
                     (annotationItem) => {

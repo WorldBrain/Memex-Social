@@ -5,7 +5,7 @@ import ErrorBox from '../../../../common-ui/components/error-box'
 import { Margin } from 'styled-components-spacing'
 import { keyPressAction } from '../../../../common-ui/utils/dom-events'
 import TextArea from '../../../../common-ui/components/text-area'
-import { NewReplyState } from '../../../content-sharing/ui/pages/page-details/types'
+import { NewReplyState } from '../types'
 
 const NewReplyTextArea = styled.textarea<{ editing: boolean }>`
     width: 100%;

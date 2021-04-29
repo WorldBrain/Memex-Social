@@ -269,6 +269,7 @@ export default class CollectionDetailsPage extends UIElement<
         const { state } = this
         return (
             <AnnotationsInPage
+                newPageReply={state.newPageReplies[entry.normalizedUrl]}
                 loadState={state.annotationLoadStates[entry.normalizedUrl]}
                 annotations={
                     state.annotationEntryData &&

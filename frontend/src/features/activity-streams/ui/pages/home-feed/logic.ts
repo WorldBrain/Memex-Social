@@ -23,7 +23,10 @@ import {
     ListEntryActivityItem,
     ListActivityItem,
 } from './types'
-import { getInitialAnnotationConversationStates } from '../../../../content-conversations/ui/utils'
+import {
+    getInitialAnnotationConversationStates,
+    getInitialNewReplyState,
+} from '../../../../content-conversations/ui/utils'
 import {
     annotationConversationInitialState,
     annotationConversationEventHandlers,
@@ -285,11 +288,7 @@ export default class HomeFeedLogic extends UILogic<
                     conversationsData[conversationKey] = {
                         loadState: 'pristine',
                         expanded: false,
-                        newReply: {
-                            content: '',
-                            editing: false,
-                            saveState: 'pristine',
-                        },
+                        newReply: getInitialNewReplyState(),
                         replies: await Promise.all(
                             Object.values(
                                 repliesData[conversationKey] ?? [],
