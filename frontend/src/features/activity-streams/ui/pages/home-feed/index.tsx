@@ -461,45 +461,50 @@ export default class HomeFeedPage extends UIElement<
                         moreRepliesLoadStates === 'success'
                     return shouldRender && <AnnotationReply {...props} />
                 }}
-                onNewReplyInitiate={(event) => {
+                onNewReplyInitiate={(annotationReference) => {
                     const conversationKey = getConversationKey({
                         groupId,
-                        annotationReference: event.annotationReference,
+                        annotationReference,
                     })
-                    return this.processEvent('initiateNewReplyToAnnotation', {
-                        ...event,
-                        conversationId: conversationKey,
-                    })
+                    return () =>
+                        this.processEvent('initiateNewReplyToAnnotation', {
+                            annotationReference,
+                            conversationId: conversationKey,
+                        })
                 }}
-                onNewReplyCancel={(event) => {
+                onNewReplyCancel={(annotationReference) => {
                     const conversationKey = getConversationKey({
                         groupId,
-                        annotationReference: event.annotationReference,
+                        annotationReference,
                     })
-                    return this.processEvent('cancelNewReplyToAnnotation', {
-                        ...event,
-                        conversationId: conversationKey,
-                    })
+                    return () =>
+                        this.processEvent('cancelNewReplyToAnnotation', {
+                            annotationReference,
+                            conversationId: conversationKey,
+                        })
                 }}
-                onNewReplyConfirm={(event) => {
+                onNewReplyConfirm={(annotationReference) => {
                     const conversationKey = getConversationKey({
                         groupId,
-                        annotationReference: event.annotationReference,
+                        annotationReference,
                     })
-                    return this.processEvent('confirmNewReplyToAnnotation', {
-                        ...event,
-                        conversationId: conversationKey,
-                    })
+                    return () =>
+                        this.processEvent('confirmNewReplyToAnnotation', {
+                            annotationReference,
+                            conversationId: conversationKey,
+                        })
                 }}
-                onNewReplyEdit={(event) => {
+                onNewReplyEdit={(annotationReference) => {
                     const conversationKey = getConversationKey({
                         groupId,
-                        annotationReference: event.annotationReference,
+                        annotationReference,
                     })
-                    return this.processEvent('editNewReplyToAnnotation', {
-                        ...event,
-                        conversationId: conversationKey,
-                    })
+                    return ({ content }) =>
+                        this.processEvent('editNewReplyToAnnotation', {
+                            content,
+                            annotationReference,
+                            conversationId: conversationKey,
+                        })
                 }}
                 onToggleReplies={(event) => {
                     const conversationKey = getConversationKey({

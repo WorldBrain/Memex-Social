@@ -214,30 +214,37 @@ export default class PageDetailsPage extends UIElement<
                                                 event,
                                             )
                                         }
-                                        onNewReplyInitiate={(event) =>
+                                        onNewReplyInitiate={(
+                                            annotationReference,
+                                        ) => () =>
                                             this.processEvent(
                                                 'initiateNewReplyToAnnotation',
-                                                event,
-                                            )
-                                        }
-                                        onNewReplyEdit={(event) =>
+                                                { annotationReference },
+                                            )}
+                                        onNewReplyEdit={(
+                                            annotationReference,
+                                        ) => ({ content }) =>
                                             this.processEvent(
                                                 'editNewReplyToAnnotation',
-                                                event,
-                                            )
-                                        }
-                                        onNewReplyCancel={(event) =>
+                                                {
+                                                    annotationReference,
+                                                    content,
+                                                },
+                                            )}
+                                        onNewReplyCancel={(
+                                            annotationReference,
+                                        ) => () =>
                                             this.processEvent(
                                                 'cancelNewReplyToAnnotation',
-                                                event,
-                                            )
-                                        }
-                                        onNewReplyConfirm={(event) =>
+                                                { annotationReference },
+                                            )}
+                                        onNewReplyConfirm={(
+                                            annotationReference,
+                                        ) => () =>
                                             this.processEvent(
                                                 'confirmNewReplyToAnnotation',
-                                                event,
-                                            )
-                                        }
+                                                { annotationReference },
+                                            )}
                                     />
                                 )}
                             {state.annotationLoadState === 'error' && (

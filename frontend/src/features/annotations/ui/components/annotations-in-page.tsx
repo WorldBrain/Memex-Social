@@ -14,9 +14,9 @@ import { User } from '@worldbrain/memex-common/lib/web-interface/types/users'
 import AnnotationReply, {
     AnnotationReplyProps,
 } from '../../../content-conversations/ui/components/annotation-reply'
-import NewAnnotationReply, {
-    NewAnnotationReplyEventHandlers,
-} from '../../../content-conversations/ui/components/new-annotation-reply'
+import NewReply, {
+    NewReplyEventHandlers,
+} from '../../../content-conversations/ui/components/new-reply'
 import { SharedAnnotationInPage } from './types'
 import { ConversationReplyReference } from '@worldbrain/memex-common/lib/content-conversations/types'
 import { ProfilePopupProps } from '../../../user-management/ui/containers/profile-popup-container'
@@ -48,6 +48,12 @@ const CenteredContent = styled.div`
     width: 100%;
     height: 100%;
 `
+
+export type NewAnnotationReplyEventHandlers = {
+    [name in keyof NewReplyEventHandlers]: (
+        annotationReference: SharedAnnotationReference,
+    ) => NewReplyEventHandlers[name]
+}
 
 export default function AnnotationsInPage(
     props: {
@@ -126,6 +132,18 @@ export default function AnnotationsInPage(
             <Margin key={annotation.linkId} bottom={'small'} top={'small'}>
                 <AnnotationWithReplies
                     {...props}
+                    onNewReplyInitiate={props.onNewReplyInitiate?.(
+                        annotation.reference,
+                    )}
+                    onNewReplyConfirm={props.onNewReplyConfirm?.(
+                        annotation.reference,
+                    )}
+                    onNewReplyCancel={props.onNewReplyCancel?.(
+                        annotation.reference,
+                    )}
+                    onNewReplyEdit={props.onNewReplyEdit?.(
+                        annotation.reference,
+                    )}
                     annotation={annotation}
                     annotationCreator={props.getAnnotationCreator?.(
                         annotation.reference,
@@ -192,7 +210,7 @@ export function AnnotationWithReplies(
             replyReference: ConversationReplyReference
             children: React.ReactNode
         }) => React.ReactNode
-    } & NewAnnotationReplyEventHandlers,
+    } & NewReplyEventHandlers,
 ) {
     const { annotation, conversation } = props
 
@@ -206,11 +224,7 @@ export function AnnotationWithReplies(
                 creator={props.annotationCreator}
                 profilePopupProps={props.profilePopupProps}
                 hasReplies={!!conversation?.thread || annotation.hasThread}
-                onInitiateReply={() =>
-                    props.onNewReplyInitiate?.({
-                        annotationReference: annotation.reference,
-                    })
-                }
+                onInitiateReply={() => props.onNewReplyInitiate?.()}
                 onToggleReplies={() =>
                     props.onToggleReplies?.({
                         annotationReference: annotation.reference,
@@ -270,9 +284,9 @@ export function AnnotationWithReplies(
                         !props.hideNewReplyIfNotEditing) && (
                         <Margin left="small">
                             <AnnotationReplyContainer>
-                                <NewAnnotationReply
-                                    conversation={conversation}
+                                <NewReply
                                     {...props}
+                                    newReply={conversation.newReply}
                                 />
                             </AnnotationReplyContainer>
                         </Margin>

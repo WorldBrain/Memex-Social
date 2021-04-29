@@ -47,6 +47,12 @@ export interface PageDetailsDependencies {
     userManagement: UserStorage
 }
 
+export interface NewReplyState {
+    saveState: UITaskState
+    editing: boolean
+    content: string
+}
+
 export type PageDetailsState = AnnotationConversationsState &
     ActivityFollowsState & {
         annotationLoadState: UITaskState
@@ -65,11 +71,7 @@ export type PageDetailsState = AnnotationConversationsState &
         creator?: User | null
         creatorReference?: UserReference | null
 
-        newReply: {
-            saveState: UITaskState
-            editing: boolean
-            content: string
-        }
+        newReply: NewReplyState
     }
 
 export type PageDetailsEvent = UIEvent<

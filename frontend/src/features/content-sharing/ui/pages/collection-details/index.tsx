@@ -297,18 +297,23 @@ export default class CollectionDetailsPage extends UIElement<
                     storage: this.props.storage,
                     services: this.props.services,
                 }}
-                onNewReplyInitiate={(event) =>
-                    this.processEvent('initiateNewReplyToAnnotation', event)
-                }
-                onNewReplyCancel={(event) =>
-                    this.processEvent('cancelNewReplyToAnnotation', event)
-                }
-                onNewReplyConfirm={(event) =>
-                    this.processEvent('confirmNewReplyToAnnotation', event)
-                }
-                onNewReplyEdit={(event) =>
-                    this.processEvent('editNewReplyToAnnotation', event)
-                }
+                onNewReplyInitiate={(annotationReference) => () =>
+                    this.processEvent('initiateNewReplyToAnnotation', {
+                        annotationReference,
+                    })}
+                onNewReplyCancel={(annotationReference) => () =>
+                    this.processEvent('cancelNewReplyToAnnotation', {
+                        annotationReference,
+                    })}
+                onNewReplyConfirm={(annotationReference) => () =>
+                    this.processEvent('confirmNewReplyToAnnotation', {
+                        annotationReference,
+                    })}
+                onNewReplyEdit={(annotationReference) => ({ content }) =>
+                    this.processEvent('editNewReplyToAnnotation', {
+                        annotationReference,
+                        content,
+                    })}
                 onToggleReplies={(event) =>
                     this.processEvent('toggleAnnotationReplies', event)
                 }

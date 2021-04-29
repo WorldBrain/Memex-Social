@@ -8,10 +8,12 @@ import { User } from '@worldbrain/memex-common/lib/web-interface/types/users'
 import { SharedAnnotationReference } from '@worldbrain/memex-common/lib/content-sharing/types'
 import { UIEventHandler } from '../../../main-ui/classes/logic'
 import { UserReference } from '../../user-management/types'
+import { NewReplyState } from '../../content-sharing/ui/pages/page-details/types'
 
 export interface AnnotationConversationState {
     expanded: boolean
     loadState: UITaskState
+    newReply: NewReplyState
     thread?: ConversationThread
     replies: Array<{
         reference: ConversationReplyReference
@@ -19,11 +21,6 @@ export interface AnnotationConversationState {
         user?: Pick<User, 'displayName'> | null
         creatorReference?: UserReference
     }>
-    newReply: {
-        saveState: UITaskState
-        editing: boolean
-        content: string
-    }
 }
 
 export type AnnotationConversationStates = {
