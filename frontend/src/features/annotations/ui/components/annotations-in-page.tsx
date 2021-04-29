@@ -57,49 +57,49 @@ export type NewAnnotationReplyEventHandlers = {
     ) => NewReplyEventHandlers[name]
 }
 
-export default function AnnotationsInPage(
-    props: {
-        loadState: UITaskState
-        newPageReply?: NewReplyState
-        annotations?: Array<SharedAnnotationInPage | null> | null
-        annotationConversations?: AnnotationConversationStates | null
-        renderAnnotationBox?: (
-            props: AnnotationBoxProps & { annotation: SharedAnnotationInPage },
-        ) => React.ReactNode
-        getAnnotationConversation?: (
-            annotationReference: SharedAnnotationReference,
-        ) => AnnotationConversationState | null
-        hideNewReplyIfNotEditing?: boolean
-        getAnnotationCreator?: (
-            annotationReference: SharedAnnotationReference,
-        ) => Pick<User, 'displayName'> | null | undefined
-        getAnnotationCreatorRef?: (
-            annotationReference: SharedAnnotationReference,
-        ) => UserReference | null | undefined
-        profilePopupProps?: Omit<ProfilePopupProps, 'userRef'>
-        getReplyCreator?: (
-            annotationReference: SharedAnnotationReference,
-            replyReference: ConversationReplyReference,
-        ) => Pick<User, 'displayName'> | null | undefined
-        renderBeforeReplies?: (
-            annotationReference: SharedAnnotationReference,
-        ) => React.ReactNode
-        renderReply?: (
-            props: {
-                annotationReference: SharedAnnotationReference
-                replyReference: ConversationReplyReference
-            } & AnnotationReplyProps,
-        ) => React.ReactNode
-        renderReplyBox?: (props: {
+export default function AnnotationsInPage(props: {
+    loadState: UITaskState
+    newPageReply?: NewReplyState
+    newPageReplyEventHandlers: NewReplyEventHandlers
+    newAnnotationReplyEventHandlers: NewAnnotationReplyEventHandlers
+    annotations?: Array<SharedAnnotationInPage | null> | null
+    annotationConversations?: AnnotationConversationStates | null
+    renderAnnotationBox?: (
+        props: AnnotationBoxProps & { annotation: SharedAnnotationInPage },
+    ) => React.ReactNode
+    getAnnotationConversation?: (
+        annotationReference: SharedAnnotationReference,
+    ) => AnnotationConversationState | null
+    hideNewReplyIfNotEditing?: boolean
+    getAnnotationCreator?: (
+        annotationReference: SharedAnnotationReference,
+    ) => Pick<User, 'displayName'> | null | undefined
+    getAnnotationCreatorRef?: (
+        annotationReference: SharedAnnotationReference,
+    ) => UserReference | null | undefined
+    profilePopupProps?: Omit<ProfilePopupProps, 'userRef'>
+    getReplyCreator?: (
+        annotationReference: SharedAnnotationReference,
+        replyReference: ConversationReplyReference,
+    ) => Pick<User, 'displayName'> | null | undefined
+    renderBeforeReplies?: (
+        annotationReference: SharedAnnotationReference,
+    ) => React.ReactNode
+    renderReply?: (
+        props: {
             annotationReference: SharedAnnotationReference
             replyReference: ConversationReplyReference
-            children: React.ReactNode
-        }) => React.ReactNode
-        onToggleReplies?(event: {
-            annotationReference: SharedAnnotationReference
-        }): void
-    } & NewAnnotationReplyEventHandlers,
-) {
+        } & AnnotationReplyProps,
+    ) => React.ReactNode
+    renderReplyBox?: (props: {
+        annotationReference: SharedAnnotationReference
+        replyReference: ConversationReplyReference
+        children: React.ReactNode
+    }) => React.ReactNode
+    onToggleReplies?(event: {
+        annotationReference: SharedAnnotationReference
+    }): void
+}) {
     if (props.loadState === 'pristine' || props.loadState === 'running') {
         return (
             <AnnotationContainer left="small" bottom="large">
@@ -128,6 +128,7 @@ export default function AnnotationsInPage(
     }
 
     const renderAnnotation = (annotation: SharedAnnotationInPage) => {
+        const { newAnnotationReplyEventHandlers: replyHandlers } = props
         const conversation =
             props.getAnnotationConversation?.(annotation.reference) ??
             props.annotationConversations?.[annotation.linkId]
@@ -135,16 +136,16 @@ export default function AnnotationsInPage(
             <Margin key={annotation.linkId} bottom={'small'} top={'small'}>
                 <AnnotationWithReplies
                     {...props}
-                    onNewReplyInitiate={props.onNewReplyInitiate?.(
+                    onNewReplyInitiate={replyHandlers.onNewReplyInitiate?.(
                         annotation.reference,
                     )}
-                    onNewReplyConfirm={props.onNewReplyConfirm?.(
+                    onNewReplyConfirm={replyHandlers.onNewReplyConfirm?.(
                         annotation.reference,
                     )}
-                    onNewReplyCancel={props.onNewReplyCancel?.(
+                    onNewReplyCancel={replyHandlers.onNewReplyCancel?.(
                         annotation.reference,
                     )}
-                    onNewReplyEdit={props.onNewReplyEdit?.(
+                    onNewReplyEdit={replyHandlers.onNewReplyEdit?.(
                         annotation.reference,
                     )}
                     annotation={annotation}
@@ -169,7 +170,12 @@ export default function AnnotationsInPage(
 
     return (
         <AnnotationContainer left="small" bottom="large">
-            {props.newPageReply && <NewReply newReply={props.newPageReply} />}
+            {props.newPageReply && (
+                <NewReply
+                    {...props.newPageReplyEventHandlers}
+                    newReply={props.newPageReply}
+                />
+            )}
             {props.annotations && (
                 <AnnotationList>
                     {props.annotations.map(

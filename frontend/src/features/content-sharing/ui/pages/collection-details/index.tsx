@@ -15,6 +15,7 @@ import {
     SharedListEntry,
     SharedAnnotationListEntry,
     SharedAnnotationReference,
+    SharedPageInfoReference,
 } from '@worldbrain/memex-common/lib/content-sharing/types'
 import { User } from '@worldbrain/memex-common/lib/web-interface/types/users'
 import { PAGE_SIZE } from './constants'
@@ -267,6 +268,10 @@ export default class CollectionDetailsPage extends UIElement<
 
     renderPageAnnotations(entry: SharedListEntry) {
         const { state } = this
+        const pageReference: SharedPageInfoReference = {
+            type: 'shared-page-info-reference',
+            id: entry.normalizedUrl,
+        }
         return (
             <AnnotationsInPage
                 newPageReply={state.newPageReplies[entry.normalizedUrl]}
@@ -298,26 +303,47 @@ export default class CollectionDetailsPage extends UIElement<
                     storage: this.props.storage,
                     services: this.props.services,
                 }}
-                onNewReplyInitiate={(annotationReference) => () =>
-                    this.processEvent('initiateNewReplyToAnnotation', {
-                        annotationReference,
-                    })}
-                onNewReplyCancel={(annotationReference) => () =>
-                    this.processEvent('cancelNewReplyToAnnotation', {
-                        annotationReference,
-                    })}
-                onNewReplyConfirm={(annotationReference) => () =>
-                    this.processEvent('confirmNewReplyToAnnotation', {
-                        annotationReference,
-                    })}
-                onNewReplyEdit={(annotationReference) => ({ content }) =>
-                    this.processEvent('editNewReplyToAnnotation', {
-                        annotationReference,
-                        content,
-                    })}
                 onToggleReplies={(event) =>
                     this.processEvent('toggleAnnotationReplies', event)
                 }
+                newPageReplyEventHandlers={{
+                    onNewReplyInitiate: () =>
+                        this.processEvent('initiateNewReplyToPage', {
+                            pageReference,
+                        }),
+                    onNewReplyCancel: () =>
+                        this.processEvent('cancelNewReplyToPage', {
+                            pageReference,
+                        }),
+                    onNewReplyConfirm: () =>
+                        this.processEvent('confirmNewReplyToPage', {
+                            pageReference,
+                        }),
+                    onNewReplyEdit: ({ content }) =>
+                        this.processEvent('editNewReplyToPage', {
+                            pageReference,
+                            content,
+                        }),
+                }}
+                newAnnotationReplyEventHandlers={{
+                    onNewReplyInitiate: (annotationReference) => () =>
+                        this.processEvent('initiateNewReplyToAnnotation', {
+                            annotationReference,
+                        }),
+                    onNewReplyCancel: (annotationReference) => () =>
+                        this.processEvent('cancelNewReplyToAnnotation', {
+                            annotationReference,
+                        }),
+                    onNewReplyConfirm: (annotationReference) => () =>
+                        this.processEvent('confirmNewReplyToAnnotation', {
+                            annotationReference,
+                        }),
+                    onNewReplyEdit: (annotationReference) => ({ content }) =>
+                        this.processEvent('editNewReplyToAnnotation', {
+                            annotationReference,
+                            content,
+                        }),
+                }}
             />
         )
     }

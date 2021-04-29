@@ -17,6 +17,7 @@ import AnnotationsInPage from '../../../../annotations/ui/components/annotations
 import LoadingIndicator from '../../../../../common-ui/components/loading-indicator'
 import ErrorWithAction from '../../../../../common-ui/components/error-with-action'
 import ProfilePopupContainer from '../../../../user-management/ui/containers/profile-popup-container'
+import { SharedPageInfoReference } from '@worldbrain/memex-common/lib/content-sharing/types'
 
 const PageInfoList = styled.div`
     width: 100%;
@@ -68,6 +69,11 @@ export default class PageDetailsPage extends UIElement<
         const viewportWidth = this.getBreakPoints()
         const { state, props } = this
         const { services, storage } = props
+        const { annotations, creator, pageInfo } = state
+        const pageReference: SharedPageInfoReference = {
+            type: 'shared-page-info-reference',
+            id: props.pageID,
+        }
 
         if (
             state.pageInfoLoadState === 'pristine' ||
@@ -110,7 +116,6 @@ export default class PageDetailsPage extends UIElement<
             )
         }
 
-        const { annotations, creator, pageInfo } = state
         if (!pageInfo) {
             return (
                 <DefaultPageLayout
@@ -219,43 +224,69 @@ export default class PageDetailsPage extends UIElement<
                                                 event,
                                             )
                                         }
-                                        onNewReplyInitiate={(
-                                            annotationReference,
-                                        ) => () =>
-                                            this.processEvent(
-                                                'initiateNewReplyToAnnotation',
-                                                { annotationReference },
-                                            )}
-                                        onNewReplyEdit={(
-                                            annotationReference,
-                                        ) => ({ content }) =>
-                                            this.processEvent(
-                                                'editNewReplyToAnnotation',
-                                                {
-                                                    annotationReference,
-                                                    content,
-                                                },
-                                            )}
-                                        onNewReplyCancel={(
-                                            annotationReference,
-                                        ) => () =>
-                                            this.processEvent(
-                                                'cancelNewReplyToAnnotation',
-                                                { annotationReference },
-                                            )}
-                                        onNewReplyConfirm={(
-                                            annotationReference,
-                                        ) => () =>
-                                            this.processEvent(
-                                                'confirmNewReplyToAnnotation',
-                                                { annotationReference },
-                                            )}
+                                        newPageReplyEventHandlers={{
+                                            onNewReplyInitiate: () =>
+                                                this.processEvent(
+                                                    'initiateNewReplyToPage',
+                                                    { pageReference },
+                                                ),
+                                            onNewReplyEdit: ({ content }) =>
+                                                this.processEvent(
+                                                    'editNewReplyToPage',
+                                                    { pageReference, content },
+                                                ),
+                                            onNewReplyCancel: () =>
+                                                this.processEvent(
+                                                    'cancelNewReplyToPage',
+                                                    { pageReference },
+                                                ),
+                                            onNewReplyConfirm: () =>
+                                                this.processEvent(
+                                                    'confirmNewReplyToPage',
+                                                    { pageReference },
+                                                ),
+                                        }}
+                                        newAnnotationReplyEventHandlers={{
+                                            onNewReplyInitiate: (
+                                                annotationReference,
+                                            ) => () =>
+                                                this.processEvent(
+                                                    'initiateNewReplyToAnnotation',
+                                                    { annotationReference },
+                                                ),
+                                            onNewReplyEdit: (
+                                                annotationReference,
+                                            ) => ({ content }) =>
+                                                this.processEvent(
+                                                    'editNewReplyToAnnotation',
+                                                    {
+                                                        annotationReference,
+                                                        content,
+                                                    },
+                                                ),
+                                            onNewReplyCancel: (
+                                                annotationReference,
+                                            ) => () =>
+                                                this.processEvent(
+                                                    'cancelNewReplyToAnnotation',
+                                                    { annotationReference },
+                                                ),
+                                            onNewReplyConfirm: (
+                                                annotationReference,
+                                            ) => () =>
+                                                this.processEvent(
+                                                    'confirmNewReplyToAnnotation',
+                                                    { annotationReference },
+                                                ),
+                                        }}
                                     />
                                 )}
                             {state.annotationLoadState === 'error' && (
                                 <AnnotationsInPage
                                     loadState={state.annotationLoadState}
                                     annotations={annotations}
+                                    newPageReplyEventHandlers={{}}
+                                    newAnnotationReplyEventHandlers={{}}
                                 />
                             )}
                         </Margin>

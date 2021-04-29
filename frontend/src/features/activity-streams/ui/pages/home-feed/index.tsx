@@ -28,9 +28,14 @@ import {
     getOrderedMapIndex,
     OrderedMap,
 } from '../../../../../utils/ordered-map'
-import { SharedAnnotationReference } from '@worldbrain/memex-common/lib/content-sharing/types'
+import {
+    SharedAnnotationReference,
+    SharedPageInfoReference,
+} from '@worldbrain/memex-common/lib/content-sharing/types'
 import AnnotationReply from '../../../../content-conversations/ui/components/annotation-reply'
 import ErrorBox from '../../../../../common-ui/components/error-box'
+import { NewReplyState } from '../../../../content-conversations/ui/types'
+import { NewReplyEventHandlers } from '../../../../content-conversations/ui/components/new-reply'
 
 const commentImage = require('../../../../../assets/img/comment.svg')
 const collectionImage = require('../../../../../assets/img/collection.svg')
@@ -347,14 +352,35 @@ export default class HomeFeedPage extends UIElement<
         options: ActivityItemRendererOpts,
     ) => {
         const { state } = this
+        const newPageReplyHandlers: NewReplyEventHandlers = {}
+        let newPageReplyState: NewReplyState | undefined = undefined
+
+        if (parentItem.type === 'page-item') {
+            const pageReference: SharedPageInfoReference = {
+                type: 'shared-page-info-reference',
+                id: parentItem.normalizedPageUrl,
+            }
+
+            newPageReplyState =
+                state.newPageReplies[parentItem.normalizedPageUrl]
+
+            newPageReplyHandlers.onNewReplyInitiate = () =>
+                this.processEvent('initiateNewReplyToPage', { pageReference })
+            newPageReplyHandlers.onNewReplyCancel = () =>
+                this.processEvent('cancelNewReplyToPage', { pageReference })
+            newPageReplyHandlers.onNewReplyConfirm = () =>
+                this.processEvent('confirmNewReplyToPage', { pageReference })
+            newPageReplyHandlers.onNewReplyEdit = ({ content }) =>
+                this.processEvent('editNewReplyToPage', {
+                    pageReference,
+                    content,
+                })
+        }
+
         return (
             <AnnotationsInPage
                 loadState="success"
-                newPageReply={
-                    parentItem.type === 'list-item'
-                        ? undefined
-                        : state.newPageReplies[parentItem.normalizedPageUrl]
-                }
+                newPageReply={newPageReplyState}
                 annotations={mapOrderedMap(
                     annotationItems,
                     (annotationItem) => {
@@ -466,50 +492,53 @@ export default class HomeFeedPage extends UIElement<
                         moreRepliesLoadStates === 'success'
                     return shouldRender && <AnnotationReply {...props} />
                 }}
-                onNewReplyInitiate={(annotationReference) => {
-                    const conversationKey = getConversationKey({
-                        groupId,
-                        annotationReference,
-                    })
-                    return () =>
-                        this.processEvent('initiateNewReplyToAnnotation', {
+                newPageReplyEventHandlers={newPageReplyHandlers}
+                newAnnotationReplyEventHandlers={{
+                    onNewReplyInitiate: (annotationReference) => {
+                        const conversationKey = getConversationKey({
+                            groupId,
                             annotationReference,
-                            conversationId: conversationKey,
                         })
-                }}
-                onNewReplyCancel={(annotationReference) => {
-                    const conversationKey = getConversationKey({
-                        groupId,
-                        annotationReference,
-                    })
-                    return () =>
-                        this.processEvent('cancelNewReplyToAnnotation', {
+                        return () =>
+                            this.processEvent('initiateNewReplyToAnnotation', {
+                                annotationReference,
+                                conversationId: conversationKey,
+                            })
+                    },
+                    onNewReplyCancel: (annotationReference) => {
+                        const conversationKey = getConversationKey({
+                            groupId,
                             annotationReference,
-                            conversationId: conversationKey,
                         })
-                }}
-                onNewReplyConfirm={(annotationReference) => {
-                    const conversationKey = getConversationKey({
-                        groupId,
-                        annotationReference,
-                    })
-                    return () =>
-                        this.processEvent('confirmNewReplyToAnnotation', {
+                        return () =>
+                            this.processEvent('cancelNewReplyToAnnotation', {
+                                annotationReference,
+                                conversationId: conversationKey,
+                            })
+                    },
+                    onNewReplyConfirm: (annotationReference) => {
+                        const conversationKey = getConversationKey({
+                            groupId,
                             annotationReference,
-                            conversationId: conversationKey,
                         })
-                }}
-                onNewReplyEdit={(annotationReference) => {
-                    const conversationKey = getConversationKey({
-                        groupId,
-                        annotationReference,
-                    })
-                    return ({ content }) =>
-                        this.processEvent('editNewReplyToAnnotation', {
-                            content,
+                        return () =>
+                            this.processEvent('confirmNewReplyToAnnotation', {
+                                annotationReference,
+                                conversationId: conversationKey,
+                            })
+                    },
+                    onNewReplyEdit: (annotationReference) => {
+                        const conversationKey = getConversationKey({
+                            groupId,
                             annotationReference,
-                            conversationId: conversationKey,
                         })
+                        return ({ content }) =>
+                            this.processEvent('editNewReplyToAnnotation', {
+                                content,
+                                annotationReference,
+                                conversationId: conversationKey,
+                            })
+                    },
                 }}
                 onToggleReplies={(event) => {
                     const conversationKey = getConversationKey({
