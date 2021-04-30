@@ -87,6 +87,7 @@ export default class HomeFeedLogic extends UILogic<
                     }
                 },
                 loadUser: (reference) => this.users.loadUser(reference),
+                onNewAnnotationCreate: (annotation) => {}, // TODO: Implement state change here
             }),
         )
 

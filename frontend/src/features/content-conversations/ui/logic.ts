@@ -13,6 +13,9 @@ import {
 import {
     SharedAnnotationReference,
     SharedAnnotation,
+    SharedListReference,
+    SharedAnnotationListEntryReference,
+    SharedAnnotationListEntry,
 } from '@worldbrain/memex-common/lib/content-sharing/types'
 import { Services } from '../../../services/types'
 import {
@@ -67,6 +70,17 @@ export function annotationConversationEventHandlers<
         >
         storage: Pick<StorageModules, 'contentSharing' | 'contentConversations'>
         loadUser(reference: UserReference): Promise<User | null>
+        onNewAnnotationCreate(
+            annotation: SharedAnnotation & {
+                reference: SharedAnnotationReference
+                creator: UserReference
+                linkId: string
+            },
+            annotationListEntry?: SharedAnnotationListEntry & {
+                reference: SharedAnnotationListEntryReference
+                sharedList: SharedListReference
+            },
+        ): void
         getAnnotation(
             state: State,
             reference: SharedAnnotationReference,
@@ -291,8 +305,6 @@ export function annotationConversationEventHandlers<
                 }
             }
 
-            console.log('init:', event)
-
             return {
                 newPageReplies: {
                     [event.normalizedPageUrl]: {
@@ -316,7 +328,7 @@ export function annotationConversationEventHandlers<
             },
         }),
         confirmNewReplyToPage: async ({ event, previousState }) => {
-            const { storage, services } = dependencies
+            const { storage, services, onNewAnnotationCreate } = dependencies
             const userReference = services.auth.getCurrentUserReference()!
 
             const comment = previousState.newPageReplies[
@@ -326,6 +338,14 @@ export function annotationConversationEventHandlers<
             const listReferences = event.sharedListReference
                 ? [event.sharedListReference]
                 : []
+
+            const annotation: SharedAnnotation = {
+                normalizedPageUrl: event.normalizedPageUrl,
+                uploadedWhen: createdWhen,
+                updatedWhen: createdWhen,
+                createdWhen,
+                comment,
+            }
 
             await executeUITask<AnnotationConversationsState>(
                 logic,
@@ -340,26 +360,25 @@ export function annotationConversationEventHandlers<
                     const localId = 'dummy'
                     const {
                         sharedAnnotationReferences,
+                        sharedAnnotationListEntryReferences,
                     } = await storage.contentSharing.createAnnotations({
                         listReferences,
                         creator: userReference,
                         annotationsByPage: {
                             [event.normalizedPageUrl]: [
-                                {
-                                    createdWhen,
-                                    localId,
-                                    comment,
-                                },
+                                { ...annotation, localId },
                             ],
                         },
                     })
 
+                    const annotationReference =
+                        sharedAnnotationReferences[localId]
+
                     const conversationThread = await storage.contentConversations.getOrCreateThread(
                         {
-                            pageCreatorReference: event.pageCreatorReference,
+                            annotationReference,
                             normalizedPageUrl: event.normalizedPageUrl,
-                            annotationReference:
-                                sharedAnnotationReferences[localId],
+                            pageCreatorReference: event.pageCreatorReference,
                             sharedListReference:
                                 event.sharedListReference ?? null,
                         },
@@ -377,6 +396,26 @@ export function annotationConversationEventHandlers<
                             },
                         },
                     })
+
+                    onNewAnnotationCreate(
+                        {
+                            ...annotation,
+                            creator: userReference,
+                            reference: annotationReference,
+                            linkId: storage.contentSharing.getSharedAnnotationLinkID(
+                                annotationReference,
+                            ),
+                        },
+                        event.sharedListReference && {
+                            createdWhen,
+                            updatedWhen: createdWhen,
+                            uploadedWhen: createdWhen,
+                            sharedList: event.sharedListReference,
+                            normalizedPageUrl: event.normalizedPageUrl,
+                            reference:
+                                sharedAnnotationListEntryReferences[localId][0],
+                        },
+                    )
                 },
             )
         },

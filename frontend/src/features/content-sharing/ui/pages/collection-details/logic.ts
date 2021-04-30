@@ -7,6 +7,7 @@ import {
 import {
     GetAnnotationListEntriesResult,
     GetAnnotationsResult,
+    GetAnnotationListEntriesElement,
 } from '@worldbrain/memex-common/lib/content-sharing/storage/types'
 import {
     CollectionDetailsEvent,
@@ -86,6 +87,29 @@ export default class CollectionDetailsLogic extends UILogic<
                         }
                     },
                     loadUser: (reference) => this._users.loadUser(reference),
+                    onNewAnnotationCreate: (annotation, sharedListEntry) =>
+                        this.emitMutation({
+                            annotations: {
+                                [annotation.linkId]: {
+                                    $set: annotation,
+                                },
+                            },
+                            annotationEntryData: {
+                                [annotation.normalizedPageUrl]: {
+                                    $apply: (
+                                        previousState?: GetAnnotationListEntriesElement[],
+                                    ) => [
+                                        ...(previousState ?? []),
+                                        {
+                                            ...sharedListEntry!,
+                                            creator: annotation.creator,
+                                            sharedAnnotation:
+                                                annotation.reference,
+                                        },
+                                    ],
+                                },
+                            },
+                        }),
                 },
             ),
         )
