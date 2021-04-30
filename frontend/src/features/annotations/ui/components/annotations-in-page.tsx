@@ -29,7 +29,7 @@ const AnnotationContainer = styled(Margin)`
     justify-content: center;
 `
 
-const AnnotationReplyContainer = styled.div`
+const ReplyContainer = styled.div`
     padding-top: 0.5rem;
     border-left: 4px solid #e0e0e0;
     padding-left: 10px;
@@ -171,10 +171,13 @@ export default function AnnotationsInPage(props: {
     return (
         <AnnotationContainer left="small" bottom="large">
             {props.newPageReply && (
-                <NewReply
-                    {...props.newPageReplyEventHandlers}
-                    newReply={props.newPageReply}
-                />
+                <ReplyContainer>
+                    <NewReply
+                        {...props.newPageReplyEventHandlers}
+                        placeholder="Add a note to this page"
+                        newReply={props.newPageReply}
+                    />
+                </ReplyContainer>
             )}
             {props.annotations && (
                 <AnnotationList>
@@ -244,11 +247,11 @@ export function AnnotationWithReplies(
                 <>
                     {props.renderBeforeReplies && (
                         <Margin left="small">
-                            <AnnotationReplyContainer>
+                            <ReplyContainer>
                                 {props.renderBeforeReplies(
                                     annotation.reference,
                                 )}
-                            </AnnotationReplyContainer>
+                            </ReplyContainer>
                         </Margin>
                     )}
                     {conversation.replies?.map?.((replyData) => {
@@ -283,21 +286,20 @@ export function AnnotationWithReplies(
                         }
                         return (
                             <Margin left="small" key={replyData.reference.id}>
-                                <AnnotationReplyContainer>
-                                    {renderedReply}
-                                </AnnotationReplyContainer>
+                                <ReplyContainer>{renderedReply}</ReplyContainer>
                             </Margin>
                         )
                     })}
                     {(conversation.newReply.editing ||
                         !props.hideNewReplyIfNotEditing) && (
                         <Margin left="small">
-                            <AnnotationReplyContainer>
+                            <ReplyContainer>
                                 <NewReply
                                     {...props}
+                                    placeholder="Add a new reply"
                                     newReply={conversation.newReply}
                                 />
-                            </AnnotationReplyContainer>
+                            </ReplyContainer>
                         </Margin>
                     )}
                 </>

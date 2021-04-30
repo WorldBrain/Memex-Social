@@ -62,6 +62,7 @@ export interface NewReplyEventHandlers {
 
 export default function NewReply(
     props: {
+        placeholder: string
         newReply: NewReplyState
     } & NewReplyEventHandlers,
 ) {
@@ -90,7 +91,7 @@ export default function NewReply(
                 autoFocus={newReply.editing}
                 value={newReply.editing ? newReply.content : ''}
                 // editing={newReply.editing}
-                placeholder={'Add a new reply'}
+                placeholder={props.placeholder}
                 onClick={() => {
                     props.onNewReplyInitiate?.()
                 }}
