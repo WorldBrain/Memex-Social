@@ -25,7 +25,7 @@ import { PAGE_SIZE } from './constants'
 import {
     annotationConversationInitialState,
     annotationConversationEventHandlers,
-    detectAnnotationConversationsThreads,
+    detectAnnotationConversationThreads,
 } from '../../../../content-conversations/ui/logic'
 import { getInitialAnnotationConversationStates } from '../../../../content-conversations/ui/utils'
 import mapValues from 'lodash/mapValues'
@@ -689,11 +689,10 @@ export default class CollectionDetailsLogic extends UILogic<
             })(promisesByPageEntry)
         }
 
-        const conversationThreadPromise = detectAnnotationConversationsThreads(
+        const conversationThreadPromise = detectAnnotationConversationThreads(
             this as any,
-            [...normalizedPageUrls].filter(
-                (normalizedPageUrl) =>
-                    !this.conversationThreadPromises[normalizedPageUrl],
+            flatten(Object.values(annotationEntries)).map(
+                (entry) => entry.sharedAnnotation,
             ),
             {
                 storage: this.dependencies.storage,

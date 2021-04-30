@@ -1,6 +1,10 @@
 import orderBy from 'lodash/orderBy'
 import { UserReference } from '@worldbrain/memex-common/lib/web-interface/types/users'
-import { SharedPageInfo } from '@worldbrain/memex-common/lib/content-sharing/types'
+import {
+    SharedPageInfo,
+    SharedAnnotation,
+    SharedAnnotationReference,
+} from '@worldbrain/memex-common/lib/content-sharing/types'
 import {
     UILogic,
     UIEventHandler,
@@ -16,7 +20,7 @@ import { getInitialAnnotationConversationStates } from '../../../../content-conv
 import {
     annotationConversationEventHandlers,
     annotationConversationInitialState,
-    detectAnnotationConversationsThreads,
+    detectAnnotationConversationThreads,
 } from '../../../../content-conversations/ui/logic'
 import UserProfileCache from '../../../../user-management/utils/user-profile-cache'
 import {
@@ -90,6 +94,7 @@ export default class PageDetailsLogic extends UILogic<
         )
         let creatorReference: UserReference | null
         let pageInfo: SharedPageInfo | null
+        let annotationReferences: SharedAnnotationReference[] = []
         await executeUITask<PageDetailsState>(
             this,
             'pageInfoLoadState',
@@ -131,6 +136,9 @@ export default class PageDetailsLogic extends UILogic<
                             annotation.reference,
                         ),
                     }))
+                    annotationReferences = annotations.map(
+                        (annotation) => annotation.reference,
+                    )
                     return {
                         mutation: {
                             annotations: {
@@ -151,9 +159,9 @@ export default class PageDetailsLogic extends UILogic<
                 if (!pageInfo) {
                     return
                 }
-                detectAnnotationConversationsThreads(
+                detectAnnotationConversationThreads(
                     this as any,
-                    [pageInfo.normalizedUrl],
+                    annotationReferences,
                     {
                         storage: this.dependencies.storage,
                     },
