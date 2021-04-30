@@ -87,7 +87,7 @@ export default class CollectionDetailsLogic extends UILogic<
                         }
                     },
                     loadUser: (reference) => this._users.loadUser(reference),
-                    onNewAnnotationCreate: (annotation, sharedListEntry) =>
+                    onNewAnnotationCreate: (_, annotation, sharedListEntry) =>
                         this.emitMutation({
                             annotations: {
                                 [annotation.linkId]: {

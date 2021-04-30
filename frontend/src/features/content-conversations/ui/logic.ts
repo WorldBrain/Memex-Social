@@ -71,6 +71,7 @@ export function annotationConversationEventHandlers<
         storage: Pick<StorageModules, 'contentSharing' | 'contentConversations'>
         loadUser(reference: UserReference): Promise<User | null>
         onNewAnnotationCreate(
+            pageReplyId: string,
             annotation: SharedAnnotation & {
                 reference: SharedAnnotationReference
                 creator: UserReference
@@ -307,7 +308,7 @@ export function annotationConversationEventHandlers<
 
             return {
                 newPageReplies: {
-                    [event.normalizedPageUrl]: {
+                    [event.pageReplyId]: {
                         editing: { $set: true },
                     },
                 },
@@ -315,14 +316,14 @@ export function annotationConversationEventHandlers<
         },
         editNewReplyToPage: ({ event }) => ({
             newPageReplies: {
-                [event.normalizedPageUrl]: {
+                [event.pageReplyId]: {
                     content: { $set: event.content },
                 },
             },
         }),
         cancelNewReplyToPage: ({ event }) => ({
             newPageReplies: {
-                [event.normalizedPageUrl]: {
+                [event.pageReplyId]: {
                     $set: getInitialNewReplyState(),
                 },
             },
@@ -332,7 +333,7 @@ export function annotationConversationEventHandlers<
             const userReference = services.auth.getCurrentUserReference()!
 
             const comment = previousState.newPageReplies[
-                event.normalizedPageUrl
+                event.pageReplyId
             ].content.trim()
             const createdWhen = Date.now()
             const listReferences = event.sharedListReference
@@ -351,7 +352,7 @@ export function annotationConversationEventHandlers<
                 logic,
                 (taskState) => ({
                     newPageReplies: {
-                        [event.normalizedPageUrl]: {
+                        [event.pageReplyId]: {
                             saveState: { $set: taskState },
                         },
                     },
@@ -383,7 +384,7 @@ export function annotationConversationEventHandlers<
 
                     logic.emitMutation({
                         newPageReplies: {
-                            [event.normalizedPageUrl]: {
+                            [event.pageReplyId]: {
                                 $set: getInitialNewReplyState(),
                             },
                         },
@@ -395,6 +396,7 @@ export function annotationConversationEventHandlers<
                     })
 
                     onNewAnnotationCreate(
+                        event.pageReplyId,
                         {
                             ...annotation,
                             creator: userReference,

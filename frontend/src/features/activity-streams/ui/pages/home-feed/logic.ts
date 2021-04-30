@@ -1,4 +1,4 @@
-import flatten from 'lodash/flatten'
+import fromPairs from 'lodash/fromPairs'
 import sortBy from 'lodash/sortBy'
 import orderBy from 'lodash/orderBy'
 import {
@@ -87,7 +87,39 @@ export default class HomeFeedLogic extends UILogic<
                     }
                 },
                 loadUser: (reference) => this.users.loadUser(reference),
-                onNewAnnotationCreate: (annotation) => {}, // TODO: Implement state change here
+                onNewAnnotationCreate: (pageReplyId, annotation) =>
+                    this.emitMutation({
+                        annotations: {
+                            [annotation.reference.id]: {
+                                $set: {
+                                    ...annotation,
+                                    creatorReference: annotation.creator,
+                                },
+                            },
+                        },
+                        activityItems: {
+                            items: {
+                                [pageReplyId]: {
+                                    annotations: {
+                                        order: {
+                                            $push: [annotation.reference.id],
+                                        },
+                                        items: {
+                                            [annotation.reference.id]: {
+                                                $set: {
+                                                    hasEarlierReplies: false,
+                                                    reference:
+                                                        annotation.reference,
+                                                    type: 'annotation-item',
+                                                    replies: [],
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    }),
             }),
         )
 
@@ -557,6 +589,13 @@ export default class HomeFeedLogic extends UILogic<
             mainMutation.pageInfo = { $merge: organized.data.pageInfo }
             mainMutation.replies = { $merge: organized.data.replies }
             mainMutation.users = { $merge: organized.data.users }
+            // TODO: To support page replies to new list entry activities, this needs to update to have keys for each new list-entry
+            mainMutation.newPageReplies = fromPairs(
+                nextActivityItems.order.map((activityGroupId) => [
+                    activityGroupId,
+                    { $set: getInitialNewReplyState() },
+                ]),
+            )
             this.emitMutation(mainMutation)
         })
 

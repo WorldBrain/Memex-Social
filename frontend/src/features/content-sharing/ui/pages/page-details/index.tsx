@@ -225,26 +225,31 @@ export default class PageDetailsPage extends UIElement<
                                             onNewReplyInitiate: () =>
                                                 this.processEvent(
                                                     'initiateNewReplyToPage',
-                                                    { normalizedPageUrl },
+                                                    {
+                                                        pageReplyId: normalizedPageUrl,
+                                                    },
                                                 ),
                                             onNewReplyEdit: ({ content }) =>
                                                 this.processEvent(
                                                     'editNewReplyToPage',
                                                     {
                                                         content,
-                                                        normalizedPageUrl,
+                                                        pageReplyId: normalizedPageUrl,
                                                     },
                                                 ),
                                             onNewReplyCancel: () =>
                                                 this.processEvent(
                                                     'cancelNewReplyToPage',
-                                                    { normalizedPageUrl },
+                                                    {
+                                                        pageReplyId: normalizedPageUrl,
+                                                    },
                                                 ),
                                             onNewReplyConfirm: () =>
                                                 this.processEvent(
                                                     'confirmNewReplyToPage',
                                                     {
                                                         normalizedPageUrl,
+                                                        pageReplyId: normalizedPageUrl,
                                                         pageCreatorReference: state.creatorReference!,
                                                     },
                                                 ),

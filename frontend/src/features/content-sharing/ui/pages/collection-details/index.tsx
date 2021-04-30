@@ -304,16 +304,17 @@ export default class CollectionDetailsPage extends UIElement<
                 newPageReplyEventHandlers={{
                     onNewReplyInitiate: () =>
                         this.processEvent('initiateNewReplyToPage', {
-                            normalizedPageUrl: entry.normalizedUrl,
+                            pageReplyId: entry.normalizedUrl,
                         }),
                     onNewReplyCancel: () =>
                         this.processEvent('cancelNewReplyToPage', {
-                            normalizedPageUrl: entry.normalizedUrl,
+                            pageReplyId: entry.normalizedUrl,
                         }),
                     onNewReplyConfirm: () =>
                         this.processEvent('confirmNewReplyToPage', {
                             normalizedPageUrl: entry.normalizedUrl,
                             pageCreatorReference: entry.creator,
+                            pageReplyId: entry.normalizedUrl,
                             sharedListReference: {
                                 id: this.props.listID,
                                 type: 'shared-list-reference',
@@ -321,7 +322,7 @@ export default class CollectionDetailsPage extends UIElement<
                         }),
                     onNewReplyEdit: ({ content }) =>
                         this.processEvent('editNewReplyToPage', {
-                            normalizedPageUrl: entry.normalizedUrl,
+                            pageReplyId: entry.normalizedUrl,
                             content,
                         }),
                 }}

@@ -36,7 +36,7 @@ export type AnnotationConversationStates = {
 }
 
 export type NewPageReplyStates = {
-    [pageId: string]: NewReplyState
+    [pageReplyId: string]: NewReplyState
 }
 
 export interface AnnotationConversationEvent {
@@ -62,16 +62,17 @@ export interface AnnotationConversationEvent {
         conversationId?: string
     }
     initiateNewReplyToPage: {
-        normalizedPageUrl: string
+        pageReplyId: string
     }
     editNewReplyToPage: {
-        normalizedPageUrl: string
+        pageReplyId: string
         content: string
     }
     cancelNewReplyToPage: {
-        normalizedPageUrl: string
+        pageReplyId: string
     }
     confirmNewReplyToPage: {
+        pageReplyId: string
         normalizedPageUrl: string
         pageCreatorReference: UserReference
         sharedListReference?: SharedListReference

@@ -61,7 +61,7 @@ export default class PageDetailsLogic extends UILogic<
                     }
                 },
                 loadUser: (reference) => this._users.loadUser(reference),
-                onNewAnnotationCreate: (annotation) =>
+                onNewAnnotationCreate: (_, annotation) =>
                     this.emitMutation({
                         annotations: {
                             $push: [annotation],

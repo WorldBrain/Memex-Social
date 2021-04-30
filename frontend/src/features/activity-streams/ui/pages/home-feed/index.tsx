@@ -354,25 +354,25 @@ export default class HomeFeedPage extends UIElement<
 
         // TODO: support list-item case
         if (parentItem.type === 'page-item') {
-            newPageReplyState =
-                state.newPageReplies[parentItem.normalizedPageUrl]
+            newPageReplyState = state.newPageReplies[parentItem.groupId]
 
             newPageReplyHandlers.onNewReplyInitiate = () =>
                 this.processEvent('initiateNewReplyToPage', {
-                    normalizedPageUrl: parentItem.normalizedPageUrl,
+                    pageReplyId: parentItem.groupId,
                 })
             newPageReplyHandlers.onNewReplyCancel = () =>
                 this.processEvent('cancelNewReplyToPage', {
-                    normalizedPageUrl: parentItem.normalizedPageUrl,
+                    pageReplyId: parentItem.groupId,
                 })
             newPageReplyHandlers.onNewReplyConfirm = () =>
                 this.processEvent('confirmNewReplyToPage', {
+                    pageReplyId: parentItem.groupId,
                     normalizedPageUrl: parentItem.normalizedPageUrl,
                     pageCreatorReference: parentItem.creatorReference,
                 })
             newPageReplyHandlers.onNewReplyEdit = ({ content }) =>
                 this.processEvent('editNewReplyToPage', {
-                    normalizedPageUrl: parentItem.normalizedPageUrl,
+                    pageReplyId: parentItem.groupId,
                     content,
                 })
         }
