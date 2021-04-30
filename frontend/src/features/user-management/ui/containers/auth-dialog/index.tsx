@@ -14,8 +14,6 @@ import { Margin } from 'styled-components-spacing'
 import { AuthError } from '../../../../../services/auth/types'
 import ProfileSetupForm from '../../components/profile-setup-form'
 import LoadingScreen from '../../../../../common-ui/components/loading-screen'
-import { ViewportBreakpoint } from '../../main-ui/styles/types'
-
 
 const FRIENDLY_ERRORS: { [Key in AuthError['reason']]: string } = {
     'popup-blocked': 'Could not open a popup for you to log in',

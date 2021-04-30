@@ -60,6 +60,12 @@ export const theme: Theme = {
         overlay: 50000,
     },
     icons: {
+        lock: require('../../assets/img/lock.svg'),
+        person: require('../../assets/img/person.svg'),
+        plus: require('../../assets/img/plus.svg'),
+        shareEmpty: require('../../assets/img/shareEmpty.svg'),
+        shared: require('../../assets/img/shared.svg'),
+        triangle: require('../../assets/img/triangleSmall.svg'),
         copy: require('../../assets/img/copy.svg'),
         removeX: require('../../assets/img/removeX.svg'),
         hamburger: require('../../assets/img/hamburger.svg'),
