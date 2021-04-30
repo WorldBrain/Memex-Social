@@ -1,5 +1,4 @@
-import React from 'react'
-import { InputHTMLAttributes } from 'react'
+import React, { InputHTMLAttributes } from 'react'
 import styled from 'styled-components'
 import { Margin } from 'styled-components-spacing'
 
@@ -39,7 +38,11 @@ interface State {
     prevValue?: string
 }
 
-interface Props {
+interface Props
+    extends Pick<
+        InputHTMLAttributes<HTMLInputElement>,
+        'type' | 'placeholder' | 'onChange' | 'onKeyDown'
+    > {
     onConfirm?: () => void
     value?: string
     label?: string
@@ -47,10 +50,7 @@ interface Props {
     errorMessage?: string
 }
 
-export default class TextInput extends React.PureComponent<
-    InputHTMLAttributes<HTMLInputElement> & Props,
-    State
-> {
+export default class TextInput extends React.PureComponent<Props, State> {
     state: State = {}
 
     constructor(props: Props) {

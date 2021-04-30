@@ -30,23 +30,31 @@ interface State {
     charCount: number
 }
 
-interface Props {
+type TextAreaProps = Pick<
+    TextareaHTMLAttributes<HTMLTextAreaElement>,
+    | 'autoFocus'
+    | 'placeholder'
+    | 'rows'
+    | 'value'
+    | 'onClick'
+    | 'onChange'
+    | 'onKeyDown'
+>
+
+interface Props extends TextAreaProps {
     onConfirm?: () => void
     value?: string
     label?: string
     error?: boolean
     errorMessage?: string
     renderTextarea?: (
-        props: TextareaHTMLAttributes<HTMLTextAreaElement> & {
+        props: TextAreaProps & {
             padding?: boolean
             error?: boolean
         },
     ) => React.ReactNode
 }
-export default class TextArea extends React.PureComponent<
-    TextareaHTMLAttributes<HTMLTextAreaElement> & Props,
-    State
-> {
+export default class TextArea extends React.PureComponent<Props, State> {
     state: State = {
         charCount: 0,
     }
@@ -58,9 +66,7 @@ export default class TextArea extends React.PureComponent<
         this.state.charCount = props.value?.length ?? 0
     }
 
-    componentWillReceiveProps(
-        props: Readonly<TextareaHTMLAttributes<HTMLTextAreaElement> & Props>,
-    ) {
+    componentWillReceiveProps(props: Props) {
         const { state } = this
         if (props.value !== state.value) {
             this.setState({ value: props.value })
