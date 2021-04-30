@@ -374,15 +374,12 @@ export function annotationConversationEventHandlers<
                     const annotationReference =
                         sharedAnnotationReferences[localId]
 
-                    const conversationThread = await storage.contentConversations.getOrCreateThread(
-                        {
-                            annotationReference,
-                            normalizedPageUrl: event.normalizedPageUrl,
-                            pageCreatorReference: event.pageCreatorReference,
-                            sharedListReference:
-                                event.sharedListReference ?? null,
-                        },
-                    )
+                    await storage.contentConversations.getOrCreateThread({
+                        annotationReference,
+                        normalizedPageUrl: event.normalizedPageUrl,
+                        pageCreatorReference: event.pageCreatorReference,
+                        sharedListReference: event.sharedListReference ?? null,
+                    })
 
                     logic.emitMutation({
                         newPageReplies: {
@@ -391,7 +388,7 @@ export function annotationConversationEventHandlers<
                             },
                         },
                         conversations: {
-                            [conversationThread.reference.id]: {
+                            [annotationReference.id]: {
                                 $set: getInitialAnnotationConversationState(),
                             },
                         },
