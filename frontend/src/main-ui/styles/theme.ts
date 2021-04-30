@@ -21,6 +21,7 @@ export const theme: Theme = {
         grey: '#e0e0e0',
         darkgrey: '#545454',
         black: '000',
+        white: '#fff',
         lightblack: '#2c2c2c',
         overlay: {
             background: 'rgba(0, 0, 0, 0.1)',
