@@ -352,6 +352,7 @@ export default class HomeFeedPage extends UIElement<
         const newPageReplyHandlers: NewReplyEventHandlers = {}
         let newPageReplyState: NewReplyState | undefined = undefined
 
+        // TODO: support list-item case
         if (parentItem.type === 'page-item') {
             newPageReplyState =
                 state.newPageReplies[parentItem.normalizedPageUrl]

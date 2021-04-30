@@ -323,6 +323,9 @@ export function annotationConversationEventHandlers<
                 event.normalizedPageUrl
             ].content.trim()
             const createdWhen = Date.now()
+            const listReferences = event.sharedListReference
+                ? [event.sharedListReference]
+                : []
 
             await executeUITask<AnnotationConversationsState>(
                 logic,
@@ -334,10 +337,12 @@ export function annotationConversationEventHandlers<
                     },
                 }),
                 async () => {
-                    const localId = '???' // TODO: figure this out
+                    const localId = 'dummy'
                     const {
                         sharedAnnotationReferences,
                     } = await storage.contentSharing.createAnnotations({
+                        listReferences,
+                        creator: userReference,
                         annotationsByPage: {
                             [event.normalizedPageUrl]: [
                                 {
@@ -347,17 +352,16 @@ export function annotationConversationEventHandlers<
                                 },
                             ],
                         },
-                        creator: userReference,
-                        listReferences: [], // TODO: opt. list refs
                     })
 
                     const conversationThread = await storage.contentConversations.getOrCreateThread(
                         {
+                            pageCreatorReference: event.pageCreatorReference,
                             normalizedPageUrl: event.normalizedPageUrl,
                             annotationReference:
                                 sharedAnnotationReferences[localId],
-                            sharedListReference: null,
-                            pageCreatorReference: event.pageCreatorReference,
+                            sharedListReference:
+                                event.sharedListReference ?? null,
                         },
                     )
 

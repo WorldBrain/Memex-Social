@@ -5,7 +5,10 @@ import {
 } from '@worldbrain/memex-common/lib/content-conversations/types'
 import { UITaskState } from '../../../main-ui/types'
 import { User } from '@worldbrain/memex-common/lib/web-interface/types/users'
-import { SharedAnnotationReference } from '@worldbrain/memex-common/lib/content-sharing/types'
+import {
+    SharedAnnotationReference,
+    SharedListReference,
+} from '@worldbrain/memex-common/lib/content-sharing/types'
 import { UIEventHandler } from '../../../main-ui/classes/logic'
 import { UserReference } from '../../user-management/types'
 
@@ -71,6 +74,7 @@ export interface AnnotationConversationEvent {
     confirmNewReplyToPage: {
         normalizedPageUrl: string
         pageCreatorReference: UserReference
+        sharedListReference?: SharedListReference
     }
 }
 
