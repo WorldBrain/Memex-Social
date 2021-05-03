@@ -730,12 +730,16 @@ export default class CollectionDetailsLogic extends UILogic<
         }
 
         try {
-            const result = await Promise.all(
-                normalizedPageUrls.map(
+            const result = await Promise.all([
+                ...normalizedPageUrls.map(
                     (normalizedPageUrl) =>
                         this.pageAnnotationPromises[normalizedPageUrl],
                 ),
-            )
+                ...normalizedPageUrls.map(
+                    (normalizedPageUrl) =>
+                        this.conversationThreadPromises[normalizedPageUrl],
+                ),
+            ])
             await this._users.loadUsers(
                 [...usersToLoad].map(
                     (id): UserReference => ({

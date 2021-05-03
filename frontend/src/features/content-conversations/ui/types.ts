@@ -82,6 +82,7 @@ export interface AnnotationConversationEvent {
 export type AnnotationConversationSignal =
     | { type: 'auth-requested' }
     | { type: 'reply-submitting' }
+    | { type: 'new-note-submitting' }
 
 export interface AnnotationConversationsState {
     conversations: AnnotationConversationStates

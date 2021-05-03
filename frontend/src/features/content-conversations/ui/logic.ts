@@ -358,6 +358,9 @@ export function annotationConversationEventHandlers<
                     },
                 }),
                 async () => {
+                    logic.emitSignal<AnnotationConversationSignal>({
+                        type: 'new-note-submitting',
+                    })
                     const localId = 'dummy'
                     const {
                         sharedAnnotationReferences,
