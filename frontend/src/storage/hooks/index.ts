@@ -4,8 +4,9 @@ import {
     StorageHook,
     StorageHookContext,
 } from '@worldbrain/memex-common/lib/storage/hooks/types'
-import { Storage } from './types'
-import { Services } from '../services/types'
+import { Storage } from '../types'
+import { Services } from '../../services/types'
+import createdAnnotationHook from './create-annotation'
 
 type HooksByCollectionAndOperation = {
     [collection: string]: {
@@ -25,7 +26,10 @@ export class StorageHooksChangeWatcher {
         }
 
         this.collectionsToWatch = new Set<string>()
-        for (const hook of Object.values(STORAGE_HOOKS)) {
+        for (const hook of [
+            ...Object.values(STORAGE_HOOKS),
+            createdAnnotationHook,
+        ]) {
             const { collection } = hook
 
             this.collectionsToWatch.add(collection)
