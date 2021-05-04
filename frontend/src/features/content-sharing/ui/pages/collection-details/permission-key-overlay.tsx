@@ -67,6 +67,8 @@ const ButtonsBox = styled.div`
     justify-content: center;
     width: 250px;
     padding: 15px 0px;
+    flex-direction: column;
+    align-items: center;
 `
 const primaryButtonCss = css`
     display: flex;
@@ -209,7 +211,7 @@ export default function PermissionKeyOverlay(props: {
                                 Download
                             </PrimaryButtonLink>
                             <SecondaryButton onClick={props.onCloseRequested}>
-                                Continue without
+                                Cancel
                             </SecondaryButton>
                         </ButtonsBox>
                     </Margin>

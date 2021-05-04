@@ -132,6 +132,12 @@ const ShowMoreCollaborators = styled.span`
     cursor: pointer;
     font-weight: bold;
 `
+
+const Text = styled.span`
+    padding-left: 5px;
+`
+
+
 export default class CollectionDetailsPage extends UIElement<
     CollectionDetailsDependencies,
     CollectionDetailsState,
@@ -427,8 +433,8 @@ export default class CollectionDetailsPage extends UIElement<
                             this.processEvent('toggleInstallExtModal', {})
                         }
                     >
-                        <Icon icon="plusIcon" height="14px" color="black" /> Add
-                        Page
+                        <Icon icon="plusIcon" height="12px" color="black" />
+                        <Text>Add Page</Text>
                     </AddPageBtn>
                 )}
                 {annotationEntryData &&
