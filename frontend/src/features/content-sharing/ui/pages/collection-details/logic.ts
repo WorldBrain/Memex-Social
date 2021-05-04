@@ -113,6 +113,7 @@ export default class CollectionDetailsLogic extends UILogic<
             isCollectionFollowed: false,
             allAnnotationExpanded: false,
             isListShareModalShown: false,
+            isInstallExtModalShown: false,
             pageAnnotationsExpanded: {},
             ...activityFollowsInitialState(),
             ...annotationConversationInitialState(),
@@ -389,6 +390,12 @@ export default class CollectionDetailsLogic extends UILogic<
     toggleListShareModal: EventHandler<'toggleListShareModal'> = () => {
         this.emitMutation({
             isListShareModalShown: { $apply: (shown) => !shown },
+        })
+    }
+
+    toggleInstallExtModal: EventHandler<'toggleInstallExtModal'> = () => {
+        this.emitMutation({
+            isInstallExtModalShown: { $apply: (shown) => !shown },
         })
     }
 

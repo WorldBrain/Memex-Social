@@ -33,6 +33,7 @@ import ErrorBox from '../../../../../common-ui/components/error-box'
 import FollowBtn from '../../../../activity-follows/ui/components/follow-btn'
 import WebMonetizationIcon from '../../../../web-monetization/ui/components/web-monetization-icon'
 import PermissionKeyOverlay from './permission-key-overlay'
+import InstallExtOverlay from './install-ext-overlay'
 import { mergeTaskStates } from '../../../../../main-ui/classes/logic'
 import { UserReference } from '../../../../user-management/types'
 import ListShareModal from '@worldbrain/memex-common/lib/content-sharing/ui/list-share-modal'
@@ -155,6 +156,10 @@ export default class CollectionDetailsPage extends UIElement<
             this.state.permissionKeyResult === 'success' ||
             !!this.state.listRoleID
         )
+    }
+
+    get viewportBreakpoint(): ViewportBreakpoint {
+        return getViewportBreakpoint(this.getViewportWidth())
     }
 
     async componentDidUpdate(prevProps: CollectionDetailsDependencies) {
@@ -381,13 +386,10 @@ export default class CollectionDetailsPage extends UIElement<
     }
 
     renderPermissionKeyOverlay() {
-        const viewportBreakpoint = getViewportBreakpoint(
-            this.getViewportWidth(),
-        )
         return !this.state.requestingAuth ? (
             <PermissionKeyOverlay
                 services={this.props.services}
-                viewportBreakpoint={viewportBreakpoint}
+                viewportBreakpoint={this.viewportBreakpoint}
                 permissionKeyState={this.state.permissionKeyState}
                 permissionKeyResult={this.state.permissionKeyResult}
                 onCloseRequested={() =>
@@ -397,12 +399,56 @@ export default class CollectionDetailsPage extends UIElement<
         ) : null
     }
 
+    renderInstallExtOverlay() {
+        return (
+            this.state.isInstallExtModalShown && (
+                <InstallExtOverlay
+                    services={this.props.services}
+                    viewportBreakpoint={this.viewportBreakpoint}
+                    onCloseRequested={() =>
+                        this.processEvent('toggleInstallExtModal', {})
+                    }
+                />
+            )
+        )
+    }
+
+    private renderAbovePagesBox() {
+        const {
+            annotationEntryData,
+            allAnnotationExpanded,
+            isListOwner,
+        } = this.state
+        return (
+            <AbovePagesBox viewportWidth={this.viewportBreakpoint}>
+                {(this.isListContributor || isListOwner) && (
+                    <AddPageBtn
+                        onClick={() =>
+                            this.processEvent('toggleInstallExtModal', {})
+                        }
+                    >
+                        <Icon icon="plusIcon" height="14px" color="black" /> Add
+                        Page
+                    </AddPageBtn>
+                )}
+                {annotationEntryData &&
+                    Object.keys(annotationEntryData).length > 0 && (
+                        <ToggleAllAnnotations
+                            onClick={() =>
+                                this.processEvent('toggleAllAnnotations', {})
+                            }
+                        >
+                            {allAnnotationExpanded
+                                ? 'Hide all annotations'
+                                : 'Show all annotations'}
+                        </ToggleAllAnnotations>
+                    )}
+            </AbovePagesBox>
+        )
+    }
+
     render() {
         ;(window as any)['blurt'] = () => console.log(this.state)
-
-        const viewportBreakpoint = getViewportBreakpoint(
-            this.getViewportWidth(),
-        )
 
         const { state } = this
         if (
@@ -426,7 +472,7 @@ export default class CollectionDetailsPage extends UIElement<
                     <DefaultPageLayout
                         services={this.props.services}
                         storage={this.props.storage}
-                        viewportBreakpoint={viewportBreakpoint}
+                        viewportBreakpoint={this.viewportBreakpoint}
                         listsSidebarProps={this.listsSidebarProps}
                     >
                         <ErrorWithAction errorType="internal-error">
@@ -444,7 +490,7 @@ export default class CollectionDetailsPage extends UIElement<
                 <DefaultPageLayout
                     services={this.props.services}
                     storage={this.props.storage}
-                    viewportBreakpoint={viewportBreakpoint}
+                    viewportBreakpoint={this.viewportBreakpoint}
                     listsSidebarProps={this.listsSidebarProps}
                 >
                     <ErrorWithAction
@@ -468,10 +514,11 @@ export default class CollectionDetailsPage extends UIElement<
                     subTitle={data.list.title}
                 />
                 {this.renderPermissionKeyOverlay()}
+                {this.renderInstallExtOverlay()}
                 <DefaultPageLayout
                     services={this.props.services}
                     storage={this.props.storage}
-                    viewportBreakpoint={viewportBreakpoint}
+                    viewportBreakpoint={this.viewportBreakpoint}
                     headerTitle={data.list.title}
                     headerSubtitle={this.renderSubtitle()}
                     followBtn={this.renderFollowBtn()}
@@ -514,34 +561,7 @@ export default class CollectionDetailsPage extends UIElement<
                             </ErrorWithAction>
                         </Margin>
                     )}
-                    <AbovePagesBox viewportWidth={viewportBreakpoint}>
-                        {(this.isListContributor || this.state.isListOwner) && (
-                            <AddPageBtn onClick={() => console.log('clicked!')}>
-                                <Icon
-                                    icon="plusIcon"
-                                    height="14px"
-                                    color="black"
-                                />{' '}
-                                Add Page
-                            </AddPageBtn>
-                        )}
-                        {state.annotationEntryData &&
-                            Object.keys(state.annotationEntryData).length >
-                                0 && (
-                                <ToggleAllAnnotations
-                                    onClick={() =>
-                                        this.processEvent(
-                                            'toggleAllAnnotations',
-                                            {},
-                                        )
-                                    }
-                                >
-                                    {state.allAnnotationExpanded
-                                        ? 'Hide all annotations'
-                                        : 'Show all annotations'}
-                                </ToggleAllAnnotations>
-                            )}
-                    </AbovePagesBox>
+                    {this.renderAbovePagesBox()}
                     <PageInfoList>
                         {data.listEntries.length === 0 && (
                             <EmptyListBox>
