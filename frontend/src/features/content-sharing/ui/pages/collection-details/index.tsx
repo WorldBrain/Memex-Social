@@ -72,40 +72,42 @@ const DocumentView = styled.div`
 //     }
 // `
 
-const ToggleAllBox = styled.div<{
+const AbovePagesBox = styled.div<{
     viewportWidth: ViewportBreakpoint
 }>`
   display: flex;
   justify-content: flex-end;
+  align-items: center;
+  margin: 5px 0 10px;
   width: 100%;
-  position: sticky;
-  top: 50px;
+  position: relative;
   z-index: 2;
   border-radius: 5px;
-  ${(props) =>
-      props.viewportWidth === 'small' &&
-      css`
-          top: 55px;
-      `}
-  ${(props) =>
-      props.viewportWidth === 'mobile' &&
-      css`
-          top: 45px;
-      `}
 }
+`
+
+const AddPageBtn = styled.div`
+    display: flex;
+    align-items: center;
+    position: absolute;
+    left: 0;
+    font-family: ${(props) => props.theme.fonts.primary};
+    color: ${(props) => props.theme.colors.primary};
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
 `
 
 const ToggleAllAnnotations = styled.div`
     text-align: right;
     font-weight: bold;
-    font-family: 'Poppins';
+    font-family: ${(props) => props.theme.fonts.primary};
     color: ${(props) => props.theme.colors.primary};
     font-weight: bold;
     cursor: pointer;
     font-size: 12px;
     width: fit-content;
     padding: 0 5px;
-    margin: 5px 0 10px;
     border-radius: 5px;
 `
 
@@ -512,7 +514,17 @@ export default class CollectionDetailsPage extends UIElement<
                             </ErrorWithAction>
                         </Margin>
                     )}
-                    <ToggleAllBox viewportWidth={viewportBreakpoint}>
+                    <AbovePagesBox viewportWidth={viewportBreakpoint}>
+                        {(this.isListContributor || this.state.isListOwner) && (
+                            <AddPageBtn onClick={() => console.log('clicked!')}>
+                                <Icon
+                                    icon="plusIcon"
+                                    height="14px"
+                                    color="black"
+                                />{' '}
+                                Add Page
+                            </AddPageBtn>
+                        )}
                         {state.annotationEntryData &&
                             Object.keys(state.annotationEntryData).length >
                                 0 && (
@@ -529,7 +541,7 @@ export default class CollectionDetailsPage extends UIElement<
                                         : 'Show all annotations'}
                                 </ToggleAllAnnotations>
                             )}
-                    </ToggleAllBox>
+                    </AbovePagesBox>
                     <PageInfoList>
                         {data.listEntries.length === 0 && (
                             <EmptyListBox>

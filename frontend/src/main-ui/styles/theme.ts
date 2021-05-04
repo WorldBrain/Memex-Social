@@ -20,7 +20,7 @@ export const theme: Theme = {
         lightgrey: '#f0f0f0',
         grey: '#e0e0e0',
         darkgrey: '#545454',
-        black: '000',
+        black: '#000',
         white: '#fff',
         lightblack: '#2c2c2c',
         overlay: {
