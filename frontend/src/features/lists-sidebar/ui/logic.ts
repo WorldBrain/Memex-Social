@@ -1,17 +1,16 @@
 import {
-    ActivityFollowsState,
-    ActivityFollowsEvent,
-    ActivityFollowsHandlers,
+    ListsSidebarState,
+    ListsSidebarEvent,
+    ListsSidebarHandlers,
 } from './types'
 import { UILogic, executeUITask } from '../../../main-ui/classes/logic'
 import { Services } from '../../../services/types'
-import ActivityFollowsStorage from '../storage'
-import ContentSharingStorage from '../../content-sharing/storage'
 import { SharedListReference } from '@worldbrain/memex-common/lib/content-sharing/types'
 import { LOCAL_STORAGE_KEYS } from '../../../constants'
 import { LocalStorageService } from '../../../services/local-storage/types'
+import { StorageModules } from '../../../storage/types'
 
-export function activityFollowsInitialState(): ActivityFollowsState {
+export function listsSidebarInitialState(): ListsSidebarState {
     return {
         followedLists: [],
         isListSidebarShown: false,
@@ -19,17 +18,14 @@ export function activityFollowsInitialState(): ActivityFollowsState {
     }
 }
 
-export function activityFollowsEventHandlers(
-    logic: UILogic<ActivityFollowsState, ActivityFollowsEvent>,
+export function listsSidebarEventHandlers(
+    logic: UILogic<ListsSidebarState, ListsSidebarEvent>,
     dependencies: {
         localStorage: LocalStorageService
         services: Pick<Services, 'auth'>
-        storage: {
-            activityFollows: ActivityFollowsStorage
-            contentSharing: ContentSharingStorage
-        }
+        storage: Pick<StorageModules, 'activityFollows' | 'contentSharing'>
     },
-): ActivityFollowsHandlers {
+): ListsSidebarHandlers {
     return {
         initActivityFollows: async () => {
             const { activityFollows, contentSharing } = dependencies.storage
@@ -46,7 +42,7 @@ export function activityFollowsEventHandlers(
                     LOCAL_STORAGE_KEYS.isListSidebarShown,
                 ) ?? 'true') === 'true'
 
-            await executeUITask<ActivityFollowsState>(
+            await executeUITask<ListsSidebarState>(
                 logic,
                 'listSidebarLoadState',
                 async () => {

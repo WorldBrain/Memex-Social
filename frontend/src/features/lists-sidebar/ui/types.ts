@@ -5,21 +5,21 @@ import {
 import { UITaskState } from '../../../main-ui/types'
 import { UIEventHandler } from '../../../main-ui/classes/logic'
 
-export interface ActivityFollowsState {
+export interface ListsSidebarState {
     followedLists: Array<SharedList & { reference: SharedListReference }>
     isListSidebarShown: boolean
     listSidebarLoadState: UITaskState
 }
 
-export interface ActivityFollowsEvent {
+export interface ListsSidebarEvent {
     initActivityFollows: undefined
     toggleListSidebar: undefined
 }
 
-export type ActivityFollowsHandlers = {
-    [EventName in keyof ActivityFollowsEvent]: UIEventHandler<
-        ActivityFollowsState,
-        ActivityFollowsEvent,
+export type ListsSidebarHandlers = {
+    [EventName in keyof ListsSidebarEvent]: UIEventHandler<
+        ListsSidebarState,
+        ListsSidebarEvent,
         EventName
     >
 }

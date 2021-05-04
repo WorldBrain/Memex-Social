@@ -24,9 +24,9 @@ import { StorageModules } from '../../../../../storage/types'
 import { UITaskState } from '../../../../../main-ui/types'
 import { OrderedMap } from '../../../../../utils/ordered-map'
 import {
-    ActivityFollowsState,
-    ActivityFollowsEvent,
-} from '../../../../activity-follows/ui/types'
+    ListsSidebarState,
+    ListsSidebarEvent,
+} from '../../../../lists-sidebar/ui/types'
 
 export interface HomeFeedDependencies {
     services: UIElementServices<
@@ -62,11 +62,11 @@ export type HomeFeedState = {
     lastSeenTimestamp?: number | null
     moreRepliesLoadStates: { [groupId: string]: UITaskState }
 } & AnnotationConversationsState &
-    ActivityFollowsState
+    ListsSidebarState
 
 export type HomeFeedEvent = UIEvent<
     AnnotationConversationEvent &
-        ActivityFollowsEvent & {
+        ListsSidebarEvent & {
             waypointHit: null
             loadMoreReplies: {
                 groupId: string

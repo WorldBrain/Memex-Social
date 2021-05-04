@@ -9,7 +9,7 @@ import RouteLink from '../components/route-link'
 import UnseenActivityIndicator from '../../features/activity-streams/ui/containers/unseen-activity-indicator'
 import ListsSidebar, {
     Props as ListsSidebarProps,
-} from '../../main-ui/components/list-sidebar/lists-sidebar'
+} from '../../features/lists-sidebar/ui/components/lists-sidebar'
 import ListsSidebarToggle from '../../main-ui/components/sidebar-toggle/'
 
 const middleMaxWidth = '800px'

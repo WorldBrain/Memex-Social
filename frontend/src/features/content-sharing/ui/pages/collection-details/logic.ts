@@ -31,9 +31,9 @@ import { getInitialAnnotationConversationStates } from '../../../../content-conv
 import mapValues from 'lodash/mapValues'
 import UserProfileCache from '../../../../user-management/utils/user-profile-cache'
 import {
-    activityFollowsInitialState,
-    activityFollowsEventHandlers,
-} from '../../../../activity-follows/ui/logic'
+    listsSidebarInitialState,
+    listsSidebarEventHandlers,
+} from '../../../../lists-sidebar/ui/logic'
 import { UserReference } from '../../../../user-management/types'
 import { makeStorageReference } from '@worldbrain/memex-common/lib/storage/references'
 const truncate = require('truncate')
@@ -92,7 +92,7 @@ export default class CollectionDetailsLogic extends UILogic<
 
         Object.assign(
             this,
-            activityFollowsEventHandlers(this as any, {
+            listsSidebarEventHandlers(this as any, {
                 ...this.dependencies,
                 localStorage: this.dependencies.services.localStorage,
             }),
@@ -114,7 +114,7 @@ export default class CollectionDetailsLogic extends UILogic<
             allAnnotationExpanded: false,
             isListShareModalShown: false,
             pageAnnotationsExpanded: {},
-            ...activityFollowsInitialState(),
+            ...listsSidebarInitialState(),
             ...annotationConversationInitialState(),
         }
     }

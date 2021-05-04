@@ -21,9 +21,9 @@ import {
 import { UIElementServices } from '../../../../../services/types'
 import { StorageModules } from '../../../../../storage/types'
 import {
-    ActivityFollowsState,
-    ActivityFollowsEvent,
-} from '../../../../activity-follows/ui/types'
+    ListsSidebarState,
+    ListsSidebarEvent,
+} from '../../../../lists-sidebar/ui/types'
 import { SharedListRole } from '@worldbrain/memex-common/lib/web-interface/types/storex-generated/content-sharing'
 import { ProcessSharedListKeyResult } from '@worldbrain/memex-common/lib/content-sharing/service/types'
 
@@ -54,7 +54,7 @@ export interface CollectionDetailsDependencies {
 }
 
 export type CollectionDetailsState = AnnotationConversationsState &
-    ActivityFollowsState & {
+    ListsSidebarState & {
         listLoadState: UITaskState
         followLoadState: UITaskState
 
@@ -91,7 +91,7 @@ export type CollectionDetailsState = AnnotationConversationsState &
 
 export type CollectionDetailsEvent = UIEvent<
     AnnotationConversationEvent &
-        ActivityFollowsEvent & {
+        ListsSidebarEvent & {
             load: { isUpdate?: boolean; listID?: string }
             processCollectionSwitch: {}
             toggleDescriptionTruncation: {}

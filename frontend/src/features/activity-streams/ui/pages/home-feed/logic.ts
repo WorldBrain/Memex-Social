@@ -29,9 +29,9 @@ import {
     annotationConversationEventHandlers,
 } from '../../../../content-conversations/ui/logic'
 import {
-    activityFollowsInitialState,
-    activityFollowsEventHandlers,
-} from '../../../../activity-follows/ui/logic'
+    listsSidebarInitialState,
+    listsSidebarEventHandlers,
+} from '../../../../lists-sidebar/ui/logic'
 import UserProfileCache from '../../../../user-management/utils/user-profile-cache'
 import { AnnotationConversationState } from '../../../../content-conversations/ui/types'
 import {
@@ -89,7 +89,7 @@ export default class HomeFeedLogic extends UILogic<
 
         Object.assign(
             this,
-            activityFollowsEventHandlers(this as any, {
+            listsSidebarEventHandlers(this as any, {
                 ...this.dependencies,
                 localStorage: this.dependencies.services.localStorage,
             }),
@@ -105,7 +105,7 @@ export default class HomeFeedLogic extends UILogic<
             replies: {},
             users: {},
             moreRepliesLoadStates: {},
-            ...activityFollowsInitialState(),
+            ...listsSidebarInitialState(),
             ...annotationConversationInitialState(),
         }
     }

@@ -19,9 +19,9 @@ import {
 } from '@worldbrain/memex-common/lib/web-interface/types/users'
 import { StorageModules } from '../../../../../storage/types'
 import {
-    ActivityFollowsState,
-    ActivityFollowsEvent,
-} from '../../../../activity-follows/ui/types'
+    ListsSidebarState,
+    ListsSidebarEvent,
+} from '../../../../lists-sidebar/ui/types'
 
 export interface PageDetailsDependencies {
     services: UIElementServices<
@@ -48,7 +48,7 @@ export interface PageDetailsDependencies {
 }
 
 export type PageDetailsState = AnnotationConversationsState &
-    ActivityFollowsState & {
+    ListsSidebarState & {
         annotationLoadState: UITaskState
         annotations?: Array<
             SharedAnnotation & {
@@ -67,7 +67,7 @@ export type PageDetailsState = AnnotationConversationsState &
     }
 
 export type PageDetailsEvent = UIEvent<
-    AnnotationConversationEvent & ActivityFollowsEvent
+    AnnotationConversationEvent & ListsSidebarEvent
 >
 
 export type PageDetailsSignal = UISignal<

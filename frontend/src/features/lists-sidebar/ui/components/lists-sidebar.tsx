@@ -4,10 +4,10 @@ import {
     SharedList,
     SharedListReference,
 } from '@worldbrain/memex-common/lib/content-sharing/types'
-import { UITaskState } from '../../types'
-import LoadingIndicator from '../../../common-ui/components/loading-indicator'
-import RouteLink from '../../../common-ui/components/route-link'
-import { Services } from '../../../services/types'
+import { UITaskState } from '../../../../main-ui/types'
+import LoadingIndicator from '../../../../common-ui/components/loading-indicator'
+import RouteLink from '../../../../common-ui/components/route-link'
+import { Services } from '../../../../services/types'
 
 const Container = styled.div`
     position: fixed;

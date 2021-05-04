@@ -2,7 +2,6 @@ import orderBy from 'lodash/orderBy'
 import { UserReference } from '@worldbrain/memex-common/lib/web-interface/types/users'
 import {
     SharedPageInfo,
-    SharedAnnotation,
     SharedAnnotationReference,
 } from '@worldbrain/memex-common/lib/content-sharing/types'
 import {
@@ -22,11 +21,11 @@ import {
     annotationConversationInitialState,
     detectAnnotationConversationThreads,
 } from '../../../../content-conversations/ui/logic'
-import UserProfileCache from '../../../../user-management/utils/user-profile-cache'
 import {
-    activityFollowsInitialState,
-    activityFollowsEventHandlers,
-} from '../../../../activity-follows/ui/logic'
+    listsSidebarInitialState,
+    listsSidebarEventHandlers,
+} from '../../../../lists-sidebar/ui/logic'
+import UserProfileCache from '../../../../user-management/utils/user-profile-cache'
 
 type EventHandler<EventName extends keyof PageDetailsEvent> = UIEventHandler<
     PageDetailsState,
@@ -70,7 +69,7 @@ export default class PageDetailsLogic extends UILogic<
 
         Object.assign(
             this,
-            activityFollowsEventHandlers(this as any, {
+            listsSidebarEventHandlers(this as any, {
                 ...this.dependencies,
                 localStorage: this.dependencies.services.localStorage,
             }),
@@ -82,7 +81,7 @@ export default class PageDetailsLogic extends UILogic<
             creatorLoadState: 'pristine',
             annotationLoadState: 'pristine',
             pageInfoLoadState: 'pristine',
-            ...activityFollowsInitialState(),
+            ...listsSidebarInitialState(),
             ...annotationConversationInitialState(),
         }
     }
