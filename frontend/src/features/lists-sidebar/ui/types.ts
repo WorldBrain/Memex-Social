@@ -1,13 +1,15 @@
 import {
     SharedListReference,
-    SharedList,
+    SharedList as SharedListBase,
 } from '@worldbrain/memex-common/lib/content-sharing/types'
 import { UITaskState } from '../../../main-ui/types'
 import { UIEventHandler } from '../../../main-ui/classes/logic'
 
+type SharedList = SharedListBase & { reference: SharedListReference }
 export interface ListsSidebarState {
-    followedLists: Array<SharedList & { reference: SharedListReference }>
     isListSidebarShown: boolean
+    followedLists: SharedList[]
+    collaborativeLists: SharedList[]
     listSidebarLoadState: UITaskState
 }
 
