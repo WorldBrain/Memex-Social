@@ -70,7 +70,7 @@ export function annotationConversationEventHandlers<
         >
         storage: Pick<StorageModules, 'contentSharing' | 'contentConversations'>
         loadUser(reference: UserReference): Promise<User | null>
-        onNewAnnotationCreate(
+        onNewAnnotationCreate?(
             pageReplyId: string,
             annotation: SharedAnnotation & {
                 reference: SharedAnnotationReference
@@ -398,7 +398,7 @@ export function annotationConversationEventHandlers<
                         },
                     })
 
-                    onNewAnnotationCreate(
+                    onNewAnnotationCreate?.(
                         event.pageReplyId,
                         {
                             ...annotation,

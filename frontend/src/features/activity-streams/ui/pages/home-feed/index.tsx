@@ -349,38 +349,10 @@ export default class HomeFeedPage extends UIElement<
         options: ActivityItemRendererOpts,
     ) => {
         const { state } = this
-        const newPageReplyHandlers: NewReplyEventHandlers = {}
-        let newPageReplyState: NewReplyState | undefined = undefined
-
-        // TODO: support list-item case
-        if (parentItem.type === 'page-item') {
-            newPageReplyState = state.newPageReplies[parentItem.groupId]
-
-            newPageReplyHandlers.onNewReplyInitiate = () =>
-                this.processEvent('initiateNewReplyToPage', {
-                    pageReplyId: parentItem.groupId,
-                })
-            newPageReplyHandlers.onNewReplyCancel = () =>
-                this.processEvent('cancelNewReplyToPage', {
-                    pageReplyId: parentItem.groupId,
-                })
-            newPageReplyHandlers.onNewReplyConfirm = () =>
-                this.processEvent('confirmNewReplyToPage', {
-                    pageReplyId: parentItem.groupId,
-                    normalizedPageUrl: parentItem.normalizedPageUrl,
-                    pageCreatorReference: parentItem.creatorReference,
-                })
-            newPageReplyHandlers.onNewReplyEdit = ({ content }) =>
-                this.processEvent('editNewReplyToPage', {
-                    pageReplyId: parentItem.groupId,
-                    content,
-                })
-        }
 
         return (
             <AnnotationsInPage
                 loadState="success"
-                newPageReply={newPageReplyState}
                 annotations={mapOrderedMap(
                     annotationItems,
                     (annotationItem) => {
@@ -492,7 +464,7 @@ export default class HomeFeedPage extends UIElement<
                         moreRepliesLoadStates === 'success'
                     return shouldRender && <AnnotationReply {...props} />
                 }}
-                newPageReplyEventHandlers={newPageReplyHandlers}
+                newPageReplyEventHandlers={{}}
                 newAnnotationReplyEventHandlers={{
                     onNewReplyInitiate: (annotationReference) => {
                         const conversationKey = getConversationKey({
