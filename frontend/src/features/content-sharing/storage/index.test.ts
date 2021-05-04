@@ -14,6 +14,7 @@ import {
 } from '@worldbrain/memex-common/lib/content-sharing/types'
 import { processListKey } from '@worldbrain/memex-common/lib/content-sharing/keys'
 import { isAccessRulesPermissionError } from '@worldbrain/memex-common/lib/storage/utils'
+import { UserReference } from '@worldbrain/memex-common/lib/web-interface/types/users'
 
 createStorageTestSuite('Content sharing storage', ({ it }) => {
     it(
@@ -1152,6 +1153,71 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 listReference,
             }),
         ).toEqual([])
+    })
+
+    it('should be able to get all shared list roles for a user', async ({
+        services,
+        storage,
+    }) => {
+        const { contentSharing } = storage.serverModules
+        const listCreatorReference: UserReference = {
+            type: 'user-reference',
+            id: 1,
+        }
+        const userReference: UserReference = { type: 'user-reference', id: 2 }
+
+        const listReference1 = await contentSharing.createSharedList({
+            listData: { title: 'My list' },
+            localListId: 55,
+            userReference: listCreatorReference,
+        })
+
+        const listReference2 = await contentSharing.createSharedList({
+            listData: { title: 'My list 2' },
+            localListId: 56,
+            userReference: listCreatorReference,
+        })
+
+        expect(
+            await contentSharing.getUserListRoles({ userReference }),
+        ).toEqual([])
+
+        await contentSharing.createListRole({
+            roleID: SharedListRoleID.ReadWrite,
+            listReference: listReference1,
+            userReference,
+        })
+
+        expect(
+            await contentSharing.getUserListRoles({ userReference }),
+        ).toEqual([
+            expect.objectContaining({
+                roleID: SharedListRoleID.ReadWrite,
+                sharedList: listReference1,
+                user: userReference,
+            }),
+        ])
+
+        await contentSharing.createListRole({
+            roleID: SharedListRoleID.ReadWrite,
+            listReference: listReference2,
+            userReference,
+        })
+
+        expect(
+            await contentSharing.getUserListRoles({ userReference }),
+        ).toEqual([
+            expect.objectContaining({
+                roleID: SharedListRoleID.ReadWrite,
+                sharedList: listReference1,
+                user: userReference,
+            }),
+            expect.objectContaining({
+                roleID: SharedListRoleID.ReadWrite,
+                sharedList: listReference2,
+                user: userReference,
+            }),
+        ])
     })
 })
 
