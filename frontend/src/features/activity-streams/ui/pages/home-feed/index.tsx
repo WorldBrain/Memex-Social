@@ -664,8 +664,9 @@ export default class HomeFeedPage extends UIElement<
                     viewportBreakpoint={viewportWidth}
                     hideActivityIndicator
                     listsSidebarProps={{
-                        isShown: this.state.isListSidebarShown,
+                        collaborativeLists: this.state.collaborativeLists,
                         followedLists: this.state.followedLists,
+                        isShown: this.state.isListSidebarShown,
                         loadState: this.state.listSidebarLoadState,
                         onSidebarToggle: () =>
                             this.processEvent('toggleListSidebar', undefined),

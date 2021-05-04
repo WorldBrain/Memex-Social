@@ -140,8 +140,9 @@ export default class CollectionDetailsPage extends UIElement<
 
     get listsSidebarProps() {
         return {
-            isShown: this.state.isListSidebarShown,
+            collaborativeLists: this.state.collaborativeLists,
             followedLists: this.state.followedLists,
+            isShown: this.state.isListSidebarShown,
             loadState: this.state.listSidebarLoadState,
             onSidebarToggle: () =>
                 this.processEvent('toggleListSidebar', undefined),
