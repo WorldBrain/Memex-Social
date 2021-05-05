@@ -339,6 +339,14 @@ export default class CollectionDetailsLogic extends UILogic<
                                     this.dependencies.services.auth.getCurrentUserReference()
                                         ?.id,
                             },
+                            newPageReplies: {
+                                $set: fromPairs(
+                                    result.entries.map((entry) => [
+                                        entry.normalizedUrl,
+                                        getInitialNewReplyState(),
+                                    ]),
+                                ),
+                            },
                         },
                     }
                 } else {
