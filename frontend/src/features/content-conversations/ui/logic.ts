@@ -44,6 +44,7 @@ export async function detectAnnotationConversationThreads(
             annotationReferences: dependencies.annotationReferences,
         },
     )
+    console.log('deps:', dependencies)
     logic.emitMutation({
         conversations: fromPairs(
             threads.map((threadData) => [

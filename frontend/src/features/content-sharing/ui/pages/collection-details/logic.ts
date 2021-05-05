@@ -28,7 +28,10 @@ import {
     annotationConversationEventHandlers,
     detectAnnotationConversationThreads,
 } from '../../../../content-conversations/ui/logic'
-import { getInitialAnnotationConversationStates } from '../../../../content-conversations/ui/utils'
+import {
+    getInitialAnnotationConversationStates,
+    getInitialNewReplyState,
+} from '../../../../content-conversations/ui/utils'
 import mapValues from 'lodash/mapValues'
 import UserProfileCache from '../../../../user-management/utils/user-profile-cache'
 import {
@@ -707,6 +710,11 @@ export default class CollectionDetailsLogic extends UILogic<
                                 Object.values(newAnnotations),
                             ),
                         },
+                        newPageReplies: {
+                            [normalizedPageUrl]: {
+                                $set: getInitialNewReplyState(),
+                            },
+                        },
                     }
                     this.emitMutation(mutation as any)
                 } catch (e) {
@@ -727,7 +735,10 @@ export default class CollectionDetailsLogic extends UILogic<
                 annotationReferences: flatten(
                     Object.values(annotationEntries),
                 ).map((entry) => entry.sharedAnnotation),
-                normalizedPageUrls,
+                normalizedPageUrls: [...normalizedPageUrls].filter(
+                    (normalizedPageUrl) =>
+                        !this.conversationThreadPromises[normalizedPageUrl],
+                ),
             },
         ).catch(() => {})
         for (const normalizedPageUrl of normalizedPageUrls) {
