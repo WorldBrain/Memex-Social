@@ -718,11 +718,6 @@ export default class CollectionDetailsLogic extends UILogic<
                                 Object.values(newAnnotations),
                             ),
                         },
-                        newPageReplies: {
-                            [normalizedPageUrl]: {
-                                $set: getInitialNewReplyState(),
-                            },
-                        },
                     }
                     this.emitMutation(mutation as any)
                 } catch (e) {
