@@ -84,11 +84,31 @@ export async function createStorage(options: {
         ) {
             return defaultOperationExecutor(params)
         }
-        return applicationLayer.executeStorageModuleOperation({
-            storageModule: storageModuleName,
-            operationName: params.name,
-            operationArgs: params.context,
-        })
+        let error: Error | undefined
+        let result: any
+        if (process.env.REACT_APP_LOG_STORAGE === 'true') {
+            console.groupCollapsed(
+                `Storage module operation ${storageModuleName}.${params.name}`,
+            )
+        }
+        try {
+            if (process.env.REACT_APP_LOG_STORAGE === 'true') {
+                console.log([storageModuleName, params.name, params.context])
+            }
+            result = await applicationLayer.executeStorageModuleOperation({
+                storageModule: storageModuleName,
+                operationName: params.name,
+                operationArgs: params.context,
+            })
+            return result
+        } catch (e) {
+            error = e
+        } finally {
+            if (process.env.REACT_APP_LOG_STORAGE === 'true') {
+                console.log(`Result`, error ?? result)
+                console.groupEnd()
+            }
+        }
     }
 
     const contentSharing = new ContentSharingStorage({
@@ -110,7 +130,7 @@ export async function createStorage(options: {
                 storageManager,
                 autoPkType: options.backend !== 'memory' ? 'string' : 'number',
                 contentSharing,
-                operationExecuter: operationExecuter('activityFollows'),
+                operationExecuter: operationExecuter('contentConversations'),
             }),
             activityStreams: new StorexActivityStreamsStorage({
                 storageManager,
@@ -149,9 +169,27 @@ function createStorageMiddleware(options: {
     const middleware: StorageMiddleware[] = []
     if (process.env.REACT_APP_LOG_STORAGE === 'true') {
         middleware.unshift({
-            process: ({ next, operation }) => {
-                console.log(`executing storage operation:`, operation)
-                return next.process({ operation })
+            process: async ({ next, operation }) => {
+                let result: any
+                let error: Error | undefined
+                console.groupCollapsed(
+                    'Storage operation',
+                    operation[0],
+                    operation[1],
+                )
+                try {
+                    console.groupCollapsed('Trace')
+                    console.trace()
+                    console.groupEnd()
+                    console.log('Request', operation)
+                    result = await next.process({ operation })
+                    return result
+                } catch (e) {
+                    error = e
+                } finally {
+                    console.log(`Result`, error ?? result)
+                    console.groupEnd()
+                }
             },
         })
     }

@@ -1095,6 +1095,24 @@ export const SCENARIOS: ScenarioMap<Targets> = {
             ],
         }),
     ),
+    'add-page-extension-onboarding': scenario<Targets>(
+        ({ step, callModification }) => ({
+            fixture: 'annotated-list-with-user',
+            authenticated: true,
+            startRoute: {
+                route: 'collectionDetails',
+                params: { id: 'default-list' },
+            },
+            steps: [
+                step({
+                    name: 'show-install-ext-modal',
+                    target: 'CollectionDetailsPage',
+                    eventName: 'toggleInstallExtModal',
+                    eventArgs: {},
+                }),
+            ],
+        }),
+    ),
     collaborating: scenario<Targets>(({ step, callModification }) => ({
         fixture: 'annotated-list-with-user-and-follows',
         startRoute: {

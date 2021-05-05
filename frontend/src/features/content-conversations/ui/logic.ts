@@ -31,16 +31,16 @@ export function annotationConversationInitialState(): AnnotationConversationsSta
     }
 }
 
-export async function detectAnnotationConversationsThreads(
+export async function detectAnnotationConversationThreads(
     logic: UILogic<AnnotationConversationsState, AnnotationConversationEvent>,
-    normalizedPageUrls: string[],
+    annotationReferences: SharedAnnotationReference[],
     dependencies: {
         storage: Pick<StorageModules, 'contentConversations'>
     },
 ) {
-    const threads = await dependencies.storage.contentConversations.getThreadsForPages(
+    const threads = await dependencies.storage.contentConversations.getThreadsForAnnotations(
         {
-            normalizedPageUrls,
+            annotationReferences,
         },
     )
     logic.emitMutation({
