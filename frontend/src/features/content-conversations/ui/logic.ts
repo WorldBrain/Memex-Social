@@ -66,7 +66,7 @@ export function annotationConversationEventHandlers<
     dependencies: {
         services: Pick<
             Services,
-            'contentConversations' | 'auth' | 'activityStreams'
+            'contentConversations' | 'auth' | 'activityStreams' | 'userMessages'
         >
         storage: Pick<StorageModules, 'contentSharing' | 'contentConversations'>
         loadUser(reference: UserReference): Promise<User | null>
@@ -418,6 +418,11 @@ export function annotationConversationEventHandlers<
                                 sharedAnnotationListEntryReferences[localId][0],
                         },
                     )
+
+                    await services.userMessages.pushMessage({
+                        type: 'created-annotation',
+                        sharedAnnotationId: annotationReference.id,
+                    })
                 },
             )
         },

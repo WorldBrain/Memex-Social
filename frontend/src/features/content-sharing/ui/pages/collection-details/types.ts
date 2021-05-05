@@ -42,6 +42,7 @@ export interface CollectionDetailsDependencies {
         | 'webMonetization'
         | 'localStorage'
         | 'clipboard'
+        | 'userMessages'
     >
     storage: Pick<
         StorageModules,
