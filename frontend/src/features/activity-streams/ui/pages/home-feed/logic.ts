@@ -1,4 +1,4 @@
-import flatten from 'lodash/flatten'
+import fromPairs from 'lodash/fromPairs'
 import sortBy from 'lodash/sortBy'
 import orderBy from 'lodash/orderBy'
 import {
@@ -23,7 +23,10 @@ import {
     ListEntryActivityItem,
     ListActivityItem,
 } from './types'
-import { getInitialAnnotationConversationStates } from '../../../../content-conversations/ui/utils'
+import {
+    getInitialAnnotationConversationStates,
+    getInitialNewReplyState,
+} from '../../../../content-conversations/ui/utils'
 import {
     annotationConversationInitialState,
     annotationConversationEventHandlers,
@@ -285,11 +288,7 @@ export default class HomeFeedLogic extends UILogic<
                     conversationsData[conversationKey] = {
                         loadState: 'pristine',
                         expanded: false,
-                        newReply: {
-                            content: '',
-                            editing: false,
-                            saveState: 'pristine',
-                        },
+                        newReply: getInitialNewReplyState(),
                         replies: await Promise.all(
                             Object.values(
                                 repliesData[conversationKey] ?? [],
@@ -356,14 +355,15 @@ export default class HomeFeedLogic extends UILogic<
                 },
             }),
             async () => {
-                const replies = (
-                    await this.dependencies.storage.contentConversations.getRepliesByAnnotation(
-                        {
-                            annotationReference:
-                                incoming.event.annotationReference,
-                        },
-                    )
-                ).filter(
+                const rep = await this.dependencies.storage.contentConversations.getRepliesByAnnotation(
+                    {
+                        annotationReference: incoming.event.annotationReference,
+                    },
+                )
+                console.log('rep:', rep)
+                console.log('event:', incoming.event, conversationKey)
+                console.log('state:', incoming.previousState)
+                const replies = rep.filter(
                     (replyData) =>
                         // don't process already loaded replies
                         !incoming.previousState.replies[conversationKey][

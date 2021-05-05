@@ -6,11 +6,9 @@ import { UIElementServices } from '../../../../../services/types'
 import { Margin } from 'styled-components-spacing'
 import ExternalLink from '../../../../../common-ui/components/external-link'
 
-
 const braveLogo = require('../../../../../assets/img/logo-brave.svg')
 const firefoxLogo = require('../../../../../assets/img/logo-firefox.svg')
 const chromeLogo = require('../../../../../assets/img/logo-chrome.svg')
-
 
 const Content = styled.div<{
     viewportBreakpoint: ViewportBreakpoint
@@ -136,28 +134,28 @@ export default function InstallExtOverlay(props: {
         >
             <Content viewportBreakpoint={props.viewportBreakpoint}>
                 <Margin top={'small'}>
-                        <Title viewportBreakpoint={props.viewportBreakpoint}>
-                            Install the Memex Browser extension to <br />add pages and
-                            annotations
-                        </Title>
-                    </Margin>
-                    <Margin top={'small'}>
-                        <BrowserIconsBox>
-                            <BrowserIcon src={braveLogo} />
-                            <BrowserIcon src={firefoxLogo} />
-                            <BrowserIcon src={chromeLogo} />
-                        </BrowserIconsBox>
-                    </Margin>
-                    <Margin top={'medium'}>
-                        <ButtonsBox>
-                            <PrimaryButtonLink href="https://getmemex.com">
-                                Download
-                            </PrimaryButtonLink>
-                            <SecondaryButton onClick={props.onCloseRequested}>
-                                Cancel
-                            </SecondaryButton>
-                        </ButtonsBox>
-                    </Margin>
+                    <Title viewportBreakpoint={props.viewportBreakpoint}>
+                        Install the Memex Browser extension to <br />
+                        add pages and annotations
+                    </Title>
+                </Margin>
+                <Margin top={'small'}>
+                    <BrowserIconsBox>
+                        <BrowserIcon src={braveLogo} />
+                        <BrowserIcon src={firefoxLogo} />
+                        <BrowserIcon src={chromeLogo} />
+                    </BrowserIconsBox>
+                </Margin>
+                <Margin top={'medium'}>
+                    <ButtonsBox>
+                        <PrimaryButtonLink href="https://getmemex.com">
+                            Download
+                        </PrimaryButtonLink>
+                        <SecondaryButton onClick={props.onCloseRequested}>
+                            Cancel
+                        </SecondaryButton>
+                    </ButtonsBox>
+                </Margin>
             </Content>
         </Overlay>
     )

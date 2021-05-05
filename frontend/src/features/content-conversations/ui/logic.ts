@@ -6,8 +6,6 @@ import {
     AnnotationConversationSignal,
 } from './types'
 import { UILogic, executeUITask } from '../../../main-ui/classes/logic'
-import ContentSharingStorage from '../../content-sharing/storage'
-import ContentConversationStorage from '../storage'
 import {
     UserReference,
     User,
@@ -16,27 +14,34 @@ import {
     SharedAnnotationReference,
     SharedAnnotation,
     SharedListReference,
+    SharedAnnotationListEntryReference,
+    SharedAnnotationListEntry,
 } from '@worldbrain/memex-common/lib/content-sharing/types'
 import { Services } from '../../../services/types'
+import {
+    getInitialNewReplyState,
+    getInitialAnnotationConversationState,
+} from './utils'
+import { StorageModules } from '../../../storage/types'
 
 export function annotationConversationInitialState(): AnnotationConversationsState {
     return {
+        newPageReplies: {},
         conversations: {},
     }
 }
 
 export async function detectAnnotationConversationThreads(
     logic: UILogic<AnnotationConversationsState, AnnotationConversationEvent>,
-    annotationReferences: SharedAnnotationReference[],
     dependencies: {
-        storage: {
-            contentConversations: ContentConversationStorage
-        }
+        storage: Pick<StorageModules, 'contentConversations'>
+        annotationReferences: SharedAnnotationReference[]
+        normalizedPageUrls: string[]
     },
 ) {
     const threads = await dependencies.storage.contentConversations.getThreadsForAnnotations(
         {
-            annotationReferences,
+            annotationReferences: dependencies.annotationReferences,
         },
     )
     logic.emitMutation({
@@ -44,6 +49,12 @@ export async function detectAnnotationConversationThreads(
             threads.map((threadData) => [
                 threadData.sharedAnnotation.id,
                 { thread: { $set: threadData.thread } },
+            ]),
+        ),
+        newPageReplies: fromPairs(
+            [...dependencies.normalizedPageUrls].map((normalizedPageUrl) => [
+                normalizedPageUrl,
+                { $set: getInitialNewReplyState() },
             ]),
         ),
     })
@@ -56,13 +67,22 @@ export function annotationConversationEventHandlers<
     dependencies: {
         services: Pick<
             Services,
-            'contentConversations' | 'auth' | 'activityStreams'
+            'contentConversations' | 'auth' | 'activityStreams' | 'userMessages'
         >
-        storage: {
-            contentSharing: ContentSharingStorage
-            contentConversations: ContentConversationStorage
-        }
+        storage: Pick<StorageModules, 'contentSharing' | 'contentConversations'>
         loadUser(reference: UserReference): Promise<User | null>
+        onNewAnnotationCreate?(
+            pageReplyId: string,
+            annotation: SharedAnnotation & {
+                reference: SharedAnnotationReference
+                creator: UserReference
+                linkId: string
+            },
+            annotationListEntry?: SharedAnnotationListEntry & {
+                reference: SharedAnnotationListEntryReference
+                sharedList: SharedListReference
+            },
+        ): void
         getAnnotation(
             state: State,
             reference: SharedAnnotationReference,
@@ -247,13 +267,7 @@ export function annotationConversationEventHandlers<
                     logic.emitMutation({
                         conversations: {
                             [conversationId]: {
-                                newReply: {
-                                    $set: {
-                                        saveState: 'pristine',
-                                        editing: false,
-                                        content: '',
-                                    },
-                                },
+                                newReply: { $set: getInitialNewReplyState() },
                                 replies: {
                                     $push: [
                                         {
@@ -273,6 +287,142 @@ export function annotationConversationEventHandlers<
                                 },
                             },
                         },
+                    })
+                },
+            )
+        },
+        initiateNewReplyToPage: async ({ event }) => {
+            const { services } = dependencies
+            const user = services.auth.getCurrentUser()
+            if (!user) {
+                const { result } = await services.auth.requestAuth()
+                logic.emitSignal<AnnotationConversationSignal>({
+                    type: 'auth-requested',
+                })
+                if (
+                    result.status !== 'authenticated' &&
+                    result.status !== 'registered-and-authenticated'
+                ) {
+                    return {}
+                }
+            }
+
+            return {
+                newPageReplies: {
+                    [event.pageReplyId]: {
+                        editing: { $set: true },
+                    },
+                },
+            }
+        },
+        editNewReplyToPage: ({ event }) => ({
+            newPageReplies: {
+                [event.pageReplyId]: {
+                    content: { $set: event.content },
+                },
+            },
+        }),
+        cancelNewReplyToPage: ({ event }) => ({
+            newPageReplies: {
+                [event.pageReplyId]: {
+                    $set: getInitialNewReplyState(),
+                },
+            },
+        }),
+        confirmNewReplyToPage: async ({ event, previousState }) => {
+            const { storage, services, onNewAnnotationCreate } = dependencies
+            const userReference = services.auth.getCurrentUserReference()!
+
+            const comment = previousState.newPageReplies[
+                event.pageReplyId
+            ].content.trim()
+            const createdWhen = Date.now()
+            const listReferences = event.sharedListReference
+                ? [event.sharedListReference]
+                : []
+
+            const annotation: SharedAnnotation = {
+                normalizedPageUrl: event.normalizedPageUrl,
+                uploadedWhen: createdWhen,
+                updatedWhen: createdWhen,
+                createdWhen,
+                comment,
+            }
+
+            await executeUITask<AnnotationConversationsState>(
+                logic,
+                (taskState) => ({
+                    newPageReplies: {
+                        [event.pageReplyId]: {
+                            saveState: { $set: taskState },
+                        },
+                    },
+                }),
+                async () => {
+                    logic.emitSignal<AnnotationConversationSignal>({
+                        type: 'new-note-submitting',
+                    })
+                    const localId = 'dummy'
+                    const {
+                        sharedAnnotationReferences,
+                        sharedAnnotationListEntryReferences,
+                    } = await storage.contentSharing.createAnnotations({
+                        listReferences,
+                        creator: userReference,
+                        annotationsByPage: {
+                            [event.normalizedPageUrl]: [
+                                { ...annotation, localId },
+                            ],
+                        },
+                    })
+
+                    const annotationReference =
+                        sharedAnnotationReferences[localId]
+
+                    await storage.contentConversations.getOrCreateThread({
+                        annotationReference,
+                        normalizedPageUrl: event.normalizedPageUrl,
+                        pageCreatorReference: event.pageCreatorReference,
+                        sharedListReference: event.sharedListReference ?? null,
+                    })
+
+                    logic.emitMutation({
+                        newPageReplies: {
+                            [event.pageReplyId]: {
+                                $set: getInitialNewReplyState(),
+                            },
+                        },
+                        conversations: {
+                            [annotationReference.id]: {
+                                $set: getInitialAnnotationConversationState(),
+                            },
+                        },
+                    })
+
+                    onNewAnnotationCreate?.(
+                        event.pageReplyId,
+                        {
+                            ...annotation,
+                            creator: userReference,
+                            reference: annotationReference,
+                            linkId: storage.contentSharing.getSharedAnnotationLinkID(
+                                annotationReference,
+                            ),
+                        },
+                        event.sharedListReference && {
+                            createdWhen,
+                            updatedWhen: createdWhen,
+                            uploadedWhen: createdWhen,
+                            sharedList: event.sharedListReference,
+                            normalizedPageUrl: event.normalizedPageUrl,
+                            reference:
+                                sharedAnnotationListEntryReferences[localId][0],
+                        },
+                    )
+
+                    await services.userMessages.pushMessage({
+                        type: 'created-annotation',
+                        sharedAnnotationId: annotationReference.id,
                     })
                 },
             )

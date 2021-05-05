@@ -354,6 +354,26 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                         type: 'shared-annotation-reference',
                     }),
                 },
+                sharedAnnotationListEntryReferences: {
+                    [data.TEST_ANNOTATIONS_BY_PAGE['foo.com/page-1'][0]
+                        .localId]: [
+                        expect.objectContaining({
+                            type: 'shared-annotation-list-entry-reference',
+                        }),
+                    ],
+                    [data.TEST_ANNOTATIONS_BY_PAGE['foo.com/page-1'][1]
+                        .localId]: [
+                        expect.objectContaining({
+                            type: 'shared-annotation-list-entry-reference',
+                        }),
+                    ],
+                    [data.TEST_ANNOTATIONS_BY_PAGE['bar.com/page-2'][0]
+                        .localId]: [
+                        expect.objectContaining({
+                            type: 'shared-annotation-list-entry-reference',
+                        }),
+                    ],
+                },
             })
 
             const getRemoteId = <

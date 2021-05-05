@@ -39,6 +39,7 @@ import { UserReference } from '../../../../user-management/types'
 import ListShareModal from '@worldbrain/memex-common/lib/content-sharing/ui/list-share-modal'
 
 const commentImage = require('../../../../../assets/img/comment.svg')
+const commentEmptyImage = require('../../../../../assets/img/comment-empty.svg')
 
 const DocumentView = styled.div`
     height: 100vh;
@@ -136,7 +137,6 @@ const ShowMoreCollaborators = styled.span`
 const Text = styled.span`
     padding-left: 5px;
 `
-
 
 export default class CollectionDetailsPage extends UIElement<
     CollectionDetailsDependencies,
@@ -242,16 +242,17 @@ export default class CollectionDetailsPage extends UIElement<
             return [{ node: <LoadingIndicator key="loading" /> }]
         }
 
-        const shouldShowAnnotationsButton =
-            state.annotationEntriesLoadState === 'success' &&
+        const toggleAnnotationsIcon =
             annotationEntries &&
             annotationEntries[entry.normalizedUrl] &&
             annotationEntries[entry.normalizedUrl].length
+                ? commentImage
+                : commentEmptyImage
 
-        if (shouldShowAnnotationsButton) {
+        if (state.annotationEntriesLoadState === 'success') {
             return [
                 {
-                    image: commentImage,
+                    image: toggleAnnotationsIcon,
                     onClick: () =>
                         this.processEvent('togglePageAnnotations', {
                             normalizedUrl: entry.normalizedUrl,
@@ -276,10 +277,11 @@ export default class CollectionDetailsPage extends UIElement<
         )
     }
 
-    renderPageAnnotations(entry: SharedListEntry) {
+    renderPageAnnotations(entry: SharedListEntry & { creator: UserReference }) {
         const { state } = this
         return (
             <AnnotationsInPage
+                newPageReply={state.newPageReplies[entry.normalizedUrl]}
                 loadState={state.annotationLoadStates[entry.normalizedUrl]}
                 annotations={
                     state.annotationEntryData &&
@@ -308,21 +310,53 @@ export default class CollectionDetailsPage extends UIElement<
                     storage: this.props.storage,
                     services: this.props.services,
                 }}
-                onNewReplyInitiate={(event) =>
-                    this.processEvent('initiateNewReplyToAnnotation', event)
-                }
-                onNewReplyCancel={(event) =>
-                    this.processEvent('cancelNewReplyToAnnotation', event)
-                }
-                onNewReplyConfirm={(event) =>
-                    this.processEvent('confirmNewReplyToAnnotation', event)
-                }
-                onNewReplyEdit={(event) =>
-                    this.processEvent('editNewReplyToAnnotation', event)
-                }
                 onToggleReplies={(event) =>
                     this.processEvent('toggleAnnotationReplies', event)
                 }
+                newPageReplyEventHandlers={{
+                    onNewReplyInitiate: () =>
+                        this.processEvent('initiateNewReplyToPage', {
+                            pageReplyId: entry.normalizedUrl,
+                        }),
+                    onNewReplyCancel: () =>
+                        this.processEvent('cancelNewReplyToPage', {
+                            pageReplyId: entry.normalizedUrl,
+                        }),
+                    onNewReplyConfirm: () =>
+                        this.processEvent('confirmNewReplyToPage', {
+                            normalizedPageUrl: entry.normalizedUrl,
+                            pageCreatorReference: entry.creator,
+                            pageReplyId: entry.normalizedUrl,
+                            sharedListReference: {
+                                id: this.props.listID,
+                                type: 'shared-list-reference',
+                            },
+                        }),
+                    onNewReplyEdit: ({ content }) =>
+                        this.processEvent('editNewReplyToPage', {
+                            pageReplyId: entry.normalizedUrl,
+                            content,
+                        }),
+                }}
+                newAnnotationReplyEventHandlers={{
+                    onNewReplyInitiate: (annotationReference) => () =>
+                        this.processEvent('initiateNewReplyToAnnotation', {
+                            annotationReference,
+                        }),
+                    onNewReplyCancel: (annotationReference) => () =>
+                        this.processEvent('cancelNewReplyToAnnotation', {
+                            annotationReference,
+                        }),
+                    onNewReplyConfirm: (annotationReference) => () =>
+                        this.processEvent('confirmNewReplyToAnnotation', {
+                            annotationReference,
+                        }),
+                    onNewReplyEdit: (annotationReference) => ({ content }) =>
+                        this.processEvent('editNewReplyToAnnotation', {
+                            annotationReference,
+                            content,
+                        }),
+                }}
             />
         )
     }

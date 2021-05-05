@@ -34,6 +34,7 @@ export interface PageDetailsDependencies {
         | 'webMonetization'
         | 'localStorage'
         | 'documentTitle'
+        | 'userMessages'
     >
     storage: Pick<
         StorageModules,

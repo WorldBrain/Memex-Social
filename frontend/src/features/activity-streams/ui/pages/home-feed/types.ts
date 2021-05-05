@@ -39,6 +39,7 @@ export interface HomeFeedDependencies {
         | 'webMonetization'
         | 'localStorage'
         | 'documentTitle'
+        | 'userMessages'
     >
     storage: Pick<
         StorageModules,
