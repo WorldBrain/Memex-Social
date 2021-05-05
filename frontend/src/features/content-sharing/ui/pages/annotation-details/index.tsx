@@ -251,10 +251,9 @@ const AnnotationContentBox = styled.div`
 
 const AnnotationBody = styled.span`
     font-family: ${(props) => props.theme.fonts.primary};
-    font-style: italic;
     font-weight: normal;
     line-height: 26px;
-    background-color: ${(props) => props.theme.colors.secondary};
+    background-color: #d4e8ff;
     white-space: normal;
     padding: 0 5px;
     box-decoration-break: clone;
@@ -275,7 +274,7 @@ const AnnotationComment = styled.div`
 const AnnotationAuthorBox = styled.div`
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: flex-start;
     font-family: ${(props) => props.theme.fonts.primary};
     padding: 0 5px;
     margin-top: 15px;
@@ -285,6 +284,7 @@ const AnnotationAuthorName = styled.div`
     font-size: 12px;
     font-weight: bold;
     height: 24px;
+    padding-right: 10px;
 `
 
 const AnnotationAuthorUploadDate = styled.div`
@@ -341,8 +341,8 @@ const AnnotationPageUrl = styled.div`
 
 const GoToAnnotationButton = styled.a`
     border-radius: 5px;
-    background-color: ${(props) => props.theme.colors.secondary};
-    color: ${(props) => props.theme.colors.primary};
+    background-color: ${(props) => props.theme.colors.purple};
+    color: ${(props) => props.theme.colors.white};
     height: 36px;
     padding: 8px 16px;
     width: fit-content;
