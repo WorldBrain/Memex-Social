@@ -33,14 +33,15 @@ export function annotationConversationInitialState(): AnnotationConversationsSta
 
 export async function detectAnnotationConversationThreads(
     logic: UILogic<AnnotationConversationsState, AnnotationConversationEvent>,
-    annotationReferences: SharedAnnotationReference[],
     dependencies: {
         storage: Pick<StorageModules, 'contentConversations'>
+        annotationReferences: SharedAnnotationReference[]
+        normalizedPageUrls: string[]
     },
 ) {
     const threads = await dependencies.storage.contentConversations.getThreadsForAnnotations(
         {
-            annotationReferences,
+            annotationReferences: dependencies.annotationReferences,
         },
     )
     logic.emitMutation({
@@ -51,8 +52,8 @@ export async function detectAnnotationConversationThreads(
             ]),
         ),
         newPageReplies: fromPairs(
-            normalizedPageUrls.map((normalizedUrl) => [
-                normalizedUrl,
+            [...dependencies.normalizedPageUrls].map((normalizedPageUrl) => [
+                normalizedPageUrl,
                 { $set: getInitialNewReplyState() },
             ]),
         ),

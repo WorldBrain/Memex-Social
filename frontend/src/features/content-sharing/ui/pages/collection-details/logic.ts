@@ -722,11 +722,12 @@ export default class CollectionDetailsLogic extends UILogic<
 
         const conversationThreadPromise = detectAnnotationConversationThreads(
             this as any,
-            flatten(Object.values(annotationEntries)).map(
-                (entry) => entry.sharedAnnotation,
-            ),
             {
                 storage: this.dependencies.storage,
+                annotationReferences: flatten(
+                    Object.values(annotationEntries),
+                ).map((entry) => entry.sharedAnnotation),
+                normalizedPageUrls,
             },
         ).catch(() => {})
         for (const normalizedPageUrl of normalizedPageUrls) {

@@ -165,13 +165,11 @@ export default class PageDetailsLogic extends UILogic<
                 if (!pageInfo) {
                     return
                 }
-                detectAnnotationConversationThreads(
-                    this as any,
+                detectAnnotationConversationThreads(this as any, {
+                    normalizedPageUrls: [pageInfo.normalizedUrl],
+                    storage: this.dependencies.storage,
                     annotationReferences,
-                    {
-                        storage: this.dependencies.storage,
-                    },
-                ).catch(() => {})
+                }).catch(() => {})
             }),
             executeUITask<PageDetailsState>(
                 this,
