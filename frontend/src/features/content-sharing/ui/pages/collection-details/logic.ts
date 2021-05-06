@@ -7,6 +7,7 @@ import {
 import {
     GetAnnotationListEntriesResult,
     GetAnnotationsResult,
+    GetAnnotationListEntriesElement,
 } from '@worldbrain/memex-common/lib/content-sharing/storage/types'
 import {
     CollectionDetailsEvent,
@@ -27,7 +28,10 @@ import {
     annotationConversationEventHandlers,
     detectAnnotationConversationThreads,
 } from '../../../../content-conversations/ui/logic'
-import { getInitialAnnotationConversationStates } from '../../../../content-conversations/ui/utils'
+import {
+    getInitialAnnotationConversationStates,
+    getInitialNewReplyState,
+} from '../../../../content-conversations/ui/utils'
 import mapValues from 'lodash/mapValues'
 import UserProfileCache from '../../../../user-management/utils/user-profile-cache'
 import {
@@ -86,6 +90,29 @@ export default class CollectionDetailsLogic extends UILogic<
                         }
                     },
                     loadUser: (reference) => this._users.loadUser(reference),
+                    onNewAnnotationCreate: (_, annotation, sharedListEntry) =>
+                        this.emitMutation({
+                            annotations: {
+                                [annotation.linkId]: {
+                                    $set: annotation,
+                                },
+                            },
+                            annotationEntryData: {
+                                [annotation.normalizedPageUrl]: {
+                                    $apply: (
+                                        previousState?: GetAnnotationListEntriesElement[],
+                                    ) => [
+                                        ...(previousState ?? []),
+                                        {
+                                            ...sharedListEntry!,
+                                            creator: annotation.creator,
+                                            sharedAnnotation:
+                                                annotation.reference,
+                                        },
+                                    ],
+                                },
+                            },
+                        }),
                 },
             ),
         )
@@ -113,6 +140,7 @@ export default class CollectionDetailsLogic extends UILogic<
             isCollectionFollowed: false,
             allAnnotationExpanded: false,
             isListShareModalShown: false,
+            isInstallExtModalShown: false,
             pageAnnotationsExpanded: {},
             ...listsSidebarInitialState(),
             ...annotationConversationInitialState(),
@@ -311,6 +339,14 @@ export default class CollectionDetailsLogic extends UILogic<
                                     this.dependencies.services.auth.getCurrentUserReference()
                                         ?.id,
                             },
+                            newPageReplies: {
+                                $set: fromPairs(
+                                    result.entries.map((entry) => [
+                                        entry.normalizedUrl,
+                                        getInitialNewReplyState(),
+                                    ]),
+                                ),
+                            },
                         },
                     }
                 } else {
@@ -389,6 +425,12 @@ export default class CollectionDetailsLogic extends UILogic<
     toggleListShareModal: EventHandler<'toggleListShareModal'> = () => {
         this.emitMutation({
             isListShareModalShown: { $apply: (shown) => !shown },
+        })
+    }
+
+    toggleInstallExtModal: EventHandler<'toggleInstallExtModal'> = () => {
+        this.emitMutation({
+            isInstallExtModalShown: { $apply: (shown) => !shown },
         })
     }
 
@@ -691,11 +733,15 @@ export default class CollectionDetailsLogic extends UILogic<
 
         const conversationThreadPromise = detectAnnotationConversationThreads(
             this as any,
-            flatten(Object.values(annotationEntries)).map(
-                (entry) => entry.sharedAnnotation,
-            ),
             {
                 storage: this.dependencies.storage,
+                annotationReferences: flatten(
+                    Object.values(annotationEntries),
+                ).map((entry) => entry.sharedAnnotation),
+                normalizedPageUrls: [...normalizedPageUrls].filter(
+                    (normalizedPageUrl) =>
+                        !this.conversationThreadPromises[normalizedPageUrl],
+                ),
             },
         ).catch(() => {})
         for (const normalizedPageUrl of normalizedPageUrls) {
@@ -705,12 +751,16 @@ export default class CollectionDetailsLogic extends UILogic<
         }
 
         try {
-            const result = await Promise.all(
-                normalizedPageUrls.map(
+            const result = await Promise.all([
+                ...normalizedPageUrls.map(
                     (normalizedPageUrl) =>
                         this.pageAnnotationPromises[normalizedPageUrl],
                 ),
-            )
+                ...normalizedPageUrls.map(
+                    (normalizedPageUrl) =>
+                        this.conversationThreadPromises[normalizedPageUrl],
+                ),
+            ])
             await this._users.loadUsers(
                 [...usersToLoad].map(
                     (id): UserReference => ({

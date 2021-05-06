@@ -292,6 +292,126 @@ export const SCENARIOS: ScenarioMap<Targets> = {
             ],
         }),
     ),
+    'cancel-new-page-comment': scenario<Targets>(
+        ({ step, callModification }) => ({
+            fixture: 'annotated-list-with-user',
+            authenticated: true,
+            startRoute: {
+                route: 'collectionDetails',
+                params: { id: 'default-list' },
+            },
+            steps: [
+                step({
+                    name: 'first-annotations-toggle',
+                    target: 'CollectionDetailsPage',
+                    waitForSignal: {
+                        type: 'loaded-annotations',
+                        success: true,
+                    },
+                    eventName: 'togglePageAnnotations',
+                    eventArgs: {
+                        normalizedUrl: 'getmemex.com',
+                    },
+                }),
+                step({
+                    name: 'initiate-comment',
+                    target: 'CollectionDetailsPage',
+                    eventName: 'initiateNewReplyToPage',
+                    eventArgs: {
+                        pageReplyId: 'getmemex.com',
+                    },
+                    waitForStep: 'first-annotations-toggle',
+                }),
+                step({
+                    name: 'edit-comment',
+                    target: 'CollectionDetailsPage',
+                    eventName: 'editNewReplyToPage',
+                    eventArgs: {
+                        pageReplyId: 'getmemex.com',
+                        content: 'this is a new comment',
+                    },
+                }),
+                step({
+                    name: 'cancel-comment',
+                    target: 'CollectionDetailsPage',
+                    eventName: 'cancelNewReplyToPage',
+                    eventArgs: {
+                        pageReplyId: 'getmemex.com',
+                    },
+                }),
+                step({
+                    name: 'second-initiate-comment',
+                    target: 'CollectionDetailsPage',
+                    eventName: 'initiateNewReplyToPage',
+                    eventArgs: {
+                        pageReplyId: 'getmemex.com',
+                    },
+                }),
+            ],
+        }),
+    ),
+    'confirm-new-page-comment': scenario<Targets>(
+        ({ step, callModification }) => ({
+            fixture: 'annotated-list-with-user',
+            authenticated: true,
+            startRoute: {
+                route: 'collectionDetails',
+                params: { id: 'default-list' },
+            },
+            steps: [
+                step({
+                    name: 'first-annotations-toggle',
+                    target: 'CollectionDetailsPage',
+                    waitForSignal: {
+                        type: 'loaded-annotations',
+                        success: true,
+                    },
+                    eventName: 'togglePageAnnotations',
+                    eventArgs: {
+                        normalizedUrl: 'getmemex.com',
+                    },
+                }),
+                step({
+                    name: 'initiate-comment',
+                    target: 'CollectionDetailsPage',
+                    eventName: 'initiateNewReplyToPage',
+                    eventArgs: {
+                        pageReplyId: 'getmemex.com',
+                    },
+                }),
+                step({
+                    name: 'edit-comment',
+                    target: 'CollectionDetailsPage',
+                    eventName: 'editNewReplyToPage',
+                    eventArgs: {
+                        pageReplyId: 'getmemex.com',
+                        content: 'this is a new comment',
+                    },
+                }),
+                step({
+                    name: 'confirm-comment',
+                    target: 'CollectionDetailsPage',
+                    eventName: 'confirmNewReplyToPage',
+                    eventArgs: {
+                        pageReplyId: 'getmemex.com',
+                        normalizedPageUrl: 'getmemex.com',
+                        pageCreatorReference: {
+                            type: 'user-reference',
+                            id: 'default-user',
+                        },
+                    },
+                }),
+                step({
+                    name: 'second-initiate-comment',
+                    target: 'CollectionDetailsPage',
+                    eventName: 'initiateNewReplyToPage',
+                    eventArgs: {
+                        pageReplyId: 'getmemex.com',
+                    },
+                }),
+            ],
+        }),
+    ),
     'cancel-new-conversation': scenario<Targets>(
         ({ step, callModification }) => ({
             fixture: 'annotated-list-with-user',
@@ -972,6 +1092,24 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                 //     eventName: 'clickFollowBtn',
                 //     eventArgs: null,
                 // })
+            ],
+        }),
+    ),
+    'add-page-extension-onboarding': scenario<Targets>(
+        ({ step, callModification }) => ({
+            fixture: 'annotated-list-with-user',
+            authenticated: true,
+            startRoute: {
+                route: 'collectionDetails',
+                params: { id: 'default-list' },
+            },
+            steps: [
+                step({
+                    name: 'show-install-ext-modal',
+                    target: 'CollectionDetailsPage',
+                    eventName: 'toggleInstallExtModal',
+                    eventArgs: {},
+                }),
             ],
         }),
     ),

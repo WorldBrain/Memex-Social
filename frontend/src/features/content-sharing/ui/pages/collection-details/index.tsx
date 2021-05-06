@@ -33,11 +33,13 @@ import ErrorBox from '../../../../../common-ui/components/error-box'
 import FollowBtn from '../../../../activity-follows/ui/components/follow-btn'
 import WebMonetizationIcon from '../../../../web-monetization/ui/components/web-monetization-icon'
 import PermissionKeyOverlay from './permission-key-overlay'
+import InstallExtOverlay from './install-ext-overlay'
 import { mergeTaskStates } from '../../../../../main-ui/classes/logic'
 import { UserReference } from '../../../../user-management/types'
 import ListShareModal from '@worldbrain/memex-common/lib/content-sharing/ui/list-share-modal'
 
 const commentImage = require('../../../../../assets/img/comment.svg')
+const commentEmptyImage = require('../../../../../assets/img/comment-empty.svg')
 
 const DocumentView = styled.div`
     height: 100vh;
@@ -72,40 +74,42 @@ const DocumentView = styled.div`
 //     }
 // `
 
-const ToggleAllBox = styled.div<{
+const AbovePagesBox = styled.div<{
     viewportWidth: ViewportBreakpoint
 }>`
   display: flex;
   justify-content: flex-end;
+  align-items: center;
+  margin: 5px 0 10px;
   width: 100%;
-  position: sticky;
-  top: 50px;
+  position: relative;
   z-index: 2;
   border-radius: 5px;
-  ${(props) =>
-      props.viewportWidth === 'small' &&
-      css`
-          top: 55px;
-      `}
-  ${(props) =>
-      props.viewportWidth === 'mobile' &&
-      css`
-          top: 45px;
-      `}
 }
+`
+
+const AddPageBtn = styled.div`
+    display: flex;
+    align-items: center;
+    position: absolute;
+    left: 0;
+    font-family: ${(props) => props.theme.fonts.primary};
+    color: ${(props) => props.theme.colors.primary};
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
 `
 
 const ToggleAllAnnotations = styled.div`
     text-align: right;
     font-weight: bold;
-    font-family: 'Poppins';
+    font-family: ${(props) => props.theme.fonts.primary};
     color: ${(props) => props.theme.colors.primary};
     font-weight: bold;
     cursor: pointer;
     font-size: 12px;
     width: fit-content;
     padding: 0 5px;
-    margin: 5px 0 10px;
     border-radius: 5px;
 `
 
@@ -129,6 +133,11 @@ const ShowMoreCollaborators = styled.span`
     cursor: pointer;
     font-weight: bold;
 `
+
+const Text = styled.span`
+    padding-left: 5px;
+`
+
 export default class CollectionDetailsPage extends UIElement<
     CollectionDetailsDependencies,
     CollectionDetailsState,
@@ -154,6 +163,10 @@ export default class CollectionDetailsPage extends UIElement<
             this.state.permissionKeyResult === 'success' ||
             !!this.state.listRoleID
         )
+    }
+
+    get viewportBreakpoint(): ViewportBreakpoint {
+        return getViewportBreakpoint(this.getViewportWidth())
     }
 
     async componentDidUpdate(prevProps: CollectionDetailsDependencies) {
@@ -230,16 +243,17 @@ export default class CollectionDetailsPage extends UIElement<
             return [{ node: <LoadingIndicator key="loading" /> }]
         }
 
-        const shouldShowAnnotationsButton =
-            state.annotationEntriesLoadState === 'success' &&
+        const toggleAnnotationsIcon =
             annotationEntries &&
             annotationEntries[entry.normalizedUrl] &&
             annotationEntries[entry.normalizedUrl].length
+                ? commentImage
+                : commentEmptyImage
 
-        if (shouldShowAnnotationsButton) {
+        if (state.annotationEntriesLoadState === 'success') {
             return [
                 {
-                    image: commentImage,
+                    image: toggleAnnotationsIcon,
                     onClick: () =>
                         this.processEvent('togglePageAnnotations', {
                             normalizedUrl: entry.normalizedUrl,
@@ -264,10 +278,11 @@ export default class CollectionDetailsPage extends UIElement<
         )
     }
 
-    renderPageAnnotations(entry: SharedListEntry) {
+    renderPageAnnotations(entry: SharedListEntry & { creator: UserReference }) {
         const { state } = this
         return (
             <AnnotationsInPage
+                newPageReply={state.newPageReplies[entry.normalizedUrl]}
                 loadState={state.annotationLoadStates[entry.normalizedUrl]}
                 annotations={
                     state.annotationEntryData &&
@@ -296,21 +311,53 @@ export default class CollectionDetailsPage extends UIElement<
                     storage: this.props.storage,
                     services: this.props.services,
                 }}
-                onNewReplyInitiate={(event) =>
-                    this.processEvent('initiateNewReplyToAnnotation', event)
-                }
-                onNewReplyCancel={(event) =>
-                    this.processEvent('cancelNewReplyToAnnotation', event)
-                }
-                onNewReplyConfirm={(event) =>
-                    this.processEvent('confirmNewReplyToAnnotation', event)
-                }
-                onNewReplyEdit={(event) =>
-                    this.processEvent('editNewReplyToAnnotation', event)
-                }
                 onToggleReplies={(event) =>
                     this.processEvent('toggleAnnotationReplies', event)
                 }
+                newPageReplyEventHandlers={{
+                    onNewReplyInitiate: () =>
+                        this.processEvent('initiateNewReplyToPage', {
+                            pageReplyId: entry.normalizedUrl,
+                        }),
+                    onNewReplyCancel: () =>
+                        this.processEvent('cancelNewReplyToPage', {
+                            pageReplyId: entry.normalizedUrl,
+                        }),
+                    onNewReplyConfirm: () =>
+                        this.processEvent('confirmNewReplyToPage', {
+                            normalizedPageUrl: entry.normalizedUrl,
+                            pageCreatorReference: entry.creator,
+                            pageReplyId: entry.normalizedUrl,
+                            sharedListReference: {
+                                id: this.props.listID,
+                                type: 'shared-list-reference',
+                            },
+                        }),
+                    onNewReplyEdit: ({ content }) =>
+                        this.processEvent('editNewReplyToPage', {
+                            pageReplyId: entry.normalizedUrl,
+                            content,
+                        }),
+                }}
+                newAnnotationReplyEventHandlers={{
+                    onNewReplyInitiate: (annotationReference) => () =>
+                        this.processEvent('initiateNewReplyToAnnotation', {
+                            annotationReference,
+                        }),
+                    onNewReplyCancel: (annotationReference) => () =>
+                        this.processEvent('cancelNewReplyToAnnotation', {
+                            annotationReference,
+                        }),
+                    onNewReplyConfirm: (annotationReference) => () =>
+                        this.processEvent('confirmNewReplyToAnnotation', {
+                            annotationReference,
+                        }),
+                    onNewReplyEdit: (annotationReference) => ({ content }) =>
+                        this.processEvent('editNewReplyToAnnotation', {
+                            annotationReference,
+                            content,
+                        }),
+                }}
             />
         )
     }
@@ -380,13 +427,10 @@ export default class CollectionDetailsPage extends UIElement<
     }
 
     renderPermissionKeyOverlay() {
-        const viewportBreakpoint = getViewportBreakpoint(
-            this.getViewportWidth(),
-        )
         return !this.state.requestingAuth ? (
             <PermissionKeyOverlay
                 services={this.props.services}
-                viewportBreakpoint={viewportBreakpoint}
+                viewportBreakpoint={this.viewportBreakpoint}
                 permissionKeyState={this.state.permissionKeyState}
                 permissionKeyResult={this.state.permissionKeyResult}
                 onCloseRequested={() =>
@@ -396,12 +440,56 @@ export default class CollectionDetailsPage extends UIElement<
         ) : null
     }
 
+    renderInstallExtOverlay() {
+        return (
+            this.state.isInstallExtModalShown && (
+                <InstallExtOverlay
+                    services={this.props.services}
+                    viewportBreakpoint={this.viewportBreakpoint}
+                    onCloseRequested={() =>
+                        this.processEvent('toggleInstallExtModal', {})
+                    }
+                />
+            )
+        )
+    }
+
+    private renderAbovePagesBox() {
+        const {
+            annotationEntryData,
+            allAnnotationExpanded,
+            isListOwner,
+        } = this.state
+        return (
+            <AbovePagesBox viewportWidth={this.viewportBreakpoint}>
+                {(this.isListContributor || isListOwner) && (
+                    <AddPageBtn
+                        onClick={() =>
+                            this.processEvent('toggleInstallExtModal', {})
+                        }
+                    >
+                        <Icon icon="plusIcon" height="12px" color="black" />
+                        <Text>Add Page</Text>
+                    </AddPageBtn>
+                )}
+                {annotationEntryData &&
+                    Object.keys(annotationEntryData).length > 0 && (
+                        <ToggleAllAnnotations
+                            onClick={() =>
+                                this.processEvent('toggleAllAnnotations', {})
+                            }
+                        >
+                            {allAnnotationExpanded
+                                ? 'Hide all annotations'
+                                : 'Show all annotations'}
+                        </ToggleAllAnnotations>
+                    )}
+            </AbovePagesBox>
+        )
+    }
+
     render() {
         ;(window as any)['blurt'] = () => console.log(this.state)
-
-        const viewportBreakpoint = getViewportBreakpoint(
-            this.getViewportWidth(),
-        )
 
         const { state } = this
         if (
@@ -425,7 +513,7 @@ export default class CollectionDetailsPage extends UIElement<
                     <DefaultPageLayout
                         services={this.props.services}
                         storage={this.props.storage}
-                        viewportBreakpoint={viewportBreakpoint}
+                        viewportBreakpoint={this.viewportBreakpoint}
                         listsSidebarProps={this.listsSidebarProps}
                     >
                         <ErrorWithAction errorType="internal-error">
@@ -443,7 +531,7 @@ export default class CollectionDetailsPage extends UIElement<
                 <DefaultPageLayout
                     services={this.props.services}
                     storage={this.props.storage}
-                    viewportBreakpoint={viewportBreakpoint}
+                    viewportBreakpoint={this.viewportBreakpoint}
                     listsSidebarProps={this.listsSidebarProps}
                 >
                     <ErrorWithAction
@@ -467,10 +555,11 @@ export default class CollectionDetailsPage extends UIElement<
                     subTitle={data.list.title}
                 />
                 {this.renderPermissionKeyOverlay()}
+                {this.renderInstallExtOverlay()}
                 <DefaultPageLayout
                     services={this.props.services}
                     storage={this.props.storage}
-                    viewportBreakpoint={viewportBreakpoint}
+                    viewportBreakpoint={this.viewportBreakpoint}
                     headerTitle={data.list.title}
                     headerSubtitle={this.renderSubtitle()}
                     followBtn={this.renderFollowBtn()}
@@ -513,24 +602,7 @@ export default class CollectionDetailsPage extends UIElement<
                             </ErrorWithAction>
                         </Margin>
                     )}
-                    <ToggleAllBox viewportWidth={viewportBreakpoint}>
-                        {state.annotationEntryData &&
-                            Object.keys(state.annotationEntryData).length >
-                                0 && (
-                                <ToggleAllAnnotations
-                                    onClick={() =>
-                                        this.processEvent(
-                                            'toggleAllAnnotations',
-                                            {},
-                                        )
-                                    }
-                                >
-                                    {state.allAnnotationExpanded
-                                        ? 'Hide all annotations'
-                                        : 'Show all annotations'}
-                                </ToggleAllAnnotations>
-                            )}
-                    </ToggleAllBox>
+                    {this.renderAbovePagesBox()}
                     <PageInfoList>
                         {data.listEntries.length === 0 && (
                             <EmptyListBox>

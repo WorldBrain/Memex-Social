@@ -42,6 +42,7 @@ export interface CollectionDetailsDependencies {
         | 'webMonetization'
         | 'localStorage'
         | 'clipboard'
+        | 'userMessages'
     >
     storage: Pick<
         StorageModules,
@@ -84,6 +85,7 @@ export type CollectionDetailsState = AnnotationConversationsState &
         isCollectionFollowed: boolean
         allAnnotationExpanded: boolean
         isListShareModalShown: boolean
+        isInstallExtModalShown: boolean
         pageAnnotationsExpanded: { [normalizedPageUrl: string]: true }
         annotationEntryData?: GetAnnotationListEntriesResult
         annotations: GetAnnotationsResult
@@ -98,6 +100,7 @@ export type CollectionDetailsEvent = UIEvent<
             togglePageAnnotations: { normalizedUrl: string }
             toggleAllAnnotations: {}
             toggleListShareModal: {}
+            toggleInstallExtModal: {}
             loadListData: { listID: string }
             processPermissionKey: {}
             closePermissionOverlay: {}

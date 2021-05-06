@@ -3,11 +3,9 @@ import styled from 'styled-components'
 import LoadingIndicator from '../../../../common-ui/components/loading-indicator'
 import ErrorBox from '../../../../common-ui/components/error-box'
 import { Margin } from 'styled-components-spacing'
-import { SharedAnnotationReference } from '@worldbrain/memex-common/lib/content-sharing/types'
-import { AnnotationConversationState } from '../../../content-conversations/ui/types'
 import { keyPressAction } from '../../../../common-ui/utils/dom-events'
-import { SharedAnnotationInPage } from '../../../annotations/ui/components/types'
 import TextArea from '../../../../common-ui/components/text-area'
+import { NewReplyState } from '../types'
 
 const NewReplyTextArea = styled.textarea<{ editing: boolean }>`
     width: 100%;
@@ -55,30 +53,20 @@ const NewReplyRunning = styled.div`
     justify-content: center;
 `
 
-export interface NewAnnotationReplyEventHandlers {
-    onNewReplyInitiate?(event: {
-        annotationReference: SharedAnnotationReference
-    }): void
-    onNewReplyEdit?(event: {
-        annotationReference: SharedAnnotationReference
-        content: string
-    }): void
-    onNewReplyConfirm?(event: {
-        annotationReference: SharedAnnotationReference
-    }): void
-    onNewReplyCancel?(event: {
-        annotationReference: SharedAnnotationReference
-    }): void
+export interface NewReplyEventHandlers {
+    onNewReplyEdit?(event: { content: string }): void
+    onNewReplyInitiate?(): void
+    onNewReplyConfirm?(): void
+    onNewReplyCancel?(): void
 }
 
-export default function NewAnnotationReply(
+export default function NewReply(
     props: {
-        annotation: SharedAnnotationInPage
-        conversation: Pick<AnnotationConversationState, 'newReply' | 'thread'>
-    } & NewAnnotationReplyEventHandlers,
+        placeholder: string
+        newReply: NewReplyState
+    } & NewReplyEventHandlers,
 ) {
-    const { annotation, conversation } = props
-    const { newReply } = conversation
+    const { newReply } = props
     if (newReply.saveState === 'running') {
         return (
             <NewReplyRunning>
@@ -103,28 +91,21 @@ export default function NewAnnotationReply(
                 autoFocus={newReply.editing}
                 value={newReply.editing ? newReply.content : ''}
                 // editing={newReply.editing}
-                placeholder={'Add a new reply'}
+                placeholder={props.placeholder}
                 onClick={() => {
-                    props.onNewReplyInitiate?.({
-                        annotationReference: annotation.reference,
-                    })
+                    props.onNewReplyInitiate?.()
                 }}
                 onChange={(e) =>
                     props.onNewReplyEdit?.({
-                        annotationReference: annotation.reference,
                         content: e.target.value,
                     })
                 }
                 onKeyDown={(e) => {
                     const action = keyPressAction(e)
                     if (action === 'confirm' && newReply.content.length > 0) {
-                        return props.onNewReplyConfirm?.({
-                            annotationReference: annotation.reference,
-                        })
+                        return props.onNewReplyConfirm?.()
                     } else if (action === 'cancel') {
-                        return props.onNewReplyCancel?.({
-                            annotationReference: annotation.reference,
-                        })
+                        return props.onNewReplyCancel?.()
                     }
                 }}
                 renderTextarea={(inputProps) => (
@@ -136,22 +117,12 @@ export default function NewAnnotationReply(
             />
             {newReply.editing && (
                 <NewReplyActions>
-                    <NewReplyCancel
-                        onClick={() =>
-                            props.onNewReplyCancel?.({
-                                annotationReference: annotation.reference,
-                            })
-                        }
-                    >
+                    <NewReplyCancel onClick={() => props.onNewReplyCancel?.()}>
                         Cancel
                     </NewReplyCancel>
                     {newReply.content.length > 0 && (
                         <NewReplyConfirm
-                            onClick={() =>
-                                props.onNewReplyConfirm?.({
-                                    annotationReference: annotation.reference,
-                                })
-                            }
+                            onClick={() => props.onNewReplyConfirm?.()}
                         >
                             Save
                         </NewReplyConfirm>

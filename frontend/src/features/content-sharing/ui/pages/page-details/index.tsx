@@ -69,6 +69,7 @@ export default class PageDetailsPage extends UIElement<
         const viewportWidth = this.getBreakPoints()
         const { state, props } = this
         const { services, storage } = props
+        const { annotations, creator, pageInfo } = state
 
         if (
             state.pageInfoLoadState === 'pristine' ||
@@ -111,7 +112,6 @@ export default class PageDetailsPage extends UIElement<
             )
         }
 
-        const { annotations, creator, pageInfo } = state
         if (!pageInfo) {
             return (
                 <DefaultPageLayout
@@ -138,6 +138,8 @@ export default class PageDetailsPage extends UIElement<
                 </DefaultPageLayout>
             )
         }
+
+        const { normalizedUrl: normalizedPageUrl } = pageInfo
 
         return (
             <>
@@ -196,6 +198,11 @@ export default class PageDetailsPage extends UIElement<
                                     <AnnotationsInPage
                                         loadState={state.annotationLoadState}
                                         annotations={annotations}
+                                        newPageReply={
+                                            state.newPageReplies[
+                                                normalizedPageUrl
+                                            ]
+                                        }
                                         getAnnotationCreator={() =>
                                             state.creator
                                         }
@@ -215,36 +222,80 @@ export default class PageDetailsPage extends UIElement<
                                                 event,
                                             )
                                         }
-                                        onNewReplyInitiate={(event) =>
-                                            this.processEvent(
-                                                'initiateNewReplyToAnnotation',
-                                                event,
-                                            )
-                                        }
-                                        onNewReplyEdit={(event) =>
-                                            this.processEvent(
-                                                'editNewReplyToAnnotation',
-                                                event,
-                                            )
-                                        }
-                                        onNewReplyCancel={(event) =>
-                                            this.processEvent(
-                                                'cancelNewReplyToAnnotation',
-                                                event,
-                                            )
-                                        }
-                                        onNewReplyConfirm={(event) =>
-                                            this.processEvent(
-                                                'confirmNewReplyToAnnotation',
-                                                event,
-                                            )
-                                        }
+                                        newPageReplyEventHandlers={{
+                                            onNewReplyInitiate: () =>
+                                                this.processEvent(
+                                                    'initiateNewReplyToPage',
+                                                    {
+                                                        pageReplyId: normalizedPageUrl,
+                                                    },
+                                                ),
+                                            onNewReplyEdit: ({ content }) =>
+                                                this.processEvent(
+                                                    'editNewReplyToPage',
+                                                    {
+                                                        content,
+                                                        pageReplyId: normalizedPageUrl,
+                                                    },
+                                                ),
+                                            onNewReplyCancel: () =>
+                                                this.processEvent(
+                                                    'cancelNewReplyToPage',
+                                                    {
+                                                        pageReplyId: normalizedPageUrl,
+                                                    },
+                                                ),
+                                            onNewReplyConfirm: () =>
+                                                this.processEvent(
+                                                    'confirmNewReplyToPage',
+                                                    {
+                                                        normalizedPageUrl,
+                                                        pageReplyId: normalizedPageUrl,
+                                                        pageCreatorReference: state.creatorReference!,
+                                                    },
+                                                ),
+                                        }}
+                                        newAnnotationReplyEventHandlers={{
+                                            onNewReplyInitiate: (
+                                                annotationReference,
+                                            ) => () =>
+                                                this.processEvent(
+                                                    'initiateNewReplyToAnnotation',
+                                                    { annotationReference },
+                                                ),
+                                            onNewReplyEdit: (
+                                                annotationReference,
+                                            ) => ({ content }) =>
+                                                this.processEvent(
+                                                    'editNewReplyToAnnotation',
+                                                    {
+                                                        annotationReference,
+                                                        content,
+                                                    },
+                                                ),
+                                            onNewReplyCancel: (
+                                                annotationReference,
+                                            ) => () =>
+                                                this.processEvent(
+                                                    'cancelNewReplyToAnnotation',
+                                                    { annotationReference },
+                                                ),
+                                            onNewReplyConfirm: (
+                                                annotationReference,
+                                            ) => () =>
+                                                this.processEvent(
+                                                    'confirmNewReplyToAnnotation',
+                                                    { annotationReference },
+                                                ),
+                                        }}
                                     />
                                 )}
                             {state.annotationLoadState === 'error' && (
                                 <AnnotationsInPage
                                     loadState={state.annotationLoadState}
                                     annotations={annotations}
+                                    newPageReplyEventHandlers={{}}
+                                    newAnnotationReplyEventHandlers={{}}
                                 />
                             )}
                         </Margin>

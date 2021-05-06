@@ -40,7 +40,6 @@ const AnnotationBody = styled.span`
     font-size: 14px;
     color: ${(props) => props.theme.colors.primary};
     font-weight: 400;
-    font-style: italic;
 `
 
 const AnnotationComment = styled.div`
