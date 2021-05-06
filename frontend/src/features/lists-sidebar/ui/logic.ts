@@ -5,10 +5,23 @@ import {
 } from './types'
 import { UILogic, executeUITask } from '../../../main-ui/classes/logic'
 import { Services } from '../../../services/types'
-import { SharedListReference } from '@worldbrain/memex-common/lib/content-sharing/types'
+import {
+    SharedListReference,
+    SharedList,
+} from '@worldbrain/memex-common/lib/content-sharing/types'
 import { LOCAL_STORAGE_KEYS } from '../../../constants'
 import { LocalStorageService } from '../../../services/local-storage/types'
 import { StorageModules } from '../../../storage/types'
+
+const sortLists = (a: SharedList, b: SharedList): number => {
+    if (a.title < b.title) {
+        return -1
+    }
+    if (a.title > b.title) {
+        return 1
+    }
+    return 0
+}
 
 export const listsSidebarInitialState = (): ListsSidebarState => ({
     followedLists: [],
@@ -95,8 +108,12 @@ export const listsSidebarEventHandlers = (
                     : []
 
                 logic.emitMutation({
-                    followedLists: { $set: followedLists },
-                    collaborativeLists: { $set: collaborativeLists },
+                    followedLists: {
+                        $set: followedLists.sort(sortLists),
+                    },
+                    collaborativeLists: {
+                        $set: collaborativeLists.sort(sortLists),
+                    },
                     isListSidebarShown: { $set: isListSidebarShown },
                 })
             },
