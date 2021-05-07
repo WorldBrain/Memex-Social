@@ -76,7 +76,7 @@ export default class ListsSidebar extends PureComponent<Props> {
             return <EmptyMsg>You don't follow any collections yet</EmptyMsg>
         }
 
-        return this.props.followedLists.map(({ title, reference }) => (
+        return lists.map(({ title, reference }) => (
             <ListNameLink
                 key={reference.id}
                 route="collectionDetails"
@@ -89,11 +89,7 @@ export default class ListsSidebar extends PureComponent<Props> {
         ))
     }
 
-    render() {
-        if (!this.props.isShown) {
-            return null
-        }
-
+    private renderListContent() {
         if (this.props.loadState === 'running') {
             return <LoadingIndicator />
         }
@@ -113,11 +109,8 @@ export default class ListsSidebar extends PureComponent<Props> {
         }
 
         return (
-            <Container>
-                <SectionTitle>Followed Collections</SectionTitle>
-                <ListContent>
-                    {this.renderListNames(this.props.followedLists)}
-                </ListContent>
+            <>
+                {this.renderListNames(this.props.followedLists)}
                 {this.props.collaborativeLists.length > 0 && (
                     <>
                         <SectionTitle>Collaborative Collections</SectionTitle>
@@ -128,6 +121,19 @@ export default class ListsSidebar extends PureComponent<Props> {
                         </ListContent>
                     </>
                 )}
+            </>
+        )
+    }
+
+    render() {
+        if (!this.props.isShown) {
+            return null
+        }
+
+        return (
+            <Container>
+                <SectionTitle>Followed Collections</SectionTitle>
+                <ListContent>{this.renderListContent()}</ListContent>
             </Container>
         )
     }
