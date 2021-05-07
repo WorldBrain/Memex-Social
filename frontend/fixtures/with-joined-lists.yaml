@@ -1,0 +1,31 @@
+objects:
+    users:
+        - $store: another-user
+          id: another-user
+          displayName: 'John Doe'
+    sharedLists:
+        - $store: joined-list-1
+          id: joined-list-1
+          creator: { $ref: users.another-user }
+          createdWhen: 1594225389914
+          updatedWhen: 1594225389914
+          title: 'Great collections'
+          description: 'Bla bla'
+        - $store: joined-list-2
+          id: joined-list-2
+          creator: { $ref: users.another-user }
+          createdWhen: 1594225389914
+          updatedWhen: 1594225389914
+          title: 'Not so great collections'
+          description: 'Bla bla'
+    sharedListRoleByUser:
+        - sharedList: { $ref: sharedLists.joined-list-1 }
+          user: { $ref: users.default }
+          createdWhen: 1594225589919
+          updatedWhen: 1594225589919
+          roleID: 100
+        - sharedList: { $ref: sharedLists.joined-list-2 }
+          user: { $ref: users.default }
+          createdWhen: 1594225589919
+          updatedWhen: 1594225589919
+          roleID: 0

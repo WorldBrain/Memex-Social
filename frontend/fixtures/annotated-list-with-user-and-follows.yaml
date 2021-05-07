@@ -1,1 +1,7 @@
-extends: [with-default-user, with-annotated-list, with-list-follows]
+extends:
+    [
+        with-default-user,
+        with-annotated-list,
+        with-list-follows,
+        with-joined-lists,
+    ]
