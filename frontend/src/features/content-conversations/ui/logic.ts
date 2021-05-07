@@ -4,6 +4,7 @@ import {
     AnnotationConversationEvent,
     AnnotationConversationsHandlers,
     AnnotationConversationSignal,
+    AnnotationConversationState,
 } from './types'
 import { UILogic, executeUITask } from '../../../main-ui/classes/logic'
 import {
@@ -45,12 +46,26 @@ export async function detectAnnotationConversationThreads(
         },
     )
     logic.emitMutation({
-        conversations: fromPairs(
-            threads.map((threadData) => [
-                threadData.sharedAnnotation.id,
-                { thread: { $set: threadData.thread } },
+        conversations: fromPairs([
+            ...dependencies.annotationReferences.map((ref) => [
+                ref.id,
+                {
+                    $apply: (previousState: AnnotationConversationsState) =>
+                        previousState ??
+                        getInitialAnnotationConversationState(),
+                },
             ]),
-        ),
+            ...threads.map((threadData) => [
+                threadData.sharedAnnotation.id,
+                {
+                    $apply: (previousState: AnnotationConversationState) => ({
+                        ...(previousState ??
+                            getInitialAnnotationConversationState()),
+                        thread: threadData.thread,
+                    }),
+                },
+            ]),
+        ]),
         newPageReplies: fromPairs(
             [...dependencies.normalizedPageUrls].map((normalizedPageUrl) => [
                 normalizedPageUrl,

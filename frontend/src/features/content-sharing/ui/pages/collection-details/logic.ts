@@ -713,11 +713,6 @@ export default class CollectionDetailsLogic extends UILogic<
                             newAnnotations,
                             (newAnnotation) => ({ $set: newAnnotation }),
                         ),
-                        conversations: {
-                            $merge: getInitialAnnotationConversationStates(
-                                Object.values(newAnnotations),
-                            ),
-                        },
                     }
                     this.emitMutation(mutation as any)
                 } catch (e) {
