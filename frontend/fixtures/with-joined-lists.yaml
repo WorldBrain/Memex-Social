@@ -29,3 +29,14 @@ objects:
           createdWhen: 1594225589919
           updatedWhen: 1594225589919
           roleID: 0
+    activityFollows:
+        - id: joined-list-follow-1
+          user: { $ref: users.default }
+          createdWhen: 1594225289919
+          collection: 'sharedList'
+          objectId: { $ref: sharedLists.joined-list-1 }
+        - id: joined-list-follow-2
+          user: { $ref: users.default }
+          createdWhen: 1594225289919
+          collection: 'sharedList'
+          objectId: { $ref: sharedLists.joined-list-2 }

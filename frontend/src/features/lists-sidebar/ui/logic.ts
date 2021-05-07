@@ -72,18 +72,6 @@ export const listsSidebarEventHandlers = (
                 const collaborativeListReferences: SharedListReference[] = []
                 const seenLists = new Set()
 
-                for (const { objectId } of follows) {
-                    if (seenLists.has(objectId)) {
-                        continue
-                    }
-                    seenLists.add(objectId)
-
-                    followedListReferences.push({
-                        id: objectId,
-                        type: 'shared-list-reference',
-                    })
-                }
-
                 for (const { sharedList } of listRoles) {
                     if (seenLists.has(sharedList.id)) {
                         continue
@@ -92,6 +80,18 @@ export const listsSidebarEventHandlers = (
 
                     collaborativeListReferences.push({
                         id: sharedList.id,
+                        type: 'shared-list-reference',
+                    })
+                }
+
+                for (const { objectId } of follows) {
+                    if (seenLists.has(objectId)) {
+                        continue
+                    }
+                    seenLists.add(objectId)
+
+                    followedListReferences.push({
+                        id: objectId,
                         type: 'shared-list-reference',
                     })
                 }
