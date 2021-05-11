@@ -738,7 +738,7 @@ export default class CollectionDetailsLogic extends UILogic<
                         !this.conversationThreadPromises[normalizedPageUrl],
                 ),
             },
-        ).catch(() => {})
+        ).catch(console.error)
         for (const normalizedPageUrl of normalizedPageUrls) {
             this.conversationThreadPromises[
                 normalizedPageUrl
