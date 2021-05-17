@@ -60,6 +60,7 @@ export const theme: Theme = {
         overlay: 50000,
     },
     icons: {
+        goTo: require('../../assets/img/open.svg'),
         lock: require('../../assets/img/lock.svg'),
         person: require('../../assets/img/person.svg'),
         plus: require('../../assets/img/plus.svg'),
