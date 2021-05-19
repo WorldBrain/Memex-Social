@@ -1,7 +1,7 @@
 if: branch != master AND type = push
 language: node_js
 node_js:
-    - 14.16.0
+    - 12.16.2
 install:
     - yarn bootstrap
 script:
