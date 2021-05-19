@@ -58,12 +58,7 @@ const Title = styled.div<{
             font-size: 18px;
         `}
 `
-const SubTitle = styled.div`
-    font-weight: 500;
-    font-size: 16px;
-    text-align: center;
-    color: ${(props) => props.theme.colors.secondary};
-`
+
 const BrowserIconsBox = styled.div`
     display: flex;
     padding: 15px 0px;
@@ -96,9 +91,6 @@ const primaryButtonCss = css`
     text-decoration: none;
 `
 
-const PrimaryButton = styled.div`
-    ${primaryButtonCss}
-`
 const PrimaryButtonLink = styled(ExternalLink)`
     ${primaryButtonCss}
 `
@@ -116,9 +108,6 @@ const secondaryButtonCss = css`
 `
 
 const SecondaryButton = styled.div`
-    ${secondaryButtonCss}
-`
-const SecondaryButtonLink = styled(ExternalLink)`
     ${secondaryButtonCss}
 `
 

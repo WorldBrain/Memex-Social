@@ -1,10 +1,10 @@
 import fs from 'fs'
 import path from 'path'
 import makeDir from 'make-dir'
-import createResolvable from '@josephg/resolvable'
-import debounce from 'lodash/debounce'
-import { Builder, By, Key, until } from 'selenium-webdriver'
-import { render, fireEvent, screen } from '@testing-library/react'
+// import createResolvable from '@josephg/resolvable'
+// import debounce from 'lodash/debounce'
+import { Builder } from 'selenium-webdriver'
+import { render } from '@testing-library/react'
 import { createMemoryHistory } from 'history'
 import {
     DevelopmentRpcInterface,
@@ -93,7 +93,6 @@ class UiConnection {
 }
 
 describe('Browser scenario tests', () => {
-    let i = 0
     const router = new RouterService({
         history: null as any,
         auth: null as any,
@@ -246,6 +245,7 @@ describe('In-memory scenario tests', () => {
         // })
         await main.runUi()
 
+        // eslint-disable-next-line
         for (const [stepIndex, step] of Object.entries(scenario.steps)) {
             await main.services.scenarios.stepWalkthrough()
         }
@@ -271,26 +271,26 @@ describe('In-memory scenario tests', () => {
 })
 
 // Creates a promise that resolves X miliseconds after the last received event
-function createEventExhaustionDetector(options: { timeoutInMs: number }) {
-    let resolved = false
-    const resolvable = createResolvable()
-    const delayedResolve = debounce(() => {
-        resolved = true
-        resolvable.resolve()
-    }, options.timeoutInMs)
-    const maybeResolve = () => {
-        if (resolved) {
-            throw new Error(
-                `Event exhaustion detector postponed after exhaustion already triggered`,
-            )
-        }
+// function createEventExhaustionDetector(options: { timeoutInMs: number }) {
+//     let resolved = false
+//     const resolvable = createResolvable()
+//     const delayedResolve = debounce(() => {
+//         resolved = true
+//         resolvable.resolve()
+//     }, options.timeoutInMs)
+//     const maybeResolve = () => {
+//         if (resolved) {
+//             throw new Error(
+//                 `Event exhaustion detector postponed after exhaustion already triggered`,
+//             )
+//         }
 
-        delayedResolve()
-    }
-    return {
-        wait: async () => {
-            await resolvable
-        },
-        postpone: () => maybeResolve(),
-    }
-}
+//         delayedResolve()
+//     }
+//     return {
+//         wait: async () => {
+//             await resolvable
+//         },
+//         postpone: () => maybeResolve(),
+//     }
+// }

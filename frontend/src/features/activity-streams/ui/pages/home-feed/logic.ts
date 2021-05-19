@@ -1,4 +1,3 @@
-import fromPairs from 'lodash/fromPairs'
 import sortBy from 'lodash/sortBy'
 import orderBy from 'lodash/orderBy'
 import {

@@ -70,8 +70,6 @@ createStorageTestSuite('User management storage', ({ it }) => {
                 websiteURL: 'https://www.google.com',
                 mediumURL: 'https://www.medium.com/@fortelabs',
                 twitterURL: 'https://twitter.com/fortelabs',
-                subStackURL:
-                    'https://praxis.every.to/people/532856-tiago-forte',
                 bio:
                     'Founder @fortelabs.co | Teaching @buildingasecondbrain.com | Writer @fortelabs.co/blog + the best productivity newsletter on the web: fortelabs.co/subscribe',
                 paymentPointer: '',

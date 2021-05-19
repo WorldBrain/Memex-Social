@@ -296,6 +296,12 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
                 listReference,
             )
 
+            // Login as another user, so we can click the follow btn
+            await services.auth.loginWithEmailPassword({
+                email: 'yo@gmail.com',
+                password: '123',
+            })
+
             const logic = new CollectionDetailsLogic({
                 storage: storage.serverModules,
                 services,
@@ -308,7 +314,7 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
             await container.init()
 
             const entityArgs = {
-                userReference,
+                userReference: services.auth.getCurrentUserReference()!,
                 collection: 'sharedList',
                 objectId: listID,
             }

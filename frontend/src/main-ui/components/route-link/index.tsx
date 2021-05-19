@@ -1,7 +1,7 @@
 import React from 'react'
 import { UIElement } from '../../classes'
 import { UIElementServices } from '../../../services/types'
-import Logic, { State, Event } from './logic'
+import { State, Event } from './logic'
 import { RouteName } from '../../../routes'
 
 interface Props {

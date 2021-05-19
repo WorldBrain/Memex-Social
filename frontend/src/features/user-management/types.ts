@@ -1,5 +1,3 @@
-import { CSSObject } from 'styled-components'
-
 import { UserReference as UserRef } from '@worldbrain/memex-common/lib/web-interface/types/users'
 import {
     UserPublicProfile as Profile,

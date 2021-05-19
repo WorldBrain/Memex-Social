@@ -74,7 +74,7 @@ export default class TextInput extends React.PureComponent<Props, State> {
     }
 
     renderElement(padding?: boolean) {
-        const { onConfirm, value, error, errorMessage } = this.props
+        const { onConfirm, error, errorMessage } = this.props
         return (
             <>
                 <StyledInput

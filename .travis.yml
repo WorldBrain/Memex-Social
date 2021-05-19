@@ -1,0 +1,17 @@
+if: branch != master AND type = push
+language: node_js
+node_js:
+    - 12.16.2
+install:
+    - yarn bootstrap
+script:
+    - cd frontend/
+    - yarn lint
+    - yarn test
+    - yarn build
+cache:
+    yarn: true
+    directories:
+        - node_modules
+notifications:
+    email: false

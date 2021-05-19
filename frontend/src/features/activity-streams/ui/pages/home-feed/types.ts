@@ -14,7 +14,7 @@ import {
     UserReference,
     User,
 } from '@worldbrain/memex-common/lib/web-interface/types/users'
-import { UIEvent, UISignal } from '../../../../../main-ui/classes/logic'
+import { UIEvent } from '../../../../../main-ui/classes/logic'
 import { UIElementServices } from '../../../../../services/types'
 import {
     AnnotationConversationEvent,

@@ -10,7 +10,6 @@ import {
 import {
     SharedListEntry,
     SharedList,
-    SharedListReference,
     SharedListRoleID,
 } from '@worldbrain/memex-common/lib/content-sharing/types'
 import { UITaskState } from '../../../../../main-ui/types'

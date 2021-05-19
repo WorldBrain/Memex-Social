@@ -28,10 +28,7 @@ import {
     annotationConversationEventHandlers,
     detectAnnotationConversationThreads,
 } from '../../../../content-conversations/ui/logic'
-import {
-    getInitialAnnotationConversationStates,
-    getInitialNewReplyState,
-} from '../../../../content-conversations/ui/utils'
+import { getInitialNewReplyState } from '../../../../content-conversations/ui/utils'
 import mapValues from 'lodash/mapValues'
 import UserProfileCache from '../../../../user-management/utils/user-profile-cache'
 import {
@@ -278,7 +275,7 @@ export default class CollectionDetailsLogic extends UILogic<
     }
 
     loadListData: EventHandler<'loadListData'> = async ({ event }) => {
-        const { contentSharing, users } = this.dependencies.storage
+        const { contentSharing } = this.dependencies.storage
         const listReference = makeStorageReference<SharedListReference>(
             'shared-list-reference',
             event.listID,
