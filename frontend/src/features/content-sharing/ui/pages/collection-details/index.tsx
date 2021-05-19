@@ -248,9 +248,14 @@ export default class CollectionDetailsPage extends UIElement<
             annotationEntries[entry.normalizedUrl] &&
             annotationEntries[entry.normalizedUrl].length
                 ? commentImage
-                : commentEmptyImage
+                : this.isListContributor || state.isListOwner
+                ? commentEmptyImage
+                : null
 
-        if (state.annotationEntriesLoadState === 'success') {
+        if (
+            state.annotationEntriesLoadState === 'success' &&
+            toggleAnnotationsIcon !== null
+        ) {
             return [
                 {
                     image: toggleAnnotationsIcon,
@@ -282,7 +287,11 @@ export default class CollectionDetailsPage extends UIElement<
         const { state } = this
         return (
             <AnnotationsInPage
-                newPageReply={state.newPageReplies[entry.normalizedUrl]}
+                newPageReply={
+                    this.isListContributor || state.isListOwner
+                        ? state.newPageReplies[entry.normalizedUrl]
+                        : undefined
+                }
                 loadState={state.annotationLoadStates[entry.normalizedUrl]}
                 annotations={
                     state.annotationEntryData &&
