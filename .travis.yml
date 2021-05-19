@@ -6,8 +6,8 @@ install:
     - yarn bootstrap
 script:
     - cd frontend/
-    - yarn test
     - yarn lint
+    - yarn test
     - yarn build
 cache:
     yarn: true
