@@ -31,8 +31,6 @@ import {
 import { SharedAnnotationReference } from '@worldbrain/memex-common/lib/content-sharing/types'
 import AnnotationReply from '../../../../content-conversations/ui/components/annotation-reply'
 import ErrorBox from '../../../../../common-ui/components/error-box'
-import { NewReplyState } from '../../../../content-conversations/ui/types'
-import { NewReplyEventHandlers } from '../../../../content-conversations/ui/components/new-reply'
 
 const commentImage = require('../../../../../assets/img/comment.svg')
 const collectionImage = require('../../../../../assets/img/collection.svg')

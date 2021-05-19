@@ -13,6 +13,7 @@
     "firebase": "cd ../firebase && firebase",
     "build": "node scripts/build.js",
     "build:deptree": "depcruise --exclude '^node_modules' --output-type dot ./src | dot -T svg > /tmp/dependencygraph.svg",
+    "lint": "eslint --ext ts --ext tsx src",
     "test:base": "TS_NODE_PROJECT=tsconfig.mocha.json mocha --require ts-node/register --require ignore.loader.js",
     "test": "yarn test:base 'src/**/*.test.ts'",
     "test:watch:base": "yarn test:base --watch --watch-extensions ts",

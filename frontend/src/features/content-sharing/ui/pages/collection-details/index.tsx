@@ -1,6 +1,6 @@
 import React from 'react'
 import { Waypoint } from 'react-waypoint'
-import styled, { css } from 'styled-components'
+import styled from 'styled-components'
 import { Margin } from 'styled-components-spacing'
 import { UIElement } from '../../../../../main-ui/classes'
 import Logic from './logic'

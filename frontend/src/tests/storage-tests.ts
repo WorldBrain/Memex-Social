@@ -7,7 +7,6 @@ import { serializeRulesAST } from '@worldbrain/storex-backend-firestore/lib/secu
 import { createServices } from '../services'
 import { Services } from '../services/types'
 import { StorageHooksChangeWatcher } from '../storage/hooks'
-import FirebaseAuthService from '../services/auth/firebase'
 import { ProgramQueryParams } from '../setup/types'
 import { mockClipboardAPI } from '../services/clipboard/mock'
 
