@@ -436,194 +436,174 @@ export const SCENARIOS: ScenarioMap<Targets> = {
             }),
         ],
     })),
-    'cancel-new-page-comment': scenario<Targets>(
-        ({ step, callModification }) => ({
-            fixture: 'annotated-list-with-user',
-            authenticated: true,
-            startRoute: {
-                route: 'pageDetails',
-                params: { id: 'default-page' },
-            },
-            steps: [
-                step({
-                    name: 'initiate-comment',
-                    target: 'PageDetailsPage',
-                    eventName: 'initiateNewReplyToPage',
-                    eventArgs: {
-                        pageReplyId: 'getmemex.com',
-                    },
-                }),
-                step({
-                    name: 'edit-comment',
-                    target: 'PageDetailsPage',
-                    eventName: 'editNewReplyToPage',
-                    eventArgs: {
-                        content: 'this is a new comment',
-                        pageReplyId: 'getmemex.com',
-                    },
-                }),
-                step({
-                    name: 'cancel-comment',
-                    target: 'PageDetailsPage',
-                    eventName: 'cancelNewReplyToPage',
-                    eventArgs: {
-                        pageReplyId: 'getmemex.com',
-                    },
-                }),
-                step({
-                    name: 'second-initiate-comment',
-                    target: 'PageDetailsPage',
-                    eventName: 'initiateNewReplyToPage',
-                    eventArgs: {
-                        pageReplyId: 'getmemex.com',
-                    },
-                }),
-            ],
-        }),
-    ),
-    'unauthenticated-new-page-comment': scenario<Targets>(
-        ({ step, callModification }) => ({
-            fixture: 'annotated-list-with-user',
-            startRoute: {
-                route: 'pageDetails',
-                params: { id: 'default-page' },
-            },
-            steps: [
-                step({
-                    name: 'initiate-comment',
-                    target: 'PageDetailsPage',
-                    waitForSignal: { type: 'auth-requested' },
-                    eventName: 'initiateNewReplyToPage',
-                    eventArgs: {
-                        pageReplyId: 'getmemex.com',
-                    },
-                }),
-            ],
-        }),
-    ),
-    'confirm-new-page-comment': scenario<Targets>(
-        ({ step, callModification }) => ({
-            fixture: 'annotated-list-with-user',
-            authenticated: true,
-            startRoute: {
-                route: 'pageDetails',
-                params: { id: 'default-page' },
-            },
-            setup: {
-                callModifications: ({ storage }) => [
-                    callModification({
-                        name: 'comment-running',
-                        object: storage.serverModules.contentConversations,
-                        property: 'getOrCreateThread',
-                        modifier: 'block',
-                    }),
-                ],
-            },
-            steps: [
-                step({
-                    name: 'initiate-comment',
-                    target: 'PageDetailsPage',
-                    eventName: 'initiateNewReplyToPage',
-                    eventArgs: {
-                        pageReplyId: 'getmemex.com',
-                    },
-                }),
-                step({
-                    name: 'edit-comment',
-                    target: 'PageDetailsPage',
-                    eventName: 'editNewReplyToPage',
-                    eventArgs: {
-                        pageReplyId: 'getmemex.com',
-                        content: 'this is a new comment',
-                    },
-                }),
-                step({
-                    name: 'confirm-comment',
-                    target: 'PageDetailsPage',
-                    eventName: 'confirmNewReplyToPage',
-                    eventArgs: {
-                        pageReplyId: 'getmemex.com',
-                        normalizedPageUrl: 'getmemex.com',
-                        pageCreatorReference: {
-                            type: 'user-reference',
-                            id: 'default-user',
-                        },
-                    },
-                    waitForSignal: { type: 'new-note-submitting' },
-                }),
-                step({
-                    name: 'comment-done',
-                    callModifications: () => [
-                        {
-                            name: 'comment-running',
-                            modifier: 'undo',
-                        },
-                    ],
-                    waitForStep: 'confirm-comment',
-                }),
-                step({
-                    name: 'second-initiate-comment',
-                    target: 'PageDetailsPage',
-                    eventName: 'initiateNewReplyToPage',
-                    eventArgs: {
-                        pageReplyId: 'getmemex.com',
-                    },
-                }),
-            ],
-        }),
-    ),
-    'new-page-comment-error': scenario<Targets>(
-        ({ step, callModification }) => ({
-            fixture: 'annotated-list-with-user',
-            authenticated: true,
-            startRoute: {
-                route: 'pageDetails',
-                params: { id: 'default-page' },
-            },
-            setup: {
-                callModifications: ({ storage }) => [
-                    callModification({
-                        name: 'reply-broken',
-                        object: storage.serverModules.contentConversations,
-                        property: 'getOrCreateThread',
-                        modifier: 'sabotage',
-                    }),
-                ],
-            },
-            steps: [
-                step({
-                    name: 'initiate-comment',
-                    target: 'PageDetailsPage',
-                    eventName: 'initiateNewReplyToPage',
-                    eventArgs: {
-                        pageReplyId: 'getmemex.com',
-                    },
-                }),
-                step({
-                    name: 'edit-comment',
-                    target: 'PageDetailsPage',
-                    eventName: 'editNewReplyToPage',
-                    eventArgs: {
-                        pageReplyId: 'getmemex.com',
-                        content: 'this is a new comment',
-                    },
-                }),
-                step({
-                    name: 'confirm-comment',
-                    target: 'PageDetailsPage',
-                    eventName: 'confirmNewReplyToPage',
-                    eventArgs: {
-                        pageReplyId: 'getmemex.com',
-                        normalizedPageUrl: 'getmemex.com',
-                        pageCreatorReference: {
-                            type: 'user-reference',
-                            id: 'default-user',
-                        },
-                    },
-                }),
-            ],
-        }),
-    ),
+    // 'cancel-new-page-comment': scenario<Targets>(
+    //     ({ step, callModification }) => ({
+    //         fixture: 'annotated-list-with-user',
+    //         authenticated: true,
+    //         startRoute: {
+    //             route: 'pageDetails',
+    //             params: { id: 'default-page' },
+    //         },
+    //         steps: [
+    //             step({
+    //                 name: 'initiate-comment',
+    //                 target: 'PageDetailsPage',
+    //                 eventName: 'initiateNewReplyToPage',
+    //                 eventArgs: {
+    //                     pageReplyId: 'getmemex.com',
+    //                 },
+    //             }),
+    //             step({
+    //                 name: 'edit-comment',
+    //                 target: 'PageDetailsPage',
+    //                 eventName: 'editNewReplyToPage',
+    //                 eventArgs: {
+    //                     content: 'this is a new comment',
+    //                     pageReplyId: 'getmemex.com',
+    //                 },
+    //             }),
+    //             step({
+    //                 name: 'cancel-comment',
+    //                 target: 'PageDetailsPage',
+    //                 eventName: 'cancelNewReplyToPage',
+    //                 eventArgs: {
+    //                     pageReplyId: 'getmemex.com',
+    //                 },
+    //             }),
+    //             step({
+    //                 name: 'second-initiate-comment',
+    //                 target: 'PageDetailsPage',
+    //                 eventName: 'initiateNewReplyToPage',
+    //                 eventArgs: {
+    //                     pageReplyId: 'getmemex.com',
+    //                 },
+    //             }),
+    //         ],
+    //     }),
+    // ),
+    // 'confirm-new-page-comment': scenario<Targets>(
+    //     ({ step, callModification }) => ({
+    //         fixture: 'annotated-list-with-user',
+    //         authenticated: true,
+    //         startRoute: {
+    //             route: 'pageDetails',
+    //             params: { id: 'default-page' },
+    //         },
+    //         setup: {
+    //             callModifications: ({ storage }) => [
+    //                 callModification({
+    //                     name: 'comment-running',
+    //                     object: storage.serverModules.contentConversations,
+    //                     property: 'getOrCreateThread',
+    //                     modifier: 'block',
+    //                 }),
+    //             ],
+    //         },
+    //         steps: [
+    //             step({
+    //                 name: 'initiate-comment',
+    //                 target: 'PageDetailsPage',
+    //                 eventName: 'initiateNewReplyToPage',
+    //                 eventArgs: {
+    //                     pageReplyId: 'getmemex.com',
+    //                 },
+    //             }),
+    //             step({
+    //                 name: 'edit-comment',
+    //                 target: 'PageDetailsPage',
+    //                 eventName: 'editNewReplyToPage',
+    //                 eventArgs: {
+    //                     pageReplyId: 'getmemex.com',
+    //                     content: 'this is a new comment',
+    //                 },
+    //             }),
+    //             step({
+    //                 name: 'confirm-comment',
+    //                 target: 'PageDetailsPage',
+    //                 eventName: 'confirmNewReplyToPage',
+    //                 eventArgs: {
+    //                     pageReplyId: 'getmemex.com',
+    //                     normalizedPageUrl: 'getmemex.com',
+    //                     pageCreatorReference: {
+    //                         type: 'user-reference',
+    //                         id: 'default-user',
+    //                     },
+    //                 },
+    //                 waitForSignal: { type: 'new-note-submitting' },
+    //             }),
+    //             step({
+    //                 name: 'comment-done',
+    //                 callModifications: () => [
+    //                     {
+    //                         name: 'comment-running',
+    //                         modifier: 'undo',
+    //                     },
+    //                 ],
+    //                 waitForStep: 'confirm-comment',
+    //             }),
+    //             step({
+    //                 name: 'second-initiate-comment',
+    //                 target: 'PageDetailsPage',
+    //                 eventName: 'initiateNewReplyToPage',
+    //                 eventArgs: {
+    //                     pageReplyId: 'getmemex.com',
+    //                 },
+    //             }),
+    //         ],
+    //     }),
+    // ),
+    // 'new-page-comment-error': scenario<Targets>(
+    //     ({ step, callModification }) => ({
+    //         fixture: 'annotated-list-with-user',
+    //         authenticated: true,
+    //         startRoute: {
+    //             route: 'pageDetails',
+    //             params: { id: 'default-page' },
+    //         },
+    //         setup: {
+    //             callModifications: ({ storage }) => [
+    //                 callModification({
+    //                     name: 'reply-broken',
+    //                     object: storage.serverModules.contentConversations,
+    //                     property: 'getOrCreateThread',
+    //                     modifier: 'sabotage',
+    //                 }),
+    //             ],
+    //         },
+    //         steps: [
+    //             step({
+    //                 name: 'initiate-comment',
+    //                 target: 'PageDetailsPage',
+    //                 eventName: 'initiateNewReplyToPage',
+    //                 eventArgs: {
+    //                     pageReplyId: 'getmemex.com',
+    //                 },
+    //             }),
+    //             step({
+    //                 name: 'edit-comment',
+    //                 target: 'PageDetailsPage',
+    //                 eventName: 'editNewReplyToPage',
+    //                 eventArgs: {
+    //                     pageReplyId: 'getmemex.com',
+    //                     content: 'this is a new comment',
+    //                 },
+    //             }),
+    //             step({
+    //                 name: 'confirm-comment',
+    //                 target: 'PageDetailsPage',
+    //                 eventName: 'confirmNewReplyToPage',
+    //                 eventArgs: {
+    //                     pageReplyId: 'getmemex.com',
+    //                     normalizedPageUrl: 'getmemex.com',
+    //                     pageCreatorReference: {
+    //                         type: 'user-reference',
+    //                         id: 'default-user',
+    //                     },
+    //                 },
+    //             }),
+    //         ],
+    //     }),
+    // ),
     'cancel-new-conversation': scenario<Targets>(
         ({ step, callModification }) => ({
             fixture: 'annotated-list-with-user',

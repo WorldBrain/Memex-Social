@@ -412,6 +412,70 @@ export const SCENARIOS: ScenarioMap<Targets> = {
             ],
         }),
     ),
+    'new-page-comment-error': scenario<Targets>(
+        ({ step, callModification }) => ({
+            fixture: 'annotated-list-with-user',
+            authenticated: true,
+            startRoute: {
+                route: 'collectionDetails',
+                params: { id: 'default-list' },
+            },
+            setup: {
+                callModifications: ({ storage }) => [
+                    callModification({
+                        name: 'reply-broken',
+                        object: storage.serverModules.contentConversations,
+                        property: 'getOrCreateThread',
+                        modifier: 'sabotage',
+                    }),
+                ],
+            },
+            steps: [
+                step({
+                    name: 'first-annotations-toggle',
+                    target: 'CollectionDetailsPage',
+                    waitForSignal: {
+                        type: 'loaded-annotations',
+                        success: true,
+                    },
+                    eventName: 'togglePageAnnotations',
+                    eventArgs: {
+                        normalizedUrl: 'getmemex.com',
+                    },
+                }),
+                step({
+                    name: 'initiate-comment',
+                    target: 'CollectionDetailsPage',
+                    eventName: 'initiateNewReplyToPage',
+                    eventArgs: {
+                        pageReplyId: 'getmemex.com',
+                    },
+                }),
+                step({
+                    name: 'edit-comment',
+                    target: 'CollectionDetailsPage',
+                    eventName: 'editNewReplyToPage',
+                    eventArgs: {
+                        pageReplyId: 'getmemex.com',
+                        content: 'this is a new comment',
+                    },
+                }),
+                step({
+                    name: 'confirm-comment',
+                    target: 'CollectionDetailsPage',
+                    eventName: 'confirmNewReplyToPage',
+                    eventArgs: {
+                        pageReplyId: 'getmemex.com',
+                        normalizedPageUrl: 'getmemex.com',
+                        pageCreatorReference: {
+                            type: 'user-reference',
+                            id: 'default-user',
+                        },
+                    },
+                }),
+            ],
+        }),
+    ),
     'cancel-new-conversation': scenario<Targets>(
         ({ step, callModification }) => ({
             fixture: 'annotated-list-with-user',

@@ -198,11 +198,11 @@ export default class PageDetailsPage extends UIElement<
                                     <AnnotationsInPage
                                         loadState={state.annotationLoadState}
                                         annotations={annotations}
-                                        newPageReply={
-                                            state.newPageReplies[
-                                                normalizedPageUrl
-                                            ]
-                                        }
+                                        // newPageReply={
+                                        //     state.newPageReplies[
+                                        //         normalizedPageUrl
+                                        //     ]
+                                        // }
                                         getAnnotationCreator={() =>
                                             state.creator
                                         }
@@ -222,39 +222,40 @@ export default class PageDetailsPage extends UIElement<
                                                 event,
                                             )
                                         }
-                                        newPageReplyEventHandlers={{
-                                            onNewReplyInitiate: () =>
-                                                this.processEvent(
-                                                    'initiateNewReplyToPage',
-                                                    {
-                                                        pageReplyId: normalizedPageUrl,
-                                                    },
-                                                ),
-                                            onNewReplyEdit: ({ content }) =>
-                                                this.processEvent(
-                                                    'editNewReplyToPage',
-                                                    {
-                                                        content,
-                                                        pageReplyId: normalizedPageUrl,
-                                                    },
-                                                ),
-                                            onNewReplyCancel: () =>
-                                                this.processEvent(
-                                                    'cancelNewReplyToPage',
-                                                    {
-                                                        pageReplyId: normalizedPageUrl,
-                                                    },
-                                                ),
-                                            onNewReplyConfirm: () =>
-                                                this.processEvent(
-                                                    'confirmNewReplyToPage',
-                                                    {
-                                                        normalizedPageUrl,
-                                                        pageReplyId: normalizedPageUrl,
-                                                        pageCreatorReference: state.creatorReference!,
-                                                    },
-                                                ),
-                                        }}
+                                        newPageReplyEventHandlers={{}}
+                                        // newPageReplyEventHandlers={{
+                                        //     onNewReplyInitiate: () =>
+                                        //         this.processEvent(
+                                        //             'initiateNewReplyToPage',
+                                        //             {
+                                        //                 pageReplyId: normalizedPageUrl,
+                                        //             },
+                                        //         ),
+                                        //     onNewReplyEdit: ({ content }) =>
+                                        //         this.processEvent(
+                                        //             'editNewReplyToPage',
+                                        //             {
+                                        //                 content,
+                                        //                 pageReplyId: normalizedPageUrl,
+                                        //             },
+                                        //         ),
+                                        //     onNewReplyCancel: () =>
+                                        //         this.processEvent(
+                                        //             'cancelNewReplyToPage',
+                                        //             {
+                                        //                 pageReplyId: normalizedPageUrl,
+                                        //             },
+                                        //         ),
+                                        //     onNewReplyConfirm: () =>
+                                        //         this.processEvent(
+                                        //             'confirmNewReplyToPage',
+                                        //             {
+                                        //                 normalizedPageUrl,
+                                        //                 pageReplyId: normalizedPageUrl,
+                                        //                 pageCreatorReference: state.creatorReference!,
+                                        //             },
+                                        //         ),
+                                        // }}
                                         newAnnotationReplyEventHandlers={{
                                             onNewReplyInitiate: (
                                                 annotationReference,

@@ -168,7 +168,7 @@ export default class PageDetailsLogic extends UILogic<
                     normalizedPageUrls: [pageInfo.normalizedUrl],
                     storage: this.dependencies.storage,
                     annotationReferences,
-                }).catch(() => {})
+                }).catch(console.error)
             }),
             executeUITask<PageDetailsState>(
                 this,
