@@ -139,8 +139,6 @@ export default class PageDetailsPage extends UIElement<
             )
         }
 
-        const { normalizedUrl: normalizedPageUrl } = pageInfo
-
         return (
             <>
                 <DocumentTitle
