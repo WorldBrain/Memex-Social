@@ -124,7 +124,10 @@ export async function createStorage(options: {
                 storageManager,
                 operationExecuter: operationExecuter('activityFollows'),
             }),
-            users: new UserStorage({ storageManager }),
+            users: new UserStorage({
+                storageManager,
+                operationExecuter: operationExecuter('users'),
+            }),
             contentSharing,
             contentConversations: new ContentConversationStorage({
                 storageManager,
