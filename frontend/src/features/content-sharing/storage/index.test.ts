@@ -744,6 +744,151 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
     )
 
     it(
+        'should retrieve all annotation entries for multiple lists',
+        { withTestUser: true },
+        async ({ storage, services }) => {
+            const { contentSharing } = storage.serverModules
+            const userReference = services.auth.getCurrentUserReference()!
+            const listReference1 = await contentSharing.createSharedList({
+                listData: {
+                    title: 'My list',
+                },
+                localListId: 55,
+                userReference,
+            })
+            await data.createTestListEntries({
+                contentSharing,
+                listReference: listReference1,
+                userReference,
+            })
+            await data.createTestAnnotations({
+                contentSharing,
+                listReference: listReference1,
+                userReference,
+            })
+            const listReference2 = await contentSharing.createSharedList({
+                listData: {
+                    title: 'My list 2',
+                },
+                localListId: 75,
+                userReference,
+            })
+            await data.createTestListEntries({
+                contentSharing,
+                listReference: listReference2,
+                userReference,
+            })
+            await data.createTestAnnotations({
+                contentSharing,
+                listReference: listReference2,
+                userReference,
+            })
+
+            const entries = await contentSharing.getAnnotationListEntriesForLists(
+                {
+                    listReferences: [listReference1, listReference2],
+                },
+            )
+            expect(entries[listReference1.id]).toEqual({
+                'bar.com/page-2': [
+                    {
+                        reference: expect.objectContaining({
+                            type: 'shared-annotation-list-entry-reference',
+                        }),
+                        creator: userReference,
+                        sharedList: listReference1,
+                        sharedAnnotation: expect.objectContaining({
+                            type: 'shared-annotation-reference',
+                        }),
+                        normalizedPageUrl: 'bar.com/page-2',
+                        createdWhen: 2000,
+                        uploadedWhen: expect.any(Number),
+                        updatedWhen: expect.any(Number),
+                    },
+                ],
+                'foo.com/page-1': [
+                    {
+                        reference: expect.objectContaining({
+                            type: 'shared-annotation-list-entry-reference',
+                        }),
+                        creator: userReference,
+                        sharedList: listReference1,
+                        sharedAnnotation: expect.objectContaining({
+                            type: 'shared-annotation-reference',
+                        }),
+                        normalizedPageUrl: 'foo.com/page-1',
+                        createdWhen: 500,
+                        uploadedWhen: expect.any(Number),
+                        updatedWhen: expect.any(Number),
+                    },
+                    {
+                        reference: expect.objectContaining({
+                            type: 'shared-annotation-list-entry-reference',
+                        }),
+                        creator: userReference,
+                        sharedList: listReference1,
+                        sharedAnnotation: expect.objectContaining({
+                            type: 'shared-annotation-reference',
+                        }),
+                        normalizedPageUrl: 'foo.com/page-1',
+                        createdWhen: 1500,
+                        uploadedWhen: expect.any(Number),
+                        updatedWhen: expect.any(Number),
+                    },
+                ],
+            })
+            expect(entries[listReference2.id]).toEqual({
+                'bar.com/page-2': [
+                    {
+                        reference: expect.objectContaining({
+                            type: 'shared-annotation-list-entry-reference',
+                        }),
+                        creator: userReference,
+                        sharedList: listReference2,
+                        sharedAnnotation: expect.objectContaining({
+                            type: 'shared-annotation-reference',
+                        }),
+                        normalizedPageUrl: 'bar.com/page-2',
+                        createdWhen: 2000,
+                        uploadedWhen: expect.any(Number),
+                        updatedWhen: expect.any(Number),
+                    },
+                ],
+                'foo.com/page-1': [
+                    {
+                        reference: expect.objectContaining({
+                            type: 'shared-annotation-list-entry-reference',
+                        }),
+                        creator: userReference,
+                        sharedList: listReference2,
+                        sharedAnnotation: expect.objectContaining({
+                            type: 'shared-annotation-reference',
+                        }),
+                        normalizedPageUrl: 'foo.com/page-1',
+                        createdWhen: 500,
+                        uploadedWhen: expect.any(Number),
+                        updatedWhen: expect.any(Number),
+                    },
+                    {
+                        reference: expect.objectContaining({
+                            type: 'shared-annotation-list-entry-reference',
+                        }),
+                        creator: userReference,
+                        sharedList: listReference2,
+                        sharedAnnotation: expect.objectContaining({
+                            type: 'shared-annotation-reference',
+                        }),
+                        normalizedPageUrl: 'foo.com/page-1',
+                        createdWhen: 1500,
+                        uploadedWhen: expect.any(Number),
+                        updatedWhen: expect.any(Number),
+                    },
+                ],
+            })
+        },
+    )
+
+    it(
         'should add an existing annotation to a new list',
         { withTestUser: true },
         async ({ storage, services }) => {
