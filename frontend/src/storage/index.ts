@@ -16,6 +16,7 @@ import {
 } from '@worldbrain/storex-middleware-change-watcher'
 
 import StorexActivityStreamsStorage from '@worldbrain/memex-common/lib/activity-streams/storage'
+import PersonalCloudStorage from '../features/personal-cloud/storage'
 import { ALLOWED_STORAGE_MODULE_OPERATIONS } from '@worldbrain/memex-common/lib/firebase-backend/app-layer/allowed-operations'
 import { createClientApplicationLayer } from '@worldbrain/memex-common/lib/firebase-backend/app-layer/client'
 import UserStorage from '../features/user-management/storage'
@@ -134,6 +135,10 @@ export async function createStorage(options: {
             }),
             activityStreams: new StorexActivityStreamsStorage({
                 storageManager,
+            }),
+            personalCloud: new PersonalCloudStorage({
+                storageManager,
+                autoPkType: options.backend !== 'memory' ? 'string' : 'number',
             }),
         },
     }
