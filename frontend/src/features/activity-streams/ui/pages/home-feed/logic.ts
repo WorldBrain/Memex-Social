@@ -29,6 +29,7 @@ import {
 import {
     annotationConversationInitialState,
     annotationConversationEventHandlers,
+    setupAuthDeps,
 } from '../../../../content-conversations/ui/logic'
 import {
     listsSidebarInitialState,
@@ -75,6 +76,7 @@ export default class HomeFeedLogic extends UILogic<
             this,
             annotationConversationEventHandlers<HomeFeedState>(this as any, {
                 ...this.dependencies,
+                ...setupAuthDeps(this.dependencies),
                 getAnnotation: (state, reference) => {
                     const annotation = state.annotations[reference.id]
                     if (!annotation) {
@@ -85,7 +87,8 @@ export default class HomeFeedLogic extends UILogic<
                         pageCreatorReference: annotation.creatorReference,
                     }
                 },
-                loadUser: (reference) => this.users.loadUser(reference),
+                loadUserByReference: (reference) =>
+                    this.users.loadUser(reference),
             }),
         )
 

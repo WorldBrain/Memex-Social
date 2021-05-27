@@ -20,6 +20,7 @@ import {
     annotationConversationEventHandlers,
     annotationConversationInitialState,
     detectAnnotationConversationThreads,
+    setupAuthDeps,
 } from '../../../../content-conversations/ui/logic'
 import {
     listsSidebarInitialState,
@@ -48,6 +49,7 @@ export default class PageDetailsLogic extends UILogic<
             this,
             annotationConversationEventHandlers<PageDetailsState>(this as any, {
                 ...this.dependencies,
+                ...setupAuthDeps(this.dependencies),
                 getAnnotation: (state, reference) => {
                     const annotationId = this.dependencies.storage.contentSharing.getSharedAnnotationLinkID(
                         reference,
@@ -63,7 +65,8 @@ export default class PageDetailsLogic extends UILogic<
                         pageCreatorReference: state.creatorReference,
                     }
                 },
-                loadUser: (reference) => this._users.loadUser(reference),
+                loadUserByReference: (reference) =>
+                    this._users.loadUser(reference),
                 onNewAnnotationCreate: (_, annotation) => {
                     this.emitMutation({
                         annotations: { $push: [annotation] },

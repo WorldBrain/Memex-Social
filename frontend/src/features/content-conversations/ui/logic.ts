@@ -25,6 +25,27 @@ import {
 } from './utils'
 import { StorageModules } from '../../../storage/types'
 
+export const setupAuthDeps = (dependencies: {
+    services: Pick<Services, 'auth'>
+}) => ({
+    getCurrentUser: async () => {
+        const { auth } = dependencies.services
+
+        const user = auth.getCurrentUser()
+        const reference = auth.getCurrentUserReference()
+
+        return !user || !reference ? null : { ...user, reference }
+    },
+    isAuthorizedToConverse: async () => {
+        const { result } = await dependencies.services.auth.requestAuth()
+
+        return (
+            result.status === 'authenticated' ||
+            result.status === 'registered-and-authenticated'
+        )
+    },
+})
+
 export function annotationConversationInitialState(): AnnotationConversationsState {
     return {
         newPageReplies: {},
@@ -80,9 +101,11 @@ export function annotationConversationEventHandlers<
 >(
     logic: UILogic<AnnotationConversationsState, AnnotationConversationEvent>,
     dependencies: {
-        services: Pick<Services, 'contentConversations' | 'auth'>
+        services: Pick<Services, 'contentConversations'>
         storage: Pick<StorageModules, 'contentSharing' | 'contentConversations'>
-        loadUser(reference: UserReference): Promise<User | null>
+        getCurrentUser(): Promise<(User & { reference: UserReference }) | null>
+        loadUserByReference(reference: UserReference): Promise<User | null>
+        isAuthorizedToConverse(): Promise<boolean>
         onNewAnnotationCreate?(
             pageReplyId: string,
             annotation: SharedAnnotation & {
@@ -112,7 +135,7 @@ export function annotationConversationEventHandlers<
             const conversationId = event.conversationId ?? annotationId
             const conversation = previousState.conversations[conversationId]
 
-            const user = await dependencies.services.auth.getCurrentUser()
+            const user = await dependencies.getCurrentUser()
 
             logic.emitMutation({
                 conversations: {
@@ -149,7 +172,7 @@ export function annotationConversationEventHandlers<
                                         $set: await Promise.all(
                                             replies.map(async (reply) => ({
                                                 ...reply,
-                                                user: await dependencies.loadUser(
+                                                user: await dependencies.loadUserByReference(
                                                     reply.userReference,
                                                 ),
                                             })),
@@ -163,18 +186,13 @@ export function annotationConversationEventHandlers<
             )
         },
         initiateNewReplyToAnnotation: async ({ event }) => {
-            const user = await dependencies.services.auth.getCurrentUser()
+            const user = await dependencies.getCurrentUser()
             if (!user) {
-                const {
-                    result,
-                } = await dependencies.services.auth.requestAuth()
                 logic.emitSignal<AnnotationConversationSignal>({
                     type: 'auth-requested',
                 })
-                if (
-                    result.status !== 'authenticated' &&
-                    result.status !== 'registered-and-authenticated'
-                ) {
+
+                if (!(await dependencies.isAuthorizedToConverse())) {
                     return {}
                 }
             }
@@ -228,7 +246,7 @@ export function annotationConversationEventHandlers<
                 event.annotationReference,
             )
             const conversation = previousState.conversations[conversationId]
-            const user = await dependencies.services.auth.getCurrentUser()
+            const user = await dependencies.getCurrentUser()
             if (!annotationData) {
                 throw new Error(`Could not find annotation to sumbit reply to`)
             }
@@ -304,17 +322,13 @@ export function annotationConversationEventHandlers<
             )
         },
         initiateNewReplyToPage: async ({ event }) => {
-            const { services } = dependencies
-            const user = services.auth.getCurrentUser()
+            const user = dependencies.getCurrentUser()
             if (!user) {
-                const { result } = await services.auth.requestAuth()
                 logic.emitSignal<AnnotationConversationSignal>({
                     type: 'auth-requested',
                 })
-                if (
-                    result.status !== 'authenticated' &&
-                    result.status !== 'registered-and-authenticated'
-                ) {
+
+                if (!(await dependencies.isAuthorizedToConverse())) {
                     return {}
                 }
             }
@@ -342,8 +356,16 @@ export function annotationConversationEventHandlers<
             },
         }),
         confirmNewReplyToPage: async ({ event, previousState }) => {
-            const { storage, services, onNewAnnotationCreate } = dependencies
-            const userReference = services.auth.getCurrentUserReference()!
+            const {
+                storage,
+                onNewAnnotationCreate,
+                getCurrentUser,
+            } = dependencies
+
+            const user = await getCurrentUser()
+            if (!user) {
+                return
+            }
 
             const comment = previousState.newPageReplies[
                 event.pageReplyId
@@ -380,7 +402,7 @@ export function annotationConversationEventHandlers<
                         sharedAnnotationListEntryReferences,
                     } = await storage.contentSharing.createAnnotations({
                         listReferences,
-                        creator: userReference,
+                        creator: user.reference,
                         annotationsByPage: {
                             [event.normalizedPageUrl]: [
                                 { ...annotation, localId },
