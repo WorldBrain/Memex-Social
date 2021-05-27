@@ -64,12 +64,15 @@ export default class PageDetailsLogic extends UILogic<
                     }
                 },
                 loadUser: (reference) => this._users.loadUser(reference),
-                onNewAnnotationCreate: (_, annotation) =>
+                onNewAnnotationCreate: (_, annotation) => {
                     this.emitMutation({
-                        annotations: {
-                            $push: [annotation],
-                        },
-                    }),
+                        annotations: { $push: [annotation] },
+                    })
+                    return this.dependencies.services.userMessages.pushMessage({
+                        type: 'created-annotation',
+                        sharedAnnotationId: annotation.reference.id,
+                    })
+                },
             }),
         )
 

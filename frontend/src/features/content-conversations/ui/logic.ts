@@ -80,10 +80,7 @@ export function annotationConversationEventHandlers<
 >(
     logic: UILogic<AnnotationConversationsState, AnnotationConversationEvent>,
     dependencies: {
-        services: Pick<
-            Services,
-            'contentConversations' | 'auth' | 'activityStreams' | 'userMessages'
-        >
+        services: Pick<Services, 'contentConversations' | 'auth'>
         storage: Pick<StorageModules, 'contentSharing' | 'contentConversations'>
         loadUser(reference: UserReference): Promise<User | null>
         onNewAnnotationCreate?(
@@ -434,11 +431,6 @@ export function annotationConversationEventHandlers<
                                 sharedAnnotationListEntryReferences[localId][0],
                         },
                     )
-
-                    await services.userMessages.pushMessage({
-                        type: 'created-annotation',
-                        sharedAnnotationId: annotationReference.id,
-                    })
                 },
             )
         },

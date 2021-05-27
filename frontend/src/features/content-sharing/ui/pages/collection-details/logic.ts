@@ -87,7 +87,7 @@ export default class CollectionDetailsLogic extends UILogic<
                         }
                     },
                     loadUser: (reference) => this._users.loadUser(reference),
-                    onNewAnnotationCreate: (_, annotation, sharedListEntry) =>
+                    onNewAnnotationCreate: (_, annotation, sharedListEntry) => {
                         this.emitMutation({
                             annotations: {
                                 [annotation.linkId]: {
@@ -109,7 +109,14 @@ export default class CollectionDetailsLogic extends UILogic<
                                     ],
                                 },
                             },
-                        }),
+                        })
+                        return this.dependencies.services.userMessages.pushMessage(
+                            {
+                                type: 'created-annotation',
+                                sharedAnnotationId: annotation.reference.id,
+                            },
+                        )
+                    },
                 },
             ),
         )
