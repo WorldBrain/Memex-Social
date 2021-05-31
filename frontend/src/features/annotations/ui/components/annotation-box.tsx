@@ -1,5 +1,5 @@
 import DOMPurify from 'dompurify'
-import React from 'react'
+import React, { ReactNode } from 'react'
 import styled from 'styled-components'
 import { Margin } from 'styled-components-spacing'
 import { User } from '@worldbrain/memex-common/lib/web-interface/types/users'
@@ -7,9 +7,6 @@ import { SharedAnnotation } from '@worldbrain/memex-common/lib/content-sharing/t
 import ItemBox from '../../../../common-ui/components/item-box'
 import ItemBoxBottom from '../../../../common-ui/components/item-box-bottom'
 import Markdown from '../../../../common-ui/components/markdown'
-import ProfilePopupContainer, {
-    ProfilePopupProps,
-} from '../../../user-management/ui/containers/profile-popup-container'
 
 const withRepliesImage = require('../../../../assets/img/comment.svg')
 const withoutRepliesImage = require('../../../../assets/img/comment-empty.svg')
@@ -24,15 +21,6 @@ const HighlightBox = styled(Margin)`
     padding: 10px 15px 10px 15px;
     width: 100%;
 `
-
-// const HighlightIndicator = styled.div`
-//     background-color: #d4e8ff;
-//     border-radius: 5px;
-//     min-width: 7px;
-//     min-height: 40px;
-//     margin-right: 10px;
-//     height: 100%;
-// `
 
 const AnnotationBody = styled.span`
     white-space: normal;
@@ -88,9 +76,9 @@ const preserveLinebreaks = (s: string | undefined) =>
 export interface AnnotationBoxProps {
     annotation: Pick<SharedAnnotation, 'body' | 'comment' | 'createdWhen'>
     creator?: Pick<User, 'displayName'> | null
-    profilePopupProps?: ProfilePopupProps
     hasReplies?: boolean
     areRepliesExpanded?: boolean
+    renderCreationInfo?: (props: { children: ReactNode }) => ReactNode
     onInitiateReply?(): void
     onToggleReplies?(): void
 }
@@ -124,21 +112,11 @@ export default function AnnotationBox(props: AnnotationBoxProps) {
                     )}
                 </AnnotationTopBox>
                 <ItemBoxBottom
+                    renderCreationInfo={props.renderCreationInfo}
                     creationInfo={{
                         createdWhen: annotation.createdWhen,
                         creator: props.creator,
                     }}
-                    renderCreationInfo={
-                        props.profilePopupProps
-                            ? ({ children }) => (
-                                  <ProfilePopupContainer
-                                      {...props.profilePopupProps!}
-                                  >
-                                      {children}
-                                  </ProfilePopupContainer>
-                              )
-                            : undefined
-                    }
                     actions={[
                         props.onToggleReplies && {
                             key: 'toggle-replies',

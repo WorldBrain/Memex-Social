@@ -20,7 +20,9 @@ import NewReply, {
 } from '../../../content-conversations/ui/components/new-reply'
 import { SharedAnnotationInPage } from './types'
 import { ConversationReplyReference } from '@worldbrain/memex-common/lib/content-conversations/types'
-import { ProfilePopupProps } from '../../../user-management/ui/containers/profile-popup-container'
+import ProfilePopupContainer, {
+    ProfilePopupProps,
+} from '../../../user-management/ui/containers/profile-popup-container'
 import { UserReference } from '../../../user-management/types'
 
 const AnnotationContainer = styled(Margin)`
@@ -234,13 +236,23 @@ export function AnnotationWithReplies(
             <AnnotationBox
                 annotation={annotation}
                 creator={props.annotationCreator}
-                profilePopupProps={props.profilePopupProps}
                 hasReplies={!!conversation?.thread || annotation.hasThread}
                 onInitiateReply={() => props.onNewReplyInitiate?.()}
                 onToggleReplies={() =>
                     props.onToggleReplies?.({
                         annotationReference: annotation.reference,
                     })
+                }
+                renderCreationInfo={
+                    props.profilePopupProps
+                        ? ({ children }) => (
+                              <ProfilePopupContainer
+                                  {...props.profilePopupProps!}
+                              >
+                                  {children}
+                              </ProfilePopupContainer>
+                          )
+                        : undefined
                 }
             />
             {conversation && conversation.expanded && (
@@ -259,18 +271,23 @@ export function AnnotationWithReplies(
                             ...replyData,
                             annotationReference: annotation.reference,
                             replyReference: replyData.reference,
-                            profilePopupProps: props.profilePopupProps
-                                ? {
-                                      ...props.profilePopupProps,
-                                      userRef:
-                                          replyData.creatorReference ?? null,
-                                  }
-                                : undefined,
                             user:
                                 props.getReplyCreator?.(
                                     annotation.reference,
                                     replyData.reference,
                                 ) ?? replyData.user,
+                            renderCreationInfo: props.profilePopupProps
+                                ? ({ children }) => (
+                                      <ProfilePopupContainer
+                                          {...props.profilePopupProps!}
+                                          userRef={
+                                              replyData.creatorReference ?? null
+                                          }
+                                      >
+                                          {children}
+                                      </ProfilePopupContainer>
+                                  )
+                                : undefined,
                             renderItemBox:
                                 props.renderReplyBox &&
                                 ((boxProps) =>
