@@ -27,7 +27,6 @@ export type Services = SharedServices & {
     userMessages: UserMessageService
 
     // Feature specific services
-    contentConversations: ContentConversationsService
     activityStreams: ActivityStreamsService
     userManagement: UserManagementService
     webMonetization: WebMonetizationService

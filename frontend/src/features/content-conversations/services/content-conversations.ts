@@ -1,8 +1,10 @@
 import ContentConversationStorage from '../storage'
 import { AuthService } from '../../../services/auth/types'
-import { ConversationReplyReference } from '@worldbrain/memex-common/lib/content-conversations/types'
 import { CreateConversationReplyParams } from '@worldbrain/memex-common/lib/content-conversations/storage/types'
-import { ContentConversationsServiceInterface } from '@worldbrain/memex-common/lib/content-conversations/service/types'
+import {
+    ContentConversationsServiceInterface,
+    CreateReplyResult,
+} from '@worldbrain/memex-common/lib/content-conversations/service/types'
 import { Services } from '../../../services/types'
 import RouterService from '../../../services/router'
 
@@ -20,10 +22,7 @@ export default class ContentConversationsService
 
     async submitReply(
         params: Omit<CreateConversationReplyParams, 'userReference'>,
-    ): Promise<
-        | { status: 'success'; replyReference: ConversationReplyReference }
-        | { status: 'not-authenticated' }
-    > {
+    ): Promise<CreateReplyResult> {
         const userReference = this.options.auth.getCurrentUserReference()
         if (!userReference) {
             return { status: 'not-authenticated' }
@@ -50,8 +49,9 @@ export default class ContentConversationsService
                 //     },
                 //     follow: { home: true },
                 // })
-            } catch (err) {
-                console.error(err)
+            } catch (error) {
+                console.error(error)
+                return { status: 'failure', error }
             }
             return { status: 'success', replyReference }
         } finally {
