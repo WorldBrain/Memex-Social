@@ -6,7 +6,9 @@ import { User } from '@worldbrain/memex-common/lib/web-interface/types/users'
 import { ConversationReply } from '@worldbrain/memex-common/lib/content-conversations/types'
 import ItemBoxBottom from '../../../../common-ui/components/item-box-bottom'
 import Markdown from '../../../../common-ui/components/markdown'
-import { ProfilePopupProps } from '../../../user-management/ui/containers/profile-popup-container'
+import ProfilePopupContainer, {
+    ProfilePopupProps,
+} from '../../../user-management/ui/containers/profile-popup-container'
 
 const StyledAnnotationBox = styled.div`
     font-family: ${(props) => props.theme.fonts.primary};
@@ -52,7 +54,17 @@ export default function AnnotationReply(props: AnnotationReplyProps) {
                                 createdWhen: props.reply?.createdWhen,
                                 creator: props.user,
                             }}
-                            profilePopupProps={props.profilePopupProps}
+                            renderCreationInfo={
+                                props.profilePopupProps
+                                    ? ({ children }) => (
+                                          <ProfilePopupContainer
+                                              {...props.profilePopupProps!}
+                                          >
+                                              {children}
+                                          </ProfilePopupContainer>
+                                      )
+                                    : undefined
+                            }
                         />
                     </StyledAnnotationBox>
                 ),

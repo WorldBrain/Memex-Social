@@ -7,7 +7,9 @@ import { SharedAnnotation } from '@worldbrain/memex-common/lib/content-sharing/t
 import ItemBox from '../../../../common-ui/components/item-box'
 import ItemBoxBottom from '../../../../common-ui/components/item-box-bottom'
 import Markdown from '../../../../common-ui/components/markdown'
-import { ProfilePopupProps } from '../../../user-management/ui/containers/profile-popup-container'
+import ProfilePopupContainer, {
+    ProfilePopupProps,
+} from '../../../user-management/ui/containers/profile-popup-container'
 
 const withRepliesImage = require('../../../../assets/img/comment.svg')
 const withoutRepliesImage = require('../../../../assets/img/comment-empty.svg')
@@ -126,7 +128,17 @@ export default function AnnotationBox(props: AnnotationBoxProps) {
                         createdWhen: annotation.createdWhen,
                         creator: props.creator,
                     }}
-                    profilePopupProps={props.profilePopupProps}
+                    renderCreationInfo={
+                        props.profilePopupProps
+                            ? ({ children }) => (
+                                  <ProfilePopupContainer
+                                      {...props.profilePopupProps!}
+                                  >
+                                      {children}
+                                  </ProfilePopupContainer>
+                              )
+                            : undefined
+                    }
                     actions={[
                         props.onToggleReplies && {
                             key: 'toggle-replies',
