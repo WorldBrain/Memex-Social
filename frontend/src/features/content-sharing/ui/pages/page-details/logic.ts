@@ -172,7 +172,6 @@ export default class PageDetailsLogic extends UILogic<
                 }
                 detectAnnotationConversationThreads(this as any, {
                     annotationReferences,
-                    normalizedPageUrls: [pageInfo.normalizedUrl],
                     getThreadsForAnnotations: (...args) =>
                         this.dependencies.storage.contentConversations.getThreadsForAnnotations(
                             ...args,
