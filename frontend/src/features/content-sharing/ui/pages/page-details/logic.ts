@@ -20,7 +20,7 @@ import {
     annotationConversationEventHandlers,
     annotationConversationInitialState,
     detectAnnotationConversationThreads,
-    setupAuthDeps,
+    setupConversationLogicDeps,
 } from '../../../../content-conversations/ui/logic'
 import {
     listsSidebarInitialState,
@@ -49,19 +49,19 @@ export default class PageDetailsLogic extends UILogic<
             this,
             annotationConversationEventHandlers<PageDetailsState>(this as any, {
                 ...this.dependencies,
-                ...setupAuthDeps(this.dependencies),
-                getAnnotation: (state, reference) => {
+                ...setupConversationLogicDeps(this.dependencies),
+                selectAnnotationData: (state, reference) => {
                     const annotationId = this.dependencies.storage.contentSharing.getSharedAnnotationLinkID(
                         reference,
                     )
                     const annotation = state.annotations!.find(
                         (annotation) => annotation.linkId === annotationId,
                     )
-                    if (!annotation) {
+                    if (!annotation || !state.creatorReference) {
                         return null
                     }
                     return {
-                        annotation,
+                        normalizedPageUrl: annotation.normalizedPageUrl,
                         pageCreatorReference: state.creatorReference,
                     }
                 },
@@ -171,9 +171,12 @@ export default class PageDetailsLogic extends UILogic<
                     return
                 }
                 detectAnnotationConversationThreads(this as any, {
-                    normalizedPageUrls: [pageInfo.normalizedUrl],
-                    storage: this.dependencies.storage,
                     annotationReferences,
+                    normalizedPageUrls: [pageInfo.normalizedUrl],
+                    getThreadsForAnnotations: (...args) =>
+                        this.dependencies.storage.contentConversations.getThreadsForAnnotations(
+                            ...args,
+                        ),
                 }).catch(console.error)
             }),
             executeUITask<PageDetailsState>(

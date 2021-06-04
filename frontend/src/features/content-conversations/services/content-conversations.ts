@@ -1,12 +1,12 @@
-import ContentConversationStorage from '../storage'
-import { AuthService } from '../../../services/auth/types'
-import { CreateConversationReplyParams } from '@worldbrain/memex-common/lib/content-conversations/storage/types'
-import {
+import type ContentConversationStorage from '../storage'
+import type { AuthService } from '../../../services/auth/types'
+import type { CreateConversationReplyParams } from '@worldbrain/memex-common/lib/content-conversations/storage/types'
+import type {
     ContentConversationsServiceInterface,
     CreateReplyResult,
 } from '@worldbrain/memex-common/lib/content-conversations/service/types'
-import { Services } from '../../../services/types'
-import RouterService from '../../../services/router'
+import type { Services } from '../../../services/types'
+import type RouterService from '../../../services/router'
 
 export default class ContentConversationsService
     implements ContentConversationsServiceInterface {

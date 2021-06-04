@@ -27,7 +27,7 @@ import {
     annotationConversationInitialState,
     annotationConversationEventHandlers,
     detectAnnotationConversationThreads,
-    setupAuthDeps,
+    setupConversationLogicDeps,
 } from '../../../../content-conversations/ui/logic'
 import { getInitialNewReplyState } from '../../../../content-conversations/ui/utils'
 import mapValues from 'lodash/mapValues'
@@ -74,8 +74,8 @@ export default class CollectionDetailsLogic extends UILogic<
                 this as any,
                 {
                     ...this.dependencies,
-                    ...setupAuthDeps(this.dependencies),
-                    getAnnotation: (state, reference) => {
+                    ...setupConversationLogicDeps(this.dependencies),
+                    selectAnnotationData: (state, reference) => {
                         const annotationId = this.dependencies.storage.contentSharing.getSharedAnnotationLinkID(
                             reference,
                         )
@@ -84,7 +84,7 @@ export default class CollectionDetailsLogic extends UILogic<
                             return null
                         }
                         return {
-                            annotation,
+                            normalizedPageUrl: annotation.normalizedPageUrl,
                             pageCreatorReference: annotation.creator,
                         }
                     },
@@ -736,7 +736,10 @@ export default class CollectionDetailsLogic extends UILogic<
         const conversationThreadPromise = detectAnnotationConversationThreads(
             this as any,
             {
-                storage: this.dependencies.storage,
+                getThreadsForAnnotations: (...args) =>
+                    this.dependencies.storage.contentConversations.getThreadsForAnnotations(
+                        ...args,
+                    ),
                 annotationReferences: flatten(
                     Object.values(annotationEntries),
                 ).map((entry) => entry.sharedAnnotation),
