@@ -28,6 +28,7 @@ import {
     annotationConversationEventHandlers,
     detectAnnotationConversationThreads,
     setupConversationLogicDeps,
+    intializeNewPageReplies,
 } from '../../../../content-conversations/ui/logic'
 import { getInitialNewReplyState } from '../../../../content-conversations/ui/utils'
 import mapValues from 'lodash/mapValues'
@@ -743,12 +744,15 @@ export default class CollectionDetailsLogic extends UILogic<
                 annotationReferences: flatten(
                     Object.values(annotationEntries),
                 ).map((entry) => entry.sharedAnnotation),
-                normalizedPageUrls: [...normalizedPageUrls].filter(
-                    (normalizedPageUrl) =>
-                        !this.conversationThreadPromises[normalizedPageUrl],
-                ),
             },
         ).catch(console.error)
+        intializeNewPageReplies(this as any, {
+            normalizedPageUrls: [...normalizedPageUrls].filter(
+                (normalizedPageUrl) =>
+                    !this.conversationThreadPromises[normalizedPageUrl],
+            ),
+        })
+
         for (const normalizedPageUrl of normalizedPageUrls) {
             this.conversationThreadPromises[
                 normalizedPageUrl
