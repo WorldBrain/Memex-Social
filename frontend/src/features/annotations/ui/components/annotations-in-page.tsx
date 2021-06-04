@@ -1,6 +1,6 @@
 import React from 'react'
 import AnnotsInPage, {
-    Props,
+    AnnotationsInPageProps as Props,
 } from '@worldbrain/memex-common/lib/content-conversations/ui/components/annotations-in-page'
 
 import ProfilePopupContainer, {
