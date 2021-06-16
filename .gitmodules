@@ -31,3 +31,6 @@
 [submodule "external/@worldbrain/storex-middleware-change-watcher"]
 	path = external/@worldbrain/storex-middleware-change-watcher
 	url = https://github.com/WorldBrain/storex-middleware-change-watcher
+[submodule "external/@worldbrain/memex-url-utils"]
+	path = external/@worldbrain/memex-url-utils
+	url = https://github.com/WorldBrain/memex-url-utils
