@@ -4,9 +4,9 @@ import { createStorage } from '../storage'
 import { FirestoreStorageBackend } from '@worldbrain/storex-backend-firestore'
 import { generateRulesAstFromStorageModules } from '@worldbrain/storex-backend-firestore/lib/security-rules'
 import { serializeRulesAST } from '@worldbrain/storex-backend-firestore/lib/security-rules/ast'
+import { StorageHooksChangeWatcher } from '@worldbrain/memex-common/lib/storage/hooks'
 import { createServices } from '../services'
 import { Services } from '../services/types'
-import { StorageHooksChangeWatcher } from '../storage/hooks'
 import { ProgramQueryParams } from '../setup/types'
 import { mockClipboardAPI } from '../services/clipboard/mock'
 
@@ -85,7 +85,12 @@ async function createMemoryTestDevice(
         uiMountPoint: null!,
         localStorage: null!,
     })
-    storageHooksChangeWatcher.setUp({ storage, services })
+    storageHooksChangeWatcher.setUp({
+        services,
+        serverStorageManager: storage.serverStorageManager,
+        getCurrentUserReference: async () =>
+            services.auth.getCurrentUserReference(),
+    })
     if (testOptions.withTestUser) {
         await services.auth.loginWithProvider('google')
     }
