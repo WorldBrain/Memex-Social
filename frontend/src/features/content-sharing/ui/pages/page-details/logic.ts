@@ -20,6 +20,7 @@ import {
     annotationConversationEventHandlers,
     annotationConversationInitialState,
     detectAnnotationConversationThreads,
+    setupConversationLogicDeps,
 } from '../../../../content-conversations/ui/logic'
 import {
     listsSidebarInitialState,
@@ -48,28 +49,33 @@ export default class PageDetailsLogic extends UILogic<
             this,
             annotationConversationEventHandlers<PageDetailsState>(this as any, {
                 ...this.dependencies,
-                getAnnotation: (state, reference) => {
+                ...setupConversationLogicDeps(this.dependencies),
+                selectAnnotationData: (state, reference) => {
                     const annotationId = this.dependencies.storage.contentSharing.getSharedAnnotationLinkID(
                         reference,
                     )
                     const annotation = state.annotations!.find(
                         (annotation) => annotation.linkId === annotationId,
                     )
-                    if (!annotation) {
+                    if (!annotation || !state.creatorReference) {
                         return null
                     }
                     return {
-                        annotation,
+                        normalizedPageUrl: annotation.normalizedPageUrl,
                         pageCreatorReference: state.creatorReference,
                     }
                 },
-                loadUser: (reference) => this._users.loadUser(reference),
-                onNewAnnotationCreate: (_, annotation) =>
+                loadUserByReference: (reference) =>
+                    this._users.loadUser(reference),
+                onNewAnnotationCreate: (_, annotation) => {
                     this.emitMutation({
-                        annotations: {
-                            $push: [annotation],
-                        },
-                    }),
+                        annotations: { $push: [annotation] },
+                    })
+                    return this.dependencies.services.userMessages.pushMessage({
+                        type: 'created-annotation',
+                        sharedAnnotationId: annotation.reference.id,
+                    })
+                },
             }),
         )
 
@@ -165,9 +171,11 @@ export default class PageDetailsLogic extends UILogic<
                     return
                 }
                 detectAnnotationConversationThreads(this as any, {
-                    normalizedPageUrls: [pageInfo.normalizedUrl],
-                    storage: this.dependencies.storage,
                     annotationReferences,
+                    getThreadsForAnnotations: (...args) =>
+                        this.dependencies.storage.contentConversations.getThreadsForAnnotations(
+                            ...args,
+                        ),
                 }).catch(console.error)
             }),
             executeUITask<PageDetailsState>(

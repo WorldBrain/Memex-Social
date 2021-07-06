@@ -289,14 +289,6 @@ export default class PageDetailsPage extends UIElement<
                                         }}
                                     />
                                 )}
-                            {state.annotationLoadState === 'error' && (
-                                <AnnotationsInPage
-                                    loadState={state.annotationLoadState}
-                                    annotations={annotations}
-                                    newPageReplyEventHandlers={{}}
-                                    newAnnotationReplyEventHandlers={{}}
-                                />
-                            )}
                         </Margin>
                     </PageInfoList>
                 </DefaultPageLayout>

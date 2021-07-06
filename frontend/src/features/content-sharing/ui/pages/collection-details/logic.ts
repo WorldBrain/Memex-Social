@@ -27,6 +27,8 @@ import {
     annotationConversationInitialState,
     annotationConversationEventHandlers,
     detectAnnotationConversationThreads,
+    setupConversationLogicDeps,
+    intializeNewPageReplies,
 } from '../../../../content-conversations/ui/logic'
 import { getInitialNewReplyState } from '../../../../content-conversations/ui/utils'
 import mapValues from 'lodash/mapValues'
@@ -73,7 +75,8 @@ export default class CollectionDetailsLogic extends UILogic<
                 this as any,
                 {
                     ...this.dependencies,
-                    getAnnotation: (state, reference) => {
+                    ...setupConversationLogicDeps(this.dependencies),
+                    selectAnnotationData: (state, reference) => {
                         const annotationId = this.dependencies.storage.contentSharing.getSharedAnnotationLinkID(
                             reference,
                         )
@@ -82,12 +85,13 @@ export default class CollectionDetailsLogic extends UILogic<
                             return null
                         }
                         return {
-                            annotation,
+                            normalizedPageUrl: annotation.normalizedPageUrl,
                             pageCreatorReference: annotation.creator,
                         }
                     },
-                    loadUser: (reference) => this._users.loadUser(reference),
-                    onNewAnnotationCreate: (_, annotation, sharedListEntry) =>
+                    loadUserByReference: (reference) =>
+                        this._users.loadUser(reference),
+                    onNewAnnotationCreate: (_, annotation, sharedListEntry) => {
                         this.emitMutation({
                             annotations: {
                                 [annotation.linkId]: {
@@ -109,7 +113,14 @@ export default class CollectionDetailsLogic extends UILogic<
                                     ],
                                 },
                             },
-                        }),
+                        })
+                        return this.dependencies.services.userMessages.pushMessage(
+                            {
+                                type: 'created-annotation',
+                                sharedAnnotationId: annotation.reference.id,
+                            },
+                        )
+                    },
                 },
             ),
         )
@@ -726,16 +737,22 @@ export default class CollectionDetailsLogic extends UILogic<
         const conversationThreadPromise = detectAnnotationConversationThreads(
             this as any,
             {
-                storage: this.dependencies.storage,
+                getThreadsForAnnotations: (...args) =>
+                    this.dependencies.storage.contentConversations.getThreadsForAnnotations(
+                        ...args,
+                    ),
                 annotationReferences: flatten(
                     Object.values(annotationEntries),
                 ).map((entry) => entry.sharedAnnotation),
-                normalizedPageUrls: [...normalizedPageUrls].filter(
-                    (normalizedPageUrl) =>
-                        !this.conversationThreadPromises[normalizedPageUrl],
-                ),
             },
         ).catch(console.error)
+        intializeNewPageReplies(this as any, {
+            normalizedPageUrls: [...normalizedPageUrls].filter(
+                (normalizedPageUrl) =>
+                    !this.conversationThreadPromises[normalizedPageUrl],
+            ),
+        })
+
         for (const normalizedPageUrl of normalizedPageUrls) {
             this.conversationThreadPromises[
                 normalizedPageUrl

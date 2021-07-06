@@ -16,6 +16,7 @@
         }
     },
     "dependencies": {
+        "dompurify": "^2.1.0",
         "immutability-helper": "^3.0.0",
         "react": "^17.0.1",
         "styled-components": "^5.1.1",
