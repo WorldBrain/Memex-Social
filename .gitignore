@@ -1,6 +1,7 @@
 node_modules
 *swp
 firebase/public
+firebase/functions/.runtimeconfig.json
 .firebase/
 *-debug.log
 private
