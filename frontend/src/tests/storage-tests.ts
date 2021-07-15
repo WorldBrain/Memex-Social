@@ -86,6 +86,7 @@ async function createMemoryTestDevice(
         localStorage: null!,
     })
     storageHooksChangeWatcher.setUp({
+        fetch,
         services,
         serverStorageManager: storage.serverStorageManager,
         getCurrentUserReference: async () =>

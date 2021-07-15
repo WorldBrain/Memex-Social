@@ -73,6 +73,7 @@ export async function mainProgram(
     }
     if (storageHooksChangeWatcher) {
         storageHooksChangeWatcher.setUp({
+            fetch,
             services,
             serverStorageManager: storage.serverStorageManager,
             getCurrentUserReference: async () =>
