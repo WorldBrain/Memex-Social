@@ -1,15 +1,15 @@
+rules_version = '2';
+
 service firebase.storage {
   match /b/{bucket}/o {
-    match /{allPaths=**} {
-      match /u/{userId} {
-        match /htmlBody/{contentId} {
-          allow read: if request.auth.uid == userId;
-          allow write: if request.auth.uid == userId;
-        }
-        match /favIcon/{domain} {
-          allow read: if request.auth.uid == userId;
-          allow write: if request.auth.uid == userId;
-        }
+    match /u/{userId} {
+      match /docContent/{contentId} {
+        allow read: if request.auth.uid == userId;
+        allow write: if request.auth.uid == userId;
+      }
+      match /favIcon/{domain} {
+        allow read: if request.auth.uid == userId;
+        allow write: if request.auth.uid == userId;
       }
     }
   }
