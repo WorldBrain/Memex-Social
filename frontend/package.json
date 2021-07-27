@@ -11,6 +11,7 @@
     "generate-rules": "ts-node --project scripts/tsconfig.json scripts/generate-rules.ts ../firebase",
     "karma": "karma",
     "firebase": "cd ../firebase && firebase",
+    "firebase:build-fns": "cd ../firebase/functions; yarn build; cd -",
     "build": "node scripts/build.js",
     "build:deptree": "depcruise --exclude '^node_modules' --output-type dot ./src | dot -T svg > /tmp/dependencygraph.svg",
     "lint": "eslint src --ext .ts,.tsx,.js,.jsx --max-warnings=0",
