@@ -4,7 +4,10 @@ import ContentSharingStorage from '../../content-sharing/storage'
 
 export * from '@worldbrain/memex-common/lib/content-conversations/ui/logic'
 
-export const setupConversationLogicDeps = (dependencies: {
+export const setupConversationLogicDeps = ({
+    services,
+    storage,
+}: {
     services: Pick<Services, 'auth' | 'contentConversations'>
     storage: {
         contentSharing: Pick<
@@ -19,24 +22,29 @@ export const setupConversationLogicDeps = (dependencies: {
         >
     }
 }) => ({
-    createAnnotations: dependencies.storage.contentSharing.createAnnotations,
-    submitNewReply: dependencies.services.contentConversations.submitReply,
-    getRepliesByAnnotation:
-        dependencies.storage.contentConversations.getRepliesByAnnotation,
-    getSharedAnnotationLinkID:
-        dependencies.storage.contentSharing.getSharedAnnotationLinkID,
-    getOrCreateConversationThread:
-        dependencies.storage.contentConversations.getOrCreateThread,
+    submitNewReply: services.contentConversations.submitReply.bind(
+        services.contentConversations,
+    ),
+    createAnnotations: storage.contentSharing.createAnnotations.bind(
+        storage.contentSharing,
+    ),
+    getSharedAnnotationLinkID: storage.contentSharing.getSharedAnnotationLinkID.bind(
+        storage.contentSharing,
+    ),
+    getRepliesByAnnotation: storage.contentConversations.getRepliesByAnnotation.bind(
+        storage.contentConversations,
+    ),
+    getOrCreateConversationThread: storage.contentConversations.getOrCreateThread.bind(
+        storage.contentConversations,
+    ),
     getCurrentUser: async () => {
-        const { auth } = dependencies.services
-
-        const user = auth.getCurrentUser()
-        const reference = auth.getCurrentUserReference()
+        const user = services.auth.getCurrentUser()
+        const reference = services.auth.getCurrentUserReference()
 
         return !user || !reference ? null : { ...user, reference }
     },
     isAuthorizedToConverse: async () => {
-        const { result } = await dependencies.services.auth.requestAuth()
+        const { result } = await services.auth.requestAuth()
 
         return (
             result.status === 'authenticated' ||
