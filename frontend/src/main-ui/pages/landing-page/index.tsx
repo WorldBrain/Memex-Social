@@ -29,7 +29,7 @@ export default class LandingPage extends UIElement<
     }
 
     componentDidMount() {
-        this.props.services.router.goToExternalUrl('https://home.memex.social')
+        this.props.services.router.goToExternalUrl('https://memex.garden/')
     }
 
     render() {
