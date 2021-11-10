@@ -137,6 +137,64 @@ service cloud.firestore {
                 ;
             }
         }
+        match /sharedContentFingerprint/{sharedContentFingerprint} {
+            allow get: if 
+              // Permission rules
+              true
+            ;
+            allow create: if 
+              // Type checks
+              request.resource.data.normalizedUrl is string &&
+              request.resource.data.fingerprintScheme is string &&
+              request.resource.data.fingerprint is string &&
+            
+            
+              // Permission rules
+              (request.auth.uid == request.resource.data.creator && ((get(/databases/$(database)/documents/sharedList/$(request.resource.data.sharedList)).data.creator == request.resource.data.creator) || (exists(/databases/$(database)/documents/sharedListRole/$(request.resource.data.sharedList)/users/$(request.auth.uid)) && (get(/databases/$(database)/documents/sharedListRole/$(request.resource.data.sharedList)/users/$(request.auth.uid)).data.roleID >= 400))))
+            ;
+            allow update: if 
+              // Type checks
+              (!('normalizedUrl' in request.resource.data.keys()) || request.resource.data.normalizedUrl is string) &&
+              (!('fingerprintScheme' in request.resource.data.keys()) || request.resource.data.fingerprintScheme is string) &&
+              (!('fingerprint' in request.resource.data.keys()) || request.resource.data.fingerprint is string) &&
+            
+            
+              // Permission rules
+              (request.auth.uid == resource.data.creator && ((!('creator' in request.resource.data.keys())) || request.auth.uid == request.resource.data.creator) && ((get(/databases/$(database)/documents/sharedList/$(request.resource.data.sharedList)).data.creator == request.resource.data.creator) || (exists(/databases/$(database)/documents/sharedListRole/$(request.resource.data.sharedList)/users/$(request.auth.uid)) && (get(/databases/$(database)/documents/sharedListRole/$(request.resource.data.sharedList)/users/$(request.auth.uid)).data.roleID >= 400))))
+            ;
+            allow delete: if 
+              // Permission rules
+              (request.auth.uid == resource.data.creator && ((get(/databases/$(database)/documents/sharedList/$(resource.data.sharedList)).data.creator == resource.data.creator) || (exists(/databases/$(database)/documents/sharedListRole/$(resource.data.sharedList)/users/$(request.auth.uid)) && (get(/databases/$(database)/documents/sharedListRole/$(resource.data.sharedList)/users/$(request.auth.uid)).data.roleID >= 400))))
+            ;
+        }
+        match /sharedContentLocator/{sharedContentLocator} {
+            allow get: if 
+              // Permission rules
+              true
+            ;
+            allow create: if 
+              // Type checks
+              request.resource.data.normalizedUrl is string &&
+              request.resource.data.originalUrl is string &&
+            
+            
+              // Permission rules
+              (request.auth.uid == request.resource.data.creator && ((get(/databases/$(database)/documents/sharedList/$(request.resource.data.sharedList)).data.creator == request.resource.data.creator) || (exists(/databases/$(database)/documents/sharedListRole/$(request.resource.data.sharedList)/users/$(request.auth.uid)) && (get(/databases/$(database)/documents/sharedListRole/$(request.resource.data.sharedList)/users/$(request.auth.uid)).data.roleID >= 400))))
+            ;
+            allow update: if 
+              // Type checks
+              (!('normalizedUrl' in request.resource.data.keys()) || request.resource.data.normalizedUrl is string) &&
+              (!('originalUrl' in request.resource.data.keys()) || request.resource.data.originalUrl is string) &&
+            
+            
+              // Permission rules
+              (request.auth.uid == resource.data.creator && ((!('creator' in request.resource.data.keys())) || request.auth.uid == request.resource.data.creator) && ((get(/databases/$(database)/documents/sharedList/$(request.resource.data.sharedList)).data.creator == request.resource.data.creator) || (exists(/databases/$(database)/documents/sharedListRole/$(request.resource.data.sharedList)/users/$(request.auth.uid)) && (get(/databases/$(database)/documents/sharedListRole/$(request.resource.data.sharedList)/users/$(request.auth.uid)).data.roleID >= 400))))
+            ;
+            allow delete: if 
+              // Permission rules
+              (request.auth.uid == resource.data.creator && ((get(/databases/$(database)/documents/sharedList/$(resource.data.sharedList)).data.creator == resource.data.creator) || (exists(/databases/$(database)/documents/sharedListRole/$(resource.data.sharedList)/users/$(request.auth.uid)) && (get(/databases/$(database)/documents/sharedListRole/$(resource.data.sharedList)/users/$(request.auth.uid)).data.roleID >= 400))))
+            ;
+        }
         match /sharedListEntry/{sharedListEntry} {
             allow get: if 
               // Permission rules
@@ -936,6 +994,7 @@ service cloud.firestore {
                   request.resource.data.primary is bool &&
                   request.resource.data.valid is bool &&
                   request.resource.data.version is timestamp &&
+                  (!('fingerprintScheme' in request.resource.data.keys()) || request.resource.data.fingerprintScheme == null || request.resource.data.fingerprintScheme is string) &&
                   (!('fingerprint' in request.resource.data.keys()) || request.resource.data.fingerprint == null || request.resource.data.fingerprint is string) &&
                   (!('lastVisited' in request.resource.data.keys()) || request.resource.data.lastVisited == null || request.resource.data.lastVisited is timestamp) &&
                   (!('contentSize' in request.resource.data.keys()) || request.resource.data.contentSize == null || request.resource.data.contentSize is number) &&
@@ -956,6 +1015,7 @@ service cloud.firestore {
                   (!('primary' in request.resource.data.keys()) || request.resource.data.primary is bool) &&
                   (!('valid' in request.resource.data.keys()) || request.resource.data.valid is bool) &&
                   (!('version' in request.resource.data.keys()) || request.resource.data.version is timestamp) &&
+                  (!('fingerprintScheme' in request.resource.data.keys()) || request.resource.data.fingerprintScheme == null || request.resource.data.fingerprintScheme is string) &&
                   (!('fingerprint' in request.resource.data.keys()) || request.resource.data.fingerprint == null || request.resource.data.fingerprint is string) &&
                   (!('lastVisited' in request.resource.data.keys()) || request.resource.data.lastVisited == null || request.resource.data.lastVisited is timestamp) &&
                   (!('contentSize' in request.resource.data.keys()) || request.resource.data.contentSize == null || request.resource.data.contentSize is number) &&
