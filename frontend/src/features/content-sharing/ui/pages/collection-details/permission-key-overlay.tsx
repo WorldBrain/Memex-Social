@@ -8,6 +8,8 @@ import { Margin } from 'styled-components-spacing'
 import ExternalLink from '../../../../../common-ui/components/external-link'
 import LoadingScreen from '../../../../../common-ui/components/loading-screen'
 import { ProcessSharedListKeyResult } from '@worldbrain/memex-common/lib/content-sharing/service/types'
+import { isMemexInstalled } from '../../../../../utils/memex-installed'
+import { PrimaryAction } from '../../../../../common-ui/components/PrimaryAction'
 
 const braveLogo = require('../../../../../assets/img/logo-brave.svg')
 const firefoxLogo = require('../../../../../assets/img/logo-firefox.svg')
@@ -116,6 +118,8 @@ export default function PermissionKeyOverlay(props: {
     permissionKeyState?: UITaskState
     permissionKeyResult?: ProcessSharedListKeyResult
 }) {
+    console.log(props.permissionKeyResult)
+
     if (props.permissionKeyState === 'error') {
         return (
             <Overlay
@@ -132,9 +136,10 @@ export default function PermissionKeyOverlay(props: {
                     </Margin>
                     <Margin top="medium">
                         <ButtonsBox>
-                            <PrimaryButton onClick={props.onCloseRequested}>
-                                Close
-                            </PrimaryButton>
+                            <PrimaryAction
+                                label={'Close'}
+                                onClick={props.onCloseRequested}
+                            />
                             <SecondaryButtonLink href="mailto:support@worldbrain.io">
                                 Contact Support
                             </SecondaryButtonLink>
@@ -172,9 +177,10 @@ export default function PermissionKeyOverlay(props: {
                     </Margin>
                     <Margin top={'medium'}>
                         <ButtonsBox>
-                            <PrimaryButton onClick={props.onCloseRequested}>
-                                Close
-                            </PrimaryButton>
+                            <PrimaryAction
+                                label={'Close'}
+                                onClick={props.onCloseRequested}
+                            />
                             <SecondaryButtonLink href="mailto:support@worldbrain.io">
                                 Contact Support
                             </SecondaryButtonLink>
@@ -185,39 +191,75 @@ export default function PermissionKeyOverlay(props: {
         )
     }
     if (props.permissionKeyResult === 'success') {
-        return (
-            <Overlay
-                services={props.services}
-                onCloseRequested={props.onCloseRequested}
-            >
-                <Content viewportBreakpoint={props.viewportBreakpoint}>
-                    <Title>You’re now a Contributor to this collection</Title>
-                    <Margin top={'small'}>
-                        <SubTitle>
-                            Install the Memex Browser extension to add pages and
-                            annotations
-                        </SubTitle>
-                    </Margin>
-                    <Margin top={'small'}>
-                        <BrowserIconsBox>
-                            <BrowserIcon src={braveLogo} />
-                            <BrowserIcon src={firefoxLogo} />
-                            <BrowserIcon src={chromeLogo} />
-                        </BrowserIconsBox>
-                    </Margin>
-                    <Margin top={'medium'}>
-                        <ButtonsBox>
-                            <PrimaryButtonLink href="https://getmemex.com">
-                                Download
-                            </PrimaryButtonLink>
-                            <SecondaryButton onClick={props.onCloseRequested}>
-                                Cancel
-                            </SecondaryButton>
-                        </ButtonsBox>
-                    </Margin>
-                </Content>
-            </Overlay>
-        )
+        if (isMemexInstalled()) {
+            return (
+                <Overlay
+                    services={props.services}
+                    onCloseRequested={props.onCloseRequested}
+                >
+                    <Content viewportBreakpoint={props.viewportBreakpoint}>
+                        <Title>
+                            You’re now a Contributor to this collection
+                        </Title>
+                        <Margin top={'small'}>
+                            <SubTitle>
+                                Add pages and annotations to it with the Memex
+                                extension
+                            </SubTitle>
+                        </Margin>
+                        <Margin top={'medium'}>
+                            <ButtonsBox>
+                                <PrimaryAction
+                                    onClick={props.onCloseRequested}
+                                    label={'Got it'}
+                                />
+                            </ButtonsBox>
+                        </Margin>
+                    </Content>
+                </Overlay>
+            )
+        } else {
+            return (
+                <Overlay
+                    services={props.services}
+                    onCloseRequested={props.onCloseRequested}
+                >
+                    <Content viewportBreakpoint={props.viewportBreakpoint}>
+                        <Title>
+                            You’re now a Contributor to this collection
+                        </Title>
+                        <Margin top={'small'}>
+                            <SubTitle>
+                                Install the Memex Browser extension to add pages
+                                and annotations
+                            </SubTitle>
+                        </Margin>
+                        <Margin top={'small'}>
+                            <BrowserIconsBox>
+                                <BrowserIcon src={braveLogo} />
+                                <BrowserIcon src={firefoxLogo} />
+                                <BrowserIcon src={chromeLogo} />
+                            </BrowserIconsBox>
+                        </Margin>
+                        <Margin top={'medium'}>
+                            <ButtonsBox>
+                                <PrimaryAction
+                                    onClick={() =>
+                                        window.open('https://memex.garden')
+                                    }
+                                    label={'Download Memex'}
+                                />
+                                <SecondaryButton
+                                    onClick={props.onCloseRequested}
+                                >
+                                    Already have it
+                                </SecondaryButton>
+                            </ButtonsBox>
+                        </Margin>
+                    </Content>
+                </Overlay>
+            )
+        }
     }
     return null
 }

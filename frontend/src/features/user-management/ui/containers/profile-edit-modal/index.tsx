@@ -112,13 +112,13 @@ const StyledPrimaryButton = styled(PrimaryActionButton)<{
 }>`
     background: ${(props) =>
         props.taskState === 'pristine' || props.taskState === 'success'
-            ? props.theme.colors.secondary
+            ? props.theme.colors.purple
             : props.taskState === 'running' || props.disabled
             ? props.theme.colors.background
             : props.theme.colors.warning};
     ${(props) =>
         props.taskState === 'running' || props.disabled
-            ? `1px solid ${props.theme.colors.secondary};`
+            ? `1px solid ${props.theme.colors.purple};`
             : ''}
     padding-top: 0;
     padding-bottom: 0;
