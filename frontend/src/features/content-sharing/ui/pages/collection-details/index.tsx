@@ -43,6 +43,12 @@ const commentEmptyImage = require('../../../../../assets/img/comment-empty.svg')
 
 const DocumentView = styled.div`
     height: 100vh;
+    overflow: hidden;
+`
+
+const DocumentContainer = styled.div`
+    height: 100vh;
+    overflow: scroll;
 `
 
 // const CollectionDescriptionBox = styled.div<{
@@ -152,7 +158,6 @@ export default class CollectionDetailsPage extends UIElement<
             collaborativeLists: this.state.collaborativeLists,
             followedLists: this.state.followedLists,
             isShown: this.state.isListSidebarShown,
-            loadState: this.state.listSidebarLoadState,
             onSidebarToggle: () =>
                 this.processEvent('toggleListSidebar', undefined),
         }
@@ -209,7 +214,7 @@ export default class CollectionDetailsPage extends UIElement<
                     <Icon
                         height="24px"
                         icon="addPeople"
-                        color="darkgrey"
+                        color="purple"
                         onClick={() =>
                             this.processEvent('toggleListShareModal', {})
                         }
@@ -278,6 +283,7 @@ export default class CollectionDetailsPage extends UIElement<
                 loadState={mergeTaskStates([
                     this.state.followLoadState,
                     this.state.listRolesLoadState,
+                    this.state.permissionKeyState,
                 ])}
             />
         )
@@ -523,7 +529,7 @@ export default class CollectionDetailsPage extends UIElement<
                         services={this.props.services}
                         storage={this.props.storage}
                         viewportBreakpoint={this.viewportBreakpoint}
-                        listsSidebarProps={this.listsSidebarProps}
+                        //listsSidebarProps={this.listsSidebarProps}
                     >
                         <ErrorWithAction errorType="internal-error">
                             Error loading this collection. <br /> Reload page to
@@ -563,7 +569,7 @@ export default class CollectionDetailsPage extends UIElement<
                     documentTitle={this.props.services.documentTitle}
                     subTitle={data.list.title}
                 />
-                {this.renderPermissionKeyOverlay()}
+                {/* {this.renderPermissionKeyOverlay()} */}
                 {this.renderInstallExtOverlay()}
                 <DefaultPageLayout
                     services={this.props.services}
@@ -574,6 +580,8 @@ export default class CollectionDetailsPage extends UIElement<
                     followBtn={this.renderFollowBtn()}
                     webMonetizationIcon={this.renderWebMonetizationIcon()}
                     listsSidebarProps={this.listsSidebarProps}
+                    isSidebarShown={this.listsSidebarProps.isShown}
+                    permissionKeyOverlay={this.renderPermissionKeyOverlay()}
                 >
                     {/*{data.list.description && (
                     <CollectionDescriptionBox

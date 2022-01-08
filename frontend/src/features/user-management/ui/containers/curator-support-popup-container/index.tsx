@@ -19,12 +19,14 @@ const Container = styled.div`
 `
 
 const CuratorPopupBox = styled.div`
-    top: 90px;
-    position: fixed;
+    top: 10px;
+    position: relative;
     z-index: 10;
-    padding-top: 10px;
-    height: 20px;
-    width: 40px;
+    position: relative;
+    z-index: 10;
+    height: 50px;
+    padding-top: 50px;
+    margin-top: -50px;
 `
 
 export type CuratorSupportPopupContainerDependencies = ProfilePopupContainerDependencies & {
@@ -57,10 +59,7 @@ export default class CuratorSupportPopupContainer extends UIElement<
         const { props, state } = this
         return (
             <>
-                <Container
-                    onMouseEnter={() => this.handleMouseEnter()}
-                    onMouseLeave={() => this.handleMouseLeave()}
-                >
+                <Container onMouseEnter={() => this.handleMouseEnter()}>
                     {props.children}
                     {state.isDisplayed &&
                         userPublicProfile?.paymentPointer &&
