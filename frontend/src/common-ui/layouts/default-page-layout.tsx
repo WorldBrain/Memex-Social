@@ -127,7 +127,7 @@ const HeaderTitle = styled.div<{
     word-break: break-word;
     overflow-x: hidden;
     font-family: ${(props) => props.theme.fonts.primary};
-    font-size: 16px;
+    font-size: 26px;
     overflow-wrap: break-word;
     max-width: ${(props) =>
         props.viewportWidth === 'small' || props.viewportWidth === 'mobile'
@@ -150,7 +150,7 @@ const HeaderSubtitle = styled.div<{
 }>`
     font-weight: 500;
     margin-top: 1px;
-    font-size: 14px;
+    font-size: 16px;
     font-family: ${(props) => props.theme.fonts.primary};
     color: ${(props) => props.theme.colors.subText};
 `
