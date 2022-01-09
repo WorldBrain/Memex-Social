@@ -47,8 +47,7 @@ const DocumentView = styled.div`
 `
 
 const DocumentContainer = styled.div`
-    height: 100vh;
-    overflow: scroll;
+    min-height: 100vh;
 `
 
 // const CollectionDescriptionBox = styled.div<{
@@ -158,6 +157,7 @@ export default class CollectionDetailsPage extends UIElement<
             collaborativeLists: this.state.collaborativeLists,
             followedLists: this.state.followedLists,
             isShown: this.state.isListSidebarShown,
+            loadState: this.state.listSidebarLoadState,
             onSidebarToggle: () =>
                 this.processEvent('toggleListSidebar', undefined),
         }
@@ -529,7 +529,7 @@ export default class CollectionDetailsPage extends UIElement<
                         services={this.props.services}
                         storage={this.props.storage}
                         viewportBreakpoint={this.viewportBreakpoint}
-                        //listsSidebarProps={this.listsSidebarProps}
+                        listsSidebarProps={this.listsSidebarProps}
                     >
                         <ErrorWithAction errorType="internal-error">
                             Error loading this collection. <br /> Reload page to
@@ -564,7 +564,7 @@ export default class CollectionDetailsPage extends UIElement<
         }
 
         return (
-            <>
+            <DocumentContainer>
                 <DocumentTitle
                     documentTitle={this.props.services.documentTitle}
                     subTitle={data.list.title}
@@ -675,7 +675,7 @@ export default class CollectionDetailsPage extends UIElement<
                         }
                     />
                 )}
-            </>
+            </DocumentContainer>
         )
     }
 }

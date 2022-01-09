@@ -20,6 +20,7 @@ const Content = styled.div<{
     align-items: center;
     flex-direction: column;
     padding: 40px;
+    width: 100%;
 
     > * {
         font-family: ${(props) => props.theme.fonts.primary};

@@ -24,19 +24,20 @@ const MainContainer = styled.div<{
     align-items: center;
     flex-direction: column;
     justify-content: flex-start;
+    min-height: 100vh;
+    height: fit-content;
 
     ${(props) =>
         props.viewportWidth === 'mobile' &&
         props.sidebarShown &&
         css`
-            height: 100vh;
+            min-height: 100vh;
             overflow: scroll;
         `}
 `
 
 const StyledHeader = styled.div<{
     viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
-    headerHeight: number
 }>`
     font-family: ${(props) => props.theme.fonts.primary};
     width: 100%;
@@ -46,18 +47,18 @@ const StyledHeader = styled.div<{
     padding: 10px 20px;
     position: sticky;
 
-    top: -${(props) => props.headerHeight}px;
+    top: calc(-65px);
     background-color: #fff;
     z-index: 2000;
     align-items: flex-start;
     //box-shadow: #101e7308 0 4px 16px;
 
     ${(props) =>
-        (props.viewportWidth === 'small' || props.viewportWidth === 'mobile') &&
+        props.viewportWidth === 'mobile' &&
         css`
             flex-direction: column;
             align-items: flex-start;
-            top: calc(-${(props) => props.headerHeight}px + 40px);
+            top: 0;
         `}
 `
 
@@ -70,11 +71,13 @@ const LogoAndFeed = styled(Margin)<{
     position: sticky;
     top: 20px;
     z-index: 3001;
+    height: 20px;
 
     ${(props) =>
         (props.viewportWidth === 'small' || props.viewportWidth === 'mobile') &&
         css`
             padding-right: 10px;
+            display: flex;
         `}
 `
 
@@ -87,12 +90,6 @@ const FeedLink = styled(RouteLink)`
     display: flex;
     align-items: center;
     color: ${(props) => props.theme.colors.primary};
-`
-
-const FeedLabel = styled.div`
-    font-size: 14px;
-    font-weight: bold;
-    cursor: pointer;
 `
 
 const UnseenActivityDot = styled.div`
@@ -112,6 +109,14 @@ const HeaderMiddleArea = styled.div<{
     align-items: center;
     justify-content: space-between;
     flex-direction: row;
+    padding-top: 70px;
+
+    ${(props) =>
+        props.viewportWidth === 'mobile' &&
+        css`
+            padding-top: 70px;
+            display: flex;
+        `}
 `
 const HeaderTitle = styled.div<{
     viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
@@ -162,9 +167,15 @@ const HeaderAuthArea = styled.div<{
     right: 20px;
 `
 
-const PageMiddleArea = styled.div`
+const PageMiddleArea = styled.div<{
+    headerHeight: number | undefined
+}>`
     width: 100%;
     display: flex;
+    height: 100%;
+    position: absolute;
+    top: ${(props) => props.headerHeight}px;
+    //overflow: scroll;
 `
 
 const PageResultsArea = styled.div<{
@@ -198,6 +209,7 @@ const PageMidleAreaTitles = styled.div`
     align-items: flex-start;
     flex-direction: column;
     flex: 1;
+    width: 100%;
 `
 
 const PageMidleAreaAction = styled.div<{
@@ -210,8 +222,26 @@ const PageMidleAreaAction = styled.div<{
     ${(props) =>
         props.viewportWidth === 'mobile' &&
         css`
-            flex-direction: row-reverse;
-            margin-top: ${(props) => props.theme.spacing.medium};
+            display: none;
+        `}
+`
+
+const PageMidleAreaActionMobile = styled.div<{
+    viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
+}>`
+    display: none;
+
+    ${(props) =>
+        props.viewportWidth === 'mobile' &&
+        css`
+            display: flex;
+            flex-direction: row;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            justify-content: flex-end;
+            align-items: center;
+            flex-direction: row;
         `}
 `
 
@@ -221,17 +251,11 @@ const PageMiddleAreaTopBox = styled(Margin)<{
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    padding-top: 70px;
     padding-bottom: 10px;
     width: 100%;
+    //margin-top: ${(props) => props.theme.spacing.medium};
     flex-direction: ${(props) =>
         props.viewportWidth === 'mobile' ? 'column' : 'row'};
-
-    ${(props) =>
-        (props.viewportWidth === 'small' || props.viewportWidth === 'mobile') &&
-        css`
-            padding-top: 70px;
-        `}
 `
 
 const BetaFlag = styled.div`
@@ -260,47 +284,37 @@ const MemexLogo = styled.img<{
     viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
 }>`
     height: 24px;
-    position: absolute;
+    position: fixed;
     top: 20px;
     left: 20px;
-    display: ${(props) =>
-        props.viewportWidth === 'small' || props.viewportWidth === 'mobile'
-            ? 'none'
-            : 'block'};
+    display: flex;
+    z-index: 3005;
 `
 
-export default function DefaultPageLayout(
-    props: {
-        services: UIElementServices<
-            | 'auth'
-            | 'overlay'
-            | 'router'
-            | 'activityStreams'
-            | 'userManagement'
-            | 'webMonetization'
-        >
-        storage: Pick<StorageModules, 'users' | 'activityStreams'>
-        headerTitle?: string
-        headerHeight?: number
-        headerSubtitle?: React.ReactNode
-        followBtn?: JSX.Element
-        permissionKeyOverlay?: JSX.Element
-        webMonetizationIcon?: JSX.Element
-        hideActivityIndicator?: boolean
-        isSidebarShown: boolean
-        listsSidebarProps?: Omit<ListsSidebarProps, 'services'> & {
-            onSidebarToggle: React.MouseEventHandler
-        } & { isShown: boolean }
-        renderSubtitle?: (props: {
-            children: React.ReactNode
-        }) => React.ReactNode
-        viewportBreakpoint: ViewportBreakpoint
-        children: React.ReactNode
-    },
-    state: {
-        topBarHeight: number
-    },
-) {
+export default function DefaultPageLayout(props: {
+    services: UIElementServices<
+        | 'auth'
+        | 'overlay'
+        | 'router'
+        | 'activityStreams'
+        | 'userManagement'
+        | 'webMonetization'
+    >
+    storage: Pick<StorageModules, 'users' | 'activityStreams'>
+    headerTitle?: string
+    headerSubtitle?: React.ReactNode
+    followBtn?: JSX.Element
+    permissionKeyOverlay?: JSX.Element | null
+    webMonetizationIcon?: JSX.Element
+    hideActivityIndicator?: boolean
+    isSidebarShown?: boolean
+    listsSidebarProps?: Omit<ListsSidebarProps, 'services'> & {
+        onSidebarToggle: React.MouseEventHandler
+    }
+    renderSubtitle?: (props: { children: React.ReactNode }) => React.ReactNode
+    viewportBreakpoint: ViewportBreakpoint
+    children: React.ReactNode
+}) {
     const { viewportBreakpoint: viewportWidth } = props
     const renderSubtitle = props.renderSubtitle ?? ((props) => props.children)
 
@@ -316,6 +330,12 @@ export default function DefaultPageLayout(
             props.services.auth.events.removeListener('changed', handler)
         }
     })
+
+    const getHeaderHeight = () => {
+        const headerHeight = document.getElementById('StyledHeader')
+            ?.clientHeight
+        return headerHeight
+    }
 
     const renderFeedArea = () => {
         if (!isAuthenticated) {
@@ -363,8 +383,6 @@ export default function DefaultPageLayout(
         )
     }
 
-    console.log(props.isSidebarShown)
-
     return (
         <MainContainer
             viewportWidth={viewportWidth}
@@ -375,17 +393,15 @@ export default function DefaultPageLayout(
             >
                 Beta | Feedback
             </BetaFlag>
-            <MemexLogo
-                src={logoImage}
-                onClick={() => window.open('https://getmemex.com')}
-                viewportWidth={viewportWidth}
-            />
-            {props.permissionKeyOverlay}
-            <StyledHeader
-                id={'StyledHeader'}
-                viewportWidth={viewportWidth}
-                headerHeight={60}
-            >
+            {!isAuthenticated && (
+                <MemexLogo
+                    src={logoImage}
+                    onClick={() => window.open('https://getmemex.com')}
+                    viewportWidth={viewportWidth}
+                />
+            )}
+            <StyledHeader id={'StyledHeader'} viewportWidth={viewportWidth}>
+                {props.permissionKeyOverlay}
                 <LogoAndFeed viewportWidth={viewportWidth}>
                     {props.listsSidebarProps && isAuthenticated && (
                         <>
@@ -400,7 +416,14 @@ export default function DefaultPageLayout(
                         </>
                     )}
                 </LogoAndFeed>
-                <HeaderMiddleArea viewportWidth={viewportWidth}>
+                <PageMidleAreaActionMobile viewportWidth={viewportWidth}>
+                    {props.webMonetizationIcon && props.webMonetizationIcon}
+                    {props.followBtn && props.followBtn}
+                </PageMidleAreaActionMobile>
+                <HeaderMiddleArea
+                    viewportWidth={viewportWidth}
+                    id={'HeaderMiddleArea'}
+                >
                     <PageMiddleAreaTopBox viewportWidth={viewportWidth}>
                         <PageMidleAreaTitles>
                             {props.headerTitle && (
@@ -440,7 +463,7 @@ export default function DefaultPageLayout(
                     </HeaderAuthArea>
                 )}
             </StyledHeader>
-            <PageMiddleArea>
+            <PageMiddleArea headerHeight={getHeaderHeight()}>
                 {renderListsSidebar()}
                 <PageResultsArea viewportWidth={viewportWidth}>
                     {props.children}

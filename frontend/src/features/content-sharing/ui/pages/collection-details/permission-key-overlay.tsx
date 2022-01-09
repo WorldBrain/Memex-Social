@@ -6,14 +6,8 @@ import { UIElementServices } from '../../../../../services/types'
 import { UITaskState } from '../../../../../main-ui/types'
 import { Margin } from 'styled-components-spacing'
 import ExternalLink from '../../../../../common-ui/components/external-link'
-import LoadingScreen from '../../../../../common-ui/components/loading-screen'
 import { ProcessSharedListKeyResult } from '@worldbrain/memex-common/lib/content-sharing/service/types'
-import { doesMemexExtDetectionElExist } from '@worldbrain/memex-common/lib/common-ui/utils/content-script'
 import { PrimaryAction } from '../../../../../common-ui/components/PrimaryAction'
-
-const braveLogo = require('../../../../../assets/img/logo-brave.svg')
-const firefoxLogo = require('../../../../../assets/img/logo-firefox.svg')
-const chromeLogo = require('../../../../../assets/img/logo-chrome.svg')
 
 const Content = styled.div<{
     viewportBreakpoint: ViewportBreakpoint
@@ -41,15 +35,22 @@ const Content = styled.div<{
             max-width: 90%;
         `}
 `
-const InvitedNotificationContainer = styled.div`
+const InvitedNotificationContainer = styled.div<{
+    viewportBreakpoint: ViewportBreakpoint
+}>`
     display: flex;
     width: 100%;
     justify-content: center;
     top: 10px;
     position: absolute;
-    top: 10px;
-    z-index: 3000;
+    z-index: 3003;
     pointer-events: none;
+
+    ${(props) =>
+        props.viewportBreakpoint === 'mobile' &&
+        css`
+            width: 90%;
+        `}
 `
 
 const InvitedNotification = styled.div<{
@@ -68,14 +69,6 @@ const InvitedNotification = styled.div<{
         border: 1px solid #f0f0f0;
         font-family: ${(props) => props.theme.fonts.primary};
         background: white;
-
-        ${(props) =>
-            (props.viewportBreakpoint === 'small' ||
-                props.viewportBreakpoint === 'mobile') &&
-            css`
-                margin: 0 5px;
-                align-items: flex-start;
-            `}
 `
 
 const Title = styled.div`
@@ -155,8 +148,6 @@ export default function PermissionKeyOverlay(props: {
     permissionKeyState?: UITaskState
     permissionKeyResult?: ProcessSharedListKeyResult
 }) {
-    console.log(props.permissionKeyResult)
-
     if (props.permissionKeyState === 'error') {
         return (
             <Overlay
@@ -220,9 +211,12 @@ export default function PermissionKeyOverlay(props: {
         props.permissionKeyState === 'success'
     ) {
         return (
-            <InvitedNotificationContainer>
+            <InvitedNotificationContainer
+                viewportBreakpoint={props.viewportBreakpoint}
+            >
                 <InvitedNotification
                     viewportBreakpoint={props.viewportBreakpoint}
+                    onClick={() => props.onCloseRequested}
                 >
                     🎉 You’ve been invited as a collaborator. You can add pages
                     and highlights with the Memex extension.

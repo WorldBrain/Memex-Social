@@ -16,6 +16,7 @@ const Container = styled.div`
     height: min-content;
     width: min-content;
     position: relative;
+    cursor: pointer;
 `
 
 const CuratorPopupBox = styled.div`
@@ -59,7 +60,10 @@ export default class CuratorSupportPopupContainer extends UIElement<
         const { props, state } = this
         return (
             <>
-                <Container onMouseEnter={() => this.handleMouseEnter()}>
+                <Container
+                    onMouseEnter={() => this.handleMouseEnter()}
+                    onMouseLeave={() => this.handleMouseLeave()}
+                >
                     {props.children}
                     {state.isDisplayed &&
                         userPublicProfile?.paymentPointer &&

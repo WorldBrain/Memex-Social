@@ -12,15 +12,6 @@ import UnseenActivityIndicator from '../../../../features/activity-streams/ui/co
 import { Margin } from 'styled-components-spacing'
 import { StorageModules } from '../../../../storage/types'
 
-const FeedContainer = styled.div`
-    display: grid;
-    justify-content: flex-start;
-    grid-gap: 10px;
-    grid-auto-flow: column;
-    margin-bottom: 10px;
-    cursor: pointer;
-`
-
 const UnseenActivityDot = styled.div`
     background: #5cd9a6;
     width: 14px;
@@ -49,7 +40,6 @@ const FeedLink = styled(RouteLink)`
 `
 
 const Container = styled.div<{
-    top: number
     viewportBreakpoint: ViewportBreakpoint
 }>`
     position: fixed;
@@ -178,11 +168,6 @@ export default class ListsSidebar extends PureComponent<Props> {
         ))
     }
 
-    getTop() {
-        const top = document.getElementById('StyledHeader')?.clientHeight
-        return top
-    }
-
     private renderFeedsArea() {
         return (
             <FeedArea>
@@ -260,15 +245,8 @@ export default class ListsSidebar extends PureComponent<Props> {
             return null
         }
 
-        const { viewportBreakpoint: viewportWidth } = this.props
-
-        //console.log(this.props)
-
         return (
-            <Container
-                top={this.getTop()}
-                viewportBreakpoint={this.props.viewportBreakpoint}
-            >
+            <Container viewportBreakpoint={this.props.viewportBreakpoint}>
                 <ListsSidebarToggle
                     viewportWidth={this.props.viewportBreakpoint}
                     onToggle={this.props.onToggle}
