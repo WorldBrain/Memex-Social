@@ -24,7 +24,7 @@ const MainContainer = styled.div<{
     align-items: center;
     flex-direction: column;
     justify-content: flex-start;
-    min-height: 100vh;
+    min-height: 50vh;
     height: fit-content;
 
     ${(props) =>
@@ -167,40 +167,23 @@ const HeaderAuthArea = styled.div<{
     right: 20px;
 `
 
-const PageMiddleArea = styled.div<{
-    headerHeight: number | undefined
-}>`
+const PageMiddleArea = styled.div<{}>`
     width: 100%;
     display: flex;
     height: 100%;
     position: absolute;
-    top: ${(props) => props.headerHeight}px;
     //overflow: scroll;
 `
 
 const PageResultsArea = styled.div<{
     viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
+    headerHeight: number | undefined
 }>`
     max-width: ${middleMaxWidth};
-    top: 10px;
     position: relative;
     padding-bottom: 100px;
     margin: 0px auto 0;
-
-    ${(props) =>
-        props.viewportWidth === 'small' &&
-        css`
-            width: 95%;
-            top: 10px;
-            margin: 20px auto 0;
-        `}
-    ${(props) =>
-        props.viewportWidth === 'mobile' &&
-        css`
-            width: 95%;
-            top: 10px;
-            margin: 20px auto 0;
-        `}
+    top: ${(props) => props.headerHeight}px;
 `
 
 const PageMidleAreaTitles = styled.div`
@@ -284,10 +267,6 @@ const MemexLogo = styled.img<{
     viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
 }>`
     height: 24px;
-    position: fixed;
-    top: 20px;
-    left: 20px;
-    display: flex;
     z-index: 3005;
 `
 
@@ -334,6 +313,8 @@ export default function DefaultPageLayout(props: {
     const getHeaderHeight = () => {
         const headerHeight = document.getElementById('StyledHeader')
             ?.clientHeight
+
+        console.log(headerHeight)
         return headerHeight
     }
 
@@ -393,13 +374,6 @@ export default function DefaultPageLayout(props: {
             >
                 Beta | Feedback
             </BetaFlag>
-            {!isAuthenticated && (
-                <MemexLogo
-                    src={logoImage}
-                    onClick={() => window.open('https://getmemex.com')}
-                    viewportWidth={viewportWidth}
-                />
-            )}
             <StyledHeader id={'StyledHeader'} viewportWidth={viewportWidth}>
                 {props.permissionKeyOverlay}
                 <LogoAndFeed viewportWidth={viewportWidth}>
@@ -414,6 +388,13 @@ export default function DefaultPageLayout(props: {
                             />
                             <LeftRightBlock>{renderFeedArea()}</LeftRightBlock>
                         </>
+                    )}
+                    {!isAuthenticated && (
+                        <MemexLogo
+                            src={logoImage}
+                            onClick={() => window.open('https://getmemex.com')}
+                            viewportWidth={viewportWidth}
+                        />
                     )}
                 </LogoAndFeed>
                 <PageMidleAreaActionMobile viewportWidth={viewportWidth}>
@@ -463,9 +444,12 @@ export default function DefaultPageLayout(props: {
                     </HeaderAuthArea>
                 )}
             </StyledHeader>
-            <PageMiddleArea headerHeight={getHeaderHeight()}>
+            <PageMiddleArea>
                 {renderListsSidebar()}
-                <PageResultsArea viewportWidth={viewportWidth}>
+                <PageResultsArea
+                    headerHeight={getHeaderHeight()}
+                    viewportWidth={viewportWidth}
+                >
                     {props.children}
                 </PageResultsArea>
             </PageMiddleArea>
