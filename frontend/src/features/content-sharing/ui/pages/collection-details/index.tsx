@@ -120,6 +120,7 @@ const ToggleAllAnnotations = styled.div`
 
 const PageInfoList = styled.div`
     width: 100%;
+    padding-bottom: 200px;
 `
 
 const EmptyListBox = styled.div`

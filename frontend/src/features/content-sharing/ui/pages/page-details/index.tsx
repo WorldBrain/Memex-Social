@@ -20,6 +20,7 @@ import ProfilePopupContainer from '../../../../user-management/ui/containers/pro
 
 const PageInfoList = styled.div`
     width: 100%;
+    padding-bottom: 200px;
 `
 
 const AnnotationsLoading = styled.div`
