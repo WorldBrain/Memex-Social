@@ -682,7 +682,7 @@ export default class HomeFeedPage extends UIElement<
                         followedLists: this.state.followedLists,
                         isShown: this.state.isListSidebarShown,
                         loadState: this.state.listSidebarLoadState,
-                        onSidebarToggle: () =>
+                        onToggle: () =>
                             this.processEvent('toggleListSidebar', undefined),
                     }}
                 >

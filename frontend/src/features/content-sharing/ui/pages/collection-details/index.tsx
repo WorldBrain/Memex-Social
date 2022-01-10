@@ -37,6 +37,7 @@ import InstallExtOverlay from './install-ext-overlay'
 import { mergeTaskStates } from '../../../../../main-ui/classes/logic'
 import { UserReference } from '../../../../user-management/types'
 import ListShareModal from '@worldbrain/memex-common/lib/content-sharing/ui/list-share-modal'
+import type { Props as ListsSidebarProps } from '../../../../lists-sidebar/ui/components/lists-sidebar'
 
 const commentImage = require('../../../../../assets/img/comment.svg')
 const commentEmptyImage = require('../../../../../assets/img/comment-empty.svg')
@@ -153,14 +154,16 @@ export default class CollectionDetailsPage extends UIElement<
         super(props, { logic: new Logic({ ...props }) })
     }
 
-    get listsSidebarProps() {
+    get listsSidebarProps(): Omit<
+        ListsSidebarProps,
+        'services' | 'storage' | 'viewportBreakpoint'
+    > {
         return {
             collaborativeLists: this.state.collaborativeLists,
             followedLists: this.state.followedLists,
             isShown: this.state.isListSidebarShown,
             loadState: this.state.listSidebarLoadState,
-            onSidebarToggle: () =>
-                this.processEvent('toggleListSidebar', undefined),
+            onToggle: () => this.processEvent('toggleListSidebar', undefined),
         }
     }
 

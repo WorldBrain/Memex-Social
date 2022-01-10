@@ -17,6 +17,7 @@ import AnnotationsInPage from '../../../../annotations/ui/components/annotations
 import LoadingIndicator from '../../../../../common-ui/components/loading-indicator'
 import ErrorWithAction from '../../../../../common-ui/components/error-with-action'
 import ProfilePopupContainer from '../../../../user-management/ui/containers/profile-popup-container'
+import type { Props as ListsSidebarProps } from '../../../../lists-sidebar/ui/components/lists-sidebar'
 
 const PageInfoList = styled.div`
     width: 100%;
@@ -37,14 +38,16 @@ export default class PageDetailsPage extends UIElement<
         super(props, { logic: new Logic(props) })
     }
 
-    get listsSidebarProps() {
+    get listsSidebarProps(): Omit<
+        ListsSidebarProps,
+        'services' | 'storage' | 'viewportBreakpoint'
+    > {
         return {
             collaborativeLists: this.state.collaborativeLists,
             followedLists: this.state.followedLists,
             isShown: this.state.isListSidebarShown,
             loadState: this.state.listSidebarLoadState,
-            onSidebarToggle: () =>
-                this.processEvent('toggleListSidebar', undefined),
+            onToggle: () => this.processEvent('toggleListSidebar', undefined),
         }
     }
 

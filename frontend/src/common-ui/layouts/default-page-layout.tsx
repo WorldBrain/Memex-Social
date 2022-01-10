@@ -17,7 +17,7 @@ const logoImage = require('../../assets/img/memex-logo.svg')
 
 const MainContainer = styled.div<{
     viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
-    sidebarShown: boolean
+    sidebarShown?: boolean
 }>`
     background: #f6f8fb;
     display: flex;
@@ -287,9 +287,10 @@ export default function DefaultPageLayout(props: {
     webMonetizationIcon?: JSX.Element
     hideActivityIndicator?: boolean
     isSidebarShown?: boolean
-    listsSidebarProps?: Omit<ListsSidebarProps, 'services'> & {
-        onSidebarToggle: React.MouseEventHandler
-    }
+    listsSidebarProps?: Omit<
+        ListsSidebarProps,
+        'services' | 'storage' | 'viewportBreakpoint'
+    >
     renderSubtitle?: (props: { children: React.ReactNode }) => React.ReactNode
     viewportBreakpoint: ViewportBreakpoint
     children: React.ReactNode
@@ -314,7 +315,6 @@ export default function DefaultPageLayout(props: {
         const headerHeight = document.getElementById('StyledHeader')
             ?.clientHeight
 
-        console.log(headerHeight)
         return headerHeight
     }
 
@@ -357,9 +357,9 @@ export default function DefaultPageLayout(props: {
         return (
             <ListsSidebar
                 {...props.listsSidebarProps}
+                storage={props.storage}
                 services={props.services}
                 viewportBreakpoint={props.viewportBreakpoint}
-                onToggle={props.listsSidebarProps.onSidebarToggle}
             />
         )
     }
@@ -381,9 +381,7 @@ export default function DefaultPageLayout(props: {
                         <>
                             <ListsSidebarToggle
                                 viewportWidth={viewportWidth}
-                                onToggle={
-                                    props.listsSidebarProps.onSidebarToggle
-                                }
+                                onToggle={props.listsSidebarProps.onToggle}
                                 isShown={props.listsSidebarProps.isShown}
                             />
                             <LeftRightBlock>{renderFeedArea()}</LeftRightBlock>
