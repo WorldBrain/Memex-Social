@@ -43,7 +43,7 @@ const StyledHeader = styled.div<{
     width: 100%;
     display: flex;
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    justify-content: space-between;
+    justify-content: center;
     padding: 10px 20px;
     position: sticky;
 
