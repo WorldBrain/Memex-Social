@@ -53,6 +53,10 @@ const LoadMoreLink = styled(RouteLink)`
     }
 `
 
+const FeedContainer = styled.div`
+    margin-top: 20px;
+`
+
 const ActivityType = styled.div`
     white-space: nowrap;
 `
@@ -208,12 +212,12 @@ export default class HomeFeedPage extends UIElement<
             return this.renderNoActivities()
         }
         return (
-            <>
+            <FeedContainer>
                 {this.renderActivities(this.state.activityItems)}
                 <Waypoint
                     onEnter={() => this.processEvent('waypointHit', null)}
                 />
-            </>
+            </FeedContainer>
         )
     }
 
@@ -672,6 +676,7 @@ export default class HomeFeedPage extends UIElement<
                     storage={this.props.storage}
                     viewportBreakpoint={viewportWidth}
                     hideActivityIndicator
+                    headerTitle="Activity Feed"
                     listsSidebarProps={{
                         collaborativeLists: this.state.collaborativeLists,
                         followedLists: this.state.followedLists,
