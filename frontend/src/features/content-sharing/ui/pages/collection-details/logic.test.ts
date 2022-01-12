@@ -74,7 +74,6 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
             const userReference = services.auth.getCurrentUserReference()!
             const listReference = await contentSharing.createSharedList({
                 userReference,
-                localListId: 33,
                 listData: { title: 'Test list' },
             })
 
@@ -179,7 +178,6 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
             const userReference = services.auth.getCurrentUserReference()!
             const listReference = await contentSharing.createSharedList({
                 userReference,
-                localListId: 33,
                 listData: { title: 'Test list' },
             })
 
@@ -266,7 +264,6 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
             const userReference = services.auth.getCurrentUserReference()!
             const listReference = await contentSharing.createSharedList({
                 userReference,
-                localListId: 33,
                 listData: { title: 'Test list' },
             })
 
@@ -374,7 +371,6 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
             const userReference = services.auth.getCurrentUserReference()!
             const listReference = await contentSharing.createSharedList({
                 userReference,
-                localListId: 33,
                 listData: { title: 'Test list' },
             })
 
@@ -443,7 +439,6 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
             const userReference = services.auth.getCurrentUserReference()!
             const listReference = await contentSharing.createSharedList({
                 userReference,
-                localListId: 33,
                 listData: { title: 'Test list' },
             })
 

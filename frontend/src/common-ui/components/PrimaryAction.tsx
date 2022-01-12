@@ -49,9 +49,9 @@ export const PrimaryAction = ({
 }) => (
     <StyledPrimaryAction
         tabIndex={0}
-        onClick={onClick}
+        onClick={onClick as any}
         ref={innerRef}
-        onKeyPress={(e) => (e.key === 'Enter' ? onClick(e) : false)}
+        onKeyPress={(e) => (e.key === 'Enter' ? onClick(e as any) : false)}
     >
         <StyledPrimaryActionLinkText>{label}</StyledPrimaryActionLinkText>
     </StyledPrimaryAction>

@@ -154,6 +154,7 @@ export function createServices(options: {
     const contentSharingBackend =
         options.backend === 'memory'
             ? new ContentSharingBackend({
+                  storageManager: options.storage.serverStorageManager,
                   contentSharing: options.storage.serverModules.contentSharing,
                   activityFollows:
                       options.storage.serverModules.activityFollows,

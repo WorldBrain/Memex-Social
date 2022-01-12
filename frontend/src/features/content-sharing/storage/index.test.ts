@@ -27,7 +27,6 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 listData: {
                     title: 'My list',
                 },
-                localListId: 55,
                 userReference,
             })
             const retrieved = await contentSharing.retrieveList(listReference)
@@ -69,7 +68,6 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 listData: {
                     title: 'My list',
                 },
-                localListId: 55,
                 userReference,
             })
             await contentSharing.updateListTitle(
@@ -107,7 +105,6 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                         listData: {
                             title,
                         },
-                        localListId: 55 + i,
                         userReference,
                     }),
                 )
@@ -132,7 +129,6 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 listData: {
                     title: 'My list',
                 },
-                localListId: 55,
                 userReference,
             })
             const test = async () => {
@@ -200,7 +196,6 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 listData: {
                     title: 'My list',
                 },
-                localListId: 55,
                 userReference,
             })
             await data.createTestListEntries({
@@ -310,7 +305,6 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 listData: {
                     title: 'My list',
                 },
-                localListId: 55,
                 userReference,
             })
             await data.createTestListEntries({
@@ -327,7 +321,6 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 listData: {
                     title: 'My list 2',
                 },
-                localListId: 75,
                 userReference,
             })
             await data.createTestListEntries({
@@ -453,7 +446,6 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 listData: {
                     title: 'My list',
                 },
-                localListId: 55,
                 userReference,
             })
             await data.createTestListEntries({
@@ -489,7 +481,6 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 listData: {
                     title: 'My list',
                 },
-                localListId: 55,
                 userReference,
             })
             await data.createTestListEntries({
@@ -532,7 +523,6 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 listData: {
                     title: 'My list',
                 },
-                localListId: 55,
                 userReference,
             })
             await data.createTestListEntries({
@@ -599,7 +589,6 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 listData: {
                     title: 'My list',
                 },
-                localListId: 55,
                 userReference,
             })
             await data.createTestListEntries({
@@ -616,7 +605,6 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 listData: {
                     title: 'My list 2',
                 },
-                localListId: 75,
                 userReference,
             })
             await data.createTestListEntries({
@@ -753,7 +741,6 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 listData: {
                     title: 'My list',
                 },
-                localListId: 55,
                 userReference,
             })
             await data.createTestListEntries({
@@ -770,7 +757,6 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 listData: {
                     title: 'My list 2',
                 },
-                localListId: 75,
                 userReference,
             })
             await data.createTestListEntries({
@@ -898,7 +884,6 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 listData: {
                     title: 'My list',
                 },
-                localListId: 55,
                 userReference,
             })
             await data.createTestListEntries({
@@ -917,7 +902,6 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 listData: {
                     title: 'My list 2',
                 },
-                localListId: 75,
                 userReference,
             })
             await data.createTestListEntries({
@@ -1028,7 +1012,6 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 listData: {
                     title: 'My list',
                 },
-                localListId: 55,
                 userReference,
             })
             await data.createTestListEntries({
@@ -1090,7 +1073,6 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 listData: {
                     title: 'My list',
                 },
-                localListId: 55,
                 userReference,
             })
             await data.createTestListEntries({
@@ -1162,7 +1144,6 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 listData: {
                     title: 'My list',
                 },
-                localListId: 55,
                 userReference,
             })
             await data.createTestListEntries({
@@ -1225,7 +1206,6 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
         const { contentSharing } = storage.serverModules
         const listReference = await contentSharing.createSharedList({
             listData: { title: 'My list' },
-            localListId: 55,
             userReference: { type: 'user-reference', id: 1 },
         })
 
@@ -1333,13 +1313,11 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
 
         const listReference1 = await contentSharing.createSharedList({
             listData: { title: 'My list' },
-            localListId: 55,
             userReference: listCreatorReference,
         })
 
         const listReference2 = await contentSharing.createSharedList({
             listData: { title: 'My list 2' },
-            localListId: 56,
             userReference: listCreatorReference,
         })
 
@@ -1411,7 +1389,6 @@ createMultiDeviceStorageTestSuite(
                 listData: {
                     title: 'My list',
                 },
-                localListId: 55,
                 userReference,
             })
             if (options?.withTestListEntries) {
@@ -1611,7 +1588,7 @@ createMultiDeviceStorageTestSuite(
                     superuserDevice.storage.serverModules.contentSharing,
                 activityFollows:
                     devices[1].storage.serverModules.activityFollows,
-                userMessages: devices[1].services.userMessages,
+                storageManager: superuserDevice.storage.serverStorageManager,
             })
             expect(
                 await devicesByRole.listOwner.storage.serverModules.contentSharing.getListRole(
