@@ -18,6 +18,7 @@ import LoadingIndicator from '../../../../../common-ui/components/loading-indica
 import ErrorWithAction from '../../../../../common-ui/components/error-with-action'
 import ProfilePopupContainer from '../../../../user-management/ui/containers/profile-popup-container'
 import type { Props as ListsSidebarProps } from '../../../../lists-sidebar/ui/components/lists-sidebar'
+import { isPagePdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
 
 const PageInfoList = styled.div`
     width: 100%;
@@ -171,6 +172,11 @@ export default class PageDetailsPage extends UIElement<
                     <PageInfoList>
                         <Margin>
                             <PageInfoBox
+                                type={
+                                    isPagePdf({ url: pageInfo.normalizedUrl })
+                                        ? 'pdf'
+                                        : 'page'
+                                }
                                 pageInfo={pageInfo}
                                 creator={creator}
                                 profilePopup={

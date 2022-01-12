@@ -31,6 +31,7 @@ import {
 import { SharedAnnotationReference } from '@worldbrain/memex-common/lib/content-sharing/types'
 import AnnotationReply from '../../../../content-conversations/ui/components/annotation-reply'
 import ErrorBox from '../../../../../common-ui/components/error-box'
+import { isPagePdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
 
 const commentImage = require('../../../../../assets/img/comment.svg')
 const collectionImage = require('../../../../../assets/img/collection.svg')
@@ -316,6 +317,11 @@ export default class HomeFeedPage extends UIElement<
                             {this.renderActivityReason(pageItem)}
                         </Margin>
                         <PageInfoBox
+                            type={
+                                isPagePdf({ url: pageItem?.normalizedPageUrl })
+                                    ? 'pdf'
+                                    : 'page'
+                            }
                             profilePopup={{
                                 services: this.props.services,
                                 storage: this.props.storage,
@@ -566,6 +572,13 @@ export default class HomeFeedPage extends UIElement<
                                         key={entry.normalizedUrl}
                                     >
                                         <PageInfoBox
+                                            type={
+                                                isPagePdf({
+                                                    url: entry.normalizedUrl,
+                                                })
+                                                    ? 'pdf'
+                                                    : 'page'
+                                            }
                                             profilePopup={{
                                                 services: this.props.services,
                                                 storage: this.props.storage,

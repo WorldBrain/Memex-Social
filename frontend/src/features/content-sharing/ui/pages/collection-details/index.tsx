@@ -38,6 +38,7 @@ import { mergeTaskStates } from '../../../../../main-ui/classes/logic'
 import { UserReference } from '../../../../user-management/types'
 import ListShareModal from '@worldbrain/memex-common/lib/content-sharing/ui/list-share-modal'
 import type { Props as ListsSidebarProps } from '../../../../lists-sidebar/ui/components/lists-sidebar'
+import { isPagePdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
 
 const commentImage = require('../../../../../assets/img/comment.svg')
 const commentEmptyImage = require('../../../../../assets/img/comment-empty.svg')
@@ -190,6 +191,7 @@ export default class CollectionDetailsPage extends UIElement<
     renderPageEntry(entry: SharedListEntry & { creator: UserReference }) {
         return (
             <PageInfoBox
+                type={isPagePdf({ url: entry.normalizedUrl }) ? 'pdf' : 'page'}
                 profilePopup={{
                     services: this.props.services,
                     storage: this.props.storage,
