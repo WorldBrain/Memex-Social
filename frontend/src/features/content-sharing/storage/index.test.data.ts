@@ -3,6 +3,10 @@ import fromPairs from 'lodash/fromPairs'
 import ContentSharingStorage from '.'
 import { SharedListReference } from '@worldbrain/memex-common/lib/content-sharing/types'
 import { UserReference } from '@worldbrain/memex-common/lib/web-interface/types/users'
+import {
+    FingerprintSchemeType,
+    LocationSchemeType,
+} from '@worldbrain/memex-common/lib/personal-cloud/storage/types'
 
 export const TEST_ANNOTATIONS_BY_PAGE = {
     'foo.com/page-1': [
@@ -30,6 +34,15 @@ export const TEST_ANNOTATIONS_BY_PAGE = {
             selector: 'Selector 3',
         },
     ],
+    'memex.cloud/ct/test-fingerprint-1.pdf': [
+        {
+            createdWhen: 2500,
+            localId: 'memex.cloud/ct/test-fingerprint-1.pdf#2500',
+            body: 'Body 4',
+            comment: 'Comment 4',
+            selector: 'Selector 4',
+        },
+    ],
 }
 export const TEST_ANNOTATION_PAGE_URLS_BY_LOCAL_ID = fromPairs(
     flatten(
@@ -44,6 +57,13 @@ export const TEST_ANNOTATION_PAGE_URLS_BY_LOCAL_ID = fromPairs(
     ),
 )
 
+export const TEST_PDF_LIST_ENTRY = {
+    entryTitle: 'PDF Page 1',
+    originalUrl: 'https://memex.cloud/ct/test-fingerprint-1.pdf',
+    normalizedUrl: 'memex.cloud/ct/test-fingerprint-1.pdf',
+    createdWhen: 590,
+}
+
 export const TEST_LIST_ENTRIES = [
     {
         entryTitle: 'Page 1',
@@ -56,6 +76,25 @@ export const TEST_LIST_ENTRIES = [
         normalizedUrl: 'bar.com/page-2',
         createdWhen: 592,
     },
+    TEST_PDF_LIST_ENTRY,
+]
+
+export const TEST_LOCATORS = [
+    {
+        locationScheme: LocationSchemeType.NormalizedUrlV1,
+        originalUrl: 'https://www.bar.com/test-pdf.pdf',
+    },
+]
+
+export const TEST_FINGERPRINTS = [
+    {
+        fingerprintScheme: FingerprintSchemeType.PdfV1,
+        fingerprint: 'test-fingerprint-1',
+    },
+    {
+        fingerprintScheme: FingerprintSchemeType.PdfV1,
+        fingerprint: 'test-fingerprint-2',
+    },
 ]
 
 export async function createTestListEntries(params: {
@@ -67,6 +106,13 @@ export async function createTestListEntries(params: {
         listReference: params.listReference,
         listEntries: TEST_LIST_ENTRIES,
         userReference: params.userReference,
+    })
+    await params.contentSharing.createLocatorsAndFingerprints({
+        creator: params.userReference,
+        listReferences: [params.listReference],
+        normalizedPageUrl: TEST_PDF_LIST_ENTRY.normalizedUrl,
+        fingerprints: TEST_FINGERPRINTS,
+        locators: TEST_LOCATORS,
     })
 }
 

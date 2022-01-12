@@ -188,25 +188,6 @@ export default class CollectionDetailsPage extends UIElement<
         }
     }
 
-    renderPageEntry(entry: SharedListEntry & { creator: UserReference }) {
-        return (
-            <PageInfoBox
-                type={isPagePdf({ url: entry.normalizedUrl }) ? 'pdf' : 'page'}
-                profilePopup={{
-                    services: this.props.services,
-                    storage: this.props.storage,
-                    userRef: entry.creator,
-                }}
-                pageInfo={{
-                    ...entry,
-                    fullTitle: entry.entryTitle,
-                }}
-                creator={this.state.users[entry.creator.id]}
-                actions={this.getPageEntryActions(entry)}
-            />
-        )
-    }
-
     private renderWebMonetizationIcon() {
         const creatorReference = this.state.listData?.creatorReference
 
@@ -638,7 +619,32 @@ export default class CollectionDetailsPage extends UIElement<
                             ([entryIndex, entry]) => (
                                 <Margin bottom={'small'}>
                                     <React.Fragment key={entry.normalizedUrl}>
-                                        {this.renderPageEntry(entry)}
+                                        <PageInfoBox
+                                            type={
+                                                isPagePdf({
+                                                    url: entry.normalizedUrl,
+                                                })
+                                                    ? 'pdf'
+                                                    : 'page'
+                                            }
+                                            profilePopup={{
+                                                services: this.props.services,
+                                                storage: this.props.storage,
+                                                userRef: entry.creator,
+                                            }}
+                                            pageInfo={{
+                                                ...entry,
+                                                fullTitle: entry.entryTitle,
+                                            }}
+                                            creator={
+                                                this.state.users[
+                                                    entry.creator.id
+                                                ]
+                                            }
+                                            actions={this.getPageEntryActions(
+                                                entry,
+                                            )}
+                                        />
                                         {state.pageAnnotationsExpanded[
                                             entry.normalizedUrl
                                         ] && (
