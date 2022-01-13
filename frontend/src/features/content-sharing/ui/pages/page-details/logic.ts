@@ -27,6 +27,7 @@ import {
     listsSidebarEventHandlers,
 } from '../../../../lists-sidebar/ui/logic'
 import UserProfileCache from '../../../../user-management/utils/user-profile-cache'
+import { isPagePdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
 
 type EventHandler<EventName extends keyof PageDetailsEvent> = UIEventHandler<
     PageDetailsState,
@@ -115,6 +116,17 @@ export default class PageDetailsLogic extends UILogic<
                 )
                 creatorReference = result?.creatorReference ?? null
                 pageInfo = result?.pageInfo ?? null
+
+                if (isPagePdf({ url: result.pageInfo.normalizedUrl })) {
+                    const {
+                        locators,
+                    } = await storage.contentSharing.getContentLocatorsByUrl({
+                        normalizedUrl: pageInfo.normalizedUrl,
+                    })
+                    if (locators.length > 0) {
+                        pageInfo.originalUrl = locators[0].originalUrl
+                    }
+                }
 
                 return {
                     mutation: {
