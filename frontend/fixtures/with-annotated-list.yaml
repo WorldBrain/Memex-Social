@@ -27,7 +27,14 @@ objects:
           updatedWhen: 1594225555555
           entryTitle: "WorldBrain's Memex PDF Support!"
           normalizedUrl: memex.cloud/ct/test-fingerprint-1.pdf
-          originalUrl: 'https://getmemex.com/test.pdf'
+          originalUrl: 'https://memex.cloud/ct/test-fingerprint-1.pdf'
+        - sharedList: { $ref: sharedLists.default }
+          creator: { $ref: users.default }
+          createdWhen: 1594225555555
+          updatedWhen: 1594225555555
+          entryTitle: "WorldBrain's Memex Local PDF Support!"
+          normalizedUrl: memex.cloud/ct/test-fingerprint-2.pdf
+          originalUrl: 'https://memex.cloud/ct/test-fingerprint-2.pdf'
         - sharedList: { $ref: sharedLists.default }
           creator: { $ref: users.default }
           createdWhen: 1594225289914
@@ -155,6 +162,13 @@ objects:
           fullTitle: "WorldBrain's Memex PDF Support!"
           normalizedUrl: memex.cloud/ct/test-fingerprint-1.pdf
           originalUrl: 'https://memex.cloud/ct/test-fingerprint-1.pdf'
+        - id: default-local-pdf-page
+          creator: { $ref: users.default }
+          createdWhen: 1594225555555
+          updatedWhen: 1594225555555
+          fullTitle: "WorldBrain's Memex Local PDF Support!"
+          normalizedUrl: memex.cloud/ct/test-fingerprint-2.pdf
+          originalUrl: 'https://memex.cloud/ct/test-fingerprint-2.pdf'
         - id: notion-page
           creator: { $ref: users.default }
           createdWhen: 1594225555555

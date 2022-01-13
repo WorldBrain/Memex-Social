@@ -144,6 +144,66 @@ export const SCENARIOS: ScenarioMap<Targets> = {
             }),
         ],
     })),
+    'default-local-pdf-page': scenario<Targets>(
+        ({ step, callModification }) => ({
+            fixture: 'annotated-list-with-user',
+            startRoute: {
+                route: 'pageDetails',
+                params: { id: 'default-local-pdf-page' },
+            },
+            setup: {
+                callModifications: ({ storage }) => [
+                    callModification({
+                        name: 'page-info-loading',
+                        object: storage.serverModules.contentSharing,
+                        property: 'getPageInfo',
+                        modifier: 'block',
+                    }),
+                    callModification({
+                        name: 'annotations-loading',
+                        object: storage.serverModules.contentSharing,
+                        property: 'getAnnotationsByCreatorAndPageUrl',
+                        modifier: 'block',
+                    }),
+                    callModification({
+                        name: 'creator-loading',
+                        object: storage.serverModules.users,
+                        property: 'getUser',
+                        modifier: 'block',
+                    }),
+                ],
+            },
+            steps: [
+                step({
+                    name: 'page-info-loaded',
+                    callModifications: ({ storage }) => [
+                        {
+                            name: 'page-info-loading',
+                            modifier: 'undo',
+                        },
+                    ],
+                }),
+                step({
+                    name: 'annotations-loaded',
+                    callModifications: ({ storage }) => [
+                        {
+                            name: 'annotations-loading',
+                            modifier: 'undo',
+                        },
+                    ],
+                }),
+                step({
+                    name: 'creator-loaded',
+                    callModifications: ({ storage }) => [
+                        {
+                            name: 'creator-loading',
+                            modifier: 'undo',
+                        },
+                    ],
+                }),
+            ],
+        }),
+    ),
     'user-register': scenario<Targets>(({ step, callModification }) => ({
         fixture: 'annotated-list-with-user',
         startRoute: { route: 'pageDetails', params: { id: 'default-page' } },
