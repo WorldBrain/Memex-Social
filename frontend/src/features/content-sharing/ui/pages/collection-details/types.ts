@@ -105,6 +105,7 @@ export type CollectionDetailsEvent = UIEvent<
             closePermissionOverlay: {}
             pageBreakpointHit: { entryIndex: number }
             clickFollowBtn: null
+            clickPageResult: { urlToOpen: string; preventOpening: () => void }
             showMoreCollaborators: {}
         }
 >

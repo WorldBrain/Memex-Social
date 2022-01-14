@@ -442,20 +442,6 @@ export default class CollectionDetailsPage extends UIElement<
         ) : null
     }
 
-    renderInstallExtOverlay() {
-        return (
-            this.state.isInstallExtModalShown && (
-                <InstallExtOverlay
-                    services={this.props.services}
-                    viewportBreakpoint={this.viewportBreakpoint}
-                    onCloseRequested={() =>
-                        this.processEvent('toggleInstallExtModal', {})
-                    }
-                />
-            )
-        )
-    }
-
     private renderAbovePagesBox() {
         const {
             annotationEntryData,
@@ -557,7 +543,15 @@ export default class CollectionDetailsPage extends UIElement<
                     subTitle={data.list.title}
                 />
                 {/* {this.renderPermissionKeyOverlay()} */}
-                {this.renderInstallExtOverlay()}
+                {this.state.isInstallExtModalShown && (
+                    <InstallExtOverlay
+                        services={this.props.services}
+                        viewportBreakpoint={this.viewportBreakpoint}
+                        onCloseRequested={() =>
+                            this.processEvent('toggleInstallExtModal', {})
+                        }
+                    />
+                )}
                 <DefaultPageLayout
                     services={this.props.services}
                     storage={this.props.storage}
@@ -620,6 +614,17 @@ export default class CollectionDetailsPage extends UIElement<
                                 <Margin bottom={'small'}>
                                     <React.Fragment key={entry.normalizedUrl}>
                                         <PageInfoBox
+                                            onClick={(e) =>
+                                                this.processEvent(
+                                                    'clickPageResult',
+                                                    {
+                                                        urlToOpen:
+                                                            entry.originalUrl,
+                                                        preventOpening: () =>
+                                                            e.preventDefault(),
+                                                    },
+                                                )
+                                            }
                                             type={
                                                 isPagePdf({
                                                     url: entry.normalizedUrl,
