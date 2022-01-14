@@ -32,9 +32,10 @@ import { SharedAnnotationReference } from '@worldbrain/memex-common/lib/content-
 import AnnotationReply from '../../../../content-conversations/ui/components/annotation-reply'
 import ErrorBox from '../../../../../common-ui/components/error-box'
 import { isPagePdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
-import InstallExtOverlay from '../../../../content-sharing/ui/pages/collection-details/install-ext-overlay'
+import InstallExtOverlay from '../../../../ext-detection/ui/components/install-ext-overlay'
 import { getViewportBreakpoint } from '../../../../../main-ui/styles/utils'
 import { ViewportBreakpoint } from '../../../../../main-ui/styles/types'
+import MissingPdfOverlay from '../../../../ext-detection/ui/components/missing-pdf-overlay'
 
 const commentImage = require('../../../../../assets/img/comment.svg')
 const collectionImage = require('../../../../../assets/img/collection.svg')
@@ -675,6 +676,34 @@ export default class HomeFeedPage extends UIElement<
         )
     }
 
+    private renderModals() {
+        if (this.state.isInstallExtModalShown) {
+            return (
+                <InstallExtOverlay
+                    services={this.props.services}
+                    viewportBreakpoint={this.viewportBreakpoint}
+                    onCloseRequested={() =>
+                        this.processEvent('toggleInstallExtModal', {})
+                    }
+                />
+            )
+        }
+
+        if (this.state.isMissingPDFModalShown) {
+            return (
+                <MissingPdfOverlay
+                    services={this.props.services}
+                    viewportBreakpoint={this.viewportBreakpoint}
+                    onCloseRequested={() =>
+                        this.processEvent('toggleMissingPdfModal', {})
+                    }
+                />
+            )
+        }
+
+        return null
+    }
+
     render() {
         if (this.state.needsAuth) {
             return this.renderNeedsAuth()
@@ -686,15 +715,7 @@ export default class HomeFeedPage extends UIElement<
                     documentTitle={this.props.services.documentTitle}
                     subTitle={`Collaboration Feed`}
                 />
-                {this.state.isInstallExtModalShown && (
-                    <InstallExtOverlay
-                        services={this.props.services}
-                        viewportBreakpoint={this.viewportBreakpoint}
-                        onCloseRequested={() =>
-                            this.processEvent('toggleInstallExtModal', {})
-                        }
-                    />
-                )}
+                {this.renderModals()}
                 <DefaultPageLayout
                     services={this.props.services}
                     storage={this.props.storage}

@@ -7,10 +7,12 @@ export interface Dependencies {}
 
 export interface ExtDetectionState {
     isInstallExtModalShown: boolean
+    isMissingPDFModalShown: boolean
 }
 
 export interface ExtDetectionEvent {
     toggleInstallExtModal: {}
+    toggleMissingPdfModal: {}
     clickPageResult: { urlToOpen: string; preventOpening: () => void }
 }
 
@@ -24,6 +26,7 @@ export type EventHandlers = {
 
 export const extDetectionInitialState = (): ExtDetectionState => ({
     isInstallExtModalShown: false,
+    isMissingPDFModalShown: false,
 })
 
 export const extDetectionEventHandlers = (
@@ -42,13 +45,20 @@ export const extDetectionEventHandlers = (
         // This means it's a local PDF page
         if (isPagePdf({ url: event.urlToOpen })) {
             event.preventOpening()
-            console.log('show DnD modal!')
+            logic.emitMutation({
+                isMissingPDFModalShown: { $set: true },
+            })
             return
         }
     },
     toggleInstallExtModal: () => {
         logic.emitMutation({
             isInstallExtModalShown: { $apply: (shown) => !shown },
+        })
+    },
+    toggleMissingPdfModal: () => {
+        logic.emitMutation({
+            isMissingPDFModalShown: { $apply: (shown) => !shown },
         })
     },
 })

@@ -19,9 +19,10 @@ import ErrorWithAction from '../../../../../common-ui/components/error-with-acti
 import ProfilePopupContainer from '../../../../user-management/ui/containers/profile-popup-container'
 import type { Props as ListsSidebarProps } from '../../../../lists-sidebar/ui/components/lists-sidebar'
 import { isPagePdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
-import InstallExtOverlay from '../../../../content-sharing/ui/pages/collection-details/install-ext-overlay'
+import InstallExtOverlay from '../../../../ext-detection/ui/components/install-ext-overlay'
 import { ViewportBreakpoint } from '../../../../../main-ui/styles/types'
 import { getViewportBreakpoint } from '../../../../../main-ui/styles/utils'
+import MissingPdfOverlay from '../../../../ext-detection/ui/components/missing-pdf-overlay'
 
 const PageInfoList = styled.div`
     width: 100%;
@@ -57,6 +58,34 @@ export default class PageDetailsPage extends UIElement<
             loadState: this.state.listSidebarLoadState,
             onToggle: () => this.processEvent('toggleListSidebar', undefined),
         }
+    }
+
+    private renderModals() {
+        if (this.state.isInstallExtModalShown) {
+            return (
+                <InstallExtOverlay
+                    services={this.props.services}
+                    viewportBreakpoint={this.viewportBreakpoint}
+                    onCloseRequested={() =>
+                        this.processEvent('toggleInstallExtModal', {})
+                    }
+                />
+            )
+        }
+
+        if (this.state.isMissingPDFModalShown) {
+            return (
+                <MissingPdfOverlay
+                    services={this.props.services}
+                    viewportBreakpoint={this.viewportBreakpoint}
+                    onCloseRequested={() =>
+                        this.processEvent('toggleMissingPdfModal', {})
+                    }
+                />
+            )
+        }
+
+        return null
     }
 
     render() {
@@ -140,15 +169,7 @@ export default class PageDetailsPage extends UIElement<
                         creator ? ` by ${creator.displayName}` : ''
                     }`}
                 />
-                {this.state.isInstallExtModalShown && (
-                    <InstallExtOverlay
-                        services={this.props.services}
-                        viewportBreakpoint={this.viewportBreakpoint}
-                        onCloseRequested={() =>
-                            this.processEvent('toggleInstallExtModal', {})
-                        }
-                    />
-                )}
+                {this.renderModals()}
                 <DefaultPageLayout
                     services={services}
                     storage={storage}

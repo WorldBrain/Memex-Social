@@ -33,12 +33,13 @@ import ErrorBox from '../../../../../common-ui/components/error-box'
 import FollowBtn from '../../../../activity-follows/ui/components/follow-btn'
 import WebMonetizationIcon from '../../../../web-monetization/ui/components/web-monetization-icon'
 import PermissionKeyOverlay from './permission-key-overlay'
-import InstallExtOverlay from './install-ext-overlay'
+import InstallExtOverlay from '../../../../ext-detection/ui/components/install-ext-overlay'
 import { mergeTaskStates } from '../../../../../main-ui/classes/logic'
 import { UserReference } from '../../../../user-management/types'
 import ListShareModal from '@worldbrain/memex-common/lib/content-sharing/ui/list-share-modal'
 import type { Props as ListsSidebarProps } from '../../../../lists-sidebar/ui/components/lists-sidebar'
 import { isPagePdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
+import MissingPdfOverlay from '../../../../ext-detection/ui/components/missing-pdf-overlay'
 
 const commentImage = require('../../../../../assets/img/comment.svg')
 const commentEmptyImage = require('../../../../../assets/img/comment-empty.svg')
@@ -476,6 +477,33 @@ export default class CollectionDetailsPage extends UIElement<
         )
     }
 
+    private renderModals() {
+        if (this.state.isInstallExtModalShown) {
+            return (
+                <InstallExtOverlay
+                    services={this.props.services}
+                    viewportBreakpoint={this.viewportBreakpoint}
+                    onCloseRequested={() =>
+                        this.processEvent('toggleInstallExtModal', {})
+                    }
+                />
+            )
+        }
+
+        if (this.state.isMissingPDFModalShown) {
+            return (
+                <MissingPdfOverlay
+                    services={this.props.services}
+                    viewportBreakpoint={this.viewportBreakpoint}
+                    onCloseRequested={() =>
+                        this.processEvent('toggleMissingPdfModal', {})
+                    }
+                />
+            )
+        }
+
+        return null
+    }
     render() {
         ;(window as any)['blurt'] = () => console.log(this.state)
 
@@ -543,15 +571,7 @@ export default class CollectionDetailsPage extends UIElement<
                     subTitle={data.list.title}
                 />
                 {/* {this.renderPermissionKeyOverlay()} */}
-                {this.state.isInstallExtModalShown && (
-                    <InstallExtOverlay
-                        services={this.props.services}
-                        viewportBreakpoint={this.viewportBreakpoint}
-                        onCloseRequested={() =>
-                            this.processEvent('toggleInstallExtModal', {})
-                        }
-                    />
-                )}
+                {this.renderModals()}
                 <DefaultPageLayout
                     services={this.props.services}
                     storage={this.props.storage}

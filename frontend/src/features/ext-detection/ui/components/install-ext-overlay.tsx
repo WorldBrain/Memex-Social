@@ -1,14 +1,14 @@
 import React from 'react'
 import styled, { css } from 'styled-components'
-import Overlay from '../../../../../main-ui/containers/overlay'
-import { ViewportBreakpoint } from '../../../../../main-ui/styles/types'
-import { UIElementServices } from '../../../../../services/types'
+import Overlay from '../../../../main-ui/containers/overlay'
+import { ViewportBreakpoint } from '../../../../main-ui/styles/types'
+import { UIElementServices } from '../../../../services/types'
 import { Margin } from 'styled-components-spacing'
-import ExternalLink from '../../../../../common-ui/components/external-link'
+import ExternalLink from '../../../../common-ui/components/external-link'
 
-const braveLogo = require('../../../../../assets/img/logo-brave.svg')
-const firefoxLogo = require('../../../../../assets/img/logo-firefox.svg')
-const chromeLogo = require('../../../../../assets/img/logo-chrome.svg')
+const braveLogo = require('../../../../assets/img/logo-brave.svg')
+const firefoxLogo = require('../../../../assets/img/logo-firefox.svg')
+const chromeLogo = require('../../../../assets/img/logo-chrome.svg')
 
 const Content = styled.div<{
     viewportBreakpoint: ViewportBreakpoint
