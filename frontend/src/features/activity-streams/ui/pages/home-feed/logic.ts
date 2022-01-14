@@ -46,6 +46,10 @@ import {
     UserReference,
 } from '@worldbrain/memex-common/lib/web-interface/types/users'
 import { SharedAnnotationReference } from '@worldbrain/memex-common/lib/content-sharing/types'
+import {
+    extDetectionInitialState,
+    extDetectionEventHandlers,
+} from '../../../../ext-detection/ui/logic'
 
 type EventHandler<EventName extends keyof HomeFeedEvent> = UIEventHandler<
     HomeFeedState,
@@ -98,17 +102,26 @@ export default class HomeFeedLogic extends UILogic<
                 localStorage: this.dependencies.services.localStorage,
             }),
         )
+
+        Object.assign(
+            this,
+            extDetectionEventHandlers(this as any, {
+                ...this.dependencies,
+            }),
+        )
     }
 
     getInitialState(): HomeFeedState {
         return {
             loadState: 'pristine',
+            isInstallExtModalShown: false,
             activityItems: createOrderedMap(),
             pageInfo: {},
             annotations: {},
             replies: {},
             users: {},
             moreRepliesLoadStates: {},
+            ...extDetectionInitialState(),
             ...listsSidebarInitialState(),
             ...annotationConversationInitialState(),
         }

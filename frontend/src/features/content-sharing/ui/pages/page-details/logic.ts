@@ -26,6 +26,10 @@ import {
     listsSidebarInitialState,
     listsSidebarEventHandlers,
 } from '../../../../lists-sidebar/ui/logic'
+import {
+    extDetectionInitialState,
+    extDetectionEventHandlers,
+} from '../../../../ext-detection/ui/logic'
 import UserProfileCache from '../../../../user-management/utils/user-profile-cache'
 import { isPagePdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
 
@@ -87,6 +91,13 @@ export default class PageDetailsLogic extends UILogic<
                 localStorage: this.dependencies.services.localStorage,
             }),
         )
+
+        Object.assign(
+            this,
+            extDetectionEventHandlers(this as any, {
+                ...this.dependencies,
+            }),
+        )
     }
 
     getInitialState(): PageDetailsState {
@@ -94,6 +105,7 @@ export default class PageDetailsLogic extends UILogic<
             creatorLoadState: 'pristine',
             annotationLoadState: 'pristine',
             pageInfoLoadState: 'pristine',
+            ...extDetectionInitialState(),
             ...listsSidebarInitialState(),
             ...annotationConversationInitialState(),
         }

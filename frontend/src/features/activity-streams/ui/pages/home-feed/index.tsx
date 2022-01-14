@@ -32,6 +32,9 @@ import { SharedAnnotationReference } from '@worldbrain/memex-common/lib/content-
 import AnnotationReply from '../../../../content-conversations/ui/components/annotation-reply'
 import ErrorBox from '../../../../../common-ui/components/error-box'
 import { isPagePdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
+import InstallExtOverlay from '../../../../content-sharing/ui/pages/collection-details/install-ext-overlay'
+import { getViewportBreakpoint } from '../../../../../main-ui/styles/utils'
+import { ViewportBreakpoint } from '../../../../../main-ui/styles/types'
 
 const commentImage = require('../../../../../assets/img/comment.svg')
 const collectionImage = require('../../../../../assets/img/collection.svg')
@@ -164,22 +167,8 @@ export default class HomeFeedPage extends UIElement<
         super(props, { logic: new Logic(props) })
     }
 
-    getBreakPoints() {
-        let viewPortWidth = this.getViewportWidth()
-
-        if (viewPortWidth <= 500) {
-            return 'mobile'
-        }
-
-        if (viewPortWidth >= 500 && viewPortWidth <= 850) {
-            return 'small'
-        }
-
-        if (viewPortWidth > 850) {
-            return 'big'
-        }
-
-        return 'normal'
+    get viewportBreakpoint(): ViewportBreakpoint {
+        return getViewportBreakpoint(this.getViewportWidth())
     }
 
     private getRenderableAnnotation = (
@@ -317,6 +306,12 @@ export default class HomeFeedPage extends UIElement<
                             {this.renderActivityReason(pageItem)}
                         </Margin>
                         <PageInfoBox
+                            onClick={(e) =>
+                                this.processEvent('clickPageResult', {
+                                    urlToOpen: pageInfo.originalUrl,
+                                    preventOpening: () => e.preventDefault(),
+                                })
+                            }
                             type={
                                 isPagePdf({ url: pageItem?.normalizedPageUrl })
                                     ? 'pdf'
@@ -572,6 +567,17 @@ export default class HomeFeedPage extends UIElement<
                                         key={entry.normalizedUrl}
                                     >
                                         <PageInfoBox
+                                            onClick={(e) =>
+                                                this.processEvent(
+                                                    'clickPageResult',
+                                                    {
+                                                        urlToOpen:
+                                                            entry.originalUrl,
+                                                        preventOpening: () =>
+                                                            e.preventDefault(),
+                                                    },
+                                                )
+                                            }
                                             type={
                                                 isPagePdf({
                                                     url: entry.normalizedUrl,
@@ -651,8 +657,6 @@ export default class HomeFeedPage extends UIElement<
     }
 
     renderNeedsAuth() {
-        const viewportWidth = this.getBreakPoints()
-
         return (
             <>
                 <DocumentTitle
@@ -662,7 +666,7 @@ export default class HomeFeedPage extends UIElement<
                 <DefaultPageLayout
                     services={this.props.services}
                     storage={this.props.storage}
-                    viewportBreakpoint={viewportWidth}
+                    viewportBreakpoint={this.viewportBreakpoint}
                     hideActivityIndicator
                 >
                     <ErrorBox>You need to login to view your feed.</ErrorBox>
@@ -672,8 +676,6 @@ export default class HomeFeedPage extends UIElement<
     }
 
     render() {
-        const viewportWidth = this.getBreakPoints()
-
         if (this.state.needsAuth) {
             return this.renderNeedsAuth()
         }
@@ -684,10 +686,19 @@ export default class HomeFeedPage extends UIElement<
                     documentTitle={this.props.services.documentTitle}
                     subTitle={`Collaboration Feed`}
                 />
+                {this.state.isInstallExtModalShown && (
+                    <InstallExtOverlay
+                        services={this.props.services}
+                        viewportBreakpoint={this.viewportBreakpoint}
+                        onCloseRequested={() =>
+                            this.processEvent('toggleInstallExtModal', {})
+                        }
+                    />
+                )}
                 <DefaultPageLayout
                     services={this.props.services}
                     storage={this.props.storage}
-                    viewportBreakpoint={viewportWidth}
+                    viewportBreakpoint={this.viewportBreakpoint}
                     hideActivityIndicator
                     headerTitle="Activity Feed"
                     listsSidebarProps={{

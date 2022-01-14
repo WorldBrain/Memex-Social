@@ -37,10 +37,12 @@ import {
     listsSidebarInitialState,
     listsSidebarEventHandlers,
 } from '../../../../lists-sidebar/ui/logic'
+import {
+    extDetectionInitialState,
+    extDetectionEventHandlers,
+} from '../../../../ext-detection/ui/logic'
 import { UserReference } from '../../../../user-management/types'
 import { makeStorageReference } from '@worldbrain/memex-common/lib/storage/references'
-import { doesMemexExtDetectionElExist } from '@worldbrain/memex-common/lib/common-ui/utils/content-script'
-import { isPagePdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
 const truncate = require('truncate')
 
 const LIST_DESCRIPTION_CHAR_LIMIT = 200
@@ -134,6 +136,13 @@ export default class CollectionDetailsLogic extends UILogic<
                 localStorage: this.dependencies.services.localStorage,
             }),
         )
+
+        Object.assign(
+            this,
+            extDetectionEventHandlers(this as any, {
+                ...this.dependencies,
+            }),
+        )
     }
 
     getInitialState(): CollectionDetailsState {
@@ -150,8 +159,8 @@ export default class CollectionDetailsLogic extends UILogic<
             isCollectionFollowed: false,
             allAnnotationExpanded: false,
             isListShareModalShown: false,
-            isInstallExtModalShown: false,
             pageAnnotationsExpanded: {},
+            ...extDetectionInitialState(),
             ...listsSidebarInitialState(),
             ...annotationConversationInitialState(),
         }
@@ -438,12 +447,6 @@ export default class CollectionDetailsLogic extends UILogic<
         })
     }
 
-    toggleInstallExtModal: EventHandler<'toggleInstallExtModal'> = () => {
-        this.emitMutation({
-            isInstallExtModalShown: { $apply: (shown) => !shown },
-        })
-    }
-
     toggleDescriptionTruncation: EventHandler<'toggleDescriptionTruncation'> = () => {
         const mutation: UIMutation<CollectionDetailsState> = {
             listData: {
@@ -535,26 +538,6 @@ export default class CollectionDetailsLogic extends UILogic<
             incoming.previousState.annotationEntryData!,
             normalizedPageUrls,
         )
-    }
-
-    clickPageResult: EventHandler<'clickPageResult'> = async ({
-        previousState,
-        event,
-    }) => {
-        if (!doesMemexExtDetectionElExist()) {
-            event.preventOpening()
-            this.emitMutation({
-                isInstallExtModalShown: { $set: true },
-            })
-            return
-        }
-
-        // This means it's a local PDF page
-        if (isPagePdf({ url: event.urlToOpen })) {
-            event.preventOpening()
-            console.log('show DnD modal!')
-            return
-        }
     }
 
     clickFollowBtn: EventHandler<'clickFollowBtn'> = async ({

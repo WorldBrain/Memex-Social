@@ -19,6 +19,9 @@ import ErrorWithAction from '../../../../../common-ui/components/error-with-acti
 import ProfilePopupContainer from '../../../../user-management/ui/containers/profile-popup-container'
 import type { Props as ListsSidebarProps } from '../../../../lists-sidebar/ui/components/lists-sidebar'
 import { isPagePdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
+import InstallExtOverlay from '../../../../content-sharing/ui/pages/collection-details/install-ext-overlay'
+import { ViewportBreakpoint } from '../../../../../main-ui/styles/types'
+import { getViewportBreakpoint } from '../../../../../main-ui/styles/utils'
 
 const PageInfoList = styled.div`
     width: 100%;
@@ -39,6 +42,10 @@ export default class PageDetailsPage extends UIElement<
         super(props, { logic: new Logic(props) })
     }
 
+    get viewportBreakpoint(): ViewportBreakpoint {
+        return getViewportBreakpoint(this.getViewportWidth())
+    }
+
     get listsSidebarProps(): Omit<
         ListsSidebarProps,
         'services' | 'storage' | 'viewportBreakpoint'
@@ -52,26 +59,7 @@ export default class PageDetailsPage extends UIElement<
         }
     }
 
-    getBreakPoints() {
-        let viewPortWidth = this.getViewportWidth()
-
-        if (viewPortWidth <= 500) {
-            return 'mobile'
-        }
-
-        if (viewPortWidth >= 500 && viewPortWidth <= 850) {
-            return 'small'
-        }
-
-        if (viewPortWidth > 850) {
-            return 'big'
-        }
-
-        return 'normal'
-    }
-
     render() {
-        const viewportWidth = this.getBreakPoints()
         const { state, props } = this
         const { services, storage } = props
         const { annotations, creator, pageInfo } = state
@@ -84,7 +72,7 @@ export default class PageDetailsPage extends UIElement<
                 <DefaultPageLayout
                     services={services}
                     storage={storage}
-                    viewportBreakpoint={viewportWidth}
+                    viewportBreakpoint={this.viewportBreakpoint}
                     headerTitle={'Loading page...'}
                     listsSidebarProps={this.listsSidebarProps}
                 >
@@ -101,7 +89,7 @@ export default class PageDetailsPage extends UIElement<
                 <DefaultPageLayout
                     services={services}
                     storage={storage}
-                    viewportBreakpoint={viewportWidth}
+                    viewportBreakpoint={this.viewportBreakpoint}
                     headerTitle={'Could not load page'}
                     listsSidebarProps={this.listsSidebarProps}
                 >
@@ -122,7 +110,7 @@ export default class PageDetailsPage extends UIElement<
                 <DefaultPageLayout
                     services={services}
                     storage={storage}
-                    viewportBreakpoint={viewportWidth}
+                    viewportBreakpoint={this.viewportBreakpoint}
                     headerTitle={'Shared page not found'}
                     listsSidebarProps={this.listsSidebarProps}
                 >
@@ -152,10 +140,19 @@ export default class PageDetailsPage extends UIElement<
                         creator ? ` by ${creator.displayName}` : ''
                     }`}
                 />
+                {this.state.isInstallExtModalShown && (
+                    <InstallExtOverlay
+                        services={this.props.services}
+                        viewportBreakpoint={this.viewportBreakpoint}
+                        onCloseRequested={() =>
+                            this.processEvent('toggleInstallExtModal', {})
+                        }
+                    />
+                )}
                 <DefaultPageLayout
                     services={services}
                     storage={storage}
-                    viewportBreakpoint={viewportWidth}
+                    viewportBreakpoint={this.viewportBreakpoint}
                     headerTitle={this.getHeaderTitle()}
                     listsSidebarProps={this.listsSidebarProps}
                     headerSubtitle={this.getHeaderSubtitle()}
@@ -172,6 +169,13 @@ export default class PageDetailsPage extends UIElement<
                     <PageInfoList>
                         <Margin>
                             <PageInfoBox
+                                onClick={(e) =>
+                                    this.processEvent('clickPageResult', {
+                                        urlToOpen: pageInfo.originalUrl,
+                                        preventOpening: () =>
+                                            e.preventDefault(),
+                                    })
+                                }
                                 type={
                                     isPagePdf({ url: pageInfo.normalizedUrl })
                                         ? 'pdf'
