@@ -8,12 +8,18 @@ export interface Dependencies {}
 export interface ExtDetectionState {
     isInstallExtModalShown: boolean
     isMissingPDFModalShown: boolean
+    showFollowModal: boolean
 }
 
 export interface ExtDetectionEvent {
     toggleInstallExtModal: {}
+    toggleFollowSpaceOverlay: {}
     toggleMissingPdfModal: {}
-    clickPageResult: { urlToOpen: string; preventOpening: () => void }
+    clickPageResult: {
+        urlToOpen: string
+        preventOpening: () => void
+        isFollowedSpace: boolean
+    }
 }
 
 export type EventHandlers = {
@@ -27,6 +33,7 @@ export type EventHandlers = {
 export const extDetectionInitialState = (): ExtDetectionState => ({
     isInstallExtModalShown: false,
     isMissingPDFModalShown: false,
+    showFollowModal: false,
 })
 
 export const extDetectionEventHandlers = (
@@ -38,6 +45,14 @@ export const extDetectionEventHandlers = (
             event.preventOpening()
             logic.emitMutation({
                 isInstallExtModalShown: { $set: true },
+            })
+            return
+        }
+
+        if (doesMemexExtDetectionElExist() && !event.isFollowedSpace) {
+            event.preventOpening()
+            logic.emitMutation({
+                showFollowModal: { $set: true },
             })
             return
         }
@@ -54,6 +69,11 @@ export const extDetectionEventHandlers = (
     toggleInstallExtModal: () => {
         logic.emitMutation({
             isInstallExtModalShown: { $apply: (shown) => !shown },
+        })
+    },
+    toggleFollowSpaceOverlay: () => {
+        logic.emitMutation({
+            showFollowModal: { $apply: (shown) => !shown },
         })
     },
     toggleMissingPdfModal: () => {

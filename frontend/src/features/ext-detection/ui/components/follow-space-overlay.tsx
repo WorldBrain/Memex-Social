@@ -6,11 +6,6 @@ import { UIElementServices } from '../../../../services/types'
 import { Margin } from 'styled-components-spacing'
 import ExternalLink from '../../../../common-ui/components/external-link'
 import { PrimaryAction } from '../../../../common-ui/components/PrimaryAction'
-import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
-
-const braveLogo = require('../../../../assets/img/logo-brave.svg')
-const firefoxLogo = require('../../../../assets/img/logo-firefox.svg')
-const chromeLogo = require('../../../../assets/img/logo-chrome.svg')
 const noteIcon = require('../../../../assets/img/comment.svg')
 
 const Content = styled.div<{
@@ -128,6 +123,7 @@ const ButtonsBox = styled.div`
     justify-content: center;
     margin-bottom: -30px;
     margin-top: 50px;
+    flex-direction: column;
 `
 const primaryButtonCss = css`
     display: flex;
@@ -162,10 +158,11 @@ const SecondaryButton = styled.div`
     ${secondaryButtonCss}
 `
 
-export default function InstallExtOverlay(props: {
+export default function FollowSpaceOverlay(props: {
     services: UIElementServices<'overlay'>
     viewportBreakpoint: ViewportBreakpoint
     onCloseRequested: () => void
+    onFollowRequested: () => void
 }) {
     return (
         <Overlay
@@ -174,34 +171,10 @@ export default function InstallExtOverlay(props: {
         >
             <Content viewportBreakpoint={props.viewportBreakpoint}>
                 <Margin>
-                    {/* {props.installModalState ? (
-                        <Title viewportBreakpoint={props.viewportBreakpoint}>
-                            Install Memex to add pages to this Space
-                        </Title>
-                    ):(
-                        <Title viewportBreakpoint={props.viewportBreakpoint}>
-                            Install Memex to see these highlights on the live page
-                        </Title>
-                    )}
-                    <SubTitle>
-                        Download the extension, follow this Space and then open the page.
-                    </SubTitle> */}
-                </Margin>
-                <Margin top={'small'}>
-                    <BrowserIconsBox>
-                        <BrowserIcon
-                            src={braveLogo}
-                            onClick={() => window.open('https://memex.garden')}
-                        />
-                        <BrowserIcon
-                            src={firefoxLogo}
-                            onClick={() => window.open('https://memex.garden')}
-                        />
-                        <BrowserIcon
-                            src={chromeLogo}
-                            onClick={() => window.open('https://memex.garden')}
-                        />
-                    </BrowserIconsBox>
+                    <Title viewportBreakpoint={props.viewportBreakpoint}>
+                        Follow this space to see its annotations when visiting
+                        the page
+                    </Title>
                 </Margin>
                 {/* {props.installModalState && (*/}
                 <Margin top={'medium'}>
@@ -216,9 +189,14 @@ export default function InstallExtOverlay(props: {
                 {/* )} */}
                 {/* {props.installModalState && (*/}
                 <ButtonsBox>
-                    {/* <PrimaryAction label={'Download'} onClick={()=>window.open('https://memex.garden')}/>  */}
+                    <PrimaryAction
+                        label={'Follow Space'}
+                        onClick={() => {
+                            props.onFollowRequested()
+                        }}
+                    />
                     <SecondaryButton onClick={props.onCloseRequested}>
-                        Continue to page without Memex
+                        Continue to page without following
                     </SecondaryButton>
                 </ButtonsBox>
                 {/* )} */}

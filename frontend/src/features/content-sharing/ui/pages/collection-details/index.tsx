@@ -34,12 +34,14 @@ import FollowBtn from '../../../../activity-follows/ui/components/follow-btn'
 import WebMonetizationIcon from '../../../../web-monetization/ui/components/web-monetization-icon'
 import PermissionKeyOverlay from './permission-key-overlay'
 import InstallExtOverlay from '../../../../ext-detection/ui/components/install-ext-overlay'
+import FollowSpaceOverlay from '../../../../ext-detection/ui/components/install-ext-overlay'
 import { mergeTaskStates } from '../../../../../main-ui/classes/logic'
 import { UserReference } from '../../../../user-management/types'
 import ListShareModal from '@worldbrain/memex-common/lib/content-sharing/ui/list-share-modal'
 import type { Props as ListsSidebarProps } from '../../../../lists-sidebar/ui/components/lists-sidebar'
 import { isPagePdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
 import MissingPdfOverlay from '../../../../ext-detection/ui/components/missing-pdf-overlay'
+import { doesMemexExtDetectionElExist } from '@worldbrain/memex-common/lib/common-ui/utils/content-script'
 
 const commentImage = require('../../../../../assets/img/comment.svg')
 const commentEmptyImage = require('../../../../../assets/img/comment-empty.svg')
@@ -478,6 +480,9 @@ export default class CollectionDetailsPage extends UIElement<
     }
 
     private renderModals() {
+        console.log('followed', this.state.isCollectionFollowed)
+        console.log('installed', doesMemexExtDetectionElExist())
+
         if (this.state.isInstallExtModalShown) {
             return (
                 <InstallExtOverlay
@@ -502,11 +507,26 @@ export default class CollectionDetailsPage extends UIElement<
             )
         }
 
+        if (this.state.showFollowModal) {
+            return (
+                <FollowSpaceOverlay
+                    services={this.props.services}
+                    viewportBreakpoint={this.viewportBreakpoint}
+                    onCloseRequested={() =>
+                        this.processEvent('toggleFollowSpaceOverlay', {})
+                    }
+                    onFollowRequested={() => {
+                        this.processEvent('clickFollowBtn', null)
+                        //window.open(props.urlToOpen)
+                    }}
+                />
+            )
+        }
+
         return null
     }
     render() {
         ;(window as any)['blurt'] = () => console.log(this.state)
-
         const { state } = this
         if (
             state.listLoadState === 'pristine' ||
@@ -642,6 +662,9 @@ export default class CollectionDetailsPage extends UIElement<
                                                             entry.originalUrl,
                                                         preventOpening: () =>
                                                             e.preventDefault(),
+                                                        isFollowedSpace: this
+                                                            .state
+                                                            .isCollectionFollowed,
                                                     },
                                                 )
                                             }
