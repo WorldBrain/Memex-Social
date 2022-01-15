@@ -9,6 +9,7 @@ export interface ExtDetectionState {
     isInstallExtModalShown: boolean
     isMissingPDFModalShown: boolean
     showFollowModal: boolean
+    currentUrl: string | undefined
 }
 
 export interface ExtDetectionEvent {
@@ -19,6 +20,7 @@ export interface ExtDetectionEvent {
         urlToOpen: string
         preventOpening: () => void
         isFollowedSpace: boolean
+        currentUrl: string
     }
 }
 
@@ -34,6 +36,7 @@ export const extDetectionInitialState = (): ExtDetectionState => ({
     isInstallExtModalShown: false,
     isMissingPDFModalShown: false,
     showFollowModal: false,
+    currentUrl: '',
 })
 
 export const extDetectionEventHandlers = (
@@ -41,18 +44,20 @@ export const extDetectionEventHandlers = (
     dependencies: Dependencies,
 ): EventHandlers => ({
     clickPageResult: async ({ previousState, event }) => {
-        if (!doesMemexExtDetectionElExist()) {
-            event.preventOpening()
-            logic.emitMutation({
-                isInstallExtModalShown: { $set: true },
-            })
-            return
-        }
-
         if (doesMemexExtDetectionElExist() && !event.isFollowedSpace) {
             event.preventOpening()
             logic.emitMutation({
                 showFollowModal: { $set: true },
+                currentUrl: { $set: event.currentUrl },
+            })
+            return
+        }
+
+        if (!doesMemexExtDetectionElExist()) {
+            event.preventOpening()
+            logic.emitMutation({
+                isInstallExtModalShown: { $set: true },
+                currentUrl: { $set: event.currentUrl },
             })
             return
         }
@@ -62,6 +67,7 @@ export const extDetectionEventHandlers = (
             event.preventOpening()
             logic.emitMutation({
                 isMissingPDFModalShown: { $set: true },
+                currentUrl: { $set: event.currentUrl },
             })
             return
         }

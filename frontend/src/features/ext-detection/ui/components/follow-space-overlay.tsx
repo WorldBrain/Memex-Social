@@ -6,6 +6,7 @@ import { UIElementServices } from '../../../../services/types'
 import { Margin } from 'styled-components-spacing'
 import ExternalLink from '../../../../common-ui/components/external-link'
 import { PrimaryAction } from '../../../../common-ui/components/PrimaryAction'
+
 const noteIcon = require('../../../../assets/img/comment.svg')
 
 const Content = styled.div<{
@@ -42,7 +43,7 @@ const Title = styled.div<{
     viewportBreakpoint: ViewportBreakpoint
 }>`
     font-weight: bold;
-    font-size: 24px;
+    font-size: 22px;
     color: ${(props) => props.theme.colors.primary};
     text-align: center;
 
@@ -62,9 +63,14 @@ const SubTitle = styled.div`
     font-size: 1rem;
     color: ${(props) => props.theme.colors.purple};
     margin-bottom: 10px;
-    margin-top: 5px;
+    margin-top: 10px;
     pointer-events: none;
     text-align: center;
+
+    & * {
+        color: ${(props) => props.theme.colors.purple} !important;
+        font-size: 1rem !important;
+    }
 `
 
 const NoteIconContainer = styled.img`
@@ -122,8 +128,12 @@ const ButtonsBox = styled.div`
     width: 120%;
     justify-content: center;
     margin-bottom: -30px;
-    margin-top: 50px;
+    margin-top: 30px;
     flex-direction: column;
+
+    & > div {
+        margin-left: unset;
+    }
 `
 const primaryButtonCss = css`
     display: flex;
@@ -152,6 +162,7 @@ const secondaryButtonCss = css`
     font-weight: 600;
     color: ${(props) => props.theme.colors.primary};
     text-decoration: none;
+    margin-top: 10px;
 `
 
 const SecondaryButton = styled.div`
@@ -162,7 +173,8 @@ export default function FollowSpaceOverlay(props: {
     services: UIElementServices<'overlay'>
     viewportBreakpoint: ViewportBreakpoint
     onCloseRequested: () => void
-    onFollowRequested: () => void
+    renderFollowBtn: () => void
+    currentUrl: string | URL | undefined
 }) {
     return (
         <Overlay
@@ -172,12 +184,20 @@ export default function FollowSpaceOverlay(props: {
             <Content viewportBreakpoint={props.viewportBreakpoint}>
                 <Margin>
                     <Title viewportBreakpoint={props.viewportBreakpoint}>
-                        Follow this space to see its annotations when visiting
-                        the page
+                        Follow this Space to see its annotations
                     </Title>
+                    <SubTitle>
+                        Follow the Space, visit the page & open the sidebar to
+                        see the annotations in context of the page
+                        <SubSubSubTitle>
+                            Click on the <NoteIconContainer />
+                            icon in each result block to only read the
+                            annotations.
+                        </SubSubSubTitle>
+                    </SubTitle>
                 </Margin>
                 {/* {props.installModalState && (*/}
-                <Margin top={'medium'}>
+                {/* <Margin top={'medium'}>
                     <SubSubTitle>
                         You just want to read the highlights?
                         <SubSubSubTitle>
@@ -185,17 +205,21 @@ export default function FollowSpaceOverlay(props: {
                             icon in each result to see them.
                         </SubSubSubTitle>
                     </SubSubTitle>
-                </Margin>
+                </Margin> */}
                 {/* )} */}
                 {/* {props.installModalState && (*/}
                 <ButtonsBox>
-                    <PrimaryAction
+                    {/* <PrimaryAction
                         label={'Follow Space'}
                         onClick={() => {
                             props.onFollowRequested()
                         }}
-                    />
-                    <SecondaryButton onClick={props.onCloseRequested}>
+                    /> */}
+                    {props.renderFollowBtn()}
+
+                    <SecondaryButton
+                        onClick={() => window.open(props.currentUrl)}
+                    >
                         Continue to page without following
                     </SecondaryButton>
                 </ButtonsBox>

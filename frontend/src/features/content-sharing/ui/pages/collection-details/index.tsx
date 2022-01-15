@@ -34,7 +34,7 @@ import FollowBtn from '../../../../activity-follows/ui/components/follow-btn'
 import WebMonetizationIcon from '../../../../web-monetization/ui/components/web-monetization-icon'
 import PermissionKeyOverlay from './permission-key-overlay'
 import InstallExtOverlay from '../../../../ext-detection/ui/components/install-ext-overlay'
-import FollowSpaceOverlay from '../../../../ext-detection/ui/components/install-ext-overlay'
+import FollowSpaceOverlay from '../../../../ext-detection/ui/components/follow-space-overlay'
 import { mergeTaskStates } from '../../../../../main-ui/classes/logic'
 import { UserReference } from '../../../../user-management/types'
 import ListShareModal from '@worldbrain/memex-common/lib/content-sharing/ui/list-share-modal'
@@ -266,7 +266,16 @@ export default class CollectionDetailsPage extends UIElement<
     renderFollowBtn() {
         return (
             <FollowBtn
-                onClick={() => this.processEvent('clickFollowBtn', null)}
+                onClick={() => {
+                    this.processEvent('clickFollowBtn', null)
+                    setTimeout(() => {
+                        if (this.state.isCollectionFollowed) {
+                            window.open(this.state.currentUrl)
+                        } else {
+                            return
+                        }
+                    }, 1000)
+                }}
                 isFollowed={this.state.isCollectionFollowed}
                 isOwner={this.state.isListOwner}
                 isContributor={this.isListContributor}
@@ -480,9 +489,6 @@ export default class CollectionDetailsPage extends UIElement<
     }
 
     private renderModals() {
-        console.log('followed', this.state.isCollectionFollowed)
-        console.log('installed', doesMemexExtDetectionElExist())
-
         if (this.state.isInstallExtModalShown) {
             return (
                 <InstallExtOverlay
@@ -515,10 +521,8 @@ export default class CollectionDetailsPage extends UIElement<
                     onCloseRequested={() =>
                         this.processEvent('toggleFollowSpaceOverlay', {})
                     }
-                    onFollowRequested={() => {
-                        this.processEvent('clickFollowBtn', null)
-                        //window.open(props.urlToOpen)
-                    }}
+                    renderFollowBtn={() => this.renderFollowBtn()}
+                    currentUrl={this.state.currentUrl}
                 />
             )
         }
@@ -665,6 +669,8 @@ export default class CollectionDetailsPage extends UIElement<
                                                         isFollowedSpace: this
                                                             .state
                                                             .isCollectionFollowed,
+                                                        currentUrl:
+                                                            entry.originalUrl,
                                                     },
                                                 )
                                             }

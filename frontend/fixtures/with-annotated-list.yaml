@@ -188,7 +188,7 @@ objects:
           id: first-locator
           creator: { $ref: users.default }
           locationScheme: 'normalized-url-v1'
-          originalUrl: 'https://getmemex.com/test.pdf'
+          originalUrl: 'https://memex.fra1.digitaloceanspaces.com/Under%20The%20Influence.pdf'
           normalizedUrl: 'memex.cloud/ct/test-fingerprint-1.pdf'
           sharedList: { $ref: sharedLists.default }
         - $store: locator-2
