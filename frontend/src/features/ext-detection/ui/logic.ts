@@ -47,6 +47,7 @@ export const extDetectionEventHandlers = (
             event.preventOpening()
             logic.emitMutation({
                 showFollowModal: { $set: true },
+                clickedPageUrl: { $set: event.urlToOpen },
             })
             return
         }

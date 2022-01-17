@@ -263,18 +263,13 @@ export default class CollectionDetailsPage extends UIElement<
         }
     }
 
-    renderFollowBtn() {
+    renderFollowBtn = (pageToOpenPostFollow?: string) => () => {
         return (
             <FollowBtn
                 onClick={() => {
-                    this.processEvent('clickFollowBtn', null)
-                    setTimeout(() => {
-                        if (this.state.isCollectionFollowed) {
-                            window.open(this.state.currentUrl)
-                        } else {
-                            return
-                        }
-                    }, 1000)
+                    this.processEvent('clickFollowBtn', {
+                        pageToOpenPostFollow,
+                    })
                 }}
                 isFollowed={this.state.isCollectionFollowed}
                 isOwner={this.state.isListOwner}
@@ -527,15 +522,18 @@ export default class CollectionDetailsPage extends UIElement<
                     onCloseRequested={() =>
                         this.processEvent('toggleFollowSpaceOverlay', {})
                     }
-                    renderFollowBtn={() => this.renderFollowBtn()}
-                    currentUrl={this.state.currentUrl}
                     isSpaceFollowed={this.state.isCollectionFollowed}
+                    currentUrl={this.state.clickedPageUrl!}
+                    renderFollowBtn={this.renderFollowBtn(
+                        this.state.clickedPageUrl!,
+                    )}
                 />
             )
         }
 
         return null
     }
+
     render() {
         ;(window as any)['blurt'] = () => console.log(this.state)
         const { state } = this
@@ -609,7 +607,7 @@ export default class CollectionDetailsPage extends UIElement<
                     viewportBreakpoint={this.viewportBreakpoint}
                     headerTitle={data.list.title}
                     headerSubtitle={this.renderSubtitle()}
-                    followBtn={this.renderFollowBtn()}
+                    followBtn={this.renderFollowBtn()()}
                     webMonetizationIcon={this.renderWebMonetizationIcon()}
                     listsSidebarProps={this.listsSidebarProps}
                     isSidebarShown={this.listsSidebarProps.isShown}

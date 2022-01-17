@@ -542,6 +542,7 @@ export default class CollectionDetailsLogic extends UILogic<
 
     clickFollowBtn: EventHandler<'clickFollowBtn'> = async ({
         previousState,
+        event,
     }) => {
         const {
             services: { auth },
@@ -615,6 +616,13 @@ export default class CollectionDetailsLogic extends UILogic<
                 this.emitMutation(mutation)
             },
         )
+
+        if (event.pageToOpenPostFollow != null) {
+            setTimeout(
+                () => window.open(event.pageToOpenPostFollow, '_blank'),
+                1000,
+            )
+        }
     }
 
     showMoreCollaborators: EventHandler<'showMoreCollaborators'> = () => {

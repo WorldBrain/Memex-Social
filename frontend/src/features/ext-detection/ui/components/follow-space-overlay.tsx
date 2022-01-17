@@ -173,10 +173,11 @@ export default function FollowSpaceOverlay(props: {
     services: UIElementServices<'overlay'>
     viewportBreakpoint: ViewportBreakpoint
     onCloseRequested: () => void
-    renderFollowBtn: () => void
-    currentUrl: string | URL | undefined
+    renderFollowBtn: () => JSX.Element
+    currentUrl: string | undefined
     isSpaceFollowed: boolean
 }) {
+    const handleOpenPage = () => window.open(props.currentUrl)
     return (
         <Overlay
             services={props.services}
@@ -217,19 +218,15 @@ export default function FollowSpaceOverlay(props: {
                         }}
                     /> */}
                     {props.isSpaceFollowed ? (
-                        <>
-                            <PrimaryAction
-                                label={'Continue to page'}
-                                onClick={() => window.open(props.currentUrl)}
-                            />
-                        </>
+                        <PrimaryAction
+                            label={'Continue to page'}
+                            onClick={handleOpenPage}
+                        />
                     ) : (
                         <>
                             {props.renderFollowBtn()}
-                            <SecondaryButton
-                                onClick={() => window.open(props.currentUrl)}
-                            >
-                                Continue to page without following
+                            <SecondaryButton onClick={handleOpenPage}>
+                                Continue to page without following the Space
                             </SecondaryButton>
                         </>
                     )}

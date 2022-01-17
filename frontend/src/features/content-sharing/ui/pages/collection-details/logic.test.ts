@@ -325,7 +325,7 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
             expect(container.state.followLoadState).toEqual('success')
             expect(container.state.followedLists).toEqual([])
 
-            const followP = container.processEvent('clickFollowBtn', null)
+            const followP = container.processEvent('clickFollowBtn', {})
             expect(container.state.followLoadState).toEqual('running')
             await followP
 
@@ -346,7 +346,7 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
                 },
             ])
 
-            const unfollowP = container.processEvent('clickFollowBtn', null)
+            const unfollowP = container.processEvent('clickFollowBtn', {})
             // TODO: we don't have a good way to block requests in tests yet so the next line would be guaranteed to be 'running'
             // expect(container.state.followLoadState).toEqual('running')
             await unfollowP

@@ -108,7 +108,7 @@ export type CollectionDetailsEvent = UIEvent<
             processPermissionKey: {}
             closePermissionOverlay: {}
             pageBreakpointHit: { entryIndex: number }
-            clickFollowBtn: null
+            clickFollowBtn: { pageToOpenPostFollow?: string }
             showMoreCollaborators: {}
         }
 >
