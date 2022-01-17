@@ -41,49 +41,56 @@ export const extDetectionInitialState = (): ExtDetectionState => ({
 export const extDetectionEventHandlers = (
     logic: UILogic<ExtDetectionState, ExtDetectionEvent>,
     dependencies: Dependencies,
-): EventHandlers => ({
-    clickPageResult: async ({ previousState, event }) => {
-        if (doesMemexExtDetectionElExist() && !event.isFollowedSpace) {
-            event.preventOpening()
-            logic.emitMutation({
-                showFollowModal: { $set: true },
-                clickedPageUrl: { $set: event.urlToOpen },
-            })
-            return
-        }
+): EventHandlers => {
+    const performToggleMutation = (
+        stateKey: keyof ExtDetectionState,
+        previousState: ExtDetectionState,
+    ) =>
+        logic.emitMutation({
+            [stateKey]: { $set: !previousState[stateKey] },
+            ...(previousState[stateKey]
+                ? { clickedPageUrl: { $set: null } }
+                : {}),
+        })
 
-        if (!doesMemexExtDetectionElExist()) {
-            event.preventOpening()
-            logic.emitMutation({
-                isInstallExtModalShown: { $set: true },
-                clickedPageUrl: { $set: event.urlToOpen },
-            })
-            return
-        }
+    return {
+        clickPageResult: async ({ previousState, event }) => {
+            if (doesMemexExtDetectionElExist() && !event.isFollowedSpace) {
+                event.preventOpening()
+                logic.emitMutation({
+                    showFollowModal: { $set: true },
+                    clickedPageUrl: { $set: event.urlToOpen },
+                })
+                return
+            }
 
-        // This means it's a local PDF page
-        if (isPagePdf({ url: event.urlToOpen })) {
-            event.preventOpening()
-            logic.emitMutation({
-                isMissingPDFModalShown: { $set: true },
-                clickedPageUrl: { $set: null },
-            })
-            return
-        }
-    },
-    toggleInstallExtModal: () => {
-        logic.emitMutation({
-            isInstallExtModalShown: { $apply: (shown) => !shown },
-        })
-    },
-    toggleFollowSpaceOverlay: () => {
-        logic.emitMutation({
-            showFollowModal: { $apply: (shown) => !shown },
-        })
-    },
-    toggleMissingPdfModal: () => {
-        logic.emitMutation({
-            isMissingPDFModalShown: { $apply: (shown) => !shown },
-        })
-    },
-})
+            if (!doesMemexExtDetectionElExist()) {
+                event.preventOpening()
+                logic.emitMutation({
+                    isInstallExtModalShown: { $set: true },
+                    clickedPageUrl: { $set: event.urlToOpen },
+                })
+                return
+            }
+
+            // This means it's a local PDF page
+            if (isPagePdf({ url: event.urlToOpen })) {
+                event.preventOpening()
+                logic.emitMutation({
+                    isMissingPDFModalShown: { $set: true },
+                    clickedPageUrl: { $set: null },
+                })
+                return
+            }
+        },
+        toggleInstallExtModal: ({ previousState }) => {
+            performToggleMutation('isInstallExtModalShown', previousState)
+        },
+        toggleFollowSpaceOverlay: ({ previousState }) => {
+            performToggleMutation('showFollowModal', previousState)
+        },
+        toggleMissingPdfModal: ({ previousState }) => {
+            performToggleMutation('isMissingPDFModalShown', previousState)
+        },
+    }
+}
