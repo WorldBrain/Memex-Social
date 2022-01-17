@@ -188,9 +188,10 @@ export default class AnnotationDetailsPage extends UIElement<
 const IntroArea = styled.div`
     display: flex;
     justify-content: center;
-    margin: -30px 15px 15px 30px;
+    margin: 10px 15px 10px 15px;
     flex-direction: column;
     align-items: center;
+    width: 100%;
 `
 const IntroText = styled.div`
     display: flex;
@@ -224,10 +225,11 @@ const MemexLogo = styled.div`
 const AnnotationPage = styled.div`
     display: flex;
     align-items: center;
-    height: 100vh;
+    height: fit-content;
     flex-direction: column;
     justify-content: flex-start;
-    padding: 25vh 0;
+    padding-top: 10vh;
+    padding-bottom: 10vh;
 
     & div {
         font-family: ${(props) => props.theme.fonts.primary};
@@ -246,7 +248,7 @@ const AnnotationContainer = styled.div`
     border-radius: 8.61345px;
 `
 const AnnotationContentBox = styled.div`
-    padding: 25px 25px 10px 25px;
+    padding: 15px 15px 10px 15px;
 `
 
 const AnnotationBody = styled.span`
@@ -294,7 +296,7 @@ const AnnotationAuthorUploadDate = styled.div`
 `
 const AnnotationFooter = styled.div`
     border-top: 1px solid ${(props) => props.theme.colors.grey};
-    padding: 15px 30px;
+    padding: 15px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -326,6 +328,7 @@ const AnnotationPageTitle = styled.div`
     text-overflow: ellipsis;
     overflow-wrap: break-word;
     overflow-x: hidden;
+    width: 100%;
 `
 
 const AnnotationPageUrl = styled.div`
@@ -337,6 +340,7 @@ const AnnotationPageUrl = styled.div`
     text-overflow: ellipsis;
     overflow-wrap: break-word;
     overflow-x: hidden;
+    width: 100%;
 `
 
 const GoToAnnotationButton = styled.a`

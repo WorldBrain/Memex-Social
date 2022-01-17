@@ -51,21 +51,26 @@ const Container = styled.div<{
     background: ${(props) => props.theme.colors.grey};
     padding: 5px;
     width: 250px;
-    overflow-y: scroll;
+    overflow-y: hidden;
     z-index: 5000;
     background: #fff;
     //box-shadow: #101e7308 4px 0 16px;
     border-right: 1px solid #f0f0f0;
+    height: 100%;
+    position: fixed;
+    z-index: 3000;
 
     ${(props) =>
         props.viewportBreakpoint === 'mobile' &&
         css`
             top: 0px;
-            width: 100%;
-            height: 100%;
-            position: absolute;
+            width: 100vw;
+            height: 100vh;
+            position: fixed;
             left: 0px;
-            overflow: scroll;
+            z-index: 3000;
+            overflow: hidden;
+            border-right: unset;
         `}
 `
 
@@ -73,6 +78,14 @@ const ListContent = styled.div`
     display: flex;
     flex-direction: column;
     padding-bottom: 100px;
+
+    overflow: scroll;
+
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
 `
 
 const SectionTitle = styled.div<{
@@ -121,7 +134,6 @@ const ListsContainer = styled.div<{
     height: 80%;
     position: relative;
     left: 10px;
-    overflow: scroll;
 `
 
 const EmptyMsg = styled.span`

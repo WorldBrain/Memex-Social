@@ -40,6 +40,7 @@ const Content = styled.div<{
         css`
             max-width: 90%;
             padding: 20px;
+            min-width: unset;
         `}
 `
 
@@ -100,9 +101,10 @@ const SubSubSubTitle = styled.div`
     font-size: 0.8rem;
     color: ${(props) => props.theme.colors.darkgrey};
     text-align: center;
-    display: inline-flex;
+    display: inline-box;
     justiy-content: center;
     align-items: center;
+    white-space: nowrap;
 `
 
 const BrowserIconsBox = styled.div`
@@ -224,13 +226,12 @@ export default function InstallExtOverlay(props: Props) {
                 {/* )} */}
                 {props.mode === 'click-page' && (
                     <ButtonsBox>
-                        <SecondaryButton
+                        <PrimaryAction
                             onClick={() =>
                                 window.open(props.clickedPageUrl, '_blank')
                             }
-                        >
-                            Continue to page without Memex
-                        </SecondaryButton>
+                            label={'Continue to page without Memex'}
+                        />
                     </ButtonsBox>
                 )}
             </Content>

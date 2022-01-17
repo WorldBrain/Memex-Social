@@ -91,18 +91,19 @@ const AbovePagesBox = styled.div<{
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  margin: 5px 0 10px;
+  margin: 10px 0 10px;
   width: 100%;
   position: relative;
   z-index: 2;
   border-radius: 5px;
+  padding: 0 10px;
+  justify-content: space-between;
 }
 `
 
 const AddPageBtn = styled.div`
     display: flex;
     align-items: center;
-    position: absolute;
     left: 0;
     font-family: ${(props) => props.theme.fonts.primary};
     color: ${(props) => props.theme.colors.primary};
