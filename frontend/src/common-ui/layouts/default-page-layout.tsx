@@ -15,9 +15,25 @@ import ListsSidebarToggle from '../../main-ui/components/sidebar-toggle/'
 const middleMaxWidth = '800px'
 const logoImage = require('../../assets/img/memex-logo.svg')
 
-const MainContainer = styled.div`
+const MainContainer = styled.div<{
+    viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
+    sidebarShown?: boolean
+}>`
     background: #f6f8fb;
-    height: 100%;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: flex-start;
+    min-height: 50vh;
+    height: fit-content;
+
+    ${(props) =>
+        props.viewportWidth === 'mobile' &&
+        props.sidebarShown &&
+        css`
+            min-height: 100vh;
+            overflow: scroll;
+        `}
 `
 
 const StyledHeader = styled.div<{
@@ -25,19 +41,25 @@ const StyledHeader = styled.div<{
 }>`
     font-family: ${(props) => props.theme.fonts.primary};
     width: 100%;
-    height: 50px;
     display: flex;
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    justify-content: space-between;
-    padding: 0 20px;
+    justify-content: center;
+    padding: 10px 20px;
     position: sticky;
-    top: 0;
+
+    top: calc(-65px);
     background-color: #fff;
-    margin-top: -20px;
     z-index: 2000;
-    align-items: center;
-    height: 50px;
-    box-shadow: #101e7308 0 4px 16px;
+    align-items: flex-start;
+    //box-shadow: #101e7308 0 4px 16px;
+
+    ${(props) =>
+        props.viewportWidth === 'mobile' &&
+        css`
+            flex-direction: column;
+            align-items: flex-start;
+            top: 0;
+        `}
 `
 
 const LogoAndFeed = styled(Margin)<{
@@ -46,11 +68,16 @@ const LogoAndFeed = styled(Margin)<{
     display: flex;
     flex: 1;
     align-items: center;
+    position: sticky;
+    top: 20px;
+    z-index: 3001;
+    height: 20px;
 
     ${(props) =>
         (props.viewportWidth === 'small' || props.viewportWidth === 'mobile') &&
         css`
             padding-right: 10px;
+            display: flex;
         `}
 `
 
@@ -65,12 +92,6 @@ const FeedLink = styled(RouteLink)`
     color: ${(props) => props.theme.colors.primary};
 `
 
-const FeedLabel = styled.div`
-    font-size: 14px;
-    font-weight: bold;
-    cursor: pointer;
-`
-
 const UnseenActivityDot = styled.div`
     background: #5cd9a6;
     width: 14px;
@@ -81,25 +102,32 @@ const UnseenActivityDot = styled.div`
 const HeaderMiddleArea = styled.div<{
     viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
 }>`
-    width: ${(props) =>
-        props.viewportWidth === 'small' || props.viewportWidth === 'mobile'
-            ? '95%'
-            : '80%'};
+    width: 100%;
     max-width: ${middleMaxWidth};
     display: flex;
-    padding-right: 20px;
+    padding-right: 0px;
     align-items: center;
     justify-content: space-between;
     flex-direction: row;
+    padding-top: 70px;
+
+    ${(props) =>
+        props.viewportWidth === 'mobile' &&
+        css`
+            padding-top: 70px;
+            display: flex;
+        `}
 `
 const HeaderTitle = styled.div<{
     viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
 }>`
     font-weight: 600;
     text-overflow: ellipsis;
+    white-space: pre-wrap;
+    word-break: break-word;
     overflow-x: hidden;
     font-family: ${(props) => props.theme.fonts.primary};
-    font-size: 16px;
+    font-size: 26px;
     overflow-wrap: break-word;
     max-width: ${(props) =>
         props.viewportWidth === 'small' || props.viewportWidth === 'mobile'
@@ -122,7 +150,7 @@ const HeaderSubtitle = styled.div<{
 }>`
     font-weight: 500;
     margin-top: 1px;
-    font-size: 14px;
+    font-size: 16px;
     font-family: ${(props) => props.theme.fonts.primary};
     color: ${(props) => props.theme.colors.subText};
 `
@@ -134,31 +162,38 @@ const HeaderAuthArea = styled.div<{
     align-items: center;
     justify-content: flex-end;
     white-space: nowrap;
+    position: sticky;
+    top: 20px;
+    right: 20px;
 `
 
 const PageMiddleArea = styled.div<{
     viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
+    isSidebarShown: boolean
+}>`
+    width: 100%;
+    display: flex;
+    height: 100%;
+    position: absolute;
+
+    ${(props) =>
+        props.viewportWidth === 'mobile' &&
+        props.isSidebarShown &&
+        css`
+            overflow: hidden;
+        `}
+`
+
+const PageResultsArea = styled.div<{
+    viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
+    headerHeight: number | undefined
 }>`
     max-width: ${middleMaxWidth};
-    top: 10px;
     position: relative;
     padding-bottom: 100px;
     margin: 0px auto 0;
-
-    ${(props) =>
-        props.viewportWidth === 'small' &&
-        css`
-            width: 95%;
-            top: 10px;
-            margin: 20px auto 0;
-        `}
-    ${(props) =>
-        props.viewportWidth === 'mobile' &&
-        css`
-            width: 95%;
-            top: 10px;
-            margin: 20px auto 0;
-        `}
+    width: 100%;
+    top: calc(${(props) => props.headerHeight}px + 10px);
 `
 
 const PageMidleAreaTitles = styled.div`
@@ -167,6 +202,7 @@ const PageMidleAreaTitles = styled.div`
     align-items: flex-start;
     flex-direction: column;
     flex: 1;
+    width: 100%;
 `
 
 const PageMidleAreaAction = styled.div<{
@@ -179,8 +215,26 @@ const PageMidleAreaAction = styled.div<{
     ${(props) =>
         props.viewportWidth === 'mobile' &&
         css`
-            flex-direction: row-reverse;
-            margin-top: ${(props) => props.theme.spacing.medium};
+            display: none;
+        `}
+`
+
+const PageMidleAreaActionMobile = styled.div<{
+    viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
+}>`
+    display: none;
+
+    ${(props) =>
+        props.viewportWidth === 'mobile' &&
+        css`
+            display: flex;
+            flex-direction: row;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            justify-content: flex-end;
+            align-items: center;
+            flex-direction: row;
         `}
 `
 
@@ -190,6 +244,9 @@ const PageMiddleAreaTopBox = styled(Margin)<{
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
+    padding-bottom: 10px;
+    width: 100%;
+    //margin-top: ${(props) => props.theme.spacing.medium};
     flex-direction: ${(props) =>
         props.viewportWidth === 'mobile' ? 'column' : 'row'};
 `
@@ -216,8 +273,11 @@ const LeftRightBlock = styled.div`
     width: 10px;
 `
 
-const MemexLogo = styled.img`
-    height: 20px;
+const MemexLogo = styled.img<{
+    viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
+}>`
+    height: 24px;
+    z-index: 3005;
 `
 
 export default function DefaultPageLayout(props: {
@@ -233,11 +293,14 @@ export default function DefaultPageLayout(props: {
     headerTitle?: string
     headerSubtitle?: React.ReactNode
     followBtn?: JSX.Element
+    permissionKeyOverlay?: JSX.Element | null
     webMonetizationIcon?: JSX.Element
     hideActivityIndicator?: boolean
-    listsSidebarProps?: Omit<ListsSidebarProps, 'services'> & {
-        onSidebarToggle: React.MouseEventHandler
-    }
+    isSidebarShown?: boolean
+    listsSidebarProps?: Omit<
+        ListsSidebarProps,
+        'services' | 'storage' | 'viewportBreakpoint'
+    >
     renderSubtitle?: (props: { children: React.ReactNode }) => React.ReactNode
     viewportBreakpoint: ViewportBreakpoint
     children: React.ReactNode
@@ -258,27 +321,16 @@ export default function DefaultPageLayout(props: {
         }
     })
 
+    const getHeaderHeight = () => {
+        const headerHeight = document.getElementById('StyledHeader')
+            ?.clientHeight
+
+        return headerHeight
+    }
+
     const renderFeedArea = () => {
         if (!isAuthenticated) {
-            return (
-                <FeedArea>
-                    <FeedLabel
-                        onClick={async () => {
-                            const {
-                                result,
-                            } = await props.services.auth.requestAuth()
-                            if (
-                                result.status === 'authenticated' ||
-                                result.status === 'registered-and-authenticated'
-                            ) {
-                                props.services.router.goTo('homeFeed')
-                            }
-                        }}
-                    >
-                        Feed
-                    </FeedLabel>
-                </FeedArea>
-            )
+            return null
         }
 
         return (
@@ -288,14 +340,13 @@ export default function DefaultPageLayout(props: {
                     route="homeFeed"
                     params={{}}
                 >
-                    <FeedLabel>Feed</FeedLabel>
                     {!props.hideActivityIndicator && (
                         <Margin left="small">
                             <UnseenActivityIndicator
                                 services={props.services}
                                 storage={props.storage}
                                 renderContent={(feedState) => {
-                                    if (feedState === 'has-unseen') {
+                                    if (feedState !== 'has-unseen') {
                                         return <UnseenActivityDot />
                                     }
                                     return null
@@ -316,77 +367,102 @@ export default function DefaultPageLayout(props: {
         return (
             <ListsSidebar
                 {...props.listsSidebarProps}
+                storage={props.storage}
                 services={props.services}
+                viewportBreakpoint={props.viewportBreakpoint}
             />
         )
     }
 
     return (
-        <MainContainer>
+        <MainContainer
+            viewportWidth={viewportWidth}
+            sidebarShown={props.isSidebarShown}
+        >
             <BetaFlag
                 onClick={() => window.open('https://worldbrain.io/feedback')}
             >
                 Beta | Feedback
             </BetaFlag>
-            {renderListsSidebar()}
-            <StyledHeader viewportWidth={viewportWidth}>
+            <StyledHeader id={'StyledHeader'} viewportWidth={viewportWidth}>
+                {props.permissionKeyOverlay}
                 <LogoAndFeed viewportWidth={viewportWidth}>
                     {props.listsSidebarProps && isAuthenticated && (
-                        <ListsSidebarToggle
+                        <>
+                            <ListsSidebarToggle
+                                viewportWidth={viewportWidth}
+                                onToggle={props.listsSidebarProps.onToggle}
+                                isShown={props.listsSidebarProps.isShown}
+                            />
+                            <LeftRightBlock>{renderFeedArea()}</LeftRightBlock>
+                        </>
+                    )}
+                    {!isAuthenticated && (
+                        <MemexLogo
+                            src={logoImage}
+                            onClick={() => window.open('https://getmemex.com')}
                             viewportWidth={viewportWidth}
-                            onToggle={props.listsSidebarProps.onSidebarToggle}
-                            isShown={props.listsSidebarProps.isShown}
                         />
                     )}
                 </LogoAndFeed>
-                <HeaderMiddleArea viewportWidth={viewportWidth}>
-                    <LeftRightBlock>{renderFeedArea()}</LeftRightBlock>
-                    <MemexLogo
-                        src={logoImage}
-                        onClick={() => window.open('https://getmemex.com')}
-                    />
-                    <LeftRightBlock />
+                <PageMidleAreaActionMobile viewportWidth={viewportWidth}>
+                    {props.webMonetizationIcon && props.webMonetizationIcon}
+                    {props.followBtn && props.followBtn}
+                </PageMidleAreaActionMobile>
+                <HeaderMiddleArea
+                    viewportWidth={viewportWidth}
+                    id={'HeaderMiddleArea'}
+                >
+                    <PageMiddleAreaTopBox viewportWidth={viewportWidth}>
+                        <PageMidleAreaTitles>
+                            {props.headerTitle && (
+                                <HeaderTitle
+                                    title={props.headerTitle}
+                                    viewportWidth={viewportWidth}
+                                >
+                                    {props.headerTitle}
+                                </HeaderTitle>
+                            )}
+                            {props.headerTitle &&
+                                props.headerSubtitle &&
+                                renderSubtitle({
+                                    children: (
+                                        <HeaderSubtitle
+                                            viewportWidth={viewportWidth}
+                                        >
+                                            {props.headerSubtitle}
+                                        </HeaderSubtitle>
+                                    ),
+                                })}
+                        </PageMidleAreaTitles>
+                        <PageMidleAreaAction viewportWidth={viewportWidth}>
+                            {props.webMonetizationIcon &&
+                                props.webMonetizationIcon}
+                            {props.followBtn && props.followBtn}
+                        </PageMidleAreaAction>
+                    </PageMiddleAreaTopBox>
+                    {/* <LeftRightBlock /> */}
                 </HeaderMiddleArea>
-                <HeaderAuthArea viewportWidth={viewportWidth}>
-                    <AuthHeader
-                        services={props.services}
-                        storage={props.storage}
-                    />
-                </HeaderAuthArea>
+                {viewportWidth !== 'small' && viewportWidth !== 'mobile' && (
+                    <HeaderAuthArea viewportWidth={viewportWidth}>
+                        <AuthHeader
+                            services={props.services}
+                            storage={props.storage}
+                        />
+                    </HeaderAuthArea>
+                )}
             </StyledHeader>
-            <PageMiddleArea viewportWidth={viewportWidth}>
-                <PageMiddleAreaTopBox
-                    top="large"
-                    bottom="medium"
+            <PageMiddleArea
+                viewportWidth={viewportWidth}
+                isSidebarShown={props.isSidebarShown === true}
+            >
+                {renderListsSidebar()}
+                <PageResultsArea
+                    headerHeight={getHeaderHeight()}
                     viewportWidth={viewportWidth}
                 >
-                    <PageMidleAreaTitles>
-                        {props.headerTitle && (
-                            <HeaderTitle
-                                title={props.headerTitle}
-                                viewportWidth={viewportWidth}
-                            >
-                                {props.headerTitle}
-                            </HeaderTitle>
-                        )}
-                        {props.headerTitle &&
-                            props.headerSubtitle &&
-                            renderSubtitle({
-                                children: (
-                                    <HeaderSubtitle
-                                        viewportWidth={viewportWidth}
-                                    >
-                                        {props.headerSubtitle}
-                                    </HeaderSubtitle>
-                                ),
-                            })}
-                    </PageMidleAreaTitles>
-                    <PageMidleAreaAction viewportWidth={viewportWidth}>
-                        {props.webMonetizationIcon && props.webMonetizationIcon}
-                        {props.followBtn && props.followBtn}
-                    </PageMidleAreaAction>
-                </PageMiddleAreaTopBox>
-                {props.children}
+                    {props.children}
+                </PageResultsArea>
             </PageMiddleArea>
         </MainContainer>
     )

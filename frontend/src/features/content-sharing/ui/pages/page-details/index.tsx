@@ -17,9 +17,16 @@ import AnnotationsInPage from '../../../../annotations/ui/components/annotations
 import LoadingIndicator from '../../../../../common-ui/components/loading-indicator'
 import ErrorWithAction from '../../../../../common-ui/components/error-with-action'
 import ProfilePopupContainer from '../../../../user-management/ui/containers/profile-popup-container'
+import type { Props as ListsSidebarProps } from '../../../../lists-sidebar/ui/components/lists-sidebar'
+import { isPagePdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
+import InstallExtOverlay from '../../../../ext-detection/ui/components/install-ext-overlay'
+import { ViewportBreakpoint } from '../../../../../main-ui/styles/types'
+import { getViewportBreakpoint } from '../../../../../main-ui/styles/utils'
+import MissingPdfOverlay from '../../../../ext-detection/ui/components/missing-pdf-overlay'
 
 const PageInfoList = styled.div`
     width: 100%;
+    padding-bottom: 200px;
 `
 
 const AnnotationsLoading = styled.div`
@@ -36,37 +43,58 @@ export default class PageDetailsPage extends UIElement<
         super(props, { logic: new Logic(props) })
     }
 
-    get listsSidebarProps() {
+    get viewportBreakpoint(): ViewportBreakpoint {
+        return getViewportBreakpoint(this.getViewportWidth())
+    }
+
+    get listsSidebarProps(): Omit<
+        ListsSidebarProps,
+        'services' | 'storage' | 'viewportBreakpoint'
+    > {
         return {
             collaborativeLists: this.state.collaborativeLists,
             followedLists: this.state.followedLists,
             isShown: this.state.isListSidebarShown,
             loadState: this.state.listSidebarLoadState,
-            onSidebarToggle: () =>
-                this.processEvent('toggleListSidebar', undefined),
+            onToggle: () => this.processEvent('toggleListSidebar', undefined),
         }
     }
 
-    getBreakPoints() {
-        let viewPortWidth = this.getViewportWidth()
-
-        if (viewPortWidth <= 500) {
-            return 'mobile'
+    private renderModals() {
+        if (this.state.isInstallExtModalShown) {
+            return (
+                <InstallExtOverlay
+                    services={this.props.services}
+                    viewportBreakpoint={this.viewportBreakpoint}
+                    onCloseRequested={() =>
+                        this.processEvent('toggleInstallExtModal', {})
+                    }
+                    mode={
+                        this.state.clickedPageUrl != null
+                            ? 'click-page'
+                            : 'add-page'
+                    }
+                    clickedPageUrl={this.state.clickedPageUrl!}
+                />
+            )
         }
 
-        if (viewPortWidth >= 500 && viewPortWidth <= 850) {
-            return 'small'
+        if (this.state.isMissingPDFModalShown) {
+            return (
+                <MissingPdfOverlay
+                    services={this.props.services}
+                    viewportBreakpoint={this.viewportBreakpoint}
+                    onCloseRequested={() =>
+                        this.processEvent('toggleMissingPdfModal', {})
+                    }
+                />
+            )
         }
 
-        if (viewPortWidth > 850) {
-            return 'big'
-        }
-
-        return 'normal'
+        return null
     }
 
     render() {
-        const viewportWidth = this.getBreakPoints()
         const { state, props } = this
         const { services, storage } = props
         const { annotations, creator, pageInfo } = state
@@ -79,7 +107,7 @@ export default class PageDetailsPage extends UIElement<
                 <DefaultPageLayout
                     services={services}
                     storage={storage}
-                    viewportBreakpoint={viewportWidth}
+                    viewportBreakpoint={this.viewportBreakpoint}
                     headerTitle={'Loading page...'}
                     listsSidebarProps={this.listsSidebarProps}
                 >
@@ -96,7 +124,7 @@ export default class PageDetailsPage extends UIElement<
                 <DefaultPageLayout
                     services={services}
                     storage={storage}
-                    viewportBreakpoint={viewportWidth}
+                    viewportBreakpoint={this.viewportBreakpoint}
                     headerTitle={'Could not load page'}
                     listsSidebarProps={this.listsSidebarProps}
                 >
@@ -117,7 +145,7 @@ export default class PageDetailsPage extends UIElement<
                 <DefaultPageLayout
                     services={services}
                     storage={storage}
-                    viewportBreakpoint={viewportWidth}
+                    viewportBreakpoint={this.viewportBreakpoint}
                     headerTitle={'Shared page not found'}
                     listsSidebarProps={this.listsSidebarProps}
                 >
@@ -147,10 +175,11 @@ export default class PageDetailsPage extends UIElement<
                         creator ? ` by ${creator.displayName}` : ''
                     }`}
                 />
+                {this.renderModals()}
                 <DefaultPageLayout
                     services={services}
                     storage={storage}
-                    viewportBreakpoint={viewportWidth}
+                    viewportBreakpoint={this.viewportBreakpoint}
                     headerTitle={this.getHeaderTitle()}
                     listsSidebarProps={this.listsSidebarProps}
                     headerSubtitle={this.getHeaderSubtitle()}
@@ -167,6 +196,18 @@ export default class PageDetailsPage extends UIElement<
                     <PageInfoList>
                         <Margin>
                             <PageInfoBox
+                                onClick={(e) =>
+                                    this.processEvent('clickPageResult', {
+                                        urlToOpen: pageInfo.originalUrl,
+                                        preventOpening: () =>
+                                            e.preventDefault(),
+                                    })
+                                }
+                                type={
+                                    isPagePdf({ url: pageInfo.normalizedUrl })
+                                        ? 'pdf'
+                                        : 'page'
+                                }
                                 pageInfo={pageInfo}
                                 creator={creator}
                                 profilePopup={

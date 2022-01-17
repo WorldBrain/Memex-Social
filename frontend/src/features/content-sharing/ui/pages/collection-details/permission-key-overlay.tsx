@@ -6,12 +6,8 @@ import { UIElementServices } from '../../../../../services/types'
 import { UITaskState } from '../../../../../main-ui/types'
 import { Margin } from 'styled-components-spacing'
 import ExternalLink from '../../../../../common-ui/components/external-link'
-import LoadingScreen from '../../../../../common-ui/components/loading-screen'
 import { ProcessSharedListKeyResult } from '@worldbrain/memex-common/lib/content-sharing/service/types'
-
-const braveLogo = require('../../../../../assets/img/logo-brave.svg')
-const firefoxLogo = require('../../../../../assets/img/logo-firefox.svg')
-const chromeLogo = require('../../../../../assets/img/logo-chrome.svg')
+import { PrimaryAction } from '../../../../../common-ui/components/PrimaryAction'
 
 const Content = styled.div<{
     viewportBreakpoint: ViewportBreakpoint
@@ -39,6 +35,42 @@ const Content = styled.div<{
             max-width: 90%;
         `}
 `
+const InvitedNotificationContainer = styled.div<{
+    viewportBreakpoint: ViewportBreakpoint
+}>`
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    top: 10px;
+    position: absolute;
+    z-index: 3003;
+    pointer-events: none;
+
+    ${(props) =>
+        props.viewportBreakpoint === 'mobile' &&
+        css`
+            width: 90%;
+        `}
+`
+
+const InvitedNotification = styled.div<{
+    viewportBreakpoint: ViewportBreakpoint
+}>`
+        margin: auto;
+        width: 100%;
+        max-width: 800px;
+        padding: 10px 15px;
+        color ${(props) => props.theme.colors.purple};
+        font-size: 14px;
+        font-weight: 400;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border: 1px solid #f0f0f0;
+        font-family: ${(props) => props.theme.fonts.primary};
+        background: white;
+`
+
 const Title = styled.div`
     font-weight: bold;
     font-size: 24px;
@@ -132,25 +164,14 @@ export default function PermissionKeyOverlay(props: {
                     </Margin>
                     <Margin top="medium">
                         <ButtonsBox>
-                            <PrimaryButton onClick={props.onCloseRequested}>
-                                Close
-                            </PrimaryButton>
+                            <PrimaryAction
+                                label={'Close'}
+                                onClick={props.onCloseRequested}
+                            />
                             <SecondaryButtonLink href="mailto:support@worldbrain.io">
                                 Contact Support
                             </SecondaryButtonLink>
                         </ButtonsBox>
-                    </Margin>
-                </Content>
-            </Overlay>
-        )
-    }
-    if (props.permissionKeyState === 'running') {
-        return (
-            <Overlay services={props.services} onCloseRequested={() => {}}>
-                <Content viewportBreakpoint={props.viewportBreakpoint}>
-                    <Title>Joining collection as collaborator</Title>
-                    <Margin top="medium">
-                        <LoadingScreen />
                     </Margin>
                 </Content>
             </Overlay>
@@ -172,9 +193,10 @@ export default function PermissionKeyOverlay(props: {
                     </Margin>
                     <Margin top={'medium'}>
                         <ButtonsBox>
-                            <PrimaryButton onClick={props.onCloseRequested}>
-                                Close
-                            </PrimaryButton>
+                            <PrimaryAction
+                                label={'Close'}
+                                onClick={props.onCloseRequested}
+                            />
                             <SecondaryButtonLink href="mailto:support@worldbrain.io">
                                 Contact Support
                             </SecondaryButtonLink>
@@ -184,39 +206,60 @@ export default function PermissionKeyOverlay(props: {
             </Overlay>
         )
     }
-    if (props.permissionKeyResult === 'success') {
+    if (
+        props.permissionKeyState === 'running' ||
+        props.permissionKeyState === 'success'
+    ) {
         return (
-            <Overlay
-                services={props.services}
-                onCloseRequested={props.onCloseRequested}
+            <InvitedNotificationContainer
+                viewportBreakpoint={props.viewportBreakpoint}
             >
-                <Content viewportBreakpoint={props.viewportBreakpoint}>
-                    <Title>You’re now a Contributor to this collection</Title>
-                    <Margin top={'small'}>
-                        <SubTitle>
-                            Install the Memex Browser extension to add pages and
-                            annotations
-                        </SubTitle>
-                    </Margin>
-                    <Margin top={'small'}>
-                        <BrowserIconsBox>
-                            <BrowserIcon src={braveLogo} />
-                            <BrowserIcon src={firefoxLogo} />
-                            <BrowserIcon src={chromeLogo} />
-                        </BrowserIconsBox>
-                    </Margin>
-                    <Margin top={'medium'}>
-                        <ButtonsBox>
-                            <PrimaryButtonLink href="https://getmemex.com">
-                                Download
-                            </PrimaryButtonLink>
-                            <SecondaryButton onClick={props.onCloseRequested}>
-                                Cancel
-                            </SecondaryButton>
-                        </ButtonsBox>
-                    </Margin>
-                </Content>
-            </Overlay>
+                <InvitedNotification
+                    viewportBreakpoint={props.viewportBreakpoint}
+                    onClick={() => props.onCloseRequested}
+                >
+                    🎉 You’ve been invited as a collaborator. You can add pages
+                    and highlights with the Memex extension.
+                </InvitedNotification>
+            </InvitedNotificationContainer>
+            // <Overlay
+            //     services={props.services}
+            //     onCloseRequested={props.onCloseRequested}
+            // >
+            //     <Content viewportBreakpoint={props.viewportBreakpoint}>
+            //         <Title>
+            //             You’re now a Contributor to this collection
+            //         </Title>
+            //         <Margin top={'small'}>
+            //             <SubTitle>
+            //                 Install the Memex Browser extension to add pages
+            //                 and annotations
+            //             </SubTitle>
+            //         </Margin>
+            //         <Margin top={'small'}>
+            //             <BrowserIconsBox>
+            //                 <BrowserIcon src={braveLogo} />
+            //                 <BrowserIcon src={firefoxLogo} />
+            //                 <BrowserIcon src={chromeLogo} />
+            //             </BrowserIconsBox>
+            //         </Margin>
+            //         <Margin top={'medium'}>
+            //             <ButtonsBox>
+            //                 <PrimaryAction
+            //                     onClick={() =>
+            //                         window.open('https://memex.garden')
+            //                     }
+            //                     label={'Download Memex'}
+            //                 />
+            //                 <SecondaryButton
+            //                     onClick={props.onCloseRequested}
+            //                 >
+            //                     Already have it
+            //                 </SecondaryButton>
+            //             </ButtonsBox>
+            //         </Margin>
+            //     </Content>
+            // </Overlay>
         )
     }
     return null

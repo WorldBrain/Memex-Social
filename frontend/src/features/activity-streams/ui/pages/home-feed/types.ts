@@ -27,6 +27,10 @@ import {
     ListsSidebarState,
     ListsSidebarEvent,
 } from '../../../../lists-sidebar/ui/types'
+import type {
+    ExtDetectionState,
+    ExtDetectionEvent,
+} from '../../../../ext-detection/ui/logic'
 
 export interface HomeFeedDependencies {
     services: UIElementServices<
@@ -63,11 +67,14 @@ export type HomeFeedState = {
     lastSeenTimestamp?: number | null
     moreRepliesLoadStates: { [groupId: string]: UITaskState }
 } & AnnotationConversationsState &
-    ListsSidebarState
+    ListsSidebarState &
+    ExtDetectionState
 
 export type HomeFeedEvent = UIEvent<
     AnnotationConversationEvent &
-        ListsSidebarEvent & {
+        ListsSidebarEvent &
+        ExtDetectionEvent & {
+            clickPageResult: { urlToOpen: string; preventOpening: () => void }
             waypointHit: null
             loadMoreReplies: {
                 groupId: string

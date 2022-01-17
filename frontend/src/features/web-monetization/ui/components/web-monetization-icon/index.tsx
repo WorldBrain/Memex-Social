@@ -48,7 +48,7 @@ export default class WebMonetizationIcon extends UIElement<
     WebMonetizationIconState,
     WebMonetizationIconEvent
 > {
-    private iconHeight = '34px'
+    private iconHeight = '24px'
 
     constructor(props: WebMonetizationIconDependencies) {
         super(props, { logic: new Logic(props) })
@@ -79,7 +79,7 @@ export default class WebMonetizationIcon extends UIElement<
                         isClickable={this.isClickable}
                         onClick={this.handleClick}
                         height={this.iconHeight}
-                        color="secondary"
+                        color="purple"
                         icon={'webMonetizationLogo'}
                     />
                 )}

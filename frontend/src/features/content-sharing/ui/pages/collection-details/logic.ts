@@ -37,6 +37,10 @@ import {
     listsSidebarInitialState,
     listsSidebarEventHandlers,
 } from '../../../../lists-sidebar/ui/logic'
+import {
+    extDetectionInitialState,
+    extDetectionEventHandlers,
+} from '../../../../ext-detection/ui/logic'
 import { UserReference } from '../../../../user-management/types'
 import { makeStorageReference } from '@worldbrain/memex-common/lib/storage/references'
 const truncate = require('truncate')
@@ -132,6 +136,13 @@ export default class CollectionDetailsLogic extends UILogic<
                 localStorage: this.dependencies.services.localStorage,
             }),
         )
+
+        Object.assign(
+            this,
+            extDetectionEventHandlers(this as any, {
+                ...this.dependencies,
+            }),
+        )
     }
 
     getInitialState(): CollectionDetailsState {
@@ -148,8 +159,8 @@ export default class CollectionDetailsLogic extends UILogic<
             isCollectionFollowed: false,
             allAnnotationExpanded: false,
             isListShareModalShown: false,
-            isInstallExtModalShown: false,
             pageAnnotationsExpanded: {},
+            ...extDetectionInitialState(),
             ...listsSidebarInitialState(),
             ...annotationConversationInitialState(),
         }
@@ -436,12 +447,6 @@ export default class CollectionDetailsLogic extends UILogic<
         })
     }
 
-    toggleInstallExtModal: EventHandler<'toggleInstallExtModal'> = () => {
-        this.emitMutation({
-            isInstallExtModalShown: { $apply: (shown) => !shown },
-        })
-    }
-
     toggleDescriptionTruncation: EventHandler<'toggleDescriptionTruncation'> = () => {
         const mutation: UIMutation<CollectionDetailsState> = {
             listData: {
@@ -537,6 +542,7 @@ export default class CollectionDetailsLogic extends UILogic<
 
     clickFollowBtn: EventHandler<'clickFollowBtn'> = async ({
         previousState,
+        event,
     }) => {
         const {
             services: { auth },
@@ -610,6 +616,13 @@ export default class CollectionDetailsLogic extends UILogic<
                 this.emitMutation(mutation)
             },
         )
+
+        if (event.pageToOpenPostFollow != null) {
+            setTimeout(
+                () => window.open(event.pageToOpenPostFollow, '_blank'),
+                1000,
+            )
+        }
     }
 
     showMoreCollaborators: EventHandler<'showMoreCollaborators'> = () => {

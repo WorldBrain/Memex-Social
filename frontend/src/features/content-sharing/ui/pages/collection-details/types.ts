@@ -23,6 +23,10 @@ import {
     ListsSidebarState,
     ListsSidebarEvent,
 } from '../../../../lists-sidebar/ui/types'
+import type {
+    ExtDetectionState,
+    ExtDetectionEvent,
+} from '../../../../ext-detection/ui/logic'
 import { SharedListRole } from '@worldbrain/memex-common/lib/web-interface/types/storex-generated/content-sharing'
 import { ProcessSharedListKeyResult } from '@worldbrain/memex-common/lib/content-sharing/service/types'
 
@@ -54,7 +58,8 @@ export interface CollectionDetailsDependencies {
 }
 
 export type CollectionDetailsState = AnnotationConversationsState &
-    ListsSidebarState & {
+    ListsSidebarState &
+    ExtDetectionState & {
         listLoadState: UITaskState
         followLoadState: UITaskState
 
@@ -84,7 +89,6 @@ export type CollectionDetailsState = AnnotationConversationsState &
         isCollectionFollowed: boolean
         allAnnotationExpanded: boolean
         isListShareModalShown: boolean
-        isInstallExtModalShown: boolean
         pageAnnotationsExpanded: { [normalizedPageUrl: string]: true }
         annotationEntryData?: GetAnnotationListEntriesResult
         annotations: GetAnnotationsResult
@@ -92,19 +96,19 @@ export type CollectionDetailsState = AnnotationConversationsState &
 
 export type CollectionDetailsEvent = UIEvent<
     AnnotationConversationEvent &
-        ListsSidebarEvent & {
+        ListsSidebarEvent &
+        ExtDetectionEvent & {
             load: { isUpdate?: boolean; listID?: string }
             processCollectionSwitch: {}
             toggleDescriptionTruncation: {}
             togglePageAnnotations: { normalizedUrl: string }
             toggleAllAnnotations: {}
             toggleListShareModal: {}
-            toggleInstallExtModal: {}
             loadListData: { listID: string }
             processPermissionKey: {}
             closePermissionOverlay: {}
             pageBreakpointHit: { entryIndex: number }
-            clickFollowBtn: null
+            clickFollowBtn: { pageToOpenPostFollow?: string }
             showMoreCollaborators: {}
         }
 >

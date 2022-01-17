@@ -16,15 +16,18 @@ const Container = styled.div`
     height: min-content;
     width: min-content;
     position: relative;
+    cursor: pointer;
 `
 
 const CuratorPopupBox = styled.div`
-    top: 90px;
-    position: fixed;
+    top: 10px;
+    position: relative;
     z-index: 10;
-    padding-top: 10px;
-    height: 20px;
-    width: 40px;
+    position: relative;
+    z-index: 10;
+    height: 50px;
+    padding-top: 50px;
+    margin-top: -50px;
 `
 
 export type CuratorSupportPopupContainerDependencies = ProfilePopupContainerDependencies & {

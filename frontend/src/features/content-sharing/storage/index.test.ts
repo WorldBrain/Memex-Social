@@ -27,7 +27,6 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 listData: {
                     title: 'My list',
                 },
-                localListId: 55,
                 userReference,
             })
             const retrieved = await contentSharing.retrieveList(listReference)
@@ -69,7 +68,6 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 listData: {
                     title: 'My list',
                 },
-                localListId: 55,
                 userReference,
             })
             await contentSharing.updateListTitle(
@@ -107,7 +105,6 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                         listData: {
                             title,
                         },
-                        localListId: 55 + i,
                         userReference,
                     }),
                 )
@@ -132,7 +129,6 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 listData: {
                     title: 'My list',
                 },
-                localListId: 55,
                 userReference,
             })
             const test = async () => {
@@ -180,6 +176,20 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                             originalUrl: 'https://www.bar.com/page-2',
                             normalizedUrl: 'bar.com/page-2',
                         },
+                        {
+                            reference: {
+                                type: 'shared-list-entry-reference',
+                                id: expect.anything(),
+                            },
+                            creator: userReference,
+                            sharedList: listReference,
+                            createdWhen: data.TEST_PDF_LIST_ENTRY.createdWhen,
+                            updatedWhen: expect.any(Number),
+                            entryTitle: data.TEST_PDF_LIST_ENTRY.entryTitle,
+                            originalUrl: data.TEST_LOCATORS[0].originalUrl,
+                            normalizedUrl:
+                                data.TEST_PDF_LIST_ENTRY.normalizedUrl,
+                        },
                     ],
                 })
             }
@@ -200,7 +210,6 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 listData: {
                     title: 'My list',
                 },
-                localListId: 55,
                 userReference,
             })
             await data.createTestListEntries({
@@ -225,6 +234,10 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                     expect.objectContaining({
                         entryTitle: 'Page 1',
                         normalizedUrl: 'foo.com/page-1',
+                    }),
+                    expect.objectContaining({
+                        entryTitle: data.TEST_PDF_LIST_ENTRY.entryTitle,
+                        normalizedUrl: data.TEST_PDF_LIST_ENTRY.normalizedUrl,
                     }),
                 ],
             })
@@ -310,7 +323,6 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 listData: {
                     title: 'My list',
                 },
-                localListId: 55,
                 userReference,
             })
             await data.createTestListEntries({
@@ -327,7 +339,6 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 listData: {
                     title: 'My list 2',
                 },
-                localListId: 75,
                 userReference,
             })
             await data.createTestListEntries({
@@ -354,6 +365,11 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                         .localId]: expect.objectContaining({
                         type: 'shared-annotation-reference',
                     }),
+                    [data.TEST_ANNOTATIONS_BY_PAGE[
+                        'memex.cloud/ct/test-fingerprint-1.pdf'
+                    ][0].localId]: expect.objectContaining({
+                        type: 'shared-annotation-reference',
+                    }),
                 },
                 sharedAnnotationListEntryReferences: {
                     [data.TEST_ANNOTATIONS_BY_PAGE['foo.com/page-1'][0]
@@ -370,6 +386,13 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                     ],
                     [data.TEST_ANNOTATIONS_BY_PAGE['bar.com/page-2'][0]
                         .localId]: [
+                        expect.objectContaining({
+                            type: 'shared-annotation-list-entry-reference',
+                        }),
+                    ],
+                    [data.TEST_ANNOTATIONS_BY_PAGE[
+                        'memex.cloud/ct/test-fingerprint-1.pdf'
+                    ][0].localId]: [
                         expect.objectContaining({
                             type: 'shared-annotation-list-entry-reference',
                         }),
@@ -393,7 +416,11 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
             expect(
                 await contentSharing.getAnnotationsForPagesInList({
                     listReference: listReference2,
-                    normalizedPageUrls: ['foo.com/page-1', 'bar.com/page-2'],
+                    normalizedPageUrls: [
+                        'foo.com/page-1',
+                        'bar.com/page-2',
+                        data.TEST_PDF_LIST_ENTRY.normalizedUrl,
+                    ],
                 }),
             ).toEqual({
                 'foo.com/page-1': [
@@ -439,6 +466,25 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                         },
                     },
                 ],
+                [data.TEST_PDF_LIST_ENTRY.normalizedUrl]: [
+                    {
+                        annotation: {
+                            id: getRemoteId(
+                                'memex.cloud/ct/test-fingerprint-1.pdf',
+                                0,
+                            ),
+                            createdWhen: 2500,
+                            uploadedWhen: expect.any(Number),
+                            updatedWhen: expect.any(Number),
+                            creator: userReference.id,
+                            normalizedPageUrl:
+                                data.TEST_PDF_LIST_ENTRY.normalizedUrl,
+                            body: 'Body 4',
+                            comment: 'Comment 4',
+                            selector: 'Selector 4',
+                        },
+                    },
+                ],
             })
         },
     )
@@ -453,7 +499,6 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 listData: {
                     title: 'My list',
                 },
-                localListId: 55,
                 userReference,
             })
             await data.createTestListEntries({
@@ -489,7 +534,6 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 listData: {
                     title: 'My list',
                 },
-                localListId: 55,
                 userReference,
             })
             await data.createTestListEntries({
@@ -532,7 +576,6 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 listData: {
                     title: 'My list',
                 },
-                localListId: 55,
                 userReference,
             })
             await data.createTestListEntries({
@@ -599,7 +642,6 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 listData: {
                     title: 'My list',
                 },
-                localListId: 55,
                 userReference,
             })
             await data.createTestListEntries({
@@ -616,7 +658,6 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 listData: {
                     title: 'My list 2',
                 },
-                localListId: 75,
                 userReference,
             })
             await data.createTestListEntries({
@@ -680,6 +721,23 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                         updatedWhen: expect.any(Number),
                     },
                 ],
+                [data.TEST_PDF_LIST_ENTRY.normalizedUrl]: [
+                    {
+                        reference: expect.objectContaining({
+                            type: 'shared-annotation-list-entry-reference',
+                        }),
+                        creator: userReference,
+                        sharedList: listReference1,
+                        sharedAnnotation: expect.objectContaining({
+                            type: 'shared-annotation-reference',
+                        }),
+                        normalizedPageUrl:
+                            data.TEST_PDF_LIST_ENTRY.normalizedUrl,
+                        createdWhen: 2500,
+                        uploadedWhen: expect.any(Number),
+                        updatedWhen: expect.any(Number),
+                    },
+                ],
             })
 
             expect(
@@ -739,6 +797,23 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                     comment: 'Comment 3',
                     selector: 'Selector 3',
                 },
+                [contentSharing.getSharedAnnotationLinkID(
+                    entries[data.TEST_PDF_LIST_ENTRY.normalizedUrl][0]
+                        .sharedAnnotation,
+                )]: {
+                    linkId: expect.any(String),
+                    reference: expect.objectContaining({
+                        type: 'shared-annotation-reference',
+                    }),
+                    creator: userReference,
+                    normalizedPageUrl: data.TEST_PDF_LIST_ENTRY.normalizedUrl,
+                    createdWhen: 2500,
+                    uploadedWhen: expect.any(Number),
+                    updatedWhen: expect.any(Number),
+                    body: 'Body 4',
+                    comment: 'Comment 4',
+                    selector: 'Selector 4',
+                },
             })
         },
     )
@@ -753,7 +828,6 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 listData: {
                     title: 'My list',
                 },
-                localListId: 55,
                 userReference,
             })
             await data.createTestListEntries({
@@ -770,7 +844,6 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 listData: {
                     title: 'My list 2',
                 },
-                localListId: 75,
                 userReference,
             })
             await data.createTestListEntries({
@@ -836,6 +909,23 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                         updatedWhen: expect.any(Number),
                     },
                 ],
+                [data.TEST_PDF_LIST_ENTRY.normalizedUrl]: [
+                    {
+                        reference: expect.objectContaining({
+                            type: 'shared-annotation-list-entry-reference',
+                        }),
+                        creator: userReference,
+                        sharedList: listReference1,
+                        sharedAnnotation: expect.objectContaining({
+                            type: 'shared-annotation-reference',
+                        }),
+                        normalizedPageUrl:
+                            data.TEST_PDF_LIST_ENTRY.normalizedUrl,
+                        createdWhen: 2500,
+                        uploadedWhen: expect.any(Number),
+                        updatedWhen: expect.any(Number),
+                    },
+                ],
             })
             expect(entries[listReference2.id]).toEqual({
                 'bar.com/page-2': [
@@ -884,6 +974,23 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                         updatedWhen: expect.any(Number),
                     },
                 ],
+                [data.TEST_PDF_LIST_ENTRY.normalizedUrl]: [
+                    {
+                        reference: expect.objectContaining({
+                            type: 'shared-annotation-list-entry-reference',
+                        }),
+                        creator: userReference,
+                        sharedList: listReference2,
+                        sharedAnnotation: expect.objectContaining({
+                            type: 'shared-annotation-reference',
+                        }),
+                        normalizedPageUrl:
+                            data.TEST_PDF_LIST_ENTRY.normalizedUrl,
+                        createdWhen: 2500,
+                        uploadedWhen: expect.any(Number),
+                        updatedWhen: expect.any(Number),
+                    },
+                ],
             })
         },
     )
@@ -898,7 +1005,6 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 listData: {
                     title: 'My list',
                 },
-                localListId: 55,
                 userReference,
             })
             await data.createTestListEntries({
@@ -917,7 +1023,6 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 listData: {
                     title: 'My list 2',
                 },
-                localListId: 75,
                 userReference,
             })
             await data.createTestListEntries({
@@ -949,6 +1054,8 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                     {},
                 )
                 expect(annotationEntries).toEqual([
+                    expect.objectContaining({}),
+                    expect.objectContaining({}),
                     expect.objectContaining({}),
                     expect.objectContaining({}),
                     expect.objectContaining({}),
@@ -1028,7 +1135,6 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 listData: {
                     title: 'My list',
                 },
-                localListId: 55,
                 userReference,
             })
             await data.createTestListEntries({
@@ -1090,7 +1196,6 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 listData: {
                     title: 'My list',
                 },
-                localListId: 55,
                 userReference,
             })
             await data.createTestListEntries({
@@ -1148,6 +1253,9 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 expect.objectContaining({
                     normalizedPageUrl: 'foo.com/page-1',
                 }),
+                expect.objectContaining({
+                    normalizedPageUrl: data.TEST_PDF_LIST_ENTRY.normalizedUrl,
+                }),
             ])
         },
     )
@@ -1162,7 +1270,6 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 listData: {
                     title: 'My list',
                 },
-                localListId: 55,
                 userReference,
             })
             await data.createTestListEntries({
@@ -1225,7 +1332,6 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
         const { contentSharing } = storage.serverModules
         const listReference = await contentSharing.createSharedList({
             listData: { title: 'My list' },
-            localListId: 55,
             userReference: { type: 'user-reference', id: 1 },
         })
 
@@ -1333,13 +1439,11 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
 
         const listReference1 = await contentSharing.createSharedList({
             listData: { title: 'My list' },
-            localListId: 55,
             userReference: listCreatorReference,
         })
 
         const listReference2 = await contentSharing.createSharedList({
             listData: { title: 'My list 2' },
-            localListId: 56,
             userReference: listCreatorReference,
         })
 
@@ -1411,7 +1515,6 @@ createMultiDeviceStorageTestSuite(
                 listData: {
                     title: 'My list',
                 },
-                localListId: 55,
                 userReference,
             })
             if (options?.withTestListEntries) {
@@ -1611,7 +1714,7 @@ createMultiDeviceStorageTestSuite(
                     superuserDevice.storage.serverModules.contentSharing,
                 activityFollows:
                     devices[1].storage.serverModules.activityFollows,
-                userMessages: devices[1].services.userMessages,
+                storageManager: superuserDevice.storage.serverStorageManager,
             })
             expect(
                 await devicesByRole.listOwner.storage.serverModules.contentSharing.getListRole(

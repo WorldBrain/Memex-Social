@@ -23,6 +23,20 @@ objects:
           originalUrl: 'https://getmemex.com'
         - sharedList: { $ref: sharedLists.default }
           creator: { $ref: users.default }
+          createdWhen: 1594225555555
+          updatedWhen: 1594225555555
+          entryTitle: "WorldBrain's Memex PDF Support!"
+          normalizedUrl: memex.cloud/ct/test-fingerprint-1.pdf
+          originalUrl: 'https://memex.cloud/ct/test-fingerprint-1.pdf'
+        - sharedList: { $ref: sharedLists.default }
+          creator: { $ref: users.default }
+          createdWhen: 1594225555555
+          updatedWhen: 1594225555555
+          entryTitle: "WorldBrain's Memex Local PDF Support!"
+          normalizedUrl: memex.cloud/ct/test-fingerprint-2.pdf
+          originalUrl: 'https://memex.cloud/ct/test-fingerprint-2.pdf'
+        - sharedList: { $ref: sharedLists.default }
+          creator: { $ref: users.default }
           createdWhen: 1594225289914
           updatedWhen: 1594225289914
           entryTitle: Page with notes with a title that is very very very very very very very very very very very long
@@ -141,6 +155,20 @@ objects:
           fullTitle: "WorldBrain's Memex"
           normalizedUrl: getmemex.com
           originalUrl: 'https://getmemex.com'
+        - id: default-pdf-page
+          creator: { $ref: users.default }
+          createdWhen: 1594225555555
+          updatedWhen: 1594225555555
+          fullTitle: "WorldBrain's Memex PDF Support!"
+          normalizedUrl: memex.cloud/ct/test-fingerprint-1.pdf
+          originalUrl: 'https://memex.cloud/ct/test-fingerprint-1.pdf'
+        - id: default-local-pdf-page
+          creator: { $ref: users.default }
+          createdWhen: 1594225555555
+          updatedWhen: 1594225555555
+          fullTitle: "WorldBrain's Memex Local PDF Support!"
+          normalizedUrl: memex.cloud/ct/test-fingerprint-2.pdf
+          originalUrl: 'https://memex.cloud/ct/test-fingerprint-2.pdf'
         - id: notion-page
           creator: { $ref: users.default }
           createdWhen: 1594225555555
@@ -155,6 +183,21 @@ objects:
           fullTitle: Apples
           normalizedUrl: apples.so
           originalUrl: 'https://apples.so'
+    sharedContentLocators:
+        - $store: locator-1
+          id: first-locator
+          creator: { $ref: users.default }
+          locationScheme: 'normalized-url-v1'
+          originalUrl: 'https://memex.fra1.digitaloceanspaces.com/Under%20The%20Influence.pdf'
+          normalizedUrl: 'memex.cloud/ct/test-fingerprint-1.pdf'
+          sharedList: { $ref: sharedLists.default }
+        - $store: locator-2
+          id: second-locator
+          creator: { $ref: users.default }
+          locationScheme: 'normalized-url-v1'
+          originalUrl: 'https://getmemex.com/test-copy.pdf'
+          normalizedUrl: 'memex.cloud/ct/test-fingerprint-1.pdf'
+          sharedList: { $ref: sharedLists.default }
     sharedAnnotations:
         - $store: annotation-1
           id: default-annotation
@@ -202,6 +245,15 @@ objects:
           body: 'Body 3'
           comment: 'third annotation - Comment 3'
           selector: 'Selector 3'
+        - $store: annotation-4
+          id: fourth-annotation
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          normalizedPageUrl: 'memex.cloud/ct/test-fingerprint-1.pdf'
+          comment: |
+              Memex 3.1 brings local PDF support!
+          selector: 'Selector 3'
     sharedAnnotationListEntries:
         - creator: { $ref: users.default }
           sharedList: { $ref: sharedLists.default }
@@ -221,3 +273,9 @@ objects:
           createdWhen: 1594225289914
           updatedWhen: 1594225289914
           normalizedPageUrl: 'notion.so'
+        - creator: { $ref: users.default }
+          sharedList: { $ref: sharedLists.default }
+          sharedAnnotation: { $ref: sharedAnnotations.annotation-4 }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          normalizedPageUrl: 'memex.cloud/ct/test-fingerprint-1.pdf'

@@ -33,16 +33,27 @@ import ErrorBox from '../../../../../common-ui/components/error-box'
 import FollowBtn from '../../../../activity-follows/ui/components/follow-btn'
 import WebMonetizationIcon from '../../../../web-monetization/ui/components/web-monetization-icon'
 import PermissionKeyOverlay from './permission-key-overlay'
-import InstallExtOverlay from './install-ext-overlay'
+import InstallExtOverlay from '../../../../ext-detection/ui/components/install-ext-overlay'
+import FollowSpaceOverlay from '../../../../ext-detection/ui/components/follow-space-overlay'
 import { mergeTaskStates } from '../../../../../main-ui/classes/logic'
 import { UserReference } from '../../../../user-management/types'
 import ListShareModal from '@worldbrain/memex-common/lib/content-sharing/ui/list-share-modal'
+import type { Props as ListsSidebarProps } from '../../../../lists-sidebar/ui/components/lists-sidebar'
+import { isPagePdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
+import MissingPdfOverlay from '../../../../ext-detection/ui/components/missing-pdf-overlay'
+import { doesMemexExtDetectionElExist } from '@worldbrain/memex-common/lib/common-ui/utils/content-script'
 
 const commentImage = require('../../../../../assets/img/comment.svg')
 const commentEmptyImage = require('../../../../../assets/img/comment-empty.svg')
 
 const DocumentView = styled.div`
     height: 100vh;
+    overflow: hidden;
+`
+
+const DocumentContainer = styled.div`
+    min-height: 100vh;
+    width: 100vw;
 `
 
 // const CollectionDescriptionBox = styled.div<{
@@ -80,18 +91,19 @@ const AbovePagesBox = styled.div<{
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  margin: 5px 0 10px;
+  margin: 10px 0 10px;
   width: 100%;
   position: relative;
   z-index: 2;
   border-radius: 5px;
+  padding: 0 10px;
+  justify-content: space-between;
 }
 `
 
 const AddPageBtn = styled.div`
     display: flex;
     align-items: center;
-    position: absolute;
     left: 0;
     font-family: ${(props) => props.theme.fonts.primary};
     color: ${(props) => props.theme.colors.primary};
@@ -115,6 +127,7 @@ const ToggleAllAnnotations = styled.div`
 
 const PageInfoList = styled.div`
     width: 100%;
+    padding-bottom: 200px;
 `
 
 const EmptyListBox = styled.div`
@@ -147,14 +160,16 @@ export default class CollectionDetailsPage extends UIElement<
         super(props, { logic: new Logic({ ...props }) })
     }
 
-    get listsSidebarProps() {
+    get listsSidebarProps(): Omit<
+        ListsSidebarProps,
+        'services' | 'storage' | 'viewportBreakpoint'
+    > {
         return {
             collaborativeLists: this.state.collaborativeLists,
             followedLists: this.state.followedLists,
             isShown: this.state.isListSidebarShown,
             loadState: this.state.listSidebarLoadState,
-            onSidebarToggle: () =>
-                this.processEvent('toggleListSidebar', undefined),
+            onToggle: () => this.processEvent('toggleListSidebar', undefined),
         }
     }
 
@@ -178,24 +193,6 @@ export default class CollectionDetailsPage extends UIElement<
         }
     }
 
-    renderPageEntry(entry: SharedListEntry & { creator: UserReference }) {
-        return (
-            <PageInfoBox
-                profilePopup={{
-                    services: this.props.services,
-                    storage: this.props.storage,
-                    userRef: entry.creator,
-                }}
-                pageInfo={{
-                    ...entry,
-                    fullTitle: entry.entryTitle,
-                }}
-                creator={this.state.users[entry.creator.id]}
-                actions={this.getPageEntryActions(entry)}
-            />
-        )
-    }
-
     private renderWebMonetizationIcon() {
         const creatorReference = this.state.listData?.creatorReference
 
@@ -209,7 +206,7 @@ export default class CollectionDetailsPage extends UIElement<
                     <Icon
                         height="24px"
                         icon="addPeople"
-                        color="darkgrey"
+                        color="purple"
                         onClick={() =>
                             this.processEvent('toggleListShareModal', {})
                         }
@@ -268,16 +265,21 @@ export default class CollectionDetailsPage extends UIElement<
         }
     }
 
-    renderFollowBtn() {
+    renderFollowBtn = (pageToOpenPostFollow?: string) => () => {
         return (
             <FollowBtn
-                onClick={() => this.processEvent('clickFollowBtn', null)}
+                onClick={() => {
+                    this.processEvent('clickFollowBtn', {
+                        pageToOpenPostFollow,
+                    })
+                }}
                 isFollowed={this.state.isCollectionFollowed}
                 isOwner={this.state.isListOwner}
                 isContributor={this.isListContributor}
                 loadState={mergeTaskStates([
                     this.state.followLoadState,
                     this.state.listRolesLoadState,
+                    this.state.permissionKeyState,
                 ])}
             />
         )
@@ -449,20 +451,6 @@ export default class CollectionDetailsPage extends UIElement<
         ) : null
     }
 
-    renderInstallExtOverlay() {
-        return (
-            this.state.isInstallExtModalShown && (
-                <InstallExtOverlay
-                    services={this.props.services}
-                    viewportBreakpoint={this.viewportBreakpoint}
-                    onCloseRequested={() =>
-                        this.processEvent('toggleInstallExtModal', {})
-                    }
-                />
-            )
-        )
-    }
-
     private renderAbovePagesBox() {
         const {
             annotationEntryData,
@@ -497,9 +485,59 @@ export default class CollectionDetailsPage extends UIElement<
         )
     }
 
+    private renderModals() {
+        if (this.state.isInstallExtModalShown) {
+            return (
+                <InstallExtOverlay
+                    services={this.props.services}
+                    viewportBreakpoint={this.viewportBreakpoint}
+                    onCloseRequested={() =>
+                        this.processEvent('toggleInstallExtModal', {})
+                    }
+                    mode={
+                        this.state.clickedPageUrl != null
+                            ? 'click-page'
+                            : 'add-page'
+                    }
+                    clickedPageUrl={this.state.clickedPageUrl!}
+                />
+            )
+        }
+
+        if (this.state.isMissingPDFModalShown) {
+            return (
+                <MissingPdfOverlay
+                    services={this.props.services}
+                    viewportBreakpoint={this.viewportBreakpoint}
+                    onCloseRequested={() =>
+                        this.processEvent('toggleMissingPdfModal', {})
+                    }
+                />
+            )
+        }
+
+        if (this.state.showFollowModal) {
+            return (
+                <FollowSpaceOverlay
+                    services={this.props.services}
+                    viewportBreakpoint={this.viewportBreakpoint}
+                    onCloseRequested={() =>
+                        this.processEvent('toggleFollowSpaceOverlay', {})
+                    }
+                    isSpaceFollowed={this.state.isCollectionFollowed}
+                    currentUrl={this.state.clickedPageUrl!}
+                    renderFollowBtn={this.renderFollowBtn(
+                        this.state.clickedPageUrl!,
+                    )}
+                />
+            )
+        }
+
+        return null
+    }
+
     render() {
         ;(window as any)['blurt'] = () => console.log(this.state)
-
         const { state } = this
         if (
             state.listLoadState === 'pristine' ||
@@ -558,22 +596,24 @@ export default class CollectionDetailsPage extends UIElement<
         }
 
         return (
-            <>
+            <DocumentContainer>
                 <DocumentTitle
                     documentTitle={this.props.services.documentTitle}
                     subTitle={data.list.title}
                 />
-                {this.renderPermissionKeyOverlay()}
-                {this.renderInstallExtOverlay()}
+                {/* {this.renderPermissionKeyOverlay()} */}
+                {this.renderModals()}
                 <DefaultPageLayout
                     services={this.props.services}
                     storage={this.props.storage}
                     viewportBreakpoint={this.viewportBreakpoint}
                     headerTitle={data.list.title}
                     headerSubtitle={this.renderSubtitle()}
-                    followBtn={this.renderFollowBtn()}
+                    followBtn={this.renderFollowBtn()()}
                     webMonetizationIcon={this.renderWebMonetizationIcon()}
                     listsSidebarProps={this.listsSidebarProps}
+                    isSidebarShown={this.listsSidebarProps.isShown}
+                    permissionKeyOverlay={this.renderPermissionKeyOverlay()}
                 >
                     {/*{data.list.description && (
                     <CollectionDescriptionBox
@@ -624,7 +664,46 @@ export default class CollectionDetailsPage extends UIElement<
                             ([entryIndex, entry]) => (
                                 <Margin bottom={'small'}>
                                     <React.Fragment key={entry.normalizedUrl}>
-                                        {this.renderPageEntry(entry)}
+                                        <PageInfoBox
+                                            onClick={(e) =>
+                                                this.processEvent(
+                                                    'clickPageResult',
+                                                    {
+                                                        urlToOpen:
+                                                            entry.originalUrl,
+                                                        preventOpening: () =>
+                                                            e.preventDefault(),
+                                                        isFollowedSpace: this
+                                                            .state
+                                                            .isCollectionFollowed,
+                                                    },
+                                                )
+                                            }
+                                            type={
+                                                isPagePdf({
+                                                    url: entry.normalizedUrl,
+                                                })
+                                                    ? 'pdf'
+                                                    : 'page'
+                                            }
+                                            profilePopup={{
+                                                services: this.props.services,
+                                                storage: this.props.storage,
+                                                userRef: entry.creator,
+                                            }}
+                                            pageInfo={{
+                                                ...entry,
+                                                fullTitle: entry.entryTitle,
+                                            }}
+                                            creator={
+                                                this.state.users[
+                                                    entry.creator.id
+                                                ]
+                                            }
+                                            actions={this.getPageEntryActions(
+                                                entry,
+                                            )}
+                                        />
                                         {state.pageAnnotationsExpanded[
                                             entry.normalizedUrl
                                         ] && (
@@ -667,7 +746,7 @@ export default class CollectionDetailsPage extends UIElement<
                         }
                     />
                 )}
-            </>
+            </DocumentContainer>
         )
     }
 }
