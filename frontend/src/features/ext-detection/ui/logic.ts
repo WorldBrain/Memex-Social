@@ -6,21 +6,20 @@ import { isPagePdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
 export interface Dependencies {}
 
 export interface ExtDetectionState {
+    showFollowModal: boolean
     isInstallExtModalShown: boolean
     isMissingPDFModalShown: boolean
-    showFollowModal: boolean
-    currentUrl: string | undefined
+    clickedPageUrl: string | null
 }
 
 export interface ExtDetectionEvent {
     toggleInstallExtModal: {}
-    toggleFollowSpaceOverlay: {}
     toggleMissingPdfModal: {}
+    toggleFollowSpaceOverlay: {}
     clickPageResult: {
         urlToOpen: string
         preventOpening: () => void
         isFollowedSpace: boolean
-        currentUrl: string
     }
 }
 
@@ -36,7 +35,7 @@ export const extDetectionInitialState = (): ExtDetectionState => ({
     isInstallExtModalShown: false,
     isMissingPDFModalShown: false,
     showFollowModal: false,
-    currentUrl: '',
+    clickedPageUrl: null,
 })
 
 export const extDetectionEventHandlers = (
@@ -48,7 +47,6 @@ export const extDetectionEventHandlers = (
             event.preventOpening()
             logic.emitMutation({
                 showFollowModal: { $set: true },
-                currentUrl: { $set: event.currentUrl },
             })
             return
         }
@@ -57,7 +55,7 @@ export const extDetectionEventHandlers = (
             event.preventOpening()
             logic.emitMutation({
                 isInstallExtModalShown: { $set: true },
-                currentUrl: { $set: event.currentUrl },
+                clickedPageUrl: { $set: event.urlToOpen },
             })
             return
         }
@@ -67,7 +65,7 @@ export const extDetectionEventHandlers = (
             event.preventOpening()
             logic.emitMutation({
                 isMissingPDFModalShown: { $set: true },
-                currentUrl: { $set: event.currentUrl },
+                clickedPageUrl: { $set: null },
             })
             return
         }

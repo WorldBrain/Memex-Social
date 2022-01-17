@@ -114,7 +114,6 @@ export default class HomeFeedLogic extends UILogic<
     getInitialState(): HomeFeedState {
         return {
             loadState: 'pristine',
-            isInstallExtModalShown: false,
             activityItems: createOrderedMap(),
             pageInfo: {},
             annotations: {},

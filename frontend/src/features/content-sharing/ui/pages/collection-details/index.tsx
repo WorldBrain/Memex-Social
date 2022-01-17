@@ -497,6 +497,12 @@ export default class CollectionDetailsPage extends UIElement<
                     onCloseRequested={() =>
                         this.processEvent('toggleInstallExtModal', {})
                     }
+                    mode={
+                        this.state.clickedPageUrl != null
+                            ? 'click-page'
+                            : 'add-page'
+                    }
+                    clickedPageUrl={this.state.clickedPageUrl!}
                 />
             )
         }
@@ -670,8 +676,6 @@ export default class CollectionDetailsPage extends UIElement<
                                                         isFollowedSpace: this
                                                             .state
                                                             .isCollectionFollowed,
-                                                        currentUrl:
-                                                            entry.originalUrl,
                                                     },
                                                 )
                                             }

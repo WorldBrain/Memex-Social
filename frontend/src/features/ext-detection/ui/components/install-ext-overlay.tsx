@@ -162,11 +162,22 @@ const SecondaryButton = styled.div`
     ${secondaryButtonCss}
 `
 
-export default function InstallExtOverlay(props: {
+interface PageAddProps {
+    mode: 'add-page'
+}
+
+interface PageClickProps {
+    mode: 'click-page'
+    clickedPageUrl: string
+}
+
+type Props = {
     services: UIElementServices<'overlay'>
     viewportBreakpoint: ViewportBreakpoint
     onCloseRequested: () => void
-}) {
+} & (PageAddProps | PageClickProps)
+
+export default function InstallExtOverlay(props: Props) {
     return (
         <Overlay
             services={props.services}
@@ -174,18 +185,15 @@ export default function InstallExtOverlay(props: {
         >
             <Content viewportBreakpoint={props.viewportBreakpoint}>
                 <Margin>
-                    {/* {props.installModalState ? (
-                        <Title viewportBreakpoint={props.viewportBreakpoint}>
-                            Install Memex to add pages to this Space
-                        </Title>
-                    ):(
-                        <Title viewportBreakpoint={props.viewportBreakpoint}>
-                            Install Memex to see these highlights on the live page
-                        </Title>
-                    )}
+                    <Title viewportBreakpoint={props.viewportBreakpoint}>
+                        {props.mode === 'add-page'
+                            ? 'Install Memex to add pages to this Space'
+                            : 'Install Memex to see these highlights on the live page'}
+                    </Title>
                     <SubTitle>
-                        Download the extension, follow this Space and then open the page.
-                    </SubTitle> */}
+                        Download the extension, follow this Space and then open
+                        the page.
+                    </SubTitle>
                 </Margin>
                 <Margin top={'small'}>
                     <BrowserIconsBox>
@@ -214,14 +222,17 @@ export default function InstallExtOverlay(props: {
                     </SubSubTitle>
                 </Margin>
                 {/* )} */}
-                {/* {props.installModalState && (*/}
-                <ButtonsBox>
-                    {/* <PrimaryAction label={'Download'} onClick={()=>window.open('https://memex.garden')}/>  */}
-                    <SecondaryButton onClick={props.onCloseRequested}>
-                        Continue to page without Memex
-                    </SecondaryButton>
-                </ButtonsBox>
-                {/* )} */}
+                {props.mode === 'click-page' && (
+                    <ButtonsBox>
+                        <SecondaryButton
+                            onClick={() =>
+                                window.open(props.clickedPageUrl, '_blank')
+                            }
+                        >
+                            Continue to page without Memex
+                        </SecondaryButton>
+                    </ButtonsBox>
+                )}
             </Content>
         </Overlay>
     )

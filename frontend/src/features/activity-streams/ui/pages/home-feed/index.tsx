@@ -685,6 +685,12 @@ export default class HomeFeedPage extends UIElement<
                     onCloseRequested={() =>
                         this.processEvent('toggleInstallExtModal', {})
                     }
+                    mode={
+                        this.state.clickedPageUrl != null
+                            ? 'click-page'
+                            : 'add-page'
+                    }
+                    clickedPageUrl={this.state.clickedPageUrl!}
                 />
             )
         }
