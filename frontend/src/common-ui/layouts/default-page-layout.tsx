@@ -167,12 +167,21 @@ const HeaderAuthArea = styled.div<{
     right: 20px;
 `
 
-const PageMiddleArea = styled.div<{}>`
+const PageMiddleArea = styled.div<{
+    viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
+    isSidebarShown: boolean
+}>`
     width: 100%;
     display: flex;
     height: 100%;
     position: absolute;
-    //overflow: scroll;
+
+    ${(props) =>
+        props.viewportWidth === 'mobile' &&
+        props.isSidebarShown &&
+        css`
+            overflow: hidden;
+        `}
 `
 
 const PageResultsArea = styled.div<{
@@ -184,7 +193,7 @@ const PageResultsArea = styled.div<{
     padding-bottom: 100px;
     margin: 0px auto 0;
     width: 100%;
-    top: ${(props) => props.headerHeight}px;
+    top: calc(${(props) => props.headerHeight}px + 10px);
 `
 
 const PageMidleAreaTitles = styled.div`
@@ -443,7 +452,10 @@ export default function DefaultPageLayout(props: {
                     </HeaderAuthArea>
                 )}
             </StyledHeader>
-            <PageMiddleArea>
+            <PageMiddleArea
+                viewportWidth={viewportWidth}
+                isSidebarShown={props.isSidebarShown === true}
+            >
                 {renderListsSidebar()}
                 <PageResultsArea
                     headerHeight={getHeaderHeight()}

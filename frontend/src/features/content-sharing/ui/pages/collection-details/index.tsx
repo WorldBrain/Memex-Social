@@ -53,6 +53,7 @@ const DocumentView = styled.div`
 
 const DocumentContainer = styled.div`
     min-height: 100vh;
+    width: 100vw;
 `
 
 // const CollectionDescriptionBox = styled.div<{
