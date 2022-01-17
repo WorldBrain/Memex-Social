@@ -175,6 +175,7 @@ export default function FollowSpaceOverlay(props: {
     onCloseRequested: () => void
     renderFollowBtn: () => void
     currentUrl: string | URL | undefined
+    isSpaceFollowed: boolean
 }) {
     return (
         <Overlay
@@ -215,13 +216,23 @@ export default function FollowSpaceOverlay(props: {
                             props.onFollowRequested()
                         }}
                     /> */}
-                    {props.renderFollowBtn()}
-
-                    <SecondaryButton
-                        onClick={() => window.open(props.currentUrl)}
-                    >
-                        Continue to page without following
-                    </SecondaryButton>
+                    {props.isSpaceFollowed ? (
+                        <>
+                            <PrimaryAction
+                                label={'Continue to page'}
+                                onClick={() => window.open(props.currentUrl)}
+                            />
+                        </>
+                    ) : (
+                        <>
+                            {props.renderFollowBtn()}
+                            <SecondaryButton
+                                onClick={() => window.open(props.currentUrl)}
+                            >
+                                Continue to page without following
+                            </SecondaryButton>
+                        </>
+                    )}
                 </ButtonsBox>
                 {/* )} */}
             </Content>

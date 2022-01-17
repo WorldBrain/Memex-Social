@@ -523,6 +523,7 @@ export default class CollectionDetailsPage extends UIElement<
                     }
                     renderFollowBtn={() => this.renderFollowBtn()}
                     currentUrl={this.state.currentUrl}
+                    isSpaceFollowed={this.state.isCollectionFollowed}
                 />
             )
         }

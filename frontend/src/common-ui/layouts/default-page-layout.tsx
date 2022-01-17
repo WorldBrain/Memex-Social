@@ -183,6 +183,7 @@ const PageResultsArea = styled.div<{
     position: relative;
     padding-bottom: 100px;
     margin: 0px auto 0;
+    width: 100%;
     top: ${(props) => props.headerHeight}px;
 `
 
