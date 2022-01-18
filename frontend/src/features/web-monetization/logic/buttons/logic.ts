@@ -33,7 +33,7 @@ export default abstract class WebMonetizationButtonLogic extends UILogic<
         return {
             loadState: 'pristine',
             paymentState: 'pristine',
-            isDisplayed: false,
+            isDisplayed: true,
             isMonetizationAvailable: this.dependencies.services.webMonetization
                 .isAvailable,
             paymentMade: false,
