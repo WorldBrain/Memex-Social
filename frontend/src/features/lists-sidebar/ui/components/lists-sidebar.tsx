@@ -199,7 +199,7 @@ export default class ListsSidebar extends PureComponent<Props> {
                                 services={this.props.services}
                                 storage={this.props.storage}
                                 renderContent={(feedState) => {
-                                    if (feedState !== 'has-unseen') {
+                                    if (feedState === 'has-unseen') {
                                         return <UnseenActivityDot />
                                     }
                                     return null

@@ -346,7 +346,7 @@ export default function DefaultPageLayout(props: {
                                 services={props.services}
                                 storage={props.storage}
                                 renderContent={(feedState) => {
-                                    if (feedState !== 'has-unseen') {
+                                    if (feedState === 'has-unseen') {
                                         return <UnseenActivityDot />
                                     }
                                     return null
