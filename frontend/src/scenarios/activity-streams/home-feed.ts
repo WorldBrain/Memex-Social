@@ -255,7 +255,6 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                                 user: 'two@user.com',
                                 createProfile: true,
                             },
-
                             {
                                 type: 'list-entries',
                                 list: 'default-list',
@@ -273,6 +272,58 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                             },
                             { type: 'login', user: 'default-user' },
                         ],
+                    }),
+            },
+            steps: [],
+        }),
+    ),
+    'new-note-from-follower': scenario<Targets>(
+        ({ step, callModification }) => ({
+            fixture: 'annotated-list-with-user',
+            authenticated: true,
+            startRoute: { route: 'homeFeed', params: {} },
+            setup: {
+                execute: (context) =>
+                    setupTestActivities({
+                        ...context,
+                        script: [
+                            { type: 'login', user: 'default-user' },
+                            { type: 'follow-list', list: 'default-list' },
+                            { type: 'create-page-info', page: 'new-note.com' },
+                            {
+                                type: 'list-entries',
+                                list: 'default-list',
+                                pages: ['new-note.com'],
+                            },
+                            {
+                                type: 'login',
+                                user: 'two@user.com',
+                                createProfile: true,
+                            },
+                            { type: 'follow-list', list: 'default-list' },
+                            {
+                                type: 'create-annotation',
+                                page: 'new-note.com',
+                                list: 'default-list',
+                                createdId: 'first',
+                            },
+                            { type: 'login', user: 'default-user' },
+                        ],
+                    }),
+            },
+            steps: [],
+        }),
+    ),
+    'new-note-after-interaction': scenario<Targets>(
+        ({ step, callModification }) => ({
+            fixture: 'annotated-list-with-user',
+            authenticated: true,
+            startRoute: { route: 'homeFeed', params: {} },
+            setup: {
+                execute: (context) =>
+                    setupTestActivities({
+                        ...context,
+                        script: [{ type: 'login', user: 'default-user' }],
                     }),
             },
             steps: [],

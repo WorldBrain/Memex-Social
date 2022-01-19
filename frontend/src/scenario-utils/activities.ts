@@ -199,13 +199,20 @@ async function setup({
             )
             homeFeedTimestampUpdated = true
         } else if (step.type === 'create-page-info') {
-            await storage.serverModules.contentSharing.createPageInfo({
-                creatorReference: services.auth.getCurrentUserReference()!,
-                pageInfo: {
-                    fullTitle: `${step.page} title`,
-                    normalizedUrl: step.page,
-                    originalUrl: `https://${step.page}`,
+            const pageInfoReference = await storage.serverModules.contentSharing.createPageInfo(
+                {
+                    creatorReference: services.auth.getCurrentUserReference()!,
+                    pageInfo: {
+                        fullTitle: `${step.page} title`,
+                        normalizedUrl: step.page,
+                        originalUrl: `https://${step.page}`,
+                    },
                 },
+            )
+            await services.activityStreams.followEntity({
+                entityType: 'sharedPageInfo',
+                entity: pageInfoReference,
+                feeds: { home: true },
             })
         } else if (step.type === 'create-annotation') {
             const {
