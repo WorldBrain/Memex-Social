@@ -19,7 +19,8 @@ export interface ExtDetectionEvent {
     clickPageResult: {
         urlToOpen: string
         preventOpening: () => void
-        isFollowedSpace: boolean
+        isFollowedSpace?: boolean
+        isFeed?: boolean
     }
 }
 
@@ -55,13 +56,23 @@ export const extDetectionEventHandlers = (
 
     return {
         clickPageResult: async ({ previousState, event }) => {
-            if (doesMemexExtDetectionElExist() && !event.isFollowedSpace) {
-                event.preventOpening()
-                logic.emitMutation({
-                    showFollowModal: { $set: true },
-                    clickedPageUrl: { $set: event.urlToOpen },
-                })
-                return
+            if (doesMemexExtDetectionElExist()) {
+                if (!event.isFollowedSpace && !event.isFeed) {
+                    event.preventOpening()
+                    logic.emitMutation({
+                        showFollowModal: { $set: true },
+                        clickedPageUrl: { $set: event.urlToOpen },
+                    })
+                    return
+                }
+
+                if (event.isFeed) {
+                    logic.emitMutation({
+                        showFollowModal: { $set: false },
+                        clickedPageUrl: { $set: event.urlToOpen },
+                    })
+                    return
+                }
             }
 
             if (!doesMemexExtDetectionElExist()) {

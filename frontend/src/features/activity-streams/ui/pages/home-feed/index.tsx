@@ -311,6 +311,7 @@ export default class HomeFeedPage extends UIElement<
                                 this.processEvent('clickPageResult', {
                                     urlToOpen: pageInfo.originalUrl,
                                     preventOpening: () => e.preventDefault(),
+                                    isFeed: true,
                                 })
                             }
                             type={
@@ -576,6 +577,7 @@ export default class HomeFeedPage extends UIElement<
                                                             entry.originalUrl,
                                                         preventOpening: () =>
                                                             e.preventDefault(),
+                                                        isFeed: true,
                                                     },
                                                 )
                                             }

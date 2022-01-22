@@ -74,7 +74,11 @@ export type HomeFeedEvent = UIEvent<
     AnnotationConversationEvent &
         ListsSidebarEvent &
         ExtDetectionEvent & {
-            clickPageResult: { urlToOpen: string; preventOpening: () => void }
+            clickPageResult: {
+                urlToOpen: string
+                preventOpening: () => void
+                isFeed: boolean
+            }
             waypointHit: null
             loadMoreReplies: {
                 groupId: string
