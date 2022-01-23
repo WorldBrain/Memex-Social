@@ -41,7 +41,6 @@ import ListShareModal from '@worldbrain/memex-common/lib/content-sharing/ui/list
 import type { Props as ListsSidebarProps } from '../../../../lists-sidebar/ui/components/lists-sidebar'
 import { isPagePdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
 import MissingPdfOverlay from '../../../../ext-detection/ui/components/missing-pdf-overlay'
-import { doesMemexExtDetectionElExist } from '@worldbrain/memex-common/lib/common-ui/utils/content-script'
 
 const commentImage = require('../../../../../assets/img/comment.svg')
 const commentEmptyImage = require('../../../../../assets/img/comment-empty.svg')

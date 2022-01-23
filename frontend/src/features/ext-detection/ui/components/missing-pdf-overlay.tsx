@@ -1,5 +1,5 @@
 import React from 'react'
-import styled, { css } from 'styled-components'
+import styled from 'styled-components'
 import Overlay from '../../../../main-ui/containers/overlay'
 import { ViewportBreakpoint } from '../../../../main-ui/styles/types'
 import { UIElementServices } from '../../../../services/types'
