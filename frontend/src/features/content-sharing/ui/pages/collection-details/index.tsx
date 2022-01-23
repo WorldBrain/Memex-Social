@@ -468,6 +468,7 @@ export default class CollectionDetailsPage extends UIElement<
                         <Text>Add Page</Text>
                     </AddPageBtn>
                 )}
+                <div></div>
                 {annotationEntryData &&
                     Object.keys(annotationEntryData).length > 0 && (
                         <ToggleAllAnnotations
