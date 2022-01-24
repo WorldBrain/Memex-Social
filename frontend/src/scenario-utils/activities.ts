@@ -177,6 +177,18 @@ async function setup({
                 objectId: step.list,
             })
         } else if (step.type === 'list-entries') {
+            await Promise.all(
+                step.pages.map((page) =>
+                    storage.serverModules.contentSharing.ensurePageInfo({
+                        creatorReference: services.auth.getCurrentUserReference()!,
+                        pageInfo: {
+                            fullTitle: `${page} title`,
+                            normalizedUrl: page,
+                            originalUrl: `https://${page}`,
+                        },
+                    }),
+                ),
+            )
             await storage.serverModules.contentSharing.createListEntries({
                 listReference: { type: 'shared-list-reference', id: step.list },
                 listEntries: step.pages.map((page) => ({
@@ -199,7 +211,7 @@ async function setup({
             )
             homeFeedTimestampUpdated = true
         } else if (step.type === 'create-page-info') {
-            const pageInfoReference = await storage.serverModules.contentSharing.createPageInfo(
+            const pageInfoReference = await storage.serverModules.contentSharing.ensurePageInfo(
                 {
                     creatorReference: services.auth.getCurrentUserReference()!,
                     pageInfo: {
