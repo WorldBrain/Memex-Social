@@ -741,6 +741,65 @@ export function organizeActivities(
                 data.users[entryActivity.activity.entryCreator.reference.id] =
                     entryActivity.activity.entryCreator
             }
+        } else if (
+            (activityGroup.entityType === 'sharedListEntry' ||
+                activityGroup.entityType === 'sharedPageInfo') &&
+            activityGroup.activityType === 'annotationListEntry'
+        ) {
+            const entryActivityGroup = activityGroup as ActivityStreamResultGroup<
+                'sharedListEntry',
+                'annotationListEntry'
+            >
+            entryActivityGroup.activities = orderBy(
+                entryActivityGroup.activities,
+                [({ activity }) => activity.annotation.createdWhen],
+                ['desc'],
+            )
+            const { activity: firstActivity } = entryActivityGroup.activities[0]
+
+            for (const activityInGroup of entryActivityGroup.activities) {
+                const entryActivity = activityInGroup.activity
+                data.pageInfo[entryActivity.annotation.normalizedPageUrl] =
+                    entryActivity.pageInfo
+                data.annotations[entryActivity.annotation.reference.id] = {
+                    linkId: entryActivity.annotation.reference.id as string,
+                    creatorReference: entryActivity.annotationCreator.reference,
+                    ...entryActivity.annotation,
+                }
+                data.users[entryActivity.annotationCreator.reference.id] =
+                    entryActivity.annotationCreator
+                data.users[entryActivity.listCreator.reference.id] =
+                    entryActivity.listCreator
+                data.users[entryActivity.listEntryCreator.reference.id] =
+                    entryActivity.listCreator
+            }
+
+            activityItems.push({
+                type: 'page-item',
+                reason: 'new-annotations',
+                creatorReference: firstActivity.listEntryCreator.reference,
+                notifiedWhen: firstActivity.annotation.createdWhen,
+                groupId: entryActivityGroup.id,
+                normalizedPageUrl: firstActivity.pageInfo.normalizedUrl,
+                list: {
+                    reference: firstActivity.list.reference,
+                    title: firstActivity.list.title,
+                },
+                annotations: arrayToOrderedMap(
+                    entryActivityGroup.activities.map(
+                        (activityInGroup): AnnotationActivityItem => {
+                            const entryActivity = activityInGroup.activity
+                            return {
+                                type: 'annotation-item',
+                                hasEarlierReplies: false,
+                                reference: entryActivity.annotation.reference,
+                                replies: [],
+                            }
+                        },
+                    ),
+                    (item) => item.reference.id,
+                ),
+            })
         } else {
             console.warn(
                 `Ignored unknown activity ${activityGroup.entityType}:${activityGroup.activityType}`,

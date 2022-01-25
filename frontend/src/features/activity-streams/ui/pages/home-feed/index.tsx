@@ -294,6 +294,31 @@ export default class HomeFeedPage extends UIElement<
             )
         }
 
+        if (activityItem.reason === 'new-annotations' && activityItem.list) {
+            return (
+                <ActivityReason
+                    icon={commentImage}
+                    label={
+                        <>
+                            <ActivityType>
+                                New notes added {activityItem.list && 'to'}{' '}
+                            </ActivityType>
+                            <CollectionLink
+                                route="collectionDetails"
+                                services={this.props.services}
+                                params={{
+                                    id: activityItem.list.reference
+                                        .id as string,
+                                }}
+                            >
+                                {activityItem.list?.title}
+                            </CollectionLink>
+                        </>
+                    }
+                />
+            )
+        }
+
         return null
     }
 

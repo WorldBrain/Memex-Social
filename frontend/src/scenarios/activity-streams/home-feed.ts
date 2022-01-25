@@ -307,6 +307,12 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                                 list: 'default-list',
                                 createdId: 'first',
                             },
+                            {
+                                type: 'create-annotation',
+                                page: 'new-note.com',
+                                list: 'default-list',
+                                createdId: 'second',
+                            },
                             { type: 'login', user: 'default-user' },
                         ],
                     }),
