@@ -320,21 +320,52 @@ export const SCENARIOS: ScenarioMap<Targets> = {
             steps: [],
         }),
     ),
-    'new-note-after-interaction': scenario<Targets>(
-        ({ step, callModification }) => ({
-            fixture: 'annotated-list-with-user',
-            authenticated: true,
-            startRoute: { route: 'homeFeed', params: {} },
-            setup: {
-                execute: (context) =>
-                    setupTestActivities({
-                        ...context,
-                        script: [{ type: 'login', user: 'default-user' }],
-                    }),
-            },
-            steps: [],
-        }),
-    ),
+    'new-note-after-reply': scenario<Targets>(({ step, callModification }) => ({
+        fixture: 'annotated-list-with-user',
+        authenticated: true,
+        startRoute: { route: 'homeFeed', params: {} },
+        setup: {
+            execute: (context) =>
+                setupTestActivities({
+                    ...context,
+                    script: [
+                        { type: 'login', user: 'default-user' },
+                        { type: 'follow-list', list: 'default-list' },
+                        { type: 'create-page-info', page: 'new-note.com' },
+                        {
+                            type: 'list-entries',
+                            list: 'default-list',
+                            pages: ['new-note.com'],
+                        },
+                        {
+                            type: 'create-annotation',
+                            page: 'new-note.com',
+                            list: 'default-list',
+                            createdId: 'first',
+                        },
+                        {
+                            type: 'login',
+                            user: 'two@user.com',
+                            createProfile: true,
+                        },
+                        { type: 'follow-list', list: 'default-list' },
+                        { type: 'reply', createdAnnotation: 'first' },
+                        { type: 'login', user: 'default-user' },
+                        {
+                            type: 'create-annotation',
+                            page: 'new-note.com',
+                            list: 'default-list',
+                            createdId: 'second',
+                        },
+                        {
+                            type: 'login',
+                            user: 'two@user.com',
+                        },
+                    ],
+                }),
+        },
+        steps: [],
+    })),
     'no-activities': scenario<Targets>(({ step, callModification }) => ({
         fixture: 'annotated-list-with-user',
         authenticated: true,
