@@ -798,6 +798,7 @@ export function organizeActivities(
                 notifiedWhen: firstActivity.annotation.createdWhen,
                 groupId: entryActivityGroup.id,
                 normalizedPageUrl: firstActivity.pageInfo.normalizedUrl,
+                listReference: firstActivity.list.reference,
                 list: {
                     reference: firstActivity.list.reference,
                     title: firstActivity.list.title,
