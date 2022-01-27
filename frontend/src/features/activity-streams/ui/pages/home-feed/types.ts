@@ -113,6 +113,7 @@ export interface PageActivityItem extends TopLevelActivityItem {
     list?: { title: string; reference: SharedListReference }
     normalizedPageUrl: string
     creatorReference: UserReference
+    listReference: SharedListReference | null
     annotations: OrderedMap<AnnotationActivityItem>
 }
 
