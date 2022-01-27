@@ -38,21 +38,6 @@ export default class ContentConversationsService
                 userReference,
                 ...params,
             })
-            try {
-                // await this.options.services.activityStreams.addActivity({
-                //     entityType: 'sharedAnnotation',
-                //     entity: params.annotationReference,
-                //     activityType: 'conversationReply',
-                //     activity: {
-                //         replyReference,
-                //         isFirstReply: params.isFirstReply,
-                //     },
-                //     follow: { home: true },
-                // })
-            } catch (error) {
-                console.error(error)
-                return { status: 'failure', error }
-            }
             return { status: 'success', replyReference }
         } finally {
             unblockLeave()

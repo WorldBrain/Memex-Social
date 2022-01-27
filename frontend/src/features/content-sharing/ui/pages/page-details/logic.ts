@@ -50,6 +50,7 @@ export default class PageDetailsLogic extends UILogic<
             annotationConversationEventHandlers<PageDetailsState>(this as any, {
                 ...this.dependencies,
                 ...setupConversationLogicDeps(this.dependencies),
+                getSharedListReference: () => null,
                 selectAnnotationData: (state, reference) => {
                     const annotationId = this.dependencies.storage.contentSharing.getSharedAnnotationLinkID(
                         reference,

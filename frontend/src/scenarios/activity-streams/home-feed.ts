@@ -27,8 +27,16 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                     ...context,
                     script: [
                         { type: 'login', user: 'default-user' },
-                        { type: 'reply', annotation: 'default-annotation' },
-                        { type: 'reply', annotation: 'default-annotation' },
+                        {
+                            type: 'reply',
+                            annotation: 'default-annotation',
+                            list: 'default-list',
+                        },
+                        {
+                            type: 'reply',
+                            annotation: 'default-annotation',
+                            list: 'default-list',
+                        },
                         {
                             type: 'follow-annotation',
                             annotation: 'default-annotation',
@@ -42,15 +50,27 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                             user: 'two@user.com',
                             createProfile: true,
                         },
-                        { type: 'reply', annotation: 'default-annotation' },
-                        { type: 'reply', annotation: 'second-annotation' },
+                        {
+                            type: 'reply',
+                            annotation: 'default-annotation',
+                            list: 'default-list',
+                        },
+                        {
+                            type: 'reply',
+                            annotation: 'second-annotation',
+                            list: 'default-list',
+                        },
                         {
                             type: 'home-feed-timestamp',
                             user: 'default-user',
                             time: '$now',
                         },
                         // this reply should bump the group for the default annotation above the seen line
-                        { type: 'reply', annotation: 'default-annotation' },
+                        {
+                            type: 'reply',
+                            annotation: 'default-annotation',
+                            list: 'default-list',
+                        },
                         { type: 'login', user: 'default-user' },
                     ],
                 }),
@@ -90,7 +110,11 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                                 pages: ['new.com/one'],
                                 time: '$now',
                             },
-                            { type: 'reply', annotation: 'default-annotation' },
+                            {
+                                type: 'reply',
+                                annotation: 'default-annotation',
+                                list: 'default-list',
+                            },
                             {
                                 type: 'home-feed-timestamp',
                                 user: 'default-user',
@@ -163,8 +187,16 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                                 list: 'default-list',
                                 createdId: 'first',
                             },
-                            { type: 'reply', createdAnnotation: 'first' },
-                            { type: 'reply', createdAnnotation: 'first' },
+                            {
+                                type: 'reply',
+                                createdAnnotation: 'first',
+                                list: 'default-list',
+                            },
+                            {
+                                type: 'reply',
+                                createdAnnotation: 'first',
+                                list: 'default-list',
+                            },
                             { type: 'login', user: 'default-user' },
                         ],
                     }),
@@ -218,8 +250,16 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                                 list: 'default-list',
                                 createdId: 'second',
                             },
-                            { type: 'reply', createdAnnotation: 'first' },
-                            { type: 'reply', createdAnnotation: 'second' },
+                            {
+                                type: 'reply',
+                                createdAnnotation: 'first',
+                                list: 'default-list',
+                            },
+                            {
+                                type: 'reply',
+                                createdAnnotation: 'second',
+                                list: 'default-list',
+                            },
                             { type: 'login', user: 'default-user' },
                         ],
                     }),
@@ -320,6 +360,57 @@ export const SCENARIOS: ScenarioMap<Targets> = {
             steps: [],
         }),
     ),
+    'new-note-after-note': scenario<Targets>(({ step, callModification }) => ({
+        fixture: 'annotated-list-with-user',
+        authenticated: true,
+        startRoute: { route: 'homeFeed', params: {} },
+        setup: {
+            execute: (context) =>
+                setupTestActivities({
+                    ...context,
+                    script: [
+                        { type: 'login', user: 'default-user' },
+                        { type: 'follow-list', list: 'default-list' },
+                        { type: 'create-page-info', page: 'new-note.com' },
+                        {
+                            type: 'list-entries',
+                            list: 'default-list',
+                            pages: ['new-note.com'],
+                        },
+                        {
+                            type: 'create-annotation',
+                            page: 'new-note.com',
+                            list: 'default-list',
+                            createdId: 'first',
+                        },
+                        {
+                            type: 'login',
+                            user: 'two@user.com',
+                            createProfile: true,
+                        },
+                        { type: 'follow-list', list: 'default-list' },
+                        {
+                            type: 'create-annotation',
+                            page: 'new-note.com',
+                            list: 'default-list',
+                            createdId: 'second',
+                        },
+                        { type: 'login', user: 'default-user' },
+                        {
+                            type: 'create-annotation',
+                            page: 'new-note.com',
+                            list: 'default-list',
+                            createdId: 'third',
+                        },
+                        {
+                            type: 'login',
+                            user: 'two@user.com',
+                        },
+                    ],
+                }),
+        },
+        steps: [],
+    })),
     'new-note-after-reply': scenario<Targets>(({ step, callModification }) => ({
         fixture: 'annotated-list-with-user',
         authenticated: true,
@@ -349,7 +440,11 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                             createProfile: true,
                         },
                         { type: 'follow-list', list: 'default-list' },
-                        { type: 'reply', createdAnnotation: 'first' },
+                        {
+                            type: 'reply',
+                            createdAnnotation: 'first',
+                            list: 'default-list',
+                        },
                         { type: 'login', user: 'default-user' },
                         {
                             type: 'create-annotation',

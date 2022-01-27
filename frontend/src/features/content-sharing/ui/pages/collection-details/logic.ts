@@ -76,6 +76,10 @@ export default class CollectionDetailsLogic extends UILogic<
                 {
                     ...this.dependencies,
                     ...setupConversationLogicDeps(this.dependencies),
+                    getSharedListReference: () => ({
+                        type: 'shared-list-reference',
+                        id: this.dependencies.listID,
+                    }),
                     selectAnnotationData: (state, reference) => {
                         const annotationId = this.dependencies.storage.contentSharing.getSharedAnnotationLinkID(
                             reference,
