@@ -353,6 +353,11 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                                 list: 'default-list',
                                 createdId: 'second',
                             },
+                            {
+                                type: 'reply',
+                                createdAnnotation: 'first',
+                                list: 'default-list',
+                            },
                             { type: 'login', user: 'default-user' },
                         ],
                     }),
