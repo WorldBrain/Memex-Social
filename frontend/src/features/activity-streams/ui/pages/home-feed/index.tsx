@@ -482,6 +482,7 @@ export default class HomeFeedPage extends UIElement<
                             : 'unseen')
                     const shouldRender =
                         parentItem.type === 'list-item' ||
+                        parentItem.reason === 'new-annotations' ||
                         seenState === 'unseen' ||
                         options.groupAlreadySeen ||
                         moreRepliesLoadStates === 'success'

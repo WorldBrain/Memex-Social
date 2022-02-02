@@ -50,6 +50,7 @@ import {
     SharedAnnotationReference,
     SharedListReference,
 } from '@worldbrain/memex-common/lib/content-sharing/types'
+import { UITaskState } from '../../../../../main-ui/types'
 
 type EventHandler<EventName extends keyof HomeFeedEvent> = UIEventHandler<
     HomeFeedState,
@@ -609,7 +610,9 @@ export default class HomeFeedLogic extends UILogic<
                     activityData.annotationItems[conversationKey].replies
                 conversations[conversationKey] = {
                     ...conversations[conversationKey],
-                    loadState: 'success',
+                    loadState:
+                        organized.conversationLoadStates[conversationKey] ??
+                        'success',
                     expanded: annotationReplies.length > 0,
                     replies: annotationReplies
                         .map((replyItem) => {
@@ -680,6 +683,7 @@ export function organizeActivities(
 ): {
     activityItems: Array<ActivityItem>
     data: ActivityData
+    conversationLoadStates: { [conversationKey: string]: UITaskState }
 } {
     const data: ActivityData = {
         pageInfo: {},
@@ -688,6 +692,9 @@ export function organizeActivities(
         annotationItems: {},
         users: {},
     }
+    const conversationLoadStates: {
+        [conversationKey: string]: UITaskState
+    } = {}
 
     const activityItems: ActivityItem[] = []
     for (const activityGroup of activities) {
@@ -865,6 +872,7 @@ export function organizeActivities(
                     groupId: activityGroup.id,
                     annotationReference: entryActivity.annotation.reference,
                 })
+                conversationLoadStates[conversationKey] = 'pristine'
                 if (!data.replies[conversationKey]) {
                     data.replies[conversationKey] = {}
                 }
@@ -910,6 +918,7 @@ export function organizeActivities(
     return {
         activityItems,
         data,
+        conversationLoadStates,
     }
 }
 
