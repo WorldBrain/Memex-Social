@@ -606,6 +606,7 @@ export default class HomeFeedLogic extends UILogic<
                     .filter((linkId) => !!linkId),
             )
             for (const conversationKey of Object.keys(organized.data.replies)) {
+                const replies = organized.data?.replies[conversationKey]
                 const annotationReplies =
                     activityData.annotationItems[conversationKey].replies
                 conversations[conversationKey] = {
@@ -616,9 +617,7 @@ export default class HomeFeedLogic extends UILogic<
                     expanded: annotationReplies.length > 0,
                     replies: annotationReplies
                         .map((replyItem) => {
-                            return organized.data?.replies[conversationKey]?.[
-                                replyItem.reference.id
-                            ]!
+                            return replies?.[replyItem.reference.id]!
                         })
                         .filter((reply) => !!reply),
                 }
