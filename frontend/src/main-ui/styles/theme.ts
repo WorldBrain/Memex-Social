@@ -1,66 +1,10 @@
 import { Theme } from './types'
+import { THEME } from '@worldbrain/memex-common/lib/common-ui/styles/theme'
 
-export const theme: Theme = {
-    spacing: {
-        none: '0',
-        smallest: '0.25rem',
-        small: '0.5rem',
-        medium: '1rem',
-        large: '1.5rem',
-        larger: '2rem',
-        largest: '3rem',
-    },
-    colors: {
-        background: 'white',
-        warning: 'red',
-        primary: '#3a2f45',
-        subText: '#aeaeae',
-        secondary: '#5cd9a6',
-        purple: '#5671cf',
-        lightgrey: '#f0f0f0',
-        grey: '#e0e0e0',
-        darkgrey: '#545454',
-        black: '#000',
-        white: '#fff',
-        lightblack: '#2c2c2c',
-        overlay: {
-            background: 'rgba(0, 0, 0, 0.1)',
-            dialog: 'white',
-        },
-    },
-    fonts: {
-        primary: '"Poppins", sans-serif',
-        secondary: '"Poppins", sans-serif',
-    },
-    fontWeights: {
-        normal: 400,
-        bold: 700,
-    },
-    hoverBackgrounds: {
-        primary: '#e0e0e0',
-    },
-    borderRadii: {
-        default: '3px',
-    },
-    fontSizes: {
-        header: '20px',
-        listTitle: '16px',
-        url: '14px',
-        text: '12px',
-        smallText: '8px',
-    },
-    lineHeights: {
-        header: '30px',
-        listTitle: '24px',
-        url: '21px',
-        text: '18px',
-        smallText: '12px',
-    },
-    zIndices: {
-        overlay: 50000,
-    },
+export const theme: Theme = THEME({
     icons: {
         comment: require('../../assets/img/comment.svg'),
+        commentFull: require('../../assets/img/comment.svg'),
         commentEmpty: require('../../assets/img/comment-empty.svg'),
         goTo: require('../../assets/img/open.svg'),
         lock: require('../../assets/img/lock.svg'),
@@ -85,4 +29,4 @@ export const theme: Theme = {
         webMonetizationLogo: require('../../assets/img/web-monetization-logo.svg'),
         webMonetizationLogoConfirmed: require('../../assets/img/web-monetization-logo-confirmed.svg'),
     },
-}
+})
