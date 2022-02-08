@@ -341,6 +341,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                                 createProfile: true,
                             },
                             { type: 'follow-list', list: 'default-list' },
+                            { type: 'create-page-info', page: 'new-note.com' },
                             {
                                 type: 'create-annotation',
                                 page: 'new-note.com',
@@ -362,7 +363,30 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                         ],
                     }),
             },
-            steps: [],
+            steps: [
+                step({
+                    name: 'toggle-replies',
+                    target: 'HomeFeedPage',
+                    eventName: 'toggleAnnotationReplies',
+                    eventArgs: {
+                        annotationReference: {
+                            type: 'shared-annotation-reference',
+                            id: 1,
+                        },
+                        conversationId: 'act-2:act-3:1',
+                    },
+                }),
+                // step({
+                //     name: 'write-reply',
+                //     target: 'HomeFeedPage',
+                //     eventName: 'editNewReplyToAnnotation',
+                //     eventArgs: {
+                //         annotationReference: { type: 'shared-annotation-reference', id: 1 },
+                //         conversationId: 'act-2:act-3:1',
+                //         content: 'A new reply',
+                //     }
+                // }),
+            ],
         }),
     ),
     'new-note-after-note': scenario<Targets>(({ step, callModification }) => ({

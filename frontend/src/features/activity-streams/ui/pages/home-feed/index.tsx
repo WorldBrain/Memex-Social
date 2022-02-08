@@ -541,6 +541,7 @@ export default class HomeFeedPage extends UIElement<
                         groupId,
                         annotationReference: event.annotationReference,
                     })
+                    console.log(conversationKey)
                     return this.processEvent('toggleAnnotationReplies', {
                         ...event,
                         conversationId: conversationKey,

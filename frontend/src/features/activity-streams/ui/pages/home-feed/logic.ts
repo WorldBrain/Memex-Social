@@ -943,7 +943,9 @@ export function splitConversationKey(
     groupId: string
     annotationReference: SharedAnnotationReference
 } {
-    const [groupId, annotationId] = key.split(':')
+    const keyParts = key.split(':')
+    const groupId = keyParts.slice(0, -1).join(':')
+    const annotationId = keyParts.slice(-1)[0]
     return {
         groupId,
         annotationReference: {
