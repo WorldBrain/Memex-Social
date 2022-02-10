@@ -40,6 +40,7 @@ import { AnnotationConversationState } from '../../../../content-conversations/u
 import {
     createOrderedMap,
     arrayToOrderedMap,
+    OrderedMap,
 } from '../../../../../utils/ordered-map'
 import {
     User,
@@ -80,6 +81,21 @@ export default class HomeFeedLogic extends UILogic<
             this,
             annotationConversationEventHandlers<HomeFeedState>(this as any, {
                 ...setupConversationLogicDeps(this.dependencies),
+                getSharedListReference: (params) => {
+                    const { groupId } = splitConversationKey(
+                        params.conversationId,
+                    )
+                    const activityItem = findActivityItem(
+                        params.state.activityItems,
+                        groupId,
+                    )
+                    if (!activityItem) {
+                        throw new Error(
+                            `Could not save reply: can't find activity item`,
+                        )
+                    }
+                    return activityItem.listReference
+                },
                 selectAnnotationData: (state, reference) => {
                     const annotation = state.annotations[reference.id]
                     if (!annotation) {
@@ -652,6 +668,7 @@ export function organizeActivities(
                 type: 'page-item',
                 groupId: activityGroup.id,
                 reason: 'new-replies',
+                listReference: firstReplyActivity.sharedList?.reference ?? null,
                 normalizedPageUrl: firstReplyActivity.normalizedPageUrl,
                 notifiedWhen: 0,
                 // TODO: When the correct page creator is stored in the feed, set it here
@@ -766,9 +783,34 @@ export function organizeActivities(
     }
 }
 
+function findActivityItem(
+    activityItems: OrderedMap<ActivityItem>,
+    groupId: string,
+) {
+    return Object.values(activityItems.items).find(
+        (item) => item.groupId === groupId,
+    )
+}
+
 export function getConversationKey(input: {
     groupId: string
     annotationReference: SharedAnnotationReference
 }) {
     return `${input.groupId}:${input.annotationReference.id}`
+}
+
+export function splitConversationKey(
+    key: string,
+): {
+    groupId: string
+    annotationReference: SharedAnnotationReference
+} {
+    const [groupId, annotationId] = key.split(':')
+    return {
+        groupId,
+        annotationReference: {
+            type: 'shared-annotation-reference',
+            id: annotationId,
+        },
+    }
 }

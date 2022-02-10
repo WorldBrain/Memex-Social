@@ -123,6 +123,7 @@ export interface PageActivityItem extends TopLevelActivityItem {
     reason: 'new-replies'
     normalizedPageUrl: string
     creatorReference: UserReference
+    listReference: SharedListReference | null
     annotations: OrderedMap<AnnotationActivityItem>
 }
 
