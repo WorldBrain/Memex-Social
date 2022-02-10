@@ -289,6 +289,31 @@ export default class HomeFeedPage extends UIElement<
             )
         }
 
+        if (activityItem.reason === 'new-annotations' && activityItem.list) {
+            return (
+                <ActivityReason
+                    icon={commentImage}
+                    label={
+                        <>
+                            <ActivityType>
+                                New notes added {activityItem.list && 'to'}{' '}
+                            </ActivityType>
+                            <CollectionLink
+                                route="collectionDetails"
+                                services={this.props.services}
+                                params={{
+                                    id: activityItem.list.reference
+                                        .id as string,
+                                }}
+                            >
+                                {activityItem.list?.title}
+                            </CollectionLink>
+                        </>
+                    }
+                />
+            )
+        }
+
         return null
     }
 
@@ -464,6 +489,7 @@ export default class HomeFeedPage extends UIElement<
                             : 'unseen')
                     const shouldRender =
                         parentItem.type === 'list-item' ||
+                        parentItem.reason === 'new-annotations' ||
                         seenState === 'unseen' ||
                         options.groupAlreadySeen ||
                         moreRepliesLoadStates === 'success'
@@ -522,6 +548,7 @@ export default class HomeFeedPage extends UIElement<
                         groupId,
                         annotationReference: event.annotationReference,
                     })
+                    console.log(conversationKey)
                     return this.processEvent('toggleAnnotationReplies', {
                         ...event,
                         conversationId: conversationKey,

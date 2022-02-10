@@ -120,7 +120,8 @@ export type ListEntryActivityItem = {
 
 export interface PageActivityItem extends TopLevelActivityItem {
     type: 'page-item'
-    reason: 'new-replies'
+    reason: 'new-replies' | 'new-annotations'
+    list?: { title: string; reference: SharedListReference }
     normalizedPageUrl: string
     creatorReference: UserReference
     listReference: SharedListReference | null

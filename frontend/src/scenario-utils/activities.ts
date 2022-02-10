@@ -10,8 +10,8 @@ type SuccessReplyRes = {
 type ActivityScript = ActivityScriptStep[]
 type ActivityScriptStep =
     | { type: 'login'; user: string; createProfile?: boolean }
-    | { type: 'reply'; annotation: string }
-    | { type: 'reply'; createdAnnotation: string }
+    | { type: 'reply'; annotation: string; list: string }
+    | { type: 'reply'; createdAnnotation: string; list: string }
     | { type: 'follow-annotation'; annotation: string }
     | { type: 'follow-list'; list: string }
     | { type: 'list-entries'; list: string; pages: string[]; time?: '$now' }
@@ -125,6 +125,10 @@ async function setup({
                         type: 'shared-annotation-reference',
                         id: annotId,
                     },
+                    sharedListReference: {
+                        type: 'shared-list-reference',
+                        id: step.list,
+                    },
                     normalizedPageUrl: normalizedPageUrl,
                     reply: {
                         content: `annot in ${normalizedPageUrl} - ${annotationName} - reply ${replyNumber} (${extraInfo})`,
@@ -177,6 +181,18 @@ async function setup({
                 objectId: step.list,
             })
         } else if (step.type === 'list-entries') {
+            await Promise.all(
+                step.pages.map((page) =>
+                    storage.serverModules.contentSharing.ensurePageInfo({
+                        creatorReference: services.auth.getCurrentUserReference()!,
+                        pageInfo: {
+                            fullTitle: `${page} title`,
+                            normalizedUrl: page,
+                            originalUrl: `https://${page}`,
+                        },
+                    }),
+                ),
+            )
             await storage.serverModules.contentSharing.createListEntries({
                 listReference: { type: 'shared-list-reference', id: step.list },
                 listEntries: step.pages.map((page) => ({
@@ -199,13 +215,20 @@ async function setup({
             )
             homeFeedTimestampUpdated = true
         } else if (step.type === 'create-page-info') {
-            await storage.serverModules.contentSharing.createPageInfo({
-                creatorReference: services.auth.getCurrentUserReference()!,
-                pageInfo: {
-                    fullTitle: `${step.page} title`,
-                    normalizedUrl: step.page,
-                    originalUrl: `https://${step.page}`,
+            const pageInfoReference = await storage.serverModules.contentSharing.ensurePageInfo(
+                {
+                    creatorReference: services.auth.getCurrentUserReference()!,
+                    pageInfo: {
+                        fullTitle: `${step.page} title`,
+                        normalizedUrl: step.page,
+                        originalUrl: `https://${step.page}`,
+                    },
                 },
+            )
+            await services.activityStreams.followEntity({
+                entityType: 'sharedPageInfo',
+                entity: pageInfoReference,
+                feeds: { home: true },
             })
         } else if (step.type === 'create-annotation') {
             const {
@@ -249,29 +272,29 @@ export const setupTestActivities = async ({
         storage,
         script: script ?? [
             { type: 'login', user: 'default-user' },
-            { type: 'reply', annotation: 'third-annotation' },
-            { type: 'reply', annotation: 'third-annotation' },
+            { type: 'reply', annotation: 'third-annotation', list: 'default-list' },
+            { type: 'reply', annotation: 'third-annotation', list: 'default-list' },
             { type: 'follow-annotation', annotation: 'default-annotation' },
             { type: 'follow-annotation', annotation: 'second-annotation' },
             { type: 'follow-annotation', annotation: 'third-annotation' },
             { type: 'follow-list', list: 'default-list' },
             { type: 'login', user: 'two@user.com', createProfile: true },
-            { type: 'reply', annotation: 'default-annotation' },
-            { type: 'reply', annotation: 'default-annotation' },
-            { type: 'reply', annotation: 'second-annotation' },
-            { type: 'reply', annotation: 'default-annotation' },
+            { type: 'reply', annotation: 'default-annotation', list: 'default-list' },
+            { type: 'reply', annotation: 'default-annotation', list: 'default-list' },
+            { type: 'reply', annotation: 'second-annotation', list: 'default-list' },
+            { type: 'reply', annotation: 'default-annotation', list: 'default-list' },
             { type: 'list-entries', list: 'default-list', pages: ['new.com/one', 'new.com/two', 'new.com/three'] },
             { type: 'home-feed-timestamp', user: 'default-user', time: '$now' },
-            { type: 'reply', annotation: 'third-annotation' },
-            { type: 'reply', annotation: 'default-annotation' },
+            { type: 'reply', annotation: 'third-annotation', list: 'default-list' },
+            { type: 'reply', annotation: 'default-annotation', list: 'default-list' },
             { type: 'list-entries', list: 'default-list', pages: ['new.com/four', 'new.com/five'] },
             { type: 'create-page-info', page: 'new.com/one' },
             { type: 'create-annotation', page: 'new.com/one', list: 'default-list', createdId: 'first' },
-            { type: 'reply', createdAnnotation: 'first' },
-            { type: 'reply', createdAnnotation: 'first' },
+            { type: 'reply', createdAnnotation: 'first', list: 'default-list' },
+            { type: 'reply', createdAnnotation: 'first', list: 'default-list' },
             { type: 'login', user: 'default-user' },
-            { type: 'reply', annotation: 'third-annotation' },
-            { type: 'reply', createdAnnotation: 'first' },
+            { type: 'reply', annotation: 'third-annotation', list: 'default-list' },
+            { type: 'reply', createdAnnotation: 'first', list: 'default-list' },
         ]
     })
 
