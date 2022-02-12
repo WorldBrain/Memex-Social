@@ -363,32 +363,61 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                         ],
                     }),
             },
-            steps: [
-                step({
-                    name: 'toggle-replies',
-                    target: 'HomeFeedPage',
-                    eventName: 'toggleAnnotationReplies',
-                    eventArgs: {
-                        annotationReference: {
-                            type: 'shared-annotation-reference',
-                            id: 1,
-                        },
-                        conversationId: 'act-2:act-3:1',
-                    },
-                }),
-                // step({
-                //     name: 'write-reply',
-                //     target: 'HomeFeedPage',
-                //     eventName: 'editNewReplyToAnnotation',
-                //     eventArgs: {
-                //         annotationReference: { type: 'shared-annotation-reference', id: 1 },
-                //         conversationId: 'act-2:act-3:1',
-                //         content: 'A new reply',
-                //     }
-                // }),
-            ],
+            steps: [],
         }),
     ),
+    'bump-seen-notes': scenario<Targets>(({ step, callModification }) => ({
+        fixture: 'annotated-list-with-user',
+        authenticated: true,
+        startRoute: { route: 'homeFeed', params: {} },
+        setup: {
+            execute: (context) =>
+                setupTestActivities({
+                    ...context,
+                    script: [
+                        { type: 'login', user: 'default-user' },
+                        { type: 'follow-list', list: 'default-list' },
+                        { type: 'create-page-info', page: 'new-note.com' },
+                        {
+                            type: 'list-entries',
+                            list: 'default-list',
+                            pages: ['new-note.com'],
+                        },
+                        {
+                            type: 'login',
+                            user: 'two@user.com',
+                            createProfile: true,
+                        },
+                        { type: 'follow-list', list: 'default-list' },
+                        { type: 'create-page-info', page: 'new-note.com' },
+                        {
+                            type: 'create-annotation',
+                            page: 'new-note.com',
+                            list: 'default-list',
+                            createdId: 'first',
+                        },
+                        {
+                            type: 'home-feed-timestamp',
+                            user: 'default-user',
+                            time: '$now',
+                        },
+                        {
+                            type: 'create-annotation',
+                            page: 'new-note.com',
+                            list: 'default-list',
+                            createdId: 'second',
+                        },
+                        {
+                            type: 'reply',
+                            createdAnnotation: 'first',
+                            list: 'default-list',
+                        },
+                        { type: 'login', user: 'default-user' },
+                    ],
+                }),
+        },
+        steps: [],
+    })),
     'new-note-after-note': scenario<Targets>(({ step, callModification }) => ({
         fixture: 'annotated-list-with-user',
         authenticated: true,

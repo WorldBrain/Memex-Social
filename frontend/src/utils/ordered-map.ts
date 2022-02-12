@@ -32,5 +32,20 @@ export const mapOrderedMap = <T, Return>(
     ) => Array<string | number> = (a) => a,
 ): Return[] => inputArrayChainFn(map.order).map((id, i) => cb(map.items[id], i))
 
+export const filterOrderedMap = <T>(
+    map: OrderedMap<T>,
+    f: (item: T) => boolean,
+): OrderedMap<T> => {
+    const filtered: OrderedMap<T> = { order: [], items: {} }
+    for (const key of map.order) {
+        const value = map.items[key]
+        if (f(value)) {
+            filtered.order.push(key)
+            filtered.items[key] = value
+        }
+    }
+    return filtered
+}
+
 export const getOrderedMapIndex = <T>(map: OrderedMap<T>, index: number): T =>
     map.items[map.order[index]]

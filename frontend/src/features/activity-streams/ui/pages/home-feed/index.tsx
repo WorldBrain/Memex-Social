@@ -27,6 +27,7 @@ import {
     mapOrderedMap,
     getOrderedMapIndex,
     OrderedMap,
+    filterOrderedMap,
 } from '../../../../../utils/ordered-map'
 import { SharedAnnotationReference } from '@worldbrain/memex-common/lib/content-sharing/types'
 import AnnotationReply from '../../../../content-conversations/ui/components/annotation-reply'
@@ -384,7 +385,20 @@ export default class HomeFeedPage extends UIElement<
             <AnnotationsInPage
                 loadState="success"
                 annotations={mapOrderedMap(
-                    annotationItems,
+                    filterOrderedMap(annotationItems, (item) => {
+                        if (parentItem.reason !== 'new-annotations') {
+                            return true
+                        }
+                        const annotation = state.annotations[item.reference.id]
+                        const seenState =
+                            state.lastSeenTimestamp &&
+                            annotation &&
+                            (state.lastSeenTimestamp > annotation.updatedWhen
+                                ? 'seen'
+                                : 'unseen')
+
+                        return seenState !== 'seen'
+                    }),
                     (annotationItem) => {
                         return this.getRenderableAnnotation(
                             annotationItem.reference,
