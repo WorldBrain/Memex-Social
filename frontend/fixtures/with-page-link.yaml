@@ -1,0 +1,57 @@
+objects:
+    sharedLists:
+        - $store: default
+          id: page-link
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          title: 'Page link'
+          description: ''
+    sharedListEntries:
+        - id: entry-id
+          sharedList: { $ref: sharedLists.default }
+          creator: { $ref: users.default }
+          createdWhen: 1594225555555
+          updatedWhen: 1594225555555
+          entryTitle: "WorldBrain's Memex"
+          normalizedUrl: getmemex.com
+          originalUrl: 'https://getmemex.com'
+    sharedPageInfo:
+        - id: default-page
+          creator: { $ref: users.default }
+          createdWhen: 1594225555555
+          updatedWhen: 1594225555555
+          fullTitle: "WorldBrain's Memex"
+          normalizedUrl: getmemex.com
+          originalUrl: 'https://getmemex.com'
+    sharedAnnotations:
+        - $store: annotation-1
+          id: default-annotation
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          normalizedPageUrl: 'getmemex.com'
+          body: "Automatically indexes websites you visit. Instantly recover anything you've seen without upfront work."
+          comment: default annotation - I have been waiting for this *forever*
+          selector: 'Selector 1'
+        - $store: annotation-2
+          id: second-annotation
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          normalizedPageUrl: 'getmemex.com'
+          comment: second annotation - Memex is **great** and brings *networked thoughts* into online research.
+          selector: 'Selector 2'
+    sharedAnnotationListEntries:
+        - creator: { $ref: users.default }
+          sharedList: { $ref: sharedLists.default }
+          sharedAnnotation: { $ref: sharedAnnotations.annotation-1 }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          normalizedPageUrl: 'getmemex.com'
+        - creator: { $ref: users.default }
+          sharedList: { $ref: sharedLists.default }
+          sharedAnnotation: { $ref: sharedAnnotations.annotation-2 }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          normalizedPageUrl: 'getmemex.com'

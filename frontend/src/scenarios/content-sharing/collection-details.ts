@@ -694,6 +694,14 @@ export const SCENARIOS: ScenarioMap<Targets> = {
             ],
         }),
     ),
+    'page-link': scenario<Targets>(({ step }) => ({
+        fixture: 'page-link-with-user',
+        startRoute: {
+            route: 'collectionDetails',
+            params: { id: 'page-link', entryId: 'entry-id' },
+        },
+        steps: [],
+    })),
     'large-data-set': scenario<Targets>(({ step }) => ({
         excludeFromMetaUI: true,
         fixture: {

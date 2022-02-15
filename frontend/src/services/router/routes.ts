@@ -1,4 +1,4 @@
-import { RouteMap, RouteName } from '../../routes'
+import { RouteMap, RouteName, RoutePart } from '../../routes'
 
 const RoutesExternal = require('routes')
 
@@ -7,72 +7,58 @@ export default class Routes {
 
     constructor(
         private options: { routes: RouteMap; isAuthenticated: () => boolean },
-    ) {
-        const byRoute: {
-            [path: string]: {
-                route?: string
-                authDependentRoutes?: { true?: string; false?: string }
-            }
-        } = {}
-        const resolver = (path: string) => {
-            return () => {
-                const routeEntry = byRoute[path]
-                if (routeEntry.authDependentRoutes) {
-                    const isAuthenticated = options.isAuthenticated()
-                    return routeEntry.authDependentRoutes[
-                        isAuthenticated ? 'true' : 'false'
-                    ]
-                } else {
-                    return routeEntry.route
-                }
-            }
-        }
-
-        for (const [name, route] of Object.entries(options.routes)) {
-            let routeEntry = byRoute[route.path]
-            if (!routeEntry) {
-                this.router.addRoute(route.path, resolver(route.path))
-                routeEntry = byRoute[route.path] = {}
-            }
-            if (typeof route.ifAuth !== 'undefined') {
-                routeEntry.authDependentRoutes =
-                    routeEntry.authDependentRoutes || {}
-                routeEntry.authDependentRoutes[
-                    route.ifAuth ? 'true' : 'false'
-                ] = name
-            } else {
-                routeEntry.route = name
-            }
-        }
-    }
+    ) {}
 
     getUrl(
         route: RouteName,
         params: { [key: string]: string } = {},
         options?: {},
     ): string {
-        const routeConfig = this.options.routes[route]
-        if (!routeConfig) {
-            throw new Error(`No such route ${route}`)
-        }
-
-        let url = routeConfig.path
-        for (const [key, value] of Object.entries(params)) {
-            url = url.replace(`:${key}`, value)
-        }
-
-        return url
+        return ''
     }
 
     matchUrl(
         url: string,
     ): { route: RouteName; params: { [key: string]: string } } | null {
-        const urlObject = new URL(url)
+        const urlParts = url.split('/').slice(1)
 
-        const match = this.router.match(urlObject.pathname)
-        if (!match) {
-            return null
+        const isAuthenticated = this.options.isAuthenticated()
+        for (const [routeName, route] of Object.entries(
+            this.options.routes,
+        ).reverse()) {
+            if ('ifAuth' in route && isAuthenticated !== route.ifAuth) {
+                continue
+            }
+            if (urlParts.length > route.path.length + 1) {
+                continue
+            }
+
+            let match = true
+            const params: { [key: string]: string } = {}
+            for (const [index, routePart] of route.path.entries()) {
+                const urlPart = urlParts[index]
+                if ('literal' in routePart) {
+                    const stripped = routePart.literal.slice(1) // strip leading slash
+                    if (stripped !== urlPart) {
+                        match = false
+                        break
+                    }
+                } else if ('placeholder' in routePart) {
+                    params[routePart.placeholder] = urlPart
+                }
+            }
+            if (match) {
+                return { route: routeName as RouteName, params: {} }
+            }
+
+            console.log(urlParts)
+            console.log(route.path)
+            console.log('-----')
         }
-        return { route: match.fn(), params: match.params }
+        return null
     }
+}
+
+export function getReactRoutePattern(parts: RoutePart[]): string {
+    return ''
 }

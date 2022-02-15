@@ -6,7 +6,7 @@ import { Storage } from '../storage/types'
 import { Services } from '../services/types'
 import { EventHandlers } from './classes/events'
 
-import ROUTES from '../routes'
+import ROUTES, { RoutePart } from '../routes'
 import UserHome from './pages/user-home'
 import NotFound from './pages/not-found'
 import LandingPage from './pages/landing-page'
@@ -14,6 +14,7 @@ import CollectionDetailsPage from '../features/content-sharing/ui/pages/collecti
 import AnnotationDetailsPage from '../features/content-sharing/ui/pages/annotation-details'
 import PageDetailsPage from '../features/content-sharing/ui/pages/page-details'
 import HomeFeedPage from '../features/activity-streams/ui/pages/home-feed'
+import { getReactRoutePattern } from '../services/router/routes'
 
 interface Props {
     history: history.History
@@ -42,7 +43,7 @@ export default class Routes extends React.Component<Props> {
                 <Switch>
                     <Route
                         exact
-                        path={ROUTES.landingPage.path}
+                        path={getReactRoutePattern(ROUTES.landingPage.path)}
                         render={() => {
                             if (this.props.services.auth.getCurrentUser()) {
                                 return (
@@ -62,7 +63,7 @@ export default class Routes extends React.Component<Props> {
                     />
                     <Route
                         exact
-                        path={ROUTES.homeFeed.path}
+                        path={getReactRoutePattern(ROUTES.homeFeed.path)}
                         render={() => {
                             return (
                                 <HomeFeedPage
@@ -74,7 +75,9 @@ export default class Routes extends React.Component<Props> {
                     />
                     <Route
                         exact
-                        path={ROUTES.collectionDetails.path}
+                        path={getReactRoutePattern(
+                            ROUTES.collectionDetails.path,
+                        )}
                         render={(route) => {
                             return (
                                 <CollectionDetailsPage
@@ -87,7 +90,7 @@ export default class Routes extends React.Component<Props> {
                     />
                     <Route
                         exact
-                        path={ROUTES.pageDetails.path}
+                        path={getReactRoutePattern(ROUTES.pageDetails.path)}
                         render={(route) => {
                             return (
                                 <PageDetailsPage
@@ -101,7 +104,9 @@ export default class Routes extends React.Component<Props> {
                     />
                     <Route
                         exact
-                        path={ROUTES.annotationDetails.path}
+                        path={getReactRoutePattern(
+                            ROUTES.annotationDetails.path,
+                        )}
                         render={(route) => {
                             return (
                                 <AnnotationDetailsPage
