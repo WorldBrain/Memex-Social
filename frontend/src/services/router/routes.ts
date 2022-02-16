@@ -15,11 +15,42 @@ export default class Routes {
     ) {}
 
     getUrl(
-        route: RouteName,
-        params: { [key: string]: string } = {},
+        routeName: RouteName,
+        routeParams: { [key: string]: string } = {},
         options?: {},
     ): string {
-        return ''
+        const route = this.options.routes[routeName]
+        if (!route.path.length) {
+            return '/'
+        }
+        const groups = getRoutePartGroups(route.path)
+        const urlParts: string[] = ['']
+        for (const group of groups) {
+            const groupParts: string[] = []
+            let undefinedPlaceholderFound: string | undefined
+            for (const part of group.parts) {
+                if ('placeholder' in part) {
+                    const value = routeParams[part.placeholder]
+                    if (value) {
+                        groupParts.push(value)
+                    } else {
+                        undefinedPlaceholderFound = part.placeholder
+                    }
+                } else if ('literal' in part) {
+                    groupParts.push(part.literal)
+                }
+            }
+            if (undefinedPlaceholderFound) {
+                if (!group.optional) {
+                    throw new Error(
+                        `Tried to reverse URL '${routeName}', but couldn't find needed parameter '${undefinedPlaceholderFound}'`,
+                    )
+                }
+            } else {
+                urlParts.push(...groupParts)
+            }
+        }
+        return urlParts.join('/')
     }
 
     matchUrl(
@@ -68,22 +99,6 @@ export default class Routes {
             if (match) {
                 return { route: routeName as RouteName, params }
             }
-
-            // for (const [index, routePart] of route.path.entries()) {
-            //     const urlPart = urlParts[index]
-            //     if ('literal' in routePart) {
-            //         const stripped = routePart.literal.slice(1) // strip leading slash
-            //         if (stripped !== urlPart) {
-            //             match = false
-            //             break
-            //         }
-            //     } else if ('placeholder' in routePart) {
-            //         params[routePart.placeholder] = urlPart
-            //     }
-            // }
-            // if (match) {
-            //     return { route: routeName as RouteName, params: {} }
-            // }
         }
         return null
     }
