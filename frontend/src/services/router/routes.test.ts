@@ -5,10 +5,9 @@ import expect from 'expect'
 const TEST_ROUTES: { [routeName: string]: Route } = {
     testA: { ifAuth: true, path: [] },
     testB: { ifAuth: false, path: [] },
-    testC: { ifAuth: false, path: [{ literal: 'test' }] },
-    testD: { ifAuth: false, path: [{ literal: 'foo' }, { placeholder: 'id' }] },
+    testC: { path: [{ literal: 'test' }] },
+    testD: { path: [{ literal: 'foo' }, { placeholder: 'id' }] },
     testE: {
-        ifAuth: false,
         path: [
             { literal: 'bar' },
             { placeholder: 'id' },

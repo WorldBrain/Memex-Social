@@ -10,10 +10,8 @@ export interface Route {
     path: RoutePart[]
     ifAuth?: boolean
 }
-export type RoutePart =
-    | { literal: string }
-    | { placeholder: string }
-    | { optional: RoutePart[] }
+export type RoutePart = SimpleRoutePart | { optional: SimpleRoutePart[] }
+export type SimpleRoutePart = { literal: string } | { placeholder: string }
 
 const ROUTES: RouteMap = {
     landingPage: {
