@@ -1,4 +1,4 @@
-import Routes from './routes'
+import Routes, { getReactRoutePattern } from './routes'
 import { RouteMap, Route, RouteName } from '../../routes'
 import expect from 'expect'
 
@@ -46,6 +46,16 @@ function testReverse(options: {
         options.routeName as RouteName,
         options.routeParams,
     )
+    expect(actual).toEqual(options.expected)
+}
+
+function testPattern(options: {
+    routeMap: { [routeName: string]: Route }
+    routeName: string
+    expected: string
+}) {
+    const route = options.routeMap[options.routeName]
+    const actual = getReactRoutePattern(route.path)
     expect(actual).toEqual(options.expected)
 }
 
@@ -175,13 +185,41 @@ describe('Routes', () => {
         })
     })
 
-    describe('React route patterns', () => {})
-
-    // it('should reverse URLs', () => {
-
-    // })
-
-    // it('should get React route patterns', () => {
-
-    // })
+    describe('React route patterns', () => {
+        it('should generate route patterns for root URLs requiring authentication', () => {
+            testPattern({
+                routeMap: TEST_ROUTES,
+                routeName: 'testA',
+                expected: '/',
+            })
+        })
+        it('should generate route patterns for root URLs not requiring authentication', () => {
+            testPattern({
+                routeMap: TEST_ROUTES,
+                routeName: 'testB',
+                expected: '/',
+            })
+        })
+        it('should generate route patterns for  URLs containing only one literal', () => {
+            testPattern({
+                routeMap: TEST_ROUTES,
+                routeName: 'testC',
+                expected: '/test',
+            })
+        })
+        it('should generate route patterns for  URLs containing a literal and a placeholder', () => {
+            testPattern({
+                routeMap: TEST_ROUTES,
+                routeName: 'testD',
+                expected: '/foo/:id',
+            })
+        })
+        it('should generate route patterns for URLs containing a literal, a placeholder and an optional literal and placeholder', () => {
+            testPattern({
+                routeMap: TEST_ROUTES,
+                routeName: 'testE',
+                expected: '/bar/:id/spam?/:spamId?',
+            })
+        })
+    })
 })

@@ -104,8 +104,24 @@ export default class Routes {
     }
 }
 
-export function getReactRoutePattern(parts: RoutePart[]): string {
-    return ''
+export function getReactRoutePattern(routeParts: RoutePart[]): string {
+    if (!routeParts.length) {
+        return '/'
+    }
+
+    const groups = getRoutePartGroups(routeParts)
+    const patternParts: string[] = ['']
+    for (const group of groups) {
+        for (const part of group.parts) {
+            const suffix = group.optional ? '?' : ''
+            if ('literal' in part) {
+                patternParts.push(`${part.literal}${suffix}`)
+            } else if ('placeholder' in part) {
+                patternParts.push(`:${part.placeholder}${suffix}`)
+            }
+        }
+    }
+    return patternParts.join('/')
 }
 
 function getRoutePartGroups(parts: RoutePart[], optional = false) {
