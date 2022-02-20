@@ -45,15 +45,9 @@ import MissingPdfOverlay from '../../../../ext-detection/ui/components/missing-p
 const commentImage = require('../../../../../assets/img/comment.svg')
 const commentEmptyImage = require('../../../../../assets/img/comment-empty.svg')
 
-const DocumentView = styled.div`
-    height: 100vh;
-    overflow: hidden;
-`
+const DocumentView = styled.div``
 
-const DocumentContainer = styled.div`
-    min-height: 100vh;
-    width: 100vw;
-`
+const DocumentContainer = styled.div``
 
 // const CollectionDescriptionBox = styled.div<{
 //     viewportWidth: ViewportBreakpoint

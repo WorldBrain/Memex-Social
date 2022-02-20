@@ -19,19 +19,18 @@ const MainContainer = styled.div<{
     viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
     sidebarShown?: boolean
 }>`
-    background: #f6f8fb;
+    background: ${(props) => props.theme.colors.backgroundColor};
     display: flex;
     align-items: center;
     flex-direction: column;
     justify-content: flex-start;
-    min-height: 50vh;
-    height: fit-content;
+
+    height: 100%;
 
     ${(props) =>
         props.viewportWidth === 'mobile' &&
         props.sidebarShown &&
         css`
-            min-height: 100vh;
             overflow: scroll;
         `}
 `
@@ -42,12 +41,12 @@ const StyledHeader = styled.div<{
     font-family: ${(props) => props.theme.fonts.primary};
     width: 100%;
     display: flex;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid ${(props) => props.theme.colors.lightgrey};
     justify-content: center;
-    padding: 10px 20px;
+    padding: 20px 20px;
     position: sticky;
 
-    top: calc(-65px);
+    top: 0px;
     background-color: #fff;
     z-index: 2000;
     align-items: flex-start;
@@ -72,6 +71,7 @@ const LogoAndFeed = styled(Margin)<{
     top: 20px;
     z-index: 3001;
     height: 20px;
+    cursor: pointer;
 
     ${(props) =>
         (props.viewportWidth === 'small' || props.viewportWidth === 'mobile') &&
@@ -109,7 +109,6 @@ const HeaderMiddleArea = styled.div<{
     align-items: center;
     justify-content: space-between;
     flex-direction: row;
-    padding-top: 70px;
 
     ${(props) =>
         props.viewportWidth === 'mobile' &&
@@ -127,23 +126,23 @@ const HeaderTitle = styled.div<{
     word-break: break-word;
     overflow-x: hidden;
     font-family: ${(props) => props.theme.fonts.primary};
-    font-size: 26px;
+    font-size: 20px;
     overflow-wrap: break-word;
     max-width: ${(props) =>
         props.viewportWidth === 'small' || props.viewportWidth === 'mobile'
             ? '100%'
             : '95%'};
-    color: ${(props) => props.theme.colors.primary}
-        ${(props) =>
-            props.viewportWidth === 'small' &&
-            css`
-                font-size: 14px;
-            `}
-        ${(props) =>
-            props.viewportWidth === 'mobile' &&
-            css`
-                font-size: 14px;
-            `};
+    color: ${(props) => props.theme.colors.darkerText};
+    ${(props) =>
+        props.viewportWidth === 'small' &&
+        css`
+            font-size: 20px;
+        `}
+    ${(props) =>
+        props.viewportWidth === 'mobile' &&
+        css`
+            font-size: 14px;
+        `};
 `
 const HeaderSubtitle = styled.div<{
     viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
@@ -151,9 +150,17 @@ const HeaderSubtitle = styled.div<{
     font-weight: 500;
     margin-top: 1px;
     font-size: 16px;
+    font-weight: 300;
     font-family: ${(props) => props.theme.fonts.primary};
-    color: ${(props) => props.theme.colors.subText};
+    color: ${(props) => props.theme.colors.purple};
+    cursor: pointer;
 `
+
+const HeaderSubTitleby = styled.span`
+    color: ${(props) => props.theme.colors.lighterText};
+    padding-right: 3px;
+`
+
 const HeaderAuthArea = styled.div<{
     viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
 }>`
@@ -174,7 +181,6 @@ const PageMiddleArea = styled.div<{
     width: 100%;
     display: flex;
     height: 100%;
-    position: absolute;
 
     ${(props) =>
         props.viewportWidth === 'mobile' &&
@@ -193,7 +199,6 @@ const PageResultsArea = styled.div<{
     padding-bottom: 100px;
     margin: 0px auto 0;
     width: 100%;
-    top: calc(${(props) => props.headerHeight}px + 10px);
 `
 
 const PageMidleAreaTitles = styled.div`
@@ -203,6 +208,7 @@ const PageMidleAreaTitles = styled.div`
     flex-direction: column;
     flex: 1;
     width: 100%;
+    grid-gap: 5px;
 `
 
 const PageMidleAreaAction = styled.div<{
@@ -430,6 +436,9 @@ export default function DefaultPageLayout(props: {
                                         <HeaderSubtitle
                                             viewportWidth={viewportWidth}
                                         >
+                                            <HeaderSubTitleby>
+                                                by
+                                            </HeaderSubTitleby>
                                             {props.headerSubtitle}
                                         </HeaderSubtitle>
                                     ),

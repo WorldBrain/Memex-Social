@@ -11,6 +11,10 @@ import ListsSidebarToggle from '../../../../main-ui/components/sidebar-toggle/'
 import UnseenActivityIndicator from '../../../../features/activity-streams/ui/containers/unseen-activity-indicator'
 import { Margin } from 'styled-components-spacing'
 import { StorageModules } from '../../../../storage/types'
+import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
+import { theme } from '../../../../main-ui/styles/theme'
+
+const icons = theme.icons
 
 const UnseenActivityDot = styled.div`
     background: #5cd9a6;
@@ -92,11 +96,11 @@ const SectionTitle = styled.div<{
     viewportBreakpoint: ViewportBreakpoint
 }>`
     font-size: 14px;
-    font-weight: 300;
+    font-weight: 600;
     padding: 5px 0px 5px 5px;
-    color: ${(props) => props.theme.colors.darkgrey};
-    opacity: 0.7;
+    color: ${(props) => props.theme.colors.darkerBlue};
     margin-top: 15px;
+    letter-spacing: 0.5px;
     display: grid;
     justify-content: flex-start;
     grid-auto-flow: column;
@@ -147,6 +151,52 @@ const ErrorMsg = styled.span`
     padding-left: 5px;
 `
 
+const NoCollectionsMessage = styled.div`
+    font-family: 'Inter', sans-serif;
+    display: grid;
+    grid-auto-flow: column;
+    grid-gap: 10px;
+    align-items: center;
+    cursor: pointer;
+    padding: 0px 15px;
+    margin: 5px 10px;
+    width: fill-available;
+    margin-top: 5px;
+    height: 40px;
+    justify-content: flex-start;
+    border-radius: 5px;
+
+    & * {
+        cursor: pointer;
+    }
+
+    &: hover {
+        background-color: ${(props) =>
+            props.theme.colors.backgroundColorDarker};
+    }
+`
+const SectionCircle = styled.div`
+    background: ${(props) => props.theme.colors.backgroundHighlight};
+    border-radius: 100px;
+    height: 24px;
+    width: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`
+
+const InfoText = styled.div`
+    color: ${(props) => props.theme.colors.lighterText};
+    font-size: 14px;
+    font-weight: 300;
+    font-family: 'Inter', sans-serif;
+`
+
+const Link = styled.span`
+    color: ${(props) => props.theme.colors.purple};
+    padding-left: 3px;
+`
+
 export interface Props
     extends Pick<ListsSidebarState, 'followedLists' | 'collaborativeLists'> {
     services: Pick<
@@ -164,7 +214,28 @@ export interface Props
 export default class ListsSidebar extends PureComponent<Props> {
     private renderListNames(lists: ListsSidebarState['followedLists']) {
         if (!lists.length) {
-            return <EmptyMsg>You don't follow any collections yet</EmptyMsg>
+            return (
+                <NoCollectionsMessage
+                    onClick={() =>
+                        window.open(
+                            'https://links.memex.garden/follow-first-space',
+                        )
+                    }
+                >
+                    <SectionCircle>
+                        <Icon
+                            filePath={'heartEmpty'}
+                            heightAndWidth="14px"
+                            color="purple"
+                            hoverOff
+                        />
+                    </SectionCircle>
+                    <InfoText>
+                        Follow your
+                        <Link>first Space</Link>
+                    </InfoText>
+                </NoCollectionsMessage>
+            )
         }
 
         return lists.map(({ title, reference }) => (

@@ -1,11 +1,12 @@
 import { createGlobalStyle } from 'styled-components'
+import { theme } from './theme'
 
 const GlobalStyle = createGlobalStyle`
   html,
   body {
     margin: 0;
-    top: 10px;
-    background: #f6f8fB;
+    background: ${theme.colors.backgroundColor};
+    height: 100vh;
   }
 
   body, input, button {
