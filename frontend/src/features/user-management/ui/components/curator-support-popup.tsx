@@ -9,6 +9,7 @@ import LoadingScreen from '../../../../common-ui/components/loading-screen'
 import CuratorSupportButtonBlock from '../../../web-monetization/ui/containers/curator-support-button-block'
 import { UserReference } from '../../types'
 import { Margin } from 'styled-components-spacing'
+import { HoverBox } from '../../../../common-ui/components/hoverbox'
 
 const PopupContainer = styled.div`
     position: absolute;
@@ -58,7 +59,7 @@ export default class CuratorSupportPopup extends PureComponent<CuratorSupportPop
             paymentMade,
         } = this.props
         return (
-            <PopupContainer>
+            <HoverBox width="260px" left="-110px">
                 {loadState === 'running' && <LoadingScreen />}
                 {loadState === 'success' && (
                     <>
@@ -107,7 +108,7 @@ export default class CuratorSupportPopup extends PureComponent<CuratorSupportPop
                         )}
                     </>
                 )}
-            </PopupContainer>
+            </HoverBox>
         )
     }
 }

@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import { MemexTheme } from '@worldbrain/memex-common/lib/common-ui/styles/types'
-import Icon, { IconProps } from '../../../../../common-ui/components/icon'
+import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
 import { UIElement } from '../../../../../main-ui/classes'
 
 import Logic from './logic'
@@ -18,14 +18,7 @@ const Container = styled.div`
     margin-right: 10px;
 `
 
-const IconContainer = styled.div<{ iconHeight: string }>`
-    height: ${(props) => props.iconHeight};
-    width: ${(props) => props.iconHeight};
-`
-
-const StyledIcon = styled(Icon)<IconProps & { isClickable: boolean }>`
-    ${(props) => !props.onClick && `cursor: auto`}
-`
+const IconContainer = styled.div<{ iconHeight: string }>``
 
 const StyledImg = styled.div<{
     height: string
@@ -48,7 +41,7 @@ export default class WebMonetizationIcon extends UIElement<
     WebMonetizationIconState,
     WebMonetizationIconEvent
 > {
-    private iconHeight = '24px'
+    private iconHeight = '20px'
 
     constructor(props: WebMonetizationIconDependencies) {
         super(props, { logic: new Logic(props) })
@@ -75,8 +68,7 @@ export default class WebMonetizationIcon extends UIElement<
                 {paymentState === 'running' && <LoadingScreen />}
                 {paymentState === 'error' && <span>Error!</span>}
                 {paymentState === 'pristine' && (
-                    <StyledIcon
-                        isClickable={this.isClickable}
+                    <Icon
                         onClick={this.handleClick}
                         height={this.iconHeight}
                         color="purple"

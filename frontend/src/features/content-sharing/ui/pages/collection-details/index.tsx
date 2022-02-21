@@ -5,7 +5,7 @@ import { Margin } from 'styled-components-spacing'
 import { UIElement } from '../../../../../main-ui/classes'
 import Logic from './logic'
 import LoadingIndicator from '../../../../../common-ui/components/loading-indicator'
-import Icon from '../../../../../common-ui/components/icon'
+import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
 import {
     CollectionDetailsEvent,
     CollectionDetailsDependencies,
@@ -195,16 +195,14 @@ export default class CollectionDetailsPage extends UIElement<
 
         if (this.state.isListOwner) {
             return (
-                <Margin horizontal="medium">
-                    <Icon
-                        height="24px"
-                        icon="addPeople"
-                        color="purple"
-                        onClick={() =>
-                            this.processEvent('toggleListShareModal', {})
-                        }
-                    />
-                </Margin>
+                <Icon
+                    height="20px"
+                    icon="addPeople"
+                    color="purple"
+                    onClick={() =>
+                        this.processEvent('toggleListShareModal', {})
+                    }
+                />
             )
         }
 

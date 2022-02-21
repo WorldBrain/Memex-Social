@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react'
 import styled, { css } from 'styled-components'
 import { UITaskState } from '../../../../main-ui/types'
 import LoadingIndicator from '../../../../common-ui/components/loading-indicator'
-import Icon from '../../../../common-ui/components/icon'
+import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
 
 const Container = styled.div<{
     isOwner: boolean
@@ -75,9 +75,16 @@ const PlusIcon = styled.span`
 const ButtonBox = styled.div`
     display: flex;
     align-items: center;
+    cursor: pointer;
+
+    & * {
+        cursor: pointer;
+    }
 `
 
-const BtnText = styled.span``
+const BtnText = styled.span`
+    font-weight: 500;
+`
 
 export interface Props {
     onClick: React.MouseEventHandler
@@ -161,9 +168,10 @@ export default class FollowBtn extends PureComponent<Props> {
 
         const icon = (
             <Icon
-                height="16px"
+                height="14px"
                 icon={this.followStateIcon()}
                 color={this.followStateIconColor()}
+                hoverOff
             />
         )
 

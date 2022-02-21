@@ -11,6 +11,7 @@ import ListsSidebar, {
     Props as ListsSidebarProps,
 } from '../../features/lists-sidebar/ui/components/lists-sidebar'
 import ListsSidebarToggle from '../../main-ui/components/sidebar-toggle/'
+import AuthHeaderLogic from '../../features/user-management/ui/containers/auth-header/logic'
 
 const middleMaxWidth = '800px'
 const logoImage = require('../../assets/img/memex-logo.svg')
@@ -252,7 +253,6 @@ const PageMiddleAreaTopBox = styled(Margin)<{
     align-items: flex-start;
     padding-bottom: 10px;
     width: 100%;
-    //margin-top: ${(props) => props.theme.spacing.medium};
     flex-direction: ${(props) =>
         props.viewportWidth === 'mobile' ? 'column' : 'row'};
 `
@@ -391,7 +391,6 @@ export default function DefaultPageLayout(props: {
                 Beta | Feedback
             </BetaFlag>
             <StyledHeader id={'StyledHeader'} viewportWidth={viewportWidth}>
-                {props.permissionKeyOverlay}
                 <LogoAndFeed viewportWidth={viewportWidth}>
                     {props.listsSidebarProps && isAuthenticated && (
                         <>
@@ -406,7 +405,7 @@ export default function DefaultPageLayout(props: {
                     {!isAuthenticated && (
                         <MemexLogo
                             src={logoImage}
-                            onClick={() => window.open('https://getmemex.com')}
+                            onClick={() => window.open('https://memex.garden')}
                             viewportWidth={viewportWidth}
                         />
                     )}
@@ -461,6 +460,7 @@ export default function DefaultPageLayout(props: {
                     </HeaderAuthArea>
                 )}
             </StyledHeader>
+            {props.permissionKeyOverlay}
             <PageMiddleArea
                 viewportWidth={viewportWidth}
                 isSidebarShown={props.isSidebarShown === true}

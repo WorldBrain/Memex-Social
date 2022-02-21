@@ -41,9 +41,8 @@ const InvitedNotificationContainer = styled.div<{
     display: flex;
     width: 100%;
     justify-content: center;
-    top: 10px;
-    position: absolute;
-    z-index: 3003;
+    margin-top: 10px;
+    /* position: absolute; */
     pointer-events: none;
 
     ${(props) =>

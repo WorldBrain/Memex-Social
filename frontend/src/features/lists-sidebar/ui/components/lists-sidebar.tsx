@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react'
 
-import styled, { css } from 'styled-components'
+import styled, { css, ThemeContext } from 'styled-components'
 import { UITaskState } from '../../../../main-ui/types'
 import LoadingIndicator from '../../../../common-ui/components/loading-indicator'
 import RouteLink from '../../../../common-ui/components/route-link'
@@ -13,8 +13,7 @@ import { Margin } from 'styled-components-spacing'
 import { StorageModules } from '../../../../storage/types'
 import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
 import { theme } from '../../../../main-ui/styles/theme'
-
-const icons = theme.icons
+import AuthHeaderLogic from '../../../../features/user-management/ui/containers/auth-header/logic'
 
 const UnseenActivityDot = styled.div`
     background: #5cd9a6;
@@ -26,21 +25,17 @@ const UnseenActivityDot = styled.div`
 const FeedArea = styled(Margin)`
     display: flex;
     align-items: center;
+    width: 100%;
 `
 
 const FeedLink = styled(RouteLink)`
     align-items: center;
     color: ${(props) => props.theme.colors.primary};
-    display: grid;
+    display: flex;
     justify-content: flex-start;
-    grid-gap: 10px;
     grid-auto-flow: column;
-    margin-bottom: 10px;
     cursor: pointer;
-
-    & > div {
-        margin-top: 0px;
-    }
+    width: 100%;
 `
 
 const Container = styled.div<{
@@ -53,7 +48,7 @@ const Container = styled.div<{
     height: 100%;
     font-family: ${(props) => props.theme.fonts.primary};
     background: ${(props) => props.theme.colors.grey};
-    padding: 5px;
+    padding: 10px;
     width: 250px;
     overflow-y: hidden;
     z-index: 5000;
@@ -133,11 +128,9 @@ const ListNameLink = styled(RouteLink)`
 const ListsContainer = styled.div<{
     viewportBreakpoint: ViewportBreakpoint
 }>`
-    top: 100px;
-    width: 90%;
+    top: 70px;
     height: 80%;
     position: relative;
-    left: 10px;
 `
 
 const EmptyMsg = styled.span`
@@ -159,7 +152,6 @@ const NoCollectionsMessage = styled.div`
     align-items: center;
     cursor: pointer;
     padding: 0px 15px;
-    margin: 5px 10px;
     width: fill-available;
     margin-top: 5px;
     height: 40px;
@@ -197,6 +189,46 @@ const Link = styled.span`
     padding-left: 3px;
 `
 
+const TopArea = styled.div`
+    border-bottom: 1px solid ${(props) => props.theme.colors.lightgrey};
+    padding: 0 0 20px 0px;
+`
+const MenuItemText = styled.div`
+    color: ${(props) => props.theme.colors.normalText};
+    padding: 0 15px;
+    height: 50px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    grid-gap: 10px;
+    border-radius: 8px;
+    width: 100%;
+    cursor: pointer;
+
+    &:hover {
+        background: ${(props) => props.theme.colors.backgroundColorDarker};
+    }
+`
+const EmptyDot = styled.div`
+    height: 16px;
+    width: 16px;
+    border-radius: 50px;
+    border: 1px solid ${(props) => props.theme.colors.lighterText};
+`
+
+const MenuItemBox = styled.div`
+    height: 30px;
+    width: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    & * {
+        cursor: pointer;
+    }
+`
+
 export interface Props
     extends Pick<ListsSidebarState, 'followedLists' | 'collaborativeLists'> {
     services: Pick<
@@ -209,6 +241,7 @@ export interface Props
     onToggle: React.MouseEventHandler<Element>
     hideActivityIndicator?: boolean
     storage: Pick<StorageModules, 'users' | 'activityStreams'>
+    AuthHeaderLogic: AuthHeaderLogic
 }
 
 export default class ListsSidebar extends PureComponent<Props> {
@@ -224,7 +257,7 @@ export default class ListsSidebar extends PureComponent<Props> {
                 >
                     <SectionCircle>
                         <Icon
-                            filePath={'heartEmpty'}
+                            icon={theme.icons.heartEmpty}
                             heightAndWidth="14px"
                             color="purple"
                             hoverOff
@@ -259,25 +292,27 @@ export default class ListsSidebar extends PureComponent<Props> {
                     route="homeFeed"
                     params={{}}
                 >
-                    <SectionTitle
-                        viewportBreakpoint={this.props.viewportBreakpoint}
-                    >
-                        Feed Updates
-                    </SectionTitle>
-                    {!this.props.hideActivityIndicator && (
-                        <Margin left="small">
+                    <MenuItemText>
+                        {!this.props.hideActivityIndicator && (
                             <UnseenActivityIndicator
                                 services={this.props.services}
                                 storage={this.props.storage}
                                 renderContent={(feedState) => {
                                     if (feedState === 'has-unseen') {
                                         return <UnseenActivityDot />
+                                    } else {
+                                        return (
+                                            <MenuItemBox>
+                                                <EmptyDot />
+                                            </MenuItemBox>
+                                        )
                                     }
                                     return null
                                 }}
                             />
-                        </Margin>
-                    )}
+                        )}
+                        Activity Feed
+                    </MenuItemText>
                 </FeedLink>
             </FeedArea>
         )
@@ -338,7 +373,20 @@ export default class ListsSidebar extends PureComponent<Props> {
                 <ListsContainer
                     viewportBreakpoint={this.props.viewportBreakpoint}
                 >
-                    {this.renderFeedsArea()}
+                    <TopArea>
+                        {this.renderFeedsArea()}
+                        {/* <MenuItemText>
+                            <MenuItemBox>
+                                <Icon
+                                    icon={theme.icons.personFine}
+                                    heightAndWidth="20px"
+                                    hoverOff
+                                />
+                            </MenuItemBox>
+                            My Account
+                        </MenuItemText> */}
+                    </TopArea>
+
                     <SectionTitle
                         viewportBreakpoint={this.props.viewportBreakpoint}
                     >
