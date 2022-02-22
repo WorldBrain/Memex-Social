@@ -218,7 +218,7 @@ describe('Routes', () => {
             testPattern({
                 routeMap: TEST_ROUTES,
                 routeName: 'testE',
-                expected: '/bar/:id/spam?/:spamId?',
+                expected: '/bar/:id/:spam?/:spamId?',
             })
         })
     })

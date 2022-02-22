@@ -32,6 +32,7 @@ import { ProcessSharedListKeyResult } from '@worldbrain/memex-common/lib/content
 
 export interface CollectionDetailsDependencies {
     listID: string
+    entryID?: string
     services: UIElementServices<
         | 'auth'
         | 'overlay'

@@ -316,7 +316,18 @@ export default class CollectionDetailsLogic extends UILogic<
                     type: 'loading-started',
                 })
 
-                const result = await contentSharing.retrieveList(listReference)
+                const result = await contentSharing.retrieveList(
+                    listReference,
+                    {
+                        fetchSingleEntry: this.dependencies.entryID
+                            ? {
+                                  type:
+                                      'shared-annotation-list-entry-reference',
+                                  id: this.dependencies.entryID,
+                              }
+                            : undefined,
+                    },
+                )
                 if (result) {
                     this._creatorReference = result.creator
                     const userIds = [

@@ -115,7 +115,8 @@ export function getReactRoutePattern(routeParts: RoutePart[]): string {
         for (const part of group.parts) {
             const suffix = group.optional ? '?' : ''
             if ('literal' in part) {
-                patternParts.push(`${part.literal}${suffix}`)
+                const prefix = group.optional ? ':' : ''
+                patternParts.push(`${prefix}${part.literal}${suffix}`)
             } else if ('placeholder' in part) {
                 patternParts.push(`:${part.placeholder}${suffix}`)
             }

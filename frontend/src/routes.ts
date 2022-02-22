@@ -15,22 +15,22 @@ export type SimpleRoutePart = { literal: string } | { placeholder: string }
 
 const ROUTES: RouteMap = {
     landingPage: {
-        path: [{ literal: '/' }],
+        path: [],
         ifAuth: false,
     },
-    userHome: { path: [{ literal: '/' }], ifAuth: true },
-    homeFeed: { path: [{ literal: '/feed' }] },
+    userHome: { path: [], ifAuth: true },
+    homeFeed: { path: [{ literal: 'feed' }] },
     collectionDetails: {
         path: [
-            { literal: '/c/' },
+            { literal: 'c' },
             { placeholder: 'id' },
             {
-                optional: [{ literal: '/p/' }, { placeholder: 'entryId' }],
+                optional: [{ literal: 'p' }, { placeholder: 'entryId' }],
             },
         ],
     },
-    pageDetails: { path: [{ literal: '/p/' }, { placeholder: 'id' }] },
-    annotationDetails: { path: [{ literal: '/a/' }, { placeholder: 'id' }] },
+    pageDetails: { path: [{ literal: 'p' }, { placeholder: 'id' }] },
+    annotationDetails: { path: [{ literal: 'a' }, { placeholder: 'id' }] },
 }
 
 export default ROUTES
