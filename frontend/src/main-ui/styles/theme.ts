@@ -78,6 +78,7 @@ export const theme: Theme = THEME({
         pdf: require('../../assets/img/file-pdf.svg'),
         reload: require('../../assets/img/reload.svg'),
         link: require('../../assets/img/link.svg'),
+        coilIcon: require('../../assets/img/coil-icon.svg'),
 
         // doubleArrow: require('../../assets/img/doubleArrow.svg'),
         // import tagFull from '../../assets/img/tag_full.svg'

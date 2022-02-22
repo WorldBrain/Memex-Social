@@ -27,6 +27,7 @@ const MainContainer = styled.div<{
     justify-content: flex-start;
 
     height: 100%;
+    width: 100%;
 
     ${(props) =>
         props.viewportWidth === 'mobile' &&
@@ -114,20 +115,24 @@ const HeaderMiddleArea = styled.div<{
     ${(props) =>
         props.viewportWidth === 'mobile' &&
         css`
-            padding-top: 70px;
+            padding-top: 40px;
             display: flex;
         `}
 `
 const HeaderTitle = styled.div<{
     viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
+    scrollTop: number
 }>`
-    font-weight: 600;
+    font-weight: 900;
+    width: fill-available;
+    letter-spacing: 0.5px;
     text-overflow: ellipsis;
-    white-space: pre-wrap;
+    white-space: ${(props) => (props.scrollTop >= 100 ? 'nowrap' : 'pre-wrap')};
     word-break: break-word;
     overflow-x: hidden;
+    text-overflow: ${(props) => props.scrollTop >= 100 && 'ellipsis'};
     font-family: ${(props) => props.theme.fonts.primary};
-    font-size: 20px;
+    font-size: 22px;
     overflow-wrap: break-word;
     max-width: ${(props) =>
         props.viewportWidth === 'small' || props.viewportWidth === 'mobile'
@@ -142,9 +147,11 @@ const HeaderTitle = styled.div<{
     ${(props) =>
         props.viewportWidth === 'mobile' &&
         css`
-            font-size: 14px;
+            font-size: 18px;
+            line-height: 27px;
         `};
 `
+
 const HeaderSubtitle = styled.div<{
     viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
 }>`
@@ -155,6 +162,12 @@ const HeaderSubtitle = styled.div<{
     font-family: ${(props) => props.theme.fonts.primary};
     color: ${(props) => props.theme.colors.purple};
     cursor: pointer;
+
+    ${(props) =>
+        props.viewportWidth === 'mobile' &&
+        css`
+            font-size: 14px;
+        `};
 `
 
 const HeaderSubTitleby = styled.span`
@@ -209,6 +222,7 @@ const PageMidleAreaTitles = styled.div`
     flex-direction: column;
     flex: 1;
     width: 100%;
+    max-width: 70%;
     grid-gap: 5px;
 `
 
@@ -237,7 +251,7 @@ const PageMidleAreaActionMobile = styled.div<{
             display: flex;
             flex-direction: row;
             position: absolute;
-            top: 20px;
+            top: 10px;
             right: 20px;
             justify-content: flex-end;
             align-items: center;
@@ -251,7 +265,6 @@ const PageMiddleAreaTopBox = styled(Margin)<{
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    padding-bottom: 10px;
     width: 100%;
     flex-direction: ${(props) =>
         props.viewportWidth === 'mobile' ? 'column' : 'row'};
@@ -310,6 +323,7 @@ export default function DefaultPageLayout(props: {
     renderSubtitle?: (props: { children: React.ReactNode }) => React.ReactNode
     viewportBreakpoint: ViewportBreakpoint
     children: React.ReactNode
+    scrollTop?: number
 }) {
     const { viewportBreakpoint: viewportWidth } = props
     const renderSubtitle = props.renderSubtitle ?? ((props) => props.children)
@@ -424,6 +438,7 @@ export default function DefaultPageLayout(props: {
                                 <HeaderTitle
                                     title={props.headerTitle}
                                     viewportWidth={viewportWidth}
+                                    scrollTop={props.scrollTop}
                                 >
                                     {props.headerTitle}
                                 </HeaderTitle>
@@ -464,6 +479,7 @@ export default function DefaultPageLayout(props: {
             <PageMiddleArea
                 viewportWidth={viewportWidth}
                 isSidebarShown={props.isSidebarShown === true}
+                id="pageMiddleArea"
             >
                 {renderListsSidebar()}
                 <PageResultsArea

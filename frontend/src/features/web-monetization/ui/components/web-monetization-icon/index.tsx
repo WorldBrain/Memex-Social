@@ -11,7 +11,7 @@ import {
     WebMonetizationButtonEvent,
 } from '../../../logic/buttons/types'
 import CuratorSupportPopupContainer from '../../../../user-management/ui/containers/curator-support-popup-container'
-import LoadingScreen from '../../../../../common-ui/components/loading-screen'
+import LoadingIndicator from '@worldbrain/memex-common/lib/common-ui/components/loading-indicator'
 
 const Container = styled.div`
     margin-left: 10px;
@@ -30,6 +30,13 @@ const StyledImg = styled.div<{
     background-size: contain;
     background-repeat: no-repeat;
     background-image: url(${(props) => props.theme.icons[props.icon]});
+`
+
+const LoadingBox = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
 `
 
 type WebMonetizationIconDependencies = WebMonetizationButtonDependencies
@@ -65,7 +72,7 @@ export default class WebMonetizationIcon extends UIElement<
 
         return (
             <IconContainer iconHeight={this.iconHeight}>
-                {paymentState === 'running' && <LoadingScreen />}
+                {paymentState === 'running' && <LoadingIndicator size={18} />}
                 {paymentState === 'error' && <span>Error!</span>}
                 {paymentState === 'pristine' && (
                     <Icon
@@ -88,8 +95,11 @@ export default class WebMonetizationIcon extends UIElement<
     render() {
         return (
             <Container>
-                {this.state.isDisplayed &&
-                    this.state.loadState === 'running' && <LoadingScreen />}
+                {this.state.isDisplayed && this.state.loadState === 'running' && (
+                    <LoadingBox>
+                        <LoadingIndicator size={18} />
+                    </LoadingBox>
+                )}
                 {this.state.isDisplayed && this.state.loadState === 'success' && (
                     <CuratorSupportPopupContainer
                         services={this.props.services}

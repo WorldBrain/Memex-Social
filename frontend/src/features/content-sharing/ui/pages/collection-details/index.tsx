@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import { Margin } from 'styled-components-spacing'
 import { UIElement } from '../../../../../main-ui/classes'
 import Logic from './logic'
-import LoadingIndicator from '../../../../../common-ui/components/loading-indicator'
+import LoadingIndicator from '@worldbrain/memex-common/lib/common-ui/components/loading-indicator'
 import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
 import {
     CollectionDetailsEvent,
@@ -25,7 +25,6 @@ import PageInfoBox, {
 } from '../../../../../common-ui/components/page-info-box'
 import ProfilePopupContainer from '../../../../user-management/ui/containers/profile-popup-container'
 import { ViewportBreakpoint } from '../../../../../main-ui/styles/types'
-import LoadingScreen from '../../../../../common-ui/components/loading-screen'
 import { getViewportBreakpoint } from '../../../../../main-ui/styles/utils'
 import AnnotationsInPage from '../../../../annotations/ui/components/annotations-in-page'
 import ErrorWithAction from '../../../../../common-ui/components/error-with-action'
@@ -45,7 +44,10 @@ import MissingPdfOverlay from '../../../../ext-detection/ui/components/missing-p
 const commentImage = require('../../../../../assets/img/comment.svg')
 const commentEmptyImage = require('../../../../../assets/img/comment-empty.svg')
 
-const DocumentView = styled.div``
+const DocumentView = styled.div`
+    height: 100%;
+    width: 100%;
+`
 
 const DocumentContainer = styled.div``
 
@@ -89,7 +91,6 @@ const AbovePagesBox = styled.div<{
   position: relative;
   z-index: 2;
   border-radius: 5px;
-  padding: 0 10px;
   justify-content: space-between;
 }
 `
@@ -99,10 +100,15 @@ const AddPageBtn = styled.div`
     align-items: center;
     left: 0;
     font-family: ${(props) => props.theme.fonts.primary};
-    color: ${(props) => props.theme.colors.primary};
+    color: ${(props) => props.theme.colors.lighterText};
     font-size: 12px;
-    font-weight: bold;
+    font-weight: 400;
     cursor: pointer;
+    padding: 2px 6px;
+
+    &: hover {
+        background: ${(props) => props.theme.colors.backgroundColorDarker};
+    }
 `
 
 const ToggleAllAnnotations = styled.div`
@@ -144,6 +150,18 @@ const Text = styled.span`
     padding-left: 5px;
 `
 
+const LoadingScreen = styled.div`
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`
+
+const ActionLoaderBox = styled.div`
+    margin-right: 10px;
+`
+
 export default class CollectionDetailsPage extends UIElement<
     CollectionDetailsDependencies,
     CollectionDetailsState,
@@ -177,13 +195,20 @@ export default class CollectionDetailsPage extends UIElement<
         return getViewportBreakpoint(this.getViewportWidth())
     }
 
-    async componentDidUpdate(prevProps: CollectionDetailsDependencies) {
+    async componentDidUpdate(
+        prevProps: CollectionDetailsDependencies,
+        previousState: CollectionDetailsState,
+    ) {
         if (this.props.listID !== prevProps.listID) {
             await this.processEvent('load', {
                 isUpdate: true,
                 listID: this.props.listID,
             })
         }
+
+        this.processEvent('updateScrollState', {
+            previousState: previousState.scrollTop,
+        })
     }
 
     private renderWebMonetizationIcon() {
@@ -228,7 +253,15 @@ export default class CollectionDetailsPage extends UIElement<
             state.annotationEntriesLoadState === 'pristine' ||
             state.annotationEntriesLoadState === 'running'
         ) {
-            return [{ node: <LoadingIndicator key="loading" /> }]
+            return [
+                {
+                    node: (
+                        <ActionLoaderBox>
+                            <LoadingIndicator size={16} key="loading" />{' '}
+                        </ActionLoaderBox>
+                    ),
+                },
+            ]
         }
 
         const toggleAnnotationsIcon =
@@ -456,7 +489,12 @@ export default class CollectionDetailsPage extends UIElement<
                             this.processEvent('toggleInstallExtModal', {})
                         }
                     >
-                        <Icon icon="plusIcon" height="12px" color="black" />
+                        <Icon
+                            hoverOff
+                            icon="plus"
+                            height="14px"
+                            color="purple"
+                        />
                         <Text>Add Page</Text>
                     </AddPageBtn>
                 )}
@@ -468,9 +506,11 @@ export default class CollectionDetailsPage extends UIElement<
                                 this.processEvent('toggleAllAnnotations', {})
                             }
                         >
-                            {allAnnotationExpanded
-                                ? 'Hide all annotations'
-                                : 'Show all annotations'}
+                            {allAnnotationExpanded ? (
+                                <Icon icon={'compress'} heightAndWidth="16px" />
+                            ) : (
+                                <Icon icon={'expand'} heightAndWidth="16px" />
+                            )}
                         </ToggleAllAnnotations>
                     )}
             </AbovePagesBox>
@@ -536,16 +576,19 @@ export default class CollectionDetailsPage extends UIElement<
             state.listLoadState === 'running'
         ) {
             return (
-                <DocumentView>
+                <DocumentView id="DocumentView">
                     <DocumentTitle
                         documentTitle={this.props.services.documentTitle}
                         subTitle="Loading list..."
                     />
-                    <LoadingScreen />
                     {this.renderPermissionKeyOverlay()}
+                    <LoadingScreen>
+                        <LoadingIndicator />
+                    </LoadingScreen>
                 </DocumentView>
             )
         }
+
         if (state.listLoadState === 'error') {
             return (
                 <DocumentView>
@@ -554,6 +597,7 @@ export default class CollectionDetailsPage extends UIElement<
                         storage={this.props.storage}
                         viewportBreakpoint={this.viewportBreakpoint}
                         listsSidebarProps={this.listsSidebarProps}
+                        scrollTop={this.state.scrollTop}
                     >
                         <ErrorWithAction errorType="internal-error">
                             Error loading this collection. <br /> Reload page to
@@ -606,6 +650,7 @@ export default class CollectionDetailsPage extends UIElement<
                     listsSidebarProps={this.listsSidebarProps}
                     isSidebarShown={this.listsSidebarProps.isShown}
                     permissionKeyOverlay={this.renderPermissionKeyOverlay()}
+                    scrollTop={this.state.scrollTop}
                 >
                     {/*{data.list.description && (
                     <CollectionDescriptionBox

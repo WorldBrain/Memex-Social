@@ -30,6 +30,10 @@ const StyledPrimaryAction = styled.div`
     &: hover {
         opacity: 0.8;
     }
+
+    & * {
+        cursor: pointer;
+    }
 `
 
 const StyledPrimaryActionLinkText = styled(TypographyActionText)`

@@ -356,6 +356,6 @@ export default class PageDetailsPage extends UIElement<
 
     getHeaderSubtitle(): string | undefined {
         const { creator } = this.state
-        return creator ? ` by ${creator.displayName}` : undefined
+        return creator ? `${creator.displayName}` : undefined
     }
 }

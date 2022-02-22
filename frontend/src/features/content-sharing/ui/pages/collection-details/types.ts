@@ -29,6 +29,7 @@ import type {
 } from '../../../../ext-detection/ui/logic'
 import { SharedListRole } from '@worldbrain/memex-common/lib/web-interface/types/storex-generated/content-sharing'
 import { ProcessSharedListKeyResult } from '@worldbrain/memex-common/lib/content-sharing/service/types'
+import React from 'react'
 
 export interface CollectionDetailsDependencies {
     listID: string
@@ -73,7 +74,8 @@ export type CollectionDetailsState = AnnotationConversationsState &
         listRoles?: Array<SharedListRole & { user: UserReference }>
         listRoleLimit: number | null // how many collaborators to show in the subtitle
         isListOwner?: boolean
-
+        scrollTop?: number
+        scrolledComponent?: JSX.Element
         users: { [id: string]: Pick<User, 'displayName'> }
 
         annotationEntriesLoadState: UITaskState
@@ -110,6 +112,7 @@ export type CollectionDetailsEvent = UIEvent<
             pageBreakpointHit: { entryIndex: number }
             clickFollowBtn: { pageToOpenPostFollow?: string }
             showMoreCollaborators: {}
+            updateScrollState: (previousState) => {}
         }
 >
 

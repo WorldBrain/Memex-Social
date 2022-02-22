@@ -55,7 +55,6 @@ const Container = styled.div<{
     background: #fff;
     //box-shadow: #101e7308 4px 0 16px;
     border-right: 1px solid #f0f0f0;
-    height: 100%;
     position: fixed;
     z-index: 3000;
 
@@ -115,14 +114,24 @@ const ListNameLink = styled(RouteLink)`
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
-    color: ${(props) => props.theme.colors.darkgrey};
-    padding: 5px;
-    border-radius: 3px;
-    font-weight: 500;
+    color: ${(props) => props.theme.colors.normalText};
+    border-radius: 5px;
+    font-weight: 400;
+    height: 40px;
+    padding: 0 10px;
+    align-items: center;
+    display: flex;
 
     &:hover {
-        background: ${(props) => props.theme.colors.lightgrey};
+        background: ${(props) => props.theme.colors.backgroundColorDarker};
     }
+`
+
+const ListNameLinkTitle = styled.div`
+    font-weight: 400;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
 `
 
 const ListsContainer = styled.div<{
@@ -229,6 +238,14 @@ const MenuItemBox = styled.div`
     }
 `
 
+const LoadingBox = styled.div`
+    width: fill-available;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100px;
+`
+
 export interface Props
     extends Pick<ListsSidebarState, 'followedLists' | 'collaborativeLists'> {
     services: Pick<
@@ -279,7 +296,7 @@ export default class ListsSidebar extends PureComponent<Props> {
                 params={{ id: reference.id as string }}
                 title={title}
             >
-                {title}
+                <ListNameLinkTitle>{title}</ListNameLinkTitle>
             </ListNameLink>
         ))
     }
@@ -320,7 +337,11 @@ export default class ListsSidebar extends PureComponent<Props> {
 
     private renderListContent() {
         if (this.props.loadState === 'running') {
-            return <LoadingIndicator />
+            return (
+                <LoadingBox>
+                    <LoadingIndicator />
+                </LoadingBox>
+            )
         }
 
         if (this.props.loadState === 'error') {

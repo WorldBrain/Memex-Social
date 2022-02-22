@@ -43,6 +43,7 @@ import {
 } from '../../../../ext-detection/ui/logic'
 import { UserReference } from '../../../../user-management/types'
 import { makeStorageReference } from '@worldbrain/memex-common/lib/storage/references'
+import { sleepPromise } from '../../../../../utils/promises'
 const truncate = require('truncate')
 
 const LIST_DESCRIPTION_CHAR_LIMIT = 200
@@ -149,6 +150,27 @@ export default class CollectionDetailsLogic extends UILogic<
         )
     }
 
+    async updateScrollState(previousState) {
+        const mainArea = document.getElementById('root')
+
+        mainArea.onscroll = () => {
+            const previousScrollTop = previousState.previousState.scrollTop
+            const currentScroll = mainArea?.scrollTop
+
+            if (
+                (currentScroll > 100 &&
+                    currentScroll - previousScrollTop > 0) ||
+                currentScroll === 0
+            ) {
+                this.emitMutation({
+                    scrollTop: {
+                        $set: mainArea?.scrollTop,
+                    },
+                })
+            }
+        }
+    }
+
     getInitialState(): CollectionDetailsState {
         return {
             listLoadState: 'pristine',
@@ -157,6 +179,7 @@ export default class CollectionDetailsLogic extends UILogic<
             listRolesLoadState: 'pristine',
             listRoleLimit: 3,
             users: {},
+            scrollTop: 0,
             annotationEntriesLoadState: 'pristine',
             annotationLoadStates: {},
             annotations: {},

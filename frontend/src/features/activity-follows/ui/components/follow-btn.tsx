@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react'
 import styled, { css } from 'styled-components'
 import { UITaskState } from '../../../../main-ui/types'
-import LoadingIndicator from '../../../../common-ui/components/loading-indicator'
+import LoadingIndicator from '@worldbrain/memex-common/lib/common-ui/components/loading-indicator'
 import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
 
 const Container = styled.div<{
@@ -163,7 +163,7 @@ export default class FollowBtn extends PureComponent<Props> {
         const { props } = this
 
         if (props.loadState === 'running') {
-            return <LoadingIndicator />
+            return <LoadingIndicator size={16} />
         }
 
         const icon = (
