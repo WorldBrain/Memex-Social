@@ -151,22 +151,25 @@ export default class CollectionDetailsLogic extends UILogic<
     }
 
     async updateScrollState(previousState) {
-        const mainArea = document.getElementById('root')
+        const mainArea = document.getElementById('MainContainer')
+        if (mainArea) {
+            mainArea.onscroll = () => {
+                const previousScrollTop = previousState.previousState.scrollTop
+                const currentScroll = mainArea.scrollTop
 
-        mainArea.onscroll = () => {
-            const previousScrollTop = previousState.previousState.scrollTop
-            const currentScroll = mainArea?.scrollTop
+                console.log(currentScroll)
 
-            if (
-                (currentScroll > 100 &&
-                    currentScroll - previousScrollTop > 0) ||
-                currentScroll === 0
-            ) {
-                this.emitMutation({
-                    scrollTop: {
-                        $set: mainArea?.scrollTop,
-                    },
-                })
+                if (
+                    (currentScroll > 100 &&
+                        currentScroll - previousScrollTop > 0) ||
+                    currentScroll === 0
+                ) {
+                    this.emitMutation({
+                        scrollTop: {
+                            $set: mainArea?.scrollTop,
+                        },
+                    })
+                }
             }
         }
     }

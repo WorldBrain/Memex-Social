@@ -49,7 +49,9 @@ const DocumentView = styled.div`
     width: 100%;
 `
 
-const DocumentContainer = styled.div``
+const DocumentContainer = styled.div`
+    height: 100%;
+`
 
 // const CollectionDescriptionBox = styled.div<{
 //     viewportWidth: ViewportBreakpoint
@@ -632,7 +634,7 @@ export default class CollectionDetailsPage extends UIElement<
         }
 
         return (
-            <DocumentContainer>
+            <DocumentContainer id="DocumentContainer">
                 <DocumentTitle
                     documentTitle={this.props.services.documentTitle}
                     subTitle={data.list.title}

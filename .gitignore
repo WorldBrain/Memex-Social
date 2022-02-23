@@ -6,3 +6,7 @@ firebase/functions/.runtimeconfig.json
 *-debug.log
 private
 firebase/.runtimeconfig.json
+
+.env.staging
+
+.env.development

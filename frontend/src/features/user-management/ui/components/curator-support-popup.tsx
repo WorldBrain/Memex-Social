@@ -100,9 +100,11 @@ export default class CuratorSupportPopup extends PureComponent<CuratorSupportPop
                                 </Margin>
                                 <Margin bottom="smallest">
                                     <Text>
-                                        This Space supports Webmonetizations.{' '}
+                                        This Space supports WebMonetizations.{' '}
                                         <br />
-                                        Donate a few cents on every visit.
+                                        Donate a few cents on every visit, also
+                                        to thousands of creators all around the
+                                        web.
                                     </Text>
                                 </Margin>
                                 <CuratorSupportButtonBlock

@@ -3,6 +3,7 @@ import styled, { css } from 'styled-components'
 import { UITaskState } from '../../../../main-ui/types'
 import LoadingIndicator from '@worldbrain/memex-common/lib/common-ui/components/loading-indicator'
 import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
+import ButtonTooltip from '@worldbrain/memex-common/lib/common-ui/components/button-tooltip'
 
 const Container = styled.div<{
     isOwner: boolean
@@ -186,18 +187,28 @@ export default class FollowBtn extends PureComponent<Props> {
     render() {
         const { props } = this
         return (
-            <Container
-                onMouseEnter={() => this.handleMouseEnter()}
-                onMouseLeave={() => this.handleMouseLeave()}
-                onClick={props.onClick}
-                isContributor={props.isContributor}
-                isFollowed={
-                    props.isFollowed || props.isOwner || props.isContributor
+            <ButtonTooltip
+                tooltipText={
+                    <>
+                        You can add pages <br />
+                        and annotations to this Space
+                    </>
                 }
-                isOwner={props.isOwner}
+                position="bottom"
             >
-                {this.renderBody()}
-            </Container>
+                <Container
+                    onMouseEnter={() => this.handleMouseEnter()}
+                    onMouseLeave={() => this.handleMouseLeave()}
+                    onClick={props.onClick}
+                    isContributor={props.isContributor}
+                    isFollowed={
+                        props.isFollowed || props.isOwner || props.isContributor
+                    }
+                    isOwner={props.isOwner}
+                >
+                    {this.renderBody()}
+                </Container>
+            </ButtonTooltip>
         )
     }
 }
