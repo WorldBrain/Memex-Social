@@ -62,7 +62,7 @@ export default function AuthMenu(props: {
         <HoverBox right="0px" padding="0px" width="270px">
             <ContentBox>
                 <AuthMenuItem
-                    label={'Account Settings'}
+                    label={'Settings'}
                     onClick={props.onAccountSettingsRequested}
                     icon={theme.icons.settings}
                 />

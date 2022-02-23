@@ -26,6 +26,7 @@ import LoadingScreen from '../../../../../common-ui/components/loading-screen'
 import ErrorBox from '../../../../../common-ui/components/error-box'
 import { PrimaryAction } from '../../../../../common-ui/components/PrimaryAction'
 import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
+import { SecondaryAction } from '../../../../../common-ui/components/SecondaryAction'
 
 const Container = styled.div<{ theme: Theme }>`
     margin: auto;
@@ -72,12 +73,11 @@ const TextInputOneLine = styled.input`
         color: #96a0b5;
     }
 `
-const SectionCircle = styled.div`
+const SectionCircle = styled.div<{ size: string }>`
     background: ${(props) => props.theme.colors.backgroundHighlight};
     border-radius: 100px;
-    height: 60px;
-    width: 60px;
-    margin-bottom: 30px;
+    height: ${(props) => (props.size ? props.size : '60px')};
+    width: ${(props) => (props.size ? props.size : '60px')};
     display: flex;
     justify-content: center;
     align-items: center;
@@ -172,6 +172,14 @@ const TextInputMultiLine = styled.textarea`
     }
 `
 
+const EmailBox = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    grid-gap: 10px;
+`
+
 // const LargeUserAvatar = styled.div<{ path: string }>`
 //     height: 100px;
 //     width: 100px;
@@ -217,6 +225,14 @@ const StyledPrimaryButton = styled(PrimaryActionButton)<{
 const StyledSecondaryButton = styled(SecondaryActionButton)`
     padding-top: 0;
     padding-bottom: 0;
+`
+
+const ResetEmailConfirmation = styled.div`
+    display: flex;
+    align-items: center;
+    grid-gap: 10px;
+    font-size: 14px;
+    color: ${(props) => props.theme.colors.purple};
 `
 
 export type ProfilePopupProps = ProfileEditModalDependencies
@@ -267,8 +283,20 @@ export default class ProfileEditModal extends UIElement<
         this.processEvent('setDisplayName', { value: value })
     }
 
+    handleSetEmail(value: string) {
+        this.processEvent('setEmail', { value: value })
+    }
+
+    confirmEmailChange(value: string) {
+        this.processEvent('confirmEmailChange', { value: value })
+    }
+
     handleSetProfileValue(key: keyof UserPublicProfile, value: string): void {
         this.processEvent('setProfileValue', { key, value })
+    }
+
+    sendPasswordResetEmail(value: string) {
+        this.processEvent('sendPasswordResetEmail', { value: value })
     }
 
     handleURLChange = (
@@ -345,13 +373,11 @@ export default class ProfileEditModal extends UIElement<
                         />
                     </ButtonContainer>
                 </Margin>
-                <FormRow>
-                    <Margin vertical="medium">
-                        <SectionHeader theme={theme}>
-                            Profile Information
-                        </SectionHeader>
-                    </Margin>
-                </FormRow>
+                <Margin vertical="medium">
+                    <SectionHeader theme={theme}>
+                        Profile Information
+                    </SectionHeader>
+                </Margin>
                 <DisplayNameContainer>
                     <TextInputContainer>
                         <Icon
@@ -458,6 +484,72 @@ export default class ProfileEditModal extends UIElement<
                         }
                     />
                 </TextInputContainer>
+
+                <Margin top="largest" bottom={'medium'}>
+                    <SectionHeader theme={theme}>
+                        Account Information
+                    </SectionHeader>
+                </Margin>
+                <EmailBox>
+                    <TextInputContainer>
+                        <Icon icon={'mail'} heightAndWidth="20px" hoverOff />
+                        <TextInputOneLine
+                            value={this.state.email}
+                            onChange={(event) =>
+                                this.handleSetEmail(event.currentTarget.value)
+                            }
+                        />
+                    </TextInputContainer>
+                    {this.state.showEmailEditButton &&
+                        !this.state.emailEditSuccess && (
+                            <PrimaryAction
+                                label={'Save new email'}
+                                onClick={() =>
+                                    this.confirmEmailChange(this.state.email)
+                                }
+                            />
+                        )}
+                    {this.state.emailEditSuccess && (
+                        <SectionCircle size="30px">
+                            <Icon
+                                icon={'check'}
+                                heightAndWidth="20px"
+                                color="purple"
+                            />
+                        </SectionCircle>
+                    )}
+                </EmailBox>
+                <Margin top={'medium'}>
+                    {!this.state.passwordResetSuccessful ? (
+                        <SecondaryAction
+                            label="Reset Password"
+                            onClick={() =>
+                                this.sendPasswordResetEmail(this.state.email)
+                            }
+                            fontSize="14px"
+                            icon={'reload'}
+                            iconSize={'16px'}
+                            iconColor={'purple'}
+                            iconHoverOff={true}
+                        />
+                    ) : (
+                        <ResetEmailConfirmation>
+                            <SectionCircle size="30px">
+                                <Icon
+                                    icon={'check'}
+                                    heightAndWidth="20px"
+                                    color="purple"
+                                />
+                            </SectionCircle>
+                            Check your email account.
+                        </ResetEmailConfirmation>
+                    )}
+                </Margin>
+                {/* {this.state.saveState === 'error' && (
+                    <>
+                        Log out and login again, then change your email.
+                    </>
+                )} */}
             </Container>
         )
     }
