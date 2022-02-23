@@ -607,7 +607,7 @@ export default class CollectionDetailsPage extends UIElement<
                     services={this.props.services}
                     storage={this.props.storage}
                     viewportBreakpoint={this.viewportBreakpoint}
-                    headerTitle={data.list.title}
+                    headerTitle={!this.props.entryID ? data.list.title : ' '}
                     headerSubtitle={this.renderSubtitle()}
                     followBtn={this.renderFollowBtn()()}
                     webMonetizationIcon={this.renderWebMonetizationIcon()}
