@@ -79,6 +79,10 @@ export const theme: Theme = THEME({
         reload: require('../../assets/img/reload.svg'),
         link: require('../../assets/img/link.svg'),
         coilIcon: require('../../assets/img/coil-icon.svg'),
+        threadIcon: require('../../assets/img/thread.svg'),
+        checkedRound: require('../../assets/img/checkedRound.svg'),
+        newFeed: require('../../assets/img/newFeed.svg'),
+        bell: require('../../assets/img/bell.svg'),
 
         // doubleArrow: require('../../assets/img/doubleArrow.svg'),
         // import tagFull from '../../assets/img/tag_full.svg'

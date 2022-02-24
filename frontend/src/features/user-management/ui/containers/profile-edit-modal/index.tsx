@@ -233,6 +233,7 @@ const ResetEmailConfirmation = styled.div`
     grid-gap: 10px;
     font-size: 14px;
     color: ${(props) => props.theme.colors.purple};
+    justify-content: center;
 `
 
 export type ProfilePopupProps = ProfileEditModalDependencies
@@ -472,7 +473,7 @@ export default class ProfileEditModal extends UIElement<
                         hoverOff
                     />
                     <TextInputOneLine
-                        placeholder={'Add your wallet ID'}
+                        placeholder={'Add your payment pointer'}
                         value={
                             this.state.userPublicProfile?.paymentPointer ?? ''
                         }
@@ -513,7 +514,7 @@ export default class ProfileEditModal extends UIElement<
                         <SectionCircle size="30px">
                             <Icon
                                 icon={'check'}
-                                heightAndWidth="20px"
+                                heightAndWidth="16px"
                                 color="purple"
                             />
                         </SectionCircle>
@@ -528,7 +529,7 @@ export default class ProfileEditModal extends UIElement<
                             }
                             fontSize="14px"
                             icon={'reload'}
-                            iconSize={'16px'}
+                            iconSize={'14px'}
                             iconColor={'purple'}
                             iconHoverOff={true}
                         />

@@ -253,7 +253,8 @@ const PageMidleAreaTitles = styled.div<{
         props.scrollTop > 0 &&
         css`
             max-width: 99%;
-            width: 30%;
+            width: ${(props) =>
+                props.viewportWidth === 'mobile' ? '100%' : '30%'};
         `}
 `
 
@@ -345,6 +346,7 @@ const StyledHeaderContainer = styled.div<{
     justify-content: space-between;
     width: fill-available;
     align-items: flex-start;
+    min-height: 34px;
 
     flex-direction: ${(props) =>
         props.viewportWidth === 'mobile' ? 'column' : 'row'};

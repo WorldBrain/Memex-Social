@@ -157,8 +157,6 @@ export default class CollectionDetailsLogic extends UILogic<
                 const previousScrollTop = previousState.previousState.scrollTop
                 const currentScroll = mainArea.scrollTop
 
-                console.log(currentScroll)
-
                 if (
                     (currentScroll > 100 &&
                         currentScroll - previousScrollTop > 0) ||

@@ -21,6 +21,7 @@ const StyledSecondaryAction = styled.div`
     box-sizing: border-box;
     border-radius: 5px;
     cursor: pointer;
+    grid-gap: 5px;
 
     :focus {
         outline: unset;
@@ -36,7 +37,7 @@ const StyledSecondaryAction = styled.div`
 `
 
 const StyledSecondaryActionLinkText = styled.div<{ fontSize: string }>`
-    font-size: ${(props) => props.fontSize}px;
+    font-size: ${(props) => (props.fontSize ? props.fontSize : '14px')};
     color: ${(props) => props.theme.colors.purple};
 `
 export const SecondaryAction = ({
@@ -54,11 +55,11 @@ export const SecondaryAction = ({
     onClick: React.MouseEventHandler
     disabled?: boolean
     innerRef?: any
-    fontSize: string
-    icon: IconKeys
-    iconSize: string
-    iconColor: ColorThemeKeys
-    iconHoverOff: boolean
+    fontSize?: string
+    icon?: IconKeys
+    iconSize?: string
+    iconColor?: ColorThemeKeys
+    iconHoverOff?: boolean
 }) => (
     <StyledSecondaryAction
         tabIndex={0}

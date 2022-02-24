@@ -223,7 +223,6 @@ export default class AuthDialog extends UIElement<
         const { state } = this
         const { header } = state
 
-        console.log(state.mode)
         return (
             <StyledAuthDialog>
                 {/* HEADER AREA */}

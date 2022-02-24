@@ -1,13 +1,15 @@
 import React from 'react'
 import styled from 'styled-components'
 import {
-    colorDisabled,
-    colorPrimary,
-} from '../components/design-library/colors'
-import {
     fontSizeSmall,
     TypographyActionText,
 } from '../components/design-library/typography'
+import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
+import { IconProps } from '@worldbrain/memex-common/lib/common-ui/components/icon'
+import {
+    IconKeys,
+    ColorThemeKeys,
+} from '@worldbrain/memex-common/lib/common-ui/styles/types'
 
 const StyledPrimaryAction = styled.div`
     padding: 8px 20px;
@@ -22,6 +24,7 @@ const StyledPrimaryAction = styled.div`
     box-sizing: border-box;
     border-radius: 5px;
     cursor: pointer;
+    grid-gap: 5px;
 
     :focus {
         outline: unset;
@@ -37,7 +40,7 @@ const StyledPrimaryAction = styled.div`
 `
 
 const StyledPrimaryActionLinkText = styled(TypographyActionText)`
-    font-size: ${fontSizeSmall}px;
+    font-size: ${(props) => (props.fontSize ? props.fontSize : '14px')};
     color: white;
 `
 export const PrimaryAction = ({
@@ -45,11 +48,21 @@ export const PrimaryAction = ({
     onClick,
     disabled,
     innerRef,
+    fontSize,
+    icon,
+    iconSize,
+    iconColor,
+    iconHoverOff,
 }: {
     label: React.ReactNode
     onClick: React.MouseEventHandler
     disabled?: boolean
     innerRef?: any
+    fontSize?: string
+    icon?: IconKeys
+    iconSize?: string
+    iconColor?: ColorThemeKeys
+    iconHoverOff?: boolean
 }) => (
     <StyledPrimaryAction
         tabIndex={0}
@@ -57,6 +70,14 @@ export const PrimaryAction = ({
         ref={innerRef}
         onKeyPress={(e) => (e.key === 'Enter' ? onClick(e as any) : false)}
     >
+        {icon && (
+            <Icon
+                icon={icon}
+                heightAndWidth={iconSize}
+                color={iconColor ? iconColor : 'white'}
+                hoverOff={iconHoverOff}
+            />
+        )}
         <StyledPrimaryActionLinkText>{label}</StyledPrimaryActionLinkText>
     </StyledPrimaryAction>
 )

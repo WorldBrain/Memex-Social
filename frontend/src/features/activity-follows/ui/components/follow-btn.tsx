@@ -133,15 +133,15 @@ export default class FollowBtn extends PureComponent<Props> {
         if (props.isOwner) {
             return 'check'
         } else if (props.isContributor) {
-            return 'people'
+            return 'peopleFine'
         } else if (!props.isOwner && !props.isContributor && props.isFollowed) {
             if (this.state.hoverButton) {
-                return 'removeX'
+                return 'close'
             } else {
                 return 'check'
             }
         } else {
-            return 'plusIcon'
+            return 'bell'
         }
     }
 
@@ -169,7 +169,7 @@ export default class FollowBtn extends PureComponent<Props> {
 
         const icon = (
             <Icon
-                height="14px"
+                height="18px"
                 icon={this.followStateIcon()}
                 color={this.followStateIconColor()}
                 hoverOff
@@ -186,29 +186,46 @@ export default class FollowBtn extends PureComponent<Props> {
 
     render() {
         const { props } = this
-        return (
-            <ButtonTooltip
-                tooltipText={
-                    <>
-                        You can add pages <br />
-                        and annotations to this Space
-                    </>
-                }
-                position="bottom"
-            >
-                <Container
-                    onMouseEnter={() => this.handleMouseEnter()}
-                    onMouseLeave={() => this.handleMouseLeave()}
-                    onClick={props.onClick}
-                    isContributor={props.isContributor}
-                    isFollowed={
-                        props.isFollowed || props.isOwner || props.isContributor
+        return props.isContributor ? (
+            <>
+                <ButtonTooltip
+                    tooltipText={
+                        <>
+                            You can add pages <br />
+                            and annotations to this Space
+                        </>
                     }
-                    isOwner={props.isOwner}
+                    position="bottom"
                 >
-                    {this.renderBody()}
-                </Container>
-            </ButtonTooltip>
+                    <Container
+                        onMouseEnter={() => this.handleMouseEnter()}
+                        onMouseLeave={() => this.handleMouseLeave()}
+                        onClick={props.onClick}
+                        isContributor={props.isContributor}
+                        isFollowed={
+                            props.isFollowed ||
+                            props.isOwner ||
+                            props.isContributor
+                        }
+                        isOwner={props.isOwner}
+                    >
+                        {this.renderBody()}
+                    </Container>
+                </ButtonTooltip>
+            </>
+        ) : (
+            <Container
+                onMouseEnter={() => this.handleMouseEnter()}
+                onMouseLeave={() => this.handleMouseLeave()}
+                onClick={props.onClick}
+                isContributor={props.isContributor}
+                isFollowed={
+                    props.isFollowed || props.isOwner || props.isContributor
+                }
+                isOwner={props.isOwner}
+            >
+                {this.renderBody()}
+            </Container>
         )
     }
 }

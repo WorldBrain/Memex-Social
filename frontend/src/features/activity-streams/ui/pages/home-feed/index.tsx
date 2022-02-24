@@ -1,7 +1,7 @@
 import pick from 'lodash/pick'
 import React from 'react'
 import { Waypoint } from 'react-waypoint'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { UIElement } from '../../../../../main-ui/classes'
 import Logic, { getConversationKey } from './logic'
 import {
@@ -37,6 +37,8 @@ import InstallExtOverlay from '../../../../ext-detection/ui/components/install-e
 import { getViewportBreakpoint } from '../../../../../main-ui/styles/utils'
 import { ViewportBreakpoint } from '../../../../../main-ui/styles/types'
 import MissingPdfOverlay from '../../../../ext-detection/ui/components/missing-pdf-overlay'
+import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
+import { IconKeys } from '@worldbrain/memex-common/lib/common-ui/styles/types'
 
 const commentImage = require('../../../../../assets/img/comment.svg')
 const collectionImage = require('../../../../../assets/img/collection.svg')
@@ -59,19 +61,27 @@ const LoadMoreLink = styled(RouteLink)`
     }
 `
 
-const FeedContainer = styled.div`
+const FeedContainer = styled.div<{ viewportBreakpoint: ViewportBreakpoint }>`
     margin-top: 20px;
+    padding-bottom: 200px;
+
+    ${(props) =>
+        props.viewportBreakpoint === 'small' &&
+        css`
+            padding: 0 10px 200px 10px;
+        `}
 `
 
 const ActivityType = styled.div`
     white-space: nowrap;
+    color: ${(props) => props.theme.colors.normalText};
 `
 
 const CollectionLink = styled(RouteLink)`
     display: block;
     justify-content: center;
     font-family: ${(props) => props.theme.fonts.primary};
-    color: ${(props) => props.theme.colors.primary};
+    color: ${(props) => props.theme.colors.purple};
     padding-left: 5px;
     cursor: pointer;
     align-items: center;
@@ -90,9 +100,10 @@ const StyledActivityReason = styled.div`
     display: flex;
     align-items: center;
     width: 95%;
+    margin-bottom: 15px;
 `
 const ActivityReasonIcon = styled.img`
-    max-width: 15 px;
+    max-width: 15px;
     max-height: 15px;
 `
 
@@ -103,20 +114,43 @@ const LoadingIndicatorBox = styled.div`
     height: 50px;
 `
 
-const ActivityReasonLabel = styled.div`
-  font-family: ${(props) => props.theme.fonts.primary};
-  font-weight: normal;
-  font-size: ${(props) => props.theme.fontSizes.listTitle}:
-  color: ${(props) => props.theme.colors.primary};
-  display: flex;
-  width: fill-available;
+const ActivityReasonLabel = styled.div<{
+    viewportBreakpoint: ViewportBreakpoint
+}>`
+    font-family: ${(props) => props.theme.fonts.primary};
+    font-weight: normal;
+    font-size: 14px;
+    color: ${(props) => props.theme.colors.normalText};
+    display: flex;
+    width: 92%;
+    ${(props) =>
+        props.viewportBreakpoint === 'mobile' &&
+        css`
+            display: flex;
+            flex-direction: column;
+            grid-gap: 3px;
+
+            & > a {
+                padding-left: 0px;
+            }
+        `}
+`
+
+const LastSeenLineContainer = styled.div<{ shouldShowNewLine: boolean }>`
+    margin: ${(props) =>
+        !props.shouldShowNewLine ? '20px 0 0px 0' : '100px 0 0px 0'};
 `
 
 const StyledLastSeenLine = styled.div`
     display: flex;
     position: relative;
     width: 100%;
-    justify-content: center;
+    justify-content: flex-start;
+    font-size: 16px;
+    align-items: center;
+    color: ${(props) => props.theme.colors.darkerText};
+    font-weight: 800;
+    margin-bottom: -20px;
 `
 const LastSeenLineBackground = styled.div`
     position: absolute;
@@ -144,6 +178,30 @@ const LoadMoreReplies = styled.div`
     &:hover {
         background: ${(props) => props.theme.colors.grey};
     }
+`
+
+const SectionCircle = styled.div<{ size: string }>`
+    background: ${(props) => props.theme.colors.backgroundHighlight};
+    border-radius: 100px;
+    height: ${(props) => (props.size ? props.size : '60px')};
+    width: ${(props) => (props.size ? props.size : '60px')};
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`
+
+const Separator = styled.div`
+    height: 1px;
+    display: flex;
+    width: fill-available;
+    background: ${(props) => props.theme.colors.lighterText}70;
+`
+
+const NoActivitiesContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 `
 
 type ActivityItemRendererOpts = { groupAlreadySeen: boolean }
@@ -203,8 +261,14 @@ export default class HomeFeedPage extends UIElement<
         if (!this.state.activityItems.order.length) {
             return this.renderNoActivities()
         }
+
+        this.shouldRenderNewLine()
+
         return (
-            <FeedContainer>
+            <FeedContainer viewportBreakpoint={this.viewportBreakpoint}>
+                {this.state.shouldShowNewLine && (
+                    <div id="1">{this.renderNewLine()}</div>
+                )}
                 {this.renderActivities(this.state.activityItems)}
                 <Waypoint
                     onEnter={() => this.processEvent('waypointHit', null)}
@@ -213,13 +277,38 @@ export default class HomeFeedPage extends UIElement<
         )
     }
 
+    renderNewLine() {
+        return (
+            <StyledLastSeenLine>
+                <Icon icon="newFeed" heightAndWidth="20px" hoverOff />
+                <LastSeenLineLabel>New</LastSeenLineLabel>
+                <Separator />
+            </StyledLastSeenLine>
+        )
+    }
+
+    shouldRenderNewLine() {
+        return this.processEvent('getLastSeenLinePosition', null)
+    }
+
     renderNoActivities() {
         return (
             <Margin vertical="largest">
-                <MessageBox title="No Updates (yet)">
-                    Get updates from collections you follow or conversation you
-                    participate in.
-                </MessageBox>
+                <NoActivitiesContainer>
+                    <Margin bottom={'small'}>
+                        <SectionCircle size="50px">
+                            <Icon
+                                icon={'newFeed'}
+                                heightAndWidth="25px"
+                                color="purple"
+                            />
+                        </SectionCircle>
+                    </Margin>
+                    <MessageBox title="No Updates (yet)">
+                        Get updates from Spaces you follow or conversation you
+                        participate in.
+                    </MessageBox>
+                </NoActivitiesContainer>
             </Margin>
         )
     }
@@ -228,6 +317,7 @@ export default class HomeFeedPage extends UIElement<
         const lastSeenLine = new LastSeenLineState(
             this.state.lastSeenTimestamp ?? null,
         )
+
         return mapOrderedMap(activities, (item) => {
             const shouldRenderLastSeenLine = lastSeenLine.shouldRenderBeforeItem(
                 item,
@@ -253,9 +343,13 @@ export default class HomeFeedPage extends UIElement<
             return (
                 <React.Fragment key={result.key}>
                     {shouldRenderLastSeenLine && (
-                        <Margin vertical="medium">
+                        <LastSeenLineContainer
+                            shouldShowNewLine={this.state.shouldShowNewLine}
+                            id="lastSeenLine"
+                            vertical="medium"
+                        >
                             <LastSeenLine />
-                        </Margin>
+                        </LastSeenLineContainer>
                     )}
                     {result.rendered}
                 </React.Fragment>
@@ -265,13 +359,18 @@ export default class HomeFeedPage extends UIElement<
 
     renderActivityReason(activityItem: ActivityItem) {
         if (activityItem.reason === 'new-replies') {
-            return <ActivityReason icon={commentImage} label="New replies" />
+            return (
+                <ActivityReason
+                    icon={'threadIcon'}
+                    label="New replies in one of your threads"
+                />
+            )
         }
 
         if (activityItem.reason === 'pages-added-to-list') {
             return (
                 <ActivityReason
-                    icon={collectionImage}
+                    icon={'heartEmpty'}
                     label={
                         <>
                             <ActivityType>Pages added to</ActivityType>
@@ -286,6 +385,7 @@ export default class HomeFeedPage extends UIElement<
                             </CollectionLink>
                         </>
                     }
+                    viewportBreakpoint={this.viewportBreakpoint}
                 />
             )
         }
@@ -293,11 +393,11 @@ export default class HomeFeedPage extends UIElement<
         if (activityItem.reason === 'new-annotations' && activityItem.list) {
             return (
                 <ActivityReason
-                    icon={commentImage}
+                    icon={'commentEmpty'}
                     label={
                         <>
                             <ActivityType>
-                                New notes added {activityItem.list && 'to'}{' '}
+                                New annotations in {activityItem.list && 'to'}{' '}
                             </ActivityType>
                             <CollectionLink
                                 route="collectionDetails"
@@ -311,6 +411,7 @@ export default class HomeFeedPage extends UIElement<
                             </CollectionLink>
                         </>
                     }
+                    viewportBreakpoint={this.viewportBreakpoint}
                 />
             )
         }
@@ -327,7 +428,7 @@ export default class HomeFeedPage extends UIElement<
         return {
             key: getOrderedMapIndex(pageItem.annotations, 0).reference.id,
             rendered: (
-                <Margin bottom="large">
+                <Margin top={'larger'} bottom="large">
                     <Margin>
                         <Margin bottom="small">
                             {this.renderActivityReason(pageItem)}
@@ -562,7 +663,6 @@ export default class HomeFeedPage extends UIElement<
                         groupId,
                         annotationReference: event.annotationReference,
                     })
-                    console.log(conversationKey)
                     return this.processEvent('toggleAnnotationReplies', {
                         ...event,
                         conversationId: conversationKey,
@@ -583,7 +683,7 @@ export default class HomeFeedPage extends UIElement<
                 ':' +
                 getOrderedMapIndex(listItem.entries, 0).normalizedUrl,
             rendered: (
-                <Margin bottom="large">
+                <Margin top={'larger'} bottom="large">
                     <Margin bottom="small">
                         {this.renderActivityReason(listItem)}
                     </Margin>
@@ -787,13 +887,25 @@ export default class HomeFeedPage extends UIElement<
     }
 }
 
-const ActivityReason = (props: { icon: string; label: React.ReactChild }) => {
+const ActivityReason = (props: {
+    icon: IconKeys
+    label: React.ReactChild
+    viewportBreakpoint: ViewportBreakpoint
+}) => {
     return (
         <StyledActivityReason>
             <StyledIconMargin right="small">
-                <ActivityReasonIcon src={props.icon} />
+                <SectionCircle size="36px">
+                    <Icon
+                        icon={props.icon}
+                        heightAndWidth="18px"
+                        color="purple"
+                    />
+                </SectionCircle>
             </StyledIconMargin>
-            <ActivityReasonLabel>{props.label}</ActivityReasonLabel>
+            <ActivityReasonLabel viewportBreakpoint={props.viewportBreakpoint}>
+                {props.label}
+            </ActivityReasonLabel>
         </StyledActivityReason>
     )
 }
@@ -820,11 +932,12 @@ class LastSeenLineState {
     }
 }
 
-function LastSeenLine() {
+function LastSeenLine(shouldShowNewLine: boolean) {
     return (
-        <StyledLastSeenLine>
-            <LastSeenLineBackground />
-            <LastSeenLineLabel>Seen</LastSeenLineLabel>
+        <StyledLastSeenLine shouldShowNewLine={shouldShowNewLine}>
+            <Icon icon="checkedRound" heightAndWidth="20px" hoverOff />
+            <LastSeenLineLabel>Read</LastSeenLineLabel>
+            <Separator />
         </StyledLastSeenLine>
     )
 }

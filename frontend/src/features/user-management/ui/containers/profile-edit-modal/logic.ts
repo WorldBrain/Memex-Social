@@ -126,7 +126,6 @@ export default class ProfileEditModalLogic extends UILogic<
         if (previousState.email !== event.value) {
             this.emitMutation({
                 showEmailEditButton: { $set: true },
-                emailEditSuccess: { $set: true },
             })
         }
     }
