@@ -18,8 +18,15 @@ export interface AuthDialogState {
     password: string
     displayName: string
     error?: AuthError['reason']
+    passwordRepeat: string
 }
-export type AuthDialogMode = 'hidden' | 'register' | 'login' | 'profile'
+export type AuthDialogMode =
+    | 'hidden'
+    | 'register'
+    | 'login'
+    | 'profile'
+    | 'resetPassword'
+    | 'ConfirmResetPassword'
 
 export type AuthDialogEvent = UIEvent<{
     show: null
@@ -27,11 +34,15 @@ export type AuthDialogEvent = UIEvent<{
     toggleMode: null
     editEmail: { value: string }
     editPassword: { value: string }
+    passwordRepeat: { value: string }
     emailPasswordConfirm: null
     socialSignIn: { provider: AuthProvider }
 
     editDisplayName: { value: string }
     confirmDisplayName: null
+    passwordReset: null
+    passwordResetSwitch: null
+    passwordResetConfirm: null
 }>
 
 export type AuthDialogSignal = UISignal<{ type: 'auth-running' }>

@@ -1,5 +1,5 @@
 export const isMemexInstalled = () => {
-    if (document.getElementById('memex-ribbon-container')) {
+    if (document.getElementById('__memex-ext-installed-detection-element')) {
         return true
     } else {
         return false

@@ -15,6 +15,8 @@ export interface AuthService {
     loginWithEmailPassword(
         options: EmailPasswordCredentials,
     ): Promise<{ result: LoginResult }>
+    sendPasswordResetEmailProcess: (email: string) => void
+    changeEmailAddressonFirebase: (email: string) => void
     registerWithEmailPassword(
         options: EmailPasswordCredentials,
     ): Promise<{ result: RegistrationResult }>

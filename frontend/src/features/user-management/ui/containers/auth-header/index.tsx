@@ -12,6 +12,10 @@ import { Closable } from '../../../../../common-ui/components/closable'
 import AuthMenu from '../../components/auth-menu'
 import ProfileEditModal from '../profile-edit-modal'
 import LoadingIndicator from '../../../../../common-ui/components/loading-indicator'
+import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
+import { isMemexInstalled } from '../../../../../utils/memex-installed'
+import { getViewportBreakpoint } from '../../../../../main-ui/styles/utils'
+import { ViewportBreakpoint } from '../../../../../main-ui/styles/types'
 
 const logoImage = require('../../../../../assets/img/memex-icon.svg')
 
@@ -38,11 +42,18 @@ const UserInfo = styled.div`
     cursor: pointer;
 `
 const DisplayName = styled.div`
-    display: inline-block;
+    display: flex;
+    align-items: center;
+    grid-gap: 5px;
     font-size: 14px;
     font-weight: bold;
     cursor: pointer;
-    color: ${(props) => props.theme.colors.primary};
+
+    & * {
+        cursor: pointer;
+    }
+
+    color: ${(props) => props.theme.colors.darkerText};
 `
 const MenuContainerOuter = styled.div`
     position: relative;
@@ -63,6 +74,10 @@ export default class AuthHeader extends UIElement<
         super(props, { logic: new Logic(props) })
     }
 
+    get viewportBreakpoint(): ViewportBreakpoint {
+        return getViewportBreakpoint(this.getViewportWidth())
+    }
+
     render() {
         if (this.state.loadState !== 'success') {
             return <LoadingIndicator />
@@ -71,7 +86,8 @@ export default class AuthHeader extends UIElement<
         if (!this.state.user) {
             return (
                 <DisplayName onClick={() => this.processEvent('login', null)}>
-                    Login
+                    <Icon icon="login" heightAndWidth="16px" hoverOff />
+                    {this.state.mememxInstalled === true ? 'Login' : 'Sign Up'}
                 </DisplayName>
             )
         }

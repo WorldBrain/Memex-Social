@@ -1,6 +1,7 @@
 import React from 'react'
 import { UIElement } from '../../classes'
 import { UIElementServices } from '../../../services/types'
+import styled from 'styled-components'
 import { EventHandlers } from '../../classes/events'
 import AuthDialog from '../../../features/user-management/ui/containers/auth-dialog'
 import { StorageModules } from '../../../storage/types'
@@ -11,6 +12,11 @@ interface Props {
     services: UIElementServices<'auth' | 'overlay' | 'router'>
     storage: Pick<StorageModules, 'users'>
 }
+
+const MainArea = styled.div`
+    height: 100%;
+    width: 100%;
+`
 
 class App extends UIElement<Props> {
     private eventHandlers = new EventHandlers()
@@ -32,13 +38,13 @@ class App extends UIElement<Props> {
         // const routeInfo = currentRoute && ROUTES[currentRoute.route];
 
         return (
-            <div>
+            <MainArea id="mainArea">
                 {this.props.children}
                 <AuthDialog
                     services={this.props.services}
                     storage={this.props.storage}
                 />
-            </div>
+            </MainArea>
         )
     }
 }

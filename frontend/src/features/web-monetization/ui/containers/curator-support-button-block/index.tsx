@@ -14,6 +14,8 @@ import {
     WebMonetizationButtonState,
     WebMonetizationButtonEvent,
 } from '../../../logic/buttons/types'
+import { PrimaryAction } from '../../../../../common-ui/components/PrimaryAction'
+import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
 
 const Container = styled.div`
     display: flex;
@@ -73,6 +75,16 @@ const ButtonInnerText = styled.div<{
 
 const BoldText = styled(ButtonInnerText)`
     font-weight: 700;
+`
+
+const ButtonContent = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    grid-gap: 7px;
+    font-weight: normal;
+    font-size: 14px;
+    width: 100%;
 `
 
 // const Link = styled.div<{ theme: Theme }>`
@@ -167,18 +179,24 @@ export class CuratorSupportButtonBlock extends UIElement<
                             {this.renderButtonInnerHTML()}
                         </Button>
                         */}
-                        <Button
+                        <PrimaryAction
                             onClick={() =>
                                 this.handleWebLinkClick(
                                     'https://worldbrain.io/tutorial/webmonetization',
                                 )
                             }
-                            theme={theme}
-                        >
-                            <ButtonInnerText>
-                                Learn more & Setup Payments
-                            </ButtonInnerText>
-                        </Button>
+                            label={
+                                <ButtonContent>
+                                    <Icon
+                                        icon={'coilIcon'}
+                                        heightAndWidth={'16px'}
+                                        color="white"
+                                        hoverOff
+                                    />
+                                    Install Coil Extension
+                                </ButtonContent>
+                            }
+                        />
                     </>
                 )}
             </Container>

@@ -3,6 +3,7 @@ import {
     UIEventHandler,
     loadInitial,
 } from '../../../../../main-ui/classes/logic'
+import { isMemexInstalled } from '../../../../../utils/memex-installed'
 import {
     AuthHeaderEvent,
     AuthHeaderDependencies,
@@ -36,6 +37,7 @@ export default class AuthHeaderLogic extends UILogic<
             // showMenu: true,
             showSettings: false,
             showAccountSettings: false,
+            isMemexInstalled: false,
         }
     }
 
@@ -50,6 +52,11 @@ export default class AuthHeaderLogic extends UILogic<
         await loadInitial<AuthHeaderState>(this, async () => {
             await this.dependencies.services.auth.waitForAuthReady()
         })
+        const MemexInstalled = isMemexInstalled()
+        if (MemexInstalled) {
+            this.emitMutation({ mememxInstalled: { $set: true } })
+        }
+
         this._updateUser()
     }
 

@@ -1,8 +1,9 @@
 import React, { PureComponent } from 'react'
 import styled, { css } from 'styled-components'
 import { UITaskState } from '../../../../main-ui/types'
-import LoadingIndicator from '../../../../common-ui/components/loading-indicator'
-import Icon from '../../../../common-ui/components/icon'
+import LoadingIndicator from '@worldbrain/memex-common/lib/common-ui/components/loading-indicator'
+import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
+import ButtonTooltip from '@worldbrain/memex-common/lib/common-ui/components/button-tooltip'
 
 const Container = styled.div<{
     isOwner: boolean
@@ -75,9 +76,16 @@ const PlusIcon = styled.span`
 const ButtonBox = styled.div`
     display: flex;
     align-items: center;
+    cursor: pointer;
+
+    & * {
+        cursor: pointer;
+    }
 `
 
-const BtnText = styled.span``
+const BtnText = styled.span`
+    font-weight: 500;
+`
 
 export interface Props {
     onClick: React.MouseEventHandler
@@ -125,15 +133,15 @@ export default class FollowBtn extends PureComponent<Props> {
         if (props.isOwner) {
             return 'check'
         } else if (props.isContributor) {
-            return 'people'
+            return 'peopleFine'
         } else if (!props.isOwner && !props.isContributor && props.isFollowed) {
             if (this.state.hoverButton) {
-                return 'removeX'
+                return 'close'
             } else {
                 return 'check'
             }
         } else {
-            return 'plusIcon'
+            return 'bell'
         }
     }
 
@@ -156,14 +164,15 @@ export default class FollowBtn extends PureComponent<Props> {
         const { props } = this
 
         if (props.loadState === 'running') {
-            return <LoadingIndicator />
+            return <LoadingIndicator size={16} />
         }
 
         const icon = (
             <Icon
-                height="16px"
+                height="18px"
                 icon={this.followStateIcon()}
                 color={this.followStateIconColor()}
+                hoverOff
             />
         )
 
@@ -177,7 +186,34 @@ export default class FollowBtn extends PureComponent<Props> {
 
     render() {
         const { props } = this
-        return (
+        return props.isContributor ? (
+            <>
+                <ButtonTooltip
+                    tooltipText={
+                        <>
+                            You can add pages <br />
+                            and annotations to this Space
+                        </>
+                    }
+                    position="bottom"
+                >
+                    <Container
+                        onMouseEnter={() => this.handleMouseEnter()}
+                        onMouseLeave={() => this.handleMouseLeave()}
+                        onClick={props.onClick}
+                        isContributor={props.isContributor}
+                        isFollowed={
+                            props.isFollowed ||
+                            props.isOwner ||
+                            props.isContributor
+                        }
+                        isOwner={props.isOwner}
+                    >
+                        {this.renderBody()}
+                    </Container>
+                </ButtonTooltip>
+            </>
+        ) : (
             <Container
                 onMouseEnter={() => this.handleMouseEnter()}
                 onMouseLeave={() => this.handleMouseLeave()}
