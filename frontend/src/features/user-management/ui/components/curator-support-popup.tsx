@@ -9,6 +9,7 @@ import LoadingScreen from '../../../../common-ui/components/loading-screen'
 import CuratorSupportButtonBlock from '../../../web-monetization/ui/containers/curator-support-button-block'
 import { UserReference } from '../../types'
 import { Margin } from 'styled-components-spacing'
+import { HoverBox } from '../../../../common-ui/components/hoverbox'
 
 const PopupContainer = styled.div`
     position: absolute;
@@ -23,17 +24,20 @@ const PopupContainer = styled.div`
     left: -110px;
 `
 
-const Title = styled.div`
-    font-size: ${(props) => props.theme.fontSizes.url};
-    line-height: ${(props) => props.theme.lineHeights.text};
-    font-weight: 700;
+const Title = styled.div<{}>`
+    font-size: 16px;
+    color: ${(props) => props.theme.colors.darkerText};
+    font-weight: 800;
 `
 
-const Text = styled.div`
+const Text = styled.div<{}>`
     width: 100%;
     height: min-content;
-    font-size: ${(props) => props.theme.fontSizes.text};
-    line-height: ${(props) => props.theme.lineHeights.text};
+    font-size: 14px;
+    margin-bottom: 20px;
+    margin-top: 5px;
+    color: ${(props) => props.theme.colors.lighterText};
+    line-height: 21px;
 `
 
 interface CuratorSupportPopupProps {
@@ -58,7 +62,7 @@ export default class CuratorSupportPopup extends PureComponent<CuratorSupportPop
             paymentMade,
         } = this.props
         return (
-            <PopupContainer>
+            <HoverBox width="320px" padding={'20px'} left="-110px">
                 {loadState === 'running' && <LoadingScreen />}
                 {loadState === 'success' && (
                     <>
@@ -76,7 +80,7 @@ export default class CuratorSupportPopup extends PureComponent<CuratorSupportPop
                         {!paymentMade && this.props.isMonetizationAvailable && (
                             <>
                                 <Margin bottom="smallest">
-                                    <Title>Support Collection Curator</Title>
+                                    <Title>Support the Curator</Title>
                                 </Margin>
                                 <Text>
                                     Use <i>WebMonetization</i> to donate a few
@@ -92,12 +96,17 @@ export default class CuratorSupportPopup extends PureComponent<CuratorSupportPop
                         {!paymentMade && !this.props.isMonetizationAvailable && (
                             <>
                                 <Margin bottom="smallest">
-                                    <Title>Support Collection Curator</Title>
+                                    <Title>Support the Space curator</Title>
                                 </Margin>
-                                <Text>
-                                    Automatically donate a few cents for every
-                                    visit to this collection.
-                                </Text>
+                                <Margin bottom="smallest">
+                                    <Text>
+                                        This Space supports WebMonetizations.{' '}
+                                        <br />
+                                        Donate a few cents on every visit, also
+                                        to thousands of creators all around the
+                                        web.
+                                    </Text>
+                                </Margin>
                                 <CuratorSupportButtonBlock
                                     services={services}
                                     storage={storage}
@@ -107,7 +116,7 @@ export default class CuratorSupportPopup extends PureComponent<CuratorSupportPop
                         )}
                     </>
                 )}
-            </PopupContainer>
+            </HoverBox>
         )
     }
 }

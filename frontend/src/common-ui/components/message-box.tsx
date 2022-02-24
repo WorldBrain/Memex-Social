@@ -10,10 +10,14 @@ const StyledMessageBox = styled.div`
 `
 
 const MessageBoxTitle = styled.div`
-    font-weight: bold;
+    font-weight: 800;
+    color: ${(props) => props.theme.colors.darkerText};
 `
 
-const MessageBoxBody = styled.div``
+const MessageBoxBody = styled.div`
+    color: ${(props) => props.theme.colors.lighterText};
+    font-weight: 400;
+`
 
 export default function MessageBox(props: {
     title: string

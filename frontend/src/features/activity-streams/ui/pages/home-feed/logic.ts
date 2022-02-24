@@ -139,6 +139,7 @@ export default class HomeFeedLogic extends UILogic<
             annotations: {},
             replies: {},
             users: {},
+            shouldShowNewLine: true,
             moreRepliesLoadStates: {},
             ...extDetectionInitialState(),
             ...listsSidebarInitialState(),
@@ -169,6 +170,21 @@ export default class HomeFeedLogic extends UILogic<
             previousState,
             event,
         })
+    }
+
+    getLastSeenLinePosition: EventHandler<'getLastSeenLinePosition'> = async ({
+        previousState,
+    }) => {
+        const LastSeenLineID = document.getElementById('lastSeenLine')
+
+        if (LastSeenLineID) {
+            const seenLinePosition = Array.from(
+                LastSeenLineID?.parentNode?.children,
+            ).indexOf(LastSeenLineID)
+            if (seenLinePosition === 1) {
+                this.emitMutation({ shouldShowNewLine: { $set: false } })
+            }
+        }
     }
 
     waypointHit: EventHandler<'waypointHit'> = async ({ previousState }) => {

@@ -14,6 +14,10 @@ import { Margin } from 'styled-components-spacing'
 import { AuthError } from '../../../../../services/auth/types'
 import ProfileSetupForm from '../../components/profile-setup-form'
 import LoadingScreen from '../../../../../common-ui/components/loading-screen'
+import { PrimaryAction } from '../../../../../common-ui/components/PrimaryAction'
+
+import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
+import { theme } from '../../../../../main-ui/styles/theme'
 
 const FRIENDLY_ERRORS: { [Key in AuthError['reason']]: string } = {
     'popup-blocked': 'Could not open a popup for you to log in',
@@ -28,15 +32,21 @@ const FRIENDLY_ERRORS: { [Key in AuthError['reason']]: string } = {
 const StyledAuthDialog = styled.div`
     font-family: ${(props) => props.theme.fonts.primary};
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     flex-direction: column;
     padding: 20px;
+    height: fit-content;
+    min-height: 450px;
+    width: 600px;
+    margin-top: 30px;
 `
 const Header = styled.div`
     text-align: center;
-    font-size: 16px;
-    font-weight: bold;
+    font-size: 26px;
+    font-weight: 900;
+    color: ${(props) => props.theme.colors.darkerText};
+    margin-bottom: 10px;
 `
 const AuthenticationMethods = styled.div`
   display: flex;
@@ -86,6 +96,40 @@ const AuthBox = styled(Margin)`
     width: 100%;
 `
 
+const TextInputContainer = styled.div`
+    display: flex;
+    grid-auto-flow: column;
+    grid-gap: 10px;
+    align-items: center;
+    justify-content: flex-start;
+    border: 1px solid ${(props) => props.theme.colors.lineLightGrey};
+    height: 50px;
+    border-radius: 8px;
+    width: 350px;
+    padding: 0 15px;
+`
+
+const TextInputOneLine = styled.input`
+    outline: none;
+    height: fill-available;
+    width: fill-available;
+    color: #96a0b5;
+    font-size: 14px;
+    border: none;
+    background: transparent;
+    font-family: 'Inter';
+    color: ${(props) => props.theme.colors.darkerText};
+
+    &::placeholder {
+        color: #96a0b5;
+    }
+`
+
+const LoadingBox = styled.div`
+    min-height: 200px;
+    min-width: 200px;
+`
+
 // const SocialLogins = styled.div`
 //   display: flex;
 //   flex-direction: column;
@@ -105,13 +149,45 @@ const AuthBox = styled(Margin)`
 const Footer = styled.div`
     text-align: center;
     user-select: none;
-    color: ${(props) => props.theme.colors.primary};
-    font-size: 12px;
-    opacity: 0.8;
+    color: ${(props) => props.theme.colors.lighterText};
+    font-size: 16px;
+    margin: 0 0 20px 0;
 `
 const ModeSwitch = styled.span`
     cursor: pointer;
     font-weight: bold;
+`
+
+const PrimaryActionContainer = styled.div`
+    margin: 20px 0 0 0;
+
+    & > div {
+        height: 50px;
+
+        & * {
+            font-weight: 500;
+            font-size: 14px;
+        }
+    }
+`
+
+const ForgotPassword = styled.div`
+    white-space: nowrap;
+    color: ${(props) => props.theme.colors.purple};
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 12px;
+`
+
+const SectionCircle = styled.div`
+    background: ${(props) => props.theme.colors.backgroundHighlight};
+    border-radius: 100px;
+    height: 60px;
+    width: 60px;
+    margin-bottom: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 `
 
 export default class AuthDialog extends UIElement<
@@ -154,99 +230,287 @@ export default class AuthDialog extends UIElement<
 
         return (
             <StyledAuthDialog>
-                {header && (
-                    <Margin bottom="largest">
-                        <FormTitle>{header.title}</FormTitle>
-                        {header.subtitle && (
-                            <Margin top="medium">
-                                <FormSubtitle>{header.subtitle}</FormSubtitle>
+                {/* HEADER AREA */}
+                {state.mode === 'login' && (
+                    <>
+                        {header && (
+                            <Margin bottom="largest">
+                                <FormTitle>{header.title}</FormTitle>
+                                {header.subtitle && (
+                                    <Margin top="medium">
+                                        <FormSubtitle>
+                                            {header.subtitle}
+                                        </FormSubtitle>
+                                    </Margin>
+                                )}
                             </Margin>
                         )}
-                    </Margin>
+                        <Margin bottom="small">
+                            <Header>{state.mode === 'login' && 'Login'}</Header>
+                        </Margin>
+                        <Footer>
+                            <>
+                                Don’t have an account?{' '}
+                                <ModeSwitch
+                                    onClick={() =>
+                                        this.processEvent('toggleMode', null)
+                                    }
+                                >
+                                    Sign up
+                                </ModeSwitch>
+                            </>
+                        </Footer>
+                    </>
                 )}
-                <Margin bottom="small">
-                    <Header>
-                        {state.mode === 'login' && 'Login'}
-                        {state.mode === 'register' && 'Sign up'}
-                    </Header>
-                </Margin>
-                <Footer>
-                    {state.mode === 'login' && (
-                        <>
-                            Don’t have an account?{' '}
-                            <ModeSwitch
-                                onClick={() =>
-                                    this.processEvent('toggleMode', null)
-                                }
-                            >
-                                Sign up
-                            </ModeSwitch>
-                        </>
-                    )}
-                    {state.mode === 'register' && (
-                        <>
-                            Already have an account?{' '}
-                            <ModeSwitch
-                                onClick={() =>
-                                    this.processEvent('toggleMode', null)
-                                }
-                            >
-                                Log in
-                            </ModeSwitch>
-                        </>
-                    )}
-                </Footer>
+                {state.mode === 'register' && (
+                    <>
+                        {header && (
+                            <Margin bottom="largest">
+                                <FormTitle>{header.title}</FormTitle>
+                                {header.subtitle && (
+                                    <Margin top="medium">
+                                        <FormSubtitle>
+                                            {header.subtitle}
+                                        </FormSubtitle>
+                                    </Margin>
+                                )}
+                            </Margin>
+                        )}
+                        <Margin bottom="small">
+                            <Header>
+                                {state.mode === 'register' && 'Sign up'}
+                            </Header>
+                        </Margin>
+                        <Footer>
+                            <>
+                                Already have an account?{' '}
+                                <ModeSwitch
+                                    onClick={() =>
+                                        this.processEvent('toggleMode', null)
+                                    }
+                                >
+                                    Log in
+                                </ModeSwitch>
+                            </>
+                        </Footer>
+                    </>
+                )}
+                {this.state.mode === 'resetPassword' && (
+                    <>
+                        <SectionCircle width={'30px'}>
+                            <Icon
+                                icon={'reload'}
+                                color={'purple'}
+                                heightAndWidth={'20px'}
+                            />
+                        </SectionCircle>
+                        <Header>Reset your Password</Header>
+                    </>
+                )}
+
+                {this.state.mode === 'ConfirmResetPassword' && (
+                    <>
+                        <SectionCircle width={'30px'}>
+                            <Icon
+                                icon={'mail'}
+                                color={'purple'}
+                                heightAndWidth={'20px'}
+                            />
+                        </SectionCircle>
+                        <Header>Check your email account</Header>
+                        <Footer>Don't forget your spam folder.</Footer>
+                    </>
+                )}
+
+                {/* FIELDS */}
+
                 <AuthBox top="medium">
                     <AuthenticationMethods>
                         <EmailPasswordLogin>
-                            <TextInput
-                                type="email"
-                                placeholder="E-mail"
-                                value={this.state.email}
-                                onChange={(e) =>
-                                    this.processEvent('editEmail', {
-                                        value: e.target.value,
-                                    })
-                                }
-                                onConfirm={() => {
-                                    this.processEvent(
-                                        'emailPasswordConfirm',
-                                        null,
-                                    )
-                                }}
-                            />
-                            <Margin vertical={'medium'}>
-                                <TextInput
-                                    type="password"
-                                    placeholder="Password"
-                                    value={this.state.password}
-                                    onChange={(e) =>
-                                        this.processEvent('editPassword', {
-                                            value: e.target.value,
-                                        })
-                                    }
-                                    onConfirm={() => {
-                                        this.processEvent(
-                                            'emailPasswordConfirm',
-                                            null,
-                                        )
-                                    }}
-                                />
-                            </Margin>
-                            <Margin top={'medium'}>
-                                <Button
-                                    type="primary-action"
-                                    onClick={() =>
-                                        this.processEvent(
-                                            'emailPasswordConfirm',
-                                            null,
-                                        )
-                                    }
-                                >
-                                    {state.mode === 'login' && 'Log in'}
-                                    {state.mode === 'register' && 'Register'}
-                                </Button>
-                            </Margin>
+                            {this.state.mode !== 'ConfirmResetPassword' && (
+                                <TextInputContainer>
+                                    <Icon
+                                        icon={theme.icons.mail}
+                                        heightAndWidth="20px"
+                                        hoverOff
+                                    />
+                                    <TextInputOneLine
+                                        type="email"
+                                        placeholder="E-mail"
+                                        value={this.state.email}
+                                        onChange={(e) =>
+                                            this.processEvent('editEmail', {
+                                                value: e.target.value,
+                                            })
+                                        }
+                                        onConfirm={() => {
+                                            this.processEvent(
+                                                'emailPasswordConfirm',
+                                                null,
+                                            )
+                                        }}
+                                        autoFocus
+                                    />
+                                </TextInputContainer>
+                            )}
+                            {this.state.mode === 'login' && (
+                                <Margin vertical={'medium'}>
+                                    <TextInputContainer>
+                                        <Icon
+                                            icon={theme.icons.lockFine}
+                                            heightAndWidth="20px"
+                                            hoverOff
+                                        />
+                                        <TextInputOneLine
+                                            type="password"
+                                            placeholder="Password"
+                                            value={this.state.password}
+                                            onChange={(e) =>
+                                                this.processEvent(
+                                                    'editPassword',
+                                                    {
+                                                        value: e.target.value,
+                                                    },
+                                                )
+                                            }
+                                            onConfirm={() => {
+                                                this.processEvent(
+                                                    'emailPasswordConfirm',
+                                                    null,
+                                                )
+                                            }}
+                                        />
+                                        <ForgotPassword
+                                            onClick={() => {
+                                                this.processEvent(
+                                                    'passwordResetSwitch',
+                                                    null,
+                                                )
+                                            }}
+                                        >
+                                            Forgot Password?
+                                        </ForgotPassword>
+                                    </TextInputContainer>
+                                </Margin>
+                            )}
+                            {this.state.mode === 'register' && (
+                                <Margin vertical={'medium'}>
+                                    <TextInputContainer>
+                                        <Icon
+                                            icon={theme.icons.lockFine}
+                                            heightAndWidth="20px"
+                                            hoverOff
+                                        />
+                                        <TextInputOneLine
+                                            type="password"
+                                            placeholder="Password"
+                                            value={this.state.password}
+                                            onChange={(e) =>
+                                                this.processEvent(
+                                                    'editPassword',
+                                                    {
+                                                        value: e.target.value,
+                                                    },
+                                                )
+                                            }
+                                            onConfirm={() => {
+                                                this.processEvent(
+                                                    'emailPasswordConfirm',
+                                                    null,
+                                                )
+                                            }}
+                                        />
+                                    </TextInputContainer>
+                                    <Margin top={'medium'}>
+                                        <TextInputContainer>
+                                            <Icon
+                                                icon={theme.icons.reload}
+                                                heightAndWidth="20px"
+                                                hoverOff
+                                            />
+                                            <TextInputOneLine
+                                                type="password"
+                                                placeholder="Confirm Password"
+                                                value={
+                                                    this.state.passwordRepeat
+                                                }
+                                                onChange={(e) => {
+                                                    this.processEvent(
+                                                        'passwordRepeat',
+                                                        {
+                                                            value:
+                                                                e.target.value,
+                                                        },
+                                                    )
+                                                }}
+                                            />
+                                        </TextInputContainer>
+                                    </Margin>
+                                </Margin>
+                            )}
+
+                            {/* BUTTONS */}
+
+                            {this.state.mode === 'login' && (
+                                <PrimaryActionContainer>
+                                    <PrimaryAction
+                                        onClick={() =>
+                                            this.processEvent(
+                                                'emailPasswordConfirm',
+                                                null,
+                                            )
+                                        }
+                                        label={'Log in'}
+                                    />
+                                </PrimaryActionContainer>
+                            )}
+                            {this.state.mode === 'register' &&
+                                state.passwordRepeat === state.password && (
+                                    <PrimaryActionContainer>
+                                        <PrimaryAction
+                                            onClick={() =>
+                                                this.processEvent(
+                                                    'emailPasswordConfirm',
+                                                    null,
+                                                )
+                                            }
+                                            label={'Sign Up'}
+                                        />
+                                    </PrimaryActionContainer>
+                                )}
+                            {this.state.mode === 'resetPassword' && (
+                                <PrimaryActionContainer>
+                                    <PrimaryAction
+                                        onClick={() => {
+                                            this.processEvent(
+                                                'passwordReset',
+                                                null,
+                                            )
+                                            this.processEvent(
+                                                'passwordResetConfirm',
+                                                null,
+                                            )
+                                        }}
+                                        label={'Reset Password'}
+                                    />
+                                </PrimaryActionContainer>
+                            )}
+
+                            {this.state.mode === 'ConfirmResetPassword' && (
+                                <>
+                                    <PrimaryActionContainer>
+                                        <PrimaryAction
+                                            onClick={() => {
+                                                this.processEvent(
+                                                    'toggleMode',
+                                                    null,
+                                                )
+                                            }}
+                                            label={'Go back'}
+                                        />
+                                    </PrimaryActionContainer>
+                                </>
+                            )}
                             {this.renderAuthError()}
                         </EmailPasswordLogin>
                         {/* <SocialLogins>
@@ -291,7 +555,11 @@ export default class AuthDialog extends UIElement<
 
     renderOverlayContent() {
         if (this.state.saveState === 'running') {
-            return <LoadingScreen />
+            return (
+                <LoadingBox>
+                    <LoadingScreen />
+                </LoadingBox>
+            )
         }
         if (this.state.mode === 'profile') {
             return this.renderProfileForm()

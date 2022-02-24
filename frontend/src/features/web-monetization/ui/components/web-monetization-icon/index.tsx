@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import { MemexTheme } from '@worldbrain/memex-common/lib/common-ui/styles/types'
-import Icon, { IconProps } from '../../../../../common-ui/components/icon'
+import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
 import { UIElement } from '../../../../../main-ui/classes'
 
 import Logic from './logic'
@@ -11,21 +11,14 @@ import {
     WebMonetizationButtonEvent,
 } from '../../../logic/buttons/types'
 import CuratorSupportPopupContainer from '../../../../user-management/ui/containers/curator-support-popup-container'
-import LoadingScreen from '../../../../../common-ui/components/loading-screen'
+import LoadingIndicator from '@worldbrain/memex-common/lib/common-ui/components/loading-indicator'
 
 const Container = styled.div`
     margin-left: 10px;
     margin-right: 10px;
 `
 
-const IconContainer = styled.div<{ iconHeight: string }>`
-    height: ${(props) => props.iconHeight};
-    width: ${(props) => props.iconHeight};
-`
-
-const StyledIcon = styled(Icon)<IconProps & { isClickable: boolean }>`
-    ${(props) => !props.onClick && `cursor: auto`}
-`
+const IconContainer = styled.div<{ iconHeight: string }>``
 
 const StyledImg = styled.div<{
     height: string
@@ -39,6 +32,13 @@ const StyledImg = styled.div<{
     background-image: url(${(props) => props.theme.icons[props.icon]});
 `
 
+const LoadingBox = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+`
+
 type WebMonetizationIconDependencies = WebMonetizationButtonDependencies
 type WebMonetizationIconState = WebMonetizationButtonState
 type WebMonetizationIconEvent = WebMonetizationButtonEvent
@@ -48,7 +48,7 @@ export default class WebMonetizationIcon extends UIElement<
     WebMonetizationIconState,
     WebMonetizationIconEvent
 > {
-    private iconHeight = '24px'
+    private iconHeight = '20px'
 
     constructor(props: WebMonetizationIconDependencies) {
         super(props, { logic: new Logic(props) })
@@ -72,11 +72,10 @@ export default class WebMonetizationIcon extends UIElement<
 
         return (
             <IconContainer iconHeight={this.iconHeight}>
-                {paymentState === 'running' && <LoadingScreen />}
+                {paymentState === 'running' && <LoadingIndicator size={18} />}
                 {paymentState === 'error' && <span>Error!</span>}
                 {paymentState === 'pristine' && (
-                    <StyledIcon
-                        isClickable={this.isClickable}
+                    <Icon
                         onClick={this.handleClick}
                         height={this.iconHeight}
                         color="purple"
@@ -96,8 +95,11 @@ export default class WebMonetizationIcon extends UIElement<
     render() {
         return (
             <Container>
-                {this.state.isDisplayed &&
-                    this.state.loadState === 'running' && <LoadingScreen />}
+                {this.state.isDisplayed && this.state.loadState === 'running' && (
+                    <LoadingBox>
+                        <LoadingIndicator size={18} />
+                    </LoadingBox>
+                )}
                 {this.state.isDisplayed && this.state.loadState === 'success' && (
                     <CuratorSupportPopupContainer
                         services={this.props.services}
