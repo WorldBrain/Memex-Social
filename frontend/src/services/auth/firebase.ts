@@ -163,11 +163,19 @@ export default class FirebaseAuthService extends AuthServiceBase {
         return this._user
     }
 
-    sendPasswordResetEmailProcess(email: string) {
-        return firebase.auth().sendPasswordResetEmail(email)
+    async getCurrentUserEmail() {
+        return firebase.auth().currentUser?.email
     }
 
-    changeEmailAddressonFirebase(email: string) {
+    async sendPasswordResetEmailProcess(email: string) {
+        try {
+            return firebase.auth().sendPasswordResetEmail(email)
+        } catch (error) {
+            return error
+        }
+    }
+
+    async changeEmailAddressonFirebase(email: string) {
         return firebase.auth().currentUser?.updateEmail(email)
     }
 
