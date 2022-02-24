@@ -1,6 +1,7 @@
 import React from 'react'
+import moment from 'moment'
 import { Waypoint } from 'react-waypoint'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { Margin } from 'styled-components-spacing'
 import { UIElement } from '../../../../../main-ui/classes'
 import Logic from './logic'
@@ -162,6 +163,68 @@ const LoadingScreen = styled.div`
 
 const ActionLoaderBox = styled.div`
     margin-right: 10px;
+`
+
+const SubtitleContainer = styled.div<{
+    viewportBreakpoint: ViewportBreakpoint
+    loading: boolean
+}>`
+    display: flex;
+    align-items: center;
+    /* grid-gap: 10px; */
+    font-size: 14px;
+    height: 24px;
+
+    ${(props) =>
+        props.viewportBreakpoint === 'mobile' &&
+        css`
+            margin-top: -5px;
+            grid-gap: 10px;
+            flex-direction: column;
+            align-items: flex-start;
+        `}
+
+    ${(props) =>
+        props.loading &&
+        css`
+            padding-left: 10px;
+        `}
+`
+
+const DomainName = styled.div`
+    color: ${(props) => props.theme.colors.normalText};
+`
+
+const RearBox = styled.div<{
+    viewportBreakpoint: ViewportBreakpoint
+}>`
+    display: inline-block;
+    align-items: center;
+    grid-gap: 5px;
+    color: ${(props) => props.theme.colors.lighterText};
+
+    /* ${(props) =>
+        props.viewportBreakpoint === 'mobile' &&
+        css`
+            grid-gap: 3px;
+            flex-direction: column;
+            align-items: flex-start;
+        `} */
+`
+
+const Creator = styled.span`
+    color: ${(props) => props.theme.colors.purple};
+    padding: 0 4px;
+`
+
+const SharedBy = styled.span`
+    color: ${(props) => props.theme.colors.lighterText};
+    display: inline-block;
+`
+
+const Date = styled.span`
+    color: ${(props) => props.theme.colors.lighterText};
+    display: inline-block;
 `
 
 export default class CollectionDetailsPage extends UIElement<
@@ -415,11 +478,31 @@ export default class CollectionDetailsPage extends UIElement<
     renderSubtitle() {
         const { state } = this
         const { listData: data } = state
-        if (!data) {
-            return null
+        const users: Array<[UserReference, User]> = []
+
+        if (
+            (state.listRolesLoadState === 'running' ||
+                state.listRolesLoadState === 'pristine') &&
+            !users.length
+        ) {
+            return (
+                <SubtitleContainer
+                    loading={true}
+                    viewportBreakpoint={this.viewportBreakpoint}
+                >
+                    <LoadingIndicator size={16} />
+                </SubtitleContainer>
+            )
         }
 
-        const users: Array<[UserReference, User]> = []
+        if (!data) {
+            return (
+                <SubtitleContainer viewportBreakpoint={this.viewportBreakpoint}>
+                    <LoadingIndicator size={16} />
+                </SubtitleContainer>
+            )
+        }
+
         if (data.creatorReference && data.creator) {
             users.push([data.creatorReference, data.creator])
         }
@@ -434,23 +517,40 @@ export default class CollectionDetailsPage extends UIElement<
             const isLast = index === users.length - 1
             return (
                 <React.Fragment key={userReference.id}>
-                    {!isFirst && !isLast && ', '}
-                    {!isFirst && isLast && ' and '}
+                    <SharedBy>
+                        {!isFirst && !isLast && ', '}
+                        {!isFirst && isLast && ' and '}
+                    </SharedBy>
                     <ProfilePopupContainer
                         services={this.props.services}
                         storage={this.props.storage}
                         userRef={userReference!}
                     >
-                        {user.displayName}
+                        <Creator>{user.displayName}</Creator>
                     </ProfilePopupContainer>
                 </React.Fragment>
             )
         })
-        if (!state.listRoleLimit || users.length <= state.listRoleLimit) {
-            return rendered
+
+        if (state.listRolesLoadState === 'success' && users.length > 0) {
+            return (
+                <SubtitleContainer viewportBreakpoint={this.viewportBreakpoint}>
+                    {rendered && (
+                        <>
+                            <SharedBy>
+                                {users.length && users.length > 1
+                                    ? 'cocurated by'
+                                    : 'shared by'}
+                            </SharedBy>{' '}
+                            {rendered}
+                        </>
+                    )}
+                </SubtitleContainer>
+            )
         }
         return (
-            <>
+            <SubtitleContainer viewportBreakpoint={this.viewportBreakpoint}>
+                <SharedBy>by</SharedBy>
                 {rendered.slice(0, state.listRoleLimit)} and{' '}
                 <ShowMoreCollaborators
                     onClick={() =>
@@ -459,7 +559,13 @@ export default class CollectionDetailsPage extends UIElement<
                 >
                     {users.length - state.listRoleLimit} more
                 </ShowMoreCollaborators>
-            </>
+                <Date>
+                    <span>
+                        on{' '}
+                        {moment(state.listData?.list.createdWhen).format('LLL')}
+                    </span>
+                </Date>
+            </SubtitleContainer>
         )
     }
 
@@ -516,6 +622,43 @@ export default class CollectionDetailsPage extends UIElement<
                         </ToggleAllAnnotations>
                     )}
             </AbovePagesBox>
+        )
+    }
+
+    getHeaderSubtitle(): JSX.Element | undefined {
+        const { creator, pageInfoLoadState, pageInfo } = this.state
+        // return creator ? `${creator.displayName}` : undefined
+
+        return (
+            <>
+                <SubtitleContainer viewportBreakpoint={this.viewportBreakpoint}>
+                    <DomainName>
+                        {pageInfo?.normalizedUrl.split('/')[0]}
+                    </DomainName>
+                    <RearBox viewportBreakpoint={this.viewportBreakpoint}>
+                        shared{' '}
+                        {creator?.displayName && (
+                            <SharedBy>
+                                by
+                                <Creator>
+                                    {creator?.displayName || undefined}
+                                </Creator>
+                            </SharedBy>
+                        )}
+                        <Date>
+                            <span>
+                                on {moment(pageInfo?.createdWhen).format('LLL')}
+                            </span>
+                        </Date>
+                        {/* <Margin horizontal="smallest">
+                        ·
+                    </Margin>
+                    <Date>
+                        on {moment(pageInfo?.createdWhen).format('LLL')}`
+                    </Date> */}
+                    </RearBox>
+                </SubtitleContainer>
+            </>
         )
     }
 

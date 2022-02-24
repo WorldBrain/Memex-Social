@@ -175,9 +175,9 @@ export default class CollectionDetailsLogic extends UILogic<
     getInitialState(): CollectionDetailsState {
         return {
             listLoadState: 'pristine',
-            followLoadState: 'pristine',
-            permissionKeyState: 'pristine',
-            listRolesLoadState: 'pristine',
+            followLoadState: 'running',
+            permissionKeyState: 'running',
+            listRolesLoadState: 'running',
             listRoleLimit: 3,
             users: {},
             scrollTop: 0,
@@ -260,7 +260,7 @@ export default class CollectionDetailsLogic extends UILogic<
                     reason: 'login-requested',
                     header: {
                         title:
-                            'You’ve been invited as a Contributor to this collection',
+                            'You’ve been invited as a Contributor to this Space',
                         subtitle: 'Signup or login to continue',
                     },
                 })
@@ -572,12 +572,17 @@ export default class CollectionDetailsLogic extends UILogic<
         previousState,
         event,
     }) => {
+        console.log('test2')
+
         const {
             services: { auth },
             storage: { activityFollows },
             listID,
         } = this.dependencies
         let userReference = auth.getCurrentUserReference()
+        this.emitMutation({
+            followLoadState: { $set: 'running' },
+        })
 
         if (previousState.listRoleID) {
             return
@@ -615,6 +620,7 @@ export default class CollectionDetailsLogic extends UILogic<
                 )
                 const mutation: UIMutation<CollectionDetailsState> = {
                     isCollectionFollowed: { $set: !isAlreadyFollowed },
+                    followLoadState: { $set: 'pristine' },
                 }
 
                 if (isAlreadyFollowed) {
