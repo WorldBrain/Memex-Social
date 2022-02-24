@@ -125,6 +125,11 @@ const TextInputOneLine = styled.input`
     }
 `
 
+const LoadingBox = styled.div`
+    min-height: 200px;
+    min-width: 200px;
+`
+
 // const SocialLogins = styled.div`
 //   display: flex;
 //   flex-direction: column;
@@ -550,7 +555,11 @@ export default class AuthDialog extends UIElement<
 
     renderOverlayContent() {
         if (this.state.saveState === 'running') {
-            return <LoadingScreen />
+            return (
+                <LoadingBox>
+                    <LoadingScreen />
+                </LoadingBox>
+            )
         }
         if (this.state.mode === 'profile') {
             return this.renderProfileForm()
