@@ -148,7 +148,7 @@ const HeaderTitle = styled.div<{
     overflow-x: hidden;
     text-overflow: ${(props) => props.scrollTop >= 100 && 'ellipsis'};
     font-family: ${(props) => props.theme.fonts.primary};
-    font-size: 22px;
+    font-size: 20px;
     overflow-wrap: break-word;
     max-width: ${(props) =>
         props.viewportWidth === 'small' || props.viewportWidth === 'mobile'
@@ -370,7 +370,7 @@ export default function DefaultPageLayout(props: {
     >
     storage: Pick<StorageModules, 'users' | 'activityStreams'>
     headerTitle?: string
-    headerSubtitle?: React.ReactNode
+    headerSubtitle?: JSX.Element
     followBtn?: JSX.Element
     permissionKeyOverlay?: JSX.Element | null
     webMonetizationIcon?: JSX.Element
@@ -520,16 +520,7 @@ export default function DefaultPageLayout(props: {
                                 {props.headerTitle &&
                                     props.headerSubtitle &&
                                     renderSubtitle({
-                                        children: (
-                                            <HeaderSubtitle
-                                                viewportWidth={viewportWidth}
-                                            >
-                                                <HeaderSubTitleby>
-                                                    by
-                                                </HeaderSubTitleby>
-                                                {props.headerSubtitle}
-                                            </HeaderSubtitle>
-                                        ),
+                                        children: props.headerSubtitle,
                                     })}
                             </PageMidleAreaTitles>
                             <PageMidleAreaAction

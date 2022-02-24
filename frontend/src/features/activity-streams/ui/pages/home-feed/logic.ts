@@ -176,13 +176,11 @@ export default class HomeFeedLogic extends UILogic<
         previousState,
     }) => {
         const LastSeenLineID = document.getElementById('lastSeenLine')
-        console.log(LastSeenLineID)
 
         if (LastSeenLineID) {
             const seenLinePosition = Array.from(
                 LastSeenLineID?.parentNode?.children,
             ).indexOf(LastSeenLineID)
-            console.log(seenLinePosition)
             if (seenLinePosition === 1) {
                 this.emitMutation({ shouldShowNewLine: { $set: false } })
             }

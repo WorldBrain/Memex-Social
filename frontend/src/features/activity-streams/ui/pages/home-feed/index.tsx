@@ -175,8 +175,12 @@ const LoadMoreReplies = styled.div`
     font-size: 11px;
     cursor: pointer;
     border-radius: 3px;
+    height: 20px;
+    grid-gap: 5px;
+    align-items: center;
+    color: ${(props) => props.theme.colors.normalText};
     &:hover {
-        background: ${(props) => props.theme.colors.grey};
+        background: ${(props) => props.theme.colors.backgroundHighlight};
     }
 `
 
@@ -584,6 +588,7 @@ export default class HomeFeedPage extends UIElement<
                                 })
                             }
                         >
+                            <Icon icon="clock" heightAndWidth="14px" />
                             Load older replies
                         </LoadMoreReplies>
                     )

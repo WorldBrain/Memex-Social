@@ -1,6 +1,6 @@
 import moment from 'moment'
 import React from 'react'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { UIElement } from '../../../../../main-ui/classes'
 import Logic from './logic'
 import {
@@ -23,6 +23,8 @@ import InstallExtOverlay from '../../../../ext-detection/ui/components/install-e
 import { ViewportBreakpoint } from '../../../../../main-ui/styles/types'
 import { getViewportBreakpoint } from '../../../../../main-ui/styles/utils'
 import MissingPdfOverlay from '../../../../ext-detection/ui/components/missing-pdf-overlay'
+import FollowBtn from '../../../../activity-follows/ui/components/follow-btn'
+import { mergeTaskStates } from '../../../../../main-ui/classes/logic'
 
 const PageInfoList = styled.div`
     width: 100%;
@@ -32,6 +34,62 @@ const PageInfoList = styled.div`
 const AnnotationsLoading = styled.div`
     display: flex;
     justify-content: center;
+    height: 300px;
+    align-items: center;
+`
+
+const SubtitleContainer = styled.div<{
+    viewportBreakpoint: ViewportBreakpoint
+}>`
+    display: flex;
+    align-items: center;
+    grid-gap: 30px;
+    font-size: 14px;
+
+    ${(props) =>
+        props.viewportBreakpoint === 'mobile' &&
+        css`
+            margin-top: -5px;
+            grid-gap: 10px;
+            flex-direction: column;
+            align-items: flex-start;
+        `}
+`
+
+const DomainName = styled.div`
+    color: ${(props) => props.theme.colors.normalText};
+`
+
+const RearBox = styled.div<{
+    viewportBreakpoint: ViewportBreakpoint
+}>`
+    display: inline-block;
+    align-items: center;
+    grid-gap: 5px;
+    color: ${(props) => props.theme.colors.lighterText};
+
+    /* ${(props) =>
+        props.viewportBreakpoint === 'mobile' &&
+        css`
+            grid-gap: 3px;
+            flex-direction: column;
+            align-items: flex-start;
+        `} */
+`
+
+const Creator = styled.span`
+    color: ${(props) => props.theme.colors.purple};
+    padding: 0 4px;
+`
+
+const SharedBy = styled.span`
+    color: ${(props) => props.theme.colors.lighterText};
+    display: inline-block;
+`
+
+const Date = styled.span`
+    color: ${(props) => props.theme.colors.lighterText};
+    display: inline-block;
 `
 
 export default class PageDetailsPage extends UIElement<
@@ -92,6 +150,26 @@ export default class PageDetailsPage extends UIElement<
         }
 
         return null
+    }
+
+    renderFollowBtn = (pageToOpenPostFollow?: string) => () => {
+        return (
+            <FollowBtn
+                onClick={() => {
+                    this.processEvent('clickFollowBtn', {
+                        pageToOpenPostFollow,
+                    })
+                }}
+                isFollowed={this.state.isCollectionFollowed}
+                isOwner={this.state.isListOwner}
+                isContributor={this.isListContributor}
+                loadState={mergeTaskStates([
+                    this.state.followLoadState,
+                    this.state.listRolesLoadState,
+                    this.state.permissionKeyState,
+                ])}
+            />
+        )
     }
 
     render() {
@@ -181,8 +259,10 @@ export default class PageDetailsPage extends UIElement<
                     storage={storage}
                     viewportBreakpoint={this.viewportBreakpoint}
                     headerTitle={this.getHeaderTitle()}
+                    //headerSubtitle={this.state.pageInfo?.normalizedUrl}
                     listsSidebarProps={this.listsSidebarProps}
                     headerSubtitle={this.getHeaderSubtitle()}
+                    followBtn={this.renderFollowBtn()()}
                     renderSubtitle={(props) => (
                         <ProfilePopupContainer
                             services={services}
@@ -194,7 +274,7 @@ export default class PageDetailsPage extends UIElement<
                     )}
                 >
                     <PageInfoList>
-                        <Margin>
+                        {/* <Margin>
                             <PageInfoBox
                                 onClick={(e) =>
                                     this.processEvent('clickPageResult', {
@@ -218,7 +298,7 @@ export default class PageDetailsPage extends UIElement<
                                     }
                                 }
                             />
-                        </Margin>
+                        </Margin> */}
                         <Margin bottom="large">
                             {(state.annotationLoadState === 'pristine' ||
                                 state.annotationLoadState === 'running') && (
@@ -342,8 +422,9 @@ export default class PageDetailsPage extends UIElement<
         if (pageInfoLoadState === 'success') {
             if (!pageInfo) {
                 return 'Page not found'
+            } else {
+                return pageInfo.fullTitle
             }
-            return `Shared on ${moment(pageInfo.createdWhen).format('LLL')}`
         }
         if (
             pageInfoLoadState === 'pristine' ||
@@ -354,8 +435,40 @@ export default class PageDetailsPage extends UIElement<
         return 'Error'
     }
 
-    getHeaderSubtitle(): string | undefined {
-        const { creator } = this.state
-        return creator ? `${creator.displayName}` : undefined
+    getHeaderSubtitle(): JSX.Element | undefined {
+        const { creator, pageInfoLoadState, pageInfo } = this.state
+        // return creator ? `${creator.displayName}` : undefined
+
+        return (
+            <>
+                <SubtitleContainer viewportBreakpoint={this.viewportBreakpoint}>
+                    <DomainName>
+                        {pageInfo?.normalizedUrl.split('/')[0]}
+                    </DomainName>
+                    <RearBox viewportBreakpoint={this.viewportBreakpoint}>
+                        shared{' '}
+                        {creator?.displayName && (
+                            <SharedBy>
+                                by
+                                <Creator>
+                                    {creator?.displayName || undefined}
+                                </Creator>
+                            </SharedBy>
+                        )}
+                        <Date>
+                            <span>
+                                on {moment(pageInfo?.createdWhen).format('LLL')}
+                            </span>
+                        </Date>
+                        {/* <Margin horizontal="smallest">
+                        ·
+                    </Margin>
+                    <Date>
+                        on {moment(pageInfo?.createdWhen).format('LLL')}`
+                    </Date> */}
+                    </RearBox>
+                </SubtitleContainer>
+            </>
+        )
     }
 }
