@@ -5,11 +5,13 @@ const Link = styled.a`
     font-size: inherit;
     color: inherit;
     font-weight: bold;
-    display: inline-block;
+    display: contents;
     text-decoration: none;
     padding: 0 3px;
     margin-top: 2px;
     cursor: pointer;
+    left: 3px;
+    position: relative;
 `
 
 export default function ExternalLink(props: {

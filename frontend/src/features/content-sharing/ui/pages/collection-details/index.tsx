@@ -136,8 +136,11 @@ const EmptyListBox = styled.div`
     font-family: ${(props) => props.theme.fonts.primary};
     width: 100%;
     padding: 20px 20px;
-    color: ${(props) => props.theme.colors.primary};
+    color: ${(props) => props.theme.colors.normalText};
     display: flex;
+    margin-top: 30px;
+    font-size: 16px;
+    font-weight: normal;
     justify-content: center;
     align-items: center;
     flex-direction: column;
@@ -167,7 +170,7 @@ const ActionLoaderBox = styled.div`
 
 const SubtitleContainer = styled.div<{
     viewportBreakpoint: ViewportBreakpoint
-    loading: boolean
+    loading?: boolean
 }>`
     display: flex;
     align-items: center;
@@ -178,15 +181,14 @@ const SubtitleContainer = styled.div<{
     ${(props) =>
         props.viewportBreakpoint === 'mobile' &&
         css`
-            margin-top: -5px;
-            grid-gap: 10px;
-            flex-direction: column;
-            align-items: flex-start;
+            align-items: center;
         `}
 
     ${(props) =>
         props.loading &&
         css`
+            margin-top: 5px;
+            margin-bottom: -5px;
             padding-left: 10px;
         `}
 `
@@ -215,6 +217,7 @@ const RearBox = styled.div<{
 const Creator = styled.span`
     color: ${(props) => props.theme.colors.purple};
     padding: 0 4px;
+    cursor: pointer;
 `
 
 const SharedBy = styled.span`
@@ -225,6 +228,17 @@ const SharedBy = styled.span`
 const Date = styled.span`
     color: ${(props) => props.theme.colors.lighterText};
     display: inline-block;
+`
+
+const SectionCircle = styled.div<{ size: string }>`
+    background: ${(props) => props.theme.colors.backgroundHighlight};
+    border-radius: 100px;
+    height: ${(props) => (props.size ? props.size : '60px')};
+    width: ${(props) => (props.size ? props.size : '60px')};
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
 `
 
 export default class CollectionDetailsPage extends UIElement<
@@ -579,6 +593,7 @@ export default class CollectionDetailsPage extends UIElement<
                 onCloseRequested={() =>
                     this.processEvent('closePermissionOverlay', {})
                 }
+                isOwner={this.state.isListOwner}
             />
         ) : null
     }
@@ -837,9 +852,14 @@ export default class CollectionDetailsPage extends UIElement<
                     <PageInfoList>
                         {data.listEntries.length === 0 && (
                             <EmptyListBox>
-                                <ErrorBox>
-                                    This collection has no pages in it (yet).
-                                </ErrorBox>
+                                <SectionCircle size="50px">
+                                    <Icon
+                                        icon={'heartEmpty'}
+                                        heightAndWidth="25px"
+                                        color="purple"
+                                    />
+                                </SectionCircle>
+                                This Space is empty (still).
                             </EmptyListBox>
                         )}
                         {[...data.listEntries.entries()].map(
@@ -855,9 +875,11 @@ export default class CollectionDetailsPage extends UIElement<
                                                             entry.originalUrl,
                                                         preventOpening: () =>
                                                             e.preventDefault(),
-                                                        isFollowedSpace: this
-                                                            .state
-                                                            .isCollectionFollowed,
+                                                        isFollowedSpace:
+                                                            this.state
+                                                                .isCollectionFollowed ||
+                                                            this.state
+                                                                .isListOwner,
                                                     },
                                                 )
                                             }

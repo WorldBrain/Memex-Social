@@ -43,9 +43,9 @@ const Content = styled.div<{
 const Title = styled.div<{
     viewportBreakpoint: ViewportBreakpoint
 }>`
-    font-weight: bold;
+    font-weight: 800;
     font-size: 22px;
-    color: ${(props) => props.theme.colors.primary};
+    color: ${(props) => props.theme.colors.darkerText};
     text-align: center;
 
     ${(props) =>
@@ -61,15 +61,15 @@ const Title = styled.div<{
 `
 
 const SubTitle = styled.div`
-    font-size: 1rem;
-    color: ${(props) => props.theme.colors.purple};
+    font-size: 16px;
+    color: ${(props) => props.theme.colors.lighterText};
     margin-bottom: 10px;
     margin-top: 10px;
     pointer-events: none;
     text-align: center;
 
     & * {
-        color: ${(props) => props.theme.colors.purple} !important;
+        color: ${(props) => props.theme.colors.lighterText} !important;
         font-size: 1rem !important;
     }
 `

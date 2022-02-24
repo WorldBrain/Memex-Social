@@ -15,7 +15,6 @@ import LoadingIndicator from '@worldbrain/memex-common/lib/common-ui/components/
 
 const Container = styled.div`
     margin-left: 10px;
-    margin-right: 10px;
 `
 
 const IconContainer = styled.div<{ iconHeight: string }>``

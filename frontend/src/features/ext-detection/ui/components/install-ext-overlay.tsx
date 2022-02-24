@@ -47,9 +47,9 @@ const Content = styled.div<{
 const Title = styled.div<{
     viewportBreakpoint: ViewportBreakpoint
 }>`
-    font-weight: bold;
+    font-weight: 800;
     font-size: 24px;
-    color: ${(props) => props.theme.colors.primary};
+    color: ${(props) => props.theme.colors.darkerText};
     text-align: center;
 
     ${(props) =>
@@ -66,7 +66,7 @@ const Title = styled.div<{
 
 const SubTitle = styled.div`
     font-size: 1rem;
-    color: ${(props) => props.theme.colors.purple};
+    color: ${(props) => props.theme.colors.lighterText};
     margin-bottom: 10px;
     margin-top: 5px;
     pointer-events: none;
@@ -190,7 +190,7 @@ export default function InstallExtOverlay(props: Props) {
                     <Title viewportBreakpoint={props.viewportBreakpoint}>
                         {props.mode === 'add-page'
                             ? 'Install Memex to add pages to this Space'
-                            : 'Install Memex to see these highlights on the live page'}
+                            : 'Install Memex to view the annotations on the live page'}
                     </Title>
                     <SubTitle>
                         Download the extension, follow this Space and then open

@@ -266,6 +266,7 @@ const PageMidleAreaAction = styled.div<{
     justify-content: flex-end;
     align-items: center;
     flex-direction: row;
+    grid-gap: 10px;
     ${(props) =>
         props.viewportWidth === 'mobile' &&
         css`

@@ -80,7 +80,6 @@ export default class ProfileEditModalLogic extends UILogic<
                 },
             )
 
-            console.log()
             this.emitMutation({
                 user: { $set: user ?? { displayName: '' } },
                 userPublicProfile: { $set: userProfile ?? EMPTY_USER_PROFILE },

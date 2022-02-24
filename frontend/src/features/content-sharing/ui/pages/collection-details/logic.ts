@@ -176,7 +176,7 @@ export default class CollectionDetailsLogic extends UILogic<
         return {
             listLoadState: 'pristine',
             followLoadState: 'running',
-            permissionKeyState: 'running',
+            permissionKeyState: 'pristine',
             listRolesLoadState: 'running',
             listRoleLimit: 3,
             users: {},
@@ -260,8 +260,8 @@ export default class CollectionDetailsLogic extends UILogic<
                     reason: 'login-requested',
                     header: {
                         title:
-                            'You’ve been invited as a Contributor to this Space',
-                        subtitle: 'Signup or login to continue',
+                            'You’ve been invited as \n a Contributor to this Space',
+                        subtitle: '',
                     },
                 })
                 this.emitMutation({ requestingAuth: { $set: false } })
@@ -572,8 +572,6 @@ export default class CollectionDetailsLogic extends UILogic<
         previousState,
         event,
     }) => {
-        console.log('test2')
-
         const {
             services: { auth },
             storage: { activityFollows },

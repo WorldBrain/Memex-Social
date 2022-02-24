@@ -47,7 +47,8 @@ const InvitedNotificationContainer = styled.div<{
     ${(props) =>
         props.viewportBreakpoint === 'mobile' &&
         css`
-            width: 90%;
+            width: 100%;
+            padding: 10px 15px;
         `}
 `
 
@@ -67,19 +68,25 @@ const InvitedNotification = styled.div<{
         border: 1px solid #f0f0f0;
         font-family: ${(props) => props.theme.fonts.primary};
         background: white;
+
+        ${(props) =>
+            props.viewportBreakpoint === 'mobile' &&
+            css`
+                display: inline-block;
+            `}
 `
 
 const Title = styled.div`
-    font-weight: bold;
-    font-size: 24px;
-    color: ${(props) => props.theme.colors.primary};
+    font-weight: 800;
+    font-size: 22px;
+    color: ${(props) => props.theme.colors.darkerText};
     text-align: center;
 `
 const SubTitle = styled.div`
-    font-weight: 500;
+    font-weight: 400;
     font-size: 16px;
     text-align: center;
-    color: ${(props) => props.theme.colors.secondary};
+    color: ${(props) => props.theme.colors.lighterText};
 `
 const BrowserIconsBox = styled.div`
     display: flex;
@@ -145,6 +152,7 @@ export default function PermissionKeyOverlay(props: {
     onCloseRequested: () => void
     permissionKeyState?: UITaskState
     permissionKeyResult?: ProcessSharedListKeyResult
+    isOwner: boolean
 }) {
     if (props.permissionKeyState === 'error') {
         return (
@@ -166,7 +174,7 @@ export default function PermissionKeyOverlay(props: {
                                 label={'Close'}
                                 onClick={props.onCloseRequested}
                             />
-                            <SecondaryButtonLink href="mailto:support@worldbrain.io">
+                            <SecondaryButtonLink href="mailto:support@memex.garden">
                                 Contact Support
                             </SecondaryButtonLink>
                         </ButtonsBox>
@@ -205,8 +213,9 @@ export default function PermissionKeyOverlay(props: {
         )
     }
     if (
-        props.permissionKeyState === 'running' ||
-        props.permissionKeyState === 'success'
+        (props.permissionKeyState === 'running' ||
+            props.permissionKeyState === 'success') &&
+        !props.isOwner
     ) {
         return (
             <InvitedNotificationContainer
@@ -216,10 +225,10 @@ export default function PermissionKeyOverlay(props: {
                     viewportBreakpoint={props.viewportBreakpoint}
                     onClick={() => props.onCloseRequested}
                 >
-                    🎉 You’ve been invited as a contributor. You can add pages
-                    and highlights with the{' '}
+                    🎉 You’ve been invited as a contributor. Add pages and
+                    highlights via the{' '}
                     <ExternalLink href="https://links.memex.garden/download_collab_notif">
-                        Memex extension.
+                        Memex extension
                     </ExternalLink>
                 </InvitedNotification>
             </InvitedNotificationContainer>
