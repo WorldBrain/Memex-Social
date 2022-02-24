@@ -43,7 +43,6 @@ const InvitedNotificationContainer = styled.div<{
     justify-content: center;
     margin-top: 10px;
     /* position: absolute; */
-    pointer-events: none;
 
     ${(props) =>
         props.viewportBreakpoint === 'mobile' &&
@@ -217,8 +216,11 @@ export default function PermissionKeyOverlay(props: {
                     viewportBreakpoint={props.viewportBreakpoint}
                     onClick={() => props.onCloseRequested}
                 >
-                    🎉 You’ve been invited as a collaborator. You can add pages
-                    and highlights with the Memex extension.
+                    🎉 You’ve been invited as a contributor. You can add pages
+                    and highlights with the{' '}
+                    <ExternalLink href="https://links.memex.garden/download_collab_notif">
+                        Memex extension.
+                    </ExternalLink>
                 </InvitedNotification>
             </InvitedNotificationContainer>
             // <Overlay

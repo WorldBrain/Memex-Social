@@ -30,6 +30,7 @@ export const theme: Theme = THEME({
         webMonetizationLogoConfirmed: require('../../assets/img/web-monetization-logo-confirmed.svg'),
         heartEmpty: require('../../assets/img/star_empty.svg'),
         personFine: require('../../assets/img/personFine.svg'),
+        peopleFine: require('../../assets/img/peopleFine.svg'),
         settings: require('../../assets/img/settings.svg'),
         atSign: require('../../assets/img/atSign.svg'),
         multiEdit: require('../../assets/img/multiedit.svg'),

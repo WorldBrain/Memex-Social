@@ -19,7 +19,7 @@ export type ProfileEditModalState = Omit<
     inputErrorArray: boolean[]
     email: string
     showEmailEditButton: boolean
-    emailEditSuccess: boolean
+    emailEditSuccess: UITaskState
     passwordResetSent: boolean
     passwordResetSuccessful: boolean
 }

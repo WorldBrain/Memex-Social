@@ -27,6 +27,7 @@ import ErrorBox from '../../../../../common-ui/components/error-box'
 import { PrimaryAction } from '../../../../../common-ui/components/PrimaryAction'
 import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
 import { SecondaryAction } from '../../../../../common-ui/components/SecondaryAction'
+import LoadingIndicator from '../../../../../common-ui/components/loading-indicator'
 
 const Container = styled.div<{ theme: Theme }>`
     margin: auto;
@@ -178,6 +179,27 @@ const EmailBox = styled.div`
     align-items: center;
     justify-content: space-between;
     grid-gap: 10px;
+`
+
+const ErrorMessage = styled.div`
+    margin: 15px 0px;
+    padding: 20px;
+    background: ${(props) => props.theme.colors.warning};
+    color: ${(props) => props.theme.colors.white};
+    font-weight: normal;
+    display: flex;
+    font-size: 14px;
+    grid-gap: 10px;
+    align-items: center;
+    border-radius: 8px;
+    justify-content: center;
+`
+
+const LoadingBox = styled.div`
+    width: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 `
 
 // const LargeUserAvatar = styled.div<{ path: string }>`
@@ -501,16 +523,31 @@ export default class ProfileEditModal extends UIElement<
                             }
                         />
                     </TextInputContainer>
-                    {this.state.showEmailEditButton &&
-                        !this.state.emailEditSuccess && (
-                            <PrimaryAction
-                                label={'Save new email'}
-                                onClick={() =>
-                                    this.confirmEmailChange(this.state.email)
-                                }
-                            />
-                        )}
-                    {this.state.emailEditSuccess && (
+                    {this.state.showEmailEditButton && (
+                        <>
+                            {this.state.emailEditSuccess === 'pristine' && (
+                                <PrimaryAction
+                                    label={'Save new email'}
+                                    onClick={() =>
+                                        this.confirmEmailChange(
+                                            this.state.email,
+                                        )
+                                    }
+                                />
+                            )}
+                            {this.state.emailEditSuccess === 'running' && (
+                                <PrimaryAction
+                                    label={
+                                        <LoadingBox>
+                                            <LoadingIndicator size={16} />
+                                        </LoadingBox>
+                                    }
+                                    onClick={() => null}
+                                />
+                            )}
+                        </>
+                    )}
+                    {this.state.emailEditSuccess === 'success' && (
                         <SectionCircle size="30px">
                             <Icon
                                 icon={'check'}
@@ -520,6 +557,17 @@ export default class ProfileEditModal extends UIElement<
                         </SectionCircle>
                     )}
                 </EmailBox>
+                {this.state.emailEditSuccess === 'error' && (
+                    <ErrorMessage>
+                        <Icon
+                            icon={'warning'}
+                            heightAndWidth="20px"
+                            color="white"
+                        />
+                        Please log out and login again to change your email
+                        address.
+                    </ErrorMessage>
+                )}
                 <Margin top={'medium'}>
                     {!this.state.passwordResetSuccessful ? (
                         <SecondaryAction
