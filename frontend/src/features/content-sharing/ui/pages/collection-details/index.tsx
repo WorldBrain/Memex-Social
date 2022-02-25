@@ -41,6 +41,7 @@ import ListShareModal from '@worldbrain/memex-common/lib/content-sharing/ui/list
 import type { Props as ListsSidebarProps } from '../../../../lists-sidebar/ui/components/lists-sidebar'
 import { isPagePdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
 import MissingPdfOverlay from '../../../../ext-detection/ui/components/missing-pdf-overlay'
+import { HoverBox } from '../../../../../common-ui/components/hoverbox'
 
 const commentImage = require('../../../../../assets/img/comment.svg')
 const commentEmptyImage = require('../../../../../assets/img/comment-empty.svg')
@@ -149,7 +150,10 @@ const EmptyListBox = styled.div`
 
 const ShowMoreCollaborators = styled.span`
     cursor: pointer;
-    font-weight: bold;
+    color: ${(props) => props.theme.colors.darkerText};
+    align-items: center;
+    grid-gap: 5px;
+    display: inline-box;
 `
 
 const Text = styled.span`
@@ -177,6 +181,7 @@ const SubtitleContainer = styled.div<{
     /* grid-gap: 10px; */
     font-size: 14px;
     height: 24px;
+    white-space: nowrap;
 
     ${(props) =>
         props.viewportBreakpoint === 'mobile' &&
@@ -222,7 +227,7 @@ const Creator = styled.span`
 
 const SharedBy = styled.span`
     color: ${(props) => props.theme.colors.lighterText};
-    display: inline-block;
+    display: contents;
 `
 
 const Date = styled.span`
@@ -239,6 +244,44 @@ const SectionCircle = styled.div<{ size: string }>`
     justify-content: center;
     align-items: center;
     margin-bottom: 20px;
+`
+
+const ContributorContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    padding: 10px;
+    background: white;
+    width: 210px;
+    max-width: 300px;
+    border-radius: 12px;
+`
+const ListEntryBox = styled.div`
+    display: flex;
+    align-items: center;
+    height: 40px;
+    border-radius: 5px;
+    padding: 0 15px;
+
+    &:hover {
+        background: ${(props) => props.theme.colors.backgroundColorDarker};
+    }
+`
+
+const ListEntry = styled.div`
+    display: block;
+    align-items: center;
+
+    font-weight: 400;
+    width: fill-available;
+    color: ${(props) => props.theme.colors.normalText};
+    text-overflow: ellipsis;
+    overflow: hidden;
+
+    & * {
+        white-space: pre-wrap;
+        font-weight: initial;
+    }
 `
 
 export default class CollectionDetailsPage extends UIElement<
@@ -319,6 +362,7 @@ export default class CollectionDetailsPage extends UIElement<
                 services={this.props.services}
                 storage={this.props.storage}
                 curatorUserRef={creatorReference}
+                isFollowedSpace={this.state.isCollectionFollowed}
             />
         )
     }
@@ -493,7 +537,6 @@ export default class CollectionDetailsPage extends UIElement<
         const { state } = this
         const { listData: data } = state
         const users: Array<[UserReference, User]> = []
-
         if (
             (state.listRolesLoadState === 'running' ||
                 state.listRolesLoadState === 'pristine') &&
@@ -526,7 +569,7 @@ export default class CollectionDetailsPage extends UIElement<
                 users.push([role.user, user])
             }
         }
-        const rendered = users.map(([userReference, user], index) => {
+        const renderedPreview = users.map(([userReference, user], index) => {
             const isFirst = index === 0
             const isLast = index === users.length - 1
             return (
@@ -547,40 +590,133 @@ export default class CollectionDetailsPage extends UIElement<
         })
 
         if (state.listRolesLoadState === 'success' && users.length > 0) {
+            const showListRoleLimit = () => {
+                if (this.viewportBreakpoint === 'small') {
+                    return 2
+                }
+
+                if (this.viewportBreakpoint === 'mobile') {
+                    return 1
+                }
+
+                return 3
+            }
+
             return (
                 <SubtitleContainer viewportBreakpoint={this.viewportBreakpoint}>
-                    {rendered && (
+                    {renderedPreview && (
                         <>
                             <SharedBy>
                                 {users.length && users.length > 1
                                     ? 'cocurated by'
                                     : 'shared by'}
                             </SharedBy>{' '}
-                            {rendered}
+                            {renderedPreview.slice(0, showListRoleLimit())}
+                            {users.length - showListRoleLimit() > 0 && (
+                                <ShowMoreCollaborators
+                                    onClick={(event) =>
+                                        this.processEvent(
+                                            'toggleMoreCollaborators',
+                                            {
+                                                value: this.state
+                                                    .showMoreCollaborators,
+                                            },
+                                        )
+                                    }
+                                >
+                                    {users.length - showListRoleLimit() && (
+                                        <>
+                                            <SharedBy>and</SharedBy>{' '}
+                                            {renderedPreview.slice(
+                                                0,
+                                                showListRoleLimit(),
+                                            ) && (
+                                                <>
+                                                    {users.length -
+                                                        showListRoleLimit()}{' '}
+                                                    more{' '}
+                                                </>
+                                            )}
+                                        </>
+                                    )}
+                                    {this.state.showMoreCollaborators && (
+                                        <HoverBox
+                                            marginLeft={'-90px'}
+                                            width={'unset'}
+                                            marginTop={'5px'}
+                                            padding={'0px'}
+                                        >
+                                            <ContributorContainer
+                                                onMouseLeave={() =>
+                                                    this.processEvent(
+                                                        'toggleMoreCollaborators',
+                                                        {},
+                                                    )
+                                                }
+                                            >
+                                                {users.map(
+                                                    ([userReference, user]) => (
+                                                        <ProfilePopupContainer
+                                                            services={
+                                                                this.props
+                                                                    .services
+                                                            }
+                                                            storage={
+                                                                this.props
+                                                                    .storage
+                                                            }
+                                                            userRef={
+                                                                userReference!
+                                                            }
+                                                        >
+                                                            <ListEntryBox>
+                                                                <ListEntry
+                                                                    key={
+                                                                        userReference.id
+                                                                    }
+                                                                >
+                                                                    {
+                                                                        user.displayName
+                                                                    }
+                                                                </ListEntry>
+                                                            </ListEntryBox>
+                                                        </ProfilePopupContainer>
+                                                    ),
+                                                )}
+                                            </ContributorContainer>
+                                        </HoverBox>
+                                    )}
+                                    <Icon
+                                        icon={'arrowDown'}
+                                        heightAndWidth={'16px'}
+                                    />
+                                </ShowMoreCollaborators>
+                            )}
+                            {/* {rendered} */}
                         </>
                     )}
                 </SubtitleContainer>
             )
         }
-        return (
-            <SubtitleContainer viewportBreakpoint={this.viewportBreakpoint}>
-                <SharedBy>by</SharedBy>
-                {rendered.slice(0, state.listRoleLimit)} and{' '}
-                <ShowMoreCollaborators
-                    onClick={() =>
-                        this.processEvent('showMoreCollaborators', {})
-                    }
-                >
-                    {users.length - state.listRoleLimit} more
-                </ShowMoreCollaborators>
-                <Date>
-                    <span>
-                        on{' '}
-                        {moment(state.listData?.list.createdWhen).format('LLL')}
-                    </span>
-                </Date>
-            </SubtitleContainer>
-        )
+        // return (
+        //     <SubtitleContainer viewportBreakpoint={this.viewportBreakpoint}>
+        //         <SharedBy>by</SharedBy>
+        //         {rendered.slice(0, state.listRoleLimit)} and{' '}
+        //         <ShowMoreCollaborators
+        //             onClick={() =>
+        //                 this.processEvent('showMoreCollaborators', {})
+        //             }
+        //         >
+        //             {users.length - state.listRoleLimit} more
+        //         </ShowMoreCollaborators>
+        //         <Date>
+        //             <span>
+        //                 on{' '}
+        //                 {moment(state.listData?.list.createdWhen).format('LLL')}
+        //             </span>
+        //         </Date>
+        //     </SubtitleContainer>
+        // )
     }
 
     renderPermissionKeyOverlay() {

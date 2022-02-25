@@ -10,6 +10,7 @@ export interface WebMonetizationButtonDependencies {
     >
     storage: Pick<StorageModules, 'users'>
     curatorUserRef: UserReference
+    isFollowedSpace?: boolean
 }
 
 export interface WebMonetizationButtonState {

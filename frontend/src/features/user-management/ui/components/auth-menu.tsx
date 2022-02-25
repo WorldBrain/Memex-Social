@@ -67,14 +67,14 @@ export default function AuthMenu(props: {
                     icon={theme.icons.settings}
                 />
                 <AuthMenuItem
-                    label={'Logout'}
-                    icon={theme.icons.personFine}
-                    onClick={props.onLogoutRequested}
-                />
-                <AuthMenuItem
                     label={'Feature Requests & Bugs'}
                     icon={theme.icons.sadFace}
                     onClick={() => window.open('https://memex.garden/feedback')}
+                />
+                <AuthMenuItem
+                    label={'Logout'}
+                    icon={theme.icons.logout}
+                    onClick={props.onLogoutRequested}
                 />
             </ContentBox>
         </HoverBox>

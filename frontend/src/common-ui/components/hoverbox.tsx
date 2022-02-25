@@ -1,3 +1,4 @@
+import { ExecFileSyncOptionsWithStringEncoding } from 'child_process'
 import React from 'react'
 import styled from 'styled-components'
 
@@ -13,6 +14,8 @@ export interface Props {
     overflow?: string
     padding?: string
     onMouseLeave?: () => void
+    marginTop?: string
+    marginLeft?: string
 }
 
 export class HoverBox extends React.Component<Props> {
@@ -54,6 +57,8 @@ export const HoverBoxDiv = styled.div<Props>`
     z-index: 1001;
     padding: ${(props) => (props.padding ? props.padding : '10px 0px')};
     border: 1px solid ${(props) => props.theme.colors.lightgrey}60;
+    margin-top: ${(props) => (props.marginTop ? props.marginTop : '0px')};
+    margin-left: ${(props) => (props.marginLeft ? props.marginLeft : '0px')};
 
     &::-webkit-scrollbar {
         display: none;

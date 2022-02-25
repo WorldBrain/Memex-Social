@@ -84,6 +84,7 @@ export const theme: Theme = THEME({
         checkedRound: require('../../assets/img/checkedRound.svg'),
         newFeed: require('../../assets/img/newFeed.svg'),
         bell: require('../../assets/img/bell.svg'),
+        arrowDown: require('../../assets/img/arrowDown.svg'),
 
         // doubleArrow: require('../../assets/img/doubleArrow.svg'),
         // import tagFull from '../../assets/img/tag_full.svg'

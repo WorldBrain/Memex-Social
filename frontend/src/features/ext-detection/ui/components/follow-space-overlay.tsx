@@ -14,7 +14,7 @@ const Content = styled.div<{
 }>`
     max-width: 900px;
     min-width: 500px;
-    display: flex;
+    display: inline-block;
     justify-content: center;
     align-items: center;
     flex-direction: column;
@@ -29,7 +29,7 @@ const Content = styled.div<{
         props.viewportBreakpoint === 'small' &&
         css`
             max-width: 90%;
-            padding: 20px;
+            padding: 40px 20px;
         `}
     ${(props) =>
         props.viewportBreakpoint === 'mobile' &&
@@ -47,11 +47,12 @@ const Title = styled.div<{
     font-size: 22px;
     color: ${(props) => props.theme.colors.darkerText};
     text-align: center;
+    margin-bottom: 5px;
 
     ${(props) =>
         props.viewportBreakpoint === 'small' &&
         css`
-            font-size: 18px;
+            font-size: 20px;
         `}
     ${(props) =>
         props.viewportBreakpoint === 'mobile' &&
@@ -67,6 +68,7 @@ const SubTitle = styled.div`
     margin-top: 10px;
     pointer-events: none;
     text-align: center;
+    line-height: 26px;
 
     & * {
         color: ${(props) => props.theme.colors.lighterText} !important;
@@ -74,18 +76,20 @@ const SubTitle = styled.div`
     }
 `
 
-const NoteIconContainer = styled.img`
+const NoteIconContainer = styled.div`
     height: 16px;
     width: 16px;
-    display: flex;
+    display: inline-block;
     mask-image: url(${noteIcon});
-    background-color: ${(props) => props.theme.colors.primary};
+    background-color: ${(props) => props.theme.colors.lighterText};
     mask-position: center center;
     mask-repeat: no-repeat;
     margin: 0 5px;
     height: 19px;
     width: 16px;
     mask-size: contain;
+    padding: 2px;
+    vertical-align: text-bottom;
 `
 
 const SubSubTitle = styled.div`
@@ -127,7 +131,7 @@ const ButtonsBox = styled.div`
     width: 250px;
     padding: 15px 0px;
     align-items: center;
-    width: 120%;
+    width: 100%;
     justify-content: center;
     margin-bottom: -30px;
     margin-top: 30px;
@@ -188,16 +192,13 @@ export default function FollowSpaceOverlay(props: {
             <Content viewportBreakpoint={props.viewportBreakpoint}>
                 <Margin>
                     <Title viewportBreakpoint={props.viewportBreakpoint}>
-                        Follow this Space to see its annotations
+                        Follow this Space to view its annotations on the page
                     </Title>
                     <SubTitle>
-                        Follow the Space, visit the page & open the sidebar to
-                        see the annotations in context of the page
-                        <SubSubSubTitle>
-                            Click on the <NoteIconContainer />
-                            icon in each result block to only read the
-                            annotations.
-                        </SubSubSubTitle>
+                        Then, visit the page & open the sidebar.
+                        <br />
+                        Click on the <NoteIconContainer />
+                        icon in each result block to only read the annotations.
                     </SubTitle>
                 </Margin>
                 {/* {props.installModalState && (*/}

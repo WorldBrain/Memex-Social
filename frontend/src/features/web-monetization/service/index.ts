@@ -32,6 +32,12 @@ export default abstract class WebMonetizationService
                     this.events.emit('monetizationstart', event.detail)
                 },
             )
+            this._monetization.addEventListener(
+                'monetizationprogress',
+                (event) => {
+                    this.events.emit('monetizationprogress', event.detail)
+                },
+            )
             this._monetization.addEventListener('monetizationstop', (event) => {
                 this.events.emit('monetizationstop', event.detail)
             })

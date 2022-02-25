@@ -38,7 +38,6 @@ export default abstract class WebMonetizationButtonLogic extends UILogic<
                 .isAvailable,
             paymentMade: false,
             curatorPaymentPointer: '',
-            showPopup: false,
         }
     }
 
@@ -110,8 +109,8 @@ export default abstract class WebMonetizationButtonLogic extends UILogic<
         ) => {
             if (event.paymentPointer === this.curatorPaymentPointer) {
                 this.emitMutation({
-                    paymentState: { $set: 'success' },
-                    paymentMade: { $set: true },
+                    paymentState: { $set: 'running' },
+                    paymentMade: { $set: false },
                 })
             }
         }
@@ -126,11 +125,21 @@ export default abstract class WebMonetizationButtonLogic extends UILogic<
             }
         }
 
+        const progressListener: WebMonetizationEvents['monetizationprogress'] = (
+            event,
+        ) => {
+            this.emitMutation({
+                paymentState: { $set: 'success' },
+                paymentMade: { $set: true },
+            })
+        }
+
         const monetizationEvents = this.dependencies.services.webMonetization
             .events
         monetizationEvents.addListener('paymentInitiated', initiatedListener)
         monetizationEvents.addListener('monetizationstart', startListener)
         monetizationEvents.addListener('monetizationstop', stopListener)
+        monetizationEvents.addListener('monetizationprogress', progressListener)
         this.destroyEventHandlers = () => {
             monetizationEvents.removeListener(
                 'paymentInitiated',

@@ -99,9 +99,9 @@ export default class CuratorSupportPopup extends PureComponent<CuratorSupportPop
                                         <Title>Support the Curator</Title>
                                     </Margin>
                                     <Text>
-                                        Click to support <i>WebMonetization</i>{' '}
-                                        to donate a few cents for every visit to
-                                        this collection.
+                                        Click to support the creator via{' '}
+                                        <i>WebMonetizations</i> & donate a few
+                                        cents for every visit to this Space.
                                     </Text>
                                 </>
                             )}

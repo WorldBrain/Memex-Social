@@ -90,6 +90,10 @@ export default class WebMonetizationIcon extends UIElement<
     renderIcon() {
         const { paymentState } = this.state
 
+        if (this.props.isFollowedSpace) {
+            this.handleClick()
+        }
+
         return (
             <IconContainer
                 onMouseEnter={() => this.processEvent('showPopup', null)}
@@ -103,7 +107,7 @@ export default class WebMonetizationIcon extends UIElement<
                             icon={'webMonetizationLogo'}
                             onClick={this.handleClick}
                         />
-                        <LoadingIndicator size={24} />
+                        <LoadingIndicator speed={4} size={24} />
                     </WebMonetizationPaymentProgress>
                 )}
                 {paymentState === 'error' && <span>Error!</span>}
@@ -116,10 +120,15 @@ export default class WebMonetizationIcon extends UIElement<
                     />
                 )}
                 {paymentState === 'success' && (
-                    <StyledImg
-                        height={this.iconHeight}
-                        icon={'webMonetizationLogoConfirmed'}
-                    />
+                    <WebMonetizationPaymentProgress>
+                        <Icon
+                            height={'16px'}
+                            color="purple"
+                            icon={'webMonetizationLogoConfirmed'}
+                            onClick={this.handleClick}
+                        />
+                        <LoadingIndicator speed={4} size={24} />
+                    </WebMonetizationPaymentProgress>
                 )}
             </IconContainer>
         )

@@ -178,6 +178,7 @@ export default class CollectionDetailsLogic extends UILogic<
             followLoadState: 'running',
             permissionKeyState: 'running',
             listRolesLoadState: 'running',
+            showMoreCollaborators: false,
             listRoleLimit: 3,
             users: {},
             scrollTop: 0,
@@ -663,8 +664,18 @@ export default class CollectionDetailsLogic extends UILogic<
         }
     }
 
-    showMoreCollaborators: EventHandler<'showMoreCollaborators'> = () => {
-        return { listRoleLimit: { $set: null } }
+    toggleMoreCollaborators: EventHandler<'toggleMoreCollaborators'> = (
+        event,
+    ) => {
+        return {
+            showMoreCollaborators: {
+                $set: !event.previousState.showMoreCollaborators,
+            },
+        }
+    }
+
+    hideMoreCollaborators: EventHandler<'hideMoreCollaborators'> = () => {
+        return { showMoreCollaborators: { $set: false } }
     }
 
     getFirstPagesWithoutLoadedAnnotations(state: CollectionDetailsState) {
