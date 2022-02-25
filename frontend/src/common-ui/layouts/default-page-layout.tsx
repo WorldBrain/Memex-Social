@@ -370,7 +370,7 @@ export default function DefaultPageLayout(props: {
         | 'webMonetization'
     >
     storage: Pick<StorageModules, 'users' | 'activityStreams'>
-    headerTitle?: string
+    headerTitle?: string | JSX.Element
     headerSubtitle?: JSX.Element
     followBtn?: JSX.Element
     permissionKeyOverlay?: JSX.Element | null

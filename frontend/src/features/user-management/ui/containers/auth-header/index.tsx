@@ -65,6 +65,13 @@ const MenuContainerInner = styled.div`
     right: 0;
 `
 
+const LoadingBox = styled.div`
+    display: flex;
+    position: relative;
+    right: 10px;
+    top: 10px;
+`
+
 export default class AuthHeader extends UIElement<
     AuthHeaderDependencies,
     AuthHeaderState,
@@ -80,7 +87,12 @@ export default class AuthHeader extends UIElement<
 
     render() {
         if (this.state.loadState !== 'success') {
-            return <LoadingIndicator />
+            return (
+                <LoadingBox>
+                    {' '}
+                    <LoadingIndicator size={20} />
+                </LoadingBox>
+            )
         }
 
         if (!this.state.user) {
