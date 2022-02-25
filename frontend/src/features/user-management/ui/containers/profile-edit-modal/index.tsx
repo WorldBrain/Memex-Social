@@ -1,5 +1,5 @@
 import React from 'react'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { Margin } from 'styled-components-spacing'
 
 import { UIElement } from '../../../../../main-ui/classes'
@@ -29,7 +29,7 @@ import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
 import { SecondaryAction } from '../../../../../common-ui/components/SecondaryAction'
 import LoadingIndicator from '../../../../../common-ui/components/loading-indicator'
 
-const Container = styled.div<{ theme: Theme }>`
+const Container = styled.div<{ loadState: UITaskState; theme: Theme }>`
     margin: auto;
     min-height: 358px;
     max-height: 100%;
@@ -44,6 +44,12 @@ const Container = styled.div<{ theme: Theme }>`
     & * {
         font-family: ${(props) => props.theme.fonts.primary};
     }
+
+    ${(props) =>
+        (props.loadState === 'running' || props.loadState === 'pristine') &&
+        css`
+            background: transparent;
+        `}
 `
 
 const TextInputContainer = styled.div`
@@ -200,6 +206,7 @@ const LoadingBox = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
+    background: transparent;
 `
 
 // const LargeUserAvatar = styled.div<{ path: string }>`
@@ -379,7 +386,10 @@ export default class ProfileEditModal extends UIElement<
         }
 
         return (
-            <Container onKeyDown={this.handleEnterKeyDown}>
+            <Container
+                loadState={loadState}
+                onKeyDown={this.handleEnterKeyDown}
+            >
                 <Margin bottom="large">
                     <ButtonContainer>
                         <PrimaryAction

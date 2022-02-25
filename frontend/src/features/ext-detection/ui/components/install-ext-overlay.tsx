@@ -193,8 +193,9 @@ export default function InstallExtOverlay(props: Props) {
                             : 'Install Memex to view the annotations on the live page'}
                     </Title>
                     <SubTitle>
-                        Download the extension, follow this Space and then open
-                        the page.
+                        {props.mode === 'add-page'
+                            ? 'Download the extension, login in and add pages via the Space picker.'
+                            : 'Download the extension, follow this Space and then open the page.'}
                     </SubTitle>
                 </Margin>
                 <Margin top={'small'}>

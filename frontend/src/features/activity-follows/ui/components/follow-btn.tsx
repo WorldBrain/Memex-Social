@@ -169,7 +169,7 @@ export default class FollowBtn extends PureComponent<Props> {
 
         const icon = (
             <Icon
-                height="18px"
+                height="16px"
                 icon={this.followStateIcon()}
                 color={this.followStateIconColor()}
                 hoverOff

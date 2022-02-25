@@ -152,7 +152,8 @@ export default function PermissionKeyOverlay(props: {
     onCloseRequested: () => void
     permissionKeyState?: UITaskState
     permissionKeyResult?: ProcessSharedListKeyResult
-    isOwner: boolean
+    isContributor?: boolean
+    isOwner?: boolean
 }) {
     if (props.permissionKeyState === 'error') {
         return (
@@ -215,6 +216,7 @@ export default function PermissionKeyOverlay(props: {
     if (
         (props.permissionKeyState === 'running' ||
             props.permissionKeyState === 'success') &&
+        props.isContributor &&
         !props.isOwner
     ) {
         return (

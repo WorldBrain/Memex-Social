@@ -339,7 +339,7 @@ export default class ListsSidebar extends PureComponent<Props> {
         if (this.props.loadState === 'running') {
             return (
                 <LoadingBox>
-                    <LoadingIndicator />
+                    <LoadingIndicator size={28} />
                 </LoadingBox>
             )
         }
@@ -348,7 +348,7 @@ export default class ListsSidebar extends PureComponent<Props> {
             return (
                 <>
                     <ErrorMsg>
-                        There was a problem loading your followed collections.
+                        There was a problem loading your followed Spaces.
                     </ErrorMsg>
                     <ErrorMsg>Reload the page</ErrorMsg>
                     <ErrorMsg>
@@ -366,7 +366,7 @@ export default class ListsSidebar extends PureComponent<Props> {
                         <SectionTitle
                             viewportBreakpoint={this.props.viewportBreakpoint}
                         >
-                            Collaborative Collections
+                            Collaborative Spaces
                         </SectionTitle>
                         <ListContent>
                             {this.renderListNames(
@@ -411,7 +411,7 @@ export default class ListsSidebar extends PureComponent<Props> {
                     <SectionTitle
                         viewportBreakpoint={this.props.viewportBreakpoint}
                     >
-                        Followed Collections
+                        Followed Spaces
                     </SectionTitle>
                     <ListContent>{this.renderListContent()}</ListContent>
                 </ListsContainer>

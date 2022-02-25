@@ -593,6 +593,7 @@ export default class CollectionDetailsPage extends UIElement<
                 onCloseRequested={() =>
                     this.processEvent('closePermissionOverlay', {})
                 }
+                isContributor={this.isListContributor}
                 isOwner={this.state.isListOwner}
             />
         ) : null

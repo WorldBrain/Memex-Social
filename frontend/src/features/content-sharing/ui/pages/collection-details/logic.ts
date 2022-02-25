@@ -176,7 +176,7 @@ export default class CollectionDetailsLogic extends UILogic<
         return {
             listLoadState: 'pristine',
             followLoadState: 'running',
-            permissionKeyState: 'pristine',
+            permissionKeyState: 'running',
             listRolesLoadState: 'running',
             listRoleLimit: 3,
             users: {},
@@ -235,7 +235,9 @@ export default class CollectionDetailsLogic extends UILogic<
         incoming,
     ) => {
         if (!this.dependencies.services.contentSharing.hasCurrentKey()) {
-            return
+            return this.emitMutation({
+                permissionKeyState: { $set: 'success' },
+            })
         }
         await executeUITask<CollectionDetailsState>(
             this,
@@ -277,6 +279,7 @@ export default class CollectionDetailsLogic extends UILogic<
                 return {
                     mutation: {
                         permissionKeyResult: { $set: secondKeyResult },
+                        permissionKeyState: { $set: 'success' },
                     },
                 }
             },
@@ -435,8 +438,12 @@ export default class CollectionDetailsLogic extends UILogic<
 
         const userReference = auth.getCurrentUserReference()
 
+        console.log(userReference)
+
         if (userReference == null) {
-            return
+            return this.emitMutation({
+                followLoadState: { $set: 'pristine' },
+            })
         }
 
         await executeUITask<CollectionDetailsState>(
@@ -453,6 +460,7 @@ export default class CollectionDetailsLogic extends UILogic<
 
                 this.emitMutation({
                     isCollectionFollowed: { $set: isAlreadyFollowed },
+                    followLoadState: { $set: 'success' },
                 })
 
                 if (isAlreadyFollowed && this._creatorReference) {
