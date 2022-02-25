@@ -90,10 +90,6 @@ export default class WebMonetizationIcon extends UIElement<
     renderIcon() {
         const { paymentState } = this.state
 
-        if (this.props.isFollowedSpace) {
-            this.handleClick()
-        }
-
         return (
             <IconContainer
                 onMouseEnter={() => this.processEvent('showPopup', null)}
