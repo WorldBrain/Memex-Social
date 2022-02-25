@@ -21,7 +21,7 @@ const Container = styled.div`
     display: flex;
     width: 100%;
     height: min-content;
-    justify-content: start;
+    justify-content: center;
     align-items: center;
     ${(props) =>
         `margin: ${props.theme.spacing.small} ${props.theme.spacing.small} 0 0;`}

@@ -29,6 +29,7 @@ const Title = styled.div<{}>`
     font-size: 16px;
     color: ${(props) => props.theme.colors.darkerText};
     font-weight: 800;
+    text-align: center;
 `
 
 const Text = styled.div<{}>`
@@ -38,6 +39,7 @@ const Text = styled.div<{}>`
     margin-top: 5px;
     color: ${(props) => props.theme.colors.lighterText};
     line-height: 21px;
+    text-align: center;
 `
 
 const LoadingBox = styled.div`
@@ -70,7 +72,7 @@ export default class CuratorSupportPopup extends PureComponent<CuratorSupportPop
         } = this.props
 
         return (
-            <HoverBox width="320px" padding={'20px'}>
+            <HoverBox width="340px" padding={'20px 30px'}>
                 {loadState === 'running' && (
                     <LoadingBox>
                         <LoadingIndicator size={30} />

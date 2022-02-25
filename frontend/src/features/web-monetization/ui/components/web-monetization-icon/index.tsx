@@ -24,6 +24,7 @@ const IconContainer = styled.div<{ iconHeight: string }>`
     display: flex;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
 `
 
 const StyledImg = styled.div<{
