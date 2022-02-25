@@ -102,7 +102,6 @@ export default class MemoryAuthService extends AuthServiceBase {
     }
 
     sendPasswordResetEmailProcess(email: string) {
-        console.log('test2')
         return this._firebase.auth().sendPasswordResetEmail(email)
     }
 

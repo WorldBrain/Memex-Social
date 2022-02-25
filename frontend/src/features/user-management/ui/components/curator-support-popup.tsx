@@ -10,6 +10,7 @@ import CuratorSupportButtonBlock from '../../../web-monetization/ui/containers/c
 import { UserReference } from '../../types'
 import { Margin } from 'styled-components-spacing'
 import { HoverBox } from '../../../../common-ui/components/hoverbox'
+import LoadingIndicator from '@worldbrain/memex-common/lib/common-ui/components/loading-indicator'
 
 const PopupContainer = styled.div`
     position: absolute;
@@ -34,10 +35,16 @@ const Text = styled.div<{}>`
     width: 100%;
     height: min-content;
     font-size: 14px;
-    margin-bottom: 20px;
     margin-top: 5px;
     color: ${(props) => props.theme.colors.lighterText};
     line-height: 21px;
+`
+
+const LoadingBox = styled.div`
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 `
 
 interface CuratorSupportPopupProps {
@@ -46,7 +53,7 @@ interface CuratorSupportPopupProps {
     >
     storage: Pick<StorageModules, 'users'>
     loadState: UITaskState
-    paymentSate: UITaskState
+    paymentState: UITaskState
     curatorUserRef: UserReference
     paymentMade: boolean
     isMonetizationAvailable: boolean
@@ -61,44 +68,47 @@ export default class CuratorSupportPopup extends PureComponent<CuratorSupportPop
             storage,
             paymentMade,
         } = this.props
+
         return (
-            <HoverBox width="320px" padding={'20px'} left="-110px">
-                {loadState === 'running' && <LoadingScreen />}
+            <HoverBox width="320px" padding={'20px'}>
+                {loadState === 'running' && (
+                    <LoadingBox>
+                        <LoadingIndicator size={30} />
+                    </LoadingBox>
+                )}
                 {loadState === 'success' && (
                     <>
-                        {paymentMade && (
+                        {this.props.paymentState === 'running' && (
                             <>
                                 <Margin bottom="smallest">
-                                    <Title>Curator Supported!</Title>
+                                    <Title>Support in Progress</Title>
                                 </Margin>
                                 <Text>
-                                    For every visit you'll donate a few cents to
-                                    this creator.
+                                    While you are visiting this Space, the
+                                    curator will be supported with a few cents
+                                    per minute.
                                 </Text>
                             </>
                         )}
-                        {!paymentMade && this.props.isMonetizationAvailable && (
-                            <>
-                                <Margin bottom="smallest">
-                                    <Title>Support the Curator</Title>
-                                </Margin>
-                                <Text>
-                                    Use <i>WebMonetization</i> to donate a few
-                                    cents for every visit to this collection.
-                                </Text>
-                                <CuratorSupportButtonBlock
-                                    services={services}
-                                    storage={storage}
-                                    curatorUserRef={curatorUserRef}
-                                />
-                            </>
-                        )}
+                        {this.props.paymentState !== 'running' &&
+                            this.props.isMonetizationAvailable && (
+                                <>
+                                    <Margin bottom="smallest">
+                                        <Title>Support the Curator</Title>
+                                    </Margin>
+                                    <Text>
+                                        Click to support <i>WebMonetization</i>{' '}
+                                        to donate a few cents for every visit to
+                                        this collection.
+                                    </Text>
+                                </>
+                            )}
                         {!paymentMade && !this.props.isMonetizationAvailable && (
                             <>
                                 <Margin bottom="smallest">
                                     <Title>Support the Space curator</Title>
                                 </Margin>
-                                <Margin bottom="smallest">
+                                <Margin bottom="medium">
                                     <Text>
                                         This Space supports WebMonetizations.{' '}
                                         <br />

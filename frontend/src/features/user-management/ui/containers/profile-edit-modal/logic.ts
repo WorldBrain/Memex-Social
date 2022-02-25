@@ -27,7 +27,7 @@ const EMPTY_USER_PROFILE: UserPublicProfile = {
     substackURL: '',
     bio: '',
     avatarURL: '',
-    paymentPointer: '',
+    paymentPointer: '$ilp.uphold.com/zHjHFKyUWbwB',
 }
 export default class ProfileEditModalLogic extends UILogic<
     ProfileEditModalState,

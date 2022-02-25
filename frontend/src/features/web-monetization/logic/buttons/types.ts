@@ -23,4 +23,6 @@ export interface WebMonetizationButtonState {
 
 export type WebMonetizationButtonEvent = UIEvent<{
     makeSupporterPayment: null
+    showPopup: null
+    hidePopup: null
 }>

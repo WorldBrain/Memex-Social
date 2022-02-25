@@ -15,6 +15,7 @@ const Container = styled.div<{
     border-width: 1px;
     font-weight: bold;
     margin-left: auto;
+    width: 170px;
     ${(props) =>
         props.isContributor &&
         props.isFollowed &&
@@ -60,7 +61,6 @@ const Container = styled.div<{
             border: 1px solid ${(props) => props.theme.colors.purple};
         `}
     padding: 5px 15px;
-    min-width: 100px;
     height: 34px;
     outline: none;
     justify-content: center;
@@ -69,14 +69,15 @@ const Container = styled.div<{
     display: flex;
 `
 
-const PlusIcon = styled.span`
-    padding-right: 10px;
-`
+const PlusIcon = styled.span``
 
 const ButtonBox = styled.div`
     display: flex;
     align-items: center;
     cursor: pointer;
+    min-width: 100px;
+    grid-gap: 5px;
+    justify-content: center;
 
     & * {
         cursor: pointer;

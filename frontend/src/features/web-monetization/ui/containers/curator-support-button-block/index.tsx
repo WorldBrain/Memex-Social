@@ -165,12 +165,10 @@ export class CuratorSupportButtonBlock extends UIElement<
     }
 
     render() {
-        const { isDisplayed } = this.state
         return (
             <Container>
-                {isDisplayed && (
-                    <>
-                        {/*<Button
+                <>
+                    {/*<Button
                             onClick={this.handleButtonClick}
                             isSupported={paymentMade}
                             supportedTaskState={makePaymentTaskState}
@@ -179,26 +177,25 @@ export class CuratorSupportButtonBlock extends UIElement<
                             {this.renderButtonInnerHTML()}
                         </Button>
                         */}
-                        <PrimaryAction
-                            onClick={() =>
-                                this.handleWebLinkClick(
-                                    'https://worldbrain.io/tutorial/webmonetization',
-                                )
-                            }
-                            label={
-                                <ButtonContent>
-                                    <Icon
-                                        icon={'coilIcon'}
-                                        heightAndWidth={'16px'}
-                                        color="white"
-                                        hoverOff
-                                    />
-                                    Install Coil Extension
-                                </ButtonContent>
-                            }
-                        />
-                    </>
-                )}
+                    <PrimaryAction
+                        onClick={() =>
+                            this.handleWebLinkClick(
+                                'https://worldbrain.io/tutorial/webmonetization',
+                            )
+                        }
+                        label={
+                            <ButtonContent>
+                                <Icon
+                                    icon={'coilIcon'}
+                                    heightAndWidth={'16px'}
+                                    color="white"
+                                    hoverOff
+                                />
+                                Install Coil Extension
+                            </ButtonContent>
+                        }
+                    />
+                </>
             </Container>
         )
     }

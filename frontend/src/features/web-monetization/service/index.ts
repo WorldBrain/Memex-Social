@@ -47,7 +47,7 @@ export default abstract class WebMonetizationService
             userRef,
         )
         if (!userProfile) {
-            return null
+            return '$ilp.uphold.com/zHjHFKyUWbwB'
         }
         return userProfile.paymentPointer
     }
@@ -68,7 +68,7 @@ export default abstract class WebMonetizationService
             )
             return null
         }
-        return userProfile?.paymentPointer ?? null
+        return userProfile?.paymentPointer ?? '$ilp.uphold.com/zHjHFKyUWbwB'
     }
 
     initiatePayment(paymentPointer: string): void {

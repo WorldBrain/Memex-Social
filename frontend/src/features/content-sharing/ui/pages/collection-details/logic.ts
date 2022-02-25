@@ -438,8 +438,6 @@ export default class CollectionDetailsLogic extends UILogic<
 
         const userReference = auth.getCurrentUserReference()
 
-        console.log(userReference)
-
         if (userReference == null) {
             return this.emitMutation({
                 followLoadState: { $set: 'pristine' },

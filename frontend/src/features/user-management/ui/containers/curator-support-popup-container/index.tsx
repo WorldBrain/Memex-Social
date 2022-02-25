@@ -17,23 +17,20 @@ const Container = styled.div`
     width: min-content;
     position: relative;
     cursor: pointer;
+    z-index: 11;
 `
 
 const CuratorPopupBox = styled.div`
-    top: 10px;
-    position: relative;
-    z-index: 10;
-    position: relative;
-    z-index: 10;
-    height: 50px;
-    padding-top: 50px;
-    margin-top: -50px;
+    margin-left: -140px;
+    margin-top: 10px;
+    position: absolute;
 `
 
 export type CuratorSupportPopupContainerDependencies = ProfilePopupContainerDependencies & {
     paymentMade: boolean
     paymentState: UITaskState
     isMonetizationAvailable: boolean
+    onMouseLeave?: () => void
 }
 export type CuratorSupportPopupContainerState = ProfilePopupContainerState
 export type CuratorSupportPopupContainerEvent = ProfilePopupContainerEvent
@@ -47,43 +44,30 @@ export default class CuratorSupportPopupContainer extends UIElement<
         super(props, { logic: new CuratorSupportPopupContainerLogic(props) })
     }
 
-    handleMouseEnter() {
+    componentDidMount(): void {
         this.processEvent('initPopup', null)
     }
 
-    handleMouseLeave() {
-        this.processEvent('hidePopup', null)
+    handleMouseEnter() {
+        this.processEvent('initPopup', null)
     }
 
     render() {
         const { loadState, userPublicProfile } = this.state
         const { props, state } = this
+
         return (
-            <>
-                <Container
-                    onMouseEnter={() => this.handleMouseEnter()}
-                    onMouseLeave={() => this.handleMouseLeave()}
-                >
-                    {props.children}
-                    {state.isDisplayed &&
-                        userPublicProfile?.paymentPointer &&
-                        props.userRef && (
-                            <CuratorPopupBox>
-                                <CuratorSupportPopup
-                                    loadState={loadState}
-                                    curatorUserRef={props.userRef}
-                                    services={props.services}
-                                    storage={props.storage}
-                                    paymentMade={props.paymentMade}
-                                    paymentSate={props.paymentState}
-                                    isMonetizationAvailable={
-                                        props.isMonetizationAvailable
-                                    }
-                                />
-                            </CuratorPopupBox>
-                        )}
-                </Container>
-            </>
+            <CuratorPopupBox onMouseLeave={props.onMouseLeave}>
+                <CuratorSupportPopup
+                    loadState={loadState}
+                    curatorUserRef={props.userRef}
+                    services={props.services}
+                    storage={props.storage}
+                    paymentMade={props.paymentMade}
+                    paymentState={props.paymentState}
+                    isMonetizationAvailable={props.isMonetizationAvailable}
+                />
+            </CuratorPopupBox>
         )
     }
 }
