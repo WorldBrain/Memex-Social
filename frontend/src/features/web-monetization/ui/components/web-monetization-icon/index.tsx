@@ -90,6 +90,13 @@ export default class WebMonetizationIcon extends UIElement<
     renderIcon() {
         const { paymentState } = this.state
 
+        if (
+            this.state.paymentState === 'pristine' &&
+            this.props.isFollowedSpace
+        ) {
+            this.handleClick()
+        }
+
         return (
             <IconContainer
                 onMouseEnter={() => this.processEvent('showPopup', null)}
@@ -120,7 +127,7 @@ export default class WebMonetizationIcon extends UIElement<
                         <Icon
                             height={'16px'}
                             color="purple"
-                            icon={'webMonetizationLogoConfirmed'}
+                            icon={'webMonetizationLogo'}
                             onClick={this.handleClick}
                         />
                         <LoadingIndicator speed={4} size={24} />
