@@ -88,17 +88,6 @@ const SubTitle = styled.div`
     text-align: center;
     color: ${(props) => props.theme.colors.lighterText};
 `
-const BrowserIconsBox = styled.div`
-    display: flex;
-    padding: 15px 0px;
-    justify-content: space-between;
-    width: 140px;
-`
-
-const BrowserIcon = styled.img`
-    height: 40px;
-`
-
 const ButtonsBox = styled.div`
     display: flex;
     justify-content: center;
@@ -106,25 +95,6 @@ const ButtonsBox = styled.div`
     padding: 15px 0px;
     flex-direction: column;
     align-items: center;
-`
-const primaryButtonCss = css`
-    display: flex;
-    justify-content: center;
-    padding: 5px 10px;
-    font-size: 14px;
-    background-color: ${(props) => props.theme.colors.secondary};
-    border-radius: 3px;
-    cursor: pointer;
-    font-weight: 600;
-    color: ${(props) => props.theme.colors.primary};
-    text-decoration: none;
-`
-
-const PrimaryButton = styled.div`
-    ${primaryButtonCss}
-`
-const PrimaryButtonLink = styled(ExternalLink)`
-    ${primaryButtonCss}
 `
 
 const secondaryButtonCss = css`
@@ -139,9 +109,6 @@ const secondaryButtonCss = css`
     text-decoration: none;
 `
 
-const SecondaryButton = styled.div`
-    ${secondaryButtonCss}
-`
 const SecondaryButtonLink = styled(ExternalLink)`
     ${secondaryButtonCss}
 `

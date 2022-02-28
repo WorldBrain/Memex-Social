@@ -4,9 +4,7 @@ import Overlay from '../../../../main-ui/containers/overlay'
 import { ViewportBreakpoint } from '../../../../main-ui/styles/types'
 import { UIElementServices } from '../../../../services/types'
 import { Margin } from 'styled-components-spacing'
-import ExternalLink from '../../../../common-ui/components/external-link'
 import { PrimaryAction } from '../../../../common-ui/components/PrimaryAction'
-import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
 
 const braveLogo = require('../../../../assets/img/logo-brave.svg')
 const firefoxLogo = require('../../../../assets/img/logo-firefox.svg')
@@ -131,39 +129,6 @@ const ButtonsBox = styled.div`
     margin-bottom: -30px;
     margin-top: 50px;
 `
-const primaryButtonCss = css`
-    display: flex;
-    justify-content: center;
-    padding: 5px 10px;
-    font-size: 14px;
-    background-color: ${(props) => props.theme.colors.secondary};
-    border-radius: 3px;
-    cursor: pointer;
-    font-weight: 600;
-    color: ${(props) => props.theme.colors.primary};
-    text-decoration: none;
-`
-
-const PrimaryButtonLink = styled(ExternalLink)`
-    ${primaryButtonCss}
-`
-
-const secondaryButtonCss = css`
-    display: flex;
-    justify-content: center;
-    padding: 5px 10px;
-    font-size: 14px;
-    border-radius: 3px;
-    cursor: pointer;
-    font-weight: 600;
-    color: ${(props) => props.theme.colors.primary};
-    text-decoration: none;
-`
-
-const SecondaryButton = styled.div`
-    ${secondaryButtonCss}
-`
-
 interface PageAddProps {
     mode: 'add-page'
 }

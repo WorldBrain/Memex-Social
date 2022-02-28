@@ -1,4 +1,3 @@
-import { ExecFileSyncOptionsWithStringEncoding } from 'child_process'
 import React from 'react'
 import styled from 'styled-components'
 

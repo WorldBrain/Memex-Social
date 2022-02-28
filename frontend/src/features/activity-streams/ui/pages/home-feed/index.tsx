@@ -41,7 +41,6 @@ import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
 import { IconKeys } from '@worldbrain/memex-common/lib/common-ui/styles/types'
 
 const commentImage = require('../../../../../assets/img/comment.svg')
-const collectionImage = require('../../../../../assets/img/collection.svg')
 
 const StyledIconMargin = styled(Margin)`
     display: flex;
@@ -102,10 +101,6 @@ const StyledActivityReason = styled.div`
     width: 95%;
     margin-bottom: 15px;
 `
-const ActivityReasonIcon = styled.img`
-    max-width: 15px;
-    max-height: 15px;
-`
 
 const LoadingIndicatorBox = styled.div`
     display: flex;
@@ -151,14 +146,6 @@ const StyledLastSeenLine = styled.div`
     color: ${(props) => props.theme.colors.darkerText};
     font-weight: 800;
     margin-bottom: -20px;
-`
-const LastSeenLineBackground = styled.div`
-    position: absolute;
-    background: black;
-    top: 50%;
-    height: 2px;
-    width: 100%;
-    z-index: 1;
 `
 const LastSeenLineLabel = styled.div`
     font-family: ${(props) => props.theme.fonts.primary};

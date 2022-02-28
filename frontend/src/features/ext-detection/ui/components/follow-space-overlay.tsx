@@ -4,7 +4,6 @@ import Overlay from '../../../../main-ui/containers/overlay'
 import { ViewportBreakpoint } from '../../../../main-ui/styles/types'
 import { UIElementServices } from '../../../../services/types'
 import { Margin } from 'styled-components-spacing'
-import ExternalLink from '../../../../common-ui/components/external-link'
 import { PrimaryAction } from '../../../../common-ui/components/PrimaryAction'
 
 const noteIcon = require('../../../../assets/img/comment.svg')
@@ -92,39 +91,6 @@ const NoteIconContainer = styled.div`
     vertical-align: text-bottom;
 `
 
-const SubSubTitle = styled.div`
-    font-size: 0.8rem;
-    color: ${(props) => props.theme.colors.darkgrey};
-    text-align: center;
-    display: inline-flex;
-    justiy-content: center;
-    align-items: center;
-    flex-direction: column;
-`
-
-const SubSubSubTitle = styled.div`
-    font-size: 0.8rem;
-    color: ${(props) => props.theme.colors.darkgrey};
-    text-align: center;
-    display: inline-box;
-    justiy-content: center;
-    align-items: center;
-    white-space: nowrap;
-`
-
-const BrowserIconsBox = styled.div`
-    display: grid;
-    padding: 15px 0px;
-    justify-content: space-between;
-    grid-auto-flow: column;
-    grid-gap: 30px;
-`
-
-const BrowserIcon = styled.img`
-    height: 40px;
-    cursor: pointer;
-`
-
 const ButtonsBox = styled.div`
     display: flex;
     justify-content: center;
@@ -140,22 +106,6 @@ const ButtonsBox = styled.div`
     & > div {
         margin-left: unset;
     }
-`
-const primaryButtonCss = css`
-    display: flex;
-    justify-content: center;
-    padding: 5px 10px;
-    font-size: 14px;
-    background-color: ${(props) => props.theme.colors.secondary};
-    border-radius: 3px;
-    cursor: pointer;
-    font-weight: 600;
-    color: ${(props) => props.theme.colors.primary};
-    text-decoration: none;
-`
-
-const PrimaryButtonLink = styled(ExternalLink)`
-    ${primaryButtonCss}
 `
 
 const secondaryButtonCss = css`

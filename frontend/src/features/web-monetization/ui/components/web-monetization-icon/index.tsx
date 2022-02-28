@@ -1,6 +1,5 @@
 import React from 'react'
 import styled from 'styled-components'
-import { MemexTheme } from '@worldbrain/memex-common/lib/common-ui/styles/types'
 import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
 import { UIElement } from '../../../../../main-ui/classes'
 
@@ -27,25 +26,6 @@ const IconContainer = styled.div<{ iconHeight: string }>`
     cursor: pointer;
 `
 
-const StyledImg = styled.div<{
-    height: string
-    icon: keyof MemexTheme['icons']
-}>`
-    cursor: pointer;
-    height: ${(props) => props.height};
-    background-position: center;
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-image: url(${(props) => props.theme.icons[props.icon]});
-`
-
-const LoadingBox = styled.div`
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 15px;
-`
-
 const WebMonetizationPaymentProgress = styled.div`
     display: flex;
     align-items: center;
@@ -55,10 +35,6 @@ const WebMonetizationPaymentProgress = styled.div`
     & > div {
         position: absolute;
     }
-`
-
-const CuratorBox = styled.div`
-    z-index: 1000;
 `
 
 type WebMonetizationIconDependencies = WebMonetizationButtonDependencies

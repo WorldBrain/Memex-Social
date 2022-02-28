@@ -13,13 +13,8 @@ import { ProfileWebLinkName, UserPublicProfile } from '../../../types'
 
 import { theme } from '../../../../../main-ui/styles/theme'
 import ProfileEditModalLogic from './logic'
-import {
-    PrimaryActionButton,
-    SecondaryActionButton,
-} from '../../components/ActionButtons'
-import TextInput from '../../../../../common-ui/components/text-input'
+import { SecondaryActionButton } from '../../components/ActionButtons'
 import { VALID_URL_TEST } from '../../../../../constants'
-import TextArea from '../../../../../common-ui/components/text-area'
 import Overlay from '../../../../../main-ui/containers/overlay'
 import { UITaskState } from '../../../../../main-ui/types'
 import LoadingScreen from '../../../../../common-ui/components/loading-screen'
@@ -97,10 +92,6 @@ const ButtonContainer = styled.div`
     justify-content: flex-start;
 `
 
-const FormRow = styled.div`
-    display: flex;
-`
-
 const TextInputInfoText = styled.div`
     color: ${(props) => props.theme.colors.lighterText};
     font-size: 12px;
@@ -143,14 +134,6 @@ const WebLink = styled(SectionHeaderDescription)`
     padding-left: 5px;
     font-size: inherit;
     color: inherit;
-`
-
-const FormColumn = styled.div<{
-    maxWidth?: string
-}>`
-    display: flex;
-    flex-direction: column;
-    width: 100%;
 `
 
 const DisplayNameContainer = styled.div`
@@ -233,24 +216,6 @@ const LoadingBox = styled.div`
 //     background-size: contain;
 // `
 
-const StyledPrimaryButton = styled(PrimaryActionButton)<{
-    theme: Theme
-    taskState: UITaskState
-}>`
-    background: ${(props) =>
-        props.taskState === 'pristine' || props.taskState === 'success'
-            ? props.theme.colors.purple
-            : props.taskState === 'running' || props.disabled
-            ? props.theme.colors.background
-            : props.theme.colors.warning};
-    ${(props) =>
-        props.taskState === 'running' || props.disabled
-            ? `1px solid ${props.theme.colors.purple};`
-            : ''}
-    padding-top: 0;
-    padding-bottom: 0;
-`
-
 const StyledSecondaryButton = styled(SecondaryActionButton)`
     padding-top: 0;
     padding-bottom: 0;
@@ -278,8 +243,6 @@ export default class ProfileEditModal extends UIElement<
 
     private webMonetizationLearnMoreURL: string =
         'https://worldbrain.io/tutorial/WebMonetization-Curator'
-    private displayNameErrorMessage: string = 'Display Name must not be empty'
-    private urlInputErrorMessage: string = 'This must be a valid URL'
 
     handleSaveClick() {
         this.runAllTests()

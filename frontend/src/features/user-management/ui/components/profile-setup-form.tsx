@@ -1,7 +1,5 @@
 import React from 'react'
 import styled from 'styled-components'
-import TextInput from '../../../../common-ui/components/text-input'
-import Button from '../../../../common-ui/components/button'
 import AnnotationReply from '../../../content-conversations/ui/components/annotation-reply'
 import { Margin } from 'styled-components-spacing'
 import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'

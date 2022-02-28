@@ -2,7 +2,6 @@ import React from 'react'
 import styled from 'styled-components'
 
 import { UIElement } from '../../../../../main-ui/classes'
-import { UITaskState } from '../../../../../main-ui/types'
 import { theme } from '../../../../../main-ui/styles/theme'
 import { Theme } from '../../../../../main-ui/styles/types'
 
@@ -25,42 +24,6 @@ const Container = styled.div`
     align-items: center;
     ${(props) =>
         `margin: ${props.theme.spacing.small} ${props.theme.spacing.small} 0 0;`}
-`
-
-const Button = styled.div<{
-    theme: Theme
-    supportedTaskState?: UITaskState
-    isSupported?: boolean
-}>`
-    height: 40px;
-    display: flex;
-    width: 100%;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    justify-self: center;
-    ${(props) => `border: 2px solid ${props.theme.colors.secondary};`}
-
-    ${(props) =>
-        `padding: ${props.theme.spacing.small} ${props.theme.spacing.medium};`}
-    ${(props) =>
-        props.supportedTaskState === 'pristine' &&
-        `border: 2px solid ${props.theme.colors.secondary};`}
-    ${(props) =>
-        props.supportedTaskState === 'running' &&
-        `border: 2px solid ${props.theme.colors.secondary};`}
-    ${(props) => `background-color: ${props.theme.colors.background};`}
-    ${(props) =>
-        (props.supportedTaskState === 'success' || props.isSupported) &&
-        `background-color: ${props.theme.colors.secondary};`}
-    ${(props) =>
-        props.supportedTaskState === 'error' &&
-        `background-color: ${props.theme.colors.warning};`}
-    border-radius: 3px;
-
-    &:hover {
-        ${(props) => `background-color: ${props.theme.colors.secondary};`}
-    }
 `
 
 const ButtonInnerText = styled.div<{

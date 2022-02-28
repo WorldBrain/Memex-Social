@@ -12,14 +12,6 @@ import {
 import CuratorSupportPopup from '../../components/curator-support-popup'
 import { UITaskState } from '../../../../../main-ui/types'
 
-const Container = styled.div`
-    height: min-content;
-    width: min-content;
-    position: relative;
-    cursor: pointer;
-    z-index: 11;
-`
-
 const CuratorPopupBox = styled.div`
     margin-left: -140px;
     margin-top: 10px;
@@ -53,8 +45,8 @@ export default class CuratorSupportPopupContainer extends UIElement<
     }
 
     render() {
-        const { loadState, userPublicProfile } = this.state
-        const { props, state } = this
+        const { loadState } = this.state
+        const { props } = this
 
         return (
             <CuratorPopupBox onMouseLeave={props.onMouseLeave}>

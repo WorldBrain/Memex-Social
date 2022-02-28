@@ -29,7 +29,6 @@ import { ViewportBreakpoint } from '../../../../../main-ui/styles/types'
 import { getViewportBreakpoint } from '../../../../../main-ui/styles/utils'
 import AnnotationsInPage from '../../../../annotations/ui/components/annotations-in-page'
 import ErrorWithAction from '../../../../../common-ui/components/error-with-action'
-import ErrorBox from '../../../../../common-ui/components/error-box'
 import FollowBtn from '../../../../activity-follows/ui/components/follow-btn'
 import WebMonetizationIcon from '../../../../web-monetization/ui/components/web-monetization-icon'
 import PermissionKeyOverlay from './permission-key-overlay'
@@ -778,7 +777,7 @@ export default class CollectionDetailsPage extends UIElement<
     }
 
     getHeaderSubtitle(): JSX.Element | undefined {
-        const { creator, pageInfoLoadState, pageInfo } = this.state
+        const { creator, pageInfo } = this.state
         // return creator ? `${creator.displayName}` : undefined
 
         return (

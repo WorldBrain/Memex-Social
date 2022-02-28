@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react'
 
-import styled, { css, ThemeContext } from 'styled-components'
+import styled, { css } from 'styled-components'
 import { UITaskState } from '../../../../main-ui/types'
 import LoadingIndicator from '../../../../common-ui/components/loading-indicator'
 import RouteLink from '../../../../common-ui/components/route-link'
@@ -140,11 +140,6 @@ const ListsContainer = styled.div<{
     top: 70px;
     height: 80%;
     position: relative;
-`
-
-const EmptyMsg = styled.span`
-    font-size: 12px;
-    padding-left: 5px;
 `
 
 const ErrorMsg = styled.span`
@@ -324,7 +319,6 @@ export default class ListsSidebar extends PureComponent<Props> {
                                             </MenuItemBox>
                                         )
                                     }
-                                    return null
                                 }}
                             />
                         )}

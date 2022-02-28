@@ -8,8 +8,6 @@ import {
 } from './types'
 import styled, { css } from 'styled-components'
 import Overlay from '../../../../../main-ui/containers/overlay'
-import Button from '../../../../../common-ui/components/button'
-import TextInput from '../../../../../common-ui/components/text-input'
 import { Margin } from 'styled-components-spacing'
 import { AuthError } from '../../../../../services/auth/types'
 import ProfileSetupForm from '../../components/profile-setup-form'

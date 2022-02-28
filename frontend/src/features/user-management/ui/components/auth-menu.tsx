@@ -1,7 +1,6 @@
 import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
 import React from 'react'
 import styled from 'styled-components'
-import { Margin } from 'styled-components-spacing'
 import { HoverBox } from '../../../../common-ui/components/hoverbox'
 
 import { theme } from '../../../../main-ui/styles/theme'
@@ -33,16 +32,6 @@ const MenuItemText = styled.div`
     color: ${(props) => props.theme.colors.normalText};
     font-size: 14px;
     font-weight: 400;
-`
-
-const BetaDisclaimer = styled(Margin)`
-    font-family: ${(props) => props.theme.fonts.primary};
-    font-size: 12px;
-    display: flex;
-    justify-content: center;
-    text-align: center;
-    border-top: 1px solid #e0e0e0;
-    padding: 10px 20px;
 `
 
 const ContentBox = styled.div`

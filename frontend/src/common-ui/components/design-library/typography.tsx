@@ -1,10 +1,5 @@
 import styled from 'styled-components'
-import {
-    colorPrimary,
-    colorText,
-    colorGrey8,
-    colorGrey7,
-} from '../design-library/colors'
+import { colorPrimary, colorText, colorGrey7 } from '../design-library/colors'
 
 export const fontSizeSmallest = 10
 export const fontSizeSmall = 12

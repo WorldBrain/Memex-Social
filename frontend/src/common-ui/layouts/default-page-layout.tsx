@@ -11,7 +11,6 @@ import ListsSidebar, {
     Props as ListsSidebarProps,
 } from '../../features/lists-sidebar/ui/components/lists-sidebar'
 import ListsSidebarToggle from '../../main-ui/components/sidebar-toggle/'
-import AuthHeaderLogic from '../../features/user-management/ui/containers/auth-header/logic'
 
 const middleMaxWidth = '800px'
 const logoImage = require('../../assets/img/memex-logo.svg')
@@ -166,29 +165,6 @@ const HeaderTitle = styled.div<{
             font-size: 18px;
             line-height: 27px;
         `};
-`
-
-const HeaderSubtitle = styled.div<{
-    viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
-}>`
-    font-weight: 500;
-    margin-top: 1px;
-    font-size: 16px;
-    font-weight: 300;
-    font-family: ${(props) => props.theme.fonts.primary};
-    color: ${(props) => props.theme.colors.purple};
-    cursor: pointer;
-
-    ${(props) =>
-        props.viewportWidth === 'mobile' &&
-        css`
-            font-size: 14px;
-        `};
-`
-
-const HeaderSubTitleby = styled.span`
-    color: ${(props) => props.theme.colors.lighterText};
-    padding-right: 3px;
 `
 
 const HeaderAuthArea = styled.div<{

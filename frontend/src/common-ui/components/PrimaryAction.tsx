@@ -1,11 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
-import {
-    fontSizeSmall,
-    TypographyActionText,
-} from '../components/design-library/typography'
+import { TypographyActionText } from '../components/design-library/typography'
 import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
-import { IconProps } from '@worldbrain/memex-common/lib/common-ui/components/icon'
 import {
     IconKeys,
     ColorThemeKeys,

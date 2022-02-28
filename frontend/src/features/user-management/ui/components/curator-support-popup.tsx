@@ -5,25 +5,11 @@ import { UITaskState } from '../../../../main-ui/types'
 import { UIElementServices } from '../../../../services/types'
 import { StorageModules } from '../../../../storage/types'
 
-import LoadingScreen from '../../../../common-ui/components/loading-screen'
 import CuratorSupportButtonBlock from '../../../web-monetization/ui/containers/curator-support-button-block'
 import { UserReference } from '../../types'
 import { Margin } from 'styled-components-spacing'
 import { HoverBox } from '../../../../common-ui/components/hoverbox'
 import LoadingIndicator from '@worldbrain/memex-common/lib/common-ui/components/loading-indicator'
-
-const PopupContainer = styled.div`
-    position: absolute;
-    z-index: ${(props) => props.theme.zIndices.overlay};
-    padding: ${(props) => props.theme.spacing.medium};
-    border-radius: ${(props) => props.theme.borderRadii.default};
-    background-color: ${(props) => props.theme.colors.background};
-    font-family: ${(props) => props.theme.fonts.primary};
-    color: ${(props) => props.theme.colors.primary};
-    box-shadow: 0px 0px 4.19178px rgba(0, 0, 0, 0.14);
-    width: 260px;
-    left: -110px;
-`
 
 const Title = styled.div<{}>`
     font-size: 16px;
