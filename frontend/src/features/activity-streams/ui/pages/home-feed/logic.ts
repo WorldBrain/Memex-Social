@@ -335,7 +335,8 @@ export default class HomeFeedLogic extends UILogic<
                         annotationReference: annotation.reference,
                     })
                     conversationsData[conversationKey] = {
-                        loadState: 'pristine',
+                        loadState: 'success',
+                        hasThreadLoadLoadState: 'success',
                         expanded: false,
                         newReply: getInitialNewReplyState(),
                         replies: await Promise.all(
@@ -637,11 +638,14 @@ export default class HomeFeedLogic extends UILogic<
                 const replies = organized.data?.replies[conversationKey]
                 const annotationReplies =
                     activityData.annotationItems[conversationKey].replies
+                const loadState =
+                    organized.conversationLoadStates[conversationKey] ??
+                    'success'
                 conversations[conversationKey] = {
                     ...conversations[conversationKey],
-                    loadState:
-                        organized.conversationLoadStates[conversationKey] ??
-                        'success',
+                    loadState,
+                    hasThreadLoadLoadState:
+                        loadState === 'success' ? 'success' : 'pristine',
                     expanded: annotationReplies.length > 0,
                     replies: annotationReplies
                         .map((replyItem) => {

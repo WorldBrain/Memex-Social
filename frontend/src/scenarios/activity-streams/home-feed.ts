@@ -140,18 +140,18 @@ export const SCENARIOS: ScenarioMap<Targets> = {
             execute: setupTestActivities,
         },
         steps: [
-            step({
-                name: 'load-more-replies',
-                target: 'HomeFeedPage',
-                eventName: 'loadMoreReplies',
-                eventArgs: {
-                    groupId: 'act-5',
-                    annotationReference: {
-                        type: 'shared-annotation-reference',
-                        id: 'third-annotation',
-                    },
-                },
-            }),
+            //     step({
+            //         name: 'load-more-replies',
+            //         target: 'HomeFeedPage',
+            //         eventName: 'loadMoreReplies',
+            //         eventArgs: {
+            //             groupId: 'act-5',
+            //             annotationReference: {
+            //                 type: 'shared-annotation-reference',
+            //                 id: 'third-annotation',
+            //             },
+            //         },
+            //     }),
         ],
     })),
     'list-item-with-replies': scenario<Targets>(
