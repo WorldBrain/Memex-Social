@@ -30,7 +30,10 @@ import {
     setupConversationLogicDeps,
     intializeNewPageReplies,
 } from '../../../../content-conversations/ui/logic'
-import { getInitialNewReplyState } from '../../../../content-conversations/ui/utils'
+import {
+    getInitialNewReplyState,
+    getInitialAnnotationConversationStates,
+} from '../../../../content-conversations/ui/utils'
 import mapValues from 'lodash/mapValues'
 import UserProfileCache from '../../../../user-management/utils/user-profile-cache'
 import {
@@ -795,6 +798,18 @@ export default class CollectionDetailsLogic extends UILogic<
             })(promisesByPageEntry)
         }
 
+        const annotationReferences = flatten(
+            Object.values(annotationEntries),
+        ).map((entry) => entry.sharedAnnotation)
+        this.emitMutation({
+            conversations: {
+                $merge: getInitialAnnotationConversationStates(
+                    annotationReferences.map(({ id }) => ({
+                        linkId: id.toString(),
+                    })),
+                ),
+            },
+        })
         const conversationThreadPromise = detectAnnotationConversationThreads(
             this as any,
             {
@@ -802,9 +817,7 @@ export default class CollectionDetailsLogic extends UILogic<
                     this.dependencies.storage.contentConversations.getThreadsForAnnotations(
                         ...args,
                     ),
-                annotationReferences: flatten(
-                    Object.values(annotationEntries),
-                ).map((entry) => entry.sharedAnnotation),
+                annotationReferences,
             },
         ).catch(console.error)
         intializeNewPageReplies(this as any, {
