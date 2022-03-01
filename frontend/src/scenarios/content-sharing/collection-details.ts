@@ -622,6 +622,16 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                 route: 'collectionDetails',
                 params: { id: 'default-list' },
             },
+            setup: {
+                callModifications: ({ storage }) => [
+                    callModification({
+                        name: 'threads-loading',
+                        object: storage.serverModules.contentConversations,
+                        property: 'getThreadsForAnnotations',
+                        modifier: 'block',
+                    }),
+                ],
+            },
             steps: [
                 step({
                     name: 'first-annotations-toggle',
@@ -634,6 +644,15 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                     eventArgs: {
                         normalizedUrl: 'getmemex.com',
                     },
+                }),
+                step({
+                    name: 'threads-loaded',
+                    callModifications: () => [
+                        {
+                            name: 'threads-loading',
+                            modifier: 'undo',
+                        },
+                    ],
                 }),
                 step({
                     name: 'toggle-replies',
