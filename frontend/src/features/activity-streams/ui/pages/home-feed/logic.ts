@@ -484,39 +484,64 @@ export default class HomeFeedLogic extends UILogic<
                 continue
             }
 
-            for (const entryKey of activityItem.entries.order) {
-                const listEntry = activityItem.entries.items[entryKey]
-
-                const hasAnnotations = await this.dependencies.storage.contentSharing.doesAnnotationExistForPageInList(
-                    {
-                        listReference: activityItem.listReference,
-                        normalizedPageUrl: listEntry.normalizedUrl,
-                    },
-                )
-
-                // They're set false by default, so only emit mutation if otherwise
-                if (!hasAnnotations) {
-                    continue
-                }
-
-                this.emitMutation({
-                    activityItems: {
-                        items: {
-                            [activityItemKey]: {
-                                entries: {
-                                    items: {
-                                        [entryKey]: {
-                                            hasAnnotations: {
-                                                $set: hasAnnotations,
+            await Promise.all(
+                activityItem.entries.order.map(async (entryKey) => {
+                    await executeUITask<HomeFeedState>(
+                        this,
+                        (taskState) => ({
+                            activityItems: {
+                                items: {
+                                    [activityItemKey]: {
+                                        entries: {
+                                            items: {
+                                                [entryKey]: {
+                                                    annotationEntriesLoadState: {
+                                                        $set: taskState,
+                                                    },
+                                                },
                                             },
                                         },
                                     },
                                 },
                             },
+                        }),
+                        async () => {
+                            const listEntry =
+                                activityItem.entries.items[entryKey]
+
+                            const hasAnnotations = await this.dependencies.storage.contentSharing.doesAnnotationExistForPageInList(
+                                {
+                                    listReference: activityItem.listReference,
+                                    normalizedPageUrl: listEntry.normalizedUrl,
+                                },
+                            )
+
+                            // They're set false by default, so only emit mutation if otherwise
+                            if (!hasAnnotations) {
+                                return
+                            }
+
+                            this.emitMutation({
+                                activityItems: {
+                                    items: {
+                                        [activityItemKey]: {
+                                            entries: {
+                                                items: {
+                                                    [entryKey]: {
+                                                        hasAnnotations: {
+                                                            $set: hasAnnotations,
+                                                        },
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            })
                         },
-                    },
-                })
-            }
+                    )
+                }),
+            )
         }
     }
 
@@ -847,6 +872,7 @@ export function organizeActivities(
                         ({ activity }): ListEntryActivityItem => ({
                             type: 'list-entry-item',
                             areAnnotationsShown: false,
+                            annotationEntriesLoadState: 'pristine',
                             annotations: createOrderedMap(),
                             annotationsLoadState: 'pristine',
                             reference: activity.entry.reference,

@@ -17,7 +17,9 @@ import DocumentTitle from '../../../../../main-ui/components/document-title'
 import DefaultPageLayout from '../../../../../common-ui/layouts/default-page-layout'
 import LoadingScreen from '../../../../../common-ui/components/loading-screen'
 import { Margin } from 'styled-components-spacing'
-import PageInfoBox from '../../../../../common-ui/components/page-info-box'
+import PageInfoBox, {
+    PageInfoBoxAction,
+} from '../../../../../common-ui/components/page-info-box'
 import AnnotationsInPage from '../../../../annotations/ui/components/annotations-in-page'
 import { SharedAnnotationInPage } from '../../../../annotations/ui/components/types'
 import MessageBox from '../../../../../common-ui/components/message-box'
@@ -129,6 +131,13 @@ const ActivityReasonLabel = styled.div<{
                 padding-left: 0px;
             }
         `}
+`
+
+const AnnotationEntriesLoadingContainer = styled.div`
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
 `
 
 const LastSeenLineContainer = styled.div<{ shouldShowNewLine: boolean }>`
@@ -693,6 +702,35 @@ export default class HomeFeedPage extends UIElement<
                             if (!shouldRender) {
                                 return null
                             }
+                            const actions: PageInfoBoxAction[] = []
+                            if (
+                                entry.annotationEntriesLoadState === 'running'
+                            ) {
+                                actions.push({
+                                    node: (
+                                        <AnnotationEntriesLoadingContainer>
+                                            <Margin right="medium">
+                                                <LoadingIndicator size={16} />
+                                            </Margin>
+                                        </AnnotationEntriesLoadingContainer>
+                                    ),
+                                })
+                            } else if (entry.hasAnnotations) {
+                                actions.push({
+                                    image: commentImage,
+                                    onClick: () =>
+                                        this.processEvent(
+                                            'toggleListEntryActivityAnnotations',
+                                            {
+                                                listReference:
+                                                    listItem.listReference,
+                                                listEntryReference:
+                                                    entry.reference,
+                                                groupId: listItem.groupId,
+                                            },
+                                        ),
+                                })
+                            }
 
                             const creator = state.users[entry.creator.id]
                             return (
@@ -735,27 +773,7 @@ export default class HomeFeedPage extends UIElement<
                                                     entry.normalizedUrl,
                                             }}
                                             creator={creator}
-                                            actions={
-                                                entry.hasAnnotations
-                                                    ? [
-                                                          {
-                                                              image: commentImage,
-                                                              onClick: () =>
-                                                                  this.processEvent(
-                                                                      'toggleListEntryActivityAnnotations',
-                                                                      {
-                                                                          listReference:
-                                                                              listItem.listReference,
-                                                                          listEntryReference:
-                                                                              entry.reference,
-                                                                          groupId:
-                                                                              listItem.groupId,
-                                                                      },
-                                                                  ),
-                                                          },
-                                                      ]
-                                                    : []
-                                            }
+                                            actions={actions}
                                         />
                                         {entry.annotationsLoadState ===
                                             'running' && (

@@ -160,6 +160,14 @@ export const SCENARIOS: ScenarioMap<Targets> = {
             authenticated: true,
             startRoute: { route: 'homeFeed', params: {} },
             setup: {
+                callModifications: ({ storage }) => [
+                    {
+                        name: 'detecting-annotations',
+                        object: storage.serverModules.contentSharing,
+                        property: 'doesAnnotationExistForPageInList',
+                        modifier: 'block',
+                    },
+                ],
                 execute: (context) =>
                     setupTestActivities({
                         ...context,
@@ -202,6 +210,15 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                     }),
             },
             steps: [
+                step({
+                    name: 'annotations-detected',
+                    callModifications: () => [
+                        {
+                            name: 'detecting-annotations',
+                            modifier: 'undo',
+                        },
+                    ],
+                }),
                 // step({
                 //     name: 'load-more-replies',
                 //     target: 'HomeFeedPage',

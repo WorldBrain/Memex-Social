@@ -114,6 +114,7 @@ export type ListEntryActivityItem = {
     reference: SharedListEntryReference
     creator: UserReference
     activityTimestamp: number
+    annotationEntriesLoadState: UITaskState
     hasAnnotations?: boolean
     areAnnotationsShown?: boolean
     annotationsLoadState: UITaskState
