@@ -85,21 +85,22 @@ export default class HomeFeedLogic extends UILogic<
             this,
             annotationConversationEventHandlers<HomeFeedState>(this as any, {
                 ...setupConversationLogicDeps(this.dependencies),
-                getSharedListReference: (params) => {
-                    const { groupId } = splitConversationKey(
-                        params.conversationId,
-                    )
-                    const activityItem = findActivityItem(
-                        params.state.activityItems,
-                        groupId,
-                    )
-                    if (!activityItem) {
-                        throw new Error(
-                            `Could not save reply: can't find activity item`,
-                        )
-                    }
-                    return activityItem.listReference
-                },
+                // TODO: see if this needs to be brought back in (likely lost in memex-common merging)
+                // getSharedListReference: (params) => {
+                //     const { groupId } = splitConversationKey(
+                //         params.conversationId,
+                //     )
+                //     const activityItem = findActivityItem(
+                //         params.state.activityItems,
+                //         groupId,
+                //     )
+                //     if (!activityItem) {
+                //         throw new Error(
+                //             `Could not save reply: can't find activity item`,
+                //         )
+                //     }
+                //     return activityItem.listReference
+                // },
                 selectAnnotationData: (state, reference) => {
                     const annotation = state.annotations[reference.id]
                     if (!annotation) {
@@ -257,6 +258,7 @@ export default class HomeFeedLogic extends UILogic<
                 )
                 const repliesByAnnotation = await contentConversations.getRepliesByAnnotations(
                     {
+                        sharedListReference: event.listReference,
                         annotationReferences: annotations.map(
                             (annotation) => annotation.reference,
                         ),
@@ -391,7 +393,7 @@ export default class HomeFeedLogic extends UILogic<
     }
 
     loadMoreReplies: EventHandler<'loadMoreReplies'> = async (incoming) => {
-        const { groupId, annotationReference } = incoming.event
+        const { groupId, annotationReference, listReference } = incoming.event
         const conversationKey = getConversationKey({
             groupId,
             annotationReference,
@@ -407,7 +409,8 @@ export default class HomeFeedLogic extends UILogic<
             async () => {
                 const rep = await this.dependencies.storage.contentConversations.getRepliesByAnnotation(
                     {
-                        annotationReference: incoming.event.annotationReference,
+                        annotationReference,
+                        sharedListReference: listReference,
                     },
                 )
                 const replies = rep.filter(
@@ -581,6 +584,7 @@ export default class HomeFeedLogic extends UILogic<
         const threads = await this.dependencies.storage.contentConversations.getThreadsForAnnotations(
             {
                 annotationReferences,
+                sharedListReference: null, // TODO: verify this doesn't need to be supplied
             },
         )
         const conversationsMutations: UIMutation<
@@ -658,6 +662,7 @@ export default class HomeFeedLogic extends UILogic<
                         }
                     })
                     .filter((linkId) => !!linkId),
+                null, // TODO: verify we don't need to doubly index state by list
             )
             for (const conversationKey of Object.keys(organized.data.replies)) {
                 const replies = organized.data?.replies[conversationKey]
@@ -893,12 +898,12 @@ export function organizeActivities(
                     entryActivity.activity.entryCreator
             }
         } else if (
-            (activityGroup.entityType === 'sharedListEntry' ||
+            (activityGroup.entityType === 'sharedList' ||
                 activityGroup.entityType === 'sharedPageInfo') &&
             activityGroup.activityType === 'annotationListEntry'
         ) {
             const entryActivityGroup = activityGroup as ActivityStreamResultGroup<
-                'sharedListEntry',
+                'sharedList',
                 'annotationListEntry'
             >
             entryActivityGroup.activities = orderBy(

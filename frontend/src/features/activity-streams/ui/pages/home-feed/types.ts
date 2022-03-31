@@ -83,6 +83,7 @@ export type HomeFeedEvent = UIEvent<
             waypointHit: null
             loadMoreReplies: {
                 groupId: string
+                listReference: SharedListReference | null
                 annotationReference: SharedAnnotationReference
             }
             toggleListEntryActivityAnnotations: {

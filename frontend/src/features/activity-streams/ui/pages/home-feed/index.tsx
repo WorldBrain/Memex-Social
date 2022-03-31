@@ -580,6 +580,7 @@ export default class HomeFeedPage extends UIElement<
                                 this.processEvent('loadMoreReplies', {
                                     groupId: groupId,
                                     annotationReference,
+                                    listReference: parentItem.listReference,
                                 })
                             }
                         >
@@ -632,6 +633,7 @@ export default class HomeFeedPage extends UIElement<
                             this.processEvent('cancelNewReplyToAnnotation', {
                                 annotationReference,
                                 conversationId: conversationKey,
+                                sharedListReference: parentItem.listReference,
                             })
                     },
                     onNewReplyConfirm: (annotationReference) => {
@@ -643,6 +645,7 @@ export default class HomeFeedPage extends UIElement<
                             this.processEvent('confirmNewReplyToAnnotation', {
                                 annotationReference,
                                 conversationId: conversationKey,
+                                sharedListReference: parentItem.listReference,
                             })
                     },
                     onNewReplyEdit: (annotationReference) => {
@@ -655,6 +658,7 @@ export default class HomeFeedPage extends UIElement<
                                 content,
                                 annotationReference,
                                 conversationId: conversationKey,
+                                sharedListReference: parentItem.listReference,
                             })
                     },
                 }}
@@ -666,6 +670,7 @@ export default class HomeFeedPage extends UIElement<
                     return this.processEvent('toggleAnnotationReplies', {
                         ...event,
                         conversationId: conversationKey,
+                        sharedListReference: parentItem.listReference,
                     })
                 }}
             />
