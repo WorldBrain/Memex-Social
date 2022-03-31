@@ -6,9 +6,9 @@ import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
 import ButtonTooltip from '@worldbrain/memex-common/lib/common-ui/components/button-tooltip'
 
 const Container = styled.div<{
-    isOwner: boolean
-    isContributor: boolean
-    isFollowed: boolean
+    isOwner?: boolean
+    isContributor?: boolean
+    isFollowed?: boolean
 }>`
     font-family: ${(props) => props.theme.fonts.primary};
     border-radius: 5px;
@@ -89,7 +89,7 @@ const BtnText = styled.span`
 `
 
 export interface Props {
-    onClick: React.MouseEventHandler
+    onClick: React.MouseEventHandler<HTMLDivElement>
     loadState: UITaskState
     isOwner?: boolean
     isFollowed?: boolean

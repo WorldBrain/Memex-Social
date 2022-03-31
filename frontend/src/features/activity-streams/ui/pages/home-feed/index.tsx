@@ -112,7 +112,7 @@ const LoadingIndicatorBox = styled.div`
 `
 
 const ActivityReasonLabel = styled.div<{
-    viewportBreakpoint: ViewportBreakpoint
+    viewportBreakpoint?: ViewportBreakpoint
 }>`
     font-family: ${(props) => props.theme.fonts.primary};
     font-weight: normal;
@@ -346,7 +346,6 @@ export default class HomeFeedPage extends UIElement<
                         <LastSeenLineContainer
                             shouldShowNewLine={this.state.shouldShowNewLine}
                             id="lastSeenLine"
-                            vertical="medium"
                         >
                             <LastSeenLine />
                         </LastSeenLineContainer>
@@ -900,7 +899,7 @@ export default class HomeFeedPage extends UIElement<
 const ActivityReason = (props: {
     icon: IconKeys
     label: React.ReactChild
-    viewportBreakpoint: ViewportBreakpoint
+    viewportBreakpoint?: ViewportBreakpoint
 }) => {
     return (
         <StyledActivityReason>
@@ -942,9 +941,9 @@ class LastSeenLineState {
     }
 }
 
-function LastSeenLine(shouldShowNewLine: boolean) {
+function LastSeenLine() {
     return (
-        <StyledLastSeenLine shouldShowNewLine={shouldShowNewLine}>
+        <StyledLastSeenLine>
             <Icon icon="checkedRound" heightAndWidth="20px" hoverOff />
             <LastSeenLineLabel>Read</LastSeenLineLabel>
             <Separator />

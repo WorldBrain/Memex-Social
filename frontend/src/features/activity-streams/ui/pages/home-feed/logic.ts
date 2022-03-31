@@ -175,12 +175,12 @@ export default class HomeFeedLogic extends UILogic<
     getLastSeenLinePosition: EventHandler<'getLastSeenLinePosition'> = async ({
         previousState,
     }) => {
-        const LastSeenLineID = document.getElementById('lastSeenLine')
+        const lastSeenLineID = document.getElementById('lastSeenLine')
 
-        if (LastSeenLineID) {
+        if (lastSeenLineID) {
             const seenLinePosition = Array.from(
-                LastSeenLineID?.parentNode?.children,
-            ).indexOf(LastSeenLineID)
+                lastSeenLineID?.parentNode?.children ?? [],
+            ).indexOf(lastSeenLineID)
             if (seenLinePosition === 1) {
                 this.emitMutation({ shouldShowNewLine: { $set: false } })
             }

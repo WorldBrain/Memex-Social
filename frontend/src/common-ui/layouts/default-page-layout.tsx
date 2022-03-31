@@ -136,16 +136,17 @@ const HeaderMiddleArea = styled.div<{
 `
 const HeaderTitle = styled.div<{
     viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
-    scrollTop: number
+    scrollTop?: number
 }>`
     font-weight: 900;
     width: fill-available;
     letter-spacing: 0.5px;
     text-overflow: ellipsis;
-    white-space: ${(props) => (props.scrollTop >= 100 ? 'nowrap' : 'pre-wrap')};
+    white-space: ${(props) =>
+        props.scrollTop! >= 100 ? 'nowrap' : 'pre-wrap'};
     word-break: break-word;
     overflow-x: hidden;
-    text-overflow: ${(props) => props.scrollTop >= 100 && 'ellipsis'};
+    text-overflow: ${(props) => props.scrollTop! >= 100 && 'ellipsis'};
     font-family: ${(props) => props.theme.fonts.primary};
     font-size: 20px;
     overflow-wrap: break-word;
@@ -214,7 +215,7 @@ const PageResultsArea = styled.div<{
 
 const PageMidleAreaTitles = styled.div<{
     viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
-    scrollTop: number
+    scrollTop?: number
 }>`
     display: flex;
     justify-content: flex-start;
@@ -226,17 +227,16 @@ const PageMidleAreaTitles = styled.div<{
     grid-gap: 5px;
 
     ${(props) =>
-        props.scrollTop > 0 &&
+        props.scrollTop! > 0 &&
         css`
             max-width: 99%;
-            width: ${(props) =>
-                props.viewportWidth === 'mobile' ? '100%' : '30%'};
+            width: ${props.viewportWidth === 'mobile' ? '100%' : '30%'};
         `}
 `
 
 const PageMidleAreaAction = styled.div<{
     viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
-    scrollTop: number
+    scrollTop?: number
 }>`
     display: flex;
     justify-content: flex-end;
@@ -276,7 +276,7 @@ const PageMidleAreaActionMobile = styled.div<{
 
 const PageMiddleAreaTopBox = styled(Margin)<{
     viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
-    scrollTop: number
+    scrollTop?: number
 }>`
     display: flex;
     justify-content: space-between;
@@ -487,7 +487,6 @@ export default function DefaultPageLayout(props: {
                             >
                                 {props.headerTitle && (
                                     <HeaderTitle
-                                        title={props.headerTitle}
                                         viewportWidth={viewportWidth}
                                         scrollTop={props.scrollTop}
                                     >

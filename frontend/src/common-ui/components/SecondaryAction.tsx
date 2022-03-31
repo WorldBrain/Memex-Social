@@ -35,8 +35,8 @@ const StyledSecondaryAction = styled.div`
     }
 `
 
-const StyledSecondaryActionLinkText = styled.div<{ fontSize: string }>`
-    font-size: ${(props) => (props.fontSize ? props.fontSize : '14px')};
+const StyledSecondaryActionLinkText = styled.div<{ fontSize?: string }>`
+    font-size: ${(props) => props.fontSize ?? '14px'};
     color: ${(props) => props.theme.colors.purple};
 `
 export const SecondaryAction = ({

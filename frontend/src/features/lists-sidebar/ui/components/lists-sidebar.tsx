@@ -13,7 +13,6 @@ import { Margin } from 'styled-components-spacing'
 import { StorageModules } from '../../../../storage/types'
 import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
 import { theme } from '../../../../main-ui/styles/theme'
-import AuthHeaderLogic from '../../../../features/user-management/ui/containers/auth-header/logic'
 
 const UnseenActivityDot = styled.div`
     background: #5cd9a6;
@@ -253,7 +252,6 @@ export interface Props
     onToggle: React.MouseEventHandler<Element>
     hideActivityIndicator?: boolean
     storage: Pick<StorageModules, 'users' | 'activityStreams'>
-    AuthHeaderLogic: AuthHeaderLogic
 }
 
 export default class ListsSidebar extends PureComponent<Props> {

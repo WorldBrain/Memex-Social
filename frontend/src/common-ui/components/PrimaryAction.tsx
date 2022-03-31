@@ -36,7 +36,7 @@ const StyledPrimaryAction = styled.div`
 `
 
 const StyledPrimaryActionLinkText = styled(TypographyActionText)`
-    font-size: ${(props) => (props.fontSize ? props.fontSize : '14px')};
+    font-size: 14px;
     color: white;
 `
 export const PrimaryAction = ({
