@@ -11,6 +11,7 @@ import {
 
 import CuratorSupportPopup from '../../components/curator-support-popup'
 import { UITaskState } from '../../../../../main-ui/types'
+import { UserReference } from '../../../types'
 
 const CuratorPopupBox = styled.div`
     margin-left: -140px;
@@ -18,10 +19,14 @@ const CuratorPopupBox = styled.div`
     position: absolute;
 `
 
-export type CuratorSupportPopupContainerDependencies = ProfilePopupContainerDependencies & {
+export type CuratorSupportPopupContainerDependencies = Omit<
+    ProfilePopupContainerDependencies,
+    'userRef'
+> & {
     paymentMade: boolean
     paymentState: UITaskState
     isMonetizationAvailable: boolean
+    userRef: UserReference
     onMouseLeave?: () => void
 }
 export type CuratorSupportPopupContainerState = ProfilePopupContainerState

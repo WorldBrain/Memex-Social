@@ -399,6 +399,10 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                             type: 'user-reference',
                             id: 'default-user',
                         },
+                        sharedListReference: {
+                            type: 'shared-list-reference',
+                            id: 'default-list',
+                        },
                     },
                 }),
                 step({
@@ -471,6 +475,10 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                             type: 'user-reference',
                             id: 'default-user',
                         },
+                        sharedListReference: {
+                            type: 'shared-list-reference',
+                            id: 'default-list',
+                        },
                     },
                 }),
             ],
@@ -518,6 +526,10 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                             id: 'default-annotation',
                         } as SharedAnnotationReference,
                         content: 'this is a new reply',
+                        sharedListReference: {
+                            type: 'shared-list-reference',
+                            id: 'default-list',
+                        },
                     },
                 }),
                 step({
@@ -529,6 +541,10 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                             type: 'shared-annotation-reference',
                             id: 'default-annotation',
                         } as SharedAnnotationReference,
+                        sharedListReference: {
+                            type: 'shared-list-reference',
+                            id: 'default-list',
+                        },
                     },
                 }),
                 step({
@@ -587,6 +603,10 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                             id: 'default-annotation',
                         } as SharedAnnotationReference,
                         content: 'this is a new reply',
+                        sharedListReference: {
+                            type: 'shared-list-reference',
+                            id: 'default-list',
+                        },
                     },
                 }),
                 step({
@@ -598,6 +618,10 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                             type: 'shared-annotation-reference',
                             id: 'default-annotation',
                         } as SharedAnnotationReference,
+                        sharedListReference: {
+                            type: 'shared-list-reference',
+                            id: 'default-list',
+                        },
                     },
                 }),
                 step({
@@ -663,6 +687,10 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                             type: 'shared-annotation-reference',
                             id: 'default-annotation',
                         } as SharedAnnotationReference,
+                        sharedListReference: {
+                            type: 'shared-list-reference',
+                            id: 'default-list',
+                        },
                     },
                 }),
                 step({
@@ -686,6 +714,10 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                             id: 'default-annotation',
                         } as SharedAnnotationReference,
                         content: 'this is a new reply',
+                        sharedListReference: {
+                            type: 'shared-list-reference',
+                            id: 'default-list',
+                        },
                     },
                 }),
                 step({
@@ -697,6 +729,10 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                             type: 'shared-annotation-reference',
                             id: 'default-annotation',
                         } as SharedAnnotationReference,
+                        sharedListReference: {
+                            type: 'shared-list-reference',
+                            id: 'default-list',
+                        },
                     },
                 }),
                 step({

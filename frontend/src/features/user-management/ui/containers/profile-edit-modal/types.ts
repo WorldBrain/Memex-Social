@@ -36,6 +36,6 @@ export type ProfileEditModalEvent = UIEvent<{
     setDisplayName: { value: string }
     setEmail: { value: string }
     setErrorArray: { newArray: boolean[] }
-    confirmEmailChange: () => void
-    sendPasswordResetEmail: () => void
+    confirmEmailChange: { value: string }
+    sendPasswordResetEmail: { value: string }
 }>

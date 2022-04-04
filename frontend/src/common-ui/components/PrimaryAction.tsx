@@ -62,7 +62,7 @@ export const PrimaryAction = ({
 }) => (
     <StyledPrimaryAction
         tabIndex={0}
-        onClick={onClick as any}
+        onClick={onClick}
         ref={innerRef}
         onKeyPress={(e) => (e.key === 'Enter' ? onClick(e as any) : false)}
     >

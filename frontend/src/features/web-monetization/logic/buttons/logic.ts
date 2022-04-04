@@ -54,6 +54,7 @@ export default abstract class WebMonetizationButtonLogic extends UILogic<
                         $set: '$ilp.uphold.com/zHjHFKyUWbwB',
                     },
                 })
+                return
             }
             this.emitMutation({
                 curatorPaymentPointer: {

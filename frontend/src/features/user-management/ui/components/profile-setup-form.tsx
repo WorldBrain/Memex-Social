@@ -123,7 +123,6 @@ export default function ProfileSetupForm(props: {
                             onChange={(e) =>
                                 props.onDisplayNameChange(e.target.value)
                             }
-                            onConfirm={props.onConfirm}
                         />
                     </TextInputContainer>
                 </DisplayName>
@@ -143,8 +142,8 @@ export default function ProfileSetupForm(props: {
                         reply={{
                             content:
                                 "This is what a reply to someone's note looks like with your name attached",
-                            createdWhen: null,
                             normalizedPageUrl: 'something',
+                            createdWhen: Date.now(),
                         }}
                     />
                 </AnnotationCard>
@@ -153,9 +152,8 @@ export default function ProfileSetupForm(props: {
                 <PrimaryAction
                     label="Confirm Display Name"
                     fontSize="14px"
-                    onClick={
-                        props.displayName.length ? props.onConfirm : undefined
-                    }
+                    onClick={props.onConfirm}
+                    disabled={props.displayName.length === 0}
                     icon={'check'}
                     iconSize={'18px'}
                 />

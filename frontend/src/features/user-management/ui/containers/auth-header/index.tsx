@@ -98,7 +98,7 @@ export default class AuthHeader extends UIElement<
             return (
                 <DisplayName onClick={() => this.processEvent('login', null)}>
                     <Icon icon="login" heightAndWidth="16px" hoverOff />
-                    {this.state.mememxInstalled === true ? 'Login' : 'Sign Up'}
+                    {this.state.isMemexInstalled === true ? 'Login' : 'Sign Up'}
                 </DisplayName>
             )
         }

@@ -752,6 +752,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                             id: 'default-annotation',
                         } as SharedAnnotationReference,
                         content: 'this is a new reply',
+                        sharedListReference: null,
                     },
                 }),
                 step({
@@ -763,6 +764,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                             type: 'shared-annotation-reference',
                             id: 'default-annotation',
                         } as SharedAnnotationReference,
+                        sharedListReference: null,
                     },
                 }),
                 step({
@@ -842,6 +844,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                             id: 'default-annotation',
                         } as SharedAnnotationReference,
                         content: 'this is a new reply',
+                        sharedListReference: null,
                     },
                 }),
                 step({
@@ -853,6 +856,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                             type: 'shared-annotation-reference',
                             id: 'default-annotation',
                         } as SharedAnnotationReference,
+                        sharedListReference: null,
                     },
                     waitForSignal: { type: 'reply-submitting' },
                 }),
@@ -920,6 +924,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                             id: 'default-annotation',
                         } as SharedAnnotationReference,
                         content: 'this is a new reply',
+                        sharedListReference: null,
                     },
                 }),
                 step({
@@ -931,6 +936,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                             type: 'shared-annotation-reference',
                             id: 'default-annotation',
                         } as SharedAnnotationReference,
+                        sharedListReference: null,
                     },
                 }),
             ],
@@ -954,6 +960,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                             type: 'shared-annotation-reference',
                             id: 'default-annotation',
                         } as SharedAnnotationReference,
+                        sharedListReference: null,
                     },
                 }),
                 step({
@@ -977,6 +984,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                             id: 'default-annotation',
                         } as SharedAnnotationReference,
                         content: 'this is a new reply',
+                        sharedListReference: null,
                     },
                 }),
                 step({
@@ -988,6 +996,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                             type: 'shared-annotation-reference',
                             id: 'default-annotation',
                         } as SharedAnnotationReference,
+                        sharedListReference: null,
                     },
                 }),
                 step({

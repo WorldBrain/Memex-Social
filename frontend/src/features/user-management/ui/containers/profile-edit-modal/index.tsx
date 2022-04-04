@@ -32,10 +32,6 @@ const Container = styled.div<{ loadState: UITaskState; theme: Theme }>`
     flex-direction: column;
 
     background-color: ${(props) => props.theme.colors.background};
-    padding-left: ${(props) => props.theme.spacing.small};
-    padding-right: ${(props) => props.theme.spacing.small};
-    padding-top: ${(props) => props.theme.spacing.small};
-    padding-bottom: ${(props) => props.theme.spacing.small};
     & * {
         font-family: ${(props) => props.theme.fonts.primary};
     }
@@ -122,10 +118,9 @@ const SectionHeader = styled.div<{
 `
 
 const SectionHeaderDescription = styled(SectionHeader)`
-    font-weight: ${(props) => props.theme.fontWeights.normal};
+    font-weight: 'normal';
     font-size: ${(props) => props.theme.fontSizes.text};
     line-height: ${(props) => props.theme.lineHeights.text};
-    padding-bottom: ${(props) => props.theme.spacing.small};
 `
 
 const WebLink = styled(SectionHeaderDescription)`
@@ -281,7 +276,7 @@ export default class ProfileEditModal extends UIElement<
     }
 
     confirmEmailChange(value: string) {
-        this.processEvent('confirmEmailChange', { value: value })
+        this.processEvent('confirmEmailChange', { value })
     }
 
     handleSetProfileValue(key: keyof UserPublicProfile, value: string): void {
@@ -289,7 +284,7 @@ export default class ProfileEditModal extends UIElement<
     }
 
     sendPasswordResetEmail(value: string) {
-        this.processEvent('sendPasswordResetEmail', { value: value })
+        this.processEvent('sendPasswordResetEmail', { value })
     }
 
     handleURLChange = (
@@ -299,8 +294,8 @@ export default class ProfileEditModal extends UIElement<
     ) => {
         if (this.state.inputErrorArray[errorIndex]) {
             const newArray = [...this.state.inputErrorArray]
-            const profileTypesHack: { [key: string]: string } = {
-                ...this.state.userPublicProfile,
+            const profileTypesHack: { [key: string]: string | undefined } = {
+                ...(this.state.userPublicProfile ?? {}),
             }
             newArray[errorIndex] = this.testValidURL(
                 profileTypesHack[urlPropName],
@@ -314,8 +309,8 @@ export default class ProfileEditModal extends UIElement<
         return !this.state.user?.displayName
     }
 
-    testValidURL(url: string): boolean {
-        return !VALID_URL_TEST.test(url)
+    testValidURL(url?: string): boolean {
+        return url ? !VALID_URL_TEST.test(url) : false
     }
 
     handleWebLinkClick = (url: string): void => {

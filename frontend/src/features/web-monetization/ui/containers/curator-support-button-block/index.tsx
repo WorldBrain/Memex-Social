@@ -22,8 +22,6 @@ const Container = styled.div`
     height: min-content;
     justify-content: center;
     align-items: center;
-    ${(props) =>
-        `margin: ${props.theme.spacing.small} ${props.theme.spacing.small} 0 0;`}
 `
 
 const ButtonInnerText = styled.div<{

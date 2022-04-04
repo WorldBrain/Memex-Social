@@ -60,7 +60,7 @@ export default class ProfileEditModalLogic extends UILogic<
     init: EventHandler<'init'> = async () => {
         await loadInitial<ProfileEditModalState>(this, async () => {
             this.userRef = this.dependencies.services.auth.getCurrentUserReference()
-            const userEmail = await this.dependencies.services.auth.getCurrentUserEmail()
+            const userEmail = await this.dependencies.services.auth.getCurrentUserEmail()!
 
             if (!this.userRef) {
                 return

@@ -55,7 +55,7 @@ export default abstract class WebMonetizationService
         if (!userProfile) {
             return '$ilp.uphold.com/zHjHFKyUWbwB'
         }
-        return userProfile.paymentPointer
+        return userProfile.paymentPointer ?? null
     }
 
     async getCurrentUserPaymentPointer(): Promise<string | null> {

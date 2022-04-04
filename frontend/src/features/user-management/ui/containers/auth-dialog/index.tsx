@@ -78,7 +78,7 @@ const EmailPasswordError = styled.div`
     text-align: center;
 `
 
-const FormTitle = styled.div<{ viewportBreakPoint: ViewportBreakpoint }>`
+const FormTitle = styled.div<{ viewportBreakpoint: ViewportBreakpoint }>`
     font-weight: 900;
     font-size: 24px;
     color: ${(props) => props.theme.colors.primary};
@@ -187,11 +187,11 @@ const ForgotPassword = styled.div`
     font-size: 12px;
 `
 
-const SectionCircle = styled.div`
+const SectionCircle = styled.div<{ width?: string }>`
     background: ${(props) => props.theme.colors.backgroundHighlight};
     border-radius: 100px;
     height: 60px;
-    width: 60px;
+    width: ${(props) => props.width ?? '60px'};
     margin-bottom: 30px;
     display: flex;
     justify-content: center;
@@ -259,7 +259,7 @@ export default class AuthDialog extends UIElement<
                         {header && (
                             <InvitationBox>
                                 <FormTitle
-                                    viewportBreakPoint={this.viewportBreakpoint}
+                                    viewportBreakpoint={this.viewportBreakpoint}
                                 >
                                     {header.title}
                                 </FormTitle>
@@ -294,7 +294,7 @@ export default class AuthDialog extends UIElement<
                         {header && (
                             <InvitationBox>
                                 <FormTitle
-                                    viewportBreakPoint={this.viewportBreakpoint}
+                                    viewportBreakpoint={this.viewportBreakpoint}
                                 >
                                     {' '}
                                     {header.title}
@@ -375,12 +375,6 @@ export default class AuthDialog extends UIElement<
                                                 value: e.target.value,
                                             })
                                         }
-                                        onConfirm={() => {
-                                            this.processEvent(
-                                                'emailPasswordConfirm',
-                                                null,
-                                            )
-                                        }}
                                         autoFocus
                                     />
                                 </TextInputContainer>
@@ -405,12 +399,6 @@ export default class AuthDialog extends UIElement<
                                                     },
                                                 )
                                             }
-                                            onConfirm={() => {
-                                                this.processEvent(
-                                                    'emailPasswordConfirm',
-                                                    null,
-                                                )
-                                            }}
                                         />
                                         <ForgotPassword
                                             onClick={() => {
@@ -445,12 +433,6 @@ export default class AuthDialog extends UIElement<
                                                     },
                                                 )
                                             }
-                                            onConfirm={() => {
-                                                this.processEvent(
-                                                    'emailPasswordConfirm',
-                                                    null,
-                                                )
-                                            }}
                                         />
                                     </TextInputContainer>
                                     <Margin top={'medium'}>

@@ -163,8 +163,8 @@ export default class FirebaseAuthService extends AuthServiceBase {
         return this._user
     }
 
-    async getCurrentUserEmail() {
-        return firebase.auth().currentUser?.email
+    getCurrentUserEmail() {
+        return firebase.auth().currentUser?.email ?? null
     }
 
     async sendPasswordResetEmailProcess(email: string) {
@@ -176,7 +176,7 @@ export default class FirebaseAuthService extends AuthServiceBase {
     }
 
     async changeEmailAddressonFirebase(email: string) {
-        return firebase.auth().currentUser?.updateEmail(email)
+        await firebase.auth().currentUser?.updateEmail(email)
     }
 
     getCurrentUserReference() {
