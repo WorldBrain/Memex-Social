@@ -16,6 +16,7 @@ import {
     SharedListEntry,
     SharedAnnotationListEntry,
     SharedAnnotationReference,
+    SharedListReference,
 } from '@worldbrain/memex-common/lib/content-sharing/types'
 import { User } from '@worldbrain/memex-common/lib/web-interface/types/users'
 import { PAGE_SIZE } from './constants'
@@ -316,6 +317,13 @@ export default class CollectionDetailsPage extends UIElement<
         return getViewportBreakpoint(this.getViewportWidth())
     }
 
+    private get sharedListReference(): SharedListReference {
+        return {
+            type: 'shared-list-reference',
+            id: this.props.listID,
+        }
+    }
+
     async componentDidUpdate(
         prevProps: CollectionDetailsDependencies,
         previousState: CollectionDetailsState,
@@ -327,8 +335,8 @@ export default class CollectionDetailsPage extends UIElement<
             })
         }
 
-        this.processEvent('updateScrollState', {
-            previousState: previousState.scrollTop,
+        await this.processEvent('updateScrollState', {
+            previousScrollTop: previousState.scrollTop!,
         })
     }
 
@@ -469,7 +477,10 @@ export default class CollectionDetailsPage extends UIElement<
                     services: this.props.services,
                 }}
                 onToggleReplies={(event) =>
-                    this.processEvent('toggleAnnotationReplies', event)
+                    this.processEvent('toggleAnnotationReplies', {
+                        ...event,
+                        sharedListReference: this.sharedListReference,
+                    })
                 }
                 newPageReplyEventHandlers={{
                     onNewReplyInitiate: () =>
@@ -504,15 +515,18 @@ export default class CollectionDetailsPage extends UIElement<
                     onNewReplyCancel: (annotationReference) => () =>
                         this.processEvent('cancelNewReplyToAnnotation', {
                             annotationReference,
+                            sharedListReference: this.sharedListReference,
                         }),
                     onNewReplyConfirm: (annotationReference) => () =>
                         this.processEvent('confirmNewReplyToAnnotation', {
                             annotationReference,
+                            sharedListReference: this.sharedListReference,
                         }),
                     onNewReplyEdit: (annotationReference) => ({ content }) =>
                         this.processEvent('editNewReplyToAnnotation', {
                             annotationReference,
                             content,
+                            sharedListReference: this.sharedListReference,
                         }),
                 }}
             />
@@ -773,43 +787,6 @@ export default class CollectionDetailsPage extends UIElement<
                         </ToggleAllAnnotations>
                     )}
             </AbovePagesBox>
-        )
-    }
-
-    getHeaderSubtitle(): JSX.Element | undefined {
-        const { creator, pageInfo } = this.state
-        // return creator ? `${creator.displayName}` : undefined
-
-        return (
-            <>
-                <SubtitleContainer viewportBreakpoint={this.viewportBreakpoint}>
-                    <DomainName>
-                        {pageInfo?.normalizedUrl.split('/')[0]}
-                    </DomainName>
-                    <RearBox viewportBreakpoint={this.viewportBreakpoint}>
-                        shared{' '}
-                        {creator?.displayName && (
-                            <SharedBy>
-                                by
-                                <Creator>
-                                    {creator?.displayName || undefined}
-                                </Creator>
-                            </SharedBy>
-                        )}
-                        <Date>
-                            <span>
-                                on {moment(pageInfo?.createdWhen).format('LLL')}
-                            </span>
-                        </Date>
-                        {/* <Margin horizontal="smallest">
-                        ·
-                    </Margin>
-                    <Date>
-                        on {moment(pageInfo?.createdWhen).format('LLL')}`
-                    </Date> */}
-                    </RearBox>
-                </SubtitleContainer>
-            </>
         )
     }
 

@@ -113,8 +113,8 @@ export type CollectionDetailsEvent = UIEvent<
             pageBreakpointHit: { entryIndex: number }
             clickFollowBtn: { pageToOpenPostFollow?: string }
             toggleMoreCollaborators: {}
-            hideMoreCollaborators: () => {}
-            updateScrollState: (previousState) => {}
+            hideMoreCollaborators: {}
+            updateScrollState: { previousScrollTop: number }
         }
 >
 

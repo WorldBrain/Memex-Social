@@ -83,10 +83,6 @@ export default class CollectionDetailsLogic extends UILogic<
                 {
                     ...this.dependencies,
                     ...setupConversationLogicDeps(this.dependencies),
-                    getSharedListReference: () => ({
-                        type: 'shared-list-reference',
-                        id: this.dependencies.listID,
-                    }),
                     selectAnnotationData: (state, reference) => {
                         const annotationId = this.dependencies.storage.contentSharing.getSharedAnnotationLinkID(
                             reference,
@@ -152,11 +148,13 @@ export default class CollectionDetailsLogic extends UILogic<
         )
     }
 
-    async updateScrollState(previousState) {
+    updateScrollState: EventHandler<'updateScrollState'> = async ({
+        event,
+    }) => {
         const mainArea = document.getElementById('MainContainer')
         if (mainArea) {
             mainArea.onscroll = () => {
-                const previousScrollTop = previousState.previousState.scrollTop
+                const previousScrollTop = event.previousScrollTop
                 const currentScroll = mainArea.scrollTop
 
                 if (
@@ -165,9 +163,7 @@ export default class CollectionDetailsLogic extends UILogic<
                     currentScroll === 0
                 ) {
                     this.emitMutation({
-                        scrollTop: {
-                            $set: mainArea?.scrollTop,
-                        },
+                        scrollTop: { $set: mainArea?.scrollTop },
                     })
                 }
             }
@@ -807,6 +803,7 @@ export default class CollectionDetailsLogic extends UILogic<
                     annotationReferences.map(({ id }) => ({
                         linkId: id.toString(),
                     })),
+                    this.dependencies.listID,
                 ),
             },
         })
@@ -818,6 +815,10 @@ export default class CollectionDetailsLogic extends UILogic<
                         ...args,
                     ),
                 annotationReferences,
+                sharedListReference: {
+                    type: 'shared-list-reference',
+                    id: this.dependencies.listID,
+                },
             },
         ).catch(console.error)
         intializeNewPageReplies(this as any, {
