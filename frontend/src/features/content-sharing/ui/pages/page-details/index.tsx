@@ -158,26 +158,6 @@ export default class PageDetailsPage extends UIElement<
         return null
     }
 
-    renderFollowBtn = (pageToOpenPostFollow?: string) => () => {
-        return (
-            <FollowBtn
-                onClick={() => {
-                    this.processEvent('clickFollowBtn', {
-                        pageToOpenPostFollow,
-                    })
-                }}
-                isFollowed={this.state.isCollectionFollowed}
-                isOwner={this.state.isListOwner}
-                isContributor={this.isListContributor}
-                loadState={mergeTaskStates([
-                    this.state.followLoadState,
-                    this.state.listRolesLoadState,
-                    this.state.permissionKeyState,
-                ])}
-            />
-        )
-    }
-
     render() {
         const { state, props } = this
         const { services, storage } = props
@@ -343,7 +323,10 @@ export default class PageDetailsPage extends UIElement<
                                         onToggleReplies={(event) =>
                                             this.processEvent(
                                                 'toggleAnnotationReplies',
-                                                event,
+                                                {
+                                                    ...event,
+                                                    sharedListReference: null,
+                                                },
                                             )
                                         }
                                         newPageReplyEventHandlers={{}}
@@ -394,8 +377,9 @@ export default class PageDetailsPage extends UIElement<
                                                 this.processEvent(
                                                     'editNewReplyToAnnotation',
                                                     {
-                                                        annotationReference,
                                                         content,
+                                                        annotationReference,
+                                                        sharedListReference: null,
                                                     },
                                                 ),
                                             onNewReplyCancel: (
@@ -403,14 +387,20 @@ export default class PageDetailsPage extends UIElement<
                                             ) => () =>
                                                 this.processEvent(
                                                     'cancelNewReplyToAnnotation',
-                                                    { annotationReference },
+                                                    {
+                                                        annotationReference,
+                                                        sharedListReference: null,
+                                                    },
                                                 ),
                                             onNewReplyConfirm: (
                                                 annotationReference,
                                             ) => () =>
                                                 this.processEvent(
                                                     'confirmNewReplyToAnnotation',
-                                                    { annotationReference },
+                                                    {
+                                                        annotationReference,
+                                                        sharedListReference: null,
+                                                    },
                                                 ),
                                         }}
                                     />

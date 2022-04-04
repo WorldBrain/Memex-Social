@@ -55,7 +55,6 @@ export default class PageDetailsLogic extends UILogic<
             annotationConversationEventHandlers<PageDetailsState>(this as any, {
                 ...this.dependencies,
                 ...setupConversationLogicDeps(this.dependencies),
-                getSharedListReference: () => null,
                 selectAnnotationData: (state, reference) => {
                     const annotationId = this.dependencies.storage.contentSharing.getSharedAnnotationLinkID(
                         reference,
@@ -186,6 +185,7 @@ export default class PageDetailsLogic extends UILogic<
                             conversations: {
                                 $set: getInitialAnnotationConversationStates(
                                     annotations,
+                                    null,
                                 ),
                             },
                         },
@@ -201,6 +201,7 @@ export default class PageDetailsLogic extends UILogic<
                         this.dependencies.storage.contentConversations.getThreadsForAnnotations(
                             ...args,
                         ),
+                    sharedListReference: null,
                 }).catch(console.error)
             }),
             executeUITask<PageDetailsState>(
