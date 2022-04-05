@@ -496,10 +496,7 @@ export default class CollectionDetailsPage extends UIElement<
                             normalizedPageUrl: entry.normalizedUrl,
                             pageCreatorReference: entry.creator,
                             pageReplyId: entry.normalizedUrl,
-                            sharedListReference: {
-                                id: this.props.listID,
-                                type: 'shared-list-reference',
-                            },
+                            sharedListReference: this.sharedListReference,
                         }),
                     onNewReplyEdit: ({ content }) =>
                         this.processEvent('editNewReplyToPage', {
