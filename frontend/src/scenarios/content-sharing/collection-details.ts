@@ -987,12 +987,12 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                         },
                     ],
                 }),
-                step({
-                    name: 'collection-share-modal-adding',
-                    target: 'ListShareModal',
-                    eventName: 'addLink',
-                    eventArgs: null,
-                }),
+                // step({
+                //     name: 'collection-share-modal-adding',
+                //     target: 'ListShareModal',
+                //     eventName: 'addLink',
+                //     eventArgs: null,
+                // }),
                 // step({
                 //     name: 'collection-share-modal-added',
                 //     callModifications: ({ storage }) => [
@@ -1002,18 +1002,18 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                 //         },
                 //     ],
                 // }),
-                step({
-                    name: 'collection-share-modal-delete-modal',
-                    target: 'ListShareModal',
-                    eventName: 'requestLinkDelete',
-                    eventArgs: { linkIndex: 1 },
-                }),
-                step({
-                    name: 'collection-share-modal-delete-modal-confirm',
-                    target: 'ListShareModal',
-                    eventName: 'confirmLinkDelete',
-                    eventArgs: null,
-                }),
+                // step({
+                //     name: 'collection-share-modal-delete-modal',
+                //     target: 'ListShareModal',
+                //     eventName: 'requestLinkDelete',
+                //     eventArgs: { linkIndex: 0 },
+                // }),
+                // step({
+                //     name: 'collection-share-modal-delete-modal-confirm',
+                //     target: 'ListShareModal',
+                //     eventName: 'confirmLinkDelete',
+                //     eventArgs: null,
+                // }),
                 // step({
                 //     name: 'collection-share-modal-delete-modal-done',
                 //     callModifications: ({ storage }) => [
