@@ -622,6 +622,7 @@ export default class HomeFeedPage extends UIElement<
                             this.processEvent('initiateNewReplyToAnnotation', {
                                 annotationReference,
                                 conversationId: conversationKey,
+                                sharedListReference: parentItem.listReference,
                             })
                     },
                     onNewReplyCancel: (annotationReference) => {

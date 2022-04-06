@@ -508,6 +508,7 @@ export default class CollectionDetailsPage extends UIElement<
                     onNewReplyInitiate: (annotationReference) => () =>
                         this.processEvent('initiateNewReplyToAnnotation', {
                             annotationReference,
+                            sharedListReference: this.sharedListReference,
                         }),
                     onNewReplyCancel: (annotationReference) => () =>
                         this.processEvent('cancelNewReplyToAnnotation', {

@@ -662,7 +662,6 @@ export default class HomeFeedLogic extends UILogic<
                         }
                     })
                     .filter((linkId) => !!linkId),
-                null, // TODO: verify we don't need to doubly index state by list
             )
             for (const conversationKey of Object.keys(organized.data.replies)) {
                 const replies = organized.data?.replies[conversationKey]

@@ -803,7 +803,6 @@ export default class CollectionDetailsLogic extends UILogic<
                     annotationReferences.map(({ id }) => ({
                         linkId: id.toString(),
                     })),
-                    this.dependencies.listID,
                 ),
             },
         })

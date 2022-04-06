@@ -739,7 +739,8 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                         annotationReference: {
                             type: 'shared-annotation-reference',
                             id: 'default-annotation',
-                        } as SharedAnnotationReference,
+                        },
+                        sharedListReference: null,
                     },
                 }),
                 step({
@@ -775,7 +776,8 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                         annotationReference: {
                             type: 'shared-annotation-reference',
                             id: 'default-annotation',
-                        } as SharedAnnotationReference,
+                        },
+                        sharedListReference: null,
                     },
                 }),
             ],
@@ -798,7 +800,8 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                         annotationReference: {
                             type: 'shared-annotation-reference',
                             id: 'default-annotation',
-                        } as SharedAnnotationReference,
+                        },
+                        sharedListReference: null,
                     },
                 }),
             ],
@@ -831,7 +834,8 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                         annotationReference: {
                             type: 'shared-annotation-reference',
                             id: 'default-annotation',
-                        } as SharedAnnotationReference,
+                        },
+                        sharedListReference: null,
                     },
                 }),
                 step({
@@ -878,7 +882,8 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                         annotationReference: {
                             type: 'shared-annotation-reference',
                             id: 'default-annotation',
-                        } as SharedAnnotationReference,
+                        },
+                        sharedListReference: null,
                     },
                 }),
             ],
@@ -911,7 +916,8 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                         annotationReference: {
                             type: 'shared-annotation-reference',
                             id: 'default-annotation',
-                        } as SharedAnnotationReference,
+                        },
+                        sharedListReference: null,
                     },
                 }),
                 step({
@@ -971,7 +977,8 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                         annotationReference: {
                             type: 'shared-annotation-reference',
                             id: 'default-annotation',
-                        } as SharedAnnotationReference,
+                        },
+                        sharedListReference: null,
                     },
                 }),
                 step({
@@ -1007,7 +1014,8 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                         annotationReference: {
                             type: 'shared-annotation-reference',
                             id: 'default-annotation',
-                        } as SharedAnnotationReference,
+                        },
+                        sharedListReference: null,
                     },
                 }),
             ],

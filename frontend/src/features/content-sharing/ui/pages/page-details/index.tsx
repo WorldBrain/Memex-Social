@@ -369,7 +369,10 @@ export default class PageDetailsPage extends UIElement<
                                             ) => () =>
                                                 this.processEvent(
                                                     'initiateNewReplyToAnnotation',
-                                                    { annotationReference },
+                                                    {
+                                                        annotationReference,
+                                                        sharedListReference: null,
+                                                    },
                                                 ),
                                             onNewReplyEdit: (
                                                 annotationReference,

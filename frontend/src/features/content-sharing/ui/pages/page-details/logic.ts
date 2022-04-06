@@ -185,7 +185,6 @@ export default class PageDetailsLogic extends UILogic<
                             conversations: {
                                 $set: getInitialAnnotationConversationStates(
                                     annotations,
-                                    null,
                                 ),
                             },
                         },
