@@ -310,7 +310,6 @@ export default class HomeFeedLogic extends UILogic<
                     }
                     const conversationKey = getConversationKey({
                         groupId: event.groupId,
-                        listReference: event.listReference,
                         annotationReference,
                     })
 
@@ -335,7 +334,6 @@ export default class HomeFeedLogic extends UILogic<
                 for (const annotation of Object.values(annotations)) {
                     const conversationKey = getConversationKey({
                         groupId: event.groupId,
-                        listReference: event.listReference,
                         annotationReference: annotation.reference,
                     })
                     conversationsData[conversationKey] = {
@@ -379,8 +377,6 @@ export default class HomeFeedLogic extends UILogic<
                                                                 event.groupId,
                                                             annotationReference:
                                                                 item.reference,
-                                                            listReference:
-                                                                event.listReference,
                                                         }),
                                                 ),
                                             },
@@ -400,7 +396,6 @@ export default class HomeFeedLogic extends UILogic<
         const { groupId, annotationReference, listReference } = incoming.event
         const conversationKey = getConversationKey({
             groupId,
-            listReference,
             annotationReference,
         })
 
@@ -609,7 +604,6 @@ export default class HomeFeedLogic extends UILogic<
 
                 const conversationKey = getConversationKey({
                     groupId: annotationInfo.groupId,
-                    listReference: thread.sharedList,
                     annotationReference: thread.sharedAnnotation,
                 })
                 conversationsMutations[conversationKey] = {
@@ -791,7 +785,6 @@ export function organizeActivities(
 
             data.annotationItems[
                 getConversationKey({
-                    listReference,
                     groupId: activityGroup.id,
                     annotationReference: groupAnnotation.reference,
                 })
@@ -821,7 +814,6 @@ export function organizeActivities(
             const conversationKey = getConversationKey({
                 groupId: activityGroup.id,
                 annotationReference,
-                listReference,
             })
             for (const activityInGroup of replyActivityGroup.activities) {
                 const replyActivity = activityInGroup.activity
@@ -942,7 +934,6 @@ export function organizeActivities(
 
                 const conversationKey = getConversationKey({
                     groupId: activityGroup.id,
-                    listReference: firstActivity.list.reference,
                     annotationReference: entryActivity.annotation.reference,
                 })
                 conversationLoadStates[conversationKey] = 'pristine'
@@ -959,7 +950,6 @@ export function organizeActivities(
                 data.annotationItems[
                     getConversationKey({
                         groupId: activityGroup.id,
-                        listReference: firstActivity.list.reference,
                         annotationReference: entryActivity.annotation.reference,
                     })
                 ] = annotationItem
@@ -1007,12 +997,9 @@ function findActivityItem(
 
 export function getConversationKey(input: {
     groupId: string
-    listReference: SharedListReference | null
     annotationReference: SharedAnnotationReference
 }) {
-    return `${input.groupId}:${
-        input.listReference != null ? input.listReference.id + ':' : ''
-    }${input.annotationReference.id}`
+    return `${input.groupId}:${input.annotationReference.id}`
 }
 
 export function splitConversationKey(

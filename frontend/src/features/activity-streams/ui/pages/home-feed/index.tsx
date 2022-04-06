@@ -523,7 +523,6 @@ export default class HomeFeedPage extends UIElement<
                     const conversationKey = getConversationKey({
                         groupId,
                         annotationReference,
-                        listReference: parentItem.listReference,
                     })
                     return this.state.conversations[conversationKey]
                 }}
@@ -531,7 +530,6 @@ export default class HomeFeedPage extends UIElement<
                     const conversationKey = getConversationKey({
                         groupId,
                         annotationReference,
-                        listReference: parentItem.listReference,
                     })
                     const groupReplies = state.replies[conversationKey]
                     const reply = groupReplies?.[replyReference.id]
@@ -550,7 +548,6 @@ export default class HomeFeedPage extends UIElement<
                     const conversationKey = getConversationKey({
                         groupId,
                         annotationReference,
-                        listReference: parentItem.listReference,
                     })
                     const annotationItem =
                         annotationItems.items[annotationReference.id]
@@ -596,7 +593,6 @@ export default class HomeFeedPage extends UIElement<
                     const conversationKey = getConversationKey({
                         groupId,
                         annotationReference: props.annotationReference,
-                        listReference: parentItem.listReference,
                     })
                     const moreRepliesLoadStates =
                         state.moreRepliesLoadStates[conversationKey] ??
@@ -621,7 +617,6 @@ export default class HomeFeedPage extends UIElement<
                         const conversationKey = getConversationKey({
                             groupId,
                             annotationReference,
-                            listReference: parentItem.listReference,
                         })
                         return () =>
                             this.processEvent('initiateNewReplyToAnnotation', {
@@ -633,7 +628,6 @@ export default class HomeFeedPage extends UIElement<
                         const conversationKey = getConversationKey({
                             groupId,
                             annotationReference,
-                            listReference: parentItem.listReference,
                         })
                         return () =>
                             this.processEvent('cancelNewReplyToAnnotation', {
@@ -646,7 +640,6 @@ export default class HomeFeedPage extends UIElement<
                         const conversationKey = getConversationKey({
                             groupId,
                             annotationReference,
-                            listReference: parentItem.listReference,
                         })
                         return () =>
                             this.processEvent('confirmNewReplyToAnnotation', {
@@ -659,7 +652,6 @@ export default class HomeFeedPage extends UIElement<
                         const conversationKey = getConversationKey({
                             groupId,
                             annotationReference,
-                            listReference: parentItem.listReference,
                         })
                         return ({ content }) =>
                             this.processEvent('editNewReplyToAnnotation', {
@@ -674,7 +666,6 @@ export default class HomeFeedPage extends UIElement<
                     const conversationKey = getConversationKey({
                         groupId,
                         annotationReference: event.annotationReference,
-                        listReference: parentItem.listReference,
                     })
                     return this.processEvent('toggleAnnotationReplies', {
                         ...event,
