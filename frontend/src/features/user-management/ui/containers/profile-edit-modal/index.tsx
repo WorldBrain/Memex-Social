@@ -32,6 +32,10 @@ const Container = styled.div<{ loadState: UITaskState; theme: Theme }>`
     flex-direction: column;
 
     background-color: ${(props) => props.theme.colors.background};
+    padding-left: ${(props) => props.theme.spacing.small};
+    padding-right: ${(props) => props.theme.spacing.small};
+    padding-top: ${(props) => props.theme.spacing.small};
+    padding-bottom: ${(props) => props.theme.spacing.small};
     & * {
         font-family: ${(props) => props.theme.fonts.primary};
     }
@@ -121,6 +125,7 @@ const SectionHeaderDescription = styled(SectionHeader)`
     font-weight: 'normal';
     font-size: ${(props) => props.theme.fontSizes.text};
     line-height: ${(props) => props.theme.lineHeights.text};
+    padding-bottom: ${(props) => props.theme.spacing.small};
 `
 
 const WebLink = styled(SectionHeaderDescription)`
