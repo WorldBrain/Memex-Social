@@ -40,10 +40,12 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                         {
                             type: 'follow-annotation',
                             annotation: 'default-annotation',
+                            list: 'default-list',
                         },
                         {
                             type: 'follow-annotation',
                             annotation: 'second-annotation',
+                            list: 'default-list',
                         },
                         {
                             type: 'login',
@@ -92,6 +94,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                             {
                                 type: 'follow-annotation',
                                 annotation: 'default-annotation',
+                                list: 'default-list',
                             },
                             {
                                 type: 'login',

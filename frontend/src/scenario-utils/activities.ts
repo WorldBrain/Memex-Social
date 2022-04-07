@@ -12,7 +12,7 @@ type ActivityScriptStep =
     | { type: 'login'; user: string; createProfile?: boolean }
     | { type: 'reply'; annotation: string; list: string }
     | { type: 'reply'; createdAnnotation: string; list: string }
-    | { type: 'follow-annotation'; annotation: string }
+    | { type: 'follow-annotation'; annotation: string; list: string }
     | { type: 'follow-list'; list: string }
     | { type: 'list-entries'; list: string; pages: string[]; time?: '$now' }
     | { type: 'home-feed-timestamp'; user: string; time: '$now' }
@@ -165,7 +165,10 @@ async function setup({
                     annotationReference: annotationReference,
                     normalizedPageUrl:
                         annotationData.annotation.normalizedPageUrl,
-                    sharedListReference: null,
+                    sharedListReference: {
+                        type: 'shared-list-reference',
+                        id: step.list,
+                    },
                 },
             )
             await services.activityStreams.followEntity({
@@ -274,9 +277,9 @@ export const setupTestActivities = async ({
             { type: 'login', user: 'default-user' },
             { type: 'reply', annotation: 'third-annotation', list: 'default-list' },
             { type: 'reply', annotation: 'third-annotation', list: 'default-list' },
-            { type: 'follow-annotation', annotation: 'default-annotation' },
-            { type: 'follow-annotation', annotation: 'second-annotation' },
-            { type: 'follow-annotation', annotation: 'third-annotation' },
+            { type: 'follow-annotation', annotation: 'default-annotation', list: 'default-list' },
+            { type: 'follow-annotation', annotation: 'second-annotation', list: 'default-list' },
+            { type: 'follow-annotation', annotation: 'third-annotation', list: 'default-list' },
             { type: 'follow-list', list: 'default-list' },
             { type: 'login', user: 'two@user.com', createProfile: true },
             { type: 'reply', annotation: 'default-annotation', list: 'default-list' },
