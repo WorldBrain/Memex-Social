@@ -760,7 +760,6 @@ export default class CollectionDetailsLogic extends UILogic<
 
                 try {
                     const annotationChunks = await Promise.all(pagePromises)
-                    // await new Promise(resolve => setTimeout(resolve, 2000))
                     const newAnnotations: CollectionDetailsState['annotations'] = {}
                     for (const annotationChunk of annotationChunks) {
                         for (const [annotationId, annotation] of Object.entries(

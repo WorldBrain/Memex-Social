@@ -131,7 +131,7 @@ async function setup({
                     },
                     normalizedPageUrl: normalizedPageUrl,
                     reply: {
-                        content: `annot in ${normalizedPageUrl} - ${annotationName} - reply ${replyNumber} (${extraInfo})`,
+                        content: `annot in ${normalizedPageUrl} - ${annotationName} - list ${step.list} - reply ${replyNumber} (${extraInfo})`,
                     },
                     previousReplyReference: lastReplyByAnnotation[annotId],
                 },

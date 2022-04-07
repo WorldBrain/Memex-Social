@@ -555,7 +555,7 @@ export default class CollectionDetailsPage extends UIElement<
         ) {
             return (
                 <SubtitleContainer
-                    loading={true}
+                    loading
                     viewportBreakpoint={this.viewportBreakpoint}
                 >
                     <LoadingIndicator size={16} />
@@ -668,6 +668,9 @@ export default class CollectionDetailsPage extends UIElement<
                                                 {users.map(
                                                     ([userReference, user]) => (
                                                         <ProfilePopupContainer
+                                                            key={
+                                                                userReference.id
+                                                            }
                                                             services={
                                                                 this.props
                                                                     .services
@@ -975,78 +978,76 @@ export default class CollectionDetailsPage extends UIElement<
                         )}
                         {[...data.listEntries.entries()].map(
                             ([entryIndex, entry]) => (
-                                <Margin bottom={'small'}>
-                                    <React.Fragment key={entry.normalizedUrl}>
-                                        <PageInfoBox
-                                            onClick={(e) =>
-                                                this.processEvent(
-                                                    'clickPageResult',
-                                                    {
-                                                        urlToOpen:
-                                                            entry.originalUrl,
-                                                        preventOpening: () =>
-                                                            e.preventDefault(),
-                                                        isFollowedSpace:
-                                                            this.state
-                                                                .isCollectionFollowed ||
-                                                            this.state
-                                                                .isListOwner,
-                                                    },
-                                                )
-                                            }
-                                            type={
-                                                isPagePdf({
-                                                    url: entry.normalizedUrl,
-                                                })
-                                                    ? 'pdf'
-                                                    : 'page'
-                                            }
-                                            profilePopup={{
-                                                services: this.props.services,
-                                                storage: this.props.storage,
-                                                userRef: entry.creator,
-                                            }}
-                                            pageInfo={{
-                                                ...entry,
-                                                fullTitle: entry.entryTitle,
-                                            }}
-                                            creator={
-                                                this.state.users[
-                                                    entry.creator.id
-                                                ]
-                                            }
-                                            actions={this.getPageEntryActions(
-                                                entry,
-                                            )}
-                                        />
-                                        {state.pageAnnotationsExpanded[
-                                            entry.normalizedUrl
-                                        ] && (
-                                            <Margin>
-                                                <Margin bottom={'smallest'}>
-                                                    {this.renderPageAnnotations(
-                                                        entry,
-                                                    )}
-                                                </Margin>
-                                            </Margin>
+                                <Margin
+                                    bottom="small"
+                                    key={entry.normalizedUrl}
+                                >
+                                    <PageInfoBox
+                                        onClick={(e) =>
+                                            this.processEvent(
+                                                'clickPageResult',
+                                                {
+                                                    urlToOpen:
+                                                        entry.originalUrl,
+                                                    preventOpening: () =>
+                                                        e.preventDefault(),
+                                                    isFollowedSpace:
+                                                        this.state
+                                                            .isCollectionFollowed ||
+                                                        this.state.isListOwner,
+                                                },
+                                            )
+                                        }
+                                        type={
+                                            isPagePdf({
+                                                url: entry.normalizedUrl,
+                                            })
+                                                ? 'pdf'
+                                                : 'page'
+                                        }
+                                        profilePopup={{
+                                            services: this.props.services,
+                                            storage: this.props.storage,
+                                            userRef: entry.creator,
+                                        }}
+                                        pageInfo={{
+                                            ...entry,
+                                            fullTitle: entry.entryTitle,
+                                        }}
+                                        creator={
+                                            this.state.users[entry.creator.id]
+                                        }
+                                        actions={this.getPageEntryActions(
+                                            entry,
                                         )}
-                                        {state.allAnnotationExpanded &&
-                                            state.annotationEntriesLoadState ===
-                                                'success' &&
-                                            entryIndex > 0 &&
-                                            entryIndex % PAGE_SIZE === 0 && (
-                                                <Waypoint
-                                                    onEnter={() => {
-                                                        this.processEvent(
-                                                            'pageBreakpointHit',
-                                                            {
-                                                                entryIndex,
-                                                            },
-                                                        )
-                                                    }}
-                                                />
-                                            )}
-                                    </React.Fragment>
+                                    />
+                                    {state.pageAnnotationsExpanded[
+                                        entry.normalizedUrl
+                                    ] && (
+                                        <Margin>
+                                            <Margin bottom={'smallest'}>
+                                                {this.renderPageAnnotations(
+                                                    entry,
+                                                )}
+                                            </Margin>
+                                        </Margin>
+                                    )}
+                                    {state.allAnnotationExpanded &&
+                                        state.annotationEntriesLoadState ===
+                                            'success' &&
+                                        entryIndex > 0 &&
+                                        entryIndex % PAGE_SIZE === 0 && (
+                                            <Waypoint
+                                                onEnter={() => {
+                                                    this.processEvent(
+                                                        'pageBreakpointHit',
+                                                        {
+                                                            entryIndex,
+                                                        },
+                                                    )
+                                                }}
+                                            />
+                                        )}
                                 </Margin>
                             ),
                         )}

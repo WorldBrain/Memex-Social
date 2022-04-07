@@ -739,62 +739,59 @@ export default class HomeFeedPage extends UIElement<
 
                             const creator = state.users[entry.creator.id]
                             return (
-                                <>
-                                    <Margin
-                                        bottom="small"
-                                        key={entry.normalizedUrl}
-                                    >
-                                        <PageInfoBox
-                                            onClick={(e) =>
-                                                this.processEvent(
-                                                    'clickPageResult',
-                                                    {
-                                                        urlToOpen:
-                                                            entry.originalUrl,
-                                                        preventOpening: () =>
-                                                            e.preventDefault(),
-                                                        isFeed: true,
-                                                    },
-                                                )
-                                            }
-                                            type={
-                                                isPagePdf({
-                                                    url: entry.normalizedUrl,
-                                                })
-                                                    ? 'pdf'
-                                                    : 'page'
-                                            }
-                                            profilePopup={{
-                                                services: this.props.services,
-                                                storage: this.props.storage,
-                                                userRef: entry.creator,
-                                            }}
-                                            pageInfo={{
-                                                fullTitle: entry.entryTitle,
-                                                originalUrl: entry.originalUrl,
-                                                createdWhen:
-                                                    entry.activityTimestamp,
-                                                normalizedUrl:
-                                                    entry.normalizedUrl,
-                                            }}
-                                            creator={creator}
-                                            actions={actions}
-                                        />
-                                        {entry.annotationsLoadState ===
-                                            'running' && (
-                                            <LoadingIndicatorBox>
-                                                <LoadingIndicator />
-                                            </LoadingIndicatorBox>
+                                <Margin
+                                    bottom="small"
+                                    key={entry.normalizedUrl}
+                                >
+                                    <PageInfoBox
+                                        onClick={(e) =>
+                                            this.processEvent(
+                                                'clickPageResult',
+                                                {
+                                                    urlToOpen:
+                                                        entry.originalUrl,
+                                                    preventOpening: () =>
+                                                        e.preventDefault(),
+                                                    isFeed: true,
+                                                },
+                                            )
+                                        }
+                                        type={
+                                            isPagePdf({
+                                                url: entry.normalizedUrl,
+                                            })
+                                                ? 'pdf'
+                                                : 'page'
+                                        }
+                                        profilePopup={{
+                                            services: this.props.services,
+                                            storage: this.props.storage,
+                                            userRef: entry.creator,
+                                        }}
+                                        pageInfo={{
+                                            fullTitle: entry.entryTitle,
+                                            originalUrl: entry.originalUrl,
+                                            createdWhen:
+                                                entry.activityTimestamp,
+                                            normalizedUrl: entry.normalizedUrl,
+                                        }}
+                                        creator={creator}
+                                        actions={actions}
+                                    />
+                                    {entry.annotationsLoadState ===
+                                        'running' && (
+                                        <LoadingIndicatorBox>
+                                            <LoadingIndicator />
+                                        </LoadingIndicatorBox>
+                                    )}
+                                    {entry.areAnnotationsShown &&
+                                        this.renderAnnotationsInPage(
+                                            listItem.groupId,
+                                            listItem,
+                                            entry.annotations,
+                                            options,
                                         )}
-                                        {entry.areAnnotationsShown &&
-                                            this.renderAnnotationsInPage(
-                                                listItem.groupId,
-                                                listItem,
-                                                entry.annotations,
-                                                options,
-                                            )}
-                                    </Margin>
-                                </>
+                                </Margin>
                             )
                         },
                         (inputArr) =>

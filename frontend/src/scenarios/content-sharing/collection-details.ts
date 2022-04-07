@@ -708,6 +708,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                             type: 'shared-list-reference',
                             id: 'default-list',
                         },
+                        skipNullListLookup: true,
                     },
                 }),
                 step({
