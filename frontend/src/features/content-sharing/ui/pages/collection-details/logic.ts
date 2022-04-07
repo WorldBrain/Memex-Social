@@ -583,9 +583,6 @@ export default class CollectionDetailsLogic extends UILogic<
             listID,
         } = this.dependencies
         let userReference = auth.getCurrentUserReference()
-        this.emitMutation({
-            followLoadState: { $set: 'running' },
-        })
 
         if (previousState.listRoleID) {
             return
@@ -623,7 +620,6 @@ export default class CollectionDetailsLogic extends UILogic<
                 )
                 const mutation: UIMutation<CollectionDetailsState> = {
                     isCollectionFollowed: { $set: !isAlreadyFollowed },
-                    followLoadState: { $set: 'pristine' },
                 }
 
                 if (isAlreadyFollowed) {
