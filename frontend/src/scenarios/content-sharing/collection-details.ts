@@ -663,14 +663,15 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                 params: { id: 'default-list' },
             },
             setup: {
-                callModifications: ({ storage }) => [
-                    callModification({
-                        name: 'threads-loading',
-                        object: storage.serverModules.contentConversations,
-                        property: 'getThreadsForAnnotations',
-                        modifier: 'block',
-                    }),
-                ],
+                // TODO: this is commented out as unblocking it somehow stopped doesn't work, thus breaking all the subsequent steps
+                // callModifications: ({ storage }) => [
+                //     callModification({
+                //         name: 'threads-loading',
+                //         object: storage.serverModules.contentConversations,
+                //         property: 'getThreadsForAnnotations',
+                //         modifier: 'block',
+                //     }),
+                // ],
             },
             steps: [
                 step({
@@ -685,15 +686,15 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                         normalizedUrl: 'getmemex.com',
                     },
                 }),
-                step({
-                    name: 'threads-loaded',
-                    callModifications: () => [
-                        {
-                            name: 'threads-loading',
-                            modifier: 'undo',
-                        },
-                    ],
-                }),
+                // step({
+                //     name: 'threads-loaded',
+                //     callModifications: () => [
+                //         {
+                //             name: 'threads-loading',
+                //             modifier: 'undo',
+                //         },
+                //     ],
+                // }),
                 step({
                     name: 'toggle-replies',
                     target: 'CollectionDetailsPage',
