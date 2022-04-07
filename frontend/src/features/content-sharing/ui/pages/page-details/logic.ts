@@ -19,7 +19,6 @@ import { getInitialAnnotationConversationStates } from '../../../../content-conv
 import {
     annotationConversationEventHandlers,
     annotationConversationInitialState,
-    detectAnnotationConversationThreads,
     setupConversationLogicDeps,
 } from '../../../../content-conversations/ui/logic'
 import {
@@ -118,7 +117,6 @@ export default class PageDetailsLogic extends UILogic<
         )
         let creatorReference: UserReference | null
         let pageInfo: SharedPageInfo | null
-        let annotationReferences: SharedAnnotationReference[] = []
         await executeUITask<PageDetailsState>(
             this,
             'pageInfoLoadState',
@@ -171,9 +169,6 @@ export default class PageDetailsLogic extends UILogic<
                             annotation.reference,
                         ),
                     }))
-                    annotationReferences = annotations.map(
-                        (annotation) => annotation.reference,
-                    )
                     return {
                         mutation: {
                             annotations: {
@@ -190,19 +185,7 @@ export default class PageDetailsLogic extends UILogic<
                         },
                     }
                 },
-            ).then(() => {
-                if (!pageInfo) {
-                    return
-                }
-                detectAnnotationConversationThreads(this as any, {
-                    annotationReferences,
-                    getThreadsForAnnotations: (...args) =>
-                        this.dependencies.storage.contentConversations.getThreadsForAnnotations(
-                            ...args,
-                        ),
-                    sharedListReference: null,
-                }).catch(console.error)
-            }),
+            ),
             executeUITask<PageDetailsState>(
                 this,
                 'creatorLoadState',

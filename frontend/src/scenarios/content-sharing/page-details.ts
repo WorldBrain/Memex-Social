@@ -553,30 +553,6 @@ export const SCENARIOS: ScenarioMap<Targets> = {
             }),
         ],
     })),
-    'existing-conversation': scenario<Targets>(
-        ({ step, callModification }) => ({
-            authenticated: true,
-            fixture: 'annotation-coversation-with-user',
-            startRoute: {
-                route: 'pageDetails',
-                params: { id: 'default-page' },
-            },
-            steps: [
-                step({
-                    name: 'toggle-replies',
-                    target: 'PageDetailsPage',
-                    eventName: 'toggleAnnotationReplies',
-                    eventArgs: {
-                        annotationReference: {
-                            type: 'shared-annotation-reference',
-                            id: 'default-annotation',
-                        },
-                        sharedListReference: null,
-                    },
-                }),
-            ],
-        }),
-    ),
     'not-found': scenario<Targets>(({ step, callModification }) => ({
         startRoute: { route: 'pageDetails', params: { id: 'default-page' } },
         setup: {},

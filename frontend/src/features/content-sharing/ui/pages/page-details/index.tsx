@@ -320,17 +320,7 @@ export default class PageDetailsPage extends UIElement<
                                         annotationConversations={
                                             state.conversations
                                         }
-                                        onToggleReplies={(event) =>
-                                            this.processEvent(
-                                                'toggleAnnotationReplies',
-                                                {
-                                                    ...event,
-                                                    sharedListReference: null,
-                                                },
-                                            )
-                                        }
                                         newPageReplyEventHandlers={{}}
-                                        newAnnotationReplyEventHandlers={null}
                                     />
                                 )}
                         </Margin>
