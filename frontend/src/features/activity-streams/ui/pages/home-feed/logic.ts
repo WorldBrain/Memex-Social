@@ -900,6 +900,7 @@ export function organizeActivities(
             }
         } else if (
             (activityGroup.entityType === 'sharedList' ||
+                activityGroup.entityType === 'sharedListEntry' ||
                 activityGroup.entityType === 'sharedPageInfo') &&
             activityGroup.activityType === 'annotationListEntry'
         ) {
