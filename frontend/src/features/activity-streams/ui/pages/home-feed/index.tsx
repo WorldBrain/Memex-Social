@@ -108,7 +108,7 @@ const LoadingIndicatorBox = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 50px;
+    height: 60px;
 `
 
 const ActivityReasonLabel = styled.div<{
@@ -560,11 +560,11 @@ export default class HomeFeedPage extends UIElement<
                     if (loadState === 'success') {
                         return null
                     }
-                    if (loadState === 'running') {
+                    if (loadState === 'pristine') {
                         return (
-                            <LoadMoreReplies>
-                                <LoadingIndicator />
-                            </LoadMoreReplies>
+                            <LoadingIndicatorBox>
+                                <LoadingIndicator size={25} />
+                            </LoadingIndicatorBox>
                         )
                     }
                     if (loadState === 'error') {
@@ -781,7 +781,7 @@ export default class HomeFeedPage extends UIElement<
                                     {entry.annotationsLoadState ===
                                         'running' && (
                                         <LoadingIndicatorBox>
-                                            <LoadingIndicator />
+                                            <LoadingIndicator size={25} />
                                         </LoadingIndicatorBox>
                                     )}
                                     {entry.areAnnotationsShown &&
