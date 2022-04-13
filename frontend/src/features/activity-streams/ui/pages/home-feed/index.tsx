@@ -473,6 +473,11 @@ export default class HomeFeedPage extends UIElement<
         }
     }
 
+    isSeen(timestamp: number) {
+        const { lastSeenTimestamp } = this.state
+        return !!lastSeenTimestamp && lastSeenTimestamp > timestamp
+    }
+
     renderAnnotationsInPage = (
         groupId: string,
         parentItem: PageActivityItem | ListActivityItem,
@@ -489,13 +494,15 @@ export default class HomeFeedPage extends UIElement<
                         if (parentItem.reason !== 'new-annotations') {
                             return true
                         }
+                        if (this.isSeen(parentItem.notifiedWhen)) {
+                            return true
+                        }
+
                         const annotation = state.annotations[item.reference.id]
                         const seenState =
-                            state.lastSeenTimestamp &&
-                            annotation &&
-                            (state.lastSeenTimestamp > annotation.updatedWhen
+                            !!annotation && this.isSeen(annotation.updatedWhen)
                                 ? 'seen'
-                                : 'unseen')
+                                : 'unseen'
 
                         return seenState !== 'seen'
                     }),
