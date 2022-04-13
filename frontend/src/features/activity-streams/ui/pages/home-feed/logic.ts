@@ -250,8 +250,9 @@ export default class HomeFeedLogic extends UILogic<
                     contentConversations,
                 } = this.dependencies.storage
 
-                const annotations = await contentSharing.getAnnotationsByCreatorAndPageUrl(
+                const annotations = await contentSharing.getListAnnotationsByCreatorAndPageUrl(
                     {
+                        sharedListReference: event.listReference,
                         normalizedPageUrl: entry.normalizedUrl,
                         creatorReference: entry.creator,
                     },

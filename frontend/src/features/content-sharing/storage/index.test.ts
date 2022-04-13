@@ -619,6 +619,146 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
     )
 
     it(
+        'should retrieve all annotations by creator and URL that are in a given list',
+        { withTestUser: true },
+        async ({ storage, services }) => {
+            const { contentSharing } = storage.serverModules
+            const userReference = services.auth.getCurrentUserReference()!
+            const listReferenceA = await contentSharing.createSharedList({
+                listData: {
+                    title: 'list A',
+                },
+                userReference,
+            })
+            const listReferenceB = await contentSharing.createSharedList({
+                listData: {
+                    title: 'list B',
+                },
+                userReference,
+            })
+            await data.createTestListEntries({
+                contentSharing,
+                listReference: listReferenceA,
+                userReference,
+            })
+            await data.createTestListEntries({
+                contentSharing,
+                listReference: listReferenceB,
+                userReference,
+            })
+            await storage.serverModules.contentSharing.createAnnotations({
+                listReferences: [listReferenceA],
+                creator: userReference,
+                annotationsByPage: {
+                    'foo.com/page-1': [
+                        {
+                            createdWhen: 500,
+                            localId: 'foo.com/page-1#500',
+                            body: 'Body 1',
+                            comment: 'Comment 1',
+                            selector: 'Selector 1',
+                        },
+                        {
+                            createdWhen: 1500,
+                            localId: 'foo.com/page-1#1500',
+                            body: 'Body 2',
+                            comment: 'Comment 2',
+                            selector: 'Selector 2',
+                        },
+                    ],
+                },
+            })
+            await storage.serverModules.contentSharing.createAnnotations({
+                listReferences: [listReferenceB],
+                creator: userReference,
+                annotationsByPage: {
+                    'foo.com/page-1': [
+                        {
+                            createdWhen: 2000,
+                            localId: 'foo.com/page-1#2000',
+                            body: 'Body 3',
+                            comment: 'Comment 3',
+                            selector: 'Selector 3',
+                        },
+                    ],
+                },
+            })
+
+            const retrievedAnnotationsListA = orderBy(
+                await contentSharing.getListAnnotationsByCreatorAndPageUrl({
+                    creatorReference: userReference,
+                    normalizedPageUrl: 'foo.com/page-1',
+                    sharedListReference: listReferenceA,
+                }),
+                ['createdWhen', 'asc'],
+            )
+
+            expect(retrievedAnnotationsListA).toEqual([
+                {
+                    linkId: contentSharing.getSharedAnnotationLinkID(
+                        retrievedAnnotationsListA[0].reference,
+                    ),
+                    reference: expect.objectContaining({
+                        type: 'shared-annotation-reference',
+                    }),
+                    creator: userReference,
+                    normalizedPageUrl: 'foo.com/page-1',
+                    createdWhen: 500,
+                    uploadedWhen: expect.any(Number),
+                    updatedWhen: expect.any(Number),
+                    body: 'Body 1',
+                    comment: 'Comment 1',
+                    selector: 'Selector 1',
+                },
+                {
+                    linkId: contentSharing.getSharedAnnotationLinkID(
+                        retrievedAnnotationsListA[1].reference,
+                    ),
+                    reference: expect.objectContaining({
+                        type: 'shared-annotation-reference',
+                    }),
+                    creator: userReference,
+                    createdWhen: 1500,
+                    uploadedWhen: expect.any(Number),
+                    updatedWhen: expect.any(Number),
+                    normalizedPageUrl: 'foo.com/page-1',
+                    body: 'Body 2',
+                    comment: 'Comment 2',
+                    selector: 'Selector 2',
+                },
+            ])
+
+            const retrievedAnnotationsListB = orderBy(
+                await contentSharing.getListAnnotationsByCreatorAndPageUrl({
+                    creatorReference: userReference,
+                    normalizedPageUrl: 'foo.com/page-1',
+                    sharedListReference: listReferenceB,
+                }),
+                ['createdWhen', 'asc'],
+            )
+
+            expect(retrievedAnnotationsListB).toEqual([
+                {
+                    linkId: contentSharing.getSharedAnnotationLinkID(
+                        retrievedAnnotationsListB[0].reference,
+                    ),
+                    reference: expect.objectContaining({
+                        type: 'shared-annotation-reference',
+                    }),
+                    creator: userReference,
+                    normalizedPageUrl: 'foo.com/page-1',
+                    createdWhen: 2000,
+                    uploadedWhen: expect.any(Number),
+                    updatedWhen: expect.any(Number),
+                    body: 'Body 3',
+                    comment: 'Comment 3',
+                    selector: 'Selector 3',
+                },
+            ])
+        },
+    )
+
+    it(
         'should retrieve all annotation entries for a list and get those annotations',
         { withTestUser: true },
         async ({ storage, services }) => {
