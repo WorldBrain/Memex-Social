@@ -428,8 +428,8 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                 callModifications: ({ storage }) => [
                     callModification({
                         name: 'reply-broken',
-                        object: storage.serverModules.contentConversations,
-                        property: 'getOrCreateThread',
+                        object: storage.serverModules.contentSharing,
+                        property: 'createAnnotations',
                         modifier: 'sabotage',
                     }),
                 ],

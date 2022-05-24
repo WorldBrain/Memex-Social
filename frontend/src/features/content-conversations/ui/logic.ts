@@ -34,9 +34,6 @@ export const setupConversationLogicDeps = ({
     getRepliesByAnnotation: storage.contentConversations.getRepliesByAnnotation.bind(
         storage.contentConversations,
     ),
-    getOrCreateConversationThread: storage.contentConversations.getOrCreateThread.bind(
-        storage.contentConversations,
-    ),
     getCurrentUser: async () => {
         const user = services.auth.getCurrentUser()
         const reference = services.auth.getCurrentUserReference()
