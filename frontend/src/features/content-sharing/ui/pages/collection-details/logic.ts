@@ -233,7 +233,7 @@ export default class CollectionDetailsLogic extends UILogic<
     processPermissionKey: EventHandler<'processPermissionKey'> = async (
         incoming,
     ) => {
-        if (!this.dependencies.services.contentSharing.hasCurrentKey()) {
+        if (!this.dependencies.services.listKeys.hasCurrentKey()) {
             return this.emitMutation({
                 permissionKeyState: { $set: 'success' },
             })
@@ -245,7 +245,7 @@ export default class CollectionDetailsLogic extends UILogic<
                 await this.dependencies.services.auth.waitForAuthReady()
                 const {
                     result,
-                } = await this.dependencies.services.contentSharing.processCurrentKey()
+                } = await this.dependencies.services.listKeys.processCurrentKey()
                 if (result !== 'not-authenticated') {
                     return {
                         mutation: {
@@ -274,7 +274,7 @@ export default class CollectionDetailsLogic extends UILogic<
                 }
                 const {
                     result: secondKeyResult,
-                } = await this.dependencies.services.contentSharing.processCurrentKey()
+                } = await this.dependencies.services.listKeys.processCurrentKey()
                 return {
                     mutation: {
                         permissionKeyResult: { $set: secondKeyResult },

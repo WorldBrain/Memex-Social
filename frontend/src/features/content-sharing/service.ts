@@ -1,14 +1,14 @@
 import type { ContentSharingBackendInterface } from '@worldbrain/memex-common/lib/content-sharing/backend/types'
 import type {
     ProcessSharedListKeyResult,
-    ListSharingServiceInterface,
+    ListKeysServiceInterface,
 } from '@worldbrain/memex-common/lib/content-sharing/service/types'
-import ListSharingService from '@worldbrain/memex-common/lib/content-sharing/service/list-sharing'
+import AbstractListKeysService from '@worldbrain/memex-common/lib/content-sharing/service/list-keys'
 import type { SharedListReference } from '@worldbrain/memex-common/lib/content-sharing/types'
 import type RouterService from '../../services/router'
 import type ContentSharingStorage from './storage'
 
-export class ContentSharingService extends ListSharingService {
+export class ListKeysService extends AbstractListKeysService {
     backend: ContentSharingBackendInterface
 
     constructor(
@@ -17,10 +17,7 @@ export class ContentSharingService extends ListSharingService {
             router: RouterService
             isAuthenticated: () => boolean
             storage: {
-                contentSharing: Pick<
-                    ContentSharingStorage,
-                    'createListKey' | 'getListKeys' | 'deleteListKey'
-                >
+                contentSharing: ContentSharingStorage
             }
         },
     ) {
@@ -46,7 +43,7 @@ export class ContentSharingService extends ListSharingService {
         return params.keyString ? `${link}?key=${params.keyString}` : link
     }
 
-    hasCurrentKey: ListSharingServiceInterface['hasCurrentKey'] = () => {
+    hasCurrentKey: ListKeysServiceInterface['hasCurrentKey'] = () => {
         const routeMatch = this.dependencies.router.matchCurrentUrl()
         if (routeMatch.route !== 'collectionDetails') {
             return false
@@ -55,7 +52,7 @@ export class ContentSharingService extends ListSharingService {
         return !!keyString
     }
 
-    processCurrentKey: ListSharingServiceInterface['processCurrentKey'] = async (): Promise<{
+    processCurrentKey: ListKeysServiceInterface['processCurrentKey'] = async (): Promise<{
         result: ProcessSharedListKeyResult
     }> => {
         const routeMatch = this.dependencies.router.matchCurrentUrl()

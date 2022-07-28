@@ -31,7 +31,7 @@ import UserManagementService from '../features/user-management/service'
 import FirebaseWebMonetizationService from '../features/web-monetization/service/firebase'
 import { MemoryLocalStorageService } from './local-storage/memory'
 import { BrowserLocalStorageService } from './local-storage/browser'
-import { ContentSharingService } from '../features/content-sharing/service'
+import { ListKeysService } from '../features/content-sharing/service'
 import { ProgramQueryParams } from '../setup/types'
 import ClipboardService from './clipboard'
 
@@ -199,11 +199,11 @@ export function createServices(options: {
         }),
         activityStreams,
         userManagement,
-        contentSharing: new ContentSharingService({
-            backend: contentSharingBackend,
-            router,
+        listKeys: new ListKeysService({
             isAuthenticated: () => !!auth.getCurrentUser(),
             storage: options.storage.serverModules,
+            backend: contentSharingBackend,
+            router,
         }),
         contentConversations: new ContentConversationsService({
             storage: options.storage.serverModules.contentConversations,

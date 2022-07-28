@@ -36,7 +36,7 @@ export interface CollectionDetailsDependencies {
     services: UIElementServices<
         | 'auth'
         | 'overlay'
-        | 'contentSharing'
+        | 'listKeys'
         | 'contentConversations'
         | 'activityStreams'
         | 'router'

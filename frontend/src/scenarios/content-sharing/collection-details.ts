@@ -1270,7 +1270,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                     email: 'default-user',
                     password: 'testing',
                 })
-                const { link } = await services.contentSharing.generateKeyLink({
+                const { link } = await services.listKeys.generateKeyLink({
                     key: { roleID: SharedListRoleID.AddOnly },
                     listReference: {
                         type: 'shared-list-reference',
@@ -1286,7 +1286,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                 services.router.getQueryParam = () => {
                     return keyString
                 }
-                await services.contentSharing.processCurrentKey()
+                await services.listKeys.processCurrentKey()
                 services.router.getQueryParam = () => {
                     return null
                 }
@@ -1325,9 +1325,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                         email: 'default-user',
                         password: 'testing',
                     })
-                    const {
-                        link,
-                    } = await services.contentSharing.generateKeyLink({
+                    const { link } = await services.listKeys.generateKeyLink({
                         key: { roleID: SharedListRoleID.AddOnly },
                         listReference: {
                             type: 'shared-list-reference',
@@ -1347,7 +1345,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                 callModifications: ({ services }) => [
                     callModification({
                         name: 'key-processing',
-                        object: services.contentSharing,
+                        object: services.listKeys,
                         property: 'processCurrentKey',
                         modifier: 'block',
                     }),
@@ -1379,9 +1377,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                         email: 'default-user',
                         password: 'testing',
                     })
-                    const {
-                        link,
-                    } = await services.contentSharing.generateKeyLink({
+                    const { link } = await services.listKeys.generateKeyLink({
                         key: { roleID: SharedListRoleID.AddOnly },
                         listReference: {
                             type: 'shared-list-reference',
@@ -1428,7 +1424,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
             callModifications: ({ services }) => [
                 callModification({
                     name: 'process-key-error',
-                    object: services.contentSharing,
+                    object: services.listKeys,
                     property: 'processCurrentKey',
                     modifier: 'sabotage',
                 }),
