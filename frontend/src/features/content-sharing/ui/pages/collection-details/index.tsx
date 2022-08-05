@@ -1,5 +1,4 @@
 import React from 'react'
-import moment from 'moment'
 import { Waypoint } from 'react-waypoint'
 import styled, { css } from 'styled-components'
 import { Margin } from 'styled-components-spacing'
@@ -198,26 +197,26 @@ const SubtitleContainer = styled.div<{
         `}
 `
 
-const DomainName = styled.div`
-    color: ${(props) => props.theme.colors.normalText};
-`
+// const DomainName = styled.div`
+//     color: ${(props) => props.theme.colors.normalText};
+// `
 
-const RearBox = styled.div<{
-    viewportBreakpoint: ViewportBreakpoint
-}>`
-    display: inline-block;
-    align-items: center;
-    grid-gap: 5px;
-    color: ${(props) => props.theme.colors.lighterText};
+// const RearBox = styled.div<{
+//     viewportBreakpoint: ViewportBreakpoint
+// }>`
+//     display: inline-block;
+//     align-items: center;
+//     grid-gap: 5px;
+//     color: ${(props) => props.theme.colors.lighterText};
 
-    /* ${(props) =>
-        props.viewportBreakpoint === 'mobile' &&
-        css`
-            grid-gap: 3px;
-            flex-direction: column;
-            align-items: flex-start;
-        `} */
-`
+//     /* ${(props) =>
+//         props.viewportBreakpoint === 'mobile' &&
+//         css`
+//             grid-gap: 3px;
+//             flex-direction: column;
+//             align-items: flex-start;
+//         `} */
+// `
 
 const Creator = styled.span`
     color: ${(props) => props.theme.colors.purple};
@@ -230,10 +229,10 @@ const SharedBy = styled.span`
     display: contents;
 `
 
-const Date = styled.span`
-    color: ${(props) => props.theme.colors.lighterText};
-    display: inline-block;
-`
+// const Date = styled.span`
+//     color: ${(props) => props.theme.colors.lighterText};
+//     display: inline-block;
+// `
 
 const SectionCircle = styled.div<{ size: string }>`
     background: ${(props) => props.theme.colors.backgroundHighlight};

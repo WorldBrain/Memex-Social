@@ -40,7 +40,6 @@ import { AnnotationConversationState } from '../../../../content-conversations/u
 import {
     createOrderedMap,
     arrayToOrderedMap,
-    OrderedMap,
 } from '../../../../../utils/ordered-map'
 import {
     User,
@@ -780,8 +779,6 @@ export function organizeActivities(
                 hasEarlierReplies: false, // This gets determined after all replies processed
                 replies: [],
             }
-            const listReference =
-                firstReplyActivity.sharedList?.reference ?? null
 
             data.annotationItems[
                 getConversationKey({
@@ -987,14 +984,14 @@ export function organizeActivities(
     }
 }
 
-function findActivityItem(
-    activityItems: OrderedMap<ActivityItem>,
-    groupId: string,
-) {
-    return Object.values(activityItems.items).find(
-        (item) => item.groupId === groupId,
-    )
-}
+// function findActivityItem(
+//     activityItems: OrderedMap<ActivityItem>,
+//     groupId: string,
+// ) {
+//     return Object.values(activityItems.items).find(
+//         (item) => item.groupId === groupId,
+//     )
+// }
 
 export function getConversationKey(input: {
     groupId: string

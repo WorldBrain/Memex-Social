@@ -1,9 +1,6 @@
 import orderBy from 'lodash/orderBy'
 import { UserReference } from '@worldbrain/memex-common/lib/web-interface/types/users'
-import {
-    SharedPageInfo,
-    SharedAnnotationReference,
-} from '@worldbrain/memex-common/lib/content-sharing/types'
+import { SharedPageInfo } from '@worldbrain/memex-common/lib/content-sharing/types'
 import {
     UILogic,
     UIEventHandler,

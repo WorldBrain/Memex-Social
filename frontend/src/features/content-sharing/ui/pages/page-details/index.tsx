@@ -21,8 +21,6 @@ import InstallExtOverlay from '../../../../ext-detection/ui/components/install-e
 import { ViewportBreakpoint } from '../../../../../main-ui/styles/types'
 import { getViewportBreakpoint } from '../../../../../main-ui/styles/utils'
 import MissingPdfOverlay from '../../../../ext-detection/ui/components/missing-pdf-overlay'
-import FollowBtn from '../../../../activity-follows/ui/components/follow-btn'
-import { mergeTaskStates } from '../../../../../main-ui/classes/logic'
 
 const PageInfoList = styled.div`
     width: 100%;

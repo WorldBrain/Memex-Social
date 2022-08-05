@@ -34,9 +34,6 @@
     "deploy:staging": "yarn build:staging && FIREBASE_PROJECT=worldbrain-staging yarn deploy:base",
     "deploy:production": "yarn build:production && FIREBASE_PROJECT=worldbrain-1057 yarn deploy:base"
   },
-  "eslintConfig": {
-    "extends": "react-app"
-  },
   "proxy": "http://localhost:5030/",
   "browserslist": [
     ">0.2%",
