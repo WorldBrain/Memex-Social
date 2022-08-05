@@ -197,6 +197,16 @@ const SubtitleContainer = styled.div<{
         `}
 `
 
+const CollectionDescriptionBox = styled.div<{
+    viewportBreakpoint: ViewportBreakpoint
+}>``
+const CollectionDescriptionText = styled.p<{
+    viewportBreakpoint: ViewportBreakpoint
+}>``
+const CollectionDescriptionToggle = styled.div<{
+    viewportBreakpoint: ViewportBreakpoint
+}>``
+
 // const DomainName = styled.div`
 //     color: ${(props) => props.theme.colors.normalText};
 // `
@@ -925,35 +935,34 @@ export default class CollectionDetailsPage extends UIElement<
                     permissionKeyOverlay={this.renderPermissionKeyOverlay()}
                     scrollTop={this.state.scrollTop}
                 >
-                    {/*{data.list.description && (
-                    <CollectionDescriptionBox
-                        viewportWidth={viewportBreakpoint}
-                    >
-                        <CollectionDescriptionText
-                            viewportWidth={viewportBreakpoint}
+                    {data.list.description && (
+                        <CollectionDescriptionBox
+                            viewportBreakpoint={this.viewportBreakpoint}
                         >
-                            {data.listDescriptionState === 'collapsed'
-                                ? data.listDescriptionTruncated
-                                : data.list.description}
-                        </CollectionDescriptionText>
-                        {data.listDescriptionState !== 'fits' && (
-                            <CollectionDescriptionToggle
-                                onClick={() =>
-                                    this.processEvent(
-                                        'toggleDescriptionTruncation',
-                                        {},
-                                    )
-                                }
-                                viewportWidth={viewportBreakpoint}
+                            <CollectionDescriptionText
+                                viewportBreakpoint={this.viewportBreakpoint}
                             >
                                 {data.listDescriptionState === 'collapsed'
-                                    ? '▸ Show more'
-                                    : '◂ Show less'}
-                            </CollectionDescriptionToggle>
-                        )}
-                    </CollectionDescriptionBox>
-                )}
-            */}
+                                    ? data.listDescriptionTruncated
+                                    : data.list.description}
+                            </CollectionDescriptionText>
+                            {data.listDescriptionState !== 'fits' && (
+                                <CollectionDescriptionToggle
+                                    onClick={() =>
+                                        this.processEvent(
+                                            'toggleDescriptionTruncation',
+                                            {},
+                                        )
+                                    }
+                                    viewportBreakpoint={this.viewportBreakpoint}
+                                >
+                                    {data.listDescriptionState === 'collapsed'
+                                        ? '▸ Show more'
+                                        : '◂ Show less'}
+                                </CollectionDescriptionToggle>
+                            )}
+                        </CollectionDescriptionBox>
+                    )}
                     {state.annotationEntriesLoadState === 'error' && (
                         <Margin bottom={'large'}>
                             <ErrorWithAction errorType="internal-error">
