@@ -3642,14 +3642,6 @@
     text-table "^0.2.0"
     webpack-log "^1.1.2"
 
-"@worldbrain/memex-url-utils@^0.1.1":
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/@worldbrain/memex-url-utils/-/memex-url-utils-0.1.1.tgz#e159d9cecfbf3613231d959ea5bb244ffa65e433"
-  integrity sha512-r1gGqYyyPlF3ZTg8Gptnkbdn4MBf0b0wVwtigroQenfQPi2XD+ALlo79XnJ833/qIeUJzvi0fOyl5BOn9JwTPA==
-  dependencies:
-    normalize-url "^4.5.0"
-    url "^0.11.0"
-
 "@xtuc/ieee754@^1.2.0":
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/@xtuc/ieee754/-/ieee754-1.2.0.tgz#eef014a3145ae477a1cbc00cd1e552336dceb790"
@@ -13077,11 +13069,6 @@ normalize-url@^4.1.0:
   version "4.5.0"
   resolved "https://registry.yarnpkg.com/normalize-url/-/normalize-url-4.5.0.tgz#453354087e6ca96957bd8f5baf753f5982142129"
   integrity sha512-2s47yzUxdexf1OhyRi4Em83iQk0aPvwTddtFz4hnSSw9dCEsLEGf6SwIO8ss/19S9iBb5sJaOuTvTGDeZI00BQ==
-
-normalize-url@^4.5.0:
-  version "4.5.1"
-  resolved "https://registry.yarnpkg.com/normalize-url/-/normalize-url-4.5.1.tgz#0dd90cf1288ee1d1313b87081c9a5932ee48518a"
-  integrity sha512-9UZCFRHQdNrfTpGg8+1INIg93B6zE0aXMVFkw1WFwvO4SlZywU6aLg5Of0Ap/PgcbSw4LNxvMWXMeugwMCX0AA==
 
 npm-bundled@^1.0.1:
   version "1.0.6"

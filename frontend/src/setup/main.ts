@@ -75,6 +75,7 @@ export async function mainProgram(
         storageHooksChangeWatcher.setUp({
             fetch,
             services,
+            captureException: async (error) => undefined, // TODO: maybe implement this
             serverStorageManager: storage.serverStorageManager,
             getCurrentUserReference: async () =>
                 services.auth.getCurrentUserReference(),
