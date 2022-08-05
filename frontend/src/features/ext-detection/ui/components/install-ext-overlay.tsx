@@ -47,7 +47,7 @@ const Title = styled.div<{
 }>`
     font-weight: 800;
     font-size: 24px;
-    color: ${(props) => props.theme.colors.darkerText};
+    color: ${(props) => props.theme.darkModeColors.lighterText};
     text-align: center;
 
     ${(props) =>
@@ -76,7 +76,7 @@ const NoteIconContainer = styled.img`
     width: 16px;
     display: flex;
     mask-image: url(${noteIcon});
-    background-color: ${(props) => props.theme.colors.primary};
+    background-color: ${(props) => props.theme.darkModeColors.lighterText};
     mask-position: center center;
     mask-repeat: no-repeat;
     margin: 0 5px;
@@ -87,20 +87,20 @@ const NoteIconContainer = styled.img`
 
 const SubSubTitle = styled.div`
     font-size: 0.8rem;
-    color: ${(props) => props.theme.colors.darkgrey};
+    color: ${(props) => props.theme.darkModeColors.lighterText};
     text-align: center;
     display: inline-flex;
-    justiy-content: center;
+    justify-content: center;
     align-items: center;
     flex-direction: column;
 `
 
 const SubSubSubTitle = styled.div`
     font-size: 0.8rem;
-    color: ${(props) => props.theme.colors.darkgrey};
+    color: ${(props) => props.theme.darkModeColors.lighterText};
     text-align: center;
     display: inline-box;
-    justiy-content: center;
+    justify-content: center;
     align-items: center;
     white-space: nowrap;
 `
@@ -154,8 +154,8 @@ export default function InstallExtOverlay(props: Props) {
                 <Margin>
                     <Title viewportBreakpoint={props.viewportBreakpoint}>
                         {props.mode === 'add-page'
-                            ? 'Install Memex to add pages to this Space'
-                            : 'Install Memex to view the annotations on the live page'}
+                            ? 'Use the Memex extension to add pages to this Space'
+                            : 'Use the Memex extension to view the annotations on the live page'}
                     </Title>
                     <SubTitle>
                         {props.mode === 'add-page'

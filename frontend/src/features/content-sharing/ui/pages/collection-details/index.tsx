@@ -96,7 +96,22 @@ const AbovePagesBox = styled.div<{
   z-index: 2;
   border-radius: 5px;
   justify-content: space-between;
+  padding: 0 20px;
 }
+`
+
+const DescriptionActions = styled(Margin)`
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+`
+
+const ActionItems = styled.div`
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    grid-gap: 10px;
 `
 
 const AddPageBtn = styled.div`
@@ -105,13 +120,12 @@ const AddPageBtn = styled.div`
     left: 0;
     font-family: ${(props) => props.theme.fonts.primary};
     color: ${(props) => props.theme.colors.lighterText};
-    font-size: 12px;
     font-weight: 400;
     cursor: pointer;
-    padding: 2px 6px;
+    border-radius: 3px;
 
     &: hover {
-        background: ${(props) => props.theme.colors.backgroundColorDarker};
+        background: ${(props) => props.theme.darkModeColors.lightHover};
     }
 `
 
@@ -128,9 +142,24 @@ const ToggleAllAnnotations = styled.div`
     border-radius: 5px;
 `
 
-const PageInfoList = styled.div`
+const SectionTitle = styled.div`
+    font-family: ${(props) => props.theme.fonts.primary};
+    color: ${(props) => props.theme.colors.normalText};
+    font-weight: 200;
+    font-size: 20px;
+`
+
+const PageInfoList = styled.div<{
+    viewportBreakpoint: ViewportBreakpoint
+}>`
     width: 100%;
-    padding-bottom: 200px;
+    padding: 0 20px 20px 20px;
+
+    ${(props) =>
+        props.viewportBreakpoint === 'mobile' &&
+        css`
+            padding: 0 0px 20px 0px;
+        `}
 `
 
 const EmptyListBox = styled.div`
@@ -201,15 +230,16 @@ const SubtitleContainer = styled.div<{
 const CollectionDescriptionBox = styled.div<{
     viewportBreakpoint: ViewportBreakpoint
 }>`
-    padding: 20px 10px;
+    padding: 20px 20px;
     display: flex;
     align-items: flex-start;
-    flex-direction: column; ;
+    flex-direction: column;
+    margin-top: 10px;
 `
 const CollectionDescriptionText = styled(Markdown)<{
     viewportBreakpoint: ViewportBreakpoint
 }>`
-    font-size: 14px;
+    font-size: 16px;
     color: ${(props) => props.theme.colors.lighterText};
     font-family: ${(props) => props.theme.fonts.primary};
 `
@@ -223,8 +253,11 @@ const CollectionDescriptionToggle = styled.div<{
     font-family: ${(props) => props.theme.fonts.primary};
     font-size: 12px;
     cursor: pointer;
-    margin-top: 10px;
     color: ${(props) => props.theme.colors.lighterText};
+
+    & * {
+        cursor: pointer;
+    }
 `
 
 // const DomainName = styled.div`
@@ -280,7 +313,6 @@ const ContributorContainer = styled.div`
     flex-direction: column;
     position: relative;
     padding: 10px;
-    background: white;
     width: 210px;
     max-width: 300px;
     border-radius: 12px;
@@ -311,6 +343,28 @@ const ListEntry = styled.div`
         white-space: pre-wrap;
         font-weight: initial;
     }
+`
+
+const CommentIconBox = styled.div`
+    background: #ffffff09;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 24px;
+    width: fit-content;
+    padding: 0 10px;
+    grid-gap: 6px;
+    cursor: pointer;
+
+    & * {
+        cursor: pointer;
+    }
+`
+
+const Counter = styled.div`
+    color: ${(props) => props.theme.colors.purple};
+    font-size: 14px;
 `
 
 export default class CollectionDetailsPage extends UIElement<
@@ -432,17 +486,35 @@ export default class CollectionDetailsPage extends UIElement<
                 ? commentEmptyImage
                 : null
 
+        const count =
+            annotationEntries &&
+            annotationEntries[entry.normalizedUrl] &&
+            annotationEntries[entry.normalizedUrl].length
+                ? annotationEntries[entry.normalizedUrl].length
+                : 0
+
         if (
             state.annotationEntriesLoadState === 'success' &&
             toggleAnnotationsIcon !== null
         ) {
             return [
                 {
-                    image: toggleAnnotationsIcon,
-                    onClick: () =>
-                        this.processEvent('togglePageAnnotations', {
-                            normalizedUrl: entry.normalizedUrl,
-                        }),
+                    node: (
+                        <CommentIconBox
+                            onClick={() =>
+                                this.processEvent('togglePageAnnotations', {
+                                    normalizedUrl: entry.normalizedUrl,
+                                })
+                            }
+                        >
+                            {count > 0 && <Counter>{count}</Counter>}
+                            <Icon
+                                icon={toggleAnnotationsIcon}
+                                heightAndWidth={'16px'}
+                                hoverOff
+                            />
+                        </CommentIconBox>
+                    ),
                 },
             ]
         }
@@ -472,6 +544,7 @@ export default class CollectionDetailsPage extends UIElement<
         const { state } = this
         return (
             <AnnotationsInPage
+                variant={'dark-mode'}
                 newPageReply={
                     this.isListContributor || state.isListOwner
                         ? state.newPageReplies[entry.normalizedUrl]
@@ -646,11 +719,7 @@ export default class CollectionDetailsPage extends UIElement<
                 <SubtitleContainer viewportBreakpoint={this.viewportBreakpoint}>
                     {renderedPreview && (
                         <>
-                            <SharedBy>
-                                {users.length && users.length > 1
-                                    ? 'cocurated by'
-                                    : 'shared by'}
-                            </SharedBy>{' '}
+                            <SharedBy>by</SharedBy>{' '}
                             {renderedPreview.slice(0, showListRoleLimit())}
                             {users.length - showListRoleLimit() > 0 && (
                                 <ShowMoreCollaborators
@@ -786,36 +855,48 @@ export default class CollectionDetailsPage extends UIElement<
         } = this.state
         return (
             <AbovePagesBox viewportWidth={this.viewportBreakpoint}>
-                {(this.isListContributor || isListOwner) && (
-                    <AddPageBtn
-                        onClick={() =>
-                            this.processEvent('toggleInstallExtModal', {})
-                        }
-                    >
-                        <Icon
-                            hoverOff
-                            icon="plus"
-                            height="14px"
-                            color="purple"
-                        />
-                        <Text>Add Page</Text>
-                    </AddPageBtn>
-                )}
-                <div></div>
-                {annotationEntryData &&
-                    Object.keys(annotationEntryData).length > 0 && (
-                        <ToggleAllAnnotations
+                <SectionTitle>References</SectionTitle>
+                <ActionItems>
+                    {(this.isListContributor || isListOwner) && (
+                        <AddPageBtn
                             onClick={() =>
-                                this.processEvent('toggleAllAnnotations', {})
+                                this.processEvent('toggleInstallExtModal', {})
                             }
                         >
-                            {allAnnotationExpanded ? (
-                                <Icon icon={'compress'} heightAndWidth="16px" />
-                            ) : (
-                                <Icon icon={'expand'} heightAndWidth="16px" />
-                            )}
-                        </ToggleAllAnnotations>
+                            <Icon
+                                hoverOff
+                                icon="plus"
+                                height="16px"
+                                color="purple"
+                            />
+                        </AddPageBtn>
                     )}
+                    {annotationEntryData &&
+                        Object.keys(annotationEntryData).length > 0 && (
+                            <ToggleAllAnnotations
+                                onClick={() =>
+                                    this.processEvent(
+                                        'toggleAllAnnotations',
+                                        {},
+                                    )
+                                }
+                            >
+                                {allAnnotationExpanded ? (
+                                    <Icon
+                                        color={'purple'}
+                                        icon={'compress'}
+                                        heightAndWidth="16px"
+                                    />
+                                ) : (
+                                    <Icon
+                                        color={'purple'}
+                                        icon={'expand'}
+                                        heightAndWidth="16px"
+                                    />
+                                )}
+                            </ToggleAllAnnotations>
+                        )}
+                </ActionItems>
             </AbovePagesBox>
         )
     }
@@ -880,11 +961,11 @@ export default class CollectionDetailsPage extends UIElement<
         ) {
             return (
                 <DocumentView id="DocumentView">
+                    {this.renderPermissionKeyOverlay()}
                     <DocumentTitle
                         documentTitle={this.props.services.documentTitle}
                         subTitle="Loading list..."
                     />
-                    {this.renderPermissionKeyOverlay()}
                     <LoadingScreen>
                         <LoadingIndicator />
                     </LoadingScreen>
@@ -959,6 +1040,43 @@ export default class CollectionDetailsPage extends UIElement<
                         <CollectionDescriptionBox
                             viewportBreakpoint={this.viewportBreakpoint}
                         >
+                            <DescriptionActions bottom={'small'}>
+                                <SectionTitle>Description</SectionTitle>
+                                {data.listDescriptionState !== 'fits' && (
+                                    <CollectionDescriptionToggle
+                                        onClick={() =>
+                                            this.processEvent(
+                                                'toggleDescriptionTruncation',
+                                                {},
+                                            )
+                                        }
+                                        viewportBreakpoint={
+                                            this.viewportBreakpoint
+                                        }
+                                    >
+                                        {data.listDescriptionState ===
+                                        'collapsed' ? (
+                                            <>
+                                                <Icon
+                                                    icon="expand"
+                                                    color="purple"
+                                                    heightAndWidth="16px"
+                                                    hoverOff
+                                                />
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Icon
+                                                    icon="compress"
+                                                    color="purple"
+                                                    heightAndWidth="16px"
+                                                    hoverOff
+                                                />
+                                            </>
+                                        )}
+                                    </CollectionDescriptionToggle>
+                                )}
+                            </DescriptionActions>
                             <CollectionDescriptionText
                                 viewportBreakpoint={this.viewportBreakpoint}
                             >
@@ -966,38 +1084,6 @@ export default class CollectionDetailsPage extends UIElement<
                                     ? data.listDescriptionTruncated
                                     : data.list.description}
                             </CollectionDescriptionText>
-                            {data.listDescriptionState !== 'fits' && (
-                                <CollectionDescriptionToggle
-                                    onClick={() =>
-                                        this.processEvent(
-                                            'toggleDescriptionTruncation',
-                                            {},
-                                        )
-                                    }
-                                    viewportBreakpoint={this.viewportBreakpoint}
-                                >
-                                    {data.listDescriptionState ===
-                                    'collapsed' ? (
-                                        <>
-                                            Show more
-                                            <Icon
-                                                icon="expand"
-                                                color="purple"
-                                                heightAndWidth="14px"
-                                            />
-                                        </>
-                                    ) : (
-                                        <>
-                                            Show less
-                                            <Icon
-                                                icon="compress"
-                                                color="purple"
-                                                heightAndWidth="14px"
-                                            />
-                                        </>
-                                    )}
-                                </CollectionDescriptionToggle>
-                            )}
                         </CollectionDescriptionBox>
                     )}
                     {state.annotationEntriesLoadState === 'error' && (
@@ -1008,7 +1094,7 @@ export default class CollectionDetailsPage extends UIElement<
                         </Margin>
                     )}
                     {this.renderAbovePagesBox()}
-                    <PageInfoList>
+                    <PageInfoList viewportBreakpoint={this.viewportBreakpoint}>
                         {data.listEntries.length === 0 && (
                             <EmptyListBox>
                                 <SectionCircle size="50px">
@@ -1028,6 +1114,7 @@ export default class CollectionDetailsPage extends UIElement<
                                     key={entry.normalizedUrl}
                                 >
                                     <PageInfoBox
+                                        variant="dark-mode"
                                         onClick={(e) =>
                                             this.processEvent(
                                                 'clickPageResult',

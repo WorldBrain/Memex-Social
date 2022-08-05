@@ -23,7 +23,8 @@ const Container = styled.div<{
             background: transparent;
             color: ${(props) => props.theme.colors.purple};
             cursor: default;
-            border: 1px solid ${(props) => props.theme.colors.grey};
+            border: 1px solid
+                ${(props) => props.theme.darkModeColors.lineLightGrey};
 
             & div {
                 cursor: default;
@@ -36,7 +37,8 @@ const Container = styled.div<{
             background: transparent;
             color: ${(props) => props.theme.colors.purple};
             cursor: default;
-            border: 1px solid ${(props) => props.theme.colors.grey};
+            border: 1px solid
+                ${(props) => props.theme.darkModeColors.lineLightGrey};
 
             & div {
                 cursor: default;

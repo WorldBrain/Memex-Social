@@ -16,7 +16,7 @@ const MenuItem = styled.div`
     grid-gap: 10px;
 
     &:hover {
-        background: ${(props) => props.theme.colors.backgroundColorDarker};
+        background: ${(props) => props.theme.darkModeColors.lightHover};
     }
 `
 
@@ -29,9 +29,10 @@ const IconContainer = styled.div`
 `
 
 const MenuItemText = styled.div`
-    color: ${(props) => props.theme.colors.normalText};
+    color: ${(props) => props.theme.darkModeColors.lighterText};
     font-size: 14px;
     font-weight: 400;
+    font-family: ${(props) => props.theme.fonts.primary};
 `
 
 const ContentBox = styled.div`
@@ -51,7 +52,7 @@ export default function AuthMenu(props: {
         <HoverBox right="0px" padding="0px" width="270px">
             <ContentBox>
                 <AuthMenuItem
-                    label={'Settings'}
+                    label={'Profile Information'}
                     onClick={props.onAccountSettingsRequested}
                     icon={theme.icons.settings}
                 />

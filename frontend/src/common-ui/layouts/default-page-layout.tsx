@@ -19,7 +19,7 @@ const MainContainer = styled.div<{
     viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
     sidebarShown?: boolean
 }>`
-    background: ${(props) => props.theme.colors.backgroundColor};
+    background: ${(props) => props.theme.darkModeColors.background};
     display: flex;
     align-items: center;
     flex-direction: column;
@@ -50,16 +50,17 @@ const StyledHeader = styled.div<{
     width: fill-available;
 
     display: flex;
-    border-bottom: 1px solid ${(props) => props.theme.colors.lightgrey};
-    justify-content: center;
-    padding: 20px 20px;
-    position: sticky;
-
-    top: 0px;
-    background-color: #fff;
+    justify-content: flex-start;
+    flex-direction: column;
     z-index: 2000;
     align-items: flex-start;
     //box-shadow: #101e7308 0 4px 16px;
+    background: #ffffff09;
+    border-radius: 10px;
+    padding: 30px;
+    max-width: 820px;
+    width: 110%;
+    grid-gap: 25px;
 
     ${(props) =>
         props.viewportWidth === 'mobile' &&
@@ -67,6 +68,7 @@ const StyledHeader = styled.div<{
             flex-direction: column;
             align-items: flex-start;
             top: 0;
+            width: 95%;
         `}
 
     ${(props) =>
@@ -75,6 +77,7 @@ const StyledHeader = styled.div<{
             flex-direction: row;
             align-items: flex-start;
             top: 0;
+            width: 95%;
         `}
 `
 
@@ -117,44 +120,29 @@ const UnseenActivityDot = styled.div`
 const HeaderMiddleArea = styled.div<{
     viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
 }>`
-    width: 80%;
+    width: 100%;
     max-width: ${middleMaxWidth};
     display: flex;
-    padding-right: 0px;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
+    grid-gap: 20px;
     flex-direction: row;
     flex: 30;
-
-    ${(props) =>
-        props.viewportWidth === 'mobile' &&
-        css`
-            width: 99%;
-            padding-top: 30px;
-            display: flex;
-        `}
+    border-radius: 20px;
+    flex-direction: column;
 `
 const HeaderTitle = styled.div<{
     viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
     scrollTop?: number
 }>`
-    font-weight: 900;
+    font-weight: 600;
     width: fill-available;
     letter-spacing: 0.5px;
-    text-overflow: ellipsis;
-    white-space: ${(props) =>
-        props.scrollTop! >= 100 ? 'nowrap' : 'pre-wrap'};
-    word-break: break-word;
-    overflow-x: hidden;
     text-overflow: ${(props) => props.scrollTop! >= 100 && 'ellipsis'};
     font-family: ${(props) => props.theme.fonts.primary};
-    font-size: 20px;
+    font-size: 22px;
     overflow-wrap: break-word;
-    max-width: ${(props) =>
-        props.viewportWidth === 'small' || props.viewportWidth === 'mobile'
-            ? '100%'
-            : '95%'};
-    color: ${(props) => props.theme.colors.darkerText};
+    color: ${(props) => props.theme.darkModeColors.lighterText};
     ${(props) =>
         props.viewportWidth === 'small' &&
         css`
@@ -209,7 +197,7 @@ const PageResultsArea = styled.div<{
     ${(props) =>
         props.viewportWidth === 'mobile' &&
         css`
-            padding: 0 10px;
+            padding: 0px 0px 100px 0px;
         `}
 `
 
@@ -223,15 +211,7 @@ const PageMidleAreaTitles = styled.div<{
     flex-direction: column;
     flex: 1;
     width: 100%;
-    max-width: 99%;
     grid-gap: 5px;
-
-    ${(props) =>
-        props.scrollTop! > 0 &&
-        css`
-            max-width: 99%;
-            width: ${props.viewportWidth === 'mobile' ? '100%' : '30%'};
-        `}
 `
 
 const PageMidleAreaAction = styled.div<{
@@ -240,19 +220,10 @@ const PageMidleAreaAction = styled.div<{
 }>`
     display: flex;
     justify-content: flex-end;
+    align-self: flex-end;
     align-items: center;
     flex-direction: row;
     grid-gap: 10px;
-    ${(props) =>
-        props.viewportWidth === 'mobile' &&
-        css`
-            display: none;
-        `}
-    ${(props) =>
-        props.scrollTop === 0 &&
-        css`
-            align-self: flex-end;
-        `}
 `
 
 const PageMidleAreaActionMobile = styled.div<{
@@ -284,14 +255,6 @@ const PageMiddleAreaTopBox = styled(Margin)<{
     width: 100%;
     flex-direction: ${(props) =>
         props.viewportWidth === 'mobile' ? 'column' : 'row'};
-
-    ${(props) =>
-        props.scrollTop === 0 &&
-        css`
-            display: flex;
-            flex-direction: column-reverse;
-            grid-gap: 25px;
-        `}
 `
 
 const BetaFlag = styled.div`
@@ -316,6 +279,18 @@ const LeftRightBlock = styled.div`
     width: 10px;
 `
 
+const MainColumn = styled.div`
+    //background: ${(props) => props.theme.darkModeColors.backgroundColor};
+    border-radius: 20px;
+    padding: 0 20px;
+    margin-top: 20px;
+    max-width: 800px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+`
+
 const StyledHeaderContainer = styled.div<{
     viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
 }>`
@@ -327,6 +302,16 @@ const StyledHeaderContainer = styled.div<{
 
     flex-direction: ${(props) =>
         props.viewportWidth === 'mobile' ? 'column' : 'row'};
+`
+
+const MenuBar = styled.div`
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 20px 30px 10px 30px;
+    z-index: 10000;
 `
 
 const MemexLogo = styled.img<{
@@ -442,10 +427,9 @@ export default function DefaultPageLayout(props: {
             >
                 Beta | Feedback
             </BetaFlag>
-            <StyledHeader id={'StyledHeader'} viewportWidth={viewportWidth}>
-                <StyledHeaderContainer viewportWidth={viewportWidth}>
-                    <LogoAndFeed viewportWidth={viewportWidth}>
-                        {props.listsSidebarProps && isAuthenticated && (
+            <MenuBar>
+                <LogoAndFeed viewportWidth={viewportWidth}>
+                    {/* {props.listsSidebarProps && isAuthenticated && (
                             <>
                                 <ListsSidebarToggle
                                     viewportWidth={viewportWidth}
@@ -456,31 +440,38 @@ export default function DefaultPageLayout(props: {
                                     {renderFeedArea()}
                                 </LeftRightBlock>
                             </>
-                        )}
-                        {!isAuthenticated && (
-                            <MemexLogo
-                                src={logoImage}
-                                onClick={() =>
-                                    window.open('https://memex.garden')
-                                }
-                                viewportWidth={viewportWidth}
-                            />
-                        )}
-                    </LogoAndFeed>
-                    <PageMidleAreaActionMobile viewportWidth={viewportWidth}>
-                        {viewportWidth !== 'mobile' &&
-                            props.webMonetizationIcon &&
-                            props.webMonetizationIcon}
-                        {props.followBtn && props.followBtn}
-                    </PageMidleAreaActionMobile>
-                    <HeaderMiddleArea
+                        )} */}
+                    {/* {!isAuthenticated && ( */}
+                    <MemexLogo
+                        src={logoImage}
+                        onClick={() => window.open('https://memex.garden')}
                         viewportWidth={viewportWidth}
-                        id={'HeaderMiddleArea'}
-                    >
-                        <PageMiddleAreaTopBox
-                            scrollTop={props.scrollTop}
+                    />
+                    {/* )} */}
+                </LogoAndFeed>
+                <HeaderAuthArea viewportWidth={viewportWidth}>
+                    <AuthHeader
+                        services={props.services}
+                        storage={props.storage}
+                    />
+                </HeaderAuthArea>
+            </MenuBar>
+            <MainColumn>
+                <StyledHeader id={'StyledHeader'} viewportWidth={viewportWidth}>
+                    {props.permissionKeyOverlay}
+                    <StyledHeaderContainer viewportWidth={viewportWidth}>
+                        <HeaderMiddleArea
                             viewportWidth={viewportWidth}
+                            id={'HeaderMiddleArea'}
                         >
+                            <PageMidleAreaAction
+                                scrollTop={props.scrollTop}
+                                viewportWidth={viewportWidth}
+                            >
+                                {props.webMonetizationIcon &&
+                                    props.webMonetizationIcon}
+                                {props.followBtn && props.followBtn}
+                            </PageMidleAreaAction>
                             <PageMidleAreaTitles
                                 scrollTop={props.scrollTop}
                                 viewportWidth={viewportWidth}
@@ -499,41 +490,24 @@ export default function DefaultPageLayout(props: {
                                         children: props.headerSubtitle,
                                     })}
                             </PageMidleAreaTitles>
-                            <PageMidleAreaAction
-                                scrollTop={props.scrollTop}
-                                viewportWidth={viewportWidth}
-                            >
-                                {props.webMonetizationIcon &&
-                                    props.webMonetizationIcon}
-                                {props.followBtn && props.followBtn}
-                            </PageMidleAreaAction>
-                        </PageMiddleAreaTopBox>
-                        {/* <LeftRightBlock /> */}
-                    </HeaderMiddleArea>
-                    {viewportWidth !== 'small' && viewportWidth !== 'mobile' && (
-                        <HeaderAuthArea viewportWidth={viewportWidth}>
-                            <AuthHeader
-                                services={props.services}
-                                storage={props.storage}
-                            />
-                        </HeaderAuthArea>
-                    )}
-                </StyledHeaderContainer>
-            </StyledHeader>
-            {props.permissionKeyOverlay}
-            <PageMiddleArea
-                viewportWidth={viewportWidth}
-                isSidebarShown={props.isSidebarShown === true}
-                id="pageMiddleArea"
-            >
-                {renderListsSidebar()}
-                <PageResultsArea
-                    headerHeight={getHeaderHeight()}
+                            {/* <LeftRightBlock /> */}
+                        </HeaderMiddleArea>
+                    </StyledHeaderContainer>
+                </StyledHeader>
+                <PageMiddleArea
                     viewportWidth={viewportWidth}
+                    isSidebarShown={props.isSidebarShown === true}
+                    id="pageMiddleArea"
                 >
-                    {props.children}
-                </PageResultsArea>
-            </PageMiddleArea>
+                    {/* {renderListsSidebar()} */}
+                    <PageResultsArea
+                        headerHeight={getHeaderHeight()}
+                        viewportWidth={viewportWidth}
+                    >
+                        {props.children}
+                    </PageResultsArea>
+                </PageMiddleArea>
+            </MainColumn>
         </MainContainer>
     )
 }

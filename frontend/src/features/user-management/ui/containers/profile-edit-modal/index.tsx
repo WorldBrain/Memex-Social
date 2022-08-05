@@ -31,7 +31,7 @@ const Container = styled.div<{ loadState: UITaskState; theme: Theme }>`
     width: 520px;
     flex-direction: column;
 
-    background-color: ${(props) => props.theme.colors.background};
+    background-color: ${(props) => props.theme.darkModeColors.background};
     padding-left: ${(props) => props.theme.spacing.small};
     padding-right: ${(props) => props.theme.spacing.small};
     padding-top: ${(props) => props.theme.spacing.small};
@@ -69,7 +69,7 @@ const TextInputOneLine = styled.input`
     font-size: 14px;
     border: none;
     background: transparent;
-    color: ${(props) => props.theme.colors.darkerText};
+    color: ${(props) => props.theme.colors.lighterText};
 
     &::placeholder {
         color: #96a0b5;
@@ -117,7 +117,7 @@ const SectionHeader = styled.div<{
     font-weight: 800;
     font-size: ${(props) => (props.small ? '16px' : '22px')};
     line-height: ${(props) => props.theme.lineHeights.header};
-    color: ${(props) => props.theme.colors.darkerText};
+    color: ${(props) => props.theme.darkModeColors.lighterText};
     text-align: left;
 `
 
@@ -219,6 +219,7 @@ const LoadingBox = styled.div`
 const StyledSecondaryButton = styled(SecondaryActionButton)`
     padding-top: 0;
     padding-bottom: 0;
+    color: ${(props) => props.theme.darkModeColors.lighterText};
 `
 
 const ResetEmailConfirmation = styled.div`

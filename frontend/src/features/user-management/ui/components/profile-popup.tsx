@@ -23,7 +23,6 @@ export const PopupContainer = styled.div<{ theme: Theme }>`
     width: 270px;
     font-family: ${(props) => props.theme.fonts.primary};
     color: ${(props) => props.theme.colors.primary};
-    background-color: ${(props) => props.theme.colors.background};
     padding: 15px;
     border-radius: ${(props) => props.theme.borderRadii.default};
     z-index: ${(props) => props.theme.zIndices.overlay};
@@ -34,7 +33,7 @@ const ProfileHoverarea = styled.div`
     height: 200px;
     width: 270px;
     position: absolute;
-    padding-top: 10px;
+    padding-top: 2px;
 `
 
 const ProfileContainer = styled.div`
@@ -63,7 +62,7 @@ const ProfileHeader = styled.div`
     height: min-content;
     display: flex;
     justify-content: start;
-    color: ${(props) => props.theme.colors.darkerText};
+    color: ${(props) => props.theme.darkModeColors.lighterText};
 `
 
 const ProfileHeaderInnerContainer = styled.div<{ theme: Theme }>`

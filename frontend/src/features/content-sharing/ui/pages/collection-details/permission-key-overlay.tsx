@@ -65,9 +65,9 @@ const InvitedNotification = styled.div<{
         display: flex;
         justify-content: center;
         align-items: center;
-        border: 1px solid #f0f0f0;
+        border: 1px solid ${(props) =>
+            props.theme.darkModeColors.lineLightGrey};
         font-family: ${(props) => props.theme.fonts.primary};
-        background: white;
 
         ${(props) =>
             props.viewportBreakpoint === 'mobile' &&
