@@ -41,6 +41,7 @@ import type { Props as ListsSidebarProps } from '../../../../lists-sidebar/ui/co
 import { isPagePdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
 import MissingPdfOverlay from '../../../../ext-detection/ui/components/missing-pdf-overlay'
 import { HoverBox } from '../../../../../common-ui/components/hoverbox'
+import Markdown from '@worldbrain/memex-common/lib/common-ui/components/markdown'
 
 const commentImage = require('../../../../../assets/img/comment.svg')
 const commentEmptyImage = require('../../../../../assets/img/comment-empty.svg')
@@ -199,13 +200,32 @@ const SubtitleContainer = styled.div<{
 
 const CollectionDescriptionBox = styled.div<{
     viewportBreakpoint: ViewportBreakpoint
-}>``
-const CollectionDescriptionText = styled.p<{
+}>`
+    padding: 20px 10px;
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column; ;
+`
+const CollectionDescriptionText = styled(Markdown)<{
     viewportBreakpoint: ViewportBreakpoint
-}>``
+}>`
+    font-size: 14px;
+    color: ${(props) => props.theme.colors.lighterText};
+    font-family: ${(props) => props.theme.fonts.primary};
+`
 const CollectionDescriptionToggle = styled.div<{
     viewportBreakpoint: ViewportBreakpoint
-}>``
+}>`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    justify-self: flex-start;
+    font-family: ${(props) => props.theme.fonts.primary};
+    font-size: 12px;
+    cursor: pointer;
+    margin-top: 10px;
+    color: ${(props) => props.theme.colors.lighterText};
+`
 
 // const DomainName = styled.div`
 //     color: ${(props) => props.theme.colors.normalText};
@@ -956,9 +976,26 @@ export default class CollectionDetailsPage extends UIElement<
                                     }
                                     viewportBreakpoint={this.viewportBreakpoint}
                                 >
-                                    {data.listDescriptionState === 'collapsed'
-                                        ? '▸ Show more'
-                                        : '◂ Show less'}
+                                    {data.listDescriptionState ===
+                                    'collapsed' ? (
+                                        <>
+                                            Show more
+                                            <Icon
+                                                icon="expand"
+                                                color="purple"
+                                                heightAndWidth="14px"
+                                            />
+                                        </>
+                                    ) : (
+                                        <>
+                                            Show less
+                                            <Icon
+                                                icon="compress"
+                                                color="purple"
+                                                heightAndWidth="14px"
+                                            />
+                                        </>
+                                    )}
                                 </CollectionDescriptionToggle>
                             )}
                         </CollectionDescriptionBox>

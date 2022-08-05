@@ -48,7 +48,7 @@ import { UserReference } from '../../../../user-management/types'
 import { makeStorageReference } from '@worldbrain/memex-common/lib/storage/references'
 const truncate = require('truncate')
 
-const LIST_DESCRIPTION_CHAR_LIMIT = 200
+const LIST_DESCRIPTION_CHAR_LIMIT = 400
 
 type EventHandler<
     EventName extends keyof CollectionDetailsEvent
