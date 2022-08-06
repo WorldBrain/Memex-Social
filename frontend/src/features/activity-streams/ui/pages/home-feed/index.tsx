@@ -73,6 +73,28 @@ const FeedContainer = styled.div<{ viewportBreakpoint: ViewportBreakpoint }>`
         `}
 `
 
+const CommentIconBox = styled.div`
+    background: #ffffff09;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 24px;
+    width: fit-content;
+    padding: 0 10px;
+    grid-gap: 6px;
+    cursor: pointer;
+
+    & * {
+        cursor: pointer;
+    }
+`
+
+const Counter = styled.div`
+    color: ${(props) => props.theme.colors.purple};
+    font-size: 14px;
+`
+
 const ActivityType = styled.div`
     white-space: nowrap;
     color: ${(props) => props.theme.colors.normalText};
@@ -160,7 +182,8 @@ const LastSeenLineLabel = styled.div`
     font-family: ${(props) => props.theme.fonts.primary};
     text-align: center;
     padding: 0 20px;
-    background: #f6f8fb;
+    background: ${(props) => props.theme.darkModeColors.background};
+    color: ${(props) => props.theme.darkModeColors.lighterText};
     z-index: 2;
 `
 
@@ -181,7 +204,7 @@ const LoadMoreReplies = styled.div`
 `
 
 const SectionCircle = styled.div<{ size: string }>`
-    background: ${(props) => props.theme.colors.backgroundHighlight};
+    //background: ${(props) => props.theme.colors.backgroundHighlight};
     border-radius: 100px;
     height: ${(props) => (props.size ? props.size : '60px')};
     width: ${(props) => (props.size ? props.size : '60px')};
@@ -433,6 +456,7 @@ export default class HomeFeedPage extends UIElement<
                             {this.renderActivityReason(pageItem)}
                         </Margin>
                         <PageInfoBox
+                            variant="dark-mode"
                             onClick={(e) =>
                                 this.processEvent('clickPageResult', {
                                     urlToOpen: pageInfo.originalUrl,
@@ -488,6 +512,7 @@ export default class HomeFeedPage extends UIElement<
 
         return (
             <AnnotationsInPage
+                variant="dark-mode"
                 loadState="success"
                 annotations={mapOrderedMap(
                     filterOrderedMap(annotationItems, (item) => {
@@ -729,18 +754,30 @@ export default class HomeFeedPage extends UIElement<
                                 })
                             } else if (entry.hasAnnotations) {
                                 actions.push({
-                                    image: commentImage,
-                                    onClick: () =>
-                                        this.processEvent(
-                                            'toggleListEntryActivityAnnotations',
-                                            {
-                                                listReference:
-                                                    listItem.listReference,
-                                                listEntryReference:
-                                                    entry.reference,
-                                                groupId: listItem.groupId,
-                                            },
-                                        ),
+                                    node: (
+                                        <CommentIconBox
+                                            onClick={() =>
+                                                this.processEvent(
+                                                    'toggleListEntryActivityAnnotations',
+                                                    {
+                                                        listReference:
+                                                            listItem.listReference,
+                                                        listEntryReference:
+                                                            entry.reference,
+                                                        groupId:
+                                                            listItem.groupId,
+                                                    },
+                                                )
+                                            }
+                                        >
+                                            {/* {count.length > 0 && <Counter>{count}</Counter>} */}
+                                            <Icon
+                                                icon={commentImage}
+                                                heightAndWidth={'16px'}
+                                                hoverOff
+                                            />
+                                        </CommentIconBox>
+                                    ),
                                 })
                             }
 
