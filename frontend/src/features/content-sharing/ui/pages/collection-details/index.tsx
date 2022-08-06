@@ -96,7 +96,6 @@ const AbovePagesBox = styled.div<{
   z-index: 2;
   border-radius: 5px;
   justify-content: space-between;
-  padding: 0 20px;
 }
 `
 
@@ -138,7 +137,6 @@ const ToggleAllAnnotations = styled.div`
     cursor: pointer;
     font-size: 12px;
     width: fit-content;
-    padding: 0 5px;
     border-radius: 5px;
 `
 
@@ -1061,7 +1059,6 @@ export default class CollectionDetailsPage extends UIElement<
                                                     icon="expand"
                                                     color="purple"
                                                     heightAndWidth="16px"
-                                                    hoverOff
                                                 />
                                             </>
                                         ) : (
@@ -1070,7 +1067,6 @@ export default class CollectionDetailsPage extends UIElement<
                                                     icon="compress"
                                                     color="purple"
                                                     heightAndWidth="16px"
-                                                    hoverOff
                                                 />
                                             </>
                                         )}
@@ -1086,15 +1082,16 @@ export default class CollectionDetailsPage extends UIElement<
                             </CollectionDescriptionText>
                         </CollectionDescriptionBox>
                     )}
-                    {state.annotationEntriesLoadState === 'error' && (
-                        <Margin bottom={'large'}>
-                            <ErrorWithAction errorType="internal-error">
-                                Error loading page notes. Reload page to retry.
-                            </ErrorWithAction>
-                        </Margin>
-                    )}
-                    {this.renderAbovePagesBox()}
                     <PageInfoList viewportBreakpoint={this.viewportBreakpoint}>
+                        {this.renderAbovePagesBox()}
+                        {state.annotationEntriesLoadState === 'error' && (
+                            <Margin bottom={'large'}>
+                                <ErrorWithAction errorType="internal-error">
+                                    Error loading page notes. Reload page to
+                                    retry.
+                                </ErrorWithAction>
+                            </Margin>
+                        )}
                         {data.listEntries.length === 0 && (
                             <EmptyListBox>
                                 <SectionCircle size="50px">
