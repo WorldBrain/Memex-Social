@@ -193,6 +193,7 @@ const PageResultsArea = styled.div<{
     padding-bottom: 100px;
     margin: 0px auto 0;
     width: 100%;
+    min-height: 300px;
 
     ${(props) =>
         props.viewportWidth === 'mobile' &&

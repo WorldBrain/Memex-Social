@@ -110,7 +110,7 @@ const TextInputContainer = styled.div`
     grid-gap: 10px;
     align-items: center;
     justify-content: flex-start;
-    border: 1px solid ${(props) => props.theme.colors.lineLightGrey};
+    border: 1px solid ${(props) => props.theme.darkModeColors.lineLightGrey};
     height: 50px;
     border-radius: 8px;
     width: 350px;
@@ -283,7 +283,7 @@ export default class AuthDialog extends UIElement<
                                         this.processEvent('toggleMode', null)
                                     }
                                 >
-                                    Sign up
+                                    <u>Sign up</u>
                                 </ModeSwitch>
                             </>
                         </Footer>
@@ -321,7 +321,7 @@ export default class AuthDialog extends UIElement<
                                         this.processEvent('toggleMode', null)
                                     }
                                 >
-                                    Log in
+                                    <u>Log in</u>
                                 </ModeSwitch>
                             </>
                         </Footer>
@@ -376,6 +376,12 @@ export default class AuthDialog extends UIElement<
                                             })
                                         }
                                         autoFocus
+                                        onKeyDown={this.handleEnter(() => {
+                                            this.processEvent(
+                                                'emailPasswordConfirm',
+                                                null,
+                                            )
+                                        })}
                                     />
                                 </TextInputContainer>
                             )}
@@ -399,6 +405,12 @@ export default class AuthDialog extends UIElement<
                                                     },
                                                 )
                                             }
+                                            onKeyDown={this.handleEnter(() => {
+                                                this.processEvent(
+                                                    'emailPasswordConfirm',
+                                                    null,
+                                                )
+                                            })}
                                         />
                                         <ForgotPassword
                                             onClick={() => {
@@ -433,6 +445,12 @@ export default class AuthDialog extends UIElement<
                                                     },
                                                 )
                                             }
+                                            onKeyDown={this.handleEnter(() => {
+                                                this.processEvent(
+                                                    'emailPasswordConfirm',
+                                                    null,
+                                                )
+                                            })}
                                         />
                                     </TextInputContainer>
                                     <Margin top={'medium'}>
@@ -457,6 +475,14 @@ export default class AuthDialog extends UIElement<
                                                         },
                                                     )
                                                 }}
+                                                onKeyDown={this.handleEnter(
+                                                    () => {
+                                                        this.processEvent(
+                                                            'emailPasswordConfirm',
+                                                            null,
+                                                        )
+                                                    },
+                                                )}
                                             />
                                         </TextInputContainer>
                                     </Margin>
@@ -579,6 +605,15 @@ export default class AuthDialog extends UIElement<
             return this.renderProfileForm()
         }
         return this.renderAuthForm()
+    }
+
+    handleEnter(f: () => void) {
+        const handler = (event: React.KeyboardEvent<HTMLInputElement>) => {
+            if (event.keyCode === 13) {
+                f()
+            }
+        }
+        return handler
     }
 
     render() {
