@@ -53,7 +53,7 @@ const TextInputContainer = styled.div`
     grid-gap: 10px;
     align-items: center;
     justify-content: flex-start;
-    border: 1px solid ${(props) => props.theme.colors.lineLightGrey};
+    border: 1px solid ${(props) => props.theme.darkModeColors.lineLightGrey};
     min-height: 50px;
     border-radius: 8px;
     width: 100%;

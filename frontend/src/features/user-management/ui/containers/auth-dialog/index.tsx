@@ -46,7 +46,7 @@ const Header = styled.div`
     text-align: center;
     font-size: 26px;
     font-weight: 900;
-    color: ${(props) => props.theme.colors.darkerText};
+    color: ${(props) => props.theme.darkModeColors.lighterText};
     margin-bottom: 10px;
 `
 const AuthenticationMethods = styled.div`
@@ -81,7 +81,7 @@ const EmailPasswordError = styled.div`
 const FormTitle = styled.div<{ viewportBreakpoint: ViewportBreakpoint }>`
     font-weight: 900;
     font-size: 24px;
-    color: ${(props) => props.theme.colors.primary};
+    color: ${(props) => props.theme.darkModeColors.lighterText};
     text-align: center;
     white-space: break-spaces;
 
@@ -95,7 +95,7 @@ const FormSubtitle = styled.div`
     font-weight: 400;
     font-size: 16px;
     text-align: center;
-    color: ${(props) => props.theme.colors.secondary};
+    color: ${(props) => props.theme.darkModeColors.lighterText};
 `
 
 const AuthBox = styled(Margin)`
@@ -126,7 +126,7 @@ const TextInputOneLine = styled.input`
     border: none;
     background: transparent;
     font-family: 'Inter';
-    color: ${(props) => props.theme.colors.darkerText};
+    color: ${(props) => props.theme.darkModeColors.normalText};
 
     &::placeholder {
         color: #96a0b5;

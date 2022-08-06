@@ -10,12 +10,14 @@ const StyledProfileSetupForm = styled.div`
     justify-content: center;
     align-items: center;
     flex-direction: column;
+    padding: 20px;
 `
 const Header = styled.div`
     text-align: center;
     font-family: ${(props) => props.theme.fonts.primary};
     font-size: 24px;
     font-weight: 800;
+    color: ${(props) => props.theme.darkModeColors.lighterText};
 `
 
 const SmallHeader = styled.div`
@@ -52,7 +54,7 @@ const TextInputOneLine = styled.input`
     border: none;
     background: transparent;
     font-family: 'Inter';
-    color: ${(props) => props.theme.colors.darkerText};
+    color: ${(props) => props.theme.darkModeColors.normalText};
 
     &::placeholder {
         color: #96a0b5;
@@ -127,7 +129,7 @@ export default function ProfileSetupForm(props: {
                     </TextInputContainer>
                 </DisplayName>
             </Margin>
-            <Margin bottom="medium">
+            {/* <Margin bottom="medium">
                 <SmallHeader>Where this will appear</SmallHeader>
             </Margin>
             <Margin bottom="small">
@@ -147,7 +149,7 @@ export default function ProfileSetupForm(props: {
                         }}
                     />
                 </AnnotationCard>
-            </Margin>
+            </Margin> */}
             <PrimaryActionContainer>
                 <PrimaryAction
                     label="Confirm Display Name"
