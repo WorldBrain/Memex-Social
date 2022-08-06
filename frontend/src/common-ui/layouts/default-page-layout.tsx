@@ -457,9 +457,9 @@ export default function DefaultPageLayout(props: {
                     />
                 </HeaderAuthArea>
             </MenuBar>
+            {props.permissionKeyOverlay}
             <MainColumn>
                 <StyledHeader id={'StyledHeader'} viewportWidth={viewportWidth}>
-                    {props.permissionKeyOverlay}
                     <StyledHeaderContainer viewportWidth={viewportWidth}>
                         <HeaderMiddleArea
                             viewportWidth={viewportWidth}
