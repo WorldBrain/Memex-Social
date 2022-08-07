@@ -30,10 +30,10 @@ export const PopupContainer = styled.div<{ theme: Theme }>`
 `
 
 const ProfileHoverarea = styled.div`
-    height: 200px;
     width: 270px;
     position: absolute;
     padding-top: 2px;
+    height: fit-content;
 `
 
 const ProfileContainer = styled.div`
