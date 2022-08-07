@@ -122,10 +122,6 @@ const AddPageBtn = styled.div`
     font-weight: 400;
     cursor: pointer;
     border-radius: 3px;
-
-    &: hover {
-        background: ${(props) => props.theme.darkModeColors.lightHover};
-    }
 `
 
 const ToggleAllAnnotations = styled.div`
@@ -233,6 +229,12 @@ const CollectionDescriptionBox = styled.div<{
     align-items: flex-start;
     flex-direction: column;
     margin-top: 10px;
+
+    ${(props) =>
+        props.viewportBreakpoint === 'mobile' &&
+        css`
+            padding: 20px 0px;
+        `}
 `
 const CollectionDescriptionText = styled(Markdown)<{
     viewportBreakpoint: ViewportBreakpoint
@@ -861,12 +863,7 @@ export default class CollectionDetailsPage extends UIElement<
                                 this.processEvent('toggleInstallExtModal', {})
                             }
                         >
-                            <Icon
-                                hoverOff
-                                icon="plus"
-                                height="16px"
-                                color="purple"
-                            />
+                            <Icon icon="plus" height="16px" color="purple" />
                         </AddPageBtn>
                     )}
                     {annotationEntryData &&
@@ -1111,6 +1108,9 @@ export default class CollectionDetailsPage extends UIElement<
                                     key={entry.normalizedUrl}
                                 >
                                     <PageInfoBox
+                                        viewportBreakpoint={
+                                            this.viewportBreakpoint
+                                        }
                                         variant="dark-mode"
                                         onClick={(e) =>
                                             this.processEvent(

@@ -25,6 +25,8 @@ export const theme: Theme = THEME({
         webLogo: require('../../assets/img/web-logo.svg'),
         mediumLogo: require('../../assets/img/medium-logo.svg'),
         twitterLogo: require('../../assets/img/twitter-logo.svg'),
+        youtubeLogo: require('../../assets/img/youtube-logo.svg'),
+        spotifyLogo: require('../../assets/img/spotify-logo.svg'),
         substackLogo: require('../../assets/img/substack-logo.svg'),
         webMonetizationLogo: require('../../assets/img/web-monetization-logo.svg'),
         webMonetizationLogoConfirmed: require('../../assets/img/web-monetization-logo-confirmed.svg'),

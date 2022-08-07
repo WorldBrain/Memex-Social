@@ -68,7 +68,7 @@ const StyledHeader = styled.div<{
             flex-direction: column;
             align-items: flex-start;
             top: 0;
-            width: 95%;
+            width: 100%;
         `}
 
     ${(props) =>
