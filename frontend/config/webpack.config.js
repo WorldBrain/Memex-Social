@@ -334,10 +334,7 @@ module.exports = function (webpackEnv) {
                 { parser: { requireEnsure: false } },
 
                 {
-                    test: path.resolve(
-                        __dirname,
-                        'node_modules/google-gax/build/src/pathTemplate.js',
-                    ),
+                    test: /node_modules\/google-gax\/build\/src\/pathTemplate.js$/,
                     use: 'null-loader',
                 },
 
