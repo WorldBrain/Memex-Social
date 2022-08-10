@@ -145,7 +145,7 @@ export interface ActivityData {
     pageInfo: {
         [normalizedPageUrl: string]: Pick<
             SharedPageInfo,
-            'fullTitle' | 'originalUrl'
+            'fullTitle' | 'originalUrl' | 'createdWhen'
         > & { creator?: UserReference }
     }
     // pageItems: { [normalizedPageUrl: string]: PageActivityItem }

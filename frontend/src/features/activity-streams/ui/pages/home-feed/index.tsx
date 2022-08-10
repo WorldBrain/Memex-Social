@@ -446,6 +446,7 @@ export default class HomeFeedPage extends UIElement<
         options,
     ) => {
         const pageInfo = this.state.pageInfo[pageItem.normalizedPageUrl]
+        console.log(pageInfo)
         const pageCreator = this.state.users[pageItem.creatorReference.id]
         return {
             key: getOrderedMapIndex(pageItem.annotations, 0).reference.id,
@@ -476,7 +477,7 @@ export default class HomeFeedPage extends UIElement<
                                 userRef: pageItem.creatorReference,
                             }}
                             pageInfo={{
-                                createdWhen: Date.now(),
+                                createdWhen: pageInfo?.createdWhen,
                                 fullTitle: pageInfo?.fullTitle,
                                 normalizedUrl: pageItem?.normalizedPageUrl,
                                 originalUrl: pageInfo?.originalUrl,
