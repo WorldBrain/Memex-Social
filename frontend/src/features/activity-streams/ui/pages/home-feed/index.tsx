@@ -456,6 +456,7 @@ export default class HomeFeedPage extends UIElement<
                             {this.renderActivityReason(pageItem)}
                         </Margin>
                         <PageInfoBox
+                            viewportBreakpoint={this.viewportBreakpoint}
                             variant="dark-mode"
                             onClick={(e) =>
                                 this.processEvent('clickPageResult', {
@@ -821,6 +822,7 @@ export default class HomeFeedPage extends UIElement<
                                         }}
                                         creator={creator}
                                         actions={actions}
+                                        variant="dark-mode"
                                     />
                                     {entry.annotationsLoadState ===
                                         'running' && (
