@@ -242,6 +242,9 @@ const CollectionDescriptionText = styled(Markdown)<{
     font-size: 16px;
     color: ${(props) => props.theme.colors.lighterText};
     font-family: ${(props) => props.theme.fonts.primary};
+    background: #fffff005;
+    padding: 20px;
+    border-radius: 10px;
 `
 const CollectionDescriptionToggle = styled.div<{
     viewportBreakpoint: ViewportBreakpoint
