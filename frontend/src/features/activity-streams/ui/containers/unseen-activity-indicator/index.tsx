@@ -44,5 +44,6 @@ export function getFeedState(
     if (state.hasUnseen === undefined) {
         return 'unknown'
     }
+
     return state.hasUnseen ? 'has-unseen' : 'no-unseen'
 }

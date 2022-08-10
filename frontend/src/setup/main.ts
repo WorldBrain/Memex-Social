@@ -1,6 +1,7 @@
 import createBrowserHistory from 'history/createBrowserHistory'
 import debounce from 'lodash/debounce'
 import firebase from 'firebase'
+import { StorageHooksChangeWatcher } from '@worldbrain/memex-common/lib/storage/hooks'
 import { getUiMountpoint, getDefaultUiRunner } from '../main-ui'
 import { createServices } from '../services'
 import { MainProgramOptions, MainProgramSetup } from './types'
@@ -8,7 +9,6 @@ import { createStorage } from '../storage'
 import { getReplayOptionsFromQueryParams } from '../services/scenarios'
 import { MemoryLocalStorage } from '../utils/web-storage'
 import { RouteName } from '../routes'
-import { StorageHooksChangeWatcher } from '../storage/hooks'
 
 export async function mainProgram(
     options: MainProgramOptions,
@@ -72,7 +72,14 @@ export async function mainProgram(
         await services.scenarios.loadScenarioFixture(scenarioIdentifier)
     }
     if (storageHooksChangeWatcher) {
-        storageHooksChangeWatcher.setUp({ storage, services })
+        storageHooksChangeWatcher.setUp({
+            fetch,
+            services,
+            captureException: async (error) => undefined, // TODO: maybe implement this
+            serverStorageManager: storage.serverStorageManager,
+            getCurrentUserReference: async () =>
+                services.auth.getCurrentUserReference(),
+        })
     }
     if (options.queryParams.scenario && options.navigateToScenarioStart) {
         const scenario = services.scenarios.findScenario(

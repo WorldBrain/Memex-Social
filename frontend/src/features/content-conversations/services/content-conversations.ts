@@ -1,11 +1,15 @@
-import ContentConversationStorage from '../storage'
-import { AuthService } from '../../../services/auth/types'
-import { ConversationReplyReference } from '@worldbrain/memex-common/lib/content-conversations/types'
-import { CreateConversationReplyParams } from '@worldbrain/memex-common/lib/content-conversations/storage/types'
-import { Services } from '../../../services/types'
-import RouterService from '../../../services/router'
+import type ContentConversationStorage from '../storage'
+import type { AuthService } from '../../../services/auth/types'
+import type { CreateConversationReplyParams } from '@worldbrain/memex-common/lib/content-conversations/storage/types'
+import type {
+    ContentConversationsServiceInterface,
+    CreateReplyResult,
+} from '@worldbrain/memex-common/lib/content-conversations/service/types'
+import type { Services } from '../../../services/types'
+import type RouterService from '../../../services/router'
 
-export default class ContentConversationsService {
+export default class ContentConversationsService
+    implements ContentConversationsServiceInterface {
     constructor(
         private options: {
             auth: AuthService
@@ -18,10 +22,7 @@ export default class ContentConversationsService {
 
     async submitReply(
         params: Omit<CreateConversationReplyParams, 'userReference'>,
-    ): Promise<
-        | { status: 'success'; replyReference: ConversationReplyReference }
-        | { status: 'not-authenticated' }
-    > {
+    ): Promise<CreateReplyResult> {
         const userReference = this.options.auth.getCurrentUserReference()
         if (!userReference) {
             return { status: 'not-authenticated' }
@@ -37,20 +38,6 @@ export default class ContentConversationsService {
                 userReference,
                 ...params,
             })
-            try {
-                // await this.options.services.activityStreams.addActivity({
-                //     entityType: 'sharedAnnotation',
-                //     entity: params.annotationReference,
-                //     activityType: 'conversationReply',
-                //     activity: {
-                //         replyReference,
-                //         isFirstReply: params.isFirstReply,
-                //     },
-                //     follow: { home: true },
-                // })
-            } catch (err) {
-                console.error(err)
-            }
             return { status: 'success', replyReference }
         } finally {
             unblockLeave()

@@ -399,6 +399,10 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                             type: 'user-reference',
                             id: 'default-user',
                         },
+                        sharedListReference: {
+                            type: 'shared-list-reference',
+                            id: 'default-list',
+                        },
                     },
                 }),
                 step({
@@ -424,8 +428,8 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                 callModifications: ({ storage }) => [
                     callModification({
                         name: 'reply-broken',
-                        object: storage.serverModules.contentConversations,
-                        property: 'getOrCreateThread',
+                        object: storage.serverModules.contentSharing,
+                        property: 'createAnnotations',
                         modifier: 'sabotage',
                     }),
                 ],
@@ -471,6 +475,10 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                             type: 'user-reference',
                             id: 'default-user',
                         },
+                        sharedListReference: {
+                            type: 'shared-list-reference',
+                            id: 'default-list',
+                        },
                     },
                 }),
             ],
@@ -505,7 +513,11 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                         annotationReference: {
                             type: 'shared-annotation-reference',
                             id: 'default-annotation',
-                        } as SharedAnnotationReference,
+                        },
+                        sharedListReference: {
+                            type: 'shared-list-reference',
+                            id: 'default-list',
+                        },
                     },
                 }),
                 step({
@@ -516,8 +528,12 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                         annotationReference: {
                             type: 'shared-annotation-reference',
                             id: 'default-annotation',
-                        } as SharedAnnotationReference,
+                        },
                         content: 'this is a new reply',
+                        sharedListReference: {
+                            type: 'shared-list-reference',
+                            id: 'default-list',
+                        },
                     },
                 }),
                 step({
@@ -529,6 +545,10 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                             type: 'shared-annotation-reference',
                             id: 'default-annotation',
                         } as SharedAnnotationReference,
+                        sharedListReference: {
+                            type: 'shared-list-reference',
+                            id: 'default-list',
+                        },
                     },
                 }),
                 step({
@@ -539,7 +559,11 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                         annotationReference: {
                             type: 'shared-annotation-reference',
                             id: 'default-annotation',
-                        } as SharedAnnotationReference,
+                        },
+                        sharedListReference: {
+                            type: 'shared-list-reference',
+                            id: 'default-list',
+                        },
                     },
                 }),
             ],
@@ -574,7 +598,11 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                         annotationReference: {
                             type: 'shared-annotation-reference',
                             id: 'default-annotation',
-                        } as SharedAnnotationReference,
+                        },
+                        sharedListReference: {
+                            type: 'shared-list-reference',
+                            id: 'default-list',
+                        },
                     },
                 }),
                 step({
@@ -585,8 +613,12 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                         annotationReference: {
                             type: 'shared-annotation-reference',
                             id: 'default-annotation',
-                        } as SharedAnnotationReference,
+                        },
                         content: 'this is a new reply',
+                        sharedListReference: {
+                            type: 'shared-list-reference',
+                            id: 'default-list',
+                        },
                     },
                 }),
                 step({
@@ -597,7 +629,11 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                         annotationReference: {
                             type: 'shared-annotation-reference',
                             id: 'default-annotation',
-                        } as SharedAnnotationReference,
+                        },
+                        sharedListReference: {
+                            type: 'shared-list-reference',
+                            id: 'default-list',
+                        },
                     },
                 }),
                 step({
@@ -608,7 +644,11 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                         annotationReference: {
                             type: 'shared-annotation-reference',
                             id: 'default-annotation',
-                        } as SharedAnnotationReference,
+                        },
+                        sharedListReference: {
+                            type: 'shared-list-reference',
+                            id: 'default-list',
+                        },
                     },
                 }),
             ],
@@ -621,6 +661,17 @@ export const SCENARIOS: ScenarioMap<Targets> = {
             startRoute: {
                 route: 'collectionDetails',
                 params: { id: 'default-list' },
+            },
+            setup: {
+                // TODO: this is commented out as unblocking it somehow stopped doesn't work, thus breaking all the subsequent steps
+                // callModifications: ({ storage }) => [
+                //     callModification({
+                //         name: 'threads-loading',
+                //         object: storage.serverModules.contentConversations,
+                //         property: 'getThreadsForAnnotations',
+                //         modifier: 'block',
+                //     }),
+                // ],
             },
             steps: [
                 step({
@@ -635,6 +686,15 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                         normalizedUrl: 'getmemex.com',
                     },
                 }),
+                // step({
+                //     name: 'threads-loaded',
+                //     callModifications: () => [
+                //         {
+                //             name: 'threads-loading',
+                //             modifier: 'undo',
+                //         },
+                //     ],
+                // }),
                 step({
                     name: 'toggle-replies',
                     target: 'CollectionDetailsPage',
@@ -643,7 +703,12 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                         annotationReference: {
                             type: 'shared-annotation-reference',
                             id: 'default-annotation',
-                        } as SharedAnnotationReference,
+                        },
+                        sharedListReference: {
+                            type: 'shared-list-reference',
+                            id: 'default-list',
+                        },
+                        skipNullListLookup: true,
                     },
                 }),
                 step({
@@ -654,7 +719,11 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                         annotationReference: {
                             type: 'shared-annotation-reference',
                             id: 'default-annotation',
-                        } as SharedAnnotationReference,
+                        },
+                        sharedListReference: {
+                            type: 'shared-list-reference',
+                            id: 'default-list',
+                        },
                     },
                 }),
                 step({
@@ -665,8 +734,12 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                         annotationReference: {
                             type: 'shared-annotation-reference',
                             id: 'default-annotation',
-                        } as SharedAnnotationReference,
+                        },
                         content: 'this is a new reply',
+                        sharedListReference: {
+                            type: 'shared-list-reference',
+                            id: 'default-list',
+                        },
                     },
                 }),
                 step({
@@ -677,7 +750,11 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                         annotationReference: {
                             type: 'shared-annotation-reference',
                             id: 'default-annotation',
-                        } as SharedAnnotationReference,
+                        },
+                        sharedListReference: {
+                            type: 'shared-list-reference',
+                            id: 'default-list',
+                        },
                     },
                 }),
                 step({
@@ -688,7 +765,11 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                         annotationReference: {
                             type: 'shared-annotation-reference',
                             id: 'default-annotation',
-                        } as SharedAnnotationReference,
+                        },
+                        sharedListReference: {
+                            type: 'shared-list-reference',
+                            id: 'default-list',
+                        },
                     },
                 }),
             ],
@@ -772,7 +853,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                 name: 'follow-collection',
                 target: 'CollectionDetailsPage',
                 eventName: 'clickFollowBtn',
-                eventArgs: null,
+                eventArgs: {},
             }),
             step({
                 name: 'follow-complete',
@@ -814,7 +895,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                 name: 'unfollow-collection',
                 target: 'CollectionDetailsPage',
                 eventName: 'clickFollowBtn',
-                eventArgs: null,
+                eventArgs: {},
             }),
             step({
                 name: 'unfollow-complete',
@@ -880,7 +961,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                     name: 'follow-btn-clicked',
                     target: 'CollectionDetailsPage',
                     eventName: 'clickFollowBtn',
-                    eventArgs: null,
+                    eventArgs: {},
                 }),
             ],
         }),
@@ -932,12 +1013,12 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                         },
                     ],
                 }),
-                step({
-                    name: 'collection-share-modal-adding',
-                    target: 'ListShareModal',
-                    eventName: 'addLink',
-                    eventArgs: null,
-                }),
+                // step({
+                //     name: 'collection-share-modal-adding',
+                //     target: 'ListShareModal',
+                //     eventName: 'addLink',
+                //     eventArgs: null,
+                // }),
                 // step({
                 //     name: 'collection-share-modal-added',
                 //     callModifications: ({ storage }) => [
@@ -947,18 +1028,18 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                 //         },
                 //     ],
                 // }),
-                step({
-                    name: 'collection-share-modal-delete-modal',
-                    target: 'ListShareModal',
-                    eventName: 'requestLinkDelete',
-                    eventArgs: { linkIndex: 1 },
-                }),
-                step({
-                    name: 'collection-share-modal-delete-modal-confirm',
-                    target: 'ListShareModal',
-                    eventName: 'confirmLinkDelete',
-                    eventArgs: null,
-                }),
+                // step({
+                //     name: 'collection-share-modal-delete-modal',
+                //     target: 'ListShareModal',
+                //     eventName: 'requestLinkDelete',
+                //     eventArgs: { linkIndex: 0 },
+                // }),
+                // step({
+                //     name: 'collection-share-modal-delete-modal-confirm',
+                //     target: 'ListShareModal',
+                //     eventName: 'confirmLinkDelete',
+                //     eventArgs: null,
+                // }),
                 // step({
                 //     name: 'collection-share-modal-delete-modal-done',
                 //     callModifications: ({ storage }) => [
@@ -1053,7 +1134,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                     name: 'follow-btn-clicked',
                     target: 'CollectionDetailsPage',
                     eventName: 'clickFollowBtn',
-                    eventArgs: null,
+                    eventArgs: {},
                 }),
             ],
         }),
@@ -1189,7 +1270,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                     email: 'default-user',
                     password: 'testing',
                 })
-                const { link } = await services.contentSharing.generateKeyLink({
+                const { link } = await services.listKeys.generateKeyLink({
                     key: { roleID: SharedListRoleID.AddOnly },
                     listReference: {
                         type: 'shared-list-reference',
@@ -1205,7 +1286,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                 services.router.getQueryParam = () => {
                     return keyString
                 }
-                await services.contentSharing.processCurrentKey()
+                await services.listKeys.processCurrentKey()
                 services.router.getQueryParam = () => {
                     return null
                 }
@@ -1244,9 +1325,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                         email: 'default-user',
                         password: 'testing',
                     })
-                    const {
-                        link,
-                    } = await services.contentSharing.generateKeyLink({
+                    const { link } = await services.listKeys.generateKeyLink({
                         key: { roleID: SharedListRoleID.AddOnly },
                         listReference: {
                             type: 'shared-list-reference',
@@ -1266,7 +1345,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                 callModifications: ({ services }) => [
                     callModification({
                         name: 'key-processing',
-                        object: services.contentSharing,
+                        object: services.listKeys,
                         property: 'processCurrentKey',
                         modifier: 'block',
                     }),
@@ -1298,9 +1377,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                         email: 'default-user',
                         password: 'testing',
                     })
-                    const {
-                        link,
-                    } = await services.contentSharing.generateKeyLink({
+                    const { link } = await services.listKeys.generateKeyLink({
                         key: { roleID: SharedListRoleID.AddOnly },
                         listReference: {
                             type: 'shared-list-reference',
@@ -1347,7 +1424,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
             callModifications: ({ services }) => [
                 callModification({
                     name: 'process-key-error',
-                    object: services.contentSharing,
+                    object: services.listKeys,
                     property: 'processCurrentKey',
                     modifier: 'sabotage',
                 }),

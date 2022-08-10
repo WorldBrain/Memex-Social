@@ -11,26 +11,23 @@ import {
 
 import CuratorSupportPopup from '../../components/curator-support-popup'
 import { UITaskState } from '../../../../../main-ui/types'
-
-const Container = styled.div`
-    height: min-content;
-    width: min-content;
-    position: relative;
-`
+import { UserReference } from '../../../types'
 
 const CuratorPopupBox = styled.div`
-    top: 90px;
-    position: fixed;
-    z-index: 10;
-    padding-top: 10px;
-    height: 20px;
-    width: 40px;
+    margin-left: -140px;
+    margin-top: 10px;
+    position: absolute;
 `
 
-export type CuratorSupportPopupContainerDependencies = ProfilePopupContainerDependencies & {
+export type CuratorSupportPopupContainerDependencies = Omit<
+    ProfilePopupContainerDependencies,
+    'userRef'
+> & {
     paymentMade: boolean
     paymentState: UITaskState
     isMonetizationAvailable: boolean
+    userRef: UserReference
+    onMouseLeave?: () => void
 }
 export type CuratorSupportPopupContainerState = ProfilePopupContainerState
 export type CuratorSupportPopupContainerEvent = ProfilePopupContainerEvent
@@ -44,43 +41,30 @@ export default class CuratorSupportPopupContainer extends UIElement<
         super(props, { logic: new CuratorSupportPopupContainerLogic(props) })
     }
 
+    componentDidMount(): void {
+        this.processEvent('initPopup', null)
+    }
+
     handleMouseEnter() {
         this.processEvent('initPopup', null)
     }
 
-    handleMouseLeave() {
-        this.processEvent('hidePopup', null)
-    }
-
     render() {
-        const { loadState, userPublicProfile } = this.state
-        const { props, state } = this
+        const { loadState } = this.state
+        const { props } = this
+
         return (
-            <>
-                <Container
-                    onMouseEnter={() => this.handleMouseEnter()}
-                    onMouseLeave={() => this.handleMouseLeave()}
-                >
-                    {props.children}
-                    {state.isDisplayed &&
-                        userPublicProfile?.paymentPointer &&
-                        props.userRef && (
-                            <CuratorPopupBox>
-                                <CuratorSupportPopup
-                                    loadState={loadState}
-                                    curatorUserRef={props.userRef}
-                                    services={props.services}
-                                    storage={props.storage}
-                                    paymentMade={props.paymentMade}
-                                    paymentSate={props.paymentState}
-                                    isMonetizationAvailable={
-                                        props.isMonetizationAvailable
-                                    }
-                                />
-                            </CuratorPopupBox>
-                        )}
-                </Container>
-            </>
+            <CuratorPopupBox onMouseLeave={props.onMouseLeave}>
+                <CuratorSupportPopup
+                    loadState={loadState}
+                    curatorUserRef={props.userRef}
+                    services={props.services}
+                    storage={props.storage}
+                    paymentMade={props.paymentMade}
+                    paymentState={props.paymentState}
+                    isMonetizationAvailable={props.isMonetizationAvailable}
+                />
+            </CuratorPopupBox>
         )
     }
 }

@@ -15,6 +15,8 @@ export interface AuthService {
     loginWithEmailPassword(
         options: EmailPasswordCredentials,
     ): Promise<{ result: LoginResult }>
+    sendPasswordResetEmailProcess(email: string): void
+    changeEmailAddressonFirebase(email: string): Promise<void>
     registerWithEmailPassword(
         options: EmailPasswordCredentials,
     ): Promise<{ result: RegistrationResult }>
@@ -22,6 +24,7 @@ export interface AuthService {
     getCurrentUser(): User | null
     getCurrentUserReference(): UserReference | null
     refreshCurrentUser(): Promise<void>
+    getCurrentUserEmail(): string | null
 
     getSupportedMethods(options: {
         method: AuthMethod
@@ -55,7 +58,7 @@ export type AuthLoginFlow =
     | 'direct-with-confirm' // We'll get a direct response back whether the account was created, but the user needs to confirm their account
 export interface AuthRequest {
     reason?: AuthRequestReason
-    header?: { title: string; subtitle?: string }
+    header?: { title: string | JSX.Element; subtitle?: string | JSX.Element }
 }
 export type AuthRequestReason = 'login-requested' | 'registration-requested'
 

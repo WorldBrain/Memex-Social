@@ -27,19 +27,28 @@ import {
     annotationConversationInitialState,
     annotationConversationEventHandlers,
     detectAnnotationConversationThreads,
+    setupConversationLogicDeps,
+    intializeNewPageReplies,
 } from '../../../../content-conversations/ui/logic'
-import { getInitialNewReplyState } from '../../../../content-conversations/ui/utils'
+import {
+    getInitialNewReplyState,
+    getInitialAnnotationConversationStates,
+} from '../../../../content-conversations/ui/utils'
 import mapValues from 'lodash/mapValues'
 import UserProfileCache from '../../../../user-management/utils/user-profile-cache'
 import {
     listsSidebarInitialState,
     listsSidebarEventHandlers,
 } from '../../../../lists-sidebar/ui/logic'
+import {
+    extDetectionInitialState,
+    extDetectionEventHandlers,
+} from '../../../../ext-detection/ui/logic'
 import { UserReference } from '../../../../user-management/types'
 import { makeStorageReference } from '@worldbrain/memex-common/lib/storage/references'
 const truncate = require('truncate')
 
-const LIST_DESCRIPTION_CHAR_LIMIT = 200
+const LIST_DESCRIPTION_CHAR_LIMIT = 400
 
 type EventHandler<
     EventName extends keyof CollectionDetailsEvent
@@ -73,7 +82,8 @@ export default class CollectionDetailsLogic extends UILogic<
                 this as any,
                 {
                     ...this.dependencies,
-                    getAnnotation: (state, reference) => {
+                    ...setupConversationLogicDeps(this.dependencies),
+                    selectAnnotationData: (state, reference) => {
                         const annotationId = this.dependencies.storage.contentSharing.getSharedAnnotationLinkID(
                             reference,
                         )
@@ -82,12 +92,13 @@ export default class CollectionDetailsLogic extends UILogic<
                             return null
                         }
                         return {
-                            annotation,
+                            normalizedPageUrl: annotation.normalizedPageUrl,
                             pageCreatorReference: annotation.creator,
                         }
                     },
-                    loadUser: (reference) => this._users.loadUser(reference),
-                    onNewAnnotationCreate: (_, annotation, sharedListEntry) =>
+                    loadUserByReference: (reference) =>
+                        this._users.loadUser(reference),
+                    onNewAnnotationCreate: (_, annotation, sharedListEntry) => {
                         this.emitMutation({
                             annotations: {
                                 [annotation.linkId]: {
@@ -109,7 +120,14 @@ export default class CollectionDetailsLogic extends UILogic<
                                     ],
                                 },
                             },
-                        }),
+                        })
+                        return this.dependencies.services.userMessages.pushMessage(
+                            {
+                                type: 'created-annotation',
+                                sharedAnnotationId: annotation.reference.id,
+                            },
+                        )
+                    },
                 },
             ),
         )
@@ -121,24 +139,55 @@ export default class CollectionDetailsLogic extends UILogic<
                 localStorage: this.dependencies.services.localStorage,
             }),
         )
+
+        Object.assign(
+            this,
+            extDetectionEventHandlers(this as any, {
+                ...this.dependencies,
+            }),
+        )
+    }
+
+    updateScrollState: EventHandler<'updateScrollState'> = async ({
+        event,
+    }) => {
+        const mainArea = document.getElementById('MainContainer')
+        if (mainArea) {
+            mainArea.onscroll = () => {
+                const previousScrollTop = event.previousScrollTop
+                const currentScroll = mainArea.scrollTop
+
+                if (
+                    (currentScroll > 100 &&
+                        currentScroll - previousScrollTop > 0) ||
+                    currentScroll === 0
+                ) {
+                    this.emitMutation({
+                        scrollTop: { $set: mainArea?.scrollTop },
+                    })
+                }
+            }
+        }
     }
 
     getInitialState(): CollectionDetailsState {
         return {
             listLoadState: 'pristine',
-            followLoadState: 'pristine',
-            permissionKeyState: 'pristine',
-            listRolesLoadState: 'pristine',
+            followLoadState: 'running',
+            permissionKeyState: 'running',
+            listRolesLoadState: 'running',
+            showMoreCollaborators: false,
             listRoleLimit: 3,
             users: {},
+            scrollTop: 0,
             annotationEntriesLoadState: 'pristine',
             annotationLoadStates: {},
             annotations: {},
             isCollectionFollowed: false,
             allAnnotationExpanded: false,
             isListShareModalShown: false,
-            isInstallExtModalShown: false,
             pageAnnotationsExpanded: {},
+            ...extDetectionInitialState(),
             ...listsSidebarInitialState(),
             ...annotationConversationInitialState(),
         }
@@ -184,8 +233,10 @@ export default class CollectionDetailsLogic extends UILogic<
     processPermissionKey: EventHandler<'processPermissionKey'> = async (
         incoming,
     ) => {
-        if (!this.dependencies.services.contentSharing.hasCurrentKey()) {
-            return
+        if (!this.dependencies.services.listKeys.hasCurrentKey()) {
+            return this.emitMutation({
+                permissionKeyState: { $set: 'success' },
+            })
         }
         await executeUITask<CollectionDetailsState>(
             this,
@@ -194,7 +245,7 @@ export default class CollectionDetailsLogic extends UILogic<
                 await this.dependencies.services.auth.waitForAuthReady()
                 const {
                     result,
-                } = await this.dependencies.services.contentSharing.processCurrentKey()
+                } = await this.dependencies.services.listKeys.processCurrentKey()
                 if (result !== 'not-authenticated') {
                     return {
                         mutation: {
@@ -210,8 +261,8 @@ export default class CollectionDetailsLogic extends UILogic<
                     reason: 'login-requested',
                     header: {
                         title:
-                            'You’ve been invited as a Contributor to this collection',
-                        subtitle: 'Signup or login to continue',
+                            'You’ve been invited as \n a Contributor to this Space',
+                        subtitle: '',
                     },
                 })
                 this.emitMutation({ requestingAuth: { $set: false } })
@@ -223,10 +274,11 @@ export default class CollectionDetailsLogic extends UILogic<
                 }
                 const {
                     result: secondKeyResult,
-                } = await this.dependencies.services.contentSharing.processCurrentKey()
+                } = await this.dependencies.services.listKeys.processCurrentKey()
                 return {
                     mutation: {
                         permissionKeyResult: { $set: secondKeyResult },
+                        permissionKeyState: { $set: 'success' },
                     },
                 }
             },
@@ -386,7 +438,9 @@ export default class CollectionDetailsLogic extends UILogic<
         const userReference = auth.getCurrentUserReference()
 
         if (userReference == null) {
-            return
+            return this.emitMutation({
+                followLoadState: { $set: 'pristine' },
+            })
         }
 
         await executeUITask<CollectionDetailsState>(
@@ -403,6 +457,7 @@ export default class CollectionDetailsLogic extends UILogic<
 
                 this.emitMutation({
                     isCollectionFollowed: { $set: isAlreadyFollowed },
+                    followLoadState: { $set: 'success' },
                 })
 
                 if (isAlreadyFollowed && this._creatorReference) {
@@ -422,12 +477,6 @@ export default class CollectionDetailsLogic extends UILogic<
     toggleListShareModal: EventHandler<'toggleListShareModal'> = () => {
         this.emitMutation({
             isListShareModalShown: { $apply: (shown) => !shown },
-        })
-    }
-
-    toggleInstallExtModal: EventHandler<'toggleInstallExtModal'> = () => {
-        this.emitMutation({
-            isInstallExtModalShown: { $apply: (shown) => !shown },
         })
     }
 
@@ -526,6 +575,7 @@ export default class CollectionDetailsLogic extends UILogic<
 
     clickFollowBtn: EventHandler<'clickFollowBtn'> = async ({
         previousState,
+        event,
     }) => {
         const {
             services: { auth },
@@ -599,10 +649,27 @@ export default class CollectionDetailsLogic extends UILogic<
                 this.emitMutation(mutation)
             },
         )
+
+        if (event.pageToOpenPostFollow != null) {
+            setTimeout(
+                () => window.open(event.pageToOpenPostFollow, '_blank'),
+                1000,
+            )
+        }
     }
 
-    showMoreCollaborators: EventHandler<'showMoreCollaborators'> = () => {
-        return { listRoleLimit: { $set: null } }
+    toggleMoreCollaborators: EventHandler<'toggleMoreCollaborators'> = (
+        event,
+    ) => {
+        return {
+            showMoreCollaborators: {
+                $set: !event.previousState.showMoreCollaborators,
+            },
+        }
+    }
+
+    hideMoreCollaborators: EventHandler<'hideMoreCollaborators'> = () => {
+        return { showMoreCollaborators: { $set: false } }
     }
 
     getFirstPagesWithoutLoadedAnnotations(state: CollectionDetailsState) {
@@ -689,7 +756,6 @@ export default class CollectionDetailsLogic extends UILogic<
 
                 try {
                     const annotationChunks = await Promise.all(pagePromises)
-                    // await new Promise(resolve => setTimeout(resolve, 2000))
                     const newAnnotations: CollectionDetailsState['annotations'] = {}
                     for (const annotationChunk of annotationChunks) {
                         for (const [annotationId, annotation] of Object.entries(
@@ -723,19 +789,39 @@ export default class CollectionDetailsLogic extends UILogic<
             })(promisesByPageEntry)
         }
 
+        const annotationReferences = flatten(
+            Object.values(annotationEntries),
+        ).map((entry) => entry.sharedAnnotation)
+        this.emitMutation({
+            conversations: {
+                $merge: getInitialAnnotationConversationStates(
+                    annotationReferences.map(({ id }) => ({
+                        linkId: id.toString(),
+                    })),
+                ),
+            },
+        })
         const conversationThreadPromise = detectAnnotationConversationThreads(
             this as any,
             {
-                storage: this.dependencies.storage,
-                annotationReferences: flatten(
-                    Object.values(annotationEntries),
-                ).map((entry) => entry.sharedAnnotation),
-                normalizedPageUrls: [...normalizedPageUrls].filter(
-                    (normalizedPageUrl) =>
-                        !this.conversationThreadPromises[normalizedPageUrl],
-                ),
+                getThreadsForAnnotations: (...args) =>
+                    this.dependencies.storage.contentConversations.getThreadsForAnnotations(
+                        ...args,
+                    ),
+                annotationReferences,
+                sharedListReference: {
+                    type: 'shared-list-reference',
+                    id: this.dependencies.listID,
+                },
             },
         ).catch(console.error)
+        intializeNewPageReplies(this as any, {
+            normalizedPageUrls: [...normalizedPageUrls].filter(
+                (normalizedPageUrl) =>
+                    !this.conversationThreadPromises[normalizedPageUrl],
+            ),
+        })
+
         for (const normalizedPageUrl of normalizedPageUrls) {
             this.conversationThreadPromises[
                 normalizedPageUrl

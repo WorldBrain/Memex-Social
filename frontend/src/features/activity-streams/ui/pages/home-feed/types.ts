@@ -27,6 +27,10 @@ import {
     ListsSidebarState,
     ListsSidebarEvent,
 } from '../../../../lists-sidebar/ui/types'
+import type {
+    ExtDetectionState,
+    ExtDetectionEvent,
+} from '../../../../ext-detection/ui/logic'
 
 export interface HomeFeedDependencies {
     services: UIElementServices<
@@ -62,15 +66,24 @@ export type HomeFeedState = {
     users: { [userId: string]: Pick<User, 'displayName'> | null }
     lastSeenTimestamp?: number | null
     moreRepliesLoadStates: { [groupId: string]: UITaskState }
+    shouldShowNewLine: boolean
 } & AnnotationConversationsState &
-    ListsSidebarState
+    ListsSidebarState &
+    ExtDetectionState
 
 export type HomeFeedEvent = UIEvent<
     AnnotationConversationEvent &
-        ListsSidebarEvent & {
+        ListsSidebarEvent &
+        ExtDetectionEvent & {
+            clickPageResult: {
+                urlToOpen: string
+                preventOpening: () => void
+                isFeed: boolean
+            }
             waypointHit: null
             loadMoreReplies: {
                 groupId: string
+                listReference: SharedListReference | null
                 annotationReference: SharedAnnotationReference
             }
             toggleListEntryActivityAnnotations: {
@@ -78,6 +91,7 @@ export type HomeFeedEvent = UIEvent<
                 listReference: SharedListReference
                 listEntryReference: SharedListEntryReference
             }
+            getLastSeenLinePosition: null
         }
 >
 
@@ -101,6 +115,7 @@ export type ListEntryActivityItem = {
     reference: SharedListEntryReference
     creator: UserReference
     activityTimestamp: number
+    annotationEntriesLoadState: UITaskState
     hasAnnotations?: boolean
     areAnnotationsShown?: boolean
     annotationsLoadState: UITaskState
@@ -109,9 +124,11 @@ export type ListEntryActivityItem = {
 
 export interface PageActivityItem extends TopLevelActivityItem {
     type: 'page-item'
-    reason: 'new-replies'
+    reason: 'new-replies' | 'new-annotations'
+    list?: { title: string; reference: SharedListReference }
     normalizedPageUrl: string
     creatorReference: UserReference
+    listReference: SharedListReference | null
     annotations: OrderedMap<AnnotationActivityItem>
 }
 

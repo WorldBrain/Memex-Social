@@ -12,6 +12,7 @@ import {
     AuthResult,
     EmailPasswordCredentials,
 } from '../../../../../services/auth/types'
+import { isMemexInstalled } from '../../../../../utils/memex-installed'
 
 type EventHandler<EventName extends keyof AuthDialogEvent> = UIEventHandler<
     AuthDialogState,
@@ -32,15 +33,28 @@ export default class AuthDialogLogic extends UILogic<
         const { auth } = this.dependencies.services
         auth.events.on('authRequested', (event) => {
             this.emitAuthResult = event.emitResult
-            this.emitMutation({
-                mode: {
-                    $set:
-                        event.reason === 'login-requested'
-                            ? 'login'
-                            : 'register',
-                },
-                header: { $set: event.header ?? undefined },
-            })
+
+            if (isMemexInstalled()) {
+                this.emitMutation({
+                    mode: {
+                        $set:
+                            event.reason === 'login-requested'
+                                ? 'login'
+                                : 'register',
+                    },
+                    header: { $set: event.header ?? undefined },
+                })
+            } else {
+                this.emitMutation({
+                    mode: {
+                        $set:
+                            event.reason === 'login-requested'
+                                ? 'register'
+                                : 'login',
+                    },
+                    header: { $set: event.header ?? undefined },
+                })
+            }
         })
     }
 
@@ -52,6 +66,7 @@ export default class AuthDialogLogic extends UILogic<
             password: '',
             displayName: '',
             header: null,
+            passwordRepeat: '',
         }
     }
 
@@ -63,6 +78,22 @@ export default class AuthDialogLogic extends UILogic<
     }
 
     toggleMode: EventHandler<'toggleMode'> = async ({ previousState }) => {
+        if (previousState.mode === 'ConfirmResetPassword') {
+            this.emitMutation({
+                mode: {
+                    $set: 'login',
+                },
+            })
+        }
+
+        if (previousState.mode === 'resetPassword') {
+            this.emitMutation({
+                mode: {
+                    $set: 'ConfirmResetPassword',
+                },
+            })
+        }
+
         if (
             previousState.mode !== 'register' &&
             previousState.mode !== 'login'
@@ -83,6 +114,10 @@ export default class AuthDialogLogic extends UILogic<
 
     editPassword: EventHandler<'editPassword'> = ({ event }) => {
         return { password: { $set: event.value } }
+    }
+
+    passwordRepeat: EventHandler<'editPassword'> = ({ event }) => {
+        return { passwordRepeat: { $set: event.value } }
     }
 
     emailPasswordConfirm: EventHandler<'emailPasswordConfirm'> = async ({
@@ -165,5 +200,29 @@ export default class AuthDialogLogic extends UILogic<
         this.emitMutation({ mode: { $set: 'hidden' } })
         this.emitAuthResult?.(result)
         delete this.emitAuthResult
+    }
+
+    passwordResetSwitch: EventHandler<'passwordResetSwitch'> = () => {
+        this.emitMutation({
+            mode: {
+                $set: 'resetPassword',
+            },
+        })
+    }
+
+    passwordResetConfirm: EventHandler<'passwordResetConfirm'> = () => {
+        this.emitMutation({
+            mode: {
+                $set: 'ConfirmResetPassword',
+            },
+        })
+    }
+
+    passwordReset: EventHandler<'passwordReset'> = async ({
+        event,
+        previousState,
+    }) => {
+        const auth = this.dependencies.services.auth
+        auth.sendPasswordResetEmailProcess(previousState.email)
     }
 }

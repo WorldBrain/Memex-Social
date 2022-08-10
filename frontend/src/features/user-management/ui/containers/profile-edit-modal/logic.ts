@@ -27,7 +27,7 @@ const EMPTY_USER_PROFILE: UserPublicProfile = {
     substackURL: '',
     bio: '',
     avatarURL: '',
-    paymentPointer: '',
+    paymentPointer: '$ilp.uphold.com/zHjHFKyUWbwB',
 }
 export default class ProfileEditModalLogic extends UILogic<
     ProfileEditModalState,
@@ -49,12 +49,19 @@ export default class ProfileEditModalLogic extends UILogic<
             userPublicProfile: EMPTY_USER_PROFILE,
             profileLinks: [],
             inputErrorArray: [],
+            email: '',
+            showEmailEditButton: false,
+            emailEditSuccess: 'pristine',
+            passwordResetSent: false,
+            passwordResetSuccessful: false,
         }
     }
 
     init: EventHandler<'init'> = async () => {
         await loadInitial<ProfileEditModalState>(this, async () => {
             this.userRef = this.dependencies.services.auth.getCurrentUserReference()
+            const userEmail = await this.dependencies.services.auth.getCurrentUserEmail()!
+
             if (!this.userRef) {
                 return
             }
@@ -72,10 +79,12 @@ export default class ProfileEditModalLogic extends UILogic<
                     withEmptyFields: true,
                 },
             )
+
             this.emitMutation({
                 user: { $set: user ?? { displayName: '' } },
                 userPublicProfile: { $set: userProfile ?? EMPTY_USER_PROFILE },
                 profileLinks: { $set: profileLinks },
+                email: { $set: userEmail },
             })
         })
     }
@@ -110,6 +119,53 @@ export default class ProfileEditModalLogic extends UILogic<
                 displayName: { $set: event.value },
             },
         })
+    }
+
+    setEmail: EventHandler<'setEmail'> = ({ event, previousState }) => {
+        this.emitMutation({
+            email: { $set: event.value },
+        })
+
+        if (previousState.email !== event.value) {
+            this.emitMutation({
+                showEmailEditButton: { $set: true },
+            })
+        }
+    }
+
+    sendPasswordResetEmail: EventHandler<'sendPasswordResetEmail'> = ({
+        event,
+        previousState,
+    }) => {
+        const auth = this.dependencies.services.auth
+        const email = event.value
+
+        this.emitMutation({
+            passwordResetSent: { $set: true },
+            passwordResetSuccessful: { $set: true },
+        })
+
+        auth.sendPasswordResetEmailProcess(email)
+    }
+
+    confirmEmailChange: EventHandler<'confirmEmailChange'> = async ({
+        event,
+    }) => {
+        const auth = this.dependencies.services.auth
+        const email = event.value
+        this.emitMutation({
+            emailEditSuccess: { $set: 'running' },
+        })
+        try {
+            await auth.changeEmailAddressonFirebase(email)
+            this.emitMutation({
+                emailEditSuccess: { $set: 'success' },
+            })
+        } catch (e) {
+            this.emitMutation({
+                emailEditSuccess: { $set: 'error' },
+            })
+        }
     }
 
     setProfileValue: EventHandler<'setProfileValue'> = ({ event }) => {

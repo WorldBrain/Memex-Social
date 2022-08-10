@@ -1,7 +1,12 @@
 node_modules
 *swp
 firebase/public
+firebase/functions/.runtimeconfig.json
 .firebase/
 *-debug.log
 private
 firebase/.runtimeconfig.json
+
+.env.staging
+
+.env.development

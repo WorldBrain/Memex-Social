@@ -6,6 +6,7 @@ export interface WebMonetizationEvents {
     paymentInitiated(event: { paymentPointer: string }): void
     monetizationstart(event: WebMonetizationStartEvent): void
     monetizationstop(event: WebMonetizationStopEvent): void
+    monetizationprogress(event: WebMonetizationProgressEvent): void
 }
 
 export type WebMonetizationStartEvent = Pick<
@@ -15,6 +16,11 @@ export type WebMonetizationStartEvent = Pick<
 export type WebMonetizationStopEvent = Pick<
     browserTypes.WebMonetizationStopEvent['detail'],
     'paymentPointer' | 'requestId' | 'finalized'
+>
+
+export type WebMonetizationProgressEvent = Pick<
+    browserTypes.WebMonetizationProgressEvent['detail'],
+    'amount' | 'assetCode' | 'assetScale'
 >
 
 export interface WebMonetizationService {

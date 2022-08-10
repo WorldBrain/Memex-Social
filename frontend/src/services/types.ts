@@ -4,7 +4,6 @@ import FixtureService from './fixtures'
 import RouterService from './router'
 import { ScenarioService } from './scenarios'
 import { DocumentTitleService } from './document-title'
-import ContentConversationsService from '../features/content-conversations/services/content-conversations'
 import { ActivityStreamsService } from '@worldbrain/memex-common/lib/activity-streams/types'
 import { UserMessageService } from '@worldbrain/memex-common/lib/user-messages/service/types'
 import UserManagementService from '../features/user-management/service'
@@ -27,7 +26,6 @@ export type Services = SharedServices & {
     userMessages: UserMessageService
 
     // Feature specific services
-    contentConversations: ContentConversationsService
     activityStreams: ActivityStreamsService
     userManagement: UserManagementService
     webMonetization: WebMonetizationService

@@ -48,6 +48,10 @@ export abstract class AuthServiceBase implements AuthService {
     abstract logout(): Promise<void>
     abstract waitForAuthReady(): Promise<void>
 
+    abstract sendPasswordResetEmailProcess(email: string): void
+    abstract changeEmailAddressonFirebase(email: string): Promise<void>
+    abstract getCurrentUserEmail(): string | null
+
     async enforceAuth(options?: AuthRequest): Promise<boolean> {
         await this.waitForAuthReady()
         if (this.getCurrentUser()) {

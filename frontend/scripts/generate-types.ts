@@ -104,6 +104,8 @@ function generateTypesForStorageModule(
             boolean: 'boolean',
             int: 'number',
             json: 'any',
+            text: 'string',
+            float: 'number',
         },
         generateImport: (options) => {
             return { path: `./${kebabCase(options.collectionName)}.ts` }

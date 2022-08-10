@@ -1,19 +1,21 @@
 import React, { PureComponent } from 'react'
 import styled, { css } from 'styled-components'
 import { UITaskState } from '../../../../main-ui/types'
-import LoadingIndicator from '../../../../common-ui/components/loading-indicator'
-import Icon from '../../../../common-ui/components/icon'
+import LoadingIndicator from '@worldbrain/memex-common/lib/common-ui/components/loading-indicator'
+import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
+import ButtonTooltip from '@worldbrain/memex-common/lib/common-ui/components/button-tooltip'
 
 const Container = styled.div<{
-    isOwner: boolean
-    isContributor: boolean
-    isFollowed: boolean
+    isOwner?: boolean
+    isContributor?: boolean
+    isFollowed?: boolean
 }>`
     font-family: ${(props) => props.theme.fonts.primary};
     border-radius: 5px;
     border-width: 1px;
     font-weight: bold;
     margin-left: auto;
+    width: 170px;
     ${(props) =>
         props.isContributor &&
         props.isFollowed &&
@@ -21,7 +23,8 @@ const Container = styled.div<{
             background: transparent;
             color: ${(props) => props.theme.colors.purple};
             cursor: default;
-            border: 1px solid ${(props) => props.theme.colors.grey};
+            border: 1px solid
+                ${(props) => props.theme.darkModeColors.lineLightGrey};
 
             & div {
                 cursor: default;
@@ -34,7 +37,8 @@ const Container = styled.div<{
             background: transparent;
             color: ${(props) => props.theme.colors.purple};
             cursor: default;
-            border: 1px solid ${(props) => props.theme.colors.grey};
+            border: 1px solid
+                ${(props) => props.theme.darkModeColors.lineLightGrey};
 
             & div {
                 cursor: default;
@@ -59,7 +63,6 @@ const Container = styled.div<{
             border: 1px solid ${(props) => props.theme.colors.purple};
         `}
     padding: 5px 15px;
-    min-width: 100px;
     height: 34px;
     outline: none;
     justify-content: center;
@@ -68,19 +71,27 @@ const Container = styled.div<{
     display: flex;
 `
 
-const PlusIcon = styled.span`
-    padding-right: 10px;
-`
+const PlusIcon = styled.span``
 
 const ButtonBox = styled.div`
     display: flex;
     align-items: center;
+    cursor: pointer;
+    min-width: 100px;
+    grid-gap: 5px;
+    justify-content: center;
+
+    & * {
+        cursor: pointer;
+    }
 `
 
-const BtnText = styled.span``
+const BtnText = styled.span`
+    font-weight: 500;
+`
 
 export interface Props {
-    onClick: React.MouseEventHandler
+    onClick: React.MouseEventHandler<HTMLDivElement>
     loadState: UITaskState
     isOwner?: boolean
     isFollowed?: boolean
@@ -125,15 +136,15 @@ export default class FollowBtn extends PureComponent<Props> {
         if (props.isOwner) {
             return 'check'
         } else if (props.isContributor) {
-            return 'people'
+            return 'peopleFine'
         } else if (!props.isOwner && !props.isContributor && props.isFollowed) {
             if (this.state.hoverButton) {
-                return 'removeX'
+                return 'close'
             } else {
                 return 'check'
             }
         } else {
-            return 'plusIcon'
+            return 'bell'
         }
     }
 
@@ -156,7 +167,7 @@ export default class FollowBtn extends PureComponent<Props> {
         const { props } = this
 
         if (props.loadState === 'running') {
-            return <LoadingIndicator />
+            return <LoadingIndicator size={16} />
         }
 
         const icon = (
@@ -164,6 +175,7 @@ export default class FollowBtn extends PureComponent<Props> {
                 height="16px"
                 icon={this.followStateIcon()}
                 color={this.followStateIconColor()}
+                hoverOff
             />
         )
 
@@ -177,7 +189,34 @@ export default class FollowBtn extends PureComponent<Props> {
 
     render() {
         const { props } = this
-        return (
+        return props.isContributor ? (
+            <>
+                <ButtonTooltip
+                    tooltipText={
+                        <>
+                            You can add pages <br />
+                            and annotations to this Space
+                        </>
+                    }
+                    position="bottom"
+                >
+                    <Container
+                        onMouseEnter={() => this.handleMouseEnter()}
+                        onMouseLeave={() => this.handleMouseLeave()}
+                        onClick={props.onClick}
+                        isContributor={props.isContributor}
+                        isFollowed={
+                            props.isFollowed ||
+                            props.isOwner ||
+                            props.isContributor
+                        }
+                        isOwner={props.isOwner}
+                    >
+                        {this.renderBody()}
+                    </Container>
+                </ButtonTooltip>
+            </>
+        ) : (
             <Container
                 onMouseEnter={() => this.handleMouseEnter()}
                 onMouseLeave={() => this.handleMouseLeave()}

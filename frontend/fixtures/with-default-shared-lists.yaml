@@ -39,6 +39,20 @@ objects:
           creator: { $ref: users.default }
           createdWhen: 1594225289914
           updatedWhen: 1594225289914
+          fullTitle: "WorldBrain's Memex PDF Support"
+          normalizedUrl: memex.cloud/ct/test-fingerprint-1.pdf
+          originalUrl: 'https://memex.cloud/ct/test-fingerprint-1.pdf'
+        - sharedList: { $ref: sharedLists.default }
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          fullTitle: "WorldBrain's Memex Local PDF Support"
+          normalizedUrl: memex.cloud/ct/test-fingerprint-2.pdf
+          originalUrl: 'https://memex.cloud/ct/test-fingerprint-2.pdf'
+        - sharedList: { $ref: sharedLists.default }
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
           fullTitle: Page with notes with a title that is very very very very very very very very very very very long
           normalizedUrl: notion.so/#1
           originalUrl: 'https://notion.so'
@@ -175,3 +189,18 @@ objects:
           fullTitle: Page with notes with a title that is very very very very very very very very very very very long
           normalizedUrl: notion.so
           originalUrl: 'https://notion.so'
+    sharedContentLocators:
+        - $store: locator-1
+          id: first-locator
+          creator: { $ref: users.default }
+          locationScheme: 'normalized-url-v1'
+          originalUrl: 'https://getmemex.com/test.pdf'
+          normalizedUrl: 'memex.cloud/ct/test-fingerprint-1.pdf'
+          sharedList: { $ref: sharedLists.default }
+        - $store: locator-2
+          id: second-locator
+          creator: { $ref: users.default }
+          locationScheme: 'normalized-url-v1'
+          originalUrl: 'https://getmemex.com/test-copy.pdf'
+          normalizedUrl: 'memex.cloud/ct/test-fingerprint-1.pdf'
+          sharedList: { $ref: sharedLists.default }

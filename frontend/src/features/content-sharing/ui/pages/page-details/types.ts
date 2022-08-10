@@ -22,6 +22,10 @@ import {
     ListsSidebarState,
     ListsSidebarEvent,
 } from '../../../../lists-sidebar/ui/types'
+import type {
+    ExtDetectionState,
+    ExtDetectionEvent,
+} from '../../../../ext-detection/ui/logic'
 
 export interface PageDetailsDependencies {
     services: UIElementServices<
@@ -49,7 +53,8 @@ export interface PageDetailsDependencies {
 }
 
 export type PageDetailsState = AnnotationConversationsState &
-    ListsSidebarState & {
+    ListsSidebarState &
+    ExtDetectionState & {
         annotationLoadState: UITaskState
         annotations?: Array<
             SharedAnnotation & {
@@ -68,7 +73,7 @@ export type PageDetailsState = AnnotationConversationsState &
     }
 
 export type PageDetailsEvent = UIEvent<
-    AnnotationConversationEvent & ListsSidebarEvent
+    AnnotationConversationEvent & ListsSidebarEvent & ExtDetectionEvent
 >
 
 export type PageDetailsSignal = UISignal<

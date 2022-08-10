@@ -1,16 +1,14 @@
-import { ContentSharingBackendInterface } from '@worldbrain/memex-common/lib/content-sharing/backend/types'
-import {
-    ContentSharingServiceInterface,
+import type { ContentSharingBackendInterface } from '@worldbrain/memex-common/lib/content-sharing/backend/types'
+import type {
     ProcessSharedListKeyResult,
+    ListKeysServiceInterface,
 } from '@worldbrain/memex-common/lib/content-sharing/service/types'
-import {
-    SharedListReference,
-    SharedListRoleID,
-} from '@worldbrain/memex-common/lib/content-sharing/types'
-import RouterService from '../../services/router'
-import ContentSharingStorage from './storage'
+import AbstractListKeysService from '@worldbrain/memex-common/lib/content-sharing/service/list-keys'
+import type { SharedListReference } from '@worldbrain/memex-common/lib/content-sharing/types'
+import type RouterService from '../../services/router'
+import type ContentSharingStorage from './storage'
 
-export class ContentSharingService implements ContentSharingServiceInterface {
+export class ListKeysService extends AbstractListKeysService {
     backend: ContentSharingBackendInterface
 
     constructor(
@@ -19,17 +17,15 @@ export class ContentSharingService implements ContentSharingServiceInterface {
             router: RouterService
             isAuthenticated: () => boolean
             storage: {
-                contentSharing: Pick<
-                    ContentSharingStorage,
-                    'createListKey' | 'getListKeys' | 'deleteListKey'
-                >
+                contentSharing: ContentSharingStorage
             }
         },
     ) {
+        super({ serverStorage: dependencies.storage.contentSharing })
         this.backend = dependencies.backend
     }
 
-    private getKeyLink(params: {
+    protected getKeyLink(params: {
         listReference: SharedListReference
         keyString?: string
     }): string {
@@ -47,77 +43,7 @@ export class ContentSharingService implements ContentSharingServiceInterface {
         return params.keyString ? `${link}?key=${params.keyString}` : link
     }
 
-    private getKeyStringFromLink(params: { link: string }): string {
-        const matchRes = params.link.match(/\?key=(\w+)/)
-
-        if (matchRes == null || matchRes.length < 2) {
-            throw new Error('Could not find key string in link')
-        }
-
-        return matchRes[1]
-    }
-
-    getExistingKeyLinksForList: ContentSharingServiceInterface['getExistingKeyLinksForList'] = async (
-        params,
-    ) => {
-        const sharedListKeys = await this.dependencies.storage.contentSharing.getListKeys(
-            { listReference: params.listReference },
-        )
-
-        const foundLinks = sharedListKeys.map((key) => {
-            const keyString = key.reference.id as string
-            return {
-                keyString,
-                roleID: key.roleID,
-                link: this.getKeyLink({
-                    listReference: params.listReference,
-                    keyString,
-                }),
-            }
-        })
-
-        // In Memex-Social, there will always be a static reader link for collections,
-        //  as they are "shared" already and lack the ability to unshare
-        const readerLink = {
-            link: this.getKeyLink({ listReference: params.listReference }),
-            roleID: SharedListRoleID.Commenter,
-        }
-
-        return {
-            links: [readerLink, ...foundLinks],
-        }
-    }
-
-    generateKeyLink: ContentSharingServiceInterface['generateKeyLink'] = async (
-        params,
-    ) => {
-        let keyString: string | undefined
-
-        if (params.key.roleID !== SharedListRoleID.Commenter) {
-            const createListResult = await this.dependencies.storage.contentSharing.createListKey(
-                params,
-            )
-            keyString = createListResult.keyString
-        }
-
-        return {
-            link: this.getKeyLink({
-                listReference: params.listReference,
-                keyString,
-            }),
-        }
-    }
-
-    deleteKeyLink: ContentSharingServiceInterface['deleteKeyLink'] = async (
-        params,
-    ) => {
-        await this.dependencies.storage.contentSharing.deleteListKey({
-            keyString: this.getKeyStringFromLink(params),
-            listReference: params.listReference,
-        })
-    }
-
-    hasCurrentKey: ContentSharingServiceInterface['hasCurrentKey'] = () => {
+    hasCurrentKey: ListKeysServiceInterface['hasCurrentKey'] = () => {
         const routeMatch = this.dependencies.router.matchCurrentUrl()
         if (routeMatch.route !== 'collectionDetails') {
             return false
@@ -126,7 +52,7 @@ export class ContentSharingService implements ContentSharingServiceInterface {
         return !!keyString
     }
 
-    processCurrentKey: ContentSharingServiceInterface['processCurrentKey'] = async (): Promise<{
+    processCurrentKey: ListKeysServiceInterface['processCurrentKey'] = async (): Promise<{
         result: ProcessSharedListKeyResult
     }> => {
         const routeMatch = this.dependencies.router.matchCurrentUrl()

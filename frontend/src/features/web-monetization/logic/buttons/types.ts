@@ -10,6 +10,7 @@ export interface WebMonetizationButtonDependencies {
     >
     storage: Pick<StorageModules, 'users'>
     curatorUserRef: UserReference
+    isFollowedSpace?: boolean
 }
 
 export interface WebMonetizationButtonState {
@@ -23,4 +24,6 @@ export interface WebMonetizationButtonState {
 
 export type WebMonetizationButtonEvent = UIEvent<{
     makeSupporterPayment: null
+    showPopup: null
+    hidePopup: null
 }>

@@ -2,7 +2,6 @@ import React from 'react'
 import styled from 'styled-components'
 
 import { UIElement } from '../../../../../main-ui/classes'
-import { UITaskState } from '../../../../../main-ui/types'
 import { theme } from '../../../../../main-ui/styles/theme'
 import { Theme } from '../../../../../main-ui/styles/types'
 
@@ -14,51 +13,17 @@ import {
     WebMonetizationButtonState,
     WebMonetizationButtonEvent,
 } from '../../../logic/buttons/types'
+import { PrimaryAction } from '../../../../../common-ui/components/PrimaryAction'
+import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
 
 const Container = styled.div`
     display: flex;
     width: 100%;
     height: min-content;
-    justify-content: start;
+    justify-content: center;
     align-items: center;
     ${(props) =>
         `margin: ${props.theme.spacing.small} ${props.theme.spacing.small} 0 0;`}
-`
-
-const Button = styled.div<{
-    theme: Theme
-    supportedTaskState?: UITaskState
-    isSupported?: boolean
-}>`
-    height: 40px;
-    display: flex;
-    width: 100%;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    justify-self: center;
-    ${(props) => `border: 2px solid ${props.theme.colors.secondary};`}
-
-    ${(props) =>
-        `padding: ${props.theme.spacing.small} ${props.theme.spacing.medium};`}
-    ${(props) =>
-        props.supportedTaskState === 'pristine' &&
-        `border: 2px solid ${props.theme.colors.secondary};`}
-    ${(props) =>
-        props.supportedTaskState === 'running' &&
-        `border: 2px solid ${props.theme.colors.secondary};`}
-    ${(props) => `background-color: ${props.theme.colors.background};`}
-    ${(props) =>
-        (props.supportedTaskState === 'success' || props.isSupported) &&
-        `background-color: ${props.theme.colors.secondary};`}
-    ${(props) =>
-        props.supportedTaskState === 'error' &&
-        `background-color: ${props.theme.colors.warning};`}
-    border-radius: 3px;
-
-    &:hover {
-        ${(props) => `background-color: ${props.theme.colors.secondary};`}
-    }
 `
 
 const ButtonInnerText = styled.div<{
@@ -73,6 +38,16 @@ const ButtonInnerText = styled.div<{
 
 const BoldText = styled(ButtonInnerText)`
     font-weight: 700;
+`
+
+const ButtonContent = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    grid-gap: 7px;
+    font-weight: normal;
+    font-size: 14px;
+    width: 100%;
 `
 
 // const Link = styled.div<{ theme: Theme }>`
@@ -153,12 +128,10 @@ export class CuratorSupportButtonBlock extends UIElement<
     }
 
     render() {
-        const { isDisplayed } = this.state
         return (
             <Container>
-                {isDisplayed && (
-                    <>
-                        {/*<Button
+                <>
+                    {/*<Button
                             onClick={this.handleButtonClick}
                             isSupported={paymentMade}
                             supportedTaskState={makePaymentTaskState}
@@ -167,20 +140,25 @@ export class CuratorSupportButtonBlock extends UIElement<
                             {this.renderButtonInnerHTML()}
                         </Button>
                         */}
-                        <Button
-                            onClick={() =>
-                                this.handleWebLinkClick(
-                                    'https://worldbrain.io/tutorial/webmonetization',
-                                )
-                            }
-                            theme={theme}
-                        >
-                            <ButtonInnerText>
-                                Learn more & Setup Payments
-                            </ButtonInnerText>
-                        </Button>
-                    </>
-                )}
+                    <PrimaryAction
+                        onClick={() =>
+                            this.handleWebLinkClick(
+                                'https://worldbrain.io/tutorial/webmonetization',
+                            )
+                        }
+                        label={
+                            <ButtonContent>
+                                <Icon
+                                    icon={'coilIcon'}
+                                    heightAndWidth={'16px'}
+                                    color="white"
+                                    hoverOff
+                                />
+                                Install Coil Extension
+                            </ButtonContent>
+                        }
+                    />
+                </>
             </Container>
         )
     }

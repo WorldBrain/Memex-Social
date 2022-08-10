@@ -1,7 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import { MemexTheme } from '@worldbrain/memex-common/lib/common-ui/styles/types'
-import Icon, { IconProps } from '../../../../../common-ui/components/icon'
+import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
 import { UIElement } from '../../../../../main-ui/classes'
 
 import Logic from './logic'
@@ -11,32 +10,31 @@ import {
     WebMonetizationButtonEvent,
 } from '../../../logic/buttons/types'
 import CuratorSupportPopupContainer from '../../../../user-management/ui/containers/curator-support-popup-container'
-import LoadingScreen from '../../../../../common-ui/components/loading-screen'
+import LoadingIndicator from '@worldbrain/memex-common/lib/common-ui/components/loading-indicator'
 
 const Container = styled.div`
     margin-left: 10px;
-    margin-right: 10px;
+    z-index: 10000;
 `
 
 const IconContainer = styled.div<{ iconHeight: string }>`
-    height: ${(props) => props.iconHeight};
-    width: ${(props) => props.iconHeight};
-`
-
-const StyledIcon = styled(Icon)<IconProps & { isClickable: boolean }>`
-    ${(props) => !props.onClick && `cursor: auto`}
-`
-
-const StyledImg = styled.div<{
-    height: string
-    icon: keyof MemexTheme['icons']
-}>`
+    height: 30px;
+    width: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    height: ${(props) => props.height};
-    background-position: center;
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-image: url(${(props) => props.theme.icons[props.icon]});
+`
+
+const WebMonetizationPaymentProgress = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+
+    & > div {
+        position: absolute;
+    }
 `
 
 type WebMonetizationIconDependencies = WebMonetizationButtonDependencies
@@ -48,7 +46,7 @@ export default class WebMonetizationIcon extends UIElement<
     WebMonetizationIconState,
     WebMonetizationIconEvent
 > {
-    private iconHeight = '34px'
+    private iconHeight = '20px'
 
     constructor(props: WebMonetizationIconDependencies) {
         super(props, { logic: new Logic(props) })
@@ -61,33 +59,55 @@ export default class WebMonetizationIcon extends UIElement<
         )
     }
 
-    private handleClick = () => {
-        if (this.isClickable) {
-            this.processEvent('makeSupporterPayment', null)
-        }
+    handleClick = () => {
+        this.processEvent('makeSupporterPayment', null)
     }
 
     renderIcon() {
         const { paymentState } = this.state
 
+        if (
+            this.state.paymentState === 'pristine' &&
+            this.props.isFollowedSpace
+        ) {
+            this.handleClick()
+        }
+
         return (
-            <IconContainer iconHeight={this.iconHeight}>
-                {paymentState === 'running' && <LoadingScreen />}
+            <IconContainer
+                onMouseEnter={() => this.processEvent('showPopup', null)}
+                iconHeight={this.iconHeight}
+            >
+                {paymentState === 'running' && (
+                    <WebMonetizationPaymentProgress>
+                        <Icon
+                            height={'16px'}
+                            color="purple"
+                            icon={'webMonetizationLogo'}
+                            onClick={this.handleClick}
+                        />
+                        <LoadingIndicator speed={4} size={24} />
+                    </WebMonetizationPaymentProgress>
+                )}
                 {paymentState === 'error' && <span>Error!</span>}
                 {paymentState === 'pristine' && (
-                    <StyledIcon
-                        isClickable={this.isClickable}
-                        onClick={this.handleClick}
+                    <Icon
                         height={this.iconHeight}
-                        color="secondary"
+                        color="purple"
                         icon={'webMonetizationLogo'}
+                        onClick={this.handleClick}
                     />
                 )}
                 {paymentState === 'success' && (
-                    <StyledImg
-                        height={this.iconHeight}
-                        icon={'webMonetizationLogoConfirmed'}
-                    />
+                    <WebMonetizationPaymentProgress>
+                        <Icon
+                            height={'16px'}
+                            color="purple"
+                            icon={'webMonetizationLogo'}
+                            onClick={this.handleClick}
+                        />
+                        <LoadingIndicator speed={4} size={24} />
+                    </WebMonetizationPaymentProgress>
                 )}
             </IconContainer>
         )
@@ -96,9 +116,9 @@ export default class WebMonetizationIcon extends UIElement<
     render() {
         return (
             <Container>
-                {this.state.isDisplayed &&
-                    this.state.loadState === 'running' && <LoadingScreen />}
-                {this.state.isDisplayed && this.state.loadState === 'success' && (
+                {this.renderIcon()}
+
+                {this.state.isDisplayed === true && (
                     <CuratorSupportPopupContainer
                         services={this.props.services}
                         storage={this.props.storage}
@@ -108,9 +128,10 @@ export default class WebMonetizationIcon extends UIElement<
                         isMonetizationAvailable={
                             this.state.isMonetizationAvailable
                         }
-                    >
-                        {this.renderIcon()}
-                    </CuratorSupportPopupContainer>
+                        onMouseLeave={() =>
+                            this.processEvent('hidePopup', null)
+                        }
+                    />
                 )}
             </Container>
         )

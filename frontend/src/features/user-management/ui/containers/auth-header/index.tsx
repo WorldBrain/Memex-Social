@@ -12,21 +12,24 @@ import { Closable } from '../../../../../common-ui/components/closable'
 import AuthMenu from '../../components/auth-menu'
 import ProfileEditModal from '../profile-edit-modal'
 import LoadingIndicator from '../../../../../common-ui/components/loading-indicator'
+import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
+import { getViewportBreakpoint } from '../../../../../main-ui/styles/utils'
+import { ViewportBreakpoint } from '../../../../../main-ui/styles/types'
 
-const logoImage = require('../../../../../assets/img/memex-icon.svg')
+const settingsImg = require('../../../../../assets/img/settings.svg')
 
 const StyledAuthHeader = styled.div``
 
-const MemexIcon = styled.div`
-    height: 24px;
+const SettingsIcon = styled.div`
+    height: 20px;
     background-position: center;
     background-size: contain;
     border: none;
     cursor: pointer;
     background-repeat: no-repeat;
-    background-image: url(${logoImage});
+    background-image: url(${settingsImg});
     display: flex;
-    width: 24px;
+    width: 20px;
     background-position: center;
     background-size: contain;
 `
@@ -38,11 +41,19 @@ const UserInfo = styled.div`
     cursor: pointer;
 `
 const DisplayName = styled.div`
-    display: inline-block;
+    display: flex;
+    align-items: center;
+    grid-gap: 5px;
     font-size: 14px;
     font-weight: bold;
     cursor: pointer;
-    color: ${(props) => props.theme.colors.primary};
+    font-family: ${(props) => props.theme.fonts.primary};
+
+    & * {
+        cursor: pointer;
+    }
+
+    color: ${(props) => props.theme.darkModeColors.lighterText};
 `
 const MenuContainerOuter = styled.div`
     position: relative;
@@ -54,6 +65,13 @@ const MenuContainerInner = styled.div`
     right: 0;
 `
 
+const LoadingBox = styled.div`
+    display: flex;
+    position: relative;
+    right: 10px;
+    top: 10px;
+`
+
 export default class AuthHeader extends UIElement<
     AuthHeaderDependencies,
     AuthHeaderState,
@@ -63,15 +81,25 @@ export default class AuthHeader extends UIElement<
         super(props, { logic: new Logic(props) })
     }
 
+    get viewportBreakpoint(): ViewportBreakpoint {
+        return getViewportBreakpoint(this.getViewportWidth())
+    }
+
     render() {
         if (this.state.loadState !== 'success') {
-            return <LoadingIndicator />
+            return (
+                <LoadingBox>
+                    {' '}
+                    <LoadingIndicator size={20} />
+                </LoadingBox>
+            )
         }
 
         if (!this.state.user) {
             return (
                 <DisplayName onClick={() => this.processEvent('login', null)}>
-                    Login
+                    <Icon icon="login" heightAndWidth="16px" hoverOff />
+                    {this.state.isMemexInstalled === true ? 'Login' : 'Sign Up'}
                 </DisplayName>
             )
         }
@@ -84,7 +112,7 @@ export default class AuthHeader extends UIElement<
                     >
                         {/*<UserAvatar user={this.state.user} />*/}
                         <Margin left="small">
-                            <MemexIcon />
+                            <SettingsIcon />
                         </Margin>
                         <DisplayName>{this.state.user.displayName}</DisplayName>
                     </UserInfo>

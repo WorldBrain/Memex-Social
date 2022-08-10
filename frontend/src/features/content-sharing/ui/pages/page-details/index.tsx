@@ -1,6 +1,6 @@
 import moment from 'moment'
 import React from 'react'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { UIElement } from '../../../../../main-ui/classes'
 import Logic from './logic'
 import {
@@ -12,19 +12,88 @@ import DocumentTitle from '../../../../../main-ui/components/document-title'
 import DefaultPageLayout from '../../../../../common-ui/layouts/default-page-layout'
 import LoadingScreen from '../../../../../common-ui/components/loading-screen'
 import { Margin } from 'styled-components-spacing'
-import PageInfoBox from '../../../../../common-ui/components/page-info-box'
 import AnnotationsInPage from '../../../../annotations/ui/components/annotations-in-page'
 import LoadingIndicator from '../../../../../common-ui/components/loading-indicator'
 import ErrorWithAction from '../../../../../common-ui/components/error-with-action'
 import ProfilePopupContainer from '../../../../user-management/ui/containers/profile-popup-container'
+import type { Props as ListsSidebarProps } from '../../../../lists-sidebar/ui/components/lists-sidebar'
+import InstallExtOverlay from '../../../../ext-detection/ui/components/install-ext-overlay'
+import { ViewportBreakpoint } from '../../../../../main-ui/styles/types'
+import { getViewportBreakpoint } from '../../../../../main-ui/styles/utils'
+import MissingPdfOverlay from '../../../../ext-detection/ui/components/missing-pdf-overlay'
 
 const PageInfoList = styled.div`
     width: 100%;
+    padding-bottom: 200px;
 `
 
 const AnnotationsLoading = styled.div`
     display: flex;
     justify-content: center;
+    height: 300px;
+    align-items: center;
+`
+
+const SubtitleContainer = styled.div<{
+    viewportBreakpoint: ViewportBreakpoint
+}>`
+    display: flex;
+    align-items: center;
+    grid-gap: 30px;
+    font-size: 14px;
+
+    ${(props) =>
+        props.viewportBreakpoint === 'mobile' &&
+        css`
+            margin-top: -5px;
+            grid-gap: 10px;
+            flex-direction: column;
+            align-items: flex-start;
+        `}
+`
+
+const DomainName = styled.a`
+    color: ${(props) => props.theme.colors.normalText};
+    text-decoration: none;
+`
+
+const RearBox = styled.div<{
+    viewportBreakpoint: ViewportBreakpoint
+}>`
+    display: inline-block;
+    align-items: center;
+    grid-gap: 5px;
+    color: ${(props) => props.theme.colors.lighterText};
+
+    /* ${(props) =>
+        props.viewportBreakpoint === 'mobile' &&
+        css`
+            grid-gap: 3px;
+            flex-direction: column;
+            align-items: flex-start;
+        `} */
+`
+
+const Creator = styled.span`
+    color: ${(props) => props.theme.colors.purple};
+    padding: 0 4px;
+`
+
+const SharedBy = styled.span`
+    color: ${(props) => props.theme.colors.lighterText};
+    display: inline-block;
+`
+
+const Date = styled.span`
+    color: ${(props) => props.theme.colors.lighterText};
+    display: inline-block;
+`
+
+const Title = styled.a`
+    font-size: inherit;
+    color: inherit;
+    cursor: pointer;
+    text-decoration: none;
 `
 
 export default class PageDetailsPage extends UIElement<
@@ -36,37 +105,58 @@ export default class PageDetailsPage extends UIElement<
         super(props, { logic: new Logic(props) })
     }
 
-    get listsSidebarProps() {
+    get viewportBreakpoint(): ViewportBreakpoint {
+        return getViewportBreakpoint(this.getViewportWidth())
+    }
+
+    get listsSidebarProps(): Omit<
+        ListsSidebarProps,
+        'services' | 'storage' | 'viewportBreakpoint'
+    > {
         return {
             collaborativeLists: this.state.collaborativeLists,
             followedLists: this.state.followedLists,
             isShown: this.state.isListSidebarShown,
             loadState: this.state.listSidebarLoadState,
-            onSidebarToggle: () =>
-                this.processEvent('toggleListSidebar', undefined),
+            onToggle: () => this.processEvent('toggleListSidebar', undefined),
         }
     }
 
-    getBreakPoints() {
-        let viewPortWidth = this.getViewportWidth()
-
-        if (viewPortWidth <= 500) {
-            return 'mobile'
+    private renderModals() {
+        if (this.state.isInstallExtModalShown) {
+            return (
+                <InstallExtOverlay
+                    services={this.props.services}
+                    viewportBreakpoint={this.viewportBreakpoint}
+                    onCloseRequested={() =>
+                        this.processEvent('toggleInstallExtModal', {})
+                    }
+                    mode={
+                        this.state.clickedPageUrl != null
+                            ? 'click-page'
+                            : 'add-page'
+                    }
+                    clickedPageUrl={this.state.clickedPageUrl!}
+                />
+            )
         }
 
-        if (viewPortWidth >= 500 && viewPortWidth <= 850) {
-            return 'small'
+        if (this.state.isMissingPDFModalShown) {
+            return (
+                <MissingPdfOverlay
+                    services={this.props.services}
+                    viewportBreakpoint={this.viewportBreakpoint}
+                    onCloseRequested={() =>
+                        this.processEvent('toggleMissingPdfModal', {})
+                    }
+                />
+            )
         }
 
-        if (viewPortWidth > 850) {
-            return 'big'
-        }
-
-        return 'normal'
+        return null
     }
 
     render() {
-        const viewportWidth = this.getBreakPoints()
         const { state, props } = this
         const { services, storage } = props
         const { annotations, creator, pageInfo } = state
@@ -79,7 +169,7 @@ export default class PageDetailsPage extends UIElement<
                 <DefaultPageLayout
                     services={services}
                     storage={storage}
-                    viewportBreakpoint={viewportWidth}
+                    viewportBreakpoint={this.viewportBreakpoint}
                     headerTitle={'Loading page...'}
                     listsSidebarProps={this.listsSidebarProps}
                 >
@@ -96,7 +186,7 @@ export default class PageDetailsPage extends UIElement<
                 <DefaultPageLayout
                     services={services}
                     storage={storage}
-                    viewportBreakpoint={viewportWidth}
+                    viewportBreakpoint={this.viewportBreakpoint}
                     headerTitle={'Could not load page'}
                     listsSidebarProps={this.listsSidebarProps}
                 >
@@ -117,7 +207,7 @@ export default class PageDetailsPage extends UIElement<
                 <DefaultPageLayout
                     services={services}
                     storage={storage}
-                    viewportBreakpoint={viewportWidth}
+                    viewportBreakpoint={this.viewportBreakpoint}
                     headerTitle={'Shared page not found'}
                     listsSidebarProps={this.listsSidebarProps}
                 >
@@ -147,11 +237,13 @@ export default class PageDetailsPage extends UIElement<
                         creator ? ` by ${creator.displayName}` : ''
                     }`}
                 />
+                {this.renderModals()}
                 <DefaultPageLayout
                     services={services}
                     storage={storage}
-                    viewportBreakpoint={viewportWidth}
+                    viewportBreakpoint={this.viewportBreakpoint}
                     headerTitle={this.getHeaderTitle()}
+                    //headerSubtitle={this.state.pageInfo?.normalizedUrl}
                     listsSidebarProps={this.listsSidebarProps}
                     headerSubtitle={this.getHeaderSubtitle()}
                     renderSubtitle={(props) => (
@@ -165,8 +257,20 @@ export default class PageDetailsPage extends UIElement<
                     )}
                 >
                     <PageInfoList>
-                        <Margin>
+                        {/* <Margin>
                             <PageInfoBox
+                                onClick={(e) =>
+                                    this.processEvent('clickPageResult', {
+                                        urlToOpen: pageInfo.originalUrl,
+                                        preventOpening: () =>
+                                            e.preventDefault(),
+                                    })
+                                }
+                                type={
+                                    isPagePdf({ url: pageInfo.normalizedUrl })
+                                        ? 'pdf'
+                                        : 'page'
+                                }
                                 pageInfo={pageInfo}
                                 creator={creator}
                                 profilePopup={
@@ -177,13 +281,13 @@ export default class PageDetailsPage extends UIElement<
                                     }
                                 }
                             />
-                        </Margin>
+                        </Margin> */}
                         <Margin bottom="large">
                             {(state.annotationLoadState === 'pristine' ||
                                 state.annotationLoadState === 'running') && (
                                 <Margin vertical="medium">
                                     <AnnotationsLoading>
-                                        <LoadingIndicator />
+                                        <LoadingIndicator size={20} />
                                     </AnnotationsLoading>
                                 </Margin>
                             )}
@@ -214,89 +318,9 @@ export default class PageDetailsPage extends UIElement<
                                         annotationConversations={
                                             state.conversations
                                         }
-                                        onToggleReplies={(event) =>
-                                            this.processEvent(
-                                                'toggleAnnotationReplies',
-                                                event,
-                                            )
-                                        }
                                         newPageReplyEventHandlers={{}}
-                                        // newPageReplyEventHandlers={{
-                                        //     onNewReplyInitiate: () =>
-                                        //         this.processEvent(
-                                        //             'initiateNewReplyToPage',
-                                        //             {
-                                        //                 pageReplyId: normalizedPageUrl,
-                                        //             },
-                                        //         ),
-                                        //     onNewReplyEdit: ({ content }) =>
-                                        //         this.processEvent(
-                                        //             'editNewReplyToPage',
-                                        //             {
-                                        //                 content,
-                                        //                 pageReplyId: normalizedPageUrl,
-                                        //             },
-                                        //         ),
-                                        //     onNewReplyCancel: () =>
-                                        //         this.processEvent(
-                                        //             'cancelNewReplyToPage',
-                                        //             {
-                                        //                 pageReplyId: normalizedPageUrl,
-                                        //             },
-                                        //         ),
-                                        //     onNewReplyConfirm: () =>
-                                        //         this.processEvent(
-                                        //             'confirmNewReplyToPage',
-                                        //             {
-                                        //                 normalizedPageUrl,
-                                        //                 pageReplyId: normalizedPageUrl,
-                                        //                 pageCreatorReference: state.creatorReference!,
-                                        //             },
-                                        //         ),
-                                        // }}
-                                        newAnnotationReplyEventHandlers={{
-                                            onNewReplyInitiate: (
-                                                annotationReference,
-                                            ) => () =>
-                                                this.processEvent(
-                                                    'initiateNewReplyToAnnotation',
-                                                    { annotationReference },
-                                                ),
-                                            onNewReplyEdit: (
-                                                annotationReference,
-                                            ) => ({ content }) =>
-                                                this.processEvent(
-                                                    'editNewReplyToAnnotation',
-                                                    {
-                                                        annotationReference,
-                                                        content,
-                                                    },
-                                                ),
-                                            onNewReplyCancel: (
-                                                annotationReference,
-                                            ) => () =>
-                                                this.processEvent(
-                                                    'cancelNewReplyToAnnotation',
-                                                    { annotationReference },
-                                                ),
-                                            onNewReplyConfirm: (
-                                                annotationReference,
-                                            ) => () =>
-                                                this.processEvent(
-                                                    'confirmNewReplyToAnnotation',
-                                                    { annotationReference },
-                                                ),
-                                        }}
                                     />
                                 )}
-                            {state.annotationLoadState === 'error' && (
-                                <AnnotationsInPage
-                                    loadState={state.annotationLoadState}
-                                    annotations={annotations}
-                                    newPageReplyEventHandlers={{}}
-                                    newAnnotationReplyEventHandlers={{}}
-                                />
-                            )}
                         </Margin>
                     </PageInfoList>
                 </DefaultPageLayout>
@@ -304,25 +328,62 @@ export default class PageDetailsPage extends UIElement<
         )
     }
 
-    getHeaderTitle(): string {
+    getHeaderTitle(): JSX.Element | string {
         const { pageInfoLoadState, pageInfo } = this.state
         if (pageInfoLoadState === 'success') {
             if (!pageInfo) {
                 return 'Page not found'
+            } else {
+                return (
+                    <Title href={pageInfo.originalUrl} target="_blank">
+                        {pageInfo.fullTitle}
+                    </Title>
+                )
             }
-            return `Shared on ${moment(pageInfo.createdWhen).format('LLL')}`
         }
         if (
             pageInfoLoadState === 'pristine' ||
             pageInfoLoadState === 'running'
         ) {
-            return 'Loading...'
+            return <LoadingIndicator size={20} />
         }
         return 'Error'
     }
 
-    getHeaderSubtitle(): string | undefined {
-        const { creator } = this.state
-        return creator ? ` by ${creator.displayName}` : undefined
+    getHeaderSubtitle(): JSX.Element | undefined {
+        const { creator, pageInfo } = this.state
+        // return creator ? `${creator.displayName}` : undefined
+
+        return (
+            <>
+                <SubtitleContainer viewportBreakpoint={this.viewportBreakpoint}>
+                    <DomainName href={pageInfo?.originalUrl} target="_blank">
+                        {pageInfo?.normalizedUrl.split('/')[0]}
+                    </DomainName>
+                    <RearBox viewportBreakpoint={this.viewportBreakpoint}>
+                        shared{' '}
+                        {creator?.displayName && (
+                            <SharedBy>
+                                by
+                                <Creator>
+                                    {creator?.displayName || undefined}
+                                </Creator>
+                            </SharedBy>
+                        )}
+                        <Date>
+                            <span>
+                                on {moment(pageInfo?.createdWhen).format('LLL')}
+                            </span>
+                        </Date>
+                        {/* <Margin horizontal="smallest">
+                        ·
+                    </Margin>
+                    <Date>
+                        on {moment(pageInfo?.createdWhen).format('LLL')}`
+                    </Date> */}
+                    </RearBox>
+                </SubtitleContainer>
+            </>
+        )
     }
 }

@@ -1,9 +1,6 @@
 import orderBy from 'lodash/orderBy'
 import { UserReference } from '@worldbrain/memex-common/lib/web-interface/types/users'
-import {
-    SharedPageInfo,
-    SharedAnnotationReference,
-} from '@worldbrain/memex-common/lib/content-sharing/types'
+import { SharedPageInfo } from '@worldbrain/memex-common/lib/content-sharing/types'
 import {
     UILogic,
     UIEventHandler,
@@ -19,13 +16,18 @@ import { getInitialAnnotationConversationStates } from '../../../../content-conv
 import {
     annotationConversationEventHandlers,
     annotationConversationInitialState,
-    detectAnnotationConversationThreads,
+    setupConversationLogicDeps,
 } from '../../../../content-conversations/ui/logic'
 import {
     listsSidebarInitialState,
     listsSidebarEventHandlers,
 } from '../../../../lists-sidebar/ui/logic'
+import {
+    extDetectionInitialState,
+    extDetectionEventHandlers,
+} from '../../../../ext-detection/ui/logic'
 import UserProfileCache from '../../../../user-management/utils/user-profile-cache'
+import { isPagePdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
 
 type EventHandler<EventName extends keyof PageDetailsEvent> = UIEventHandler<
     PageDetailsState,
@@ -48,28 +50,33 @@ export default class PageDetailsLogic extends UILogic<
             this,
             annotationConversationEventHandlers<PageDetailsState>(this as any, {
                 ...this.dependencies,
-                getAnnotation: (state, reference) => {
+                ...setupConversationLogicDeps(this.dependencies),
+                selectAnnotationData: (state, reference) => {
                     const annotationId = this.dependencies.storage.contentSharing.getSharedAnnotationLinkID(
                         reference,
                     )
                     const annotation = state.annotations!.find(
                         (annotation) => annotation.linkId === annotationId,
                     )
-                    if (!annotation) {
+                    if (!annotation || !state.creatorReference) {
                         return null
                     }
                     return {
-                        annotation,
+                        normalizedPageUrl: annotation.normalizedPageUrl,
                         pageCreatorReference: state.creatorReference,
                     }
                 },
-                loadUser: (reference) => this._users.loadUser(reference),
-                onNewAnnotationCreate: (_, annotation) =>
+                loadUserByReference: (reference) =>
+                    this._users.loadUser(reference),
+                onNewAnnotationCreate: (_, annotation) => {
                     this.emitMutation({
-                        annotations: {
-                            $push: [annotation],
-                        },
-                    }),
+                        annotations: { $push: [annotation] },
+                    })
+                    return this.dependencies.services.userMessages.pushMessage({
+                        type: 'created-annotation',
+                        sharedAnnotationId: annotation.reference.id,
+                    })
+                },
             }),
         )
 
@@ -80,6 +87,13 @@ export default class PageDetailsLogic extends UILogic<
                 localStorage: this.dependencies.services.localStorage,
             }),
         )
+
+        Object.assign(
+            this,
+            extDetectionEventHandlers(this as any, {
+                ...this.dependencies,
+            }),
+        )
     }
 
     getInitialState(): PageDetailsState {
@@ -87,6 +101,7 @@ export default class PageDetailsLogic extends UILogic<
             creatorLoadState: 'pristine',
             annotationLoadState: 'pristine',
             pageInfoLoadState: 'pristine',
+            ...extDetectionInitialState(),
             ...listsSidebarInitialState(),
             ...annotationConversationInitialState(),
         }
@@ -99,7 +114,6 @@ export default class PageDetailsLogic extends UILogic<
         )
         let creatorReference: UserReference | null
         let pageInfo: SharedPageInfo | null
-        let annotationReferences: SharedAnnotationReference[] = []
         await executeUITask<PageDetailsState>(
             this,
             'pageInfoLoadState',
@@ -109,6 +123,17 @@ export default class PageDetailsLogic extends UILogic<
                 )
                 creatorReference = result?.creatorReference ?? null
                 pageInfo = result?.pageInfo ?? null
+
+                if (isPagePdf({ url: result.pageInfo.normalizedUrl })) {
+                    const {
+                        locators,
+                    } = await storage.contentSharing.getContentLocatorsByUrl({
+                        normalizedUrl: pageInfo.normalizedUrl,
+                    })
+                    if (locators.length > 0) {
+                        pageInfo.originalUrl = locators[0].originalUrl
+                    }
+                }
 
                 return {
                     mutation: {
@@ -141,9 +166,6 @@ export default class PageDetailsLogic extends UILogic<
                             annotation.reference,
                         ),
                     }))
-                    annotationReferences = annotations.map(
-                        (annotation) => annotation.reference,
-                    )
                     return {
                         mutation: {
                             annotations: {
@@ -160,16 +182,7 @@ export default class PageDetailsLogic extends UILogic<
                         },
                     }
                 },
-            ).then(() => {
-                if (!pageInfo) {
-                    return
-                }
-                detectAnnotationConversationThreads(this as any, {
-                    normalizedPageUrls: [pageInfo.normalizedUrl],
-                    storage: this.dependencies.storage,
-                    annotationReferences,
-                }).catch(console.error)
-            }),
+            ),
             executeUITask<PageDetailsState>(
                 this,
                 'creatorLoadState',

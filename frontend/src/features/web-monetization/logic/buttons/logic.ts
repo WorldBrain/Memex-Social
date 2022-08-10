@@ -49,14 +49,43 @@ export default abstract class WebMonetizationButtonLogic extends UILogic<
                 this.dependencies.curatorUserRef,
             )
             if (!this.curatorPaymentPointer) {
+                this.emitMutation({
+                    curatorPaymentPointer: {
+                        $set: '$ilp.uphold.com/zHjHFKyUWbwB',
+                    },
+                })
                 return
             }
             this.emitMutation({
-                isDisplayed: { $set: true },
                 curatorPaymentPointer: {
                     $set: this.curatorPaymentPointer,
                 },
             })
+        })
+
+        // if (this.dependencies.isFollowedSpace) {
+        //     const { curatorPaymentPointer } = this
+        //     if (!curatorPaymentPointer) {
+        //         this.dependencies.services.webMonetization.initiatePayment(
+        //             '$ilp.uphold.com/zHjHFKyUWbwB',
+        //         )
+        //     } else {
+        //         this.dependencies.services.webMonetization.initiatePayment(
+        //             curatorPaymentPointer,
+        //         )
+        //     }
+        // }
+    }
+
+    showPopup: EventHandler<'showPopup'> = async () => {
+        this.emitMutation({
+            isDisplayed: { $set: true },
+        })
+    }
+
+    hidePopup: EventHandler<'hidePopup'> = async () => {
+        this.emitMutation({
+            isDisplayed: { $set: false },
         })
     }
 
@@ -67,11 +96,14 @@ export default abstract class WebMonetizationButtonLogic extends UILogic<
     makeSupporterPayment: EventHandler<'makeSupporterPayment'> = async () => {
         const { curatorPaymentPointer } = this
         if (!curatorPaymentPointer) {
-            throw new Error('Curator does not have web monetization set up')
+            this.dependencies.services.webMonetization.initiatePayment(
+                '$ilp.uphold.com/zHjHFKyUWbwB',
+            )
+        } else {
+            this.dependencies.services.webMonetization.initiatePayment(
+                curatorPaymentPointer,
+            )
         }
-        this.dependencies.services.webMonetization.initiatePayment(
-            curatorPaymentPointer,
-        )
     }
 
     private _setupMonetizationListeners() {
@@ -91,8 +123,8 @@ export default abstract class WebMonetizationButtonLogic extends UILogic<
         ) => {
             if (event.paymentPointer === this.curatorPaymentPointer) {
                 this.emitMutation({
-                    paymentState: { $set: 'success' },
-                    paymentMade: { $set: true },
+                    paymentState: { $set: 'running' },
+                    paymentMade: { $set: false },
                 })
             }
         }
@@ -107,11 +139,21 @@ export default abstract class WebMonetizationButtonLogic extends UILogic<
             }
         }
 
+        const progressListener: WebMonetizationEvents['monetizationprogress'] = (
+            event,
+        ) => {
+            this.emitMutation({
+                paymentState: { $set: 'success' },
+                paymentMade: { $set: false },
+            })
+        }
+
         const monetizationEvents = this.dependencies.services.webMonetization
             .events
         monetizationEvents.addListener('paymentInitiated', initiatedListener)
         monetizationEvents.addListener('monetizationstart', startListener)
         monetizationEvents.addListener('monetizationstop', stopListener)
+        monetizationEvents.addListener('monetizationprogress', progressListener)
         this.destroyEventHandlers = () => {
             monetizationEvents.removeListener(
                 'paymentInitiated',

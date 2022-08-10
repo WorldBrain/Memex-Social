@@ -36,7 +36,7 @@ const StyledActionButton = styled.div<{
 
 const StyledActionLinkText = styled.div`
     font-family: ${(props) => props.theme.fonts.primary};
-    font-weight: ${(props) => props.theme.fontWeights.bold};
+    font-weight: 'bold';
     font-size: ${(props) => props.theme.fontSizes.text};
     line-height: ${(props) => props.theme.lineHeights.text};
     color: ${(props) => props.theme.colors.primary};

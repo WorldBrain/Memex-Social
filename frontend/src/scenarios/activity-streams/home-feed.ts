@@ -27,30 +27,52 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                     ...context,
                     script: [
                         { type: 'login', user: 'default-user' },
-                        { type: 'reply', annotation: 'default-annotation' },
-                        { type: 'reply', annotation: 'default-annotation' },
+                        {
+                            type: 'reply',
+                            annotation: 'default-annotation',
+                            list: 'default-list',
+                        },
+                        {
+                            type: 'reply',
+                            annotation: 'default-annotation',
+                            list: 'default-list',
+                        },
                         {
                             type: 'follow-annotation',
                             annotation: 'default-annotation',
+                            list: 'default-list',
                         },
                         {
                             type: 'follow-annotation',
                             annotation: 'second-annotation',
+                            list: 'default-list',
                         },
                         {
                             type: 'login',
                             user: 'two@user.com',
                             createProfile: true,
                         },
-                        { type: 'reply', annotation: 'default-annotation' },
-                        { type: 'reply', annotation: 'second-annotation' },
+                        {
+                            type: 'reply',
+                            annotation: 'default-annotation',
+                            list: 'default-list',
+                        },
+                        {
+                            type: 'reply',
+                            annotation: 'second-annotation',
+                            list: 'default-list',
+                        },
                         {
                             type: 'home-feed-timestamp',
                             user: 'default-user',
                             time: '$now',
                         },
                         // this reply should bump the group for the default annotation above the seen line
-                        { type: 'reply', annotation: 'default-annotation' },
+                        {
+                            type: 'reply',
+                            annotation: 'default-annotation',
+                            list: 'default-list',
+                        },
                         { type: 'login', user: 'default-user' },
                     ],
                 }),
@@ -72,6 +94,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                             {
                                 type: 'follow-annotation',
                                 annotation: 'default-annotation',
+                                list: 'default-list',
                             },
                             {
                                 type: 'login',
@@ -90,7 +113,11 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                                 pages: ['new.com/one'],
                                 time: '$now',
                             },
-                            { type: 'reply', annotation: 'default-annotation' },
+                            {
+                                type: 'reply',
+                                annotation: 'default-annotation',
+                                list: 'default-list',
+                            },
                             {
                                 type: 'home-feed-timestamp',
                                 user: 'default-user',
@@ -116,18 +143,18 @@ export const SCENARIOS: ScenarioMap<Targets> = {
             execute: setupTestActivities,
         },
         steps: [
-            step({
-                name: 'load-more-replies',
-                target: 'HomeFeedPage',
-                eventName: 'loadMoreReplies',
-                eventArgs: {
-                    groupId: 'act-5',
-                    annotationReference: {
-                        type: 'shared-annotation-reference',
-                        id: 'third-annotation',
-                    },
-                },
-            }),
+            //     step({
+            //         name: 'load-more-replies',
+            //         target: 'HomeFeedPage',
+            //         eventName: 'loadMoreReplies',
+            //         eventArgs: {
+            //             groupId: 'act-5',
+            //             annotationReference: {
+            //                 type: 'shared-annotation-reference',
+            //                 id: 'third-annotation',
+            //             },
+            //         },
+            //     }),
         ],
     })),
     'list-item-with-replies': scenario<Targets>(
@@ -136,6 +163,14 @@ export const SCENARIOS: ScenarioMap<Targets> = {
             authenticated: true,
             startRoute: { route: 'homeFeed', params: {} },
             setup: {
+                callModifications: ({ storage }) => [
+                    {
+                        name: 'detecting-annotations',
+                        object: storage.serverModules.contentSharing,
+                        property: 'doesAnnotationExistForPageInList',
+                        modifier: 'block',
+                    },
+                ],
                 execute: (context) =>
                     setupTestActivities({
                         ...context,
@@ -163,13 +198,30 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                                 list: 'default-list',
                                 createdId: 'first',
                             },
-                            { type: 'reply', createdAnnotation: 'first' },
-                            { type: 'reply', createdAnnotation: 'first' },
+                            {
+                                type: 'reply',
+                                createdAnnotation: 'first',
+                                list: 'default-list',
+                            },
+                            {
+                                type: 'reply',
+                                createdAnnotation: 'first',
+                                list: 'default-list',
+                            },
                             { type: 'login', user: 'default-user' },
                         ],
                     }),
             },
             steps: [
+                step({
+                    name: 'annotations-detected',
+                    callModifications: () => [
+                        {
+                            name: 'detecting-annotations',
+                            modifier: 'undo',
+                        },
+                    ],
+                }),
                 // step({
                 //     name: 'load-more-replies',
                 //     target: 'HomeFeedPage',
@@ -218,8 +270,16 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                                 list: 'default-list',
                                 createdId: 'second',
                             },
-                            { type: 'reply', createdAnnotation: 'first' },
-                            { type: 'reply', createdAnnotation: 'second' },
+                            {
+                                type: 'reply',
+                                createdAnnotation: 'first',
+                                list: 'default-list',
+                            },
+                            {
+                                type: 'reply',
+                                createdAnnotation: 'second',
+                                list: 'default-list',
+                            },
                             { type: 'login', user: 'default-user' },
                         ],
                     }),
@@ -255,7 +315,6 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                                 user: 'two@user.com',
                                 createProfile: true,
                             },
-
                             {
                                 type: 'list-entries',
                                 list: 'default-list',
@@ -278,6 +337,208 @@ export const SCENARIOS: ScenarioMap<Targets> = {
             steps: [],
         }),
     ),
+    'new-note-from-follower': scenario<Targets>(
+        ({ step, callModification }) => ({
+            fixture: 'annotated-list-with-user',
+            authenticated: true,
+            startRoute: { route: 'homeFeed', params: {} },
+            setup: {
+                execute: (context) =>
+                    setupTestActivities({
+                        ...context,
+                        script: [
+                            { type: 'login', user: 'default-user' },
+                            { type: 'follow-list', list: 'default-list' },
+                            { type: 'create-page-info', page: 'new-note.com' },
+                            {
+                                type: 'list-entries',
+                                list: 'default-list',
+                                pages: ['new-note.com'],
+                            },
+                            {
+                                type: 'login',
+                                user: 'two@user.com',
+                                createProfile: true,
+                            },
+                            { type: 'follow-list', list: 'default-list' },
+                            { type: 'create-page-info', page: 'new-note.com' },
+                            {
+                                type: 'create-annotation',
+                                page: 'new-note.com',
+                                list: 'default-list',
+                                createdId: 'first',
+                            },
+                            {
+                                type: 'create-annotation',
+                                page: 'new-note.com',
+                                list: 'default-list',
+                                createdId: 'second',
+                            },
+                            {
+                                type: 'reply',
+                                createdAnnotation: 'first',
+                                list: 'default-list',
+                            },
+                            { type: 'login', user: 'default-user' },
+                        ],
+                    }),
+            },
+            steps: [],
+        }),
+    ),
+    'bump-seen-notes': scenario<Targets>(({ step, callModification }) => ({
+        fixture: 'annotated-list-with-user',
+        authenticated: true,
+        startRoute: { route: 'homeFeed', params: {} },
+        setup: {
+            execute: (context) =>
+                setupTestActivities({
+                    ...context,
+                    script: [
+                        { type: 'login', user: 'default-user' },
+                        { type: 'follow-list', list: 'default-list' },
+                        { type: 'create-page-info', page: 'new-note.com' },
+                        {
+                            type: 'list-entries',
+                            list: 'default-list',
+                            pages: ['new-note.com'],
+                        },
+                        {
+                            type: 'login',
+                            user: 'two@user.com',
+                            createProfile: true,
+                        },
+                        { type: 'follow-list', list: 'default-list' },
+                        { type: 'create-page-info', page: 'new-note.com' },
+                        {
+                            type: 'create-annotation',
+                            page: 'new-note.com',
+                            list: 'default-list',
+                            createdId: 'first',
+                        },
+                        {
+                            type: 'home-feed-timestamp',
+                            user: 'default-user',
+                            time: '$now',
+                        },
+                        {
+                            type: 'create-annotation',
+                            page: 'new-note.com',
+                            list: 'default-list',
+                            createdId: 'second',
+                        },
+                        {
+                            type: 'reply',
+                            createdAnnotation: 'first',
+                            list: 'default-list',
+                        },
+                        { type: 'login', user: 'default-user' },
+                    ],
+                }),
+        },
+        steps: [],
+    })),
+    'new-note-after-note': scenario<Targets>(({ step, callModification }) => ({
+        fixture: 'annotated-list-with-user',
+        authenticated: true,
+        startRoute: { route: 'homeFeed', params: {} },
+        setup: {
+            execute: (context) =>
+                setupTestActivities({
+                    ...context,
+                    script: [
+                        { type: 'login', user: 'default-user' },
+                        { type: 'follow-list', list: 'default-list' },
+                        { type: 'create-page-info', page: 'new-note.com' },
+                        {
+                            type: 'list-entries',
+                            list: 'default-list',
+                            pages: ['new-note.com'],
+                        },
+                        {
+                            type: 'create-annotation',
+                            page: 'new-note.com',
+                            list: 'default-list',
+                            createdId: 'first',
+                        },
+                        {
+                            type: 'login',
+                            user: 'two@user.com',
+                            createProfile: true,
+                        },
+                        { type: 'follow-list', list: 'default-list' },
+                        {
+                            type: 'create-annotation',
+                            page: 'new-note.com',
+                            list: 'default-list',
+                            createdId: 'second',
+                        },
+                        { type: 'login', user: 'default-user' },
+                        {
+                            type: 'create-annotation',
+                            page: 'new-note.com',
+                            list: 'default-list',
+                            createdId: 'third',
+                        },
+                        {
+                            type: 'login',
+                            user: 'two@user.com',
+                        },
+                    ],
+                }),
+        },
+        steps: [],
+    })),
+    'new-note-after-reply': scenario<Targets>(({ step, callModification }) => ({
+        fixture: 'annotated-list-with-user',
+        authenticated: true,
+        startRoute: { route: 'homeFeed', params: {} },
+        setup: {
+            execute: (context) =>
+                setupTestActivities({
+                    ...context,
+                    script: [
+                        { type: 'login', user: 'default-user' },
+                        { type: 'follow-list', list: 'default-list' },
+                        { type: 'create-page-info', page: 'new-note.com' },
+                        {
+                            type: 'list-entries',
+                            list: 'default-list',
+                            pages: ['new-note.com'],
+                        },
+                        {
+                            type: 'create-annotation',
+                            page: 'new-note.com',
+                            list: 'default-list',
+                            createdId: 'first',
+                        },
+                        {
+                            type: 'login',
+                            user: 'two@user.com',
+                            createProfile: true,
+                        },
+                        { type: 'follow-list', list: 'default-list' },
+                        {
+                            type: 'reply',
+                            createdAnnotation: 'first',
+                            list: 'default-list',
+                        },
+                        { type: 'login', user: 'default-user' },
+                        {
+                            type: 'create-annotation',
+                            page: 'new-note.com',
+                            list: 'default-list',
+                            createdId: 'second',
+                        },
+                        {
+                            type: 'login',
+                            user: 'two@user.com',
+                        },
+                    ],
+                }),
+        },
+        steps: [],
+    })),
     'no-activities': scenario<Targets>(({ step, callModification }) => ({
         fixture: 'annotated-list-with-user',
         authenticated: true,

@@ -23,15 +23,20 @@ import {
     ListsSidebarState,
     ListsSidebarEvent,
 } from '../../../../lists-sidebar/ui/types'
+import type {
+    ExtDetectionState,
+    ExtDetectionEvent,
+} from '../../../../ext-detection/ui/logic'
 import { SharedListRole } from '@worldbrain/memex-common/lib/web-interface/types/storex-generated/content-sharing'
 import { ProcessSharedListKeyResult } from '@worldbrain/memex-common/lib/content-sharing/service/types'
+import React from 'react'
 
 export interface CollectionDetailsDependencies {
     listID: string
     services: UIElementServices<
         | 'auth'
         | 'overlay'
-        | 'contentSharing'
+        | 'listKeys'
         | 'contentConversations'
         | 'activityStreams'
         | 'router'
@@ -54,7 +59,8 @@ export interface CollectionDetailsDependencies {
 }
 
 export type CollectionDetailsState = AnnotationConversationsState &
-    ListsSidebarState & {
+    ListsSidebarState &
+    ExtDetectionState & {
         listLoadState: UITaskState
         followLoadState: UITaskState
 
@@ -67,8 +73,10 @@ export type CollectionDetailsState = AnnotationConversationsState &
         listRoleID?: SharedListRoleID
         listRoles?: Array<SharedListRole & { user: UserReference }>
         listRoleLimit: number | null // how many collaborators to show in the subtitle
+        showMoreCollaborators: boolean
         isListOwner?: boolean
-
+        scrollTop?: number
+        scrolledComponent?: JSX.Element
         users: { [id: string]: Pick<User, 'displayName'> }
 
         annotationEntriesLoadState: UITaskState
@@ -84,7 +92,6 @@ export type CollectionDetailsState = AnnotationConversationsState &
         isCollectionFollowed: boolean
         allAnnotationExpanded: boolean
         isListShareModalShown: boolean
-        isInstallExtModalShown: boolean
         pageAnnotationsExpanded: { [normalizedPageUrl: string]: true }
         annotationEntryData?: GetAnnotationListEntriesResult
         annotations: GetAnnotationsResult
@@ -92,20 +99,22 @@ export type CollectionDetailsState = AnnotationConversationsState &
 
 export type CollectionDetailsEvent = UIEvent<
     AnnotationConversationEvent &
-        ListsSidebarEvent & {
+        ListsSidebarEvent &
+        ExtDetectionEvent & {
             load: { isUpdate?: boolean; listID?: string }
             processCollectionSwitch: {}
             toggleDescriptionTruncation: {}
             togglePageAnnotations: { normalizedUrl: string }
             toggleAllAnnotations: {}
             toggleListShareModal: {}
-            toggleInstallExtModal: {}
             loadListData: { listID: string }
             processPermissionKey: {}
             closePermissionOverlay: {}
             pageBreakpointHit: { entryIndex: number }
-            clickFollowBtn: null
-            showMoreCollaborators: {}
+            clickFollowBtn: { pageToOpenPostFollow?: string }
+            toggleMoreCollaborators: {}
+            hideMoreCollaborators: {}
+            updateScrollState: { previousScrollTop: number }
         }
 >
 
