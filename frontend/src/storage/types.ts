@@ -1,5 +1,6 @@
 import StorageManager from '@worldbrain/storex'
 import { ActivityStreamsStorage } from '@worldbrain/memex-common/lib/activity-streams/storage/types'
+import DiscordStorage from '@worldbrain/memex-common/lib/discord/storage'
 import UserStorage from '../features/user-management/storage'
 import ContentSharingStorage from '../features/content-sharing/storage'
 import ActivityFollowsStorage from '../features/activity-follows/storage'
@@ -13,6 +14,7 @@ export interface Storage {
 
 export interface StorageModules {
     users: UserStorage
+    discord: DiscordStorage
     contentSharing: ContentSharingStorage
     activityFollows: ActivityFollowsStorage
     contentConversations: ContentConversationStorage

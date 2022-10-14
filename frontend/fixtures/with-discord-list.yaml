@@ -1,0 +1,107 @@
+objects:
+    sharedLists:
+        - $store: default
+          id: default-discord-list
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          title: 'Test Discord Channel'
+          platform: 'discord'
+    discordLists:
+        - sharedList: { $ref: sharedLists.default }
+          guildId: '1234'
+          guildName: 'Test Guild'
+          channelId: '1234'
+          channelName: 'Test Channel'
+          enabled: true
+    sharedListEntries:
+        - sharedList: { $ref: sharedLists.default }
+          creator: { $ref: users.default }
+          createdWhen: 1594225555555
+          updatedWhen: 1594225555555
+          entryTitle: "WorldBrain's Memex"
+          normalizedUrl: getmemex.com
+          originalUrl: 'https://getmemex.com'
+        - sharedList: { $ref: sharedLists.default }
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          entryTitle: Page with notes with a title that is very very very very very very very very very very very long
+          normalizedUrl: notion.so
+          originalUrl: 'https://notion.so'
+        - sharedList: { $ref: sharedLists.default }
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          entryTitle: Apples
+          normalizedUrl: apples.so
+          originalUrl: 'https://apples.so'
+    sharedPageInfo:
+        - id: default-page
+          creator: { $ref: users.default }
+          createdWhen: 1594225555555
+          updatedWhen: 1594225555555
+          fullTitle: "WorldBrain's Memex"
+          normalizedUrl: getmemex.com
+          originalUrl: 'https://getmemex.com'
+        - id: notion-page
+          creator: { $ref: users.default }
+          createdWhen: 1594225555555
+          updatedWhen: 1594225555555
+          fullTitle: 'Page with notes with a title that is very very very very very very very very very very very long'
+          normalizedUrl: notion.so
+          originalUrl: 'https://notion.so'
+        - id: empty-page
+          creator: { $ref: users.default }
+          createdWhen: 1594225555555
+          updatedWhen: 1594225555555
+          fullTitle: Apples
+          normalizedUrl: apples.so
+          originalUrl: 'https://apples.so'
+    sharedAnnotations:
+        - $store: annotation-1
+          id: default-annotation
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          normalizedPageUrl: 'getmemex.com'
+          comment: |
+              Original Discord Message ([Jump there](https://discord.com/channels/1027/1028/1029)):
+              "test message: https://getmemex.com"
+        - $store: annotation-2
+          id: second-annotation
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          normalizedPageUrl: 'notion.so'
+          comment: |
+              Original Discord Message ([Jump there](https://discord.com/channels/1027/1028/1030)):
+              "another test message: https://notion.so"
+        - $store: annotation-3
+          id: third-annotation
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          normalizedPageUrl: 'apples.so'
+          comment: |
+              Original Discord Message ([Jump there](https://discord.com/channels/1027/1028/1031)):
+              "yet another test message: https://apples.so"
+    sharedAnnotationListEntries:
+        - creator: { $ref: users.default }
+          sharedList: { $ref: sharedLists.default }
+          sharedAnnotation: { $ref: sharedAnnotations.annotation-1 }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          normalizedPageUrl: 'getmemex.com'
+        - creator: { $ref: users.default }
+          sharedList: { $ref: sharedLists.default }
+          sharedAnnotation: { $ref: sharedAnnotations.annotation-2 }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          normalizedPageUrl: 'notion.so'
+        - creator: { $ref: users.default }
+          sharedList: { $ref: sharedLists.default }
+          sharedAnnotation: { $ref: sharedAnnotations.annotation-3 }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          normalizedPageUrl: 'apples.so'

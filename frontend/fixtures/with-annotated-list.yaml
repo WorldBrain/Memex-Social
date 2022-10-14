@@ -175,7 +175,7 @@ objects:
           updatedWhen: 1594225555555
           fullTitle: 'Page with notes with a title that is very very very very very very very very very very very long'
           normalizedUrl: notion.so
-          originalUrl: 'https://getmemex.com'
+          originalUrl: 'https://notion.so'
         - id: empty-page
           creator: { $ref: users.default }
           createdWhen: 1594225555555
