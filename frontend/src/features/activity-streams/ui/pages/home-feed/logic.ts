@@ -159,7 +159,7 @@ export default class HomeFeedLogic extends UILogic<
         const userReference = this.dependencies.services.auth.getCurrentUserReference()
         if (!userReference) {
             // Firebase auth doesn't immediately detect authenticated users, so wait if needed
-            await new Promise((resolve) => {
+            await new Promise<void>((resolve) => {
                 this.dependencies.services.auth.events.once('changed', () => {
                     resolve()
                 })

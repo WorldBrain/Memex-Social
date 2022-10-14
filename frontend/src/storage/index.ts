@@ -103,7 +103,9 @@ export async function createStorage(options: {
             })
             return result
         } catch (e) {
-            error = e
+            if (e instanceof Error) {
+                error = e
+            }
         } finally {
             if (process.env.REACT_APP_LOG_STORAGE === 'true') {
                 console.log(`Result`, error ?? result)
@@ -190,7 +192,9 @@ function createStorageMiddleware(options: {
                     result = await next.process({ operation })
                     return result
                 } catch (e) {
-                    error = e
+                    if (e instanceof Error) {
+                        error = e
+                    }
                 } finally {
                     console.log(`Result`, error ?? result)
                     console.groupEnd()
