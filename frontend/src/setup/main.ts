@@ -1,6 +1,6 @@
 import createBrowserHistory from 'history/createBrowserHistory'
 import debounce from 'lodash/debounce'
-import firebase from 'firebase'
+import firebase from 'firebase/compat'
 import { StorageHooksChangeWatcher } from '@worldbrain/memex-common/lib/storage/hooks'
 import { getUiMountpoint, getDefaultUiRunner } from '../main-ui'
 import { createServices } from '../services'

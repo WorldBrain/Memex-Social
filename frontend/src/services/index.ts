@@ -1,5 +1,5 @@
 import { History } from 'history'
-import firebaseModule from 'firebase'
+import firebaseModule from 'firebase/compat'
 import { firebaseService } from '@worldbrain/memex-common/lib/firebase-backend/services/client'
 import FirebaseFunctionsActivityStreamsService from '@worldbrain/memex-common/lib/activity-streams/services/firebase-functions/client'
 import MemoryStreamsService from '@worldbrain/memex-common/lib/activity-streams/services/memory'
