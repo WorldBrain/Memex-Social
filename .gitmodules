@@ -21,7 +21,7 @@
 	url = https://github.com/WorldBrain/storex-data-tools
 [submodule "external/@worldbrain/memex-common"]
 	path = external/@worldbrain/memex-common
-	url = https://github.com/WorldBrain/memex-common
+	url = git@github.com:WorldBrain/memex-common.git
 [submodule "external/@worldbrain/memex-storage"]
 	path = external/@worldbrain/memex-storage
 	url = https://github.com/WorldBrain/memex-storage
