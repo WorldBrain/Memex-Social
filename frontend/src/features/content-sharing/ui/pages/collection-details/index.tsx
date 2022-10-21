@@ -227,8 +227,8 @@ const DiscordChannelName = styled.span`
     align-items: center;
 `
 const DiscordGuildName = styled.span`
-    color: blue;
-    font-weight: 800;
+    color: ${(props) => props.theme.colors.blue};
+    font-weight: 600;
 `
 
 const CollectionDescriptionBox = styled.div<{
