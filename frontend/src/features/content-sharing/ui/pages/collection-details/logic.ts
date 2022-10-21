@@ -46,6 +46,7 @@ import {
 } from '../../../../ext-detection/ui/logic'
 import { UserReference } from '../../../../user-management/types'
 import { makeStorageReference } from '@worldbrain/memex-common/lib/storage/references'
+import type { DiscordList } from '@worldbrain/memex-common/lib/discord/types'
 const truncate = require('truncate')
 
 const LIST_DESCRIPTION_CHAR_LIMIT = 400
@@ -327,7 +328,7 @@ export default class CollectionDetailsLogic extends UILogic<
     }
 
     loadListData: EventHandler<'loadListData'> = async ({ event }) => {
-        const { contentSharing } = this.dependencies.storage
+        const { contentSharing, discord } = this.dependencies.storage
         const listReference = makeStorageReference<SharedListReference>(
             'shared-list-reference',
             event.listID,
@@ -363,45 +364,55 @@ export default class CollectionDetailsLogic extends UILogic<
                     const listDescriptionFits =
                         listDescription.length < LIST_DESCRIPTION_CHAR_LIMIT
 
-                    return {
-                        mutation: {
-                            listData: {
-                                $set: {
-                                    creatorReference: result.creator,
-                                    creator: await this._users.loadUser(
-                                        result.creator,
-                                    ),
-                                    list: result.sharedList,
-                                    listEntries: result.entries,
-                                    listDescriptionState: listDescriptionFits
-                                        ? 'fits'
-                                        : 'collapsed',
-                                    listDescriptionTruncated: truncate(
-                                        listDescription,
-                                        LIST_DESCRIPTION_CHAR_LIMIT,
-                                    ),
-                                },
-                            },
-                            isListOwner: {
-                                $set:
-                                    result.creator.id ===
-                                    this.dependencies.services.auth.getCurrentUserReference()
-                                        ?.id,
-                            },
-                            newPageReplies: {
-                                $set: fromPairs(
-                                    result.entries.map((entry) => [
-                                        entry.normalizedUrl,
-                                        getInitialNewReplyState(),
-                                    ]),
+                    let discordList: DiscordList | null = null
+
+                    if (result.sharedList.platform === 'discord') {
+                        discordList = await discord.findDiscordListForSharedList(
+                            result.sharedList.reference,
+                        )
+                        if (!discordList) {
+                            return {
+                                mutation: { listData: { $set: undefined } },
+                            }
+                        }
+                    }
+
+                    this.emitMutation({
+                        listData: {
+                            $set: {
+                                discordList,
+                                creatorReference: result.creator,
+                                creator: await this._users.loadUser(
+                                    result.creator,
+                                ),
+                                list: result.sharedList,
+                                listEntries: result.entries,
+                                listDescriptionState: listDescriptionFits
+                                    ? 'fits'
+                                    : 'collapsed',
+                                listDescriptionTruncated: truncate(
+                                    listDescription,
+                                    LIST_DESCRIPTION_CHAR_LIMIT,
                                 ),
                             },
                         },
-                    }
+                        isListOwner: {
+                            $set:
+                                result.creator.id ===
+                                this.dependencies.services.auth.getCurrentUserReference()
+                                    ?.id,
+                        },
+                        newPageReplies: {
+                            $set: fromPairs(
+                                result.entries.map((entry) => [
+                                    entry.normalizedUrl,
+                                    getInitialNewReplyState(),
+                                ]),
+                            ),
+                        },
+                    })
                 } else {
-                    return {
-                        mutation: { listData: { $set: undefined } },
-                    }
+                    this.emitMutation({ listData: { $set: undefined } })
                 }
             },
         )

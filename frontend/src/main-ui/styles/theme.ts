@@ -3,6 +3,7 @@ import { THEME } from '@worldbrain/memex-common/lib/common-ui/styles/theme'
 
 export const theme: Theme = THEME({
     icons: {
+        discord: require('../../assets/img/discord.svg'),
         comment: require('../../assets/img/comment.svg'),
         commentFull: require('../../assets/img/comment.svg'),
         commentEmpty: require('../../assets/img/comment-empty.svg'),

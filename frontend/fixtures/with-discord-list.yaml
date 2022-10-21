@@ -5,7 +5,7 @@ objects:
           creator: { $ref: users.default }
           createdWhen: 1594225289914
           updatedWhen: 1594225289914
-          title: 'Test Discord Channel'
+          title: 'Test Channel'
           platform: 'discord'
     discordLists:
         - sharedList: { $ref: sharedLists.default }
@@ -34,28 +34,6 @@ objects:
           createdWhen: 1594225289914
           updatedWhen: 1594225289914
           entryTitle: Apples
-          normalizedUrl: apples.so
-          originalUrl: 'https://apples.so'
-    sharedPageInfo:
-        - id: default-page
-          creator: { $ref: users.default }
-          createdWhen: 1594225555555
-          updatedWhen: 1594225555555
-          fullTitle: "WorldBrain's Memex"
-          normalizedUrl: getmemex.com
-          originalUrl: 'https://getmemex.com'
-        - id: notion-page
-          creator: { $ref: users.default }
-          createdWhen: 1594225555555
-          updatedWhen: 1594225555555
-          fullTitle: 'Page with notes with a title that is very very very very very very very very very very very long'
-          normalizedUrl: notion.so
-          originalUrl: 'https://notion.so'
-        - id: empty-page
-          creator: { $ref: users.default }
-          createdWhen: 1594225555555
-          updatedWhen: 1594225555555
-          fullTitle: Apples
           normalizedUrl: apples.so
           originalUrl: 'https://apples.so'
     sharedAnnotations:

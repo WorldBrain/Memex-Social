@@ -1,1 +1,1 @@
-extends: [with-default-user, with-discord-list]
+extends: [with-discord-user, with-discord-list]

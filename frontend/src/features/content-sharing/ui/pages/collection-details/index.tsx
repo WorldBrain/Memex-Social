@@ -221,6 +221,16 @@ const SubtitleContainer = styled.div<{
         `}
 `
 
+const DiscordChannelName = styled.span`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+`
+const DiscordGuildName = styled.span`
+    color: blue;
+    font-weight: 800;
+`
+
 const CollectionDescriptionBox = styled.div<{
     viewportBreakpoint: ViewportBreakpoint
 }>`
@@ -676,6 +686,16 @@ export default class CollectionDetailsPage extends UIElement<
             )
         }
 
+        if (data?.discordList != null) {
+            return (
+                <SubtitleContainer viewportBreakpoint={this.viewportBreakpoint}>
+                    <DiscordGuildName>
+                        {data.discordList.guildName}
+                    </DiscordGuildName>
+                </SubtitleContainer>
+            )
+        }
+
         if (data.creatorReference && data.creator) {
             users.push([data.creatorReference, data.creator])
         }
@@ -950,6 +970,21 @@ export default class CollectionDetailsPage extends UIElement<
         return null
     }
 
+    private renderTitle() {
+        const { listData } = this.state
+        const title = listData!.list.title
+        if (listData!.discordList == null) {
+            return title
+        }
+
+        return (
+            <DiscordChannelName>
+                <Icon height="35px" icon="discord" color="blue" hoverOff />#
+                {title}
+            </DiscordChannelName>
+        )
+    }
+
     render() {
         ;(window as any)['blurt'] = () => console.log(this.state)
         const { state } = this
@@ -1025,7 +1060,7 @@ export default class CollectionDetailsPage extends UIElement<
                     services={this.props.services}
                     storage={this.props.storage}
                     viewportBreakpoint={this.viewportBreakpoint}
-                    headerTitle={data.list.title}
+                    headerTitle={this.renderTitle()}
                     headerSubtitle={this.renderSubtitle()}
                     followBtn={this.renderFollowBtn()()}
                     webMonetizationIcon={this.renderWebMonetizationIcon()}
