@@ -662,7 +662,7 @@ export default class CollectionDetailsPage extends UIElement<
     renderSubtitle() {
         const { state } = this
         const { listData: data } = state
-        const users: Array<[UserReference, User]> = []
+        const users: Array<{ userReference: UserReference; user: User }> = []
         if (
             (state.listRolesLoadState === 'running' ||
                 state.listRolesLoadState === 'pristine') &&
@@ -697,15 +697,18 @@ export default class CollectionDetailsPage extends UIElement<
         }
 
         if (data.creatorReference && data.creator) {
-            users.push([data.creatorReference, data.creator])
+            users.push({
+                userReference: data.creatorReference,
+                user: data.creator,
+            })
         }
         for (const role of state.listRoles ?? []) {
             const user = state.users[role.user.id]
             if (user) {
-                users.push([role.user, user])
+                users.push({ userReference: role.user, user })
             }
         }
-        const renderedPreview = users.map(([userReference, user], index) => {
+        const renderedPreview = users.map(({ userReference, user }, index) => {
             const isFirst = index === 0
             const isLast = index === users.length - 1
             return (
@@ -787,7 +790,10 @@ export default class CollectionDetailsPage extends UIElement<
                                                 }
                                             >
                                                 {users.map(
-                                                    ([userReference, user]) => (
+                                                    ({
+                                                        userReference,
+                                                        user,
+                                                    }) => (
                                                         <ProfilePopupContainer
                                                             key={
                                                                 userReference.id

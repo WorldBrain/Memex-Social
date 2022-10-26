@@ -11,6 +11,7 @@ import {
 import { Scenario } from '../services/scenarios/types'
 import { mainProgram } from './main'
 import { mockClipboardAPI } from '../services/clipboard/mock'
+import type { _Tuple } from '@worldbrain/memex-common/lib/_workarounds/types'
 
 export async function metaProgram(options: {
     history: History
@@ -28,7 +29,7 @@ export async function metaProgram(options: {
     const scenarioModules = getDefaultScenarioModules()
 
     const pageScenarios: Array<
-        [string, Scenario]
+        _Tuple<string, Scenario>
     > = scenarioIdentifier.scenarioName
         ? [
               [
