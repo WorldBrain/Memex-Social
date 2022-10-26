@@ -743,11 +743,11 @@ export default class CollectionDetailsLogic extends UILogic<
         }
 
         const usersToLoad = new Set<UserReference['id']>()
-        for (const promisesByPageEntry of Object.entries(promisesByPage)) {
-            this.pageAnnotationPromises[promisesByPageEntry[0]] = (async ([
-                normalizedPageUrl,
-                pagePromises,
-            ]: [string, Promise<GetAnnotationsResult>[]]) => {
+        for (const normalizedPageUrl in promisesByPage) {
+            this.pageAnnotationPromises[normalizedPageUrl] = (async (
+                normalizedPageUrl: string,
+                pagePromises: Promise<GetAnnotationsResult>[],
+            ) => {
                 this.emitMutation({
                     annotationLoadStates: {
                         [normalizedPageUrl]: { $set: 'running' },
@@ -786,7 +786,7 @@ export default class CollectionDetailsLogic extends UILogic<
                     })
                     console.error(e)
                 }
-            })(promisesByPageEntry)
+            })(normalizedPageUrl, promisesByPage[normalizedPageUrl])
         }
 
         const annotationReferences = flatten(
