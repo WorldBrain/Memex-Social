@@ -478,6 +478,7 @@ export default class HomeFeedPage extends UIElement<
                             }}
                             pageInfo={{
                                 createdWhen: pageInfo?.createdWhen,
+                                updatedWhen: pageInfo?.createdWhen,
                                 fullTitle: pageInfo?.fullTitle,
                                 normalizedUrl: pageItem?.normalizedPageUrl,
                                 originalUrl: pageInfo?.originalUrl,
@@ -817,6 +818,8 @@ export default class HomeFeedPage extends UIElement<
                                         pageInfo={{
                                             fullTitle: entry.entryTitle,
                                             originalUrl: entry.originalUrl,
+                                            updatedWhen:
+                                                entry.activityTimestamp,
                                             createdWhen:
                                                 entry.activityTimestamp,
                                             normalizedUrl: entry.normalizedUrl,
