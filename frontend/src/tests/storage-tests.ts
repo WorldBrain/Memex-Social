@@ -88,6 +88,7 @@ async function createMemoryTestDevice(
     storageHooksChangeWatcher.setUp({
         fetch,
         services,
+        captureException: async (error) => undefined, // TODO: maybe implement this
         serverStorageManager: storage.serverStorageManager,
         getCurrentUserReference: async () =>
             services.auth.getCurrentUserReference(),

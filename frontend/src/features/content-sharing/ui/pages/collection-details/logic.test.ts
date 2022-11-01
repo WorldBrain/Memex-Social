@@ -417,7 +417,7 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
             >(logic)
 
             expect(container.state.isCollectionFollowed).toEqual(false)
-            expect(container.state.followLoadState).toEqual('pristine')
+            expect(container.state.followLoadState).toEqual('running')
 
             const initP = logic['loadFollowBtnState']()
 

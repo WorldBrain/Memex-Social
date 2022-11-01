@@ -35,8 +35,6 @@ export abstract class AuthServiceBase implements AuthService {
     abstract getCurrentUser(): User | null
     abstract getCurrentUserReference(): UserReference | null
     abstract refreshCurrentUser(): Promise<void>
-    abstract changeEmailAddressonFirebase: (email: string) => void
-    abstract sendPasswordResetEmailProcess: (email: string) => void
 
     abstract getSupportedMethods(options: {
         method: AuthMethod
@@ -49,6 +47,10 @@ export abstract class AuthServiceBase implements AuthService {
 
     abstract logout(): Promise<void>
     abstract waitForAuthReady(): Promise<void>
+
+    abstract sendPasswordResetEmailProcess(email: string): void
+    abstract changeEmailAddressonFirebase(email: string): Promise<void>
+    abstract getCurrentUserEmail(): string | null
 
     async enforceAuth(options?: AuthRequest): Promise<boolean> {
         await this.waitForAuthReady()

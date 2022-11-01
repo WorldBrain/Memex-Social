@@ -13,24 +13,23 @@ import AuthMenu from '../../components/auth-menu'
 import ProfileEditModal from '../profile-edit-modal'
 import LoadingIndicator from '../../../../../common-ui/components/loading-indicator'
 import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
-import { isMemexInstalled } from '../../../../../utils/memex-installed'
 import { getViewportBreakpoint } from '../../../../../main-ui/styles/utils'
 import { ViewportBreakpoint } from '../../../../../main-ui/styles/types'
 
-const logoImage = require('../../../../../assets/img/memex-icon.svg')
+const settingsImg = require('../../../../../assets/img/settings.svg')
 
 const StyledAuthHeader = styled.div``
 
-const MemexIcon = styled.div`
-    height: 24px;
+const SettingsIcon = styled.div`
+    height: 20px;
     background-position: center;
     background-size: contain;
     border: none;
     cursor: pointer;
     background-repeat: no-repeat;
-    background-image: url(${logoImage});
+    background-image: url(${settingsImg});
     display: flex;
-    width: 24px;
+    width: 20px;
     background-position: center;
     background-size: contain;
 `
@@ -48,12 +47,13 @@ const DisplayName = styled.div`
     font-size: 14px;
     font-weight: bold;
     cursor: pointer;
+    font-family: ${(props) => props.theme.fonts.primary};
 
     & * {
         cursor: pointer;
     }
 
-    color: ${(props) => props.theme.colors.darkerText};
+    color: ${(props) => props.theme.darkModeColors.lighterText};
 `
 const MenuContainerOuter = styled.div`
     position: relative;
@@ -63,6 +63,13 @@ const MenuContainerInner = styled.div`
     display: flex;
     top: 15px;
     right: 0;
+`
+
+const LoadingBox = styled.div`
+    display: flex;
+    position: relative;
+    right: 10px;
+    top: 10px;
 `
 
 export default class AuthHeader extends UIElement<
@@ -80,14 +87,19 @@ export default class AuthHeader extends UIElement<
 
     render() {
         if (this.state.loadState !== 'success') {
-            return <LoadingIndicator />
+            return (
+                <LoadingBox>
+                    {' '}
+                    <LoadingIndicator size={20} />
+                </LoadingBox>
+            )
         }
 
         if (!this.state.user) {
             return (
                 <DisplayName onClick={() => this.processEvent('login', null)}>
                     <Icon icon="login" heightAndWidth="16px" hoverOff />
-                    {this.state.mememxInstalled === true ? 'Login' : 'Sign Up'}
+                    {this.state.isMemexInstalled === true ? 'Login' : 'Sign Up'}
                 </DisplayName>
             )
         }
@@ -100,7 +112,7 @@ export default class AuthHeader extends UIElement<
                     >
                         {/*<UserAvatar user={this.state.user} />*/}
                         <Margin left="small">
-                            <MemexIcon />
+                            <SettingsIcon />
                         </Margin>
                         <DisplayName>{this.state.user.displayName}</DisplayName>
                     </UserInfo>

@@ -40,7 +40,7 @@ export default class ProfilePopupContainerLogic extends UILogic<
                 substackURL: '',
                 bio: '',
                 avatarURL: '',
-                paymentPointer: '',
+                paymentPointer: '$ilp.uphold.com/zHjHFKyUWbwB',
             },
             profileLinks: [],
         }

@@ -19,7 +19,7 @@ export type ProfileEditModalState = Omit<
     inputErrorArray: boolean[]
     email: string
     showEmailEditButton: boolean
-    emailEditSuccess: boolean
+    emailEditSuccess: UITaskState
     passwordResetSent: boolean
     passwordResetSuccessful: boolean
 }
@@ -36,6 +36,6 @@ export type ProfileEditModalEvent = UIEvent<{
     setDisplayName: { value: string }
     setEmail: { value: string }
     setErrorArray: { newArray: boolean[] }
-    confirmEmailChange: () => void
-    sendPasswordResetEmail: () => void
+    confirmEmailChange: { value: string }
+    sendPasswordResetEmail: { value: string }
 }>

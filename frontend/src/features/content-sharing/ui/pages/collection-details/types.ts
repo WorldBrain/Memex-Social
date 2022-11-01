@@ -37,7 +37,7 @@ export interface CollectionDetailsDependencies {
     services: UIElementServices<
         | 'auth'
         | 'overlay'
-        | 'contentSharing'
+        | 'listKeys'
         | 'contentConversations'
         | 'activityStreams'
         | 'router'
@@ -74,6 +74,7 @@ export type CollectionDetailsState = AnnotationConversationsState &
         listRoleID?: SharedListRoleID
         listRoles?: Array<SharedListRole & { user: UserReference }>
         listRoleLimit: number | null // how many collaborators to show in the subtitle
+        showMoreCollaborators: boolean
         isListOwner?: boolean
         scrollTop?: number
         scrolledComponent?: JSX.Element
@@ -112,8 +113,9 @@ export type CollectionDetailsEvent = UIEvent<
             closePermissionOverlay: {}
             pageBreakpointHit: { entryIndex: number }
             clickFollowBtn: { pageToOpenPostFollow?: string }
-            showMoreCollaborators: {}
-            updateScrollState: (previousState) => {}
+            toggleMoreCollaborators: {}
+            hideMoreCollaborators: {}
+            updateScrollState: { previousScrollTop: number }
         }
 >
 

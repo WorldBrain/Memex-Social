@@ -45,13 +45,15 @@ export function runDevelopmentRpc() {
                 await (rpc[event.func] as any).apply(rpc, event.args)
                 socket.emit('rpc-response', { success: true, data: null })
             } catch (e) {
-                socket.emit('rpc-response', {
-                    success: false,
-                    data: {
-                        message: e.toString(),
-                        stack: await StackTrace.fromError(e),
-                    },
-                })
+                if (e instanceof Error) {
+                    socket.emit('rpc-response', {
+                        success: false,
+                        data: {
+                            message: e.toString(),
+                            stack: await StackTrace.fromError(e),
+                        },
+                    })
+                }
             }
         },
     )

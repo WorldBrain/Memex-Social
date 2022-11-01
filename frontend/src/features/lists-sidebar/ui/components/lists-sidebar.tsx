@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react'
 
-import styled, { css, ThemeContext } from 'styled-components'
+import styled, { css } from 'styled-components'
 import { UITaskState } from '../../../../main-ui/types'
 import LoadingIndicator from '../../../../common-ui/components/loading-indicator'
 import RouteLink from '../../../../common-ui/components/route-link'
@@ -13,7 +13,6 @@ import { Margin } from 'styled-components-spacing'
 import { StorageModules } from '../../../../storage/types'
 import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
 import { theme } from '../../../../main-ui/styles/theme'
-import AuthHeaderLogic from '../../../../features/user-management/ui/containers/auth-header/logic'
 
 const UnseenActivityDot = styled.div`
     background: #5cd9a6;
@@ -142,11 +141,6 @@ const ListsContainer = styled.div<{
     position: relative;
 `
 
-const EmptyMsg = styled.span`
-    font-size: 12px;
-    padding-left: 5px;
-`
-
 const ErrorMsg = styled.span`
     font-size: 12px;
     color: ${(props) => props.theme.colors.warning};
@@ -258,7 +252,6 @@ export interface Props
     onToggle: React.MouseEventHandler<Element>
     hideActivityIndicator?: boolean
     storage: Pick<StorageModules, 'users' | 'activityStreams'>
-    AuthHeaderLogic: AuthHeaderLogic
 }
 
 export default class ListsSidebar extends PureComponent<Props> {
@@ -324,7 +317,6 @@ export default class ListsSidebar extends PureComponent<Props> {
                                             </MenuItemBox>
                                         )
                                     }
-                                    return null
                                 }}
                             />
                         )}
@@ -339,7 +331,7 @@ export default class ListsSidebar extends PureComponent<Props> {
         if (this.props.loadState === 'running') {
             return (
                 <LoadingBox>
-                    <LoadingIndicator />
+                    <LoadingIndicator size={28} />
                 </LoadingBox>
             )
         }
@@ -348,7 +340,7 @@ export default class ListsSidebar extends PureComponent<Props> {
             return (
                 <>
                     <ErrorMsg>
-                        There was a problem loading your followed collections.
+                        There was a problem loading your followed Spaces.
                     </ErrorMsg>
                     <ErrorMsg>Reload the page</ErrorMsg>
                     <ErrorMsg>
@@ -366,7 +358,7 @@ export default class ListsSidebar extends PureComponent<Props> {
                         <SectionTitle
                             viewportBreakpoint={this.props.viewportBreakpoint}
                         >
-                            Collaborative Collections
+                            Collaborative Spaces
                         </SectionTitle>
                         <ListContent>
                             {this.renderListNames(
@@ -411,7 +403,7 @@ export default class ListsSidebar extends PureComponent<Props> {
                     <SectionTitle
                         viewportBreakpoint={this.props.viewportBreakpoint}
                     >
-                        Followed Collections
+                        Followed Spaces
                     </SectionTitle>
                     <ListContent>{this.renderListContent()}</ListContent>
                 </ListsContainer>

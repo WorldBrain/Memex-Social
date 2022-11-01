@@ -1,9 +1,6 @@
 import orderBy from 'lodash/orderBy'
 import { UserReference } from '@worldbrain/memex-common/lib/web-interface/types/users'
-import {
-    SharedPageInfo,
-    SharedAnnotationReference,
-} from '@worldbrain/memex-common/lib/content-sharing/types'
+import { SharedPageInfo } from '@worldbrain/memex-common/lib/content-sharing/types'
 import {
     UILogic,
     UIEventHandler,
@@ -19,7 +16,6 @@ import { getInitialAnnotationConversationStates } from '../../../../content-conv
 import {
     annotationConversationEventHandlers,
     annotationConversationInitialState,
-    detectAnnotationConversationThreads,
     setupConversationLogicDeps,
 } from '../../../../content-conversations/ui/logic'
 import {
@@ -55,7 +51,6 @@ export default class PageDetailsLogic extends UILogic<
             annotationConversationEventHandlers<PageDetailsState>(this as any, {
                 ...this.dependencies,
                 ...setupConversationLogicDeps(this.dependencies),
-                getSharedListReference: () => null,
                 selectAnnotationData: (state, reference) => {
                     const annotationId = this.dependencies.storage.contentSharing.getSharedAnnotationLinkID(
                         reference,
@@ -119,7 +114,6 @@ export default class PageDetailsLogic extends UILogic<
         )
         let creatorReference: UserReference | null
         let pageInfo: SharedPageInfo | null
-        let annotationReferences: SharedAnnotationReference[] = []
         await executeUITask<PageDetailsState>(
             this,
             'pageInfoLoadState',
@@ -172,9 +166,6 @@ export default class PageDetailsLogic extends UILogic<
                             annotation.reference,
                         ),
                     }))
-                    annotationReferences = annotations.map(
-                        (annotation) => annotation.reference,
-                    )
                     return {
                         mutation: {
                             annotations: {
@@ -191,18 +182,7 @@ export default class PageDetailsLogic extends UILogic<
                         },
                     }
                 },
-            ).then(() => {
-                if (!pageInfo) {
-                    return
-                }
-                detectAnnotationConversationThreads(this as any, {
-                    annotationReferences,
-                    getThreadsForAnnotations: (...args) =>
-                        this.dependencies.storage.contentConversations.getThreadsForAnnotations(
-                            ...args,
-                        ),
-                }).catch(console.error)
-            }),
+            ),
             executeUITask<PageDetailsState>(
                 this,
                 'creatorLoadState',

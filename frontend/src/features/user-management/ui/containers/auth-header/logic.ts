@@ -52,9 +52,9 @@ export default class AuthHeaderLogic extends UILogic<
         await loadInitial<AuthHeaderState>(this, async () => {
             await this.dependencies.services.auth.waitForAuthReady()
         })
-        const MemexInstalled = isMemexInstalled()
-        if (MemexInstalled) {
-            this.emitMutation({ mememxInstalled: { $set: true } })
+        const memexInstalled = isMemexInstalled()
+        if (memexInstalled) {
+            this.emitMutation({ isMemexInstalled: { $set: true } })
         }
 
         this._updateUser()

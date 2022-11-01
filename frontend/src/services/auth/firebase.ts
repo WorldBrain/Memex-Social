@@ -1,5 +1,5 @@
 import { User } from '@worldbrain/memex-common/lib/web-interface/types/users'
-import firebase from 'firebase'
+import firebase from 'firebase/compat'
 import { EventEmitter } from 'events'
 import { Storage } from '../../storage/types'
 import { AuthProvider } from '../../types/auth'
@@ -88,7 +88,7 @@ export default class FirebaseAuthService extends AuthServiceBase {
             await this._firebase.auth().signInWithPopup(firebaseProvider)
             return { result: { status: 'authenticated' } }
         } catch (e) {
-            const firebaseError: firebase.FirebaseError = e
+            const firebaseError = e as firebase.FirebaseError
             if (firebaseError.code === 'auth/popup-closed-by-user') {
                 return { result: { status: 'cancelled' } }
             }
@@ -109,7 +109,7 @@ export default class FirebaseAuthService extends AuthServiceBase {
         options: EmailPasswordCredentials,
     ): Promise<{ result: LoginResult }> {
         try {
-            const waitForChange = new Promise((resolve) =>
+            const waitForChange = new Promise<void>((resolve) =>
                 this.events.once('changed', () => resolve()),
             )
             await this._firebase
@@ -118,7 +118,7 @@ export default class FirebaseAuthService extends AuthServiceBase {
             await waitForChange
             return { result: { status: 'authenticated' } }
         } catch (e) {
-            const firebaseError: firebase.FirebaseError = e
+            const firebaseError = e as firebase.FirebaseError
             if (firebaseError.code === 'auth/invalid-email') {
                 return { result: { status: 'error', reason: 'invalid-email' } }
             }
@@ -141,7 +141,7 @@ export default class FirebaseAuthService extends AuthServiceBase {
                 .createUserWithEmailAndPassword(options.email, options.password)
             return { result: { status: 'registered-and-authenticated' } }
         } catch (e) {
-            const firebaseError: firebase.FirebaseError = e
+            const firebaseError = e as firebase.FirebaseError
             if (firebaseError.code === 'auth/invalid-email') {
                 return { result: { status: 'error', reason: 'invalid-email' } }
             }
@@ -163,12 +163,20 @@ export default class FirebaseAuthService extends AuthServiceBase {
         return this._user
     }
 
-    sendPasswordResetEmailProcess(email: string) {
-        return firebase.auth().sendPasswordResetEmail(email)
+    getCurrentUserEmail() {
+        return firebase.auth().currentUser?.email ?? null
     }
 
-    changeEmailAddressonFirebase(email: string) {
-        return firebase.auth().currentUser?.updateEmail(email)
+    async sendPasswordResetEmailProcess(email: string) {
+        try {
+            return firebase.auth().sendPasswordResetEmail(email)
+        } catch (error) {
+            return error
+        }
+    }
+
+    async changeEmailAddressonFirebase(email: string) {
+        await firebase.auth().currentUser?.updateEmail(email)
     }
 
     getCurrentUserReference() {

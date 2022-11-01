@@ -112,7 +112,9 @@ function MetaUI({ options }: { options: MetaUIOptions }) {
     return (
         <ThemeProvider theme={theme}>
             {options.scenarios.map((metaScenario, scenarioIndex) => (
-                <>
+                <React.Fragment
+                    key={`${metaScenario.pageName}.${metaScenario.scenarioName}`}
+                >
                     <ScenarioTitle
                         href={getScenarioUrl({ metaScenario })}
                         target="_blank"
@@ -152,7 +154,7 @@ function MetaUI({ options }: { options: MetaUIOptions }) {
                             ),
                         )}
                     </StepsContainer>
-                </>
+                </React.Fragment>
             ))}
         </ThemeProvider>
     )

@@ -37,3 +37,6 @@
 [submodule "external/@worldbrain/storex-backend-typeorm"]
 	path = external/@worldbrain/storex-backend-typeorm
 	url = git@github.com:WorldBrain/storex-backend-typeorm
+[submodule "external/@worldbrain/storex-backend-sql"]
+	path = external/@worldbrain/storex-backend-sql
+	url = git@github.com:WorldBrain/storex-backend-sql.git

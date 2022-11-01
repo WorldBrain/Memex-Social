@@ -1,7 +1,5 @@
 import React from 'react'
 import styled from 'styled-components'
-import TextInput from '../../../../common-ui/components/text-input'
-import Button from '../../../../common-ui/components/button'
 import AnnotationReply from '../../../content-conversations/ui/components/annotation-reply'
 import { Margin } from 'styled-components-spacing'
 import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
@@ -12,12 +10,14 @@ const StyledProfileSetupForm = styled.div`
     justify-content: center;
     align-items: center;
     flex-direction: column;
+    padding: 20px;
 `
 const Header = styled.div`
     text-align: center;
     font-family: ${(props) => props.theme.fonts.primary};
     font-size: 24px;
     font-weight: 800;
+    color: ${(props) => props.theme.darkModeColors.lighterText};
 `
 
 const SmallHeader = styled.div`
@@ -54,7 +54,7 @@ const TextInputOneLine = styled.input`
     border: none;
     background: transparent;
     font-family: 'Inter';
-    color: ${(props) => props.theme.colors.darkerText};
+    color: ${(props) => props.theme.darkModeColors.normalText};
 
     &::placeholder {
         color: #96a0b5;
@@ -125,12 +125,11 @@ export default function ProfileSetupForm(props: {
                             onChange={(e) =>
                                 props.onDisplayNameChange(e.target.value)
                             }
-                            onConfirm={props.onConfirm}
                         />
                     </TextInputContainer>
                 </DisplayName>
             </Margin>
-            <Margin bottom="medium">
+            {/* <Margin bottom="medium">
                 <SmallHeader>Where this will appear</SmallHeader>
             </Margin>
             <Margin bottom="small">
@@ -145,19 +144,18 @@ export default function ProfileSetupForm(props: {
                         reply={{
                             content:
                                 "This is what a reply to someone's note looks like with your name attached",
-                            createdWhen: null,
                             normalizedPageUrl: 'something',
+                            createdWhen: Date.now(),
                         }}
                     />
                 </AnnotationCard>
-            </Margin>
+            </Margin> */}
             <PrimaryActionContainer>
                 <PrimaryAction
                     label="Confirm Display Name"
                     fontSize="14px"
-                    onClick={
-                        props.displayName.length ? props.onConfirm : undefined
-                    }
+                    onClick={props.onConfirm}
+                    disabled={props.displayName.length === 0}
                     icon={'check'}
                     iconSize={'18px'}
                 />

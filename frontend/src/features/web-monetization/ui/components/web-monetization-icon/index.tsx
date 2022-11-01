@@ -1,6 +1,5 @@
 import React from 'react'
 import styled from 'styled-components'
-import { MemexTheme } from '@worldbrain/memex-common/lib/common-ui/styles/types'
 import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
 import { UIElement } from '../../../../../main-ui/classes'
 
@@ -15,28 +14,27 @@ import LoadingIndicator from '@worldbrain/memex-common/lib/common-ui/components/
 
 const Container = styled.div`
     margin-left: 10px;
-    margin-right: 10px;
+    z-index: 10000;
 `
 
-const IconContainer = styled.div<{ iconHeight: string }>``
-
-const StyledImg = styled.div<{
-    height: string
-    icon: keyof MemexTheme['icons']
-}>`
+const IconContainer = styled.div<{ iconHeight: string }>`
+    height: 30px;
+    width: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    height: ${(props) => props.height};
-    background-position: center;
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-image: url(${(props) => props.theme.icons[props.icon]});
 `
 
-const LoadingBox = styled.div`
+const WebMonetizationPaymentProgress = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
     margin-right: 15px;
+
+    & > div {
+        position: absolute;
+    }
 `
 
 type WebMonetizationIconDependencies = WebMonetizationButtonDependencies
@@ -61,32 +59,55 @@ export default class WebMonetizationIcon extends UIElement<
         )
     }
 
-    private handleClick = () => {
-        if (this.isClickable) {
-            this.processEvent('makeSupporterPayment', null)
-        }
+    handleClick = () => {
+        this.processEvent('makeSupporterPayment', null)
     }
 
     renderIcon() {
         const { paymentState } = this.state
 
+        if (
+            this.state.paymentState === 'pristine' &&
+            this.props.isFollowedSpace
+        ) {
+            this.handleClick()
+        }
+
         return (
-            <IconContainer iconHeight={this.iconHeight}>
-                {paymentState === 'running' && <LoadingIndicator size={18} />}
+            <IconContainer
+                onMouseEnter={() => this.processEvent('showPopup', null)}
+                iconHeight={this.iconHeight}
+            >
+                {paymentState === 'running' && (
+                    <WebMonetizationPaymentProgress>
+                        <Icon
+                            height={'16px'}
+                            color="purple"
+                            icon={'webMonetizationLogo'}
+                            onClick={this.handleClick}
+                        />
+                        <LoadingIndicator speed={4} size={24} />
+                    </WebMonetizationPaymentProgress>
+                )}
                 {paymentState === 'error' && <span>Error!</span>}
                 {paymentState === 'pristine' && (
                     <Icon
-                        onClick={this.handleClick}
                         height={this.iconHeight}
                         color="purple"
                         icon={'webMonetizationLogo'}
+                        onClick={this.handleClick}
                     />
                 )}
                 {paymentState === 'success' && (
-                    <StyledImg
-                        height={this.iconHeight}
-                        icon={'webMonetizationLogoConfirmed'}
-                    />
+                    <WebMonetizationPaymentProgress>
+                        <Icon
+                            height={'16px'}
+                            color="purple"
+                            icon={'webMonetizationLogo'}
+                            onClick={this.handleClick}
+                        />
+                        <LoadingIndicator speed={4} size={24} />
+                    </WebMonetizationPaymentProgress>
                 )}
             </IconContainer>
         )
@@ -95,12 +116,9 @@ export default class WebMonetizationIcon extends UIElement<
     render() {
         return (
             <Container>
-                {this.state.isDisplayed && this.state.loadState === 'running' && (
-                    <LoadingBox>
-                        <LoadingIndicator size={18} />
-                    </LoadingBox>
-                )}
-                {this.state.isDisplayed && this.state.loadState === 'success' && (
+                {this.renderIcon()}
+
+                {this.state.isDisplayed === true && (
                     <CuratorSupportPopupContainer
                         services={this.props.services}
                         storage={this.props.storage}
@@ -110,9 +128,10 @@ export default class WebMonetizationIcon extends UIElement<
                         isMonetizationAvailable={
                             this.state.isMonetizationAvailable
                         }
-                    >
-                        {this.renderIcon()}
-                    </CuratorSupportPopupContainer>
+                        onMouseLeave={() =>
+                            this.processEvent('hidePopup', null)
+                        }
+                    />
                 )}
             </Container>
         )

@@ -32,6 +32,12 @@ export default abstract class WebMonetizationService
                     this.events.emit('monetizationstart', event.detail)
                 },
             )
+            this._monetization.addEventListener(
+                'monetizationprogress',
+                (event) => {
+                    this.events.emit('monetizationprogress', event.detail)
+                },
+            )
             this._monetization.addEventListener('monetizationstop', (event) => {
                 this.events.emit('monetizationstop', event.detail)
             })
@@ -47,9 +53,9 @@ export default abstract class WebMonetizationService
             userRef,
         )
         if (!userProfile) {
-            return null
+            return '$ilp.uphold.com/zHjHFKyUWbwB'
         }
-        return userProfile.paymentPointer
+        return userProfile.paymentPointer ?? null
     }
 
     async getCurrentUserPaymentPointer(): Promise<string | null> {
@@ -68,7 +74,7 @@ export default abstract class WebMonetizationService
             )
             return null
         }
-        return userProfile?.paymentPointer ?? null
+        return userProfile?.paymentPointer ?? '$ilp.uphold.com/zHjHFKyUWbwB'
     }
 
     initiatePayment(paymentPointer: string): void {

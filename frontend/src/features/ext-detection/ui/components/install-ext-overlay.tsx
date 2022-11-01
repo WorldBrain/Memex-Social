@@ -4,9 +4,7 @@ import Overlay from '../../../../main-ui/containers/overlay'
 import { ViewportBreakpoint } from '../../../../main-ui/styles/types'
 import { UIElementServices } from '../../../../services/types'
 import { Margin } from 'styled-components-spacing'
-import ExternalLink from '../../../../common-ui/components/external-link'
 import { PrimaryAction } from '../../../../common-ui/components/PrimaryAction'
-import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
 
 const braveLogo = require('../../../../assets/img/logo-brave.svg')
 const firefoxLogo = require('../../../../assets/img/logo-firefox.svg')
@@ -47,9 +45,9 @@ const Content = styled.div<{
 const Title = styled.div<{
     viewportBreakpoint: ViewportBreakpoint
 }>`
-    font-weight: bold;
+    font-weight: 800;
     font-size: 24px;
-    color: ${(props) => props.theme.colors.primary};
+    color: ${(props) => props.theme.darkModeColors.lighterText};
     text-align: center;
 
     ${(props) =>
@@ -66,7 +64,7 @@ const Title = styled.div<{
 
 const SubTitle = styled.div`
     font-size: 1rem;
-    color: ${(props) => props.theme.colors.purple};
+    color: ${(props) => props.theme.colors.lighterText};
     margin-bottom: 10px;
     margin-top: 5px;
     pointer-events: none;
@@ -78,7 +76,7 @@ const NoteIconContainer = styled.img`
     width: 16px;
     display: flex;
     mask-image: url(${noteIcon});
-    background-color: ${(props) => props.theme.colors.primary};
+    background-color: ${(props) => props.theme.darkModeColors.lighterText};
     mask-position: center center;
     mask-repeat: no-repeat;
     margin: 0 5px;
@@ -89,20 +87,20 @@ const NoteIconContainer = styled.img`
 
 const SubSubTitle = styled.div`
     font-size: 0.8rem;
-    color: ${(props) => props.theme.colors.darkgrey};
+    color: ${(props) => props.theme.darkModeColors.lighterText};
     text-align: center;
     display: inline-flex;
-    justiy-content: center;
+    justify-content: center;
     align-items: center;
     flex-direction: column;
 `
 
 const SubSubSubTitle = styled.div`
     font-size: 0.8rem;
-    color: ${(props) => props.theme.colors.darkgrey};
+    color: ${(props) => props.theme.darkModeColors.lighterText};
     text-align: center;
     display: inline-box;
-    justiy-content: center;
+    justify-content: center;
     align-items: center;
     white-space: nowrap;
 `
@@ -131,39 +129,6 @@ const ButtonsBox = styled.div`
     margin-bottom: -30px;
     margin-top: 50px;
 `
-const primaryButtonCss = css`
-    display: flex;
-    justify-content: center;
-    padding: 5px 10px;
-    font-size: 14px;
-    background-color: ${(props) => props.theme.colors.secondary};
-    border-radius: 3px;
-    cursor: pointer;
-    font-weight: 600;
-    color: ${(props) => props.theme.colors.primary};
-    text-decoration: none;
-`
-
-const PrimaryButtonLink = styled(ExternalLink)`
-    ${primaryButtonCss}
-`
-
-const secondaryButtonCss = css`
-    display: flex;
-    justify-content: center;
-    padding: 5px 10px;
-    font-size: 14px;
-    border-radius: 3px;
-    cursor: pointer;
-    font-weight: 600;
-    color: ${(props) => props.theme.colors.primary};
-    text-decoration: none;
-`
-
-const SecondaryButton = styled.div`
-    ${secondaryButtonCss}
-`
-
 interface PageAddProps {
     mode: 'add-page'
 }
@@ -189,12 +154,13 @@ export default function InstallExtOverlay(props: Props) {
                 <Margin>
                     <Title viewportBreakpoint={props.viewportBreakpoint}>
                         {props.mode === 'add-page'
-                            ? 'Install Memex to add pages to this Space'
-                            : 'Install Memex to see these highlights on the live page'}
+                            ? 'Use the Memex extension to add pages to this Space'
+                            : 'Use the Memex extension to view the annotations on the live page'}
                     </Title>
                     <SubTitle>
-                        Download the extension, follow this Space and then open
-                        the page.
+                        {props.mode === 'add-page'
+                            ? 'Download the extension, login in and add pages via the Space picker.'
+                            : 'Download the extension, follow this Space and then open the page.'}
                     </SubTitle>
                 </Margin>
                 <Margin top={'small'}>

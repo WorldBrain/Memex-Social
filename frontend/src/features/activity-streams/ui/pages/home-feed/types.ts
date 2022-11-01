@@ -83,6 +83,7 @@ export type HomeFeedEvent = UIEvent<
             waypointHit: null
             loadMoreReplies: {
                 groupId: string
+                listReference: SharedListReference | null
                 annotationReference: SharedAnnotationReference
             }
             toggleListEntryActivityAnnotations: {
@@ -114,6 +115,7 @@ export type ListEntryActivityItem = {
     reference: SharedListEntryReference
     creator: UserReference
     activityTimestamp: number
+    annotationEntriesLoadState: UITaskState
     hasAnnotations?: boolean
     areAnnotationsShown?: boolean
     annotationsLoadState: UITaskState
@@ -143,7 +145,7 @@ export interface ActivityData {
     pageInfo: {
         [normalizedPageUrl: string]: Pick<
             SharedPageInfo,
-            'fullTitle' | 'originalUrl'
+            'fullTitle' | 'originalUrl' | 'createdWhen'
         > & { creator?: UserReference }
     }
     // pageItems: { [normalizedPageUrl: string]: PageActivityItem }

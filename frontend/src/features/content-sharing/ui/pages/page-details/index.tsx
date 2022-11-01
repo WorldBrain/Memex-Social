@@ -12,19 +12,15 @@ import DocumentTitle from '../../../../../main-ui/components/document-title'
 import DefaultPageLayout from '../../../../../common-ui/layouts/default-page-layout'
 import LoadingScreen from '../../../../../common-ui/components/loading-screen'
 import { Margin } from 'styled-components-spacing'
-import PageInfoBox from '../../../../../common-ui/components/page-info-box'
 import AnnotationsInPage from '../../../../annotations/ui/components/annotations-in-page'
 import LoadingIndicator from '../../../../../common-ui/components/loading-indicator'
 import ErrorWithAction from '../../../../../common-ui/components/error-with-action'
 import ProfilePopupContainer from '../../../../user-management/ui/containers/profile-popup-container'
 import type { Props as ListsSidebarProps } from '../../../../lists-sidebar/ui/components/lists-sidebar'
-import { isPagePdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
 import InstallExtOverlay from '../../../../ext-detection/ui/components/install-ext-overlay'
 import { ViewportBreakpoint } from '../../../../../main-ui/styles/types'
 import { getViewportBreakpoint } from '../../../../../main-ui/styles/utils'
 import MissingPdfOverlay from '../../../../ext-detection/ui/components/missing-pdf-overlay'
-import FollowBtn from '../../../../activity-follows/ui/components/follow-btn'
-import { mergeTaskStates } from '../../../../../main-ui/classes/logic'
 
 const PageInfoList = styled.div`
     width: 100%;
@@ -56,8 +52,9 @@ const SubtitleContainer = styled.div<{
         `}
 `
 
-const DomainName = styled.div`
+const DomainName = styled.a`
     color: ${(props) => props.theme.colors.normalText};
+    text-decoration: none;
 `
 
 const RearBox = styled.div<{
@@ -90,6 +87,13 @@ const SharedBy = styled.span`
 const Date = styled.span`
     color: ${(props) => props.theme.colors.lighterText};
     display: inline-block;
+`
+
+const Title = styled.a`
+    font-size: inherit;
+    color: inherit;
+    cursor: pointer;
+    text-decoration: none;
 `
 
 export default class PageDetailsPage extends UIElement<
@@ -150,26 +154,6 @@ export default class PageDetailsPage extends UIElement<
         }
 
         return null
-    }
-
-    renderFollowBtn = (pageToOpenPostFollow?: string) => () => {
-        return (
-            <FollowBtn
-                onClick={() => {
-                    this.processEvent('clickFollowBtn', {
-                        pageToOpenPostFollow,
-                    })
-                }}
-                isFollowed={this.state.isCollectionFollowed}
-                isOwner={this.state.isListOwner}
-                isContributor={this.isListContributor}
-                loadState={mergeTaskStates([
-                    this.state.followLoadState,
-                    this.state.listRolesLoadState,
-                    this.state.permissionKeyState,
-                ])}
-            />
-        )
     }
 
     render() {
@@ -262,7 +246,6 @@ export default class PageDetailsPage extends UIElement<
                     //headerSubtitle={this.state.pageInfo?.normalizedUrl}
                     listsSidebarProps={this.listsSidebarProps}
                     headerSubtitle={this.getHeaderSubtitle()}
-                    followBtn={this.renderFollowBtn()()}
                     renderSubtitle={(props) => (
                         <ProfilePopupContainer
                             services={services}
@@ -304,7 +287,7 @@ export default class PageDetailsPage extends UIElement<
                                 state.annotationLoadState === 'running') && (
                                 <Margin vertical="medium">
                                     <AnnotationsLoading>
-                                        <LoadingIndicator />
+                                        <LoadingIndicator size={20} />
                                     </AnnotationsLoading>
                                 </Margin>
                             )}
@@ -335,79 +318,7 @@ export default class PageDetailsPage extends UIElement<
                                         annotationConversations={
                                             state.conversations
                                         }
-                                        onToggleReplies={(event) =>
-                                            this.processEvent(
-                                                'toggleAnnotationReplies',
-                                                event,
-                                            )
-                                        }
                                         newPageReplyEventHandlers={{}}
-                                        // newPageReplyEventHandlers={{
-                                        //     onNewReplyInitiate: () =>
-                                        //         this.processEvent(
-                                        //             'initiateNewReplyToPage',
-                                        //             {
-                                        //                 pageReplyId: normalizedPageUrl,
-                                        //             },
-                                        //         ),
-                                        //     onNewReplyEdit: ({ content }) =>
-                                        //         this.processEvent(
-                                        //             'editNewReplyToPage',
-                                        //             {
-                                        //                 content,
-                                        //                 pageReplyId: normalizedPageUrl,
-                                        //             },
-                                        //         ),
-                                        //     onNewReplyCancel: () =>
-                                        //         this.processEvent(
-                                        //             'cancelNewReplyToPage',
-                                        //             {
-                                        //                 pageReplyId: normalizedPageUrl,
-                                        //             },
-                                        //         ),
-                                        //     onNewReplyConfirm: () =>
-                                        //         this.processEvent(
-                                        //             'confirmNewReplyToPage',
-                                        //             {
-                                        //                 normalizedPageUrl,
-                                        //                 pageReplyId: normalizedPageUrl,
-                                        //                 pageCreatorReference: state.creatorReference!,
-                                        //             },
-                                        //         ),
-                                        // }}
-                                        newAnnotationReplyEventHandlers={{
-                                            onNewReplyInitiate: (
-                                                annotationReference,
-                                            ) => () =>
-                                                this.processEvent(
-                                                    'initiateNewReplyToAnnotation',
-                                                    { annotationReference },
-                                                ),
-                                            onNewReplyEdit: (
-                                                annotationReference,
-                                            ) => ({ content }) =>
-                                                this.processEvent(
-                                                    'editNewReplyToAnnotation',
-                                                    {
-                                                        annotationReference,
-                                                        content,
-                                                    },
-                                                ),
-                                            onNewReplyCancel: (
-                                                annotationReference,
-                                            ) => () =>
-                                                this.processEvent(
-                                                    'cancelNewReplyToAnnotation',
-                                                    { annotationReference },
-                                                ),
-                                            onNewReplyConfirm: (
-                                                annotationReference,
-                                            ) => () =>
-                                                this.processEvent(
-                                                    'confirmNewReplyToAnnotation',
-                                                    { annotationReference },
-                                                ),
-                                        }}
                                     />
                                 )}
                         </Margin>
@@ -417,32 +328,36 @@ export default class PageDetailsPage extends UIElement<
         )
     }
 
-    getHeaderTitle(): string {
+    getHeaderTitle(): JSX.Element | string {
         const { pageInfoLoadState, pageInfo } = this.state
         if (pageInfoLoadState === 'success') {
             if (!pageInfo) {
                 return 'Page not found'
             } else {
-                return pageInfo.fullTitle
+                return (
+                    <Title href={pageInfo.originalUrl} target="_blank">
+                        {pageInfo.fullTitle}
+                    </Title>
+                )
             }
         }
         if (
             pageInfoLoadState === 'pristine' ||
             pageInfoLoadState === 'running'
         ) {
-            return 'Loading...'
+            return <LoadingIndicator size={20} />
         }
         return 'Error'
     }
 
     getHeaderSubtitle(): JSX.Element | undefined {
-        const { creator, pageInfoLoadState, pageInfo } = this.state
+        const { creator, pageInfo } = this.state
         // return creator ? `${creator.displayName}` : undefined
 
         return (
             <>
                 <SubtitleContainer viewportBreakpoint={this.viewportBreakpoint}>
-                    <DomainName>
+                    <DomainName href={pageInfo?.originalUrl} target="_blank">
                         {pageInfo?.normalizedUrl.split('/')[0]}
                     </DomainName>
                     <RearBox viewportBreakpoint={this.viewportBreakpoint}>

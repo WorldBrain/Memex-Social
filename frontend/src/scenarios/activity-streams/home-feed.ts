@@ -40,10 +40,12 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                         {
                             type: 'follow-annotation',
                             annotation: 'default-annotation',
+                            list: 'default-list',
                         },
                         {
                             type: 'follow-annotation',
                             annotation: 'second-annotation',
+                            list: 'default-list',
                         },
                         {
                             type: 'login',
@@ -92,6 +94,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                             {
                                 type: 'follow-annotation',
                                 annotation: 'default-annotation',
+                                list: 'default-list',
                             },
                             {
                                 type: 'login',
@@ -140,18 +143,18 @@ export const SCENARIOS: ScenarioMap<Targets> = {
             execute: setupTestActivities,
         },
         steps: [
-            step({
-                name: 'load-more-replies',
-                target: 'HomeFeedPage',
-                eventName: 'loadMoreReplies',
-                eventArgs: {
-                    groupId: 'act-5',
-                    annotationReference: {
-                        type: 'shared-annotation-reference',
-                        id: 'third-annotation',
-                    },
-                },
-            }),
+            //     step({
+            //         name: 'load-more-replies',
+            //         target: 'HomeFeedPage',
+            //         eventName: 'loadMoreReplies',
+            //         eventArgs: {
+            //             groupId: 'act-5',
+            //             annotationReference: {
+            //                 type: 'shared-annotation-reference',
+            //                 id: 'third-annotation',
+            //             },
+            //         },
+            //     }),
         ],
     })),
     'list-item-with-replies': scenario<Targets>(
@@ -160,6 +163,14 @@ export const SCENARIOS: ScenarioMap<Targets> = {
             authenticated: true,
             startRoute: { route: 'homeFeed', params: {} },
             setup: {
+                callModifications: ({ storage }) => [
+                    {
+                        name: 'detecting-annotations',
+                        object: storage.serverModules.contentSharing,
+                        property: 'doesAnnotationExistForPageInList',
+                        modifier: 'block',
+                    },
+                ],
                 execute: (context) =>
                     setupTestActivities({
                         ...context,
@@ -202,6 +213,15 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                     }),
             },
             steps: [
+                step({
+                    name: 'annotations-detected',
+                    callModifications: () => [
+                        {
+                            name: 'detecting-annotations',
+                            modifier: 'undo',
+                        },
+                    ],
+                }),
                 // step({
                 //     name: 'load-more-replies',
                 //     target: 'HomeFeedPage',

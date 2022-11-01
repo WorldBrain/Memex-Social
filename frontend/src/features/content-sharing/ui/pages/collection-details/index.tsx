@@ -1,6 +1,6 @@
 import React from 'react'
 import { Waypoint } from 'react-waypoint'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { Margin } from 'styled-components-spacing'
 import { UIElement } from '../../../../../main-ui/classes'
 import Logic from './logic'
@@ -15,6 +15,7 @@ import {
     SharedListEntry,
     SharedAnnotationListEntry,
     SharedAnnotationReference,
+    SharedListReference,
 } from '@worldbrain/memex-common/lib/content-sharing/types'
 import { User } from '@worldbrain/memex-common/lib/web-interface/types/users'
 import { PAGE_SIZE } from './constants'
@@ -28,7 +29,6 @@ import { ViewportBreakpoint } from '../../../../../main-ui/styles/types'
 import { getViewportBreakpoint } from '../../../../../main-ui/styles/utils'
 import AnnotationsInPage from '../../../../annotations/ui/components/annotations-in-page'
 import ErrorWithAction from '../../../../../common-ui/components/error-with-action'
-import ErrorBox from '../../../../../common-ui/components/error-box'
 import FollowBtn from '../../../../activity-follows/ui/components/follow-btn'
 import WebMonetizationIcon from '../../../../web-monetization/ui/components/web-monetization-icon'
 import PermissionKeyOverlay from './permission-key-overlay'
@@ -40,6 +40,8 @@ import ListShareModal from '@worldbrain/memex-common/lib/content-sharing/ui/list
 import type { Props as ListsSidebarProps } from '../../../../lists-sidebar/ui/components/lists-sidebar'
 import { isPagePdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
 import MissingPdfOverlay from '../../../../ext-detection/ui/components/missing-pdf-overlay'
+import { HoverBox } from '../../../../../common-ui/components/hoverbox'
+import Markdown from '@worldbrain/memex-common/lib/common-ui/components/markdown'
 
 const commentImage = require('../../../../../assets/img/comment.svg')
 const commentEmptyImage = require('../../../../../assets/img/comment-empty.svg')
@@ -97,20 +99,29 @@ const AbovePagesBox = styled.div<{
 }
 `
 
+const DescriptionActions = styled(Margin)`
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+`
+
+const ActionItems = styled.div`
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    grid-gap: 10px;
+`
+
 const AddPageBtn = styled.div`
     display: flex;
     align-items: center;
     left: 0;
     font-family: ${(props) => props.theme.fonts.primary};
     color: ${(props) => props.theme.colors.lighterText};
-    font-size: 12px;
     font-weight: 400;
     cursor: pointer;
-    padding: 2px 6px;
-
-    &: hover {
-        background: ${(props) => props.theme.colors.backgroundColorDarker};
-    }
+    border-radius: 3px;
 `
 
 const ToggleAllAnnotations = styled.div`
@@ -122,21 +133,38 @@ const ToggleAllAnnotations = styled.div`
     cursor: pointer;
     font-size: 12px;
     width: fit-content;
-    padding: 0 5px;
     border-radius: 5px;
 `
 
-const PageInfoList = styled.div`
+const SectionTitle = styled.div`
+    font-family: ${(props) => props.theme.fonts.primary};
+    color: ${(props) => props.theme.colors.normalText};
+    font-weight: 200;
+    font-size: 20px;
+`
+
+const PageInfoList = styled.div<{
+    viewportBreakpoint: ViewportBreakpoint
+}>`
     width: 100%;
-    padding-bottom: 200px;
+    padding: 0 20px 20px 20px;
+
+    ${(props) =>
+        props.viewportBreakpoint === 'mobile' &&
+        css`
+            padding: 0 0px 20px 0px;
+        `}
 `
 
 const EmptyListBox = styled.div`
     font-family: ${(props) => props.theme.fonts.primary};
     width: 100%;
     padding: 20px 20px;
-    color: ${(props) => props.theme.colors.primary};
+    color: ${(props) => props.theme.colors.normalText};
     display: flex;
+    margin-top: 30px;
+    font-size: 16px;
+    font-weight: normal;
     justify-content: center;
     align-items: center;
     flex-direction: column;
@@ -145,7 +173,10 @@ const EmptyListBox = styled.div`
 
 const ShowMoreCollaborators = styled.span`
     cursor: pointer;
-    font-weight: bold;
+    color: ${(props) => props.theme.colors.darkerText};
+    align-items: center;
+    grid-gap: 5px;
+    display: inline-box;
 `
 
 const Text = styled.span`
@@ -162,6 +193,181 @@ const LoadingScreen = styled.div`
 
 const ActionLoaderBox = styled.div`
     margin-right: 10px;
+`
+
+const SubtitleContainer = styled.div<{
+    viewportBreakpoint: ViewportBreakpoint
+    loading?: boolean
+}>`
+    display: flex;
+    align-items: center;
+    /* grid-gap: 10px; */
+    font-size: 14px;
+    height: 24px;
+    white-space: nowrap;
+
+    ${(props) =>
+        props.viewportBreakpoint === 'mobile' &&
+        css`
+            align-items: center;
+        `}
+
+    ${(props) =>
+        props.loading &&
+        css`
+            margin-top: 5px;
+            margin-bottom: -5px;
+            padding-left: 10px;
+        `}
+`
+
+const CollectionDescriptionBox = styled.div<{
+    viewportBreakpoint: ViewportBreakpoint
+}>`
+    padding: 20px 20px;
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+    margin-top: 10px;
+
+    ${(props) =>
+        props.viewportBreakpoint === 'mobile' &&
+        css`
+            padding: 20px 0px;
+        `}
+`
+const CollectionDescriptionText = styled(Markdown)<{
+    viewportBreakpoint: ViewportBreakpoint
+}>`
+    font-size: 16px;
+    color: ${(props) => props.theme.colors.lighterText};
+    font-family: ${(props) => props.theme.fonts.primary};
+    background: #fffff005;
+    padding: 20px;
+    border-radius: 10px;
+`
+const CollectionDescriptionToggle = styled.div<{
+    viewportBreakpoint: ViewportBreakpoint
+}>`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    justify-self: flex-start;
+    font-family: ${(props) => props.theme.fonts.primary};
+    font-size: 12px;
+    cursor: pointer;
+    color: ${(props) => props.theme.colors.lighterText};
+
+    & * {
+        cursor: pointer;
+    }
+`
+
+// const DomainName = styled.div`
+//     color: ${(props) => props.theme.colors.normalText};
+// `
+
+// const RearBox = styled.div<{
+//     viewportBreakpoint: ViewportBreakpoint
+// }>`
+//     display: inline-block;
+//     align-items: center;
+//     grid-gap: 5px;
+//     color: ${(props) => props.theme.colors.lighterText};
+
+//     /* ${(props) =>
+//         props.viewportBreakpoint === 'mobile' &&
+//         css`
+//             grid-gap: 3px;
+//             flex-direction: column;
+//             align-items: flex-start;
+//         `} */
+// `
+
+const Creator = styled.span`
+    color: ${(props) => props.theme.colors.purple};
+    padding: 0 4px;
+    cursor: pointer;
+`
+
+const SharedBy = styled.span`
+    color: ${(props) => props.theme.colors.lighterText};
+    display: contents;
+`
+
+// const Date = styled.span`
+//     color: ${(props) => props.theme.colors.lighterText};
+//     display: inline-block;
+// `
+
+const SectionCircle = styled.div<{ size: string }>`
+    background: ${(props) => props.theme.colors.backgroundHighlight};
+    border-radius: 100px;
+    height: ${(props) => (props.size ? props.size : '60px')};
+    width: ${(props) => (props.size ? props.size : '60px')};
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+`
+
+const ContributorContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    padding: 10px;
+    width: 210px;
+    max-width: 300px;
+    border-radius: 12px;
+`
+const ListEntryBox = styled.div`
+    display: flex;
+    align-items: center;
+    height: 40px;
+    border-radius: 5px;
+    padding: 0 15px;
+
+    &:hover {
+        background: ${(props) => props.theme.colors.backgroundColorDarker};
+    }
+`
+
+const ListEntry = styled.div`
+    display: block;
+    align-items: center;
+
+    font-weight: 400;
+    width: fill-available;
+    color: ${(props) => props.theme.colors.normalText};
+    text-overflow: ellipsis;
+    overflow: hidden;
+
+    & * {
+        white-space: pre-wrap;
+        font-weight: initial;
+    }
+`
+
+const CommentIconBox = styled.div`
+    background: #ffffff09;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 24px;
+    width: fit-content;
+    padding: 0 10px;
+    grid-gap: 6px;
+    cursor: pointer;
+
+    & * {
+        cursor: pointer;
+    }
+`
+
+const Counter = styled.div`
+    color: ${(props) => props.theme.colors.purple};
+    font-size: 14px;
 `
 
 export default class CollectionDetailsPage extends UIElement<
@@ -197,6 +403,13 @@ export default class CollectionDetailsPage extends UIElement<
         return getViewportBreakpoint(this.getViewportWidth())
     }
 
+    private get sharedListReference(): SharedListReference {
+        return {
+            type: 'shared-list-reference',
+            id: this.props.listID,
+        }
+    }
+
     async componentDidUpdate(
         prevProps: CollectionDetailsDependencies,
         previousState: CollectionDetailsState,
@@ -208,8 +421,8 @@ export default class CollectionDetailsPage extends UIElement<
             })
         }
 
-        this.processEvent('updateScrollState', {
-            previousState: previousState.scrollTop,
+        await this.processEvent('updateScrollState', {
+            previousScrollTop: previousState.scrollTop!,
         })
     }
 
@@ -242,6 +455,7 @@ export default class CollectionDetailsPage extends UIElement<
                 services={this.props.services}
                 storage={this.props.storage}
                 curatorUserRef={creatorReference}
+                isFollowedSpace={this.state.isCollectionFollowed}
             />
         )
     }
@@ -275,17 +489,35 @@ export default class CollectionDetailsPage extends UIElement<
                 ? commentEmptyImage
                 : null
 
+        const count =
+            annotationEntries &&
+            annotationEntries[entry.normalizedUrl] &&
+            annotationEntries[entry.normalizedUrl].length
+                ? annotationEntries[entry.normalizedUrl].length
+                : 0
+
         if (
             state.annotationEntriesLoadState === 'success' &&
             toggleAnnotationsIcon !== null
         ) {
             return [
                 {
-                    image: toggleAnnotationsIcon,
-                    onClick: () =>
-                        this.processEvent('togglePageAnnotations', {
-                            normalizedUrl: entry.normalizedUrl,
-                        }),
+                    node: (
+                        <CommentIconBox
+                            onClick={() =>
+                                this.processEvent('togglePageAnnotations', {
+                                    normalizedUrl: entry.normalizedUrl,
+                                })
+                            }
+                        >
+                            {count > 0 && <Counter>{count}</Counter>}
+                            <Icon
+                                icon={toggleAnnotationsIcon}
+                                heightAndWidth={'16px'}
+                                hoverOff
+                            />
+                        </CommentIconBox>
+                    ),
                 },
             ]
         }
@@ -315,6 +547,7 @@ export default class CollectionDetailsPage extends UIElement<
         const { state } = this
         return (
             <AnnotationsInPage
+                variant={'dark-mode'}
                 newPageReply={
                     this.isListContributor || state.isListOwner
                         ? state.newPageReplies[entry.normalizedUrl]
@@ -349,7 +582,10 @@ export default class CollectionDetailsPage extends UIElement<
                     services: this.props.services,
                 }}
                 onToggleReplies={(event) =>
-                    this.processEvent('toggleAnnotationReplies', event)
+                    this.processEvent('toggleAnnotationReplies', {
+                        ...event,
+                        sharedListReference: this.sharedListReference,
+                    })
                 }
                 newPageReplyEventHandlers={{
                     onNewReplyInitiate: () =>
@@ -365,10 +601,7 @@ export default class CollectionDetailsPage extends UIElement<
                             normalizedPageUrl: entry.normalizedUrl,
                             pageCreatorReference: entry.creator,
                             pageReplyId: entry.normalizedUrl,
-                            sharedListReference: {
-                                id: this.props.listID,
-                                type: 'shared-list-reference',
-                            },
+                            sharedListReference: this.sharedListReference,
                         }),
                     onNewReplyEdit: ({ content }) =>
                         this.processEvent('editNewReplyToPage', {
@@ -380,19 +613,23 @@ export default class CollectionDetailsPage extends UIElement<
                     onNewReplyInitiate: (annotationReference) => () =>
                         this.processEvent('initiateNewReplyToAnnotation', {
                             annotationReference,
+                            sharedListReference: this.sharedListReference,
                         }),
                     onNewReplyCancel: (annotationReference) => () =>
                         this.processEvent('cancelNewReplyToAnnotation', {
                             annotationReference,
+                            sharedListReference: this.sharedListReference,
                         }),
                     onNewReplyConfirm: (annotationReference) => () =>
                         this.processEvent('confirmNewReplyToAnnotation', {
                             annotationReference,
+                            sharedListReference: this.sharedListReference,
                         }),
                     onNewReplyEdit: (annotationReference) => ({ content }) =>
                         this.processEvent('editNewReplyToAnnotation', {
                             annotationReference,
                             content,
+                            sharedListReference: this.sharedListReference,
                         }),
                 }}
             />
@@ -415,11 +652,30 @@ export default class CollectionDetailsPage extends UIElement<
     renderSubtitle() {
         const { state } = this
         const { listData: data } = state
-        if (!data) {
-            return null
+        const users: Array<[UserReference, User]> = []
+        if (
+            (state.listRolesLoadState === 'running' ||
+                state.listRolesLoadState === 'pristine') &&
+            !users.length
+        ) {
+            return (
+                <SubtitleContainer
+                    loading
+                    viewportBreakpoint={this.viewportBreakpoint}
+                >
+                    <LoadingIndicator size={16} />
+                </SubtitleContainer>
+            )
         }
 
-        const users: Array<[UserReference, User]> = []
+        if (!data) {
+            return (
+                <SubtitleContainer viewportBreakpoint={this.viewportBreakpoint}>
+                    <LoadingIndicator size={16} />
+                </SubtitleContainer>
+            )
+        }
+
         if (data.creatorReference && data.creator) {
             users.push([data.creatorReference, data.creator])
         }
@@ -429,38 +685,153 @@ export default class CollectionDetailsPage extends UIElement<
                 users.push([role.user, user])
             }
         }
-        const rendered = users.map(([userReference, user], index) => {
+        const renderedPreview = users.map(([userReference, user], index) => {
             const isFirst = index === 0
             const isLast = index === users.length - 1
             return (
                 <React.Fragment key={userReference.id}>
-                    {!isFirst && !isLast && ', '}
-                    {!isFirst && isLast && ' and '}
+                    <SharedBy>
+                        {!isFirst && !isLast && ', '}
+                        {!isFirst && isLast && ' and '}
+                    </SharedBy>
                     <ProfilePopupContainer
                         services={this.props.services}
                         storage={this.props.storage}
                         userRef={userReference!}
                     >
-                        {user.displayName}
+                        <Creator>{user.displayName}</Creator>
                     </ProfilePopupContainer>
                 </React.Fragment>
             )
         })
-        if (!state.listRoleLimit || users.length <= state.listRoleLimit) {
-            return rendered
+
+        if (state.listRolesLoadState === 'success' && users.length > 0) {
+            const showListRoleLimit = () => {
+                if (this.viewportBreakpoint === 'small') {
+                    return 2
+                }
+
+                if (this.viewportBreakpoint === 'mobile') {
+                    return 1
+                }
+
+                return 3
+            }
+
+            return (
+                <SubtitleContainer viewportBreakpoint={this.viewportBreakpoint}>
+                    {renderedPreview && (
+                        <>
+                            <SharedBy>by</SharedBy>{' '}
+                            {renderedPreview.slice(0, showListRoleLimit())}
+                            {users.length - showListRoleLimit() > 0 && (
+                                <ShowMoreCollaborators
+                                    onClick={(event) =>
+                                        this.processEvent(
+                                            'toggleMoreCollaborators',
+                                            {
+                                                value: this.state
+                                                    .showMoreCollaborators,
+                                            },
+                                        )
+                                    }
+                                >
+                                    {users.length - showListRoleLimit() && (
+                                        <>
+                                            <SharedBy>and</SharedBy>{' '}
+                                            {renderedPreview.slice(
+                                                0,
+                                                showListRoleLimit(),
+                                            ) && (
+                                                <>
+                                                    {users.length -
+                                                        showListRoleLimit()}{' '}
+                                                    more{' '}
+                                                </>
+                                            )}
+                                        </>
+                                    )}
+                                    {this.state.showMoreCollaborators && (
+                                        <HoverBox
+                                            marginLeft={'-90px'}
+                                            width={'unset'}
+                                            marginTop={'5px'}
+                                            padding={'0px'}
+                                        >
+                                            <ContributorContainer
+                                                onMouseLeave={() =>
+                                                    this.processEvent(
+                                                        'toggleMoreCollaborators',
+                                                        {},
+                                                    )
+                                                }
+                                            >
+                                                {users.map(
+                                                    ([userReference, user]) => (
+                                                        <ProfilePopupContainer
+                                                            key={
+                                                                userReference.id
+                                                            }
+                                                            services={
+                                                                this.props
+                                                                    .services
+                                                            }
+                                                            storage={
+                                                                this.props
+                                                                    .storage
+                                                            }
+                                                            userRef={
+                                                                userReference!
+                                                            }
+                                                        >
+                                                            <ListEntryBox>
+                                                                <ListEntry
+                                                                    key={
+                                                                        userReference.id
+                                                                    }
+                                                                >
+                                                                    {
+                                                                        user.displayName
+                                                                    }
+                                                                </ListEntry>
+                                                            </ListEntryBox>
+                                                        </ProfilePopupContainer>
+                                                    ),
+                                                )}
+                                            </ContributorContainer>
+                                        </HoverBox>
+                                    )}
+                                    <Icon
+                                        icon={'arrowDown'}
+                                        heightAndWidth={'16px'}
+                                    />
+                                </ShowMoreCollaborators>
+                            )}
+                            {/* {rendered} */}
+                        </>
+                    )}
+                </SubtitleContainer>
+            )
         }
-        return (
-            <>
-                {rendered.slice(0, state.listRoleLimit)} and{' '}
-                <ShowMoreCollaborators
-                    onClick={() =>
-                        this.processEvent('showMoreCollaborators', {})
-                    }
-                >
-                    {users.length - state.listRoleLimit} more
-                </ShowMoreCollaborators>
-            </>
-        )
+        // return (
+        //     <SubtitleContainer viewportBreakpoint={this.viewportBreakpoint}>
+        //         <SharedBy>by</SharedBy>
+        //         {rendered.slice(0, state.listRoleLimit)} and{' '}
+        //         <ShowMoreCollaborators
+        //             onClick={() =>
+        //                 this.processEvent('showMoreCollaborators', {})
+        //             }
+        //         >
+        //             {users.length - state.listRoleLimit} more
+        //         </ShowMoreCollaborators>
+        //         <Date>
+        //             <span>
+        //                 on{' '}
+        //                 {moment(state.listData?.list.createdWhen).format('LLL')}
+        //             </span>
+        //         </Date>
+        //     </SubtitleContainer>
+        // )
     }
 
     renderPermissionKeyOverlay() {
@@ -473,6 +844,8 @@ export default class CollectionDetailsPage extends UIElement<
                 onCloseRequested={() =>
                     this.processEvent('closePermissionOverlay', {})
                 }
+                isContributor={this.isListContributor}
+                isOwner={this.state.isListOwner}
             />
         ) : null
     }
@@ -485,36 +858,43 @@ export default class CollectionDetailsPage extends UIElement<
         } = this.state
         return (
             <AbovePagesBox viewportWidth={this.viewportBreakpoint}>
-                {(this.isListContributor || isListOwner) && (
-                    <AddPageBtn
-                        onClick={() =>
-                            this.processEvent('toggleInstallExtModal', {})
-                        }
-                    >
-                        <Icon
-                            hoverOff
-                            icon="plus"
-                            height="14px"
-                            color="purple"
-                        />
-                        <Text>Add Page</Text>
-                    </AddPageBtn>
-                )}
-                <div></div>
-                {annotationEntryData &&
-                    Object.keys(annotationEntryData).length > 0 && (
-                        <ToggleAllAnnotations
+                <SectionTitle>References</SectionTitle>
+                <ActionItems>
+                    {(this.isListContributor || isListOwner) && (
+                        <AddPageBtn
                             onClick={() =>
-                                this.processEvent('toggleAllAnnotations', {})
+                                this.processEvent('toggleInstallExtModal', {})
                             }
                         >
-                            {allAnnotationExpanded ? (
-                                <Icon icon={'compress'} heightAndWidth="16px" />
-                            ) : (
-                                <Icon icon={'expand'} heightAndWidth="16px" />
-                            )}
-                        </ToggleAllAnnotations>
+                            <Icon icon="plus" height="16px" color="purple" />
+                        </AddPageBtn>
                     )}
+                    {annotationEntryData &&
+                        Object.keys(annotationEntryData).length > 0 && (
+                            <ToggleAllAnnotations
+                                onClick={() =>
+                                    this.processEvent(
+                                        'toggleAllAnnotations',
+                                        {},
+                                    )
+                                }
+                            >
+                                {allAnnotationExpanded ? (
+                                    <Icon
+                                        color={'purple'}
+                                        icon={'compress'}
+                                        heightAndWidth="16px"
+                                    />
+                                ) : (
+                                    <Icon
+                                        color={'purple'}
+                                        icon={'expand'}
+                                        heightAndWidth="16px"
+                                    />
+                                )}
+                            </ToggleAllAnnotations>
+                        )}
+                </ActionItems>
             </AbovePagesBox>
         )
     }
@@ -579,11 +959,11 @@ export default class CollectionDetailsPage extends UIElement<
         ) {
             return (
                 <DocumentView id="DocumentView">
+                    {this.renderPermissionKeyOverlay()}
                     <DocumentTitle
                         documentTitle={this.props.services.documentTitle}
                         subTitle="Loading list..."
                     />
-                    {this.renderPermissionKeyOverlay()}
                     <LoadingScreen>
                         <LoadingIndicator />
                     </LoadingScreen>
@@ -654,123 +1034,152 @@ export default class CollectionDetailsPage extends UIElement<
                     permissionKeyOverlay={this.renderPermissionKeyOverlay()}
                     scrollTop={this.state.scrollTop}
                 >
-                    {/*{data.list.description && (
-                    <CollectionDescriptionBox
-                        viewportWidth={viewportBreakpoint}
-                    >
-                        <CollectionDescriptionText
-                            viewportWidth={viewportBreakpoint}
+                    {data.list.description && (
+                        <CollectionDescriptionBox
+                            viewportBreakpoint={this.viewportBreakpoint}
                         >
-                            {data.listDescriptionState === 'collapsed'
-                                ? data.listDescriptionTruncated
-                                : data.list.description}
-                        </CollectionDescriptionText>
-                        {data.listDescriptionState !== 'fits' && (
-                            <CollectionDescriptionToggle
-                                onClick={() =>
-                                    this.processEvent(
-                                        'toggleDescriptionTruncation',
-                                        {},
-                                    )
-                                }
-                                viewportWidth={viewportBreakpoint}
+                            <DescriptionActions bottom={'small'}>
+                                <SectionTitle>Description</SectionTitle>
+                                {data.listDescriptionState !== 'fits' && (
+                                    <CollectionDescriptionToggle
+                                        onClick={() =>
+                                            this.processEvent(
+                                                'toggleDescriptionTruncation',
+                                                {},
+                                            )
+                                        }
+                                        viewportBreakpoint={
+                                            this.viewportBreakpoint
+                                        }
+                                    >
+                                        {data.listDescriptionState ===
+                                        'collapsed' ? (
+                                            <>
+                                                <Icon
+                                                    icon="expand"
+                                                    color="purple"
+                                                    heightAndWidth="16px"
+                                                />
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Icon
+                                                    icon="compress"
+                                                    color="purple"
+                                                    heightAndWidth="16px"
+                                                />
+                                            </>
+                                        )}
+                                    </CollectionDescriptionToggle>
+                                )}
+                            </DescriptionActions>
+                            <CollectionDescriptionText
+                                viewportBreakpoint={this.viewportBreakpoint}
                             >
                                 {data.listDescriptionState === 'collapsed'
-                                    ? '▸ Show more'
-                                    : '◂ Show less'}
-                            </CollectionDescriptionToggle>
-                        )}
-                    </CollectionDescriptionBox>
-                )}
-            */}
-                    {state.annotationEntriesLoadState === 'error' && (
-                        <Margin bottom={'large'}>
-                            <ErrorWithAction errorType="internal-error">
-                                Error loading page notes. Reload page to retry.
-                            </ErrorWithAction>
-                        </Margin>
+                                    ? data.listDescriptionTruncated
+                                    : data.list.description}
+                            </CollectionDescriptionText>
+                        </CollectionDescriptionBox>
                     )}
-                    {this.renderAbovePagesBox()}
-                    <PageInfoList>
+                    <PageInfoList viewportBreakpoint={this.viewportBreakpoint}>
+                        {this.renderAbovePagesBox()}
+                        {state.annotationEntriesLoadState === 'error' && (
+                            <Margin bottom={'large'}>
+                                <ErrorWithAction errorType="internal-error">
+                                    Error loading page notes. Reload page to
+                                    retry.
+                                </ErrorWithAction>
+                            </Margin>
+                        )}
                         {data.listEntries.length === 0 && (
                             <EmptyListBox>
-                                <ErrorBox>
-                                    This collection has no pages in it (yet).
-                                </ErrorBox>
+                                <SectionCircle size="50px">
+                                    <Icon
+                                        icon={'heartEmpty'}
+                                        heightAndWidth="25px"
+                                        color="purple"
+                                    />
+                                </SectionCircle>
+                                This Space is empty (still).
                             </EmptyListBox>
                         )}
                         {[...data.listEntries.entries()].map(
                             ([entryIndex, entry]) => (
-                                <Margin bottom={'small'}>
-                                    <React.Fragment key={entry.normalizedUrl}>
-                                        <PageInfoBox
-                                            onClick={(e) =>
-                                                this.processEvent(
-                                                    'clickPageResult',
-                                                    {
-                                                        urlToOpen:
-                                                            entry.originalUrl,
-                                                        preventOpening: () =>
-                                                            e.preventDefault(),
-                                                        isFollowedSpace: this
-                                                            .state
-                                                            .isCollectionFollowed,
-                                                    },
-                                                )
-                                            }
-                                            type={
-                                                isPagePdf({
-                                                    url: entry.normalizedUrl,
-                                                })
-                                                    ? 'pdf'
-                                                    : 'page'
-                                            }
-                                            profilePopup={{
-                                                services: this.props.services,
-                                                storage: this.props.storage,
-                                                userRef: entry.creator,
-                                            }}
-                                            pageInfo={{
-                                                ...entry,
-                                                fullTitle: entry.entryTitle,
-                                            }}
-                                            creator={
-                                                this.state.users[
-                                                    entry.creator.id
-                                                ]
-                                            }
-                                            actions={this.getPageEntryActions(
-                                                entry,
-                                            )}
-                                        />
-                                        {state.pageAnnotationsExpanded[
-                                            entry.normalizedUrl
-                                        ] && (
-                                            <Margin>
-                                                <Margin bottom={'smallest'}>
-                                                    {this.renderPageAnnotations(
-                                                        entry,
-                                                    )}
-                                                </Margin>
-                                            </Margin>
+                                <Margin
+                                    bottom="small"
+                                    key={entry.normalizedUrl}
+                                >
+                                    <PageInfoBox
+                                        viewportBreakpoint={
+                                            this.viewportBreakpoint
+                                        }
+                                        variant="dark-mode"
+                                        onClick={(e) =>
+                                            this.processEvent(
+                                                'clickPageResult',
+                                                {
+                                                    urlToOpen:
+                                                        entry.originalUrl,
+                                                    preventOpening: () =>
+                                                        e.preventDefault(),
+                                                    isFollowedSpace:
+                                                        this.state
+                                                            .isCollectionFollowed ||
+                                                        this.state.isListOwner,
+                                                },
+                                            )
+                                        }
+                                        type={
+                                            isPagePdf({
+                                                url: entry.normalizedUrl,
+                                            })
+                                                ? 'pdf'
+                                                : 'page'
+                                        }
+                                        profilePopup={{
+                                            services: this.props.services,
+                                            storage: this.props.storage,
+                                            userRef: entry.creator,
+                                        }}
+                                        pageInfo={{
+                                            ...entry,
+                                            fullTitle: entry.entryTitle,
+                                        }}
+                                        creator={
+                                            this.state.users[entry.creator.id]
+                                        }
+                                        actions={this.getPageEntryActions(
+                                            entry,
                                         )}
-                                        {state.allAnnotationExpanded &&
-                                            state.annotationEntriesLoadState ===
-                                                'success' &&
-                                            entryIndex > 0 &&
-                                            entryIndex % PAGE_SIZE === 0 && (
-                                                <Waypoint
-                                                    onEnter={() => {
-                                                        this.processEvent(
-                                                            'pageBreakpointHit',
-                                                            {
-                                                                entryIndex,
-                                                            },
-                                                        )
-                                                    }}
-                                                />
-                                            )}
-                                    </React.Fragment>
+                                    />
+                                    {state.pageAnnotationsExpanded[
+                                        entry.normalizedUrl
+                                    ] && (
+                                        <Margin>
+                                            <Margin bottom={'smallest'}>
+                                                {this.renderPageAnnotations(
+                                                    entry,
+                                                )}
+                                            </Margin>
+                                        </Margin>
+                                    )}
+                                    {state.allAnnotationExpanded &&
+                                        state.annotationEntriesLoadState ===
+                                            'success' &&
+                                        entryIndex > 0 &&
+                                        entryIndex % PAGE_SIZE === 0 && (
+                                            <Waypoint
+                                                onEnter={() => {
+                                                    this.processEvent(
+                                                        'pageBreakpointHit',
+                                                        {
+                                                            entryIndex,
+                                                        },
+                                                    )
+                                                }}
+                                            />
+                                        )}
                                 </Margin>
                             ),
                         )}

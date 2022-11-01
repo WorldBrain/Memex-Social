@@ -6,15 +6,16 @@ import {
     AuthDialogDependencies,
     AuthDialogState,
 } from './types'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import Overlay from '../../../../../main-ui/containers/overlay'
-import Button from '../../../../../common-ui/components/button'
-import TextInput from '../../../../../common-ui/components/text-input'
 import { Margin } from 'styled-components-spacing'
 import { AuthError } from '../../../../../services/auth/types'
 import ProfileSetupForm from '../../components/profile-setup-form'
 import LoadingScreen from '../../../../../common-ui/components/loading-screen'
 import { PrimaryAction } from '../../../../../common-ui/components/PrimaryAction'
+
+import { getViewportBreakpoint } from '../../../../../main-ui/styles/utils'
+import { ViewportBreakpoint } from '../../../../../main-ui/styles/types'
 
 import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
 import { theme } from '../../../../../main-ui/styles/theme'
@@ -45,7 +46,7 @@ const Header = styled.div`
     text-align: center;
     font-size: 26px;
     font-weight: 900;
-    color: ${(props) => props.theme.colors.darkerText};
+    color: ${(props) => props.theme.darkModeColors.lighterText};
     margin-bottom: 10px;
 `
 const AuthenticationMethods = styled.div`
@@ -77,17 +78,24 @@ const EmailPasswordError = styled.div`
     text-align: center;
 `
 
-const FormTitle = styled.div`
-    font-weight: bold;
+const FormTitle = styled.div<{ viewportBreakpoint: ViewportBreakpoint }>`
+    font-weight: 900;
     font-size: 24px;
-    color: ${(props) => props.theme.colors.primary};
+    color: ${(props) => props.theme.darkModeColors.lighterText};
     text-align: center;
+    white-space: break-spaces;
+
+    ${(props) =>
+        props.viewportBreakpoint === 'mobile' &&
+        css`
+            font-size: 18px;
+        `}
 `
 const FormSubtitle = styled.div`
-    font-weight: 500;
+    font-weight: 400;
     font-size: 16px;
     text-align: center;
-    color: ${(props) => props.theme.colors.secondary};
+    color: ${(props) => props.theme.darkModeColors.lighterText};
 `
 
 const AuthBox = styled(Margin)`
@@ -102,7 +110,7 @@ const TextInputContainer = styled.div`
     grid-gap: 10px;
     align-items: center;
     justify-content: flex-start;
-    border: 1px solid ${(props) => props.theme.colors.lineLightGrey};
+    border: 1px solid ${(props) => props.theme.darkModeColors.lineLightGrey};
     height: 50px;
     border-radius: 8px;
     width: 350px;
@@ -118,7 +126,7 @@ const TextInputOneLine = styled.input`
     border: none;
     background: transparent;
     font-family: 'Inter';
-    color: ${(props) => props.theme.colors.darkerText};
+    color: ${(props) => props.theme.darkModeColors.normalText};
 
     &::placeholder {
         color: #96a0b5;
@@ -179,15 +187,26 @@ const ForgotPassword = styled.div`
     font-size: 12px;
 `
 
-const SectionCircle = styled.div`
+const SectionCircle = styled.div<{ width?: string }>`
     background: ${(props) => props.theme.colors.backgroundHighlight};
     border-radius: 100px;
     height: 60px;
-    width: 60px;
+    width: ${(props) => props.width ?? '60px'};
     margin-bottom: 30px;
     display: flex;
     justify-content: center;
     align-items: center;
+`
+
+const InvitationBox = styled.div`
+    height: 150px;
+    width: fill-available;
+    background: ${(props) => props.theme.colors.lightgrey}90;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 50px;
 `
 
 export default class AuthDialog extends UIElement<
@@ -197,6 +216,10 @@ export default class AuthDialog extends UIElement<
 > {
     constructor(props: AuthDialogDependencies) {
         super(props, { logic: new Logic(props) })
+    }
+
+    get viewportBreakpoint(): ViewportBreakpoint {
+        return getViewportBreakpoint(this.getViewportWidth())
     }
 
     renderAuthError() {
@@ -234,8 +257,12 @@ export default class AuthDialog extends UIElement<
                 {state.mode === 'login' && (
                     <>
                         {header && (
-                            <Margin bottom="largest">
-                                <FormTitle>{header.title}</FormTitle>
+                            <InvitationBox>
+                                <FormTitle
+                                    viewportBreakpoint={this.viewportBreakpoint}
+                                >
+                                    {header.title}
+                                </FormTitle>
                                 {header.subtitle && (
                                     <Margin top="medium">
                                         <FormSubtitle>
@@ -243,7 +270,7 @@ export default class AuthDialog extends UIElement<
                                         </FormSubtitle>
                                     </Margin>
                                 )}
-                            </Margin>
+                            </InvitationBox>
                         )}
                         <Margin bottom="small">
                             <Header>{state.mode === 'login' && 'Login'}</Header>
@@ -256,7 +283,7 @@ export default class AuthDialog extends UIElement<
                                         this.processEvent('toggleMode', null)
                                     }
                                 >
-                                    Sign up
+                                    <u>Sign up</u>
                                 </ModeSwitch>
                             </>
                         </Footer>
@@ -265,8 +292,13 @@ export default class AuthDialog extends UIElement<
                 {state.mode === 'register' && (
                     <>
                         {header && (
-                            <Margin bottom="largest">
-                                <FormTitle>{header.title}</FormTitle>
+                            <InvitationBox>
+                                <FormTitle
+                                    viewportBreakpoint={this.viewportBreakpoint}
+                                >
+                                    {' '}
+                                    {header.title}
+                                </FormTitle>
                                 {header.subtitle && (
                                     <Margin top="medium">
                                         <FormSubtitle>
@@ -274,7 +306,7 @@ export default class AuthDialog extends UIElement<
                                         </FormSubtitle>
                                     </Margin>
                                 )}
-                            </Margin>
+                            </InvitationBox>
                         )}
                         <Margin bottom="small">
                             <Header>
@@ -289,7 +321,7 @@ export default class AuthDialog extends UIElement<
                                         this.processEvent('toggleMode', null)
                                     }
                                 >
-                                    Log in
+                                    <u>Log in</u>
                                 </ModeSwitch>
                             </>
                         </Footer>
@@ -343,13 +375,13 @@ export default class AuthDialog extends UIElement<
                                                 value: e.target.value,
                                             })
                                         }
-                                        onConfirm={() => {
+                                        autoFocus
+                                        onKeyDown={this.handleEnter(() => {
                                             this.processEvent(
                                                 'emailPasswordConfirm',
                                                 null,
                                             )
-                                        }}
-                                        autoFocus
+                                        })}
                                     />
                                 </TextInputContainer>
                             )}
@@ -373,12 +405,12 @@ export default class AuthDialog extends UIElement<
                                                     },
                                                 )
                                             }
-                                            onConfirm={() => {
+                                            onKeyDown={this.handleEnter(() => {
                                                 this.processEvent(
                                                     'emailPasswordConfirm',
                                                     null,
                                                 )
-                                            }}
+                                            })}
                                         />
                                         <ForgotPassword
                                             onClick={() => {
@@ -413,12 +445,12 @@ export default class AuthDialog extends UIElement<
                                                     },
                                                 )
                                             }
-                                            onConfirm={() => {
+                                            onKeyDown={this.handleEnter(() => {
                                                 this.processEvent(
                                                     'emailPasswordConfirm',
                                                     null,
                                                 )
-                                            }}
+                                            })}
                                         />
                                     </TextInputContainer>
                                     <Margin top={'medium'}>
@@ -443,6 +475,14 @@ export default class AuthDialog extends UIElement<
                                                         },
                                                     )
                                                 }}
+                                                onKeyDown={this.handleEnter(
+                                                    () => {
+                                                        this.processEvent(
+                                                            'emailPasswordConfirm',
+                                                            null,
+                                                        )
+                                                    },
+                                                )}
                                             />
                                         </TextInputContainer>
                                     </Margin>
@@ -565,6 +605,15 @@ export default class AuthDialog extends UIElement<
             return this.renderProfileForm()
         }
         return this.renderAuthForm()
+    }
+
+    handleEnter(f: () => void) {
+        const handler = (event: React.KeyboardEvent<HTMLInputElement>) => {
+            if (event.keyCode === 13) {
+                f()
+            }
+        }
+        return handler
     }
 
     render() {

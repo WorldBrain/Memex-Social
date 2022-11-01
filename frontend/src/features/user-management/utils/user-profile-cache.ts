@@ -15,7 +15,7 @@ export default class UserProfileCache {
     ) {}
 
     loadUser = async (userReference: UserReference): Promise<User | null> => {
-        if (this.users[userReference.id]) {
+        if (await this.users[userReference.id]) {
             return this.users[userReference.id]
         }
 

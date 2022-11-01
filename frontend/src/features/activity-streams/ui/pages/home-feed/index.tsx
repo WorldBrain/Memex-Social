@@ -17,7 +17,9 @@ import DocumentTitle from '../../../../../main-ui/components/document-title'
 import DefaultPageLayout from '../../../../../common-ui/layouts/default-page-layout'
 import LoadingScreen from '../../../../../common-ui/components/loading-screen'
 import { Margin } from 'styled-components-spacing'
-import PageInfoBox from '../../../../../common-ui/components/page-info-box'
+import PageInfoBox, {
+    PageInfoBoxAction,
+} from '../../../../../common-ui/components/page-info-box'
 import AnnotationsInPage from '../../../../annotations/ui/components/annotations-in-page'
 import { SharedAnnotationInPage } from '../../../../annotations/ui/components/types'
 import MessageBox from '../../../../../common-ui/components/message-box'
@@ -41,7 +43,6 @@ import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
 import { IconKeys } from '@worldbrain/memex-common/lib/common-ui/styles/types'
 
 const commentImage = require('../../../../../assets/img/comment.svg')
-const collectionImage = require('../../../../../assets/img/collection.svg')
 
 const StyledIconMargin = styled(Margin)`
     display: flex;
@@ -70,6 +71,28 @@ const FeedContainer = styled.div<{ viewportBreakpoint: ViewportBreakpoint }>`
         css`
             padding: 0 10px 200px 10px;
         `}
+`
+
+const CommentIconBox = styled.div`
+    background: #ffffff09;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 24px;
+    width: fit-content;
+    padding: 0 10px;
+    grid-gap: 6px;
+    cursor: pointer;
+
+    & * {
+        cursor: pointer;
+    }
+`
+
+const Counter = styled.div`
+    color: ${(props) => props.theme.colors.purple};
+    font-size: 14px;
 `
 
 const ActivityType = styled.div`
@@ -102,20 +125,16 @@ const StyledActivityReason = styled.div`
     width: 95%;
     margin-bottom: 15px;
 `
-const ActivityReasonIcon = styled.img`
-    max-width: 15px;
-    max-height: 15px;
-`
 
 const LoadingIndicatorBox = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 50px;
+    height: 60px;
 `
 
 const ActivityReasonLabel = styled.div<{
-    viewportBreakpoint: ViewportBreakpoint
+    viewportBreakpoint?: ViewportBreakpoint
 }>`
     font-family: ${(props) => props.theme.fonts.primary};
     font-weight: normal;
@@ -136,6 +155,13 @@ const ActivityReasonLabel = styled.div<{
         `}
 `
 
+const AnnotationEntriesLoadingContainer = styled.div`
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+`
+
 const LastSeenLineContainer = styled.div<{ shouldShowNewLine: boolean }>`
     margin: ${(props) =>
         !props.shouldShowNewLine ? '20px 0 0px 0' : '100px 0 0px 0'};
@@ -152,19 +178,12 @@ const StyledLastSeenLine = styled.div`
     font-weight: 800;
     margin-bottom: -20px;
 `
-const LastSeenLineBackground = styled.div`
-    position: absolute;
-    background: black;
-    top: 50%;
-    height: 2px;
-    width: 100%;
-    z-index: 1;
-`
 const LastSeenLineLabel = styled.div`
     font-family: ${(props) => props.theme.fonts.primary};
     text-align: center;
     padding: 0 20px;
-    background: #f6f8fb;
+    background: ${(props) => props.theme.darkModeColors.background};
+    color: ${(props) => props.theme.darkModeColors.lighterText};
     z-index: 2;
 `
 
@@ -185,7 +204,7 @@ const LoadMoreReplies = styled.div`
 `
 
 const SectionCircle = styled.div<{ size: string }>`
-    background: ${(props) => props.theme.colors.backgroundHighlight};
+    //background: ${(props) => props.theme.colors.backgroundHighlight};
     border-radius: 100px;
     height: ${(props) => (props.size ? props.size : '60px')};
     width: ${(props) => (props.size ? props.size : '60px')};
@@ -350,7 +369,6 @@ export default class HomeFeedPage extends UIElement<
                         <LastSeenLineContainer
                             shouldShowNewLine={this.state.shouldShowNewLine}
                             id="lastSeenLine"
-                            vertical="medium"
                         >
                             <LastSeenLine />
                         </LastSeenLineContainer>
@@ -428,6 +446,7 @@ export default class HomeFeedPage extends UIElement<
         options,
     ) => {
         const pageInfo = this.state.pageInfo[pageItem.normalizedPageUrl]
+        console.log(pageInfo)
         const pageCreator = this.state.users[pageItem.creatorReference.id]
         return {
             key: getOrderedMapIndex(pageItem.annotations, 0).reference.id,
@@ -438,6 +457,8 @@ export default class HomeFeedPage extends UIElement<
                             {this.renderActivityReason(pageItem)}
                         </Margin>
                         <PageInfoBox
+                            viewportBreakpoint={this.viewportBreakpoint}
+                            variant="dark-mode"
                             onClick={(e) =>
                                 this.processEvent('clickPageResult', {
                                     urlToOpen: pageInfo.originalUrl,
@@ -456,7 +477,7 @@ export default class HomeFeedPage extends UIElement<
                                 userRef: pageItem.creatorReference,
                             }}
                             pageInfo={{
-                                createdWhen: Date.now(),
+                                createdWhen: pageInfo?.createdWhen,
                                 fullTitle: pageInfo?.fullTitle,
                                 normalizedUrl: pageItem?.normalizedPageUrl,
                                 originalUrl: pageInfo?.originalUrl,
@@ -478,6 +499,11 @@ export default class HomeFeedPage extends UIElement<
         }
     }
 
+    isSeen(timestamp: number) {
+        const { lastSeenTimestamp } = this.state
+        return !!lastSeenTimestamp && lastSeenTimestamp > timestamp
+    }
+
     renderAnnotationsInPage = (
         groupId: string,
         parentItem: PageActivityItem | ListActivityItem,
@@ -488,19 +514,22 @@ export default class HomeFeedPage extends UIElement<
 
         return (
             <AnnotationsInPage
+                variant="dark-mode"
                 loadState="success"
                 annotations={mapOrderedMap(
                     filterOrderedMap(annotationItems, (item) => {
                         if (parentItem.reason !== 'new-annotations') {
                             return true
                         }
+                        if (this.isSeen(parentItem.notifiedWhen)) {
+                            return true
+                        }
+
                         const annotation = state.annotations[item.reference.id]
                         const seenState =
-                            state.lastSeenTimestamp &&
-                            annotation &&
-                            (state.lastSeenTimestamp > annotation.updatedWhen
+                            !!annotation && this.isSeen(annotation.updatedWhen)
                                 ? 'seen'
-                                : 'unseen')
+                                : 'unseen'
 
                         return seenState !== 'seen'
                     }),
@@ -565,11 +594,11 @@ export default class HomeFeedPage extends UIElement<
                     if (loadState === 'success') {
                         return null
                     }
-                    if (loadState === 'running') {
+                    if (loadState === 'pristine') {
                         return (
-                            <LoadMoreReplies>
-                                <LoadingIndicator />
-                            </LoadMoreReplies>
+                            <LoadingIndicatorBox>
+                                <LoadingIndicator size={25} />
+                            </LoadingIndicatorBox>
                         )
                     }
                     if (loadState === 'error') {
@@ -585,6 +614,7 @@ export default class HomeFeedPage extends UIElement<
                                 this.processEvent('loadMoreReplies', {
                                     groupId: groupId,
                                     annotationReference,
+                                    listReference: parentItem.listReference,
                                 })
                             }
                         >
@@ -626,6 +656,7 @@ export default class HomeFeedPage extends UIElement<
                             this.processEvent('initiateNewReplyToAnnotation', {
                                 annotationReference,
                                 conversationId: conversationKey,
+                                sharedListReference: parentItem.listReference,
                             })
                     },
                     onNewReplyCancel: (annotationReference) => {
@@ -637,6 +668,7 @@ export default class HomeFeedPage extends UIElement<
                             this.processEvent('cancelNewReplyToAnnotation', {
                                 annotationReference,
                                 conversationId: conversationKey,
+                                sharedListReference: parentItem.listReference,
                             })
                     },
                     onNewReplyConfirm: (annotationReference) => {
@@ -648,6 +680,7 @@ export default class HomeFeedPage extends UIElement<
                             this.processEvent('confirmNewReplyToAnnotation', {
                                 annotationReference,
                                 conversationId: conversationKey,
+                                sharedListReference: parentItem.listReference,
                             })
                     },
                     onNewReplyEdit: (annotationReference) => {
@@ -660,6 +693,7 @@ export default class HomeFeedPage extends UIElement<
                                 content,
                                 annotationReference,
                                 conversationId: conversationKey,
+                                sharedListReference: parentItem.listReference,
                             })
                     },
                 }}
@@ -671,6 +705,7 @@ export default class HomeFeedPage extends UIElement<
                     return this.processEvent('toggleAnnotationReplies', {
                         ...event,
                         conversationId: conversationKey,
+                        sharedListReference: parentItem.listReference,
                     })
                 }}
             />
@@ -706,85 +741,104 @@ export default class HomeFeedPage extends UIElement<
                             if (!shouldRender) {
                                 return null
                             }
-
-                            const creator = state.users[entry.creator.id]
-                            return (
-                                <>
-                                    <Margin
-                                        bottom="small"
-                                        key={entry.normalizedUrl}
-                                    >
-                                        <PageInfoBox
-                                            onClick={(e) =>
+                            const actions: PageInfoBoxAction[] = []
+                            if (
+                                entry.annotationEntriesLoadState === 'running'
+                            ) {
+                                actions.push({
+                                    node: (
+                                        <AnnotationEntriesLoadingContainer>
+                                            <Margin right="medium">
+                                                <LoadingIndicator size={16} />
+                                            </Margin>
+                                        </AnnotationEntriesLoadingContainer>
+                                    ),
+                                })
+                            } else if (entry.hasAnnotations) {
+                                actions.push({
+                                    node: (
+                                        <CommentIconBox
+                                            onClick={() =>
                                                 this.processEvent(
-                                                    'clickPageResult',
+                                                    'toggleListEntryActivityAnnotations',
                                                     {
-                                                        urlToOpen:
-                                                            entry.originalUrl,
-                                                        preventOpening: () =>
-                                                            e.preventDefault(),
-                                                        isFeed: true,
+                                                        listReference:
+                                                            listItem.listReference,
+                                                        listEntryReference:
+                                                            entry.reference,
+                                                        groupId:
+                                                            listItem.groupId,
                                                     },
                                                 )
                                             }
-                                            type={
-                                                isPagePdf({
-                                                    url: entry.normalizedUrl,
-                                                })
-                                                    ? 'pdf'
-                                                    : 'page'
-                                            }
-                                            profilePopup={{
-                                                services: this.props.services,
-                                                storage: this.props.storage,
-                                                userRef: entry.creator,
-                                            }}
-                                            pageInfo={{
-                                                fullTitle: entry.entryTitle,
-                                                originalUrl: entry.originalUrl,
-                                                createdWhen:
-                                                    entry.activityTimestamp,
-                                                normalizedUrl:
-                                                    entry.normalizedUrl,
-                                            }}
-                                            creator={creator}
-                                            actions={
-                                                entry.hasAnnotations
-                                                    ? [
-                                                          {
-                                                              image: commentImage,
-                                                              onClick: () =>
-                                                                  this.processEvent(
-                                                                      'toggleListEntryActivityAnnotations',
-                                                                      {
-                                                                          listReference:
-                                                                              listItem.listReference,
-                                                                          listEntryReference:
-                                                                              entry.reference,
-                                                                          groupId:
-                                                                              listItem.groupId,
-                                                                      },
-                                                                  ),
-                                                          },
-                                                      ]
-                                                    : []
-                                            }
-                                        />
-                                        {entry.annotationsLoadState ===
-                                            'running' && (
-                                            <LoadingIndicatorBox>
-                                                <LoadingIndicator />
-                                            </LoadingIndicatorBox>
+                                        >
+                                            {/* {count.length > 0 && <Counter>{count}</Counter>} */}
+                                            <Icon
+                                                icon={commentImage}
+                                                heightAndWidth={'16px'}
+                                                hoverOff
+                                            />
+                                        </CommentIconBox>
+                                    ),
+                                })
+                            }
+
+                            const creator = state.users[entry.creator.id]
+                            return (
+                                <Margin
+                                    bottom="small"
+                                    key={entry.normalizedUrl}
+                                >
+                                    <PageInfoBox
+                                        onClick={(e) =>
+                                            this.processEvent(
+                                                'clickPageResult',
+                                                {
+                                                    urlToOpen:
+                                                        entry.originalUrl,
+                                                    preventOpening: () =>
+                                                        e.preventDefault(),
+                                                    isFeed: true,
+                                                },
+                                            )
+                                        }
+                                        type={
+                                            isPagePdf({
+                                                url: entry.normalizedUrl,
+                                            })
+                                                ? 'pdf'
+                                                : 'page'
+                                        }
+                                        profilePopup={{
+                                            services: this.props.services,
+                                            storage: this.props.storage,
+                                            userRef: entry.creator,
+                                        }}
+                                        pageInfo={{
+                                            fullTitle: entry.entryTitle,
+                                            originalUrl: entry.originalUrl,
+                                            createdWhen:
+                                                entry.activityTimestamp,
+                                            normalizedUrl: entry.normalizedUrl,
+                                        }}
+                                        creator={creator}
+                                        actions={actions}
+                                        variant="dark-mode"
+                                    />
+                                    {entry.annotationsLoadState ===
+                                        'running' && (
+                                        <LoadingIndicatorBox>
+                                            <LoadingIndicator size={25} />
+                                        </LoadingIndicatorBox>
+                                    )}
+                                    {entry.areAnnotationsShown &&
+                                        this.renderAnnotationsInPage(
+                                            listItem.groupId,
+                                            listItem,
+                                            entry.annotations,
+                                            options,
                                         )}
-                                        {entry.areAnnotationsShown &&
-                                            this.renderAnnotationsInPage(
-                                                listItem.groupId,
-                                                listItem,
-                                                entry.annotations,
-                                                options,
-                                            )}
-                                    </Margin>
-                                </>
+                                </Margin>
                             )
                         },
                         (inputArr) =>
@@ -895,7 +949,7 @@ export default class HomeFeedPage extends UIElement<
 const ActivityReason = (props: {
     icon: IconKeys
     label: React.ReactChild
-    viewportBreakpoint: ViewportBreakpoint
+    viewportBreakpoint?: ViewportBreakpoint
 }) => {
     return (
         <StyledActivityReason>
@@ -937,9 +991,9 @@ class LastSeenLineState {
     }
 }
 
-function LastSeenLine(shouldShowNewLine: boolean) {
+function LastSeenLine() {
     return (
-        <StyledLastSeenLine shouldShowNewLine={shouldShowNewLine}>
+        <StyledLastSeenLine>
             <Icon icon="checkedRound" heightAndWidth="20px" hoverOff />
             <LastSeenLineLabel>Read</LastSeenLineLabel>
             <Separator />

@@ -9,7 +9,7 @@ import { Storage } from '../../storage/types'
 
 export function scenario<
     Targets extends {
-        [name: string]: { events: UIEvent<{}>; signals?: UISignal<any> }
+        [name: string]: { events: UIEvent<any>; signals?: UISignal<any> }
     }
 >(
     builder: (options: {

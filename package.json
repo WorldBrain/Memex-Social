@@ -20,6 +20,7 @@
         "immutability-helper": "^3.0.0",
         "react": "^17.0.1",
         "react-dom": "^17.0.2",
+        "react-onclickoutside": "^6.12.2",
         "styled-components": "^5.1.1",
         "typeface-inter": "^3.18.1",
         "ui-logic-core": "^0.2.1",
@@ -40,6 +41,6 @@
         "pretty-quick": "^3.1.0",
         "toposort": "^2.0.2",
         "ts-node": "^8.10.2",
-        "typescript": "^3.9.5"
+        "typescript": "^4.6.3"
     }
 }

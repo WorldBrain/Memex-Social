@@ -1,6 +1,6 @@
 import createBrowserHistory from 'history/createBrowserHistory'
 import debounce from 'lodash/debounce'
-import firebase from 'firebase'
+import firebase from 'firebase/compat'
 import { StorageHooksChangeWatcher } from '@worldbrain/memex-common/lib/storage/hooks'
 import { getUiMountpoint, getDefaultUiRunner } from '../main-ui'
 import { createServices } from '../services'
@@ -75,6 +75,7 @@ export async function mainProgram(
         storageHooksChangeWatcher.setUp({
             fetch,
             services,
+            captureException: async (error) => undefined, // TODO: maybe implement this
             serverStorageManager: storage.serverStorageManager,
             getCurrentUserReference: async () =>
                 services.auth.getCurrentUserReference(),

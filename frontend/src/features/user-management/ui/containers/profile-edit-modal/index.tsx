@@ -1,5 +1,5 @@
 import React from 'react'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { Margin } from 'styled-components-spacing'
 
 import { UIElement } from '../../../../../main-ui/classes'
@@ -13,13 +13,8 @@ import { ProfileWebLinkName, UserPublicProfile } from '../../../types'
 
 import { theme } from '../../../../../main-ui/styles/theme'
 import ProfileEditModalLogic from './logic'
-import {
-    PrimaryActionButton,
-    SecondaryActionButton,
-} from '../../components/ActionButtons'
-import TextInput from '../../../../../common-ui/components/text-input'
+import { SecondaryActionButton } from '../../components/ActionButtons'
 import { VALID_URL_TEST } from '../../../../../constants'
-import TextArea from '../../../../../common-ui/components/text-area'
 import Overlay from '../../../../../main-ui/containers/overlay'
 import { UITaskState } from '../../../../../main-ui/types'
 import LoadingScreen from '../../../../../common-ui/components/loading-screen'
@@ -27,15 +22,16 @@ import ErrorBox from '../../../../../common-ui/components/error-box'
 import { PrimaryAction } from '../../../../../common-ui/components/PrimaryAction'
 import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
 import { SecondaryAction } from '../../../../../common-ui/components/SecondaryAction'
+import LoadingIndicator from '../../../../../common-ui/components/loading-indicator'
 
-const Container = styled.div<{ theme: Theme }>`
+const Container = styled.div<{ loadState: UITaskState; theme: Theme }>`
     margin: auto;
     min-height: 358px;
     max-height: 100%;
     width: 520px;
     flex-direction: column;
 
-    background-color: ${(props) => props.theme.colors.background};
+    background-color: ${(props) => props.theme.darkModeColors.background};
     padding-left: ${(props) => props.theme.spacing.small};
     padding-right: ${(props) => props.theme.spacing.small};
     padding-top: ${(props) => props.theme.spacing.small};
@@ -43,6 +39,12 @@ const Container = styled.div<{ theme: Theme }>`
     & * {
         font-family: ${(props) => props.theme.fonts.primary};
     }
+
+    ${(props) =>
+        (props.loadState === 'running' || props.loadState === 'pristine') &&
+        css`
+            background: transparent;
+        `}
 `
 
 const TextInputContainer = styled.div`
@@ -51,7 +53,7 @@ const TextInputContainer = styled.div`
     grid-gap: 10px;
     align-items: center;
     justify-content: flex-start;
-    border: 1px solid ${(props) => props.theme.colors.lineLightGrey};
+    border: 1px solid ${(props) => props.theme.darkModeColors.lineLightGrey};
     min-height: 50px;
     border-radius: 8px;
     width: 100%;
@@ -67,7 +69,7 @@ const TextInputOneLine = styled.input`
     font-size: 14px;
     border: none;
     background: transparent;
-    color: ${(props) => props.theme.colors.darkerText};
+    color: ${(props) => props.theme.colors.lighterText};
 
     &::placeholder {
         color: #96a0b5;
@@ -88,10 +90,6 @@ const ButtonContainer = styled.div`
     height: min-content;
     display: flex;
     justify-content: flex-start;
-`
-
-const FormRow = styled.div`
-    display: flex;
 `
 
 const TextInputInfoText = styled.div`
@@ -119,12 +117,12 @@ const SectionHeader = styled.div<{
     font-weight: 800;
     font-size: ${(props) => (props.small ? '16px' : '22px')};
     line-height: ${(props) => props.theme.lineHeights.header};
-    color: ${(props) => props.theme.colors.darkerText};
+    color: ${(props) => props.theme.darkModeColors.lighterText};
     text-align: left;
 `
 
 const SectionHeaderDescription = styled(SectionHeader)`
-    font-weight: ${(props) => props.theme.fontWeights.normal};
+    font-weight: 'normal';
     font-size: ${(props) => props.theme.fontSizes.text};
     line-height: ${(props) => props.theme.lineHeights.text};
     padding-bottom: ${(props) => props.theme.spacing.small};
@@ -136,14 +134,6 @@ const WebLink = styled(SectionHeaderDescription)`
     padding-left: 5px;
     font-size: inherit;
     color: inherit;
-`
-
-const FormColumn = styled.div<{
-    maxWidth?: string
-}>`
-    display: flex;
-    flex-direction: column;
-    width: 100%;
 `
 
 const DisplayNameContainer = styled.div`
@@ -180,6 +170,28 @@ const EmailBox = styled.div`
     grid-gap: 10px;
 `
 
+const ErrorMessage = styled.div`
+    margin: 15px 0px;
+    padding: 20px;
+    background: ${(props) => props.theme.colors.warning};
+    color: ${(props) => props.theme.colors.white};
+    font-weight: normal;
+    display: flex;
+    font-size: 14px;
+    grid-gap: 10px;
+    align-items: center;
+    border-radius: 8px;
+    justify-content: center;
+`
+
+const LoadingBox = styled.div`
+    width: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+`
+
 // const LargeUserAvatar = styled.div<{ path: string }>`
 //     height: 100px;
 //     width: 100px;
@@ -204,27 +216,10 @@ const EmailBox = styled.div`
 //     background-size: contain;
 // `
 
-const StyledPrimaryButton = styled(PrimaryActionButton)<{
-    theme: Theme
-    taskState: UITaskState
-}>`
-    background: ${(props) =>
-        props.taskState === 'pristine' || props.taskState === 'success'
-            ? props.theme.colors.purple
-            : props.taskState === 'running' || props.disabled
-            ? props.theme.colors.background
-            : props.theme.colors.warning};
-    ${(props) =>
-        props.taskState === 'running' || props.disabled
-            ? `1px solid ${props.theme.colors.purple};`
-            : ''}
-    padding-top: 0;
-    padding-bottom: 0;
-`
-
 const StyledSecondaryButton = styled(SecondaryActionButton)`
     padding-top: 0;
     padding-bottom: 0;
+    color: ${(props) => props.theme.darkModeColors.lighterText};
 `
 
 const ResetEmailConfirmation = styled.div`
@@ -249,8 +244,6 @@ export default class ProfileEditModal extends UIElement<
 
     private webMonetizationLearnMoreURL: string =
         'https://worldbrain.io/tutorial/WebMonetization-Curator'
-    private displayNameErrorMessage: string = 'Display Name must not be empty'
-    private urlInputErrorMessage: string = 'This must be a valid URL'
 
     handleSaveClick() {
         this.runAllTests()
@@ -289,7 +282,7 @@ export default class ProfileEditModal extends UIElement<
     }
 
     confirmEmailChange(value: string) {
-        this.processEvent('confirmEmailChange', { value: value })
+        this.processEvent('confirmEmailChange', { value })
     }
 
     handleSetProfileValue(key: keyof UserPublicProfile, value: string): void {
@@ -297,7 +290,7 @@ export default class ProfileEditModal extends UIElement<
     }
 
     sendPasswordResetEmail(value: string) {
-        this.processEvent('sendPasswordResetEmail', { value: value })
+        this.processEvent('sendPasswordResetEmail', { value })
     }
 
     handleURLChange = (
@@ -307,8 +300,8 @@ export default class ProfileEditModal extends UIElement<
     ) => {
         if (this.state.inputErrorArray[errorIndex]) {
             const newArray = [...this.state.inputErrorArray]
-            const profileTypesHack: { [key: string]: string } = {
-                ...this.state.userPublicProfile,
+            const profileTypesHack: { [key: string]: string | undefined } = {
+                ...(this.state.userPublicProfile ?? {}),
             }
             newArray[errorIndex] = this.testValidURL(
                 profileTypesHack[urlPropName],
@@ -322,8 +315,8 @@ export default class ProfileEditModal extends UIElement<
         return !this.state.user?.displayName
     }
 
-    testValidURL(url: string): boolean {
-        return !VALID_URL_TEST.test(url)
+    testValidURL(url?: string): boolean {
+        return url ? !VALID_URL_TEST.test(url) : false
     }
 
     handleWebLinkClick = (url: string): void => {
@@ -357,7 +350,10 @@ export default class ProfileEditModal extends UIElement<
         }
 
         return (
-            <Container onKeyDown={this.handleEnterKeyDown}>
+            <Container
+                loadState={loadState}
+                onKeyDown={this.handleEnterKeyDown}
+            >
                 <Margin bottom="large">
                     <ButtonContainer>
                         <PrimaryAction
@@ -501,16 +497,31 @@ export default class ProfileEditModal extends UIElement<
                             }
                         />
                     </TextInputContainer>
-                    {this.state.showEmailEditButton &&
-                        !this.state.emailEditSuccess && (
-                            <PrimaryAction
-                                label={'Save new email'}
-                                onClick={() =>
-                                    this.confirmEmailChange(this.state.email)
-                                }
-                            />
-                        )}
-                    {this.state.emailEditSuccess && (
+                    {this.state.showEmailEditButton && (
+                        <>
+                            {this.state.emailEditSuccess === 'pristine' && (
+                                <PrimaryAction
+                                    label={'Save new email'}
+                                    onClick={() =>
+                                        this.confirmEmailChange(
+                                            this.state.email,
+                                        )
+                                    }
+                                />
+                            )}
+                            {this.state.emailEditSuccess === 'running' && (
+                                <PrimaryAction
+                                    label={
+                                        <LoadingBox>
+                                            <LoadingIndicator size={16} />
+                                        </LoadingBox>
+                                    }
+                                    onClick={() => null}
+                                />
+                            )}
+                        </>
+                    )}
+                    {this.state.emailEditSuccess === 'success' && (
                         <SectionCircle size="30px">
                             <Icon
                                 icon={'check'}
@@ -520,6 +531,17 @@ export default class ProfileEditModal extends UIElement<
                         </SectionCircle>
                     )}
                 </EmailBox>
+                {this.state.emailEditSuccess === 'error' && (
+                    <ErrorMessage>
+                        <Icon
+                            icon={'warning'}
+                            heightAndWidth="20px"
+                            color="white"
+                        />
+                        Please log out and login again to change your email
+                        address.
+                    </ErrorMessage>
+                )}
                 <Margin top={'medium'}>
                     {!this.state.passwordResetSuccessful ? (
                         <SecondaryAction

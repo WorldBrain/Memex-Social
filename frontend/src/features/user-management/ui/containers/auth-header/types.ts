@@ -15,7 +15,7 @@ export interface AuthHeaderState {
     showMenu: boolean
     showSettings: boolean
     showAccountSettings: boolean
-    mememxInstalled: boolean
+    isMemexInstalled: boolean
 }
 
 export type AuthHeaderEvent = UIEvent<{

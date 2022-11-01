@@ -40,7 +40,6 @@ import { AnnotationConversationState } from '../../../../content-conversations/u
 import {
     createOrderedMap,
     arrayToOrderedMap,
-    OrderedMap,
 } from '../../../../../utils/ordered-map'
 import {
     User,
@@ -85,21 +84,22 @@ export default class HomeFeedLogic extends UILogic<
             this,
             annotationConversationEventHandlers<HomeFeedState>(this as any, {
                 ...setupConversationLogicDeps(this.dependencies),
-                getSharedListReference: (params) => {
-                    const { groupId } = splitConversationKey(
-                        params.conversationId,
-                    )
-                    const activityItem = findActivityItem(
-                        params.state.activityItems,
-                        groupId,
-                    )
-                    if (!activityItem) {
-                        throw new Error(
-                            `Could not save reply: can't find activity item`,
-                        )
-                    }
-                    return activityItem.listReference
-                },
+                // TODO: see if this needs to be brought back in (likely lost in memex-common merging)
+                // getSharedListReference: (params) => {
+                //     const { groupId } = splitConversationKey(
+                //         params.conversationId,
+                //     )
+                //     const activityItem = findActivityItem(
+                //         params.state.activityItems,
+                //         groupId,
+                //     )
+                //     if (!activityItem) {
+                //         throw new Error(
+                //             `Could not save reply: can't find activity item`,
+                //         )
+                //     }
+                //     return activityItem.listReference
+                // },
                 selectAnnotationData: (state, reference) => {
                     const annotation = state.annotations[reference.id]
                     if (!annotation) {
@@ -159,7 +159,7 @@ export default class HomeFeedLogic extends UILogic<
         const userReference = this.dependencies.services.auth.getCurrentUserReference()
         if (!userReference) {
             // Firebase auth doesn't immediately detect authenticated users, so wait if needed
-            await new Promise((resolve) => {
+            await new Promise<void>((resolve) => {
                 this.dependencies.services.auth.events.once('changed', () => {
                     resolve()
                 })
@@ -175,12 +175,12 @@ export default class HomeFeedLogic extends UILogic<
     getLastSeenLinePosition: EventHandler<'getLastSeenLinePosition'> = async ({
         previousState,
     }) => {
-        const LastSeenLineID = document.getElementById('lastSeenLine')
+        const lastSeenLineID = document.getElementById('lastSeenLine')
 
-        if (LastSeenLineID) {
+        if (lastSeenLineID) {
             const seenLinePosition = Array.from(
-                LastSeenLineID?.parentNode?.children,
-            ).indexOf(LastSeenLineID)
+                lastSeenLineID?.parentNode?.children ?? [],
+            ).indexOf(lastSeenLineID)
             if (seenLinePosition === 1) {
                 this.emitMutation({ shouldShowNewLine: { $set: false } })
             }
@@ -249,14 +249,16 @@ export default class HomeFeedLogic extends UILogic<
                     contentConversations,
                 } = this.dependencies.storage
 
-                const annotations = await contentSharing.getAnnotationsByCreatorAndPageUrl(
+                const annotations = await contentSharing.getListAnnotationsByCreatorAndPageUrl(
                     {
+                        sharedListReference: event.listReference,
                         normalizedPageUrl: entry.normalizedUrl,
                         creatorReference: entry.creator,
                     },
                 )
                 const repliesByAnnotation = await contentConversations.getRepliesByAnnotations(
                     {
+                        sharedListReference: event.listReference,
                         annotationReferences: annotations.map(
                             (annotation) => annotation.reference,
                         ),
@@ -335,7 +337,8 @@ export default class HomeFeedLogic extends UILogic<
                         annotationReference: annotation.reference,
                     })
                     conversationsData[conversationKey] = {
-                        loadState: 'pristine',
+                        loadState: 'success',
+                        hasThreadLoadLoadState: 'success',
                         expanded: false,
                         newReply: getInitialNewReplyState(),
                         replies: await Promise.all(
@@ -390,7 +393,7 @@ export default class HomeFeedLogic extends UILogic<
     }
 
     loadMoreReplies: EventHandler<'loadMoreReplies'> = async (incoming) => {
-        const { groupId, annotationReference } = incoming.event
+        const { groupId, annotationReference, listReference } = incoming.event
         const conversationKey = getConversationKey({
             groupId,
             annotationReference,
@@ -406,7 +409,8 @@ export default class HomeFeedLogic extends UILogic<
             async () => {
                 const rep = await this.dependencies.storage.contentConversations.getRepliesByAnnotation(
                     {
-                        annotationReference: incoming.event.annotationReference,
+                        annotationReference,
+                        sharedListReference: listReference,
                     },
                 )
                 const replies = rep.filter(
@@ -483,39 +487,64 @@ export default class HomeFeedLogic extends UILogic<
                 continue
             }
 
-            for (const entryKey of activityItem.entries.order) {
-                const listEntry = activityItem.entries.items[entryKey]
-
-                const hasAnnotations = await this.dependencies.storage.contentSharing.doesAnnotationExistForPageInList(
-                    {
-                        listReference: activityItem.listReference,
-                        normalizedPageUrl: listEntry.normalizedUrl,
-                    },
-                )
-
-                // They're set false by default, so only emit mutation if otherwise
-                if (!hasAnnotations) {
-                    continue
-                }
-
-                this.emitMutation({
-                    activityItems: {
-                        items: {
-                            [activityItemKey]: {
-                                entries: {
-                                    items: {
-                                        [entryKey]: {
-                                            hasAnnotations: {
-                                                $set: hasAnnotations,
+            await Promise.all(
+                activityItem.entries.order.map(async (entryKey) => {
+                    await executeUITask<HomeFeedState>(
+                        this,
+                        (taskState) => ({
+                            activityItems: {
+                                items: {
+                                    [activityItemKey]: {
+                                        entries: {
+                                            items: {
+                                                [entryKey]: {
+                                                    annotationEntriesLoadState: {
+                                                        $set: taskState,
+                                                    },
+                                                },
                                             },
                                         },
                                     },
                                 },
                             },
+                        }),
+                        async () => {
+                            const listEntry =
+                                activityItem.entries.items[entryKey]
+
+                            const hasAnnotations = await this.dependencies.storage.contentSharing.doesAnnotationExistForPageInList(
+                                {
+                                    listReference: activityItem.listReference,
+                                    normalizedPageUrl: listEntry.normalizedUrl,
+                                },
+                            )
+
+                            // They're set false by default, so only emit mutation if otherwise
+                            if (!hasAnnotations) {
+                                return
+                            }
+
+                            this.emitMutation({
+                                activityItems: {
+                                    items: {
+                                        [activityItemKey]: {
+                                            entries: {
+                                                items: {
+                                                    [entryKey]: {
+                                                        hasAnnotations: {
+                                                            $set: hasAnnotations,
+                                                        },
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            })
                         },
-                    },
-                })
-            }
+                    )
+                }),
+            )
         }
     }
 
@@ -555,6 +584,7 @@ export default class HomeFeedLogic extends UILogic<
         const threads = await this.dependencies.storage.contentConversations.getThreadsForAnnotations(
             {
                 annotationReferences,
+                sharedListReference: null, // TODO: verify this doesn't need to be supplied
             },
         )
         const conversationsMutations: UIMutation<
@@ -637,11 +667,14 @@ export default class HomeFeedLogic extends UILogic<
                 const replies = organized.data?.replies[conversationKey]
                 const annotationReplies =
                     activityData.annotationItems[conversationKey].replies
+                const loadState =
+                    organized.conversationLoadStates[conversationKey] ??
+                    'success'
                 conversations[conversationKey] = {
                     ...conversations[conversationKey],
-                    loadState:
-                        organized.conversationLoadStates[conversationKey] ??
-                        'success',
+                    loadState,
+                    hasThreadLoadLoadState:
+                        loadState === 'success' ? 'success' : 'pristine',
                     expanded: annotationReplies.length > 0,
                     replies: annotationReplies
                         .map((replyItem) => {
@@ -843,6 +876,7 @@ export function organizeActivities(
                         ({ activity }): ListEntryActivityItem => ({
                             type: 'list-entry-item',
                             areAnnotationsShown: false,
+                            annotationEntriesLoadState: 'pristine',
                             annotations: createOrderedMap(),
                             annotationsLoadState: 'pristine',
                             reference: activity.entry.reference,
@@ -863,7 +897,8 @@ export function organizeActivities(
                     entryActivity.activity.entryCreator
             }
         } else if (
-            (activityGroup.entityType === 'sharedListEntry' ||
+            (activityGroup.entityType === 'sharedList' ||
+                activityGroup.entityType === 'sharedListEntry' ||
                 activityGroup.entityType === 'sharedPageInfo') &&
             activityGroup.activityType === 'annotationListEntry'
         ) {
@@ -949,14 +984,14 @@ export function organizeActivities(
     }
 }
 
-function findActivityItem(
-    activityItems: OrderedMap<ActivityItem>,
-    groupId: string,
-) {
-    return Object.values(activityItems.items).find(
-        (item) => item.groupId === groupId,
-    )
-}
+// function findActivityItem(
+//     activityItems: OrderedMap<ActivityItem>,
+//     groupId: string,
+// ) {
+//     return Object.values(activityItems.items).find(
+//         (item) => item.groupId === groupId,
+//     )
+// }
 
 export function getConversationKey(input: {
     groupId: string

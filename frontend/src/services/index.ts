@@ -1,5 +1,5 @@
 import { History } from 'history'
-import firebaseModule from 'firebase'
+import firebaseModule from 'firebase/compat'
 import { firebaseService } from '@worldbrain/memex-common/lib/firebase-backend/services/client'
 import FirebaseFunctionsActivityStreamsService from '@worldbrain/memex-common/lib/activity-streams/services/firebase-functions/client'
 import MemoryStreamsService from '@worldbrain/memex-common/lib/activity-streams/services/memory'
@@ -31,7 +31,7 @@ import UserManagementService from '../features/user-management/service'
 import FirebaseWebMonetizationService from '../features/web-monetization/service/firebase'
 import { MemoryLocalStorageService } from './local-storage/memory'
 import { BrowserLocalStorageService } from './local-storage/browser'
-import { ContentSharingService } from '../features/content-sharing/service'
+import { ListKeysService } from '../features/content-sharing/service'
 import { ProgramQueryParams } from '../setup/types'
 import ClipboardService from './clipboard'
 
@@ -155,10 +155,7 @@ export function createServices(options: {
         options.backend === 'memory'
             ? new ContentSharingBackend({
                   storageManager: options.storage.serverStorageManager,
-                  contentSharing: options.storage.serverModules.contentSharing,
-                  activityFollows:
-                      options.storage.serverModules.activityFollows,
-                  userMessages,
+                  storageModules: options.storage.serverModules,
                   getCurrentUserId: async () =>
                       auth.getCurrentUserReference()?.id ?? null,
               })
@@ -199,11 +196,11 @@ export function createServices(options: {
         }),
         activityStreams,
         userManagement,
-        contentSharing: new ContentSharingService({
-            backend: contentSharingBackend,
-            router,
+        listKeys: new ListKeysService({
             isAuthenticated: () => !!auth.getCurrentUser(),
             storage: options.storage.serverModules,
+            backend: contentSharingBackend,
+            router,
         }),
         contentConversations: new ContentConversationsService({
             storage: options.storage.serverModules.contentConversations,

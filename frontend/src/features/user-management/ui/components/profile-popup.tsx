@@ -12,18 +12,17 @@ import {
 import { UITaskState } from '../../../../main-ui/types'
 
 import { theme } from '../../../../main-ui/styles/theme'
-import LoadingScreen from '../../../../common-ui/components/loading-screen'
 import { StorageModules } from '../../../../storage/types'
 import { UIElementServices } from '../../../../services/types'
 import Icon from '../../../../common-ui/components/icon'
 import { HoverBox } from '../../../../common-ui/components/hoverbox'
+import LoadingIndicator from '@worldbrain/memex-common/lib/common-ui/components/loading-indicator'
 
 export const PopupContainer = styled.div<{ theme: Theme }>`
     position: absolute;
     width: 270px;
     font-family: ${(props) => props.theme.fonts.primary};
     color: ${(props) => props.theme.colors.primary};
-    background-color: ${(props) => props.theme.colors.background};
     padding: 15px;
     border-radius: ${(props) => props.theme.borderRadii.default};
     z-index: ${(props) => props.theme.zIndices.overlay};
@@ -31,10 +30,10 @@ export const PopupContainer = styled.div<{ theme: Theme }>`
 `
 
 const ProfileHoverarea = styled.div`
-    height: 200px;
     width: 270px;
     position: absolute;
-    padding-top: 10px;
+    padding-top: 2px;
+    height: fit-content;
 `
 
 const ProfileContainer = styled.div`
@@ -63,7 +62,7 @@ const ProfileHeader = styled.div`
     height: min-content;
     display: flex;
     justify-content: start;
-    color: ${(props) => props.theme.colors.darkerText};
+    color: ${(props) => props.theme.darkModeColors.lighterText};
 `
 
 const ProfileHeaderInnerContainer = styled.div<{ theme: Theme }>`
@@ -94,12 +93,14 @@ const WebLinksContainer = styled.div`
 const ProfileBio = styled(Margin)<{ theme: Theme }>`
     width: 100%;
     height: min-content;
-    font-size: ${(props) => props.theme.fontSizes.text};
+    font-size: 14px;
     line-height: ${(props) => props.theme.lineHeights.text};
     display: block;
     justify-content: flex-start;
     float: left;
     text-align: left;
+    color: ${(props) => props.theme.colors.lighterText};
+    white-space: pre-wrap;
 `
 
 interface ProfilePopupProps {
@@ -126,7 +127,7 @@ export default class ProfilePopup extends PureComponent<ProfilePopupProps> {
             return (
                 <HoverBox padding="0px">
                     <LoadingContainer>
-                        <LoadingScreen />
+                        <LoadingIndicator size={30} />
                     </LoadingContainer>
                 </HoverBox>
             )

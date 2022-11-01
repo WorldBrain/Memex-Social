@@ -1,11 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
-import {
-    fontSizeSmall,
-    TypographyActionText,
-} from '../components/design-library/typography'
+import { TypographyActionText } from '../components/design-library/typography'
 import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
-import { IconProps } from '@worldbrain/memex-common/lib/common-ui/components/icon'
 import {
     IconKeys,
     ColorThemeKeys,
@@ -40,7 +36,7 @@ const StyledPrimaryAction = styled.div`
 `
 
 const StyledPrimaryActionLinkText = styled(TypographyActionText)`
-    font-size: ${(props) => (props.fontSize ? props.fontSize : '14px')};
+    font-size: 14px;
     color: white;
 `
 export const PrimaryAction = ({
@@ -66,7 +62,7 @@ export const PrimaryAction = ({
 }) => (
     <StyledPrimaryAction
         tabIndex={0}
-        onClick={onClick as any}
+        onClick={onClick}
         ref={innerRef}
         onKeyPress={(e) => (e.key === 'Enter' ? onClick(e as any) : false)}
     >

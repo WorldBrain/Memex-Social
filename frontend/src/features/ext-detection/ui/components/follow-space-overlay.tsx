@@ -4,7 +4,6 @@ import Overlay from '../../../../main-ui/containers/overlay'
 import { ViewportBreakpoint } from '../../../../main-ui/styles/types'
 import { UIElementServices } from '../../../../services/types'
 import { Margin } from 'styled-components-spacing'
-import ExternalLink from '../../../../common-ui/components/external-link'
 import { PrimaryAction } from '../../../../common-ui/components/PrimaryAction'
 
 const noteIcon = require('../../../../assets/img/comment.svg')
@@ -14,7 +13,7 @@ const Content = styled.div<{
 }>`
     max-width: 900px;
     min-width: 500px;
-    display: flex;
+    display: inline-block;
     justify-content: center;
     align-items: center;
     flex-direction: column;
@@ -29,7 +28,7 @@ const Content = styled.div<{
         props.viewportBreakpoint === 'small' &&
         css`
             max-width: 90%;
-            padding: 20px;
+            padding: 40px 20px;
         `}
     ${(props) =>
         props.viewportBreakpoint === 'mobile' &&
@@ -43,15 +42,16 @@ const Content = styled.div<{
 const Title = styled.div<{
     viewportBreakpoint: ViewportBreakpoint
 }>`
-    font-weight: bold;
+    font-weight: 800;
     font-size: 22px;
-    color: ${(props) => props.theme.colors.primary};
+    color: ${(props) => props.theme.colors.darkerText};
     text-align: center;
+    margin-bottom: 5px;
 
     ${(props) =>
         props.viewportBreakpoint === 'small' &&
         css`
-            font-size: 18px;
+            font-size: 20px;
         `}
     ${(props) =>
         props.viewportBreakpoint === 'mobile' &&
@@ -61,64 +61,34 @@ const Title = styled.div<{
 `
 
 const SubTitle = styled.div`
-    font-size: 1rem;
-    color: ${(props) => props.theme.colors.purple};
+    font-size: 16px;
+    color: ${(props) => props.theme.colors.lighterText};
     margin-bottom: 10px;
     margin-top: 10px;
     pointer-events: none;
     text-align: center;
+    line-height: 26px;
 
     & * {
-        color: ${(props) => props.theme.colors.purple} !important;
+        color: ${(props) => props.theme.colors.lighterText} !important;
         font-size: 1rem !important;
     }
 `
 
-const NoteIconContainer = styled.img`
+const NoteIconContainer = styled.div`
     height: 16px;
     width: 16px;
-    display: flex;
+    display: inline-block;
     mask-image: url(${noteIcon});
-    background-color: ${(props) => props.theme.colors.primary};
+    background-color: ${(props) => props.theme.colors.lighterText};
     mask-position: center center;
     mask-repeat: no-repeat;
     margin: 0 5px;
     height: 19px;
     width: 16px;
     mask-size: contain;
-`
-
-const SubSubTitle = styled.div`
-    font-size: 0.8rem;
-    color: ${(props) => props.theme.colors.darkgrey};
-    text-align: center;
-    display: inline-flex;
-    justiy-content: center;
-    align-items: center;
-    flex-direction: column;
-`
-
-const SubSubSubTitle = styled.div`
-    font-size: 0.8rem;
-    color: ${(props) => props.theme.colors.darkgrey};
-    text-align: center;
-    display: inline-box;
-    justiy-content: center;
-    align-items: center;
-    white-space: nowrap;
-`
-
-const BrowserIconsBox = styled.div`
-    display: grid;
-    padding: 15px 0px;
-    justify-content: space-between;
-    grid-auto-flow: column;
-    grid-gap: 30px;
-`
-
-const BrowserIcon = styled.img`
-    height: 40px;
-    cursor: pointer;
+    padding: 2px;
+    vertical-align: text-bottom;
 `
 
 const ButtonsBox = styled.div`
@@ -127,7 +97,7 @@ const ButtonsBox = styled.div`
     width: 250px;
     padding: 15px 0px;
     align-items: center;
-    width: 120%;
+    width: 100%;
     justify-content: center;
     margin-bottom: -30px;
     margin-top: 30px;
@@ -136,22 +106,6 @@ const ButtonsBox = styled.div`
     & > div {
         margin-left: unset;
     }
-`
-const primaryButtonCss = css`
-    display: flex;
-    justify-content: center;
-    padding: 5px 10px;
-    font-size: 14px;
-    background-color: ${(props) => props.theme.colors.secondary};
-    border-radius: 3px;
-    cursor: pointer;
-    font-weight: 600;
-    color: ${(props) => props.theme.colors.primary};
-    text-decoration: none;
-`
-
-const PrimaryButtonLink = styled(ExternalLink)`
-    ${primaryButtonCss}
 `
 
 const secondaryButtonCss = css`
@@ -188,16 +142,13 @@ export default function FollowSpaceOverlay(props: {
             <Content viewportBreakpoint={props.viewportBreakpoint}>
                 <Margin>
                     <Title viewportBreakpoint={props.viewportBreakpoint}>
-                        Follow this Space to see its annotations
+                        Follow this Space to view its annotations on the page
                     </Title>
                     <SubTitle>
-                        Follow the Space, visit the page & open the sidebar to
-                        see the annotations in context of the page
-                        <SubSubSubTitle>
-                            Click on the <NoteIconContainer />
-                            icon in each result block to only read the
-                            annotations.
-                        </SubSubSubTitle>
+                        Then, visit the page & open the sidebar.
+                        <br />
+                        Click on the <NoteIconContainer />
+                        icon in each result block to only read the annotations.
                     </SubTitle>
                 </Margin>
                 {/* {props.installModalState && (*/}

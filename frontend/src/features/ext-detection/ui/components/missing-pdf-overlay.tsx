@@ -11,8 +11,6 @@ interface State {
 }
 
 export interface Props {
-    url: string
-    title: string
     services: UIElementServices<'overlay'>
     viewportBreakpoint: ViewportBreakpoint
     onCloseRequested: () => void
@@ -76,7 +74,7 @@ export default class MissingPdfOverlay extends React.PureComponent<
     }
 }
 
-const LocatorContainer = styled.div`
+const LocatorContainer = styled.div<{ isBeingDraggedOver?: boolean }>`
     width: 50vw;
     height: 50vh;
     min-height: 500px;
@@ -104,7 +102,7 @@ const LocatorText = styled.div`
     text-align: center;
 `
 
-const LocatorDropContainerInner = styled.div`
+const LocatorDropContainerInner = styled.div<{ isBeingDraggedOver?: boolean }>`
     border-radius: 5px;
     border: 2px dashed ${(props) => props.theme.colors.purple};
     box-sizing: border-box;
