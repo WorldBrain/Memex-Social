@@ -88,7 +88,20 @@ export const theme: Theme = THEME({
         newFeed: require('../../assets/img/newFeed.svg'),
         bell: require('../../assets/img/bell.svg'),
         arrowDown: require('../../assets/img/arrowDown.svg'),
-
+        feed: require('../../assets/img/arrowDown.svg'),
+        cursor: require('../../assets/img/arrowDown.svg'),
+        arrowLeft: require('../../assets/img/arrowDown.svg'),
+        arrowRight: require('../../assets/img/arrowDown.svg'),
+        longArrowRight: require('../../assets/img/arrowDown.svg'),
+        highlight: require('../../assets/img/arrowDown.svg'),
+        quickActionRibbon: require('../../assets/img/arrowDown.svg'),
+        memexLogoGrey: require('../../assets/img/arrowDown.svg'),
+        stars: require('../../assets/img/arrowDown.svg'),
+        readwise: require('../../assets/img/arrowDown.svg'),
+        bookmarkRibbon: require('../../assets/img/arrowDown.svg'),
+        macLogo: require('../../assets/img/arrowDown.svg'),
+        winLogo: require('../../assets/img/arrowDown.svg'),
+        linuxLogo: require('../../assets/img/arrowDown.svg'),
         // doubleArrow: require('../../assets/img/doubleArrow.svg'),
         // import tagFull from '../../assets/img/tag_full.svg'
         // import tagEmpty from '../../assets/img/tag_empty.svg'
