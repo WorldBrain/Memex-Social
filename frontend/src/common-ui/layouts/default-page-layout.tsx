@@ -15,6 +15,211 @@ import ListsSidebarToggle from '../../main-ui/components/sidebar-toggle/'
 const middleMaxWidth = '800px'
 const logoImage = require('../../assets/img/memex-logo.svg')
 
+export default function DefaultPageLayout(props: {
+    services: UIElementServices<
+        | 'auth'
+        | 'overlay'
+        | 'router'
+        | 'activityStreams'
+        | 'userManagement'
+        | 'webMonetization'
+    >
+    storage: Pick<StorageModules, 'users' | 'activityStreams'>
+    headerTitle?: string | JSX.Element
+    headerSubtitle?: JSX.Element
+    followBtn?: JSX.Element
+    permissionKeyOverlay?: JSX.Element | null
+    webMonetizationIcon?: JSX.Element
+    hideActivityIndicator?: boolean
+    isSidebarShown?: boolean
+    listsSidebarProps?: Omit<
+        ListsSidebarProps,
+        'services' | 'storage' | 'viewportBreakpoint'
+    >
+    renderSubtitle?: (props: { children: React.ReactNode }) => React.ReactNode
+    viewportBreakpoint: ViewportBreakpoint
+    children: React.ReactNode
+    scrollTop?: number
+}) {
+    const { viewportBreakpoint: viewportWidth } = props
+    const renderSubtitle = props.renderSubtitle ?? ((props) => props.children)
+
+    const [isAuthenticated, setAuthenticated] = useState(
+        !!props.services.auth.getCurrentUser(),
+    )
+    useEffect(() => {
+        const handler = () => {
+            setAuthenticated(!!props.services.auth.getCurrentUser())
+        }
+        props.services.auth.events.addListener('changed', handler)
+        return () => {
+            props.services.auth.events.removeListener('changed', handler)
+        }
+    })
+
+    const getHeaderHeight = () => {
+        const headerHeight = document.getElementById('StyledHeader')
+            ?.clientHeight
+
+        return headerHeight
+    }
+
+    const renderFeedArea = () => {
+        if (!isAuthenticated) {
+            return null
+        }
+
+        return (
+            <FeedArea>
+                <FeedLink
+                    services={props.services}
+                    route="homeFeed"
+                    params={{}}
+                >
+                    {!props.hideActivityIndicator && (
+                        <Margin left="small">
+                            <UnseenActivityIndicator
+                                services={props.services}
+                                storage={props.storage}
+                                renderContent={(feedState) => {
+                                    if (feedState === 'has-unseen') {
+                                        return <UnseenActivityDot />
+                                    }
+                                    return null
+                                }}
+                            />
+                        </Margin>
+                    )}
+                </FeedLink>
+            </FeedArea>
+        )
+    }
+
+    const renderListsSidebar = () => {
+        if (props.listsSidebarProps == null) {
+            return null
+        }
+
+        return (
+            <ListsSidebar
+                {...props.listsSidebarProps}
+                storage={props.storage}
+                services={props.services}
+                viewportBreakpoint={props.viewportBreakpoint}
+            />
+        )
+    }
+
+    const isIframe = () => {
+        try {
+            return window.self !== window.top
+        } catch (e) {
+            return true
+        }
+    }
+
+    return (
+        <MainContainer
+            viewportWidth={viewportWidth}
+            sidebarShown={props.isSidebarShown}
+            id={'MainContainer'}
+        >
+            <BetaFlag
+                isIframe={isIframe() === true}
+                onClick={() => window.open('https://worldbrain.io/feedback')}
+            >
+                Beta | Feedback
+            </BetaFlag>
+            <MenuBar isIframe={isIframe() === true}>
+                <LogoAndFeed viewportWidth={viewportWidth}>
+                    {/* {props.listsSidebarProps && isAuthenticated && (
+                            <>
+                                <ListsSidebarToggle
+                                    viewportWidth={viewportWidth}
+                                    onToggle={props.listsSidebarProps.onToggle}
+                                    isShown={props.listsSidebarProps.isShown}
+                                />
+                                <LeftRightBlock>
+                                    {renderFeedArea()}
+                                </LeftRightBlock>
+                            </>
+                        )} */}
+                    {/* {!isAuthenticated && ( */}
+                    <MemexLogo
+                        src={logoImage}
+                        onClick={() => window.open('https://memex.garden')}
+                        viewportWidth={viewportWidth}
+                    />
+                    {/* )} */}
+                </LogoAndFeed>
+                <HeaderAuthArea viewportWidth={viewportWidth}>
+                    <AuthHeader
+                        services={props.services}
+                        storage={props.storage}
+                    />
+                </HeaderAuthArea>
+            </MenuBar>
+            {props.permissionKeyOverlay}
+            <MainColumn>
+                <StyledHeader
+                    isIframe={isIframe() === true}
+                    hideActivityIndicator={props.hideActivityIndicator}
+                    id={'StyledHeader'}
+                    viewportWidth={viewportWidth}
+                >
+                    <StyledHeaderContainer viewportWidth={viewportWidth}>
+                        <HeaderMiddleArea
+                            viewportWidth={viewportWidth}
+                            id={'HeaderMiddleArea'}
+                        >
+                            <PageMidleAreaAction
+                                scrollTop={props.scrollTop}
+                                viewportWidth={viewportWidth}
+                            >
+                                {props.webMonetizationIcon &&
+                                    props.webMonetizationIcon}
+                                {props.followBtn && props.followBtn}
+                            </PageMidleAreaAction>
+                            <PageMidleAreaTitles
+                                scrollTop={props.scrollTop}
+                                viewportWidth={viewportWidth}
+                            >
+                                {props.headerTitle && (
+                                    <HeaderTitle
+                                        viewportWidth={viewportWidth}
+                                        scrollTop={props.scrollTop}
+                                    >
+                                        {props.headerTitle}
+                                    </HeaderTitle>
+                                )}
+                                {props.headerTitle &&
+                                    props.headerSubtitle &&
+                                    renderSubtitle({
+                                        children: props.headerSubtitle,
+                                    })}
+                            </PageMidleAreaTitles>
+                            {/* <LeftRightBlock /> */}
+                        </HeaderMiddleArea>
+                    </StyledHeaderContainer>
+                </StyledHeader>
+                <PageMiddleArea
+                    viewportWidth={viewportWidth}
+                    isSidebarShown={props.isSidebarShown === true}
+                    id="pageMiddleArea"
+                >
+                    {/* {renderListsSidebar()} */}
+                    <PageResultsArea
+                        headerHeight={getHeaderHeight()}
+                        viewportWidth={viewportWidth}
+                    >
+                        {props.children}
+                    </PageResultsArea>
+                </PageMiddleArea>
+            </MainColumn>
+        </MainContainer>
+    )
+}
+
 const MainContainer = styled.div<{
     viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
     sidebarShown?: boolean
@@ -45,6 +250,8 @@ const MainContainer = styled.div<{
 
 const StyledHeader = styled.div<{
     viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
+    hideActivityIndicator: boolean | undefined
+    isIframe: boolean
 }>`
     font-family: ${(props) => props.theme.fonts.primary};
     width: fill-available;
@@ -78,6 +285,13 @@ const StyledHeader = styled.div<{
             align-items: flex-start;
             top: 0;
             width: 95%;
+        `}
+
+    ${(props) =>
+        props.hideActivityIndicator &&
+        props.isIframe &&
+        css`
+            display: none;
         `}
 `
 
@@ -258,7 +472,7 @@ const PageMiddleAreaTopBox = styled(Margin)<{
         props.viewportWidth === 'mobile' ? 'column' : 'row'};
 `
 
-const BetaFlag = styled.div`
+const BetaFlag = styled.div<{ isIframe: boolean }>`
     color: #757575;
     background-color: #fff;
     font-size: 14px;
@@ -274,6 +488,12 @@ const BetaFlag = styled.div`
     justify-content: center;
     align-items: center;
     font-weight: 600;
+
+    ${(props) =>
+        props.isIframe &&
+        css`
+            display: none;
+        `}
 `
 
 const LeftRightBlock = styled.div`
@@ -305,7 +525,7 @@ const StyledHeaderContainer = styled.div<{
         props.viewportWidth === 'mobile' ? 'column' : 'row'};
 `
 
-const MenuBar = styled.div`
+const MenuBar = styled.div<{ isIframe: boolean }>`
     position: relative;
     display: flex;
     justify-content: space-between;
@@ -313,6 +533,12 @@ const MenuBar = styled.div`
     width: 100%;
     padding: 20px 30px 10px 30px;
     z-index: 10000;
+
+    ${(props) =>
+        props.isIframe &&
+        css`
+            display: none;
+        `};
 `
 
 const MemexLogo = styled.img<{
@@ -321,194 +547,3 @@ const MemexLogo = styled.img<{
     height: 24px;
     z-index: 3005;
 `
-
-export default function DefaultPageLayout(props: {
-    services: UIElementServices<
-        | 'auth'
-        | 'overlay'
-        | 'router'
-        | 'activityStreams'
-        | 'userManagement'
-        | 'webMonetization'
-    >
-    storage: Pick<StorageModules, 'users' | 'activityStreams'>
-    headerTitle?: string | JSX.Element
-    headerSubtitle?: JSX.Element
-    followBtn?: JSX.Element
-    permissionKeyOverlay?: JSX.Element | null
-    webMonetizationIcon?: JSX.Element
-    hideActivityIndicator?: boolean
-    isSidebarShown?: boolean
-    listsSidebarProps?: Omit<
-        ListsSidebarProps,
-        'services' | 'storage' | 'viewportBreakpoint'
-    >
-    renderSubtitle?: (props: { children: React.ReactNode }) => React.ReactNode
-    viewportBreakpoint: ViewportBreakpoint
-    children: React.ReactNode
-    scrollTop?: number
-}) {
-    const { viewportBreakpoint: viewportWidth } = props
-    const renderSubtitle = props.renderSubtitle ?? ((props) => props.children)
-
-    const [isAuthenticated, setAuthenticated] = useState(
-        !!props.services.auth.getCurrentUser(),
-    )
-    useEffect(() => {
-        const handler = () => {
-            setAuthenticated(!!props.services.auth.getCurrentUser())
-        }
-        props.services.auth.events.addListener('changed', handler)
-        return () => {
-            props.services.auth.events.removeListener('changed', handler)
-        }
-    })
-
-    const getHeaderHeight = () => {
-        const headerHeight = document.getElementById('StyledHeader')
-            ?.clientHeight
-
-        return headerHeight
-    }
-
-    const renderFeedArea = () => {
-        if (!isAuthenticated) {
-            return null
-        }
-
-        return (
-            <FeedArea>
-                <FeedLink
-                    services={props.services}
-                    route="homeFeed"
-                    params={{}}
-                >
-                    {!props.hideActivityIndicator && (
-                        <Margin left="small">
-                            <UnseenActivityIndicator
-                                services={props.services}
-                                storage={props.storage}
-                                renderContent={(feedState) => {
-                                    if (feedState === 'has-unseen') {
-                                        return <UnseenActivityDot />
-                                    }
-                                    return null
-                                }}
-                            />
-                        </Margin>
-                    )}
-                </FeedLink>
-            </FeedArea>
-        )
-    }
-
-    const renderListsSidebar = () => {
-        if (props.listsSidebarProps == null) {
-            return null
-        }
-
-        return (
-            <ListsSidebar
-                {...props.listsSidebarProps}
-                storage={props.storage}
-                services={props.services}
-                viewportBreakpoint={props.viewportBreakpoint}
-            />
-        )
-    }
-
-    return (
-        <MainContainer
-            viewportWidth={viewportWidth}
-            sidebarShown={props.isSidebarShown}
-            id={'MainContainer'}
-        >
-            <BetaFlag
-                onClick={() => window.open('https://worldbrain.io/feedback')}
-            >
-                Beta | Feedback
-            </BetaFlag>
-            <MenuBar>
-                <LogoAndFeed viewportWidth={viewportWidth}>
-                    {/* {props.listsSidebarProps && isAuthenticated && (
-                            <>
-                                <ListsSidebarToggle
-                                    viewportWidth={viewportWidth}
-                                    onToggle={props.listsSidebarProps.onToggle}
-                                    isShown={props.listsSidebarProps.isShown}
-                                />
-                                <LeftRightBlock>
-                                    {renderFeedArea()}
-                                </LeftRightBlock>
-                            </>
-                        )} */}
-                    {/* {!isAuthenticated && ( */}
-                    <MemexLogo
-                        src={logoImage}
-                        onClick={() => window.open('https://memex.garden')}
-                        viewportWidth={viewportWidth}
-                    />
-                    {/* )} */}
-                </LogoAndFeed>
-                <HeaderAuthArea viewportWidth={viewportWidth}>
-                    <AuthHeader
-                        services={props.services}
-                        storage={props.storage}
-                    />
-                </HeaderAuthArea>
-            </MenuBar>
-            {props.permissionKeyOverlay}
-            <MainColumn>
-                <StyledHeader id={'StyledHeader'} viewportWidth={viewportWidth}>
-                    <StyledHeaderContainer viewportWidth={viewportWidth}>
-                        <HeaderMiddleArea
-                            viewportWidth={viewportWidth}
-                            id={'HeaderMiddleArea'}
-                        >
-                            <PageMidleAreaAction
-                                scrollTop={props.scrollTop}
-                                viewportWidth={viewportWidth}
-                            >
-                                {props.webMonetizationIcon &&
-                                    props.webMonetizationIcon}
-                                {props.followBtn && props.followBtn}
-                            </PageMidleAreaAction>
-                            <PageMidleAreaTitles
-                                scrollTop={props.scrollTop}
-                                viewportWidth={viewportWidth}
-                            >
-                                {props.headerTitle && (
-                                    <HeaderTitle
-                                        viewportWidth={viewportWidth}
-                                        scrollTop={props.scrollTop}
-                                    >
-                                        {props.headerTitle}
-                                    </HeaderTitle>
-                                )}
-                                {props.headerTitle &&
-                                    props.headerSubtitle &&
-                                    renderSubtitle({
-                                        children: props.headerSubtitle,
-                                    })}
-                            </PageMidleAreaTitles>
-                            {/* <LeftRightBlock /> */}
-                        </HeaderMiddleArea>
-                    </StyledHeaderContainer>
-                </StyledHeader>
-                <PageMiddleArea
-                    viewportWidth={viewportWidth}
-                    isSidebarShown={props.isSidebarShown === true}
-                    id="pageMiddleArea"
-                >
-                    {/* {renderListsSidebar()} */}
-                    <PageResultsArea
-                        headerHeight={getHeaderHeight()}
-                        viewportWidth={viewportWidth}
-                    >
-                        {props.children}
-                    </PageResultsArea>
-                </PageMiddleArea>
-            </MainColumn>
-        </MainContainer>
-    )
-}
