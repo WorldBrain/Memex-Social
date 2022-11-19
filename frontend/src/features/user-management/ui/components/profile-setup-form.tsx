@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import AnnotationReply from '../../../content-conversations/ui/components/annotation-reply'
 import { Margin } from 'styled-components-spacing'
 import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
-import { PrimaryAction } from '../../../../common-ui/components/PrimaryAction'
+import { PrimaryAction } from '@worldbrain/memex-common/lib/common-ui/components/PrimaryAction'
 
 const StyledProfileSetupForm = styled.div`
     display: flex;

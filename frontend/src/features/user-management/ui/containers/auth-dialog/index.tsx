@@ -12,7 +12,7 @@ import { Margin } from 'styled-components-spacing'
 import { AuthError } from '../../../../../services/auth/types'
 import ProfileSetupForm from '../../components/profile-setup-form'
 import LoadingScreen from '../../../../../common-ui/components/loading-screen'
-import { PrimaryAction } from '../../../../../common-ui/components/PrimaryAction'
+import { PrimaryAction } from '@worldbrain/memex-common/lib/common-ui/components/PrimaryAction'
 
 import { getViewportBreakpoint } from '../../../../../main-ui/styles/utils'
 import { ViewportBreakpoint } from '../../../../../main-ui/styles/types'
@@ -501,6 +501,7 @@ export default class AuthDialog extends UIElement<
                                             )
                                         }
                                         label={'Log in'}
+                                        width={'100%'}
                                     />
                                 </PrimaryActionContainer>
                             )}

@@ -15,6 +15,7 @@ import LoadingIndicator from '../../../../../common-ui/components/loading-indica
 import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
 import { getViewportBreakpoint } from '../../../../../main-ui/styles/utils'
 import { ViewportBreakpoint } from '../../../../../main-ui/styles/types'
+import { PrimaryAction } from '@worldbrain/memex-common/lib/common-ui/components/PrimaryAction'
 
 const settingsImg = require('../../../../../assets/img/settings.svg')
 
@@ -53,7 +54,7 @@ const DisplayName = styled.div`
         cursor: pointer;
     }
 
-    color: ${(props) => props.theme.darkModeColors.lighterText};
+    color: ${(props) => props.theme.darkModeColors.normalText};
 `
 const MenuContainerOuter = styled.div`
     position: relative;
@@ -97,10 +98,24 @@ export default class AuthHeader extends UIElement<
 
         if (!this.state.user) {
             return (
-                <DisplayName onClick={() => this.processEvent('login', null)}>
-                    <Icon icon="login" heightAndWidth="16px" hoverOff />
-                    {this.state.isMemexInstalled === true ? 'Login' : 'Sign Up'}
-                </DisplayName>
+                <PrimaryAction
+                    label={
+                        this.state.isMemexInstalled === true
+                            ? 'Login'
+                            : 'Sign Up'
+                    }
+                    onClick={() => this.processEvent('login', null)}
+                    backgroundColor={
+                        this.state.isMemexInstalled === true
+                            ? 'lightHover'
+                            : 'normalText'
+                    }
+                    fontColor={
+                        this.state.isMemexInstalled === true
+                            ? 'normalText'
+                            : 'black'
+                    }
+                />
             )
         }
 

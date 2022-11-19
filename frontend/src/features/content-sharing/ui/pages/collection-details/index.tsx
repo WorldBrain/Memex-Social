@@ -42,343 +42,14 @@ import { isPagePdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
 import MissingPdfOverlay from '../../../../ext-detection/ui/components/missing-pdf-overlay'
 import { HoverBox } from '../../../../../common-ui/components/hoverbox'
 import Markdown from '@worldbrain/memex-common/lib/common-ui/components/markdown'
+import BlockContent from '@worldbrain/memex-common/lib/common-ui/components/block-content'
+import ItemBox from '@worldbrain/memex-common/lib/common-ui/components/item-box'
+import ItemBoxBottom, {
+    ItemBoxBottomAction,
+} from '@worldbrain/memex-common/lib/common-ui/components/item-box-bottom'
 
 const commentImage = require('../../../../../assets/img/comment.svg')
 const commentEmptyImage = require('../../../../../assets/img/comment-empty.svg')
-
-const DocumentView = styled.div`
-    height: 100%;
-    width: 100%;
-`
-
-const DocumentContainer = styled.div`
-    height: 100%;
-`
-
-// const CollectionDescriptionBox = styled.div<{
-//     viewportWidth: ViewportBreakpoint
-// }>`
-//     font-family: ${(props) => props.theme.fonts.primary};
-//     font-size: 14px;
-//     display: flex;
-//     flex-direction: column;
-//     align-items: flex-start;
-//     margin: ${(props) =>
-//         props.viewportWidth === 'small' || props.viewportWidth === 'mobile'
-//             ? '20px 5px'
-//             : '20px auto'};
-// `
-// const CollectionDescriptionText = styled.div<{
-//     viewportWidth: ViewportBreakpoint
-// }>``
-// const CollectionDescriptionToggle = styled.div<{
-//     viewportWidth: ViewportBreakpoint
-// }>`
-//     cursor: pointer;
-//     padding: 3px 5px;
-//     margin-left: -5px;
-//     border-radius: ${(props) => props.theme.borderRadii.default};
-//     color: ${(props) => props.theme.colors.subText};
-//     &:hover {
-//         background-color: ${(props) => props.theme.hoverBackgrounds.primary};
-//     }
-// `
-
-const AbovePagesBox = styled.div<{
-    viewportWidth: ViewportBreakpoint
-}>`
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  margin: 10px 0 10px;
-  width: 100%;
-  position: relative;
-  z-index: 2;
-  border-radius: 5px;
-  justify-content: space-between;
-}
-`
-
-const DescriptionActions = styled(Margin)`
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-`
-
-const ActionItems = styled.div`
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    grid-gap: 10px;
-`
-
-const AddPageBtn = styled.div`
-    display: flex;
-    align-items: center;
-    left: 0;
-    font-family: ${(props) => props.theme.fonts.primary};
-    color: ${(props) => props.theme.colors.lighterText};
-    font-weight: 400;
-    cursor: pointer;
-    border-radius: 3px;
-`
-
-const ToggleAllAnnotations = styled.div`
-    text-align: right;
-    font-weight: bold;
-    font-family: ${(props) => props.theme.fonts.primary};
-    color: ${(props) => props.theme.colors.primary};
-    font-weight: bold;
-    cursor: pointer;
-    font-size: 12px;
-    width: fit-content;
-    border-radius: 5px;
-`
-
-const SectionTitle = styled.div`
-    font-family: ${(props) => props.theme.fonts.primary};
-    color: ${(props) => props.theme.colors.normalText};
-    font-weight: 200;
-    font-size: 20px;
-`
-
-const PageInfoList = styled.div<{
-    viewportBreakpoint: ViewportBreakpoint
-}>`
-    width: 100%;
-    padding: 0 20px 20px 20px;
-
-    ${(props) =>
-        props.viewportBreakpoint === 'mobile' &&
-        css`
-            padding: 0 0px 20px 0px;
-        `}
-`
-
-const EmptyListBox = styled.div`
-    font-family: ${(props) => props.theme.fonts.primary};
-    width: 100%;
-    padding: 20px 20px;
-    color: ${(props) => props.theme.colors.normalText};
-    display: flex;
-    margin-top: 30px;
-    font-size: 16px;
-    font-weight: normal;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    text-align: center;
-`
-
-const ShowMoreCollaborators = styled.span`
-    cursor: pointer;
-    color: ${(props) => props.theme.colors.darkerText};
-    align-items: center;
-    grid-gap: 5px;
-    display: inline-box;
-`
-
-const Text = styled.span`
-    padding-left: 5px;
-`
-
-const LoadingScreen = styled.div`
-    height: 100%;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-`
-
-const ActionLoaderBox = styled.div`
-    margin-right: 10px;
-`
-
-const SubtitleContainer = styled.div<{
-    viewportBreakpoint: ViewportBreakpoint
-    loading?: boolean
-}>`
-    display: flex;
-    align-items: center;
-    /* grid-gap: 10px; */
-    font-size: 14px;
-    height: 24px;
-    white-space: nowrap;
-
-    ${(props) =>
-        props.viewportBreakpoint === 'mobile' &&
-        css`
-            align-items: center;
-        `}
-
-    ${(props) =>
-        props.loading &&
-        css`
-            margin-top: 5px;
-            margin-bottom: -5px;
-            padding-left: 10px;
-        `}
-`
-
-const DiscordChannelName = styled.span`
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-`
-const DiscordGuildName = styled.span`
-    color: ${(props) => props.theme.colors.blue};
-    font-weight: 600;
-`
-
-const CollectionDescriptionBox = styled.div<{
-    viewportBreakpoint: ViewportBreakpoint
-}>`
-    padding: 20px 20px;
-    display: flex;
-    align-items: flex-start;
-    flex-direction: column;
-    margin-top: 10px;
-
-    ${(props) =>
-        props.viewportBreakpoint === 'mobile' &&
-        css`
-            padding: 20px 0px;
-        `}
-`
-const CollectionDescriptionText = styled(Markdown)<{
-    viewportBreakpoint: ViewportBreakpoint
-}>`
-    font-size: 16px;
-    color: ${(props) => props.theme.colors.lighterText};
-    font-family: ${(props) => props.theme.fonts.primary};
-    background: #fffff005;
-    padding: 20px;
-    border-radius: 10px;
-`
-const CollectionDescriptionToggle = styled.div<{
-    viewportBreakpoint: ViewportBreakpoint
-}>`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    justify-self: flex-start;
-    font-family: ${(props) => props.theme.fonts.primary};
-    font-size: 12px;
-    cursor: pointer;
-    color: ${(props) => props.theme.colors.lighterText};
-
-    & * {
-        cursor: pointer;
-    }
-`
-
-// const DomainName = styled.div`
-//     color: ${(props) => props.theme.colors.normalText};
-// `
-
-// const RearBox = styled.div<{
-//     viewportBreakpoint: ViewportBreakpoint
-// }>`
-//     display: inline-block;
-//     align-items: center;
-//     grid-gap: 5px;
-//     color: ${(props) => props.theme.colors.lighterText};
-
-//     /* ${(props) =>
-//         props.viewportBreakpoint === 'mobile' &&
-//         css`
-//             grid-gap: 3px;
-//             flex-direction: column;
-//             align-items: flex-start;
-//         `} */
-// `
-
-const Creator = styled.span`
-    color: ${(props) => props.theme.colors.purple};
-    padding: 0 4px;
-    cursor: pointer;
-`
-
-const SharedBy = styled.span`
-    color: ${(props) => props.theme.colors.lighterText};
-    display: contents;
-`
-
-// const Date = styled.span`
-//     color: ${(props) => props.theme.colors.lighterText};
-//     display: inline-block;
-// `
-
-const SectionCircle = styled.div<{ size: string }>`
-    background: ${(props) => props.theme.colors.backgroundHighlight};
-    border-radius: 100px;
-    height: ${(props) => (props.size ? props.size : '60px')};
-    width: ${(props) => (props.size ? props.size : '60px')};
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 20px;
-`
-
-const ContributorContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    padding: 10px;
-    width: 210px;
-    max-width: 300px;
-    border-radius: 12px;
-`
-const ListEntryBox = styled.div`
-    display: flex;
-    align-items: center;
-    height: 40px;
-    border-radius: 5px;
-    padding: 0 15px;
-
-    &:hover {
-        background: ${(props) => props.theme.colors.backgroundColorDarker};
-    }
-`
-
-const ListEntry = styled.div`
-    display: block;
-    align-items: center;
-
-    font-weight: 400;
-    width: fill-available;
-    color: ${(props) => props.theme.colors.normalText};
-    text-overflow: ellipsis;
-    overflow: hidden;
-
-    & * {
-        white-space: pre-wrap;
-        font-weight: initial;
-    }
-`
-
-const CommentIconBox = styled.div`
-    background: #ffffff09;
-    border-radius: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 24px;
-    width: fit-content;
-    padding: 0 10px;
-    grid-gap: 6px;
-    cursor: pointer;
-
-    & * {
-        cursor: pointer;
-    }
-`
-
-const Counter = styled.div`
-    color: ${(props) => props.theme.colors.purple};
-    font-size: 14px;
-`
 
 export default class CollectionDetailsPage extends UIElement<
     CollectionDetailsDependencies,
@@ -472,7 +143,7 @@ export default class CollectionDetailsPage extends UIElement<
 
     getPageEntryActions(
         entry: SharedListEntry,
-    ): Array<PageInfoBoxAction> | undefined {
+    ): Array<ItemBoxBottomAction> | undefined {
         const { state } = this
         const annotationEntries = this.state.annotationEntryData
         if (
@@ -512,23 +183,33 @@ export default class CollectionDetailsPage extends UIElement<
         ) {
             return [
                 {
-                    node: (
-                        <CommentIconBox
-                            onClick={() =>
-                                this.processEvent('togglePageAnnotations', {
-                                    normalizedUrl: entry.normalizedUrl,
-                                })
-                            }
-                        >
-                            {count > 0 && <Counter>{count}</Counter>}
-                            <Icon
-                                icon={toggleAnnotationsIcon}
-                                heightAndWidth={'16px'}
-                                hoverOff
-                            />
-                        </CommentIconBox>
-                    ),
+                    // key: 'expand-notes-btn',
+                    image: count > 0 ? 'commentFull' : 'commentEmpty',
+                    ButtonText: count > 0 ? count : '',
+                    imageColor: 'purple',
+                    onClick: () =>
+                        this.processEvent('togglePageAnnotations', {
+                            normalizedUrl: entry.normalizedUrl,
+                        }),
                 },
+                // {
+                //     node: (
+                //         <CommentIconBox
+                //             onClick={() =>
+                //                 this.processEvent('togglePageAnnotations', {
+                //                     normalizedUrl: entry.normalizedUrl,
+                //                 })
+                //             }
+                //         >
+                //             {count > 0 && <Counter>{count}</Counter>}
+                //             <Icon
+                //                 icon={toggleAnnotationsIcon}
+                //                 heightAndWidth={'16px'}
+                //                 hoverOff
+                //             />
+                //         </CommentIconBox>
+                //     ),
+                // },
             ]
         }
     }
@@ -1151,7 +832,54 @@ export default class CollectionDetailsPage extends UIElement<
                                     bottom="small"
                                     key={entry.normalizedUrl}
                                 >
-                                    <PageInfoBox
+                                    <ItemBox>
+                                        <BlockContent
+                                            type={
+                                                isPagePdf({
+                                                    url: entry.normalizedUrl,
+                                                })
+                                                    ? 'pdf'
+                                                    : 'page'
+                                            }
+                                            normalizedUrl={entry.normalizedUrl}
+                                            originalUrl={entry.originalUrl}
+                                            fullTitle={
+                                                entry && entry.entryTitle
+                                            }
+                                            onClick={(e) => {
+                                                console.log('test')
+                                                this.processEvent(
+                                                    'clickPageResult',
+                                                    {
+                                                        urlToOpen:
+                                                            entry.originalUrl,
+                                                        preventOpening: () =>
+                                                            e.preventDefault(),
+                                                        isFollowedSpace:
+                                                            this.state
+                                                                .isCollectionFollowed ||
+                                                            this.state
+                                                                .isListOwner,
+                                                    },
+                                                )
+                                            }}
+                                            viewportBreakpoint={
+                                                this.viewportBreakpoint
+                                            }
+                                        />
+                                        <ItemBoxBottom
+                                            creationInfo={{
+                                                creator: this.state.users[
+                                                    entry.creator.id
+                                                ],
+                                                createdWhen: entry.createdWhen,
+                                            }}
+                                            actions={this.getPageEntryActions(
+                                                entry,
+                                            )}
+                                        />
+                                    </ItemBox>
+                                    {/* <PageInfoBox
                                         viewportBreakpoint={
                                             this.viewportBreakpoint
                                         }
@@ -1193,17 +921,11 @@ export default class CollectionDetailsPage extends UIElement<
                                         actions={this.getPageEntryActions(
                                             entry,
                                         )}
-                                    />
+                                    /> */}
                                     {state.pageAnnotationsExpanded[
                                         entry.normalizedUrl
                                     ] && (
-                                        <Margin>
-                                            <Margin bottom={'smallest'}>
-                                                {this.renderPageAnnotations(
-                                                    entry,
-                                                )}
-                                            </Margin>
-                                        </Margin>
+                                        <>{this.renderPageAnnotations(entry)}</>
                                     )}
                                     {state.allAnnotationExpanded &&
                                         state.annotationEntriesLoadState ===
@@ -1239,3 +961,336 @@ export default class CollectionDetailsPage extends UIElement<
         )
     }
 }
+
+const DocumentView = styled.div`
+    height: 100%;
+    width: 100%;
+`
+
+const DocumentContainer = styled.div`
+    height: 100%;
+`
+
+// const CollectionDescriptionBox = styled.div<{
+//     viewportWidth: ViewportBreakpoint
+// }>`
+//     font-family: ${(props) => props.theme.fonts.primary};
+//     font-size: 14px;
+//     display: flex;
+//     flex-direction: column;
+//     align-items: flex-start;
+//     margin: ${(props) =>
+//         props.viewportWidth === 'small' || props.viewportWidth === 'mobile'
+//             ? '20px 5px'
+//             : '20px auto'};
+// `
+// const CollectionDescriptionText = styled.div<{
+//     viewportWidth: ViewportBreakpoint
+// }>``
+// const CollectionDescriptionToggle = styled.div<{
+//     viewportWidth: ViewportBreakpoint
+// }>`
+//     cursor: pointer;
+//     padding: 3px 5px;
+//     margin-left: -5px;
+//     border-radius: ${(props) => props.theme.borderRadii.default};
+//     color: ${(props) => props.theme.colors.subText};
+//     &:hover {
+//         background-color: ${(props) => props.theme.hoverBackgrounds.primary};
+//     }
+// `
+
+const AbovePagesBox = styled.div<{
+    viewportWidth: ViewportBreakpoint
+}>`
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin: 10px 0 10px;
+  width: 100%;
+  position: relative;
+  z-index: 2;
+  border-radius: 5px;
+  justify-content: space-between;
+}
+`
+
+const DescriptionActions = styled(Margin)`
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+`
+
+const ActionItems = styled.div`
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    grid-gap: 10px;
+`
+
+const AddPageBtn = styled.div`
+    display: flex;
+    align-items: center;
+    left: 0;
+    font-family: ${(props) => props.theme.fonts.primary};
+    color: ${(props) => props.theme.colors.lighterText};
+    font-weight: 400;
+    cursor: pointer;
+    border-radius: 3px;
+`
+
+const ToggleAllAnnotations = styled.div`
+    text-align: right;
+    font-weight: bold;
+    font-family: ${(props) => props.theme.fonts.primary};
+    color: ${(props) => props.theme.colors.primary};
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 12px;
+    width: fit-content;
+    border-radius: 5px;
+`
+
+const SectionTitle = styled.div`
+    font-family: ${(props) => props.theme.fonts.primary};
+    color: ${(props) => props.theme.colors.normalText};
+    font-weight: 500;
+    font-size: 18px;
+    letter-spacing: 1px;
+`
+
+const PageInfoList = styled.div<{
+    viewportBreakpoint: ViewportBreakpoint
+}>`
+    width: 100%;
+    margin-top: 30px;
+
+    ${(props) =>
+        props.viewportBreakpoint === 'mobile' &&
+        css`
+            padding: 0 0px 20px 0px;
+        `}
+`
+
+const EmptyListBox = styled.div`
+    font-family: ${(props) => props.theme.fonts.primary};
+    width: 100%;
+    padding: 20px 20px;
+    color: ${(props) => props.theme.colors.normalText};
+    display: flex;
+    margin-top: 30px;
+    font-size: 16px;
+    font-weight: normal;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+`
+
+const ShowMoreCollaborators = styled.span`
+    cursor: pointer;
+    color: ${(props) => props.theme.colors.darkerText};
+    align-items: center;
+    grid-gap: 5px;
+    display: inline-box;
+`
+
+const Text = styled.span`
+    padding-left: 5px;
+`
+
+const LoadingScreen = styled.div`
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`
+
+const ActionLoaderBox = styled.div`
+    margin-right: 10px;
+`
+
+const SubtitleContainer = styled.div<{
+    viewportBreakpoint: ViewportBreakpoint
+    loading?: boolean
+}>`
+    display: flex;
+    align-items: center;
+    /* grid-gap: 10px; */
+    font-size: 14px;
+    height: 24px;
+    white-space: nowrap;
+
+    ${(props) =>
+        props.viewportBreakpoint === 'mobile' &&
+        css`
+            align-items: center;
+        `}
+
+    ${(props) =>
+        props.loading &&
+        css`
+            margin-top: 5px;
+            margin-bottom: -5px;
+            padding-left: 10px;
+        `}
+`
+
+const DiscordChannelName = styled.span`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+`
+const DiscordGuildName = styled.span`
+    color: ${(props) => props.theme.colors.blue};
+    font-weight: 600;
+`
+
+const CollectionDescriptionBox = styled.div<{
+    viewportBreakpoint: ViewportBreakpoint
+}>`
+    margin-top: 20px;
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+
+    ${(props) =>
+        props.viewportBreakpoint === 'mobile' &&
+        css`
+            padding: 20px 0px;
+        `}
+`
+const CollectionDescriptionText = styled(Markdown)<{
+    viewportBreakpoint: ViewportBreakpoint
+}>`
+    font-size: 16px;
+    color: ${(props) => props.theme.colors.normalText};
+    font-weight: 200;
+    font-family: ${(props) => props.theme.fonts.primary};
+    border-radius: 10px;
+`
+const CollectionDescriptionToggle = styled.div<{
+    viewportBreakpoint: ViewportBreakpoint
+}>`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    justify-self: flex-start;
+    font-family: ${(props) => props.theme.fonts.primary};
+    font-size: 12px;
+    cursor: pointer;
+    color: ${(props) => props.theme.colors.lighterText};
+
+    & * {
+        cursor: pointer;
+    }
+`
+
+// const DomainName = styled.div`
+//     color: ${(props) => props.theme.colors.normalText};
+// `
+
+// const RearBox = styled.div<{
+//     viewportBreakpoint: ViewportBreakpoint
+// }>`
+//     display: inline-block;
+//     align-items: center;
+//     grid-gap: 5px;
+//     color: ${(props) => props.theme.colors.lighterText};
+
+//     /* ${(props) =>
+//         props.viewportBreakpoint === 'mobile' &&
+//         css`
+//             grid-gap: 3px;
+//             flex-direction: column;
+//             align-items: flex-start;
+//         `} */
+// `
+
+const Creator = styled.span`
+    color: ${(props) => props.theme.colors.purple};
+    padding: 0 4px;
+    cursor: pointer;
+`
+
+const SharedBy = styled.span`
+    color: ${(props) => props.theme.colors.lighterText};
+    display: contents;
+`
+
+// const Date = styled.span`
+//     color: ${(props) => props.theme.colors.lighterText};
+//     display: inline-block;
+// `
+
+const SectionCircle = styled.div<{ size: string }>`
+    background: ${(props) => props.theme.colors.backgroundHighlight};
+    border-radius: 100px;
+    height: ${(props) => (props.size ? props.size : '60px')};
+    width: ${(props) => (props.size ? props.size : '60px')};
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+`
+
+const ContributorContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    padding: 10px;
+    width: 210px;
+    max-width: 300px;
+    border-radius: 12px;
+`
+const ListEntryBox = styled.div`
+    display: flex;
+    align-items: center;
+    height: 40px;
+    border-radius: 5px;
+    padding: 0 15px;
+
+    &:hover {
+        background: ${(props) => props.theme.colors.backgroundColorDarker};
+    }
+`
+
+const ListEntry = styled.div`
+    display: block;
+    align-items: center;
+
+    font-weight: 400;
+    width: fill-available;
+    color: ${(props) => props.theme.colors.normalText};
+    text-overflow: ellipsis;
+    overflow: hidden;
+
+    & * {
+        white-space: pre-wrap;
+        font-weight: initial;
+    }
+`
+
+const CommentIconBox = styled.div`
+    background: #ffffff09;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 24px;
+    width: fit-content;
+    padding: 0 10px;
+    grid-gap: 6px;
+    cursor: pointer;
+
+    & * {
+        cursor: pointer;
+    }
+`
+
+const Counter = styled.div`
+    color: ${(props) => props.theme.colors.purple};
+    font-size: 14px;
+`

@@ -16,16 +16,16 @@ const Container = styled.div<{
     font-weight: bold;
     margin-left: auto;
     width: 170px;
+    background-color: ${(props) => props.theme.colors.normalText};
+    color: ${(props) => props.theme.colors.black};
     ${(props) =>
         props.isContributor &&
         props.isFollowed &&
         css`
-            background: transparent;
-            color: ${(props) => props.theme.colors.purple};
             cursor: default;
-            border: 1px solid
-                ${(props) => props.theme.darkModeColors.lineLightGrey};
-
+            background-color: transparent;
+            border: 1px solid ${(props) => props.theme.colors.normalText};
+            color: ${(props) => props.theme.colors.normalText};
             & div {
                 cursor: default;
             }
@@ -34,12 +34,7 @@ const Container = styled.div<{
         props.isOwner &&
         props.isFollowed &&
         css`
-            background: transparent;
-            color: ${(props) => props.theme.colors.purple};
             cursor: default;
-            border: 1px solid
-                ${(props) => props.theme.darkModeColors.lineLightGrey};
-
             & div {
                 cursor: default;
             }
@@ -50,17 +45,12 @@ const Container = styled.div<{
         !props.isContributor &&
         css`
             background-color: transparent;
-            color: ${(props) => props.theme.colors.purple};
             cursor: pointer;
-            border: 1px solid ${(props) => props.theme.colors.purple};
         `}
     ${(props) =>
         !props.isFollowed &&
         css`
-            background-color: ${(props) => props.theme.colors.purple};
-            color: white;
             cursor: pointer;
-            border: 1px solid ${(props) => props.theme.colors.purple};
         `}
     padding: 5px 15px;
     height: 34px;
@@ -69,6 +59,10 @@ const Container = styled.div<{
     align-items: center;
     font-size: 14px;
     display: flex;
+
+    & * {
+        cursor: pointer;
+    }
 `
 
 const PlusIcon = styled.span``
@@ -151,15 +145,15 @@ export default class FollowBtn extends PureComponent<Props> {
     followStateIconColor() {
         const { props } = this
         if (props.isContributor) {
-            return 'purple'
+            return 'normalText'
         }
         if (props.isOwner) {
-            return 'purple'
+            return 'normalText'
         }
         if (!props.isOwner && !props.isContributor && props.isFollowed) {
-            return 'purple'
+            return 'normalText'
         } else {
-            return 'white'
+            return 'black'
         }
     }
 
@@ -190,32 +184,18 @@ export default class FollowBtn extends PureComponent<Props> {
     render() {
         const { props } = this
         return props.isContributor ? (
-            <>
-                <ButtonTooltip
-                    tooltipText={
-                        <>
-                            You can add pages <br />
-                            and annotations to this Space
-                        </>
-                    }
-                    position="bottom"
-                >
-                    <Container
-                        onMouseEnter={() => this.handleMouseEnter()}
-                        onMouseLeave={() => this.handleMouseLeave()}
-                        onClick={props.onClick}
-                        isContributor={props.isContributor}
-                        isFollowed={
-                            props.isFollowed ||
-                            props.isOwner ||
-                            props.isContributor
-                        }
-                        isOwner={props.isOwner}
-                    >
-                        {this.renderBody()}
-                    </Container>
-                </ButtonTooltip>
-            </>
+            <Container
+                onMouseEnter={() => this.handleMouseEnter()}
+                onMouseLeave={() => this.handleMouseLeave()}
+                onClick={props.onClick}
+                isContributor={props.isContributor}
+                isFollowed={
+                    props.isFollowed || props.isOwner || props.isContributor
+                }
+                isOwner={props.isOwner}
+            >
+                {this.renderBody()}
+            </Container>
         ) : (
             <Container
                 onMouseEnter={() => this.handleMouseEnter()}
