@@ -17,7 +17,10 @@
     },
     "dependencies": {
         "dompurify": "^2.1.0",
+        "html-react-parser": "^3.0.4",
         "immutability-helper": "^3.0.0",
+        "linkify-html": "^4.0.2",
+        "linkifyjs": "^4.0.2",
         "react": "^17.0.1",
         "react-dom": "^17.0.2",
         "react-onclickoutside": "^6.12.2",

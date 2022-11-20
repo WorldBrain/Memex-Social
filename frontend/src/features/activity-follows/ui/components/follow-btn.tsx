@@ -14,27 +14,16 @@ const Container = styled.div<{
     border-radius: 5px;
     border-width: 1px;
     font-weight: bold;
-    margin-left: auto;
-    width: 170px;
+    width: 160px;
     background-color: ${(props) => props.theme.colors.normalText};
     color: ${(props) => props.theme.colors.black};
     ${(props) =>
-        props.isContributor &&
-        props.isFollowed &&
+        (props.isContributor || props.isFollowed || props.isOwner) &&
         css`
             cursor: default;
             background-color: transparent;
             border: 1px solid ${(props) => props.theme.colors.normalText};
             color: ${(props) => props.theme.colors.normalText};
-            & div {
-                cursor: default;
-            }
-        `}
-    ${(props) =>
-        props.isOwner &&
-        props.isFollowed &&
-        css`
-            cursor: default;
             & div {
                 cursor: default;
             }
@@ -59,6 +48,7 @@ const Container = styled.div<{
     align-items: center;
     font-size: 14px;
     display: flex;
+    white-space: nowrap;
 
     & * {
         cursor: pointer;

@@ -26,9 +26,10 @@ export default function DefaultPageLayout(props: {
     >
     storage: Pick<StorageModules, 'users' | 'activityStreams'>
     headerTitle?: string | JSX.Element
-    headerSubtitle?: JSX.Element
+    headerSubtitle?: JSX.Element | string
     followBtn?: JSX.Element
     permissionKeyOverlay?: JSX.Element | null
+    renderHeaderActionArea?: JSX.Element | null
     webMonetizationIcon?: JSX.Element
     hideActivityIndicator?: boolean
     isSidebarShown?: boolean
@@ -141,7 +142,6 @@ export default function DefaultPageLayout(props: {
             >
                 <AuthHeader services={props.services} storage={props.storage} />
             </HeaderAuthArea>
-            {props.permissionKeyOverlay}
             <MainColumn>
                 <StyledHeader
                     isIframe={isIframe() === true}
@@ -172,14 +172,18 @@ export default function DefaultPageLayout(props: {
                                         children: props.headerSubtitle,
                                     })}
                             </PageMidleAreaTitles>
-                            <PageMidleAreaAction
-                                scrollTop={props.scrollTop}
-                                viewportWidth={viewportWidth}
-                            >
-                                {props.webMonetizationIcon &&
-                                    props.webMonetizationIcon}
-                                {props.followBtn && props.followBtn}
-                            </PageMidleAreaAction>
+                            {props.renderHeaderActionArea && (
+                                <PageMidleAreaAction
+                                    scrollTop={props.scrollTop}
+                                    viewportWidth={viewportWidth}
+                                >
+                                    {props.renderHeaderActionArea}
+
+                                    {/* {props.webMonetizationIcon &&
+                                        props.webMonetizationIcon}
+                                    {props.followBtn && props.followBtn} */}
+                                </PageMidleAreaAction>
+                            )}
                             {/* <LeftRightBlock /> */}
                         </HeaderMiddleArea>
                     </StyledHeaderContainer>
@@ -206,7 +210,6 @@ const MainContainer = styled.div<{
     viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
     sidebarShown?: boolean
 }>`
-    background: ${(props) => props.theme.colors.backgroundColor};
     display: flex;
     align-items: center;
     flex-direction: column;
@@ -448,65 +451,21 @@ const PageMidleAreaAction = styled.div<{
     align-items: center;
     flex-direction: row-reverse;
     grid-gap: 10px;
-`
-
-const PageMidleAreaActionMobile = styled.div<{
-    viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
-}>`
-    display: none;
+    min-height: 50px;
+    width: fill-available;
+    height: fit-content;
 
     ${(props) =>
         props.viewportWidth === 'mobile' &&
         css`
             display: flex;
-            flex-direction: row;
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            justify-content: flex-end;
-            align-items: center;
-            flex-direction: row;
-        `}
-`
-
-const PageMiddleAreaTopBox = styled(Margin)<{
-    viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
-    scrollTop?: number
-}>`
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    width: 100%;
-    flex-direction: ${(props) =>
-        props.viewportWidth === 'mobile' ? 'column' : 'row'};
-`
-
-const BetaFlag = styled.div<{ isIframe: boolean }>`
-    color: #757575;
-    background-color: #fff;
-    font-size: 14px;
-    font-family: ${(props) => props.theme.fonts.primary};
-    border-radius: 3px;
-    padding: 0 8px;
-    height: 24px;
-    display: flex;
-    position: fixed;
-    bottom: 5px;
-    right: 5px;
-    cursor: pointer;
-    justify-content: center;
-    align-items: center;
-    font-weight: 600;
-
-    ${(props) =>
-        props.isIframe &&
-        css`
-            display: none;
+            flex-direction: column-reverse;
+            align-items: flex-start;
         `}
 `
 
 const MainColumn = styled.div`
-    //background: ${(props) => props.theme.darkModeColors.backgroundColor};
+    //background: ${(props) => props.theme.colors.backgroundColor};
     border-radius: 20px;
     width: 100%;
     display: flex;

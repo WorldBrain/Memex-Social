@@ -28,7 +28,7 @@ export function getProfileLinks(
 
     maybePush('websiteURL', {
         label: 'Website',
-        icon: 'webLogo',
+        icon: 'globe',
     })
     maybePush('mediumURL', {
         label: 'Medium',
@@ -36,7 +36,7 @@ export function getProfileLinks(
     })
     maybePush('twitterURL', {
         label: 'Twitter',
-        icon: 'twitterLogo',
+        icon: 'twitterThin',
     })
     maybePush('substackURL', {
         label: 'Substack',

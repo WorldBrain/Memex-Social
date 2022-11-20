@@ -80,8 +80,7 @@ export default class WebMonetizationIcon extends UIElement<
                 {paymentState === 'pristine' && (
                     <WebMonetizationPaymentProgress>
                         <Icon
-                            height={'38px'}
-                            padding={'0px'}
+                            height={'24px'}
                             color="normalText"
                             icon={'webMonetizationLogo'}
                             onClick={this.handleClick}
@@ -91,14 +90,13 @@ export default class WebMonetizationIcon extends UIElement<
                 {paymentState === 'success' && (
                     <WebMonetizationPaymentProgress>
                         <Icon
-                            height={'38px'}
+                            height={'24px'}
                             color="purple"
-                            padding={'0px'}
                             icon={'webMonetizationLogo'}
                             onClick={this.handleClick}
                             hoverOff
                         />
-                        <LoadingIndicator speed={4} size={28} />
+                        <LoadingIndicator speed={4} size={24} />
                     </WebMonetizationPaymentProgress>
                 )}
                 {paymentState === 'error' && <span>Error!</span>}

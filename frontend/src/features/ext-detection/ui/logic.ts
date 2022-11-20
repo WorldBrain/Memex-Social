@@ -10,6 +10,7 @@ export interface ExtDetectionState {
     isInstallExtModalShown: boolean
     isMissingPDFModalShown: boolean
     clickedPageUrl: string | null
+    notifAlreadyShown?: boolean
 }
 
 export interface ExtDetectionEvent {
@@ -21,6 +22,7 @@ export interface ExtDetectionEvent {
         preventOpening: () => void
         isFollowedSpace?: boolean
         isFeed?: boolean
+        notifAlreadyShown?: boolean
     }
 }
 
@@ -37,6 +39,7 @@ export const extDetectionInitialState = (): ExtDetectionState => ({
     isMissingPDFModalShown: false,
     showFollowModal: false,
     clickedPageUrl: null,
+    notifAlreadyShown: false,
 })
 
 export const extDetectionEventHandlers = (
@@ -56,43 +59,57 @@ export const extDetectionEventHandlers = (
 
     return {
         clickPageResult: async ({ previousState, event }) => {
-            if (doesMemexExtDetectionElExist()) {
-                if (!event.isFollowedSpace && !event.isFeed) {
+            if (event.notifAlreadyShown) {
+                if (isPagePdf({ url: event.urlToOpen })) {
                     event.preventOpening()
                     logic.emitMutation({
-                        showFollowModal: { $set: true },
-                        clickedPageUrl: { $set: event.urlToOpen },
+                        isMissingPDFModalShown: { $set: true },
+                        clickedPageUrl: { $set: null },
+                    })
+                    return
+                } else {
+                    window.open(event.urlToOpen)
+                }
+            } else {
+                if (isPagePdf({ url: event.urlToOpen })) {
+                    event.preventOpening()
+                    logic.emitMutation({
+                        isMissingPDFModalShown: { $set: true },
+                        clickedPageUrl: { $set: null },
                     })
                     return
                 }
 
-                if (event.isFeed) {
+                if (event.isFollowedSpace || event.isFeed) {
                     logic.emitMutation({
                         showFollowModal: { $set: false },
                         clickedPageUrl: { $set: event.urlToOpen },
                     })
+                }
+
+                if (doesMemexExtDetectionElExist()) {
+                    if (!event.isFollowedSpace && !event.isFeed) {
+                        event.preventOpening()
+                        logic.emitMutation({
+                            showFollowModal: { $set: true },
+                            clickedPageUrl: { $set: event.urlToOpen },
+                            notifAlreadyShown: { $set: true },
+                        })
+                        return
+                    }
+                }
+
+                if (!doesMemexExtDetectionElExist()) {
+                    event.preventOpening()
+                    logic.emitMutation({
+                        isInstallExtModalShown: { $set: true },
+                        clickedPageUrl: { $set: event.urlToOpen },
+                        notifAlreadyShown: { $set: true },
+                    })
                     return
                 }
             }
-
-            if (!doesMemexExtDetectionElExist()) {
-                event.preventOpening()
-                logic.emitMutation({
-                    isInstallExtModalShown: { $set: true },
-                    clickedPageUrl: { $set: event.urlToOpen },
-                })
-                return
-            }
-
             // This means it's a local PDF page
-            if (isPagePdf({ url: event.urlToOpen })) {
-                event.preventOpening()
-                logic.emitMutation({
-                    isMissingPDFModalShown: { $set: true },
-                    clickedPageUrl: { $set: null },
-                })
-                return
-            }
         },
         toggleInstallExtModal: ({ previousState }) => {
             performToggleMutation('isInstallExtModalShown', previousState)

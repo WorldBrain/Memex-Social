@@ -18,7 +18,7 @@ const GlobalStyle = createGlobalStyle`
     overflow: scroll;
 
     margin: 0;
-    background: ${theme.darkModeColors.background};
+    background: ${theme.colors.background};
   }
 
   body, input, button {

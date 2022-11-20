@@ -4,6 +4,8 @@ import AnnotationReply from '../../../content-conversations/ui/components/annota
 import { Margin } from 'styled-components-spacing'
 import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
 import { PrimaryAction } from '@worldbrain/memex-common/lib/common-ui/components/PrimaryAction'
+import IconBox from '@worldbrain/memex-common/lib/common-ui/components/icon-box'
+import TextField from '@worldbrain/memex-common/lib/common-ui/components/text-field'
 
 const StyledProfileSetupForm = styled.div`
     display: flex;
@@ -15,88 +17,22 @@ const StyledProfileSetupForm = styled.div`
 const Header = styled.div`
     text-align: center;
     font-family: ${(props) => props.theme.fonts.primary};
-    font-size: 24px;
+    font-size: 22px;
     font-weight: 800;
-    color: ${(props) => props.theme.darkModeColors.lighterText};
+    color: ${(props) => props.theme.colors.normalText};
 `
 
-const SmallHeader = styled.div`
-    text-align: center;
-    font-family: ${(props) => props.theme.fonts.primary};
-    font-size: 18px;
-    font-weight: 800;
-`
-
-const DisplayName = styled.div`
-    text-align: center;
-`
-
-const TextInputContainer = styled.div`
-    display: flex;
-    grid-auto-flow: column;
-    grid-gap: 10px;
-    align-items: center;
-    justify-content: flex-start;
-    border: 1px solid ${(props) => props.theme.colors.lineLightGrey};
-    height: 50px;
-    border-radius: 8px;
-    width: 350px;
-    padding: 0 15px;
-    margin-bottom: 40px;
-`
-
-const TextInputOneLine = styled.input`
-    outline: none;
-    height: fill-available;
-    width: fill-available;
-    color: #96a0b5;
-    font-size: 14px;
-    border: none;
-    background: transparent;
-    font-family: 'Inter';
-    color: ${(props) => props.theme.darkModeColors.normalText};
-
-    &::placeholder {
-        color: #96a0b5;
-    }
-`
-const SectionCircle = styled.div<{ size: string }>`
-    background: ${(props) => props.theme.colors.backgroundHighlight};
-    border-radius: 100px;
-    height: ${(props) => (props.size ? props.size : '60px')};
-    width: ${(props) => (props.size ? props.size : '60px')};
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 20px;
-`
-
-const AnnotationReplyContainer = styled(AnnotationReply)`
-    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.05);
-    border: 1px solid ${(props) => props.theme.colors.lightgrey} !important;
-`
-
-const PrimaryActionContainer = styled.div`
-    margin: 20px 0 0 0;
-    width: 100%;
-
-    & > div {
-        height: 50px;
-        width: 100%;
-
-        & * {
-            font-weight: 500;
-            font-size: 14px;
+function handleEnter(f: () => void) {
+    console.log('test')
+    const handler = (event: React.KeyboardEvent<HTMLInputElement>) => {
+        console.log('test2')
+        if (event.keyCode === 13) {
+            console.log('test3')
+            f()
         }
     }
-`
-
-const AnnotationCard = styled.div`
-    & > div {
-        box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.15) !important;
-        border: 1px solid ${(props) => props.theme.colors.lightgrey} !important;
-    }
-`
+    return handler
+}
 
 export default function ProfileSetupForm(props: {
     displayName: string
@@ -106,29 +42,29 @@ export default function ProfileSetupForm(props: {
     const placeholder = 'John Doe'
     return (
         <StyledProfileSetupForm>
-            <SectionCircle size="50px">
+            <IconBox heightAndWidth="50px" background="light">
                 <Icon
                     icon={'personFine'}
                     heightAndWidth="25px"
                     color="purple"
+                    hoverOff
                 />
-            </SectionCircle>
-            <Margin bottom="medium">
+            </IconBox>
+            <Margin top="medium" bottom="medium">
                 <Header>Set up your display name</Header>
             </Margin>
-            <Margin bottom="medium">
-                <DisplayName>
-                    <TextInputContainer>
-                        <TextInputOneLine
-                            placeholder={placeholder}
-                            value={props.displayName}
-                            onChange={(e) =>
-                                props.onDisplayNameChange(e.target.value)
-                            }
-                        />
-                    </TextInputContainer>
-                </DisplayName>
-            </Margin>
+            <TextField
+                icon={'smileFace'}
+                type={'text'}
+                placeholder={placeholder}
+                value={props.displayName}
+                onChange={(e) =>
+                    props.onDisplayNameChange(
+                        (e.target as HTMLInputElement).value,
+                    )
+                }
+                onKeyDown={handleEnter(() => props.onConfirm())}
+            />
             {/* <Margin bottom="medium">
                 <SmallHeader>Where this will appear</SmallHeader>
             </Margin>
@@ -150,16 +86,16 @@ export default function ProfileSetupForm(props: {
                     />
                 </AnnotationCard>
             </Margin> */}
-            <PrimaryActionContainer>
-                <PrimaryAction
-                    label="Confirm Display Name"
-                    fontSize="14px"
-                    onClick={props.onConfirm}
-                    disabled={props.displayName.length === 0}
-                    icon={'check'}
-                    iconSize={'18px'}
-                />
-            </PrimaryActionContainer>
+            <Margin top="large"> </Margin>
+            <PrimaryAction
+                label="Save"
+                onClick={() => props.onConfirm()}
+                disabled={props.displayName.length === 0}
+                icon={'check'}
+                height={'50px'}
+                iconSize={'18px'}
+                width="100%"
+            />
         </StyledProfileSetupForm>
     )
 }

@@ -47,6 +47,8 @@ import ItemBox from '@worldbrain/memex-common/lib/common-ui/components/item-box'
 import ItemBoxBottom, {
     ItemBoxBottomAction,
 } from '@worldbrain/memex-common/lib/common-ui/components/item-box-bottom'
+import { PrimaryAction } from '@worldbrain/memex-common/lib/common-ui/components/PrimaryAction'
+import IconBox from '@worldbrain/memex-common/lib/common-ui/components/icon-box'
 
 const commentImage = require('../../../../../assets/img/comment.svg')
 const commentEmptyImage = require('../../../../../assets/img/comment-empty.svg')
@@ -573,7 +575,7 @@ export default class CollectionDetailsPage extends UIElement<
                                 this.processEvent('toggleInstallExtModal', {})
                             }
                         >
-                            <Icon icon="plus" height="16px" color="purple" />
+                            <Icon icon="plus" height="22px" color="purple" />
                         </AddPageBtn>
                     )}
                     {annotationEntryData &&
@@ -588,15 +590,13 @@ export default class CollectionDetailsPage extends UIElement<
                             >
                                 {allAnnotationExpanded ? (
                                     <Icon
-                                        color={'purple'}
                                         icon={'compress'}
-                                        heightAndWidth="16px"
+                                        heightAndWidth="22px"
                                     />
                                 ) : (
                                     <Icon
-                                        color={'purple'}
                                         icon={'expand'}
-                                        heightAndWidth="16px"
+                                        heightAndWidth="22px"
                                     />
                                 )}
                             </ToggleAllAnnotations>
@@ -672,8 +672,95 @@ export default class CollectionDetailsPage extends UIElement<
         )
     }
 
+    renderHeaderActionArea() {
+        if (
+            this.state.followLoadState === 'running' ||
+            this.state.listRolesLoadState === 'running' ||
+            this.state.permissionKeyState === 'running'
+        ) {
+            return (
+                <LoadingBoxHeaderActionArea>
+                    <LoadingIndicator size={24} />
+                </LoadingBoxHeaderActionArea>
+            )
+        } else {
+            if (this.state.requestingAuth === true) {
+                return (
+                    <InvitedNotification
+                        viewportBreakpoint={this.viewportBreakpoint}
+                        withFrame={true}
+                        // onClick={() =>
+                        //     this.processEvent(
+                        //         'acceptInvitation',
+                        //         {},
+                        //     )
+                        // }
+                    >
+                        <InvitationTextContainer>
+                            <Icon
+                                filePath={'invite'}
+                                color={'purple'}
+                                heightAndWidth={'22px'}
+                            />
+                            You've been invited to contribute to this Space and
+                            can now add pages and annotations.
+                        </InvitationTextContainer>
+                        <PrimaryAction
+                            label="Accept Invitation"
+                            icon="check"
+                            iconPosition="left"
+                            iconSize="16px"
+                            backgroundColor="purple"
+                            fontColor="black"
+                            height="28px"
+                            width="130px"
+                            fontSize="12"
+                            onClick={() =>
+                                this.processEvent('acceptInvitation', {})
+                            }
+                        />
+                    </InvitedNotification>
+                )
+            }
+
+            if (this.state.permissionKeyResult === 'success') {
+                if (
+                    this.state.permissionKeyState === 'success' &&
+                    this.isListContributor &&
+                    !this.state.isListOwner
+                ) {
+                    return (
+                        <>
+                            <InvitedNotification
+                                viewportBreakpoint={this.viewportBreakpoint}
+                            >
+                                <InvitationTextContainer>
+                                    <Icon
+                                        filePath={'invite'}
+                                        color={'purple'}
+                                        heightAndWidth={'22px'}
+                                        hoverOff
+                                    />
+                                    You can add highlights & pages via the Memex
+                                    extension or app.
+                                </InvitationTextContainer>
+                            </InvitedNotification>
+                            {this.renderFollowBtn()()}
+                        </>
+                    )
+                }
+            } else {
+                return (
+                    <HeaderButtonRow>
+                        {this.renderFollowBtn()()}
+                        {this.renderWebMonetizationIcon()}
+                    </HeaderButtonRow>
+                )
+            }
+        }
+    }
+
     render() {
-        ;(window as any)['blurt'] = () => console.log(this.state)
         const { state } = this
         if (
             state.listLoadState === 'pristine' ||
@@ -681,7 +768,6 @@ export default class CollectionDetailsPage extends UIElement<
         ) {
             return (
                 <DocumentView id="DocumentView">
-                    {this.renderPermissionKeyOverlay()}
                     <DocumentTitle
                         documentTitle={this.props.services.documentTitle}
                         subTitle="Loading list..."
@@ -750,6 +836,7 @@ export default class CollectionDetailsPage extends UIElement<
                     headerTitle={this.renderTitle()}
                     headerSubtitle={this.renderSubtitle()}
                     followBtn={this.renderFollowBtn()()}
+                    renderHeaderActionArea={this.renderHeaderActionArea()}
                     webMonetizationIcon={this.renderWebMonetizationIcon()}
                     listsSidebarProps={this.listsSidebarProps}
                     isSidebarShown={this.listsSidebarProps.isShown}
@@ -779,16 +866,14 @@ export default class CollectionDetailsPage extends UIElement<
                                             <>
                                                 <Icon
                                                     icon="expand"
-                                                    color="purple"
-                                                    heightAndWidth="16px"
+                                                    heightAndWidth="22px"
                                                 />
                                             </>
                                         ) : (
                                             <>
                                                 <Icon
                                                     icon="compress"
-                                                    color="purple"
-                                                    heightAndWidth="16px"
+                                                    heightAndWidth="22px"
                                                 />
                                             </>
                                         )}
@@ -805,7 +890,8 @@ export default class CollectionDetailsPage extends UIElement<
                         </CollectionDescriptionBox>
                     )}
                     <PageInfoList viewportBreakpoint={this.viewportBreakpoint}>
-                        {this.renderAbovePagesBox()}
+                        {data.listEntries.length > 0 &&
+                            this.renderAbovePagesBox()}
                         {state.annotationEntriesLoadState === 'error' && (
                             <Margin bottom={'large'}>
                                 <ErrorWithAction errorType="internal-error">
@@ -816,13 +902,13 @@ export default class CollectionDetailsPage extends UIElement<
                         )}
                         {data.listEntries.length === 0 && (
                             <EmptyListBox>
-                                <SectionCircle size="50px">
+                                <IconBox heightAndWidth="50px">
                                     <Icon
                                         icon={'heartEmpty'}
                                         heightAndWidth="25px"
                                         color="purple"
                                     />
-                                </SectionCircle>
+                                </IconBox>
                                 This Space is empty (still).
                             </EmptyListBox>
                         )}
@@ -847,7 +933,6 @@ export default class CollectionDetailsPage extends UIElement<
                                                 entry && entry.entryTitle
                                             }
                                             onClick={(e) => {
-                                                console.log('test')
                                                 this.processEvent(
                                                     'clickPageResult',
                                                     {
@@ -860,6 +945,9 @@ export default class CollectionDetailsPage extends UIElement<
                                                                 .isCollectionFollowed ||
                                                             this.state
                                                                 .isListOwner,
+                                                        notifAlreadyShown: this
+                                                            .state
+                                                            .notifAlreadyShown,
                                                     },
                                                 )
                                             }}
@@ -1000,6 +1088,81 @@ const DocumentContainer = styled.div`
 //     }
 // `
 
+const HeaderButtonRow = styled.div`
+    display: flex;
+    align-items: center;
+    grid-gap: 5px;
+`
+
+const InvitationTextContainer = styled.div`
+    display: flex;
+    align-items: center;
+    grid-gap: 5px;
+    flex: 1;
+`
+
+const LoadingBoxHeaderActionArea = styled.div`
+    height: fill-available;
+    padding-left: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    height: ;
+`
+
+const InvitedNotification = styled.div<{
+    viewportBreakpoint: ViewportBreakpoint
+    withFrame?: boolean
+}>`
+    margin: auto;
+    width: 100%;
+    max-width: 800px;
+    min-height: 50px;
+    padding: 00px 15px;
+    color: ${(props) => props.theme.colors.greyScale8};
+    font-size: 14px;
+    font-weight: 300;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    font-family: ${(props) => props.theme.fonts.primary};
+    grid-gap: 10px;
+
+    ${(props) =>
+        props.viewportBreakpoint === 'mobile' &&
+        css`
+            display: flex;
+            width: 100%;
+            padding: 10px 0px;
+            font-size: 11px;
+            flex-direction: column;
+            grid-gap: 10px;
+        `}
+
+    ${(props) =>
+        props.withFrame &&
+        css`
+            border: 1px solid ${(props) => props.theme.colors.brand3};
+            border-radius: 8px;
+            width: fill-available;
+            padding: 5px 15px;
+            height: 100%;
+            justify-content: center;
+        `}
+            ${(props) =>
+        props.withFrame &&
+        props.viewportBreakpoint === 'mobile' &&
+        css`
+            border: 1px solid ${(props) => props.theme.colors.brand3};
+            border-radius: 8px;
+            width: fill-available;
+            padding: 15px 15px;
+            font-size: 12px;
+            height: 100%;
+            justify-content: center;
+        `}
+`
+
 const AbovePagesBox = styled.div<{
     viewportWidth: ViewportBreakpoint
 }>`
@@ -1086,6 +1249,7 @@ const EmptyListBox = styled.div`
     align-items: center;
     flex-direction: column;
     text-align: center;
+    grid-gap: 10px;
 `
 
 const ShowMoreCollaborators = styled.span`
@@ -1225,17 +1389,6 @@ const SharedBy = styled.span`
 //     display: inline-block;
 // `
 
-const SectionCircle = styled.div<{ size: string }>`
-    background: ${(props) => props.theme.colors.backgroundHighlight};
-    border-radius: 100px;
-    height: ${(props) => (props.size ? props.size : '60px')};
-    width: ${(props) => (props.size ? props.size : '60px')};
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 20px;
-`
-
 const ContributorContainer = styled.div`
     display: flex;
     flex-direction: column;
@@ -1270,23 +1423,6 @@ const ListEntry = styled.div`
     & * {
         white-space: pre-wrap;
         font-weight: initial;
-    }
-`
-
-const CommentIconBox = styled.div`
-    background: #ffffff09;
-    border-radius: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 24px;
-    width: fit-content;
-    padding: 0 10px;
-    grid-gap: 6px;
-    cursor: pointer;
-
-    & * {
-        cursor: pointer;
     }
 `
 

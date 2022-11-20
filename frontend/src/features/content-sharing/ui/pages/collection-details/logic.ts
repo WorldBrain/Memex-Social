@@ -244,6 +244,66 @@ export default class CollectionDetailsLogic extends UILogic<
             'permissionKeyState',
             async () => {
                 await this.dependencies.services.auth.waitForAuthReady()
+
+                const listReference = makeStorageReference<SharedListReference>(
+                    'shared-list-reference',
+                    this.dependencies.listID,
+                )
+                const userReference = this.dependencies.services.auth.getCurrentUserReference()
+                const listRoles = await this.dependencies.storage.contentSharing.getListRoles(
+                    { listReference },
+                )
+
+                const isAuthenticated = userReference
+
+                const isContributor =
+                    (userReference &&
+                        listRoles.find(
+                            (role) => role.user.id === userReference.id,
+                        )?.roleID) ??
+                    undefined
+
+                // const {
+                //     result,
+                // } = await this.dependencies.services.listKeys.processCurrentKey()
+
+                if (isAuthenticated && isContributor) {
+                    this.emitMutation({
+                        permissionKeyResult: { $set: 'success' },
+                    })
+                } else {
+                    this.emitMutation({
+                        permissionKeyResult: { $set: 'not-authenticated' },
+                        requestingAuth: { $set: true },
+                    })
+                }
+
+                // this.emitMutation({ requestingAuth: { $set: true } })
+
+                // const {
+                //     result: secondKeyResult,
+                // } = await this.dependencies.services.listKeys.processCurrentKey()
+                // return {
+                //     mutation: {
+                //         permissionKeyResult: { $set: secondKeyResult },
+                //         permissionKeyState: { $set: 'success' },
+                //         requestingAuth: { $set: false }
+                //     },
+                // }
+            },
+        )
+    }
+
+    acceptInvitation: EventHandler<'acceptInvitation'> = async (incoming) => {
+        await executeUITask<CollectionDetailsState>(
+            this,
+            'permissionKeyState',
+            async () => {
+                await this.dependencies.services.auth.waitForAuthReady()
+
+                // const userReference = this.dependencies.services.auth.getCurrentUserReference()
+                // const isAuthenticated = userReference
+
                 const {
                     result,
                 } = await this.dependencies.services.listKeys.processCurrentKey()
@@ -251,6 +311,7 @@ export default class CollectionDetailsLogic extends UILogic<
                     return {
                         mutation: {
                             permissionKeyResult: { $set: result },
+                            requestingAuth: { $set: false },
                         },
                     }
                 }
@@ -260,27 +321,26 @@ export default class CollectionDetailsLogic extends UILogic<
                     result: authResult,
                 } = await this.dependencies.services.auth.requestAuth({
                     reason: 'login-requested',
-                    header: {
-                        title:
-                            'You’ve been invited as \n a Contributor to this Space',
-                        subtitle: '',
-                    },
                 })
-                this.emitMutation({ requestingAuth: { $set: false } })
                 if (
                     authResult.status === 'cancelled' ||
                     authResult.status === 'error'
                 ) {
                     return
-                }
-                const {
-                    result: secondKeyResult,
-                } = await this.dependencies.services.listKeys.processCurrentKey()
-                return {
-                    mutation: {
-                        permissionKeyResult: { $set: secondKeyResult },
-                        permissionKeyState: { $set: 'success' },
-                    },
+                } else {
+                    console.log('test222')
+                    const {
+                        result: secondKeyResult,
+                    } = await this.dependencies.services.listKeys.processCurrentKey()
+
+                    console.log(secondKeyResult)
+                    return {
+                        mutation: {
+                            permissionKeyResult: { $set: secondKeyResult },
+                            permissionKeyState: { $set: 'success' },
+                            requestingAuth: { $set: false },
+                        },
+                    }
                 }
             },
         )

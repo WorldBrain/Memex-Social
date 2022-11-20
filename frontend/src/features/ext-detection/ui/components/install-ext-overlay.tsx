@@ -47,7 +47,7 @@ const Title = styled.div<{
 }>`
     font-weight: 800;
     font-size: 24px;
-    color: ${(props) => props.theme.darkModeColors.lighterText};
+    color: ${(props) => props.theme.colors.lighterText};
     text-align: center;
 
     ${(props) =>
@@ -76,7 +76,7 @@ const NoteIconContainer = styled.img`
     width: 16px;
     display: flex;
     mask-image: url(${noteIcon});
-    background-color: ${(props) => props.theme.darkModeColors.lighterText};
+    background-color: ${(props) => props.theme.colors.lighterText};
     mask-position: center center;
     mask-repeat: no-repeat;
     margin: 0 5px;
@@ -87,7 +87,7 @@ const NoteIconContainer = styled.img`
 
 const SubSubTitle = styled.div`
     font-size: 0.8rem;
-    color: ${(props) => props.theme.darkModeColors.lighterText};
+    color: ${(props) => props.theme.colors.lighterText};
     text-align: center;
     display: inline-flex;
     justify-content: center;
@@ -97,7 +97,7 @@ const SubSubTitle = styled.div`
 
 const SubSubSubTitle = styled.div`
     font-size: 0.8rem;
-    color: ${(props) => props.theme.darkModeColors.lighterText};
+    color: ${(props) => props.theme.colors.lighterText};
     text-align: center;
     display: inline-box;
     justify-content: center;

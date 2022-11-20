@@ -13,7 +13,7 @@ import LoadingIndicator from '@worldbrain/memex-common/lib/common-ui/components/
 
 const Title = styled.div<{}>`
     font-size: 16px;
-    color: ${(props) => props.theme.darkModeColors.lighterText};
+    color: ${(props) => props.theme.colors.normalText};
     font-weight: 800;
     text-align: center;
 `
@@ -23,7 +23,7 @@ const Text = styled.div<{}>`
     height: min-content;
     font-size: 14px;
     margin-top: 5px;
-    color: ${(props) => props.theme.darkModeColors.normalText};
+    color: ${(props) => props.theme.colors.greyScale8};
     line-height: 21px;
     text-align: center;
 `

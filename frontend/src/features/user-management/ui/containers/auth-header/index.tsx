@@ -37,24 +37,36 @@ const SettingsIcon = styled.div`
 
 const UserInfo = styled.div`
     display: flex;
-    flex-direction: row-reverse;
+    flex-direction: row;
     align-items: center;
     cursor: pointer;
+    border-radius: 8px;
+    justify-content: center;
+    border: 1px solid ${(props) => props.theme.colors.lightHover};
+    height: 34px;
+    width: fit-content;
+    grid-gap: 10px;
+    padding: 0 10px 0 14px;
 `
 const DisplayName = styled.div`
-    display: flex;
+    display: block;
     align-items: center;
     grid-gap: 5px;
     font-size: 14px;
     font-weight: bold;
     cursor: pointer;
     font-family: ${(props) => props.theme.fonts.primary};
+    color: ${(props) => props.theme.colors.normalText};
+    max-width: 150px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 
     & * {
         cursor: pointer;
     }
 
-    color: ${(props) => props.theme.darkModeColors.normalText};
+    color: ${(props) => props.theme.colors.normalText};
 `
 const MenuContainerOuter = styled.div`
     position: relative;
@@ -125,11 +137,13 @@ export default class AuthHeader extends UIElement<
                     <UserInfo
                         onClick={() => this.processEvent('toggleMenu', null)}
                     >
-                        {/*<UserAvatar user={this.state.user} />*/}
-                        <Margin left="small">
-                            <SettingsIcon />
-                        </Margin>
                         <DisplayName>{this.state.user.displayName}</DisplayName>
+                        <Icon
+                            filePath="settings"
+                            heightAndWidth="18px"
+                            hoverOff
+                            color="purple"
+                        ></Icon>
                     </UserInfo>
                     {this.state.showMenu && (
                         <Closable

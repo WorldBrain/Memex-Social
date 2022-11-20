@@ -111,6 +111,7 @@ export type CollectionDetailsEvent = UIEvent<
             toggleListShareModal: {}
             loadListData: { listID: string }
             processPermissionKey: {}
+            acceptInvitation: {}
             closePermissionOverlay: {}
             pageBreakpointHit: { entryIndex: number }
             clickFollowBtn: { pageToOpenPostFollow?: string }

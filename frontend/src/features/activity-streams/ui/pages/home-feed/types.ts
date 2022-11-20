@@ -67,6 +67,7 @@ export type HomeFeedState = {
     lastSeenTimestamp?: number | null
     moreRepliesLoadStates: { [groupId: string]: UITaskState }
     shouldShowNewLine: boolean
+    loadingIncludingUIFinished: boolean
 } & AnnotationConversationsState &
     ListsSidebarState &
     ExtDetectionState
@@ -92,6 +93,7 @@ export type HomeFeedEvent = UIEvent<
                 listEntryReference: SharedListEntryReference
             }
             getLastSeenLinePosition: null
+            loadingIncludingUIFinished: boolean
         }
 >
 

@@ -67,6 +67,7 @@ export default class AuthDialogLogic extends UILogic<
             displayName: '',
             header: null,
             passwordRepeat: '',
+            passwordMatch: false,
         }
     }
 
@@ -118,6 +119,10 @@ export default class AuthDialogLogic extends UILogic<
 
     passwordRepeat: EventHandler<'editPassword'> = ({ event }) => {
         return { passwordRepeat: { $set: event.value } }
+    }
+
+    passwordMatch: EventHandler<'passwordMatch'> = ({ event }) => {
+        return { passwordMatch: { $set: event.value } }
     }
 
     emailPasswordConfirm: EventHandler<'emailPasswordConfirm'> = async ({

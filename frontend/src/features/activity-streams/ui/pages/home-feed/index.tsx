@@ -40,9 +40,13 @@ import { getViewportBreakpoint } from '../../../../../main-ui/styles/utils'
 import { ViewportBreakpoint } from '../../../../../main-ui/styles/types'
 import MissingPdfOverlay from '../../../../ext-detection/ui/components/missing-pdf-overlay'
 import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
+import IconBox from '@worldbrain/memex-common/lib/common-ui/components/icon-box'
 import { IconKeys } from '@worldbrain/memex-common/lib/common-ui/styles/types'
-
-const commentImage = require('../../../../../assets/img/comment.svg')
+import BlockContent from '@worldbrain/memex-common/lib/common-ui/components/block-content'
+import ItemBox from '@worldbrain/memex-common/lib/common-ui/components/item-box'
+import ItemBoxBottom, {
+    ItemBoxBottomAction,
+} from '@worldbrain/memex-common/lib/common-ui/components/item-box-bottom'
 
 const StyledIconMargin = styled(Margin)`
     display: flex;
@@ -138,7 +142,7 @@ const ActivityReasonLabel = styled.div<{
 }>`
     font-family: ${(props) => props.theme.fonts.primary};
     font-weight: normal;
-    font-size: 14px;
+    font-size: 16px;
     color: ${(props) => props.theme.colors.normalText};
     display: flex;
     width: 92%;
@@ -181,10 +185,14 @@ const StyledLastSeenLine = styled.div`
 const LastSeenLineLabel = styled.div`
     font-family: ${(props) => props.theme.fonts.primary};
     text-align: center;
-    padding: 0 20px;
-    background: ${(props) => props.theme.darkModeColors.background};
-    color: ${(props) => props.theme.darkModeColors.lighterText};
+    padding: 5px 15px 5px 10px;
+    color: ${(props) => props.theme.colors.normalText};
     z-index: 2;
+    display: flex;
+    align-items: center;
+    grid-gap: 10px;
+    border-radius: 8px;
+    border: 1px solid ${(props) => props.theme.colors.lightHover};
 `
 
 const LoadMoreReplies = styled.div`
@@ -217,7 +225,7 @@ const Separator = styled.div`
     height: 1px;
     display: flex;
     width: fill-available;
-    background: ${(props) => props.theme.colors.lighterText}70;
+    background: ${(props) => props.theme.colors.lightHover};
 `
 
 const NoActivitiesContainer = styled.div`
@@ -225,6 +233,14 @@ const NoActivitiesContainer = styled.div`
     flex-direction: column;
     align-items: center;
     justify-content: center;
+`
+
+const HeaderSubTitle = styled.div`
+    display: flex;
+    color: ${(props) => props.theme.colors.greyScale8};
+    font-size: 16px;
+    font-weight: 300;
+    margin-bottom: 15px;
 `
 
 type ActivityItemRendererOpts = { groupAlreadySeen: boolean }
@@ -276,7 +292,7 @@ export default class HomeFeedPage extends UIElement<
     renderContent() {
         const { state } = this
         if (state.loadState === 'pristine' || state.loadState === 'running') {
-            return <LoadingScreen />
+            return <LoadingIndicator />
         }
         if (state.loadState === 'error') {
             return 'Error'
@@ -301,10 +317,18 @@ export default class HomeFeedPage extends UIElement<
     }
 
     renderNewLine() {
+        console.log('test')
         return (
             <StyledLastSeenLine>
-                <Icon icon="newFeed" heightAndWidth="20px" hoverOff />
-                <LastSeenLineLabel>New</LastSeenLineLabel>
+                <LastSeenLineLabel>
+                    <Icon
+                        icon="stars"
+                        color="purple"
+                        heightAndWidth="22px"
+                        hoverOff
+                    />
+                    New
+                </LastSeenLineLabel>
                 <Separator />
             </StyledLastSeenLine>
         )
@@ -319,17 +343,18 @@ export default class HomeFeedPage extends UIElement<
             <Margin vertical="largest">
                 <NoActivitiesContainer>
                     <Margin bottom={'small'}>
-                        <SectionCircle size="50px">
+                        <IconBox heightAndWidth="50px">
                             <Icon
                                 icon={'newFeed'}
                                 heightAndWidth="25px"
                                 color="purple"
+                                hoverOff
                             />
-                        </SectionCircle>
+                        </IconBox>
                     </Margin>
                     <MessageBox title="No Updates (yet)">
-                        Get updates from Spaces you follow or conversation you
-                        participate in.
+                        Follow, reply or collaboratively curate Spaces to see
+                        updates here.
                     </MessageBox>
                 </NoActivitiesContainer>
             </Margin>
@@ -446,7 +471,6 @@ export default class HomeFeedPage extends UIElement<
         options,
     ) => {
         const pageInfo = this.state.pageInfo[pageItem.normalizedPageUrl]
-        console.log(pageInfo)
         const pageCreator = this.state.users[pageItem.creatorReference.id]
         return {
             key: getOrderedMapIndex(pageItem.annotations, 0).reference.id,
@@ -456,36 +480,36 @@ export default class HomeFeedPage extends UIElement<
                         <Margin bottom="small">
                             {this.renderActivityReason(pageItem)}
                         </Margin>
-                        <PageInfoBox
-                            viewportBreakpoint={this.viewportBreakpoint}
-                            variant="dark-mode"
-                            onClick={(e) =>
-                                this.processEvent('clickPageResult', {
-                                    urlToOpen: pageInfo.originalUrl,
-                                    preventOpening: () => e.preventDefault(),
-                                    isFeed: true,
-                                })
-                            }
-                            type={
-                                isPagePdf({ url: pageItem?.normalizedPageUrl })
-                                    ? 'pdf'
-                                    : 'page'
-                            }
-                            profilePopup={{
-                                services: this.props.services,
-                                storage: this.props.storage,
-                                userRef: pageItem.creatorReference,
-                            }}
-                            pageInfo={{
-                                createdWhen: pageInfo?.createdWhen,
-                                updatedWhen: pageInfo?.createdWhen,
-                                fullTitle: pageInfo?.fullTitle,
-                                normalizedUrl: pageItem?.normalizedPageUrl,
-                                originalUrl: pageInfo?.originalUrl,
-                            }}
-                            creator={pageCreator}
-                            actions={[]}
-                        />
+                        <ItemBox>
+                            <BlockContent
+                                type={
+                                    isPagePdf({
+                                        url: pageItem?.normalizedPageUrl,
+                                    })
+                                        ? 'pdf'
+                                        : 'page'
+                                }
+                                normalizedUrl={pageItem?.normalizedPageUrl}
+                                originalUrl={pageInfo?.originalUrl}
+                                fullTitle={pageInfo?.fullTitle}
+                                onClick={(e) =>
+                                    this.processEvent('clickPageResult', {
+                                        urlToOpen: pageInfo.originalUrl,
+                                        preventOpening: () =>
+                                            e.preventDefault(),
+                                        isFeed: true,
+                                    })
+                                }
+                                viewportBreakpoint={this.viewportBreakpoint}
+                            />
+                            <ItemBoxBottom
+                                creationInfo={{
+                                    creator: pageCreator,
+                                    createdWhen: pageInfo?.createdWhen,
+                                }}
+                                actions={[]}
+                            />
+                        </ItemBox>
                     </Margin>
                     <Margin left={'small'}>
                         {this.renderAnnotationsInPage(
@@ -742,7 +766,7 @@ export default class HomeFeedPage extends UIElement<
                             if (!shouldRender) {
                                 return null
                             }
-                            const actions: PageInfoBoxAction[] = []
+                            const actions: ItemBoxBottomAction[] = []
                             if (
                                 entry.annotationEntriesLoadState === 'running'
                             ) {
@@ -757,31 +781,48 @@ export default class HomeFeedPage extends UIElement<
                                 })
                             } else if (entry.hasAnnotations) {
                                 actions.push({
-                                    node: (
-                                        <CommentIconBox
-                                            onClick={() =>
-                                                this.processEvent(
-                                                    'toggleListEntryActivityAnnotations',
-                                                    {
-                                                        listReference:
-                                                            listItem.listReference,
-                                                        listEntryReference:
-                                                            entry.reference,
-                                                        groupId:
-                                                            listItem.groupId,
-                                                    },
-                                                )
-                                            }
-                                        >
-                                            {/* {count.length > 0 && <Counter>{count}</Counter>} */}
-                                            <Icon
-                                                icon={commentImage}
-                                                heightAndWidth={'16px'}
-                                                hoverOff
-                                            />
-                                        </CommentIconBox>
-                                    ),
+                                    // key: 'expand-notes-btn',
+                                    image: 'commentFull',
+                                    imageColor: 'purple',
+                                    onClick: () =>
+                                        this.processEvent(
+                                            'toggleListEntryActivityAnnotations',
+                                            {
+                                                listReference:
+                                                    listItem.listReference,
+                                                listEntryReference:
+                                                    entry.reference,
+                                                groupId: listItem.groupId,
+                                            },
+                                        ),
                                 })
+
+                                // actions.push({
+                                //     node: (
+                                //         <CommentIconBox
+                                //             onClick={() =>
+                                //                 this.processEvent(
+                                //                     'toggleListEntryActivityAnnotations',
+                                //                     {
+                                //                         listReference:
+                                //                             listItem.listReference,
+                                //                         listEntryReference:
+                                //                             entry.reference,
+                                //                         groupId:
+                                //                             listItem.groupId,
+                                //                     },
+                                //                 )
+                                //             }
+                                //         >
+                                //             {/* {count.length > 0 && <Counter>{count}</Counter>} */}
+                                //             <Icon
+                                //                 icon={commentImage}
+                                //                 heightAndWidth={'16px'}
+                                //                 hoverOff
+                                //             />
+                                //         </CommentIconBox>
+                                //     ),
+                                // })
                             }
 
                             const creator = state.users[entry.creator.id]
@@ -790,44 +831,43 @@ export default class HomeFeedPage extends UIElement<
                                     bottom="small"
                                     key={entry.normalizedUrl}
                                 >
-                                    <PageInfoBox
-                                        onClick={(e) =>
-                                            this.processEvent(
-                                                'clickPageResult',
-                                                {
-                                                    urlToOpen:
-                                                        entry.originalUrl,
-                                                    preventOpening: () =>
-                                                        e.preventDefault(),
-                                                    isFeed: true,
-                                                },
-                                            )
-                                        }
-                                        type={
-                                            isPagePdf({
-                                                url: entry.normalizedUrl,
-                                            })
-                                                ? 'pdf'
-                                                : 'page'
-                                        }
-                                        profilePopup={{
-                                            services: this.props.services,
-                                            storage: this.props.storage,
-                                            userRef: entry.creator,
-                                        }}
-                                        pageInfo={{
-                                            fullTitle: entry.entryTitle,
-                                            originalUrl: entry.originalUrl,
-                                            updatedWhen:
-                                                entry.activityTimestamp,
-                                            createdWhen:
-                                                entry.activityTimestamp,
-                                            normalizedUrl: entry.normalizedUrl,
-                                        }}
-                                        creator={creator}
-                                        actions={actions}
-                                        variant="dark-mode"
-                                    />
+                                    <ItemBox>
+                                        <BlockContent
+                                            type={
+                                                isPagePdf({
+                                                    url: entry.normalizedUrl,
+                                                })
+                                                    ? 'pdf'
+                                                    : 'page'
+                                            }
+                                            normalizedUrl={entry.normalizedUrl}
+                                            originalUrl={entry.originalUrl}
+                                            fullTitle={entry.entryTitle}
+                                            onClick={(e) =>
+                                                this.processEvent(
+                                                    'clickPageResult',
+                                                    {
+                                                        urlToOpen:
+                                                            entry.originalUrl,
+                                                        preventOpening: () =>
+                                                            e.preventDefault(),
+                                                        isFeed: true,
+                                                    },
+                                                )
+                                            }
+                                            viewportBreakpoint={
+                                                this.viewportBreakpoint
+                                            }
+                                        />
+                                        <ItemBoxBottom
+                                            creationInfo={{
+                                                creator: creator,
+                                                createdWhen:
+                                                    entry.activityTimestamp,
+                                            }}
+                                            actions={actions}
+                                        />
+                                    </ItemBox>
                                     {entry.annotationsLoadState ===
                                         'running' && (
                                         <LoadingIndicatorBox>
@@ -878,6 +918,15 @@ export default class HomeFeedPage extends UIElement<
                     <ErrorBox>You need to login to view your feed.</ErrorBox>
                 </DefaultPageLayout>
             </>
+        )
+    }
+
+    renderHeaderSubTitle() {
+        return (
+            <HeaderSubTitle>
+                Updates from Spaces you follow or conversation you participate
+                in
+            </HeaderSubTitle>
         )
     }
 
@@ -933,6 +982,7 @@ export default class HomeFeedPage extends UIElement<
                     viewportBreakpoint={this.viewportBreakpoint}
                     hideActivityIndicator
                     headerTitle="Activity Feed"
+                    headerSubtitle={this.renderHeaderSubTitle()}
                     listsSidebarProps={{
                         collaborativeLists: this.state.collaborativeLists,
                         followedLists: this.state.followedLists,
@@ -957,13 +1007,7 @@ const ActivityReason = (props: {
     return (
         <StyledActivityReason>
             <StyledIconMargin right="small">
-                <SectionCircle size="36px">
-                    <Icon
-                        icon={props.icon}
-                        heightAndWidth="18px"
-                        color="purple"
-                    />
-                </SectionCircle>
+                <Icon icon={props.icon} heightAndWidth="22px" color="purple" />
             </StyledIconMargin>
             <ActivityReasonLabel viewportBreakpoint={props.viewportBreakpoint}>
                 {props.label}
@@ -974,7 +1018,6 @@ const ActivityReason = (props: {
 
 class LastSeenLineState {
     alreadyRenderedLine = false
-
     constructor(private lastSeenTimestamp: number | null) {}
 
     shouldRenderBeforeItem(activityItem: Pick<ActivityItem, 'notifiedWhen'>) {
@@ -990,6 +1033,7 @@ class LastSeenLineState {
         if (shouldRenderLine) {
             this.alreadyRenderedLine = true
         }
+
         return this.alreadyRenderedLine
     }
 }
@@ -997,8 +1041,10 @@ class LastSeenLineState {
 function LastSeenLine() {
     return (
         <StyledLastSeenLine>
-            <Icon icon="checkedRound" heightAndWidth="20px" hoverOff />
-            <LastSeenLineLabel>Read</LastSeenLineLabel>
+            <LastSeenLineLabel>
+                <Icon icon="clock" heightAndWidth="22px" hoverOff />
+                Read
+            </LastSeenLineLabel>
             <Separator />
         </StyledLastSeenLine>
     )
