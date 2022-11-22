@@ -11,6 +11,7 @@ import {
     SharedListEntry,
     SharedList,
     SharedListRoleID,
+    SharedListEntryReference,
 } from '@worldbrain/memex-common/lib/content-sharing/types'
 import type { DiscordList } from '@worldbrain/memex-common/lib/discord/types'
 import { UITaskState } from '../../../../../main-ui/types'
@@ -88,7 +89,11 @@ export type CollectionDetailsState = AnnotationConversationsState &
             creator?: Pick<User, 'displayName'> | null
             list: SharedList
             discordList: DiscordList | null
-            listEntries: Array<SharedListEntry & { creator: UserReference }>
+            listEntries: Array<
+                SharedListEntry & { reference: SharedListEntryReference } & {
+                    creator: UserReference
+                }
+            >
             listDescriptionState: 'fits' | 'collapsed' | 'expanded'
             listDescriptionTruncated: string
         }

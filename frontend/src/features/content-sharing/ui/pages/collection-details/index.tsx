@@ -658,10 +658,6 @@ export default class CollectionDetailsPage extends UIElement<
     }
 
     private renderTitle() {
-        if (this.props.entryID) {
-            return 'Title when viewing single-page link (whether in single-page share or part of a normal collection)'
-        }
-
         const { listData } = this.state
         const title = listData!.list.title
         if (listData!.discordList == null) {
