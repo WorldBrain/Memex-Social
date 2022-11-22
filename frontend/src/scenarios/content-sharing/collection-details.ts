@@ -1320,6 +1320,14 @@ export const SCENARIOS: ScenarioMap<Targets> = {
             }),
         ],
     })),
+    'discord-list': scenario<Targets>(({ step, callModification }) => ({
+        fixture: 'discord-list-with-user',
+        startRoute: {
+            route: 'collectionDetails',
+            params: { id: 'default-discord-list' },
+        },
+        steps: [],
+    })),
     'permission-key-accepted': scenario<Targets>(
         ({ step, callModification }) => ({
             fixture: 'annotated-list-with-user-and-follows',

@@ -12,6 +12,7 @@ import {
     SharedList,
     SharedListRoleID,
 } from '@worldbrain/memex-common/lib/content-sharing/types'
+import type { DiscordList } from '@worldbrain/memex-common/lib/discord/types'
 import { UITaskState } from '../../../../../main-ui/types'
 import {
     UserReference,
@@ -29,7 +30,6 @@ import type {
 } from '../../../../ext-detection/ui/logic'
 import { SharedListRole } from '@worldbrain/memex-common/lib/web-interface/types/storex-generated/content-sharing'
 import { ProcessSharedListKeyResult } from '@worldbrain/memex-common/lib/content-sharing/service/types'
-import React from 'react'
 
 export interface CollectionDetailsDependencies {
     listID: string
@@ -54,6 +54,7 @@ export interface CollectionDetailsDependencies {
         | 'contentSharing'
         | 'contentConversations'
         | 'users'
+        | 'discord'
         | 'activityStreams'
         | 'activityFollows'
     >
@@ -78,7 +79,7 @@ export type CollectionDetailsState = AnnotationConversationsState &
         isListOwner?: boolean
         scrollTop?: number
         scrolledComponent?: JSX.Element
-        users: { [id: string]: Pick<User, 'displayName'> }
+        users: { [id: string]: Pick<User, 'displayName' | 'platform'> }
 
         annotationEntriesLoadState: UITaskState
         annotationLoadStates: { [normalizedPageUrl: string]: UITaskState }
@@ -86,6 +87,7 @@ export type CollectionDetailsState = AnnotationConversationsState &
             creatorReference?: UserReference
             creator?: Pick<User, 'displayName'> | null
             list: SharedList
+            discordList: DiscordList | null
             listEntries: Array<SharedListEntry & { creator: UserReference }>
             listDescriptionState: 'fits' | 'collapsed' | 'expanded'
             listDescriptionTruncated: string
@@ -110,6 +112,7 @@ export type CollectionDetailsEvent = UIEvent<
             toggleListShareModal: {}
             loadListData: { listID: string }
             processPermissionKey: {}
+            acceptInvitation: {}
             closePermissionOverlay: {}
             pageBreakpointHit: { entryIndex: number }
             clickFollowBtn: { pageToOpenPostFollow?: string }

@@ -1,6 +1,10 @@
 import React, { PureComponent } from 'react'
 import styled from 'styled-components'
 import { Margin, Padding } from 'styled-components-spacing'
+import * as linkify from 'linkifyjs'
+import linkifyHtml from 'linkify-html'
+import DOMPurify from 'dompurify'
+import parse from 'html-react-parser'
 
 import { Theme } from '../../../../main-ui/styles/types'
 import {
@@ -20,7 +24,8 @@ import LoadingIndicator from '@worldbrain/memex-common/lib/common-ui/components/
 
 export const PopupContainer = styled.div<{ theme: Theme }>`
     position: absolute;
-    width: 270px;
+    width: 300px;
+    max-height: 400px;
     font-family: ${(props) => props.theme.fonts.primary};
     color: ${(props) => props.theme.colors.primary};
     padding: 15px;
@@ -30,7 +35,7 @@ export const PopupContainer = styled.div<{ theme: Theme }>`
 `
 
 const ProfileHoverarea = styled.div`
-    width: 270px;
+    width: 330px;
     position: absolute;
     padding-top: 2px;
     height: fit-content;
@@ -62,7 +67,7 @@ const ProfileHeader = styled.div`
     height: min-content;
     display: flex;
     justify-content: start;
-    color: ${(props) => props.theme.darkModeColors.lighterText};
+    color: ${(props) => props.theme.colors.lighterText};
 `
 
 const ProfileHeaderInnerContainer = styled.div<{ theme: Theme }>`
@@ -77,8 +82,11 @@ const ProfileHeaderInnerContainer = styled.div<{ theme: Theme }>`
 const DisplayName = styled.div<{ theme: Theme }>`
     font-size: ${(props) => props.theme.fontSizes.url};
     line-height: ${(props) => props.theme.lineHeights.text};
-    font-weight: 800;
+    font-weight: 700;
+    letter-spacing: 1px;
     font-size: 16px;
+    color: ${(props) => props.theme.colors.normalText};
+    white-space: normal;
 `
 
 const WebLinksContainer = styled.div`
@@ -99,8 +107,17 @@ const ProfileBio = styled(Margin)<{ theme: Theme }>`
     justify-content: flex-start;
     float: left;
     text-align: left;
-    color: ${(props) => props.theme.colors.lighterText};
+    color: ${(props) => props.theme.colors.greyScale8};
     white-space: pre-wrap;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    line-break: strict;
+    text-overflow: ellipsis;
+    max-height: 350px;
+
+    & > a {
+        color: ${(props) => props.theme.colors.purple}70;
+    }
 `
 
 interface ProfilePopupProps {
@@ -119,6 +136,35 @@ export default class ProfilePopup extends PureComponent<ProfilePopupProps> {
         if (newWindow) newWindow.opener = null
     }
 
+    convertBioToHTML(string: string) {
+        const options = { defaultProtocol: 'https', target: '_blank' }
+
+        const HTML = linkifyHtml(string, options)
+
+        DOMPurify.addHook('afterSanitizeAttributes', function (node) {
+            // set all elements owning target to target=_blank
+            if ('target' in node) {
+                node.setAttribute('target', '_blank')
+                // prevent https://www.owasp.org/index.php/Reverse_Tabnabbing
+                node.setAttribute('rel', 'noopener noreferrer')
+            }
+            // set non-HTML/MathML links to xlink:show=new
+            if (
+                !node.hasAttribute('target') &&
+                (node.hasAttribute('xlink:href') || node.hasAttribute('href'))
+            ) {
+                node.setAttribute('xlink:show', 'new')
+            }
+        })
+
+        const purifiedHTML = DOMPurify.sanitize(HTML)
+        console.log(purifiedHTML)
+
+        const finalHTML = parse(purifiedHTML)
+
+        return finalHTML
+    }
+
     render() {
         const { props } = this
         const { taskState, userPublicProfile, webLinksArray } = props
@@ -135,46 +181,36 @@ export default class ProfilePopup extends PureComponent<ProfilePopupProps> {
 
         return (
             <ProfileHoverarea>
-                <HoverBox width="270px" padding="0px">
+                <HoverBox width="300px" padding="0px">
                     <ProfileContainer>
-                        <ProfileHeader>
-                            {/*<UserAvatar path={avatarURL} user={{displayName: displayName ?? 'Unknown User'}} />*/}
-                            <Padding>
-                                <ProfileHeaderInnerContainer theme={theme}>
-                                    <DisplayName theme={theme}>
-                                        {props.user.displayName}
-                                    </DisplayName>
-                                    {userPublicProfile?.bio && (
-                                        <ProfileBio top={'small'} theme={theme}>
-                                            {userPublicProfile?.bio}
-                                        </ProfileBio>
+                        <ProfileHeaderInnerContainer theme={theme}>
+                            <DisplayName theme={theme}>
+                                {props.user.displayName}
+                            </DisplayName>
+                            {!!webLinksArray.length && (
+                                <WebLinksContainer>
+                                    {webLinksArray.map(({ url, icon }) => (
+                                        <Margin right="small" key={icon}>
+                                            <Icon
+                                                icon={icon}
+                                                height="18px"
+                                                color="purple"
+                                                onClick={() =>
+                                                    this.handleWebLinkClick(url)
+                                                }
+                                            />
+                                        </Margin>
+                                    ))}
+                                </WebLinksContainer>
+                            )}
+                            {userPublicProfile?.bio && (
+                                <ProfileBio top={'small'} theme={theme}>
+                                    {this.convertBioToHTML(
+                                        userPublicProfile?.bio,
                                     )}
-                                    {!!webLinksArray.length && (
-                                        <WebLinksContainer>
-                                            {webLinksArray.map(
-                                                ({ url, icon }) => (
-                                                    <Margin
-                                                        right="small"
-                                                        key={icon}
-                                                    >
-                                                        <Icon
-                                                            icon={icon}
-                                                            height="16px"
-                                                            color="purple"
-                                                            onClick={() =>
-                                                                this.handleWebLinkClick(
-                                                                    url,
-                                                                )
-                                                            }
-                                                        />
-                                                    </Margin>
-                                                ),
-                                            )}
-                                        </WebLinksContainer>
-                                    )}
-                                </ProfileHeaderInnerContainer>
-                            </Padding>
-                        </ProfileHeader>
+                                </ProfileBio>
+                            )}
+                        </ProfileHeaderInnerContainer>
                     </ProfileContainer>
                     {/*{props.userRef && userPublicProfile?.paymentPointer && (
                             <CuratorSupportButtonBlock

@@ -48,6 +48,8 @@ const ButtonContent = styled.div`
     font-weight: normal;
     font-size: 14px;
     width: 100%;
+
+    color: ${(props) => props.theme.colors.black};
 `
 
 // const Link = styled.div<{ theme: Theme }>`
@@ -151,7 +153,7 @@ export class CuratorSupportButtonBlock extends UIElement<
                                 <Icon
                                     icon={'coilIcon'}
                                     heightAndWidth={'16px'}
-                                    color="white"
+                                    color="black"
                                     hoverOff
                                 />
                                 Install Coil Extension

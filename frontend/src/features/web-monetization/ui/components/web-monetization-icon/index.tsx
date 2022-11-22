@@ -17,7 +17,7 @@ const Container = styled.div`
     z-index: 10000;
 `
 
-const IconContainer = styled.div<{ iconHeight: string }>`
+const IconContainer = styled.div<{}>`
     height: 30px;
     width: 30px;
     display: flex;
@@ -46,7 +46,7 @@ export default class WebMonetizationIcon extends UIElement<
     WebMonetizationIconState,
     WebMonetizationIconEvent
 > {
-    private iconHeight = '20px'
+    private iconHeight = '30px'
 
     constructor(props: WebMonetizationIconDependencies) {
         super(props, { logic: new Logic(props) })
@@ -76,39 +76,30 @@ export default class WebMonetizationIcon extends UIElement<
         return (
             <IconContainer
                 onMouseEnter={() => this.processEvent('showPopup', null)}
-                iconHeight={this.iconHeight}
             >
-                {paymentState === 'running' && (
+                {paymentState === 'pristine' && (
                     <WebMonetizationPaymentProgress>
                         <Icon
-                            height={'16px'}
+                            height={'24px'}
+                            color="normalText"
+                            icon={'webMonetizationLogo'}
+                            onClick={this.handleClick}
+                        />
+                    </WebMonetizationPaymentProgress>
+                )}
+                {paymentState === 'success' && (
+                    <WebMonetizationPaymentProgress>
+                        <Icon
+                            height={'24px'}
                             color="purple"
                             icon={'webMonetizationLogo'}
                             onClick={this.handleClick}
+                            hoverOff
                         />
                         <LoadingIndicator speed={4} size={24} />
                     </WebMonetizationPaymentProgress>
                 )}
                 {paymentState === 'error' && <span>Error!</span>}
-                {paymentState === 'pristine' && (
-                    <Icon
-                        height={this.iconHeight}
-                        color="purple"
-                        icon={'webMonetizationLogo'}
-                        onClick={this.handleClick}
-                    />
-                )}
-                {paymentState === 'success' && (
-                    <WebMonetizationPaymentProgress>
-                        <Icon
-                            height={'16px'}
-                            color="purple"
-                            icon={'webMonetizationLogo'}
-                            onClick={this.handleClick}
-                        />
-                        <LoadingIndicator speed={4} size={24} />
-                    </WebMonetizationPaymentProgress>
-                )}
             </IconContainer>
         )
     }

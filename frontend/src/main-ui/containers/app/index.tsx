@@ -16,6 +16,7 @@ interface Props {
 const MainArea = styled.div`
     height: 100%;
     width: 100%;
+    background: ${(props) => props.theme.colors.backgroundColor};
 `
 
 class App extends UIElement<Props> {

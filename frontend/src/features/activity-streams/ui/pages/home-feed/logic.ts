@@ -140,6 +140,7 @@ export default class HomeFeedLogic extends UILogic<
             replies: {},
             users: {},
             shouldShowNewLine: true,
+            loadingIncludingUIFinished: false,
             moreRepliesLoadStates: {},
             ...extDetectionInitialState(),
             ...listsSidebarInitialState(),
@@ -182,7 +183,9 @@ export default class HomeFeedLogic extends UILogic<
                 lastSeenLineID?.parentNode?.children ?? [],
             ).indexOf(lastSeenLineID)
             if (seenLinePosition === 1) {
-                this.emitMutation({ shouldShowNewLine: { $set: false } })
+                this.emitMutation({
+                    shouldShowNewLine: { $set: false },
+                })
             }
         }
     }

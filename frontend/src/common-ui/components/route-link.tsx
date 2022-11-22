@@ -17,6 +17,14 @@ export interface Props {
     title?: string
 }
 
+const isIframe = () => {
+    try {
+        return window.self !== window.top
+    } catch (e) {
+        return true
+    }
+}
+
 export default function RouteLink(props: Props) {
     const url = props.services.router.getUrl(props.route, props.params)
     return (
@@ -28,7 +36,11 @@ export default function RouteLink(props: Props) {
                     return
                 }
                 event.preventDefault()
-                props.services.router.goTo(props.route, props.params)
+                if (isIframe() === true) {
+                    window.open('localhost:3000/c/' + props.params.id)
+                } else {
+                    props.services.router.goTo(props.route, props.params)
+                }
             }}
             title={props.title}
         >

@@ -16,7 +16,7 @@ const MenuItem = styled.div`
     grid-gap: 10px;
 
     &:hover {
-        background: ${(props) => props.theme.darkModeColors.lightHover};
+        outline: 1px solid ${(props) => props.theme.colors.lightHover};
     }
 `
 
@@ -29,7 +29,7 @@ const IconContainer = styled.div`
 `
 
 const MenuItemText = styled.div`
-    color: ${(props) => props.theme.darkModeColors.lighterText};
+    color: ${(props) => props.theme.colors.normalText};
     font-size: 14px;
     font-weight: 400;
     font-family: ${(props) => props.theme.fonts.primary};

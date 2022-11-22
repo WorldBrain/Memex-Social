@@ -46,6 +46,7 @@ import {
 } from '../../../../ext-detection/ui/logic'
 import { UserReference } from '../../../../user-management/types'
 import { makeStorageReference } from '@worldbrain/memex-common/lib/storage/references'
+import type { DiscordList } from '@worldbrain/memex-common/lib/discord/types'
 const truncate = require('truncate')
 
 const LIST_DESCRIPTION_CHAR_LIMIT = 400
@@ -243,6 +244,66 @@ export default class CollectionDetailsLogic extends UILogic<
             'permissionKeyState',
             async () => {
                 await this.dependencies.services.auth.waitForAuthReady()
+
+                const listReference = makeStorageReference<SharedListReference>(
+                    'shared-list-reference',
+                    this.dependencies.listID,
+                )
+                const userReference = this.dependencies.services.auth.getCurrentUserReference()
+                const listRoles = await this.dependencies.storage.contentSharing.getListRoles(
+                    { listReference },
+                )
+
+                const isAuthenticated = userReference
+
+                const isContributor =
+                    (userReference &&
+                        listRoles.find(
+                            (role) => role.user.id === userReference.id,
+                        )?.roleID) ??
+                    undefined
+
+                // const {
+                //     result,
+                // } = await this.dependencies.services.listKeys.processCurrentKey()
+
+                if (isAuthenticated && isContributor) {
+                    this.emitMutation({
+                        permissionKeyResult: { $set: 'success' },
+                    })
+                } else {
+                    this.emitMutation({
+                        permissionKeyResult: { $set: 'not-authenticated' },
+                        requestingAuth: { $set: true },
+                    })
+                }
+
+                // this.emitMutation({ requestingAuth: { $set: true } })
+
+                // const {
+                //     result: secondKeyResult,
+                // } = await this.dependencies.services.listKeys.processCurrentKey()
+                // return {
+                //     mutation: {
+                //         permissionKeyResult: { $set: secondKeyResult },
+                //         permissionKeyState: { $set: 'success' },
+                //         requestingAuth: { $set: false }
+                //     },
+                // }
+            },
+        )
+    }
+
+    acceptInvitation: EventHandler<'acceptInvitation'> = async (incoming) => {
+        await executeUITask<CollectionDetailsState>(
+            this,
+            'permissionKeyState',
+            async () => {
+                await this.dependencies.services.auth.waitForAuthReady()
+
+                // const userReference = this.dependencies.services.auth.getCurrentUserReference()
+                // const isAuthenticated = userReference
+
                 const {
                     result,
                 } = await this.dependencies.services.listKeys.processCurrentKey()
@@ -250,6 +311,7 @@ export default class CollectionDetailsLogic extends UILogic<
                     return {
                         mutation: {
                             permissionKeyResult: { $set: result },
+                            requestingAuth: { $set: false },
                         },
                     }
                 }
@@ -259,27 +321,26 @@ export default class CollectionDetailsLogic extends UILogic<
                     result: authResult,
                 } = await this.dependencies.services.auth.requestAuth({
                     reason: 'login-requested',
-                    header: {
-                        title:
-                            'You’ve been invited as \n a Contributor to this Space',
-                        subtitle: '',
-                    },
                 })
-                this.emitMutation({ requestingAuth: { $set: false } })
                 if (
                     authResult.status === 'cancelled' ||
                     authResult.status === 'error'
                 ) {
                     return
-                }
-                const {
-                    result: secondKeyResult,
-                } = await this.dependencies.services.listKeys.processCurrentKey()
-                return {
-                    mutation: {
-                        permissionKeyResult: { $set: secondKeyResult },
-                        permissionKeyState: { $set: 'success' },
-                    },
+                } else {
+                    console.log('test222')
+                    const {
+                        result: secondKeyResult,
+                    } = await this.dependencies.services.listKeys.processCurrentKey()
+
+                    console.log(secondKeyResult)
+                    return {
+                        mutation: {
+                            permissionKeyResult: { $set: secondKeyResult },
+                            permissionKeyState: { $set: 'success' },
+                            requestingAuth: { $set: false },
+                        },
+                    }
                 }
             },
         )
@@ -327,7 +388,7 @@ export default class CollectionDetailsLogic extends UILogic<
     }
 
     loadListData: EventHandler<'loadListData'> = async ({ event }) => {
-        const { contentSharing } = this.dependencies.storage
+        const { contentSharing, discord } = this.dependencies.storage
         const listReference = makeStorageReference<SharedListReference>(
             'shared-list-reference',
             event.listID,
@@ -374,45 +435,55 @@ export default class CollectionDetailsLogic extends UILogic<
                     const listDescriptionFits =
                         listDescription.length < LIST_DESCRIPTION_CHAR_LIMIT
 
-                    return {
-                        mutation: {
-                            listData: {
-                                $set: {
-                                    creatorReference: result.creator,
-                                    creator: await this._users.loadUser(
-                                        result.creator,
-                                    ),
-                                    list: result.sharedList,
-                                    listEntries: result.entries,
-                                    listDescriptionState: listDescriptionFits
-                                        ? 'fits'
-                                        : 'collapsed',
-                                    listDescriptionTruncated: truncate(
-                                        listDescription,
-                                        LIST_DESCRIPTION_CHAR_LIMIT,
-                                    ),
-                                },
-                            },
-                            isListOwner: {
-                                $set:
-                                    result.creator.id ===
-                                    this.dependencies.services.auth.getCurrentUserReference()
-                                        ?.id,
-                            },
-                            newPageReplies: {
-                                $set: fromPairs(
-                                    result.entries.map((entry) => [
-                                        entry.normalizedUrl,
-                                        getInitialNewReplyState(),
-                                    ]),
+                    let discordList: DiscordList | null = null
+
+                    if (result.sharedList.platform === 'discord') {
+                        discordList = await discord.findDiscordListForSharedList(
+                            result.sharedList.reference,
+                        )
+                        if (!discordList) {
+                            return {
+                                mutation: { listData: { $set: undefined } },
+                            }
+                        }
+                    }
+
+                    this.emitMutation({
+                        listData: {
+                            $set: {
+                                discordList,
+                                creatorReference: result.creator,
+                                creator: await this._users.loadUser(
+                                    result.creator,
+                                ),
+                                list: result.sharedList,
+                                listEntries: result.entries,
+                                listDescriptionState: listDescriptionFits
+                                    ? 'fits'
+                                    : 'collapsed',
+                                listDescriptionTruncated: truncate(
+                                    listDescription,
+                                    LIST_DESCRIPTION_CHAR_LIMIT,
                                 ),
                             },
                         },
-                    }
+                        isListOwner: {
+                            $set:
+                                result.creator.id ===
+                                this.dependencies.services.auth.getCurrentUserReference()
+                                    ?.id,
+                        },
+                        newPageReplies: {
+                            $set: fromPairs(
+                                result.entries.map((entry) => [
+                                    entry.normalizedUrl,
+                                    getInitialNewReplyState(),
+                                ]),
+                            ),
+                        },
+                    })
                 } else {
-                    return {
-                        mutation: { listData: { $set: undefined } },
-                    }
+                    this.emitMutation({ listData: { $set: undefined } })
                 }
             },
         )
@@ -754,11 +825,11 @@ export default class CollectionDetailsLogic extends UILogic<
         }
 
         const usersToLoad = new Set<UserReference['id']>()
-        for (const promisesByPageEntry of Object.entries(promisesByPage)) {
-            this.pageAnnotationPromises[promisesByPageEntry[0]] = (async ([
-                normalizedPageUrl,
-                pagePromises,
-            ]: [string, Promise<GetAnnotationsResult>[]]) => {
+        for (const normalizedPageUrl in promisesByPage) {
+            this.pageAnnotationPromises[normalizedPageUrl] = (async (
+                normalizedPageUrl: string,
+                pagePromises: Promise<GetAnnotationsResult>[],
+            ) => {
                 this.emitMutation({
                     annotationLoadStates: {
                         [normalizedPageUrl]: { $set: 'running' },
@@ -797,7 +868,7 @@ export default class CollectionDetailsLogic extends UILogic<
                     })
                     console.error(e)
                 }
-            })(promisesByPageEntry)
+            })(normalizedPageUrl, promisesByPage[normalizedPageUrl])
         }
 
         const annotationReferences = flatten(

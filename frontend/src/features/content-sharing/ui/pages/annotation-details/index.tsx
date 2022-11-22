@@ -295,7 +295,7 @@ const AnnotationAuthorUploadDate = styled.div`
     font-weight: normal;
 `
 const AnnotationFooter = styled.div`
-    border-top: 1px solid ${(props) => props.theme.darkModeColors.lineGrey};
+    border-top: 1px solid ${(props) => props.theme.colors.lineGrey};
     padding: 15px;
     display: flex;
     align-items: center;

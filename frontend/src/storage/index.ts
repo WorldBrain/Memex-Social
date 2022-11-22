@@ -15,6 +15,7 @@ import {
     ChangeWatchMiddlewareSettings,
 } from '@worldbrain/storex-middleware-change-watcher'
 
+import DiscordStorage from '@worldbrain/memex-common/lib/discord/storage'
 import StorexActivityStreamsStorage from '@worldbrain/memex-common/lib/activity-streams/storage'
 import PersonalCloudStorage from '../features/personal-cloud/storage'
 import { ALLOWED_STORAGE_MODULE_OPERATIONS } from '@worldbrain/memex-common/lib/firebase-backend/app-layer/allowed-operations'
@@ -123,6 +124,7 @@ export async function createStorage(options: {
         serverStorageManager: storageManager,
         serverModules: {
             // auth: new AuthStorage({ storageManager }),
+            discord: new DiscordStorage({ storageManager }),
             activityFollows: new ActivityFollowsStorage({
                 storageManager,
                 operationExecuter: operationExecuter('activityFollows'),
