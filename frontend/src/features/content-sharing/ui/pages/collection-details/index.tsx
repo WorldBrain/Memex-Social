@@ -49,6 +49,9 @@ import ItemBoxBottom, {
 } from '@worldbrain/memex-common/lib/common-ui/components/item-box-bottom'
 import { PrimaryAction } from '@worldbrain/memex-common/lib/common-ui/components/PrimaryAction'
 import IconBox from '@worldbrain/memex-common/lib/common-ui/components/icon-box'
+import moment from 'moment'
+import RouteLink from '../../../../../common-ui/components/route-link'
+import { Services } from '../../../../../services/types'
 
 const commentImage = require('../../../../../assets/img/comment.svg')
 const commentEmptyImage = require('../../../../../assets/img/comment-empty.svg')
@@ -145,6 +148,7 @@ export default class CollectionDetailsPage extends UIElement<
 
     getPageEntryActions(
         entry: SharedListEntry,
+        entryIndex: number,
     ): Array<ItemBoxBottomAction> | undefined {
         const { state } = this
         const annotationEntries = this.state.annotationEntryData
@@ -183,6 +187,35 @@ export default class CollectionDetailsPage extends UIElement<
             state.annotationEntriesLoadState === 'success' &&
             toggleAnnotationsIcon !== null
         ) {
+            if (this.state.listData?.listEntries[entryIndex].hoverState) {
+                return [
+                    {
+                        // key: 'expand-notes-btn',
+                        image: 'link',
+                        imageColor: 'greyScale8',
+                        ButtonText: 'Copy Link',
+                        onClick: () => {
+                            navigator.clipboard.writeText(
+                                'https://memex.social/' +
+                                    this.props.listID +
+                                    '/' +
+                                    entry.reference?.id,
+                            )
+                        },
+                    },
+                    {
+                        // key: 'expand-notes-btn',
+                        image: count > 0 ? 'commentFull' : 'commentEmpty',
+                        ButtonText: count > 0 ? count : '',
+                        imageColor: 'purple',
+                        onClick: () =>
+                            this.processEvent('togglePageAnnotations', {
+                                normalizedUrl: entry.normalizedUrl,
+                            }),
+                    },
+                ]
+            }
+
             return [
                 {
                     // key: 'expand-notes-btn',
@@ -212,6 +245,25 @@ export default class CollectionDetailsPage extends UIElement<
                 //         </CommentIconBox>
                 //     ),
                 // },
+            ]
+        }
+
+        if (this.state.listData?.listEntries[entryIndex].hoverState) {
+            return [
+                {
+                    // key: 'expand-notes-btn',
+                    image: 'link',
+                    imageColor: 'greyScale8',
+                    ButtonText: 'Copy Link',
+                    onClick: () => {
+                        navigator.clipboard.writeText(
+                            'https://memex.social/' +
+                                this.props.listID +
+                                '/' +
+                                entry.reference?.id,
+                        )
+                    },
+                },
             ]
         }
     }
@@ -342,7 +394,45 @@ export default class CollectionDetailsPage extends UIElement<
         return annotation ?? null
     }
 
+    private renderBreadCrumbs() {
+        const isPageView = this.props.entryID
+
+        if (isPageView) {
+            return (
+                <BreadCrumbBox>
+                    <Icon filePath="arrowLeft" heightAndWidth="22px" hoverOff />
+                    <RouteLink
+                        route="collectionDetails"
+                        services={this.props.services}
+                        params={{
+                            id: this.props.listID,
+                        }}
+                    >
+                        Go to collection
+                    </RouteLink>
+                </BreadCrumbBox>
+            )
+        }
+    }
+
+    private renderTitle() {
+        const { listData } = this.state
+        const title = listData!.list.title
+
+        if (listData!.discordList == null) {
+            return title
+        }
+
+        return (
+            <DiscordChannelName>
+                <Icon height="35px" icon="discord" color="blue" hoverOff />#
+                {title}
+            </DiscordChannelName>
+        )
+    }
+
     renderSubtitle() {
+        const isPageView = this.props.entryID
         const { state } = this
         const { listData: data } = state
         const users: Array<{ userReference: UserReference; user: User }> = []
@@ -369,28 +459,20 @@ export default class CollectionDetailsPage extends UIElement<
             )
         }
 
-        if (data?.discordList != null) {
-            return (
-                <SubtitleContainer viewportBreakpoint={this.viewportBreakpoint}>
-                    <DiscordGuildName>
-                        {data.discordList.guildName}
-                    </DiscordGuildName>
-                </SubtitleContainer>
-            )
-        }
-
         if (data.creatorReference && data.creator) {
             users.push({
                 userReference: data.creatorReference,
                 user: data.creator,
             })
         }
+
         for (const role of state.listRoles ?? []) {
             const user = state.users[role.user.id]
             if (user) {
                 users.push({ userReference: role.user, user })
             }
         }
+
         const renderedPreview = users.map(({ userReference, user }, index) => {
             const isFirst = index === 0
             const isLast = index === users.length - 1
@@ -411,116 +493,158 @@ export default class CollectionDetailsPage extends UIElement<
             )
         })
 
-        if (state.listRolesLoadState === 'success' && users.length > 0) {
-            const showListRoleLimit = () => {
-                if (this.viewportBreakpoint === 'small') {
-                    return 2
-                }
+        // Case: Discord List
 
-                if (this.viewportBreakpoint === 'mobile') {
-                    return 1
-                }
-
-                return 3
-            }
-
+        if (data?.discordList != null && !isPageView) {
             return (
                 <SubtitleContainer viewportBreakpoint={this.viewportBreakpoint}>
-                    {renderedPreview && (
-                        <>
-                            <SharedBy>by</SharedBy>{' '}
-                            {renderedPreview.slice(0, showListRoleLimit())}
-                            {users.length - showListRoleLimit() > 0 && (
-                                <ShowMoreCollaborators
-                                    onClick={(event) =>
-                                        this.processEvent(
-                                            'toggleMoreCollaborators',
-                                            {
-                                                value: this.state
-                                                    .showMoreCollaborators,
-                                            },
-                                        )
-                                    }
-                                >
-                                    {users.length - showListRoleLimit() && (
-                                        <>
-                                            <SharedBy>and</SharedBy>{' '}
-                                            {renderedPreview.slice(
-                                                0,
-                                                showListRoleLimit(),
-                                            ) && (
-                                                <>
-                                                    {users.length -
-                                                        showListRoleLimit()}{' '}
-                                                    more{' '}
-                                                </>
-                                            )}
-                                        </>
-                                    )}
-                                    {this.state.showMoreCollaborators && (
-                                        <HoverBox
-                                            marginLeft={'-90px'}
-                                            width={'unset'}
-                                            marginTop={'5px'}
-                                            padding={'0px'}
-                                        >
-                                            <ContributorContainer
-                                                onMouseLeave={() =>
-                                                    this.processEvent(
-                                                        'toggleMoreCollaborators',
-                                                        {},
-                                                    )
-                                                }
-                                            >
-                                                {users.map(
-                                                    ({
-                                                        userReference,
-                                                        user,
-                                                    }) => (
-                                                        <ProfilePopupContainer
-                                                            key={
-                                                                userReference.id
-                                                            }
-                                                            services={
-                                                                this.props
-                                                                    .services
-                                                            }
-                                                            storage={
-                                                                this.props
-                                                                    .storage
-                                                            }
-                                                            userRef={
-                                                                userReference!
-                                                            }
-                                                        >
-                                                            <ListEntryBox>
-                                                                <ListEntry
-                                                                    key={
-                                                                        userReference.id
-                                                                    }
-                                                                >
-                                                                    {
-                                                                        user.displayName
-                                                                    }
-                                                                </ListEntry>
-                                                            </ListEntryBox>
-                                                        </ProfilePopupContainer>
-                                                    ),
-                                                )}
-                                            </ContributorContainer>
-                                        </HoverBox>
-                                    )}
-                                    <Icon
-                                        icon={'arrowDown'}
-                                        heightAndWidth={'16px'}
-                                    />
-                                </ShowMoreCollaborators>
-                            )}
-                            {/* {rendered} */}
-                        </>
-                    )}
+                    <DiscordGuildName>
+                        {data.discordList.guildName}
+                    </DiscordGuildName>
                 </SubtitleContainer>
             )
+        }
+
+        // Case: Page View
+        if (isPageView) {
+            const contributorName = users.map((creator) => {
+                if (
+                    creator.user.id ===
+                    this.state.listData?.listEntries[0].creator.id
+                )
+                    return creator.user.displayName
+            })
+            const addedDate = this.state.listData?.listEntries[0].createdWhen
+            const domain = this.state.listData?.listEntries[0].normalizedUrl.split(
+                '/',
+            )[0]
+
+            return (
+                <>
+                    <>{domain}</>
+                    <>added by</>
+                    <>{contributorName}</>
+                    <>{moment(addedDate).format('lll')}</>
+                </>
+            )
+        }
+
+        // Case Space View
+
+        if (!isPageView) {
+            if (state.listRolesLoadState === 'success' && users.length > 0) {
+                const showListRoleLimit = () => {
+                    if (this.viewportBreakpoint === 'small') {
+                        return 2
+                    }
+
+                    if (this.viewportBreakpoint === 'mobile') {
+                        return 1
+                    }
+
+                    return 3
+                }
+
+                return (
+                    <SubtitleContainer
+                        viewportBreakpoint={this.viewportBreakpoint}
+                    >
+                        {renderedPreview && (
+                            <>
+                                <SharedBy>by</SharedBy>{' '}
+                                {renderedPreview.slice(0, showListRoleLimit())}
+                                {users.length - showListRoleLimit() > 0 && (
+                                    <ShowMoreCollaborators
+                                        onClick={(event) =>
+                                            this.processEvent(
+                                                'toggleMoreCollaborators',
+                                                {
+                                                    value: this.state
+                                                        .showMoreCollaborators,
+                                                },
+                                            )
+                                        }
+                                    >
+                                        {users.length - showListRoleLimit() && (
+                                            <>
+                                                <SharedBy>and</SharedBy>{' '}
+                                                {renderedPreview.slice(
+                                                    0,
+                                                    showListRoleLimit(),
+                                                ) && (
+                                                    <>
+                                                        {users.length -
+                                                            showListRoleLimit()}{' '}
+                                                        more{' '}
+                                                    </>
+                                                )}
+                                            </>
+                                        )}
+                                        {this.state.showMoreCollaborators && (
+                                            <HoverBox
+                                                marginLeft={'-90px'}
+                                                width={'unset'}
+                                                marginTop={'5px'}
+                                                padding={'0px'}
+                                            >
+                                                <ContributorContainer
+                                                    onMouseLeave={() =>
+                                                        this.processEvent(
+                                                            'toggleMoreCollaborators',
+                                                            {},
+                                                        )
+                                                    }
+                                                >
+                                                    {users.map(
+                                                        ({
+                                                            userReference,
+                                                            user,
+                                                        }) => (
+                                                            <ProfilePopupContainer
+                                                                key={
+                                                                    userReference.id
+                                                                }
+                                                                services={
+                                                                    this.props
+                                                                        .services
+                                                                }
+                                                                storage={
+                                                                    this.props
+                                                                        .storage
+                                                                }
+                                                                userRef={
+                                                                    userReference!
+                                                                }
+                                                            >
+                                                                <ListEntryBox>
+                                                                    <ListEntry
+                                                                        key={
+                                                                            userReference.id
+                                                                        }
+                                                                    >
+                                                                        {
+                                                                            user.displayName
+                                                                        }
+                                                                    </ListEntry>
+                                                                </ListEntryBox>
+                                                            </ProfilePopupContainer>
+                                                        ),
+                                                    )}
+                                                </ContributorContainer>
+                                            </HoverBox>
+                                        )}
+                                        <Icon
+                                            icon={'arrowDown'}
+                                            heightAndWidth={'16px'}
+                                        />
+                                    </ShowMoreCollaborators>
+                                )}
+                                {/* {rendered} */}
+                            </>
+                        )}
+                    </SubtitleContainer>
+                )
+            }
         }
         // return (
         //     <SubtitleContainer viewportBreakpoint={this.viewportBreakpoint}>
@@ -657,22 +781,8 @@ export default class CollectionDetailsPage extends UIElement<
         return null
     }
 
-    private renderTitle() {
-        const { listData } = this.state
-        const title = listData!.list.title
-        if (listData!.discordList == null) {
-            return title
-        }
-
-        return (
-            <DiscordChannelName>
-                <Icon height="35px" icon="discord" color="blue" hoverOff />#
-                {title}
-            </DiscordChannelName>
-        )
-    }
-
     renderHeaderActionArea() {
+        const isPageView = this.props.entryID
         if (
             this.state.followLoadState === 'running' ||
             this.state.listRolesLoadState === 'running' ||
@@ -684,6 +794,7 @@ export default class CollectionDetailsPage extends UIElement<
                 </LoadingBoxHeaderActionArea>
             )
         } else {
+            // Case: Get contributor invitation link
             if (this.state.requestingAuth === true) {
                 return (
                     <InvitedNotification
@@ -750,12 +861,15 @@ export default class CollectionDetailsPage extends UIElement<
                     )
                 }
             } else {
-                return (
-                    <HeaderButtonRow>
-                        {this.renderFollowBtn()()}
-                        {this.renderWebMonetizationIcon()}
-                    </HeaderButtonRow>
-                )
+                if (!isPageView) {
+                    // only show buttons when its a Space View, not pageView
+                    return (
+                        <HeaderButtonRow>
+                            {this.renderFollowBtn()()}
+                            {this.renderWebMonetizationIcon()}
+                        </HeaderButtonRow>
+                    )
+                }
             }
         }
     }
@@ -821,6 +935,10 @@ export default class CollectionDetailsPage extends UIElement<
             )
         }
 
+        const isPageView = this.props.entryID
+
+        // console.log(this.state.listData?.listEntries[1].hoverState)
+
         return (
             <DocumentContainer id="DocumentContainer">
                 <DocumentTitle
@@ -842,6 +960,7 @@ export default class CollectionDetailsPage extends UIElement<
                     isSidebarShown={this.listsSidebarProps.isShown}
                     permissionKeyOverlay={this.renderPermissionKeyOverlay()}
                     scrollTop={this.state.scrollTop}
+                    breadCrumbs={this.renderBreadCrumbs()}
                 >
                     {data.list.description && (
                         <CollectionDescriptionBox
@@ -891,6 +1010,7 @@ export default class CollectionDetailsPage extends UIElement<
                     )}
                     <PageInfoList viewportBreakpoint={this.viewportBreakpoint}>
                         {data.listEntries.length > 0 &&
+                            !isPageView &&
                             this.renderAbovePagesBox()}
                         {state.annotationEntriesLoadState === 'error' && (
                             <Margin bottom={'large'}>
@@ -918,98 +1038,77 @@ export default class CollectionDetailsPage extends UIElement<
                                     bottom="small"
                                     key={entry.normalizedUrl}
                                 >
-                                    <ItemBox>
-                                        <BlockContent
-                                            type={
-                                                isPagePdf({
-                                                    url: entry.normalizedUrl,
-                                                })
-                                                    ? 'pdf'
-                                                    : 'page'
-                                            }
-                                            normalizedUrl={entry.normalizedUrl}
-                                            originalUrl={entry.originalUrl}
-                                            fullTitle={
-                                                entry && entry.entryTitle
-                                            }
-                                            onClick={(e) => {
+                                    {!isPageView && (
+                                        <ItemBox
+                                            onMouseOver={(
+                                                event: React.MouseEventHandler,
+                                            ) =>
                                                 this.processEvent(
-                                                    'clickPageResult',
-                                                    {
-                                                        urlToOpen:
-                                                            entry.originalUrl,
-                                                        preventOpening: () =>
-                                                            e.preventDefault(),
-                                                        isFollowedSpace:
-                                                            this.state
-                                                                .isCollectionFollowed ||
-                                                            this.state
-                                                                .isListOwner,
-                                                        notifAlreadyShown: this
-                                                            .state
-                                                            .notifAlreadyShown,
-                                                    },
+                                                    'setPageHover',
+                                                    { entryIndex },
                                                 )
-                                            }}
-                                            viewportBreakpoint={
-                                                this.viewportBreakpoint
                                             }
-                                        />
-                                        <ItemBoxBottom
-                                            creationInfo={{
-                                                creator: this.state.users[
-                                                    entry.creator.id
-                                                ],
-                                                createdWhen: entry.createdWhen,
-                                            }}
-                                            actions={this.getPageEntryActions(
-                                                entry,
-                                            )}
-                                        />
-                                    </ItemBox>
-                                    {/* <PageInfoBox
-                                        viewportBreakpoint={
-                                            this.viewportBreakpoint
-                                        }
-                                        variant="dark-mode"
-                                        onClick={(e) =>
-                                            this.processEvent(
-                                                'clickPageResult',
-                                                {
-                                                    urlToOpen:
-                                                        entry.originalUrl,
-                                                    preventOpening: () =>
-                                                        e.preventDefault(),
-                                                    isFollowedSpace:
-                                                        this.state
-                                                            .isCollectionFollowed ||
-                                                        this.state.isListOwner,
-                                                },
-                                            )
-                                        }
-                                        type={
-                                            isPagePdf({
-                                                url: entry.normalizedUrl,
-                                            })
-                                                ? 'pdf'
-                                                : 'page'
-                                        }
-                                        profilePopup={{
-                                            services: this.props.services,
-                                            storage: this.props.storage,
-                                            userRef: entry.creator,
-                                        }}
-                                        pageInfo={{
-                                            ...entry,
-                                            fullTitle: entry.entryTitle,
-                                        }}
-                                        creator={
-                                            this.state.users[entry.creator.id]
-                                        }
-                                        actions={this.getPageEntryActions(
-                                            entry,
-                                        )}
-                                    /> */}
+                                            hoverState={
+                                                this.state.listData
+                                                    ?.listEntries[entryIndex]
+                                                    .hoverState
+                                            }
+                                        >
+                                            <BlockContent
+                                                // pageLink ={'https://memex.social/' + this.props.listID + '/' + entry.reference.id}
+                                                type={
+                                                    isPagePdf({
+                                                        url:
+                                                            entry.normalizedUrl,
+                                                    })
+                                                        ? 'pdf'
+                                                        : 'page'
+                                                }
+                                                normalizedUrl={
+                                                    entry.normalizedUrl
+                                                }
+                                                originalUrl={entry.originalUrl}
+                                                fullTitle={
+                                                    entry && entry.entryTitle
+                                                }
+                                                onClick={(e) => {
+                                                    this.processEvent(
+                                                        'clickPageResult',
+                                                        {
+                                                            urlToOpen:
+                                                                entry.originalUrl,
+                                                            preventOpening: () =>
+                                                                e.preventDefault(),
+                                                            isFollowedSpace:
+                                                                this.state
+                                                                    .isCollectionFollowed ||
+                                                                this.state
+                                                                    .isListOwner,
+                                                            notifAlreadyShown: this
+                                                                .state
+                                                                .notifAlreadyShown,
+                                                        },
+                                                    )
+                                                }}
+                                                viewportBreakpoint={
+                                                    this.viewportBreakpoint
+                                                }
+                                            />
+                                            <ItemBoxBottom
+                                                creationInfo={{
+                                                    creator: this.state.users[
+                                                        entry.creator.id
+                                                    ],
+                                                    createdWhen:
+                                                        entry.createdWhen,
+                                                }}
+                                                actions={this.getPageEntryActions(
+                                                    entry,
+                                                    entryIndex,
+                                                )}
+                                            />
+                                        </ItemBox>
+                                    )}
                                     {state.pageAnnotationsExpanded[
                                         entry.normalizedUrl
                                     ] && (
@@ -1161,6 +1260,13 @@ const InvitedNotification = styled.div<{
             height: 100%;
             justify-content: center;
         `}
+`
+
+const BreadCrumbBox = styled.div`
+    display: flex;
+    align-items: center;
+    grid-gap: 10px;
+    margin-left: 5px;
 `
 
 const AbovePagesBox = styled.div<{

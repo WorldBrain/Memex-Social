@@ -66,7 +66,7 @@ export type CollectionDetailsState = AnnotationConversationsState &
     ExtDetectionState & {
         listLoadState: UITaskState
         followLoadState: UITaskState
-
+        hoverState: boolean
         permissionKeyState: UITaskState
         permissionKeyResult?: ProcessSharedListKeyResult
         showPermissionKeyIssue?: boolean
@@ -90,8 +90,13 @@ export type CollectionDetailsState = AnnotationConversationsState &
             list: SharedList
             discordList: DiscordList | null
             listEntries: Array<
-                SharedListEntry & { reference: SharedListEntryReference } & {
+                SharedListEntry & {
+                    reference: SharedListEntryReference
+                    id?: number
+                } & {
                     creator: UserReference
+                    hoverState?: boolean
+                    id?: string
                 }
             >
             listDescriptionState: 'fits' | 'collapsed' | 'expanded'
@@ -104,6 +109,13 @@ export type CollectionDetailsState = AnnotationConversationsState &
         annotationEntryData?: GetAnnotationListEntriesResult
         annotations: GetAnnotationsResult
     }
+
+export interface PageEventArgs {
+    pageId: string
+    day: number
+}
+
+export type ResultHoverState = 'main-content' | 'footer' | null
 
 export type CollectionDetailsEvent = UIEvent<
     AnnotationConversationEvent &
@@ -124,6 +136,7 @@ export type CollectionDetailsEvent = UIEvent<
             toggleMoreCollaborators: {}
             hideMoreCollaborators: {}
             updateScrollState: { previousScrollTop: number }
+            setPageHover: (PageEventArgs & { hover: ResultHoverState }) | any
         }
 >
 

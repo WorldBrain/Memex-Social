@@ -188,6 +188,7 @@ export default class CollectionDetailsLogic extends UILogic<
             allAnnotationExpanded: false,
             isListShareModalShown: false,
             pageAnnotationsExpanded: {},
+            hoverState: false,
             ...extDetectionInitialState(),
             ...listsSidebarInitialState(),
             ...annotationConversationInitialState(),
@@ -294,6 +295,26 @@ export default class CollectionDetailsLogic extends UILogic<
         )
     }
 
+    setPageHover: EventHandler<'setPageHover'> = ({ event, previousState }) => {
+        console.log(
+            previousState.listData?.listEntries[event.entryIndex].hoverState,
+        )
+
+        this.emitMutation({
+            listData: {
+                listEntries: {
+                    [event.entryIndex]: {
+                        hoverState: {
+                            $set: !previousState.listData?.listEntries[
+                                event.entryIndex
+                            ].hoverState,
+                        },
+                    },
+                },
+            },
+        })
+    }
+
     acceptInvitation: EventHandler<'acceptInvitation'> = async (incoming) => {
         await executeUITask<CollectionDetailsState>(
             this,
@@ -328,12 +349,10 @@ export default class CollectionDetailsLogic extends UILogic<
                 ) {
                     return
                 } else {
-                    console.log('test222')
                     const {
                         result: secondKeyResult,
                     } = await this.dependencies.services.listKeys.processCurrentKey()
 
-                    console.log(secondKeyResult)
                     return {
                         mutation: {
                             permissionKeyResult: { $set: secondKeyResult },
@@ -415,6 +434,25 @@ export default class CollectionDetailsLogic extends UILogic<
                             : undefined,
                     },
                 )
+
+                if (this.dependencies.entryID) {
+                    const entries = await contentSharing.getAnnotationListEntries(
+                        {
+                            listReference,
+                        },
+                    )
+
+                    this.emitMutation({
+                        pageAnnotationsExpanded: {
+                            [result.entries[0].normalizedUrl]: { $set: true },
+                        },
+                    })
+
+                    this.loadPageAnnotations(entries, [
+                        result.entries[0].normalizedUrl,
+                    ])
+                }
+
                 if (result) {
                     this._creatorReference = result.creator
                     const userIds = [
