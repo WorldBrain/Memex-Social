@@ -123,6 +123,7 @@ export const theme: Theme = THEME({
         people: require('../../assets/img/peopleFine.svg'),
         threadIcon: require('../../assets/img/reply.svg'),
         invite: require('../../assets/img/invite.svg'),
+        block: require('../../assets/img/block.svg'),
 
         // doubleArrow: require('../../assets/img/doubleArrow.svg'),,
         // import tagFull from '../../assets/img/tag_full.svg'
