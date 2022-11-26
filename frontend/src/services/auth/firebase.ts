@@ -14,6 +14,7 @@ import {
 import { AuthServiceBase } from './base'
 import { waitForAuth } from './utils'
 import { LimitedWebStorage } from '../../utils/web-storage/types'
+import { syncWithExtension } from './auth-sync'
 
 const FIREBASE_AUTH_CACHE_KEY = 'firebase.wasAuthenticated'
 
@@ -59,6 +60,16 @@ export default class FirebaseAuthService extends AuthServiceBase {
                 options.localStorage.removeItem(FIREBASE_AUTH_CACHE_KEY)
             }
             await this.refreshCurrentUser()
+        })
+
+        const getCurrentUser = this.getCurrentUser.bind(this)
+        const generateLoginToken = this.generateLoginToken.bind(this)
+        syncWithExtension({
+            awaitAuth: this.waitForAuthReady.bind(this),
+            isLoggedIn: () => !!getCurrentUser(),
+            generateLoginToken: () =>
+                generateLoginToken().then((obj) => obj.token),
+            loginWithToken: this.loginWithToken.bind(this),
         })
     }
 
@@ -206,6 +217,28 @@ export default class FirebaseAuthService extends AuthServiceBase {
 
     async waitForAuthReady() {
         await this._initialWaitForAuth
+    }
+
+    async generateLoginToken() {
+        const response = await this._callFirebaseFunction('getLoginToken')
+        return { token: response.data }
+    }
+
+    _callFirebaseFunction(name: string, ...args: any[]) {
+        return this._firebase.functions().httpsCallable(name)(...args)
+    }
+
+    async loginWithToken(token: string) {
+        const { user } = await this._firebase
+            .auth()
+            .signInWithCustomToken(token)
+        this._user =
+            user &&
+            (await _ensureFirebaseUser(
+                user,
+                this.options.storage.serverModules.users,
+            ))
+        this.events.emit('changed')
     }
 }
 
