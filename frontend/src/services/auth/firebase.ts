@@ -66,7 +66,7 @@ export default class FirebaseAuthService extends AuthServiceBase {
         const generateLoginToken = this.generateLoginToken.bind(this)
         syncWithExtension({
             awaitAuth: this.waitForAuthReady.bind(this),
-            isLoggedIn: () => !!getCurrentUser(),
+            isLoggedIn: () => Promise.resolve(!!getCurrentUser()),
             generateLoginToken: () =>
                 generateLoginToken().then((obj) => obj.token),
             loginWithToken: this.loginWithToken.bind(this),

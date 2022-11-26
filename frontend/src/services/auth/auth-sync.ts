@@ -34,7 +34,7 @@ function validGeneratedLoginToken(loginToken: any) {
 
 interface SyncProps {
     awaitAuth: () => Promise<void>
-    isLoggedIn: () => boolean
+    isLoggedIn: () => Promise<boolean>
     generateLoginToken: () => Promise<string>
     loginWithToken: (token: string) => Promise<void>
 }
@@ -86,15 +86,24 @@ function sendMessageToExtension(
             console.log('Could not send message to Memex extension.')
             resolve(null)
         } else {
-            console.log('Sending message to Memex extension.')
+            const packedMessage = packMessage(message, payload)
+            console.log(
+                'Sending message to Memex extension: ' +
+                    JSON.stringify(packedMessage, null, 2),
+            )
             //@ts-ignore next-line
             base.runtime.sendMessage(
                 extensionID,
-                packMessage(message, payload),
+                packedMessage,
                 null,
                 (res: any) => {
                     if (validMessage(res)) {
-                        resolve(unpackMessage(res))
+                        const unpackedMessage = unpackMessage(res)
+                        console.log(
+                            'Recieved: ' +
+                                JSON.stringify(unpackedMessage, null, 2),
+                        )
+                        resolve(unpackedMessage)
                     }
                 },
             )
@@ -138,7 +147,7 @@ export async function syncWithExtension({
 }: SyncProps) {
     await awaitAuth()
     await awaitExtensionReady()
-    if (isLoggedIn()) {
+    if (await isLoggedIn()) {
         sendTokenToExtPath(generateLoginToken)
     } else {
         loginWithExtTokenPath(loginWithToken)
