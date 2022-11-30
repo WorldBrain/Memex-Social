@@ -536,7 +536,13 @@ module.exports = function (webpackEnv) {
         },
         plugins: [
             new webpack.IgnorePlugin({
-                resourceRegExp: /async_hooks|firebase-functions|firebase-admin/,
+                resourceRegExp: /^async_hooks$/,
+            }),
+            new webpack.IgnorePlugin({
+                resourceRegExp: /^firebase-functions/,
+            }),
+            new webpack.IgnorePlugin({
+                resourceRegExp: /^firebase-admin/,
             }),
             // Generates an `index.html` file with the <script> injected.
             new HtmlWebpackPlugin(
