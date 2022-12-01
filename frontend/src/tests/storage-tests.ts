@@ -88,7 +88,10 @@ async function createMemoryTestDevice(
     storageHooksChangeWatcher.setUp({
         fetch,
         services,
-        getFunctionsConfig: () => ({}),
+        getFunctionsConfig: () => ({
+            twitter: { api_key: 'test', api_key_secret: 'test' },
+            content_sharing: { cloudflare_worker_credentials: 'test' },
+        }),
         captureException: async (error) => undefined, // TODO: maybe implement this
         serverStorageManager: storage.serverStorageManager,
         getCurrentUserReference: async () =>

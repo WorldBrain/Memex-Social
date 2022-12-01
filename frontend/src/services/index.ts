@@ -154,6 +154,7 @@ export function createServices(options: {
     const contentSharingBackend =
         options.backend === 'memory'
             ? new ContentSharingBackend({
+                  services: { pushMessaging: undefined }, // TODO: Set up push messaging service for meta UI
                   storageManager: options.storage.serverStorageManager,
                   storageModules: options.storage.serverModules,
                   getCurrentUserId: async () =>
