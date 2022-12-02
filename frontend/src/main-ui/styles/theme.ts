@@ -40,6 +40,7 @@ export const theme: Theme = THEME({
         feed: require('../../assets/img/feed.svg'),
         file: require('../../assets/img/file.svg'),
         fileFull: require('../../assets/img/fileFull.svg'),
+        filePDF: require('../../assets/img/file-pdf.svg'),
         filterIcon: require('../../assets/img/filterIcon.svg'),
         folder: require('../../assets/img/folder.svg'),
         globe: require('../../assets/img/globe.svg'),
