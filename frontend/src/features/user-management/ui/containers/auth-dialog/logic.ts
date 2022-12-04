@@ -56,6 +56,14 @@ export default class AuthDialogLogic extends UILogic<
                 })
             }
         })
+
+        auth.events.on('changed', (changedUser) => {
+            if (changedUser) {
+                this.emitMutation({
+                    mode: { $set: 'hidden' },
+                })
+            }
+        })
     }
 
     getInitialState(): AuthDialogState {

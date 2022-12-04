@@ -238,7 +238,7 @@ export default class FirebaseAuthService extends AuthServiceBase {
                 user,
                 this.options.storage.serverModules.users,
             ))
-        this.events.emit('changed')
+        this.events.emit('changed', this._user)
     }
 }
 
