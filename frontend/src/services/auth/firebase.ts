@@ -229,16 +229,7 @@ export default class FirebaseAuthService extends AuthServiceBase {
     }
 
     async loginWithToken(token: string) {
-        const { user } = await this._firebase
-            .auth()
-            .signInWithCustomToken(token)
-        this._user =
-            user &&
-            (await _ensureFirebaseUser(
-                user,
-                this.options.storage.serverModules.users,
-            ))
-        this.events.emit('changed', this._user)
+        await this._firebase.auth().signInWithCustomToken(token)
     }
 }
 
