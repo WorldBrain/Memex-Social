@@ -934,8 +934,8 @@ export default class CollectionDetailsPage extends UIElement<
                 </DefaultPageLayout>
             )
         }
-
         const isPageView = this.props.entryID
+        const isPageLink = data.list.type === 'page-link'
 
         // console.log(this.state.listData?.listEntries[1].hoverState)
 

@@ -2,6 +2,7 @@ objects:
     sharedLists:
         - $store: default
           id: page-link
+          type: page-link
           creator: { $ref: users.default }
           createdWhen: 1594225289914
           updatedWhen: 1594225289914
