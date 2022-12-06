@@ -1,5 +1,5 @@
 import { doesMemexExtDetectionElExist } from '@worldbrain/memex-common/lib/common-ui/utils/content-script'
-
+//TODO: use helpers from memex-common (how to publish?)
 function validMessage(messageObj: any) {
     return (
         typeof messageObj === 'object' &&
@@ -39,8 +39,6 @@ interface SyncProps {
     loginWithToken: (token: string) => Promise<void>
 }
 
-const extensionID = 'ifcleiemikljppfppdojadoghfghbinn'
-
 function canMessageExtension() {
     //@ts-ignore next-line
     const base = chrome || browser
@@ -57,8 +55,12 @@ function canMessageExtension() {
 }
 
 function awaitExtensionReady() {
-    let triesLeft = 3
+    let triesLeft = 10
     return new Promise<void>((resolve, reject) => {
+        if (canMessageExtension()) {
+            resolve()
+        }
+
         const timer = setInterval(() => {
             if (triesLeft === 0) {
                 clearInterval(timer)
@@ -71,12 +73,13 @@ function awaitExtensionReady() {
                     resolve()
                 }
             }
-        }, 100)
+        }, 1000)
     })
 }
 
 function sendMessageToExtension(
     message: ExtMessage,
+    extensionID: string,
     payload?: string,
 ): Promise<null | ReturnType<typeof unpackMessage>> {
     return new Promise((resolve) => {
@@ -87,10 +90,10 @@ function sendMessageToExtension(
             resolve(null)
         } else {
             const packedMessage = packMessage(message, payload)
-            console.log(
-                'Sending message to Memex extension: ' +
-                    JSON.stringify(packedMessage, null, 2),
-            )
+            // console.log(
+            //     'Sending message to Memex extension: ' +
+            //         JSON.stringify(packedMessage, null, 2),
+            // )
             //@ts-ignore next-line
             base.runtime.sendMessage(
                 extensionID,
@@ -99,10 +102,10 @@ function sendMessageToExtension(
                 (res: any) => {
                     if (validMessage(res)) {
                         const unpackedMessage = unpackMessage(res)
-                        console.log(
-                            'Recieved: ' +
-                                JSON.stringify(unpackedMessage, null, 2),
-                        )
+                        // console.log(
+                        //     'Recieved: ' +
+                        //         JSON.stringify(unpackedMessage, null, 2),
+                        // )
                         resolve(unpackedMessage)
                     }
                 },
@@ -111,8 +114,14 @@ function sendMessageToExtension(
     })
 }
 
-async function sendTokenToExtPath(generateLoginToken: () => Promise<string>) {
-    const loginRequest = await sendMessageToExtension(ExtMessage.LOGGED_IN)
+async function sendTokenToExtPath(
+    generateLoginToken: () => Promise<string>,
+    extensionID: string,
+) {
+    const loginRequest = await sendMessageToExtension(
+        ExtMessage.LOGGED_IN,
+        extensionID,
+    )
     if (!loginRequest || loginRequest.message !== ExtMessage.TOKEN_REQUEST) {
         return
     }
@@ -120,14 +129,16 @@ async function sendTokenToExtPath(generateLoginToken: () => Promise<string>) {
     if (!validGeneratedLoginToken(loginToken)) {
         return
     }
-    sendMessageToExtension(ExtMessage.TOKEN, loginToken)
+    sendMessageToExtension(ExtMessage.TOKEN, extensionID, loginToken)
 }
 
 async function loginWithExtTokenPath(
     loginWithToken: (token: string) => Promise<void>,
+    extensionID: string,
 ) {
     const tokenFromExtension = await sendMessageToExtension(
         ExtMessage.TOKEN_REQUEST,
+        extensionID,
     )
     if (
         !tokenFromExtension ||
@@ -145,11 +156,13 @@ export async function syncWithExtension({
     generateLoginToken,
     loginWithToken,
 }: SyncProps) {
+    const extensionID = 'ifcleiemikljppfppdojadoghfghbinn'
+
     await awaitAuth()
     await awaitExtensionReady()
     if (await isLoggedIn()) {
-        sendTokenToExtPath(generateLoginToken)
+        sendTokenToExtPath(generateLoginToken, extensionID)
     } else {
-        loginWithExtTokenPath(loginWithToken)
+        loginWithExtTokenPath(loginWithToken, extensionID)
     }
 }
