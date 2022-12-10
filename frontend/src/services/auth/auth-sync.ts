@@ -33,6 +33,36 @@ function validGeneratedLoginToken(loginToken: any) {
     return loginToken && typeof loginToken === 'string'
 }
 
+export function logPackedMessage(
+    msg: ReturnType<typeof packMessage>,
+    comment?: string,
+    shouldLog: boolean = false,
+) {
+    if (shouldLog) {
+        if (comment) {
+            comment += ': '
+        } else {
+            comment = ''
+        }
+        console.log(comment + unpackMessage(msg).message)
+    }
+}
+
+export function logUnpackedMessage(
+    msg: ReturnType<typeof unpackMessage>,
+    comment?: string,
+    shouldLog: boolean = false,
+) {
+    if (shouldLog) {
+        if (comment) {
+            comment += ': '
+        } else {
+            comment = ''
+        }
+        console.log(comment + msg.message)
+    }
+}
+
 const enableMessageLogging = false
 
 function canMessageExtension(extensionID: string) {
@@ -85,10 +115,6 @@ async function awaitExtensionReady(extensionID: string) {
                 if (canMessageExtension(extensionID)) {
                     clearInterval(shortTimer)
                     resolve()
-                } else {
-                    if (enableMessageLogging) {
-                        console.log('Waiting for extension')
-                    }
                 }
             }
         }, shortTriesInterval)
@@ -108,9 +134,6 @@ async function awaitExtensionReady(extensionID: string) {
                 resolve()
                 return
             }
-            if (enableMessageLogging) {
-                console.log('Waiting for extension')
-            }
         }, longTriesInterval)
     })
 }
@@ -125,12 +148,8 @@ function sendMessageToExtension(
         const base = chrome || browser
 
         const packedMessage = packMessage(message, payload)
-        if (enableMessageLogging) {
-            console.log(
-                'Sending message to Memex extension: ' +
-                    JSON.stringify(unpackMessage(packedMessage), null, 2),
-            )
-        }
+        logPackedMessage(packedMessage, 'Sending', enableMessageLogging)
+
         //@ts-ignore next-line
         base.runtime.sendMessage(
             extensionID,
@@ -139,12 +158,12 @@ function sendMessageToExtension(
             (res: any) => {
                 if (validMessage(res)) {
                     const unpackedMessage = unpackMessage(res)
-                    if (enableMessageLogging) {
-                        console.log(
-                            'Recieved: ' +
-                                JSON.stringify(unpackedMessage, null, 2),
-                        )
-                    }
+                    logUnpackedMessage(
+                        unpackedMessage,
+                        'Recieved',
+                        enableMessageLogging,
+                    )
+
                     resolve(unpackedMessage)
                 }
             },
