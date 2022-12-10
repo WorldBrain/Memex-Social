@@ -33,6 +33,8 @@ function validGeneratedLoginToken(loginToken: any) {
     return loginToken && typeof loginToken === 'string'
 }
 
+const enableMessageLogging = false
+
 function canMessageExtension(extensionID: string) {
     //@ts-ignore next-line
     const base = chrome || browser
@@ -63,13 +65,11 @@ function canMessageExtension(extensionID: string) {
     }
 }
 
-function awaitExtensionReady(extensionID: string) {
+async function awaitExtensionReady(extensionID: string) {
     const shortTriesInterval = 300
     let shortTriesLeft = 10
 
-    const longTriesInterval = 2000
-
-    return new Promise<void>((resolve) => {
+    await new Promise<void>((resolve) => {
         if (canMessageExtension(extensionID)) {
             resolve()
         }
@@ -79,15 +79,27 @@ function awaitExtensionReady(extensionID: string) {
         const shortTimer = setInterval(() => {
             if (shortTriesLeft === 0) {
                 clearInterval(shortTimer)
+                resolve()
             } else {
                 shortTriesLeft--
                 if (canMessageExtension(extensionID)) {
                     clearInterval(shortTimer)
                     resolve()
+                } else {
+                    if (enableMessageLogging) {
+                        console.log('Waiting for extension')
+                    }
                 }
             }
         }, shortTriesInterval)
+    })
 
+    const longTriesInterval = 2000
+    console.log(
+        'Extension was not ready or installed after initial wait period. Starting polling.',
+    )
+
+    return new Promise<void>((resolve) => {
         //in this case, the extension is not installed currently
         //so we poll in case it is installed later - which we want to encourage
         const longTimer = setInterval(() => {
@@ -96,7 +108,9 @@ function awaitExtensionReady(extensionID: string) {
                 resolve()
                 return
             }
-            // console.log('Waiting for extension')
+            if (enableMessageLogging) {
+                console.log('Waiting for extension')
+            }
         }, longTriesInterval)
     })
 }
@@ -111,10 +125,12 @@ function sendMessageToExtension(
         const base = chrome || browser
 
         const packedMessage = packMessage(message, payload)
-        // console.log(
-        //     'Sending message to Memex extension: ' +
-        //         JSON.stringify(unpackMessage(packedMessage), null, 2),
-        // )
+        if (enableMessageLogging) {
+            console.log(
+                'Sending message to Memex extension: ' +
+                    JSON.stringify(unpackMessage(packedMessage), null, 2),
+            )
+        }
         //@ts-ignore next-line
         base.runtime.sendMessage(
             extensionID,
@@ -123,9 +139,12 @@ function sendMessageToExtension(
             (res: any) => {
                 if (validMessage(res)) {
                     const unpackedMessage = unpackMessage(res)
-                    // console.log(
-                    //     'Recieved: ' + JSON.stringify(unpackedMessage, null, 2),
-                    // )
+                    if (enableMessageLogging) {
+                        console.log(
+                            'Recieved: ' +
+                                JSON.stringify(unpackedMessage, null, 2),
+                        )
+                    }
                     resolve(unpackedMessage)
                 }
             },
@@ -133,7 +152,7 @@ function sendMessageToExtension(
     })
 }
 
-async function sendTokenToExtPath(
+async function sendTokenToExtHandler(
     authService: FirebaseAuthService,
     extensionID: string,
 ) {
@@ -151,7 +170,7 @@ async function sendTokenToExtPath(
     await sendMessageToExtension(ExtMessage.TOKEN, extensionID, loginToken)
 }
 
-async function loginWithExtTokenPath(
+async function loginWithExtTokenHandler(
     authService: FirebaseAuthService,
     extensionID: string,
 ) {
@@ -166,7 +185,42 @@ async function loginWithExtTokenPath(
     ) {
         return
     }
-    await authService.loginWithToken(tokenFromExtension.payload)
+    //currently we can not avoid duplicate token generation if multiple tabs exist, but we can at least try to avoid duplicate login
+    if (!(await authService.isLoggedIn()))
+        await authService.loginWithToken(tokenFromExtension.payload)
+}
+
+function bothNotLoggedInHandler(
+    authService: FirebaseAuthService,
+    extensionID: string,
+) {
+    console.log(
+        'Neither app nor extension are logged in. Starting polling until either one logs in.',
+    )
+    const interval = 4000
+    const tryAgain = () => {
+        setTimeout(async () => {
+            await sync(authService, extensionID)
+            if (!authService.isLoggedIn()) {
+                tryAgain()
+            } else {
+                console.log(
+                    'Successfully synced with extension after trying multiple times.',
+                )
+            }
+        }, interval)
+    }
+    tryAgain()
+}
+
+async function sync(authService: FirebaseAuthService, extensionID: string) {
+    await authService.waitForAuthReady()
+    await awaitExtensionReady(extensionID)
+    if (authService.isLoggedIn()) {
+        await sendTokenToExtHandler(authService, extensionID)
+    } else {
+        await loginWithExtTokenHandler(authService, extensionID)
+    }
 }
 
 export async function syncWithExtension(authService: FirebaseAuthService) {
@@ -175,32 +229,12 @@ export async function syncWithExtension(authService: FirebaseAuthService) {
             ? 'ifcleiemikljppfppdojadoghfghbinn' //needs to be adjusted for dev, this depends on your local environment
             : 'abkfbakhjpmblaafnpgjppbmioombali'
 
-    const isLoggedIn = () => !!authService.getCurrentUser()
-
-    await authService.waitForAuthReady()
-    await awaitExtensionReady(extensionID)
-    if (isLoggedIn()) {
-        await sendTokenToExtPath(authService, extensionID)
+    await sync(authService, extensionID)
+    if (!authService.isLoggedIn()) {
+        bothNotLoggedInHandler(authService, extensionID)
     } else {
-        await loginWithExtTokenPath(authService, extensionID)
-    }
-
-    if (!isLoggedIn()) {
-        let inExecution = false
-        //TODO:
-        //this needs to poll the ext too for seeing if it was logged in
-        //can currently only detect "later" login if we do it in the app
-
-        //scenarios:
-        //0. both installed, one of app/ext logged in (2)
-        //1. both installed, no logged in - login in each separately (2)
-        //2. having app open, installing ext
-        //3. having multiple tabs of the app open, installing ext
-        authService.events.on('changed', () => {
-            if (!inExecution) {
-                inExecution = true
-                syncWithExtension(authService).then(() => (inExecution = false))
-            }
-        })
+        console.log(
+            'Successfully synced with extension immediately after it was ready.',
+        )
     }
 }

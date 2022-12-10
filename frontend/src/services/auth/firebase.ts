@@ -166,6 +166,10 @@ export default class FirebaseAuthService extends AuthServiceBase {
         return this._user
     }
 
+    isLoggedIn() {
+        return !!this.getCurrentUser()
+    }
+
     getCurrentUserEmail() {
         return firebase.auth().currentUser?.email ?? null
     }
