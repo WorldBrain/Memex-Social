@@ -1,67 +1,13 @@
 import FirebaseAuthService from './firebase'
-//TODO: use helpers from memex-common (how to publish?)
-function validMessage(messageObj: any) {
-    return (
-        messageObj &&
-        typeof messageObj === 'object' &&
-        typeof messageObj.message === 'string' &&
-        (!messageObj.payload || typeof messageObj.payload === 'string')
-    )
-}
-
-enum ExtMessage {
-    LOGGED_IN = 'LOGGED_IN',
-    TOKEN_REQUEST = 'TOKEN_REQUEST',
-    TOKEN = 'TOKEN',
-}
-
-function unpackMessage(messageObj: any) {
-    return {
-        message: atob(messageObj.message) as ExtMessage,
-        payload: messageObj.payload ? atob(messageObj.payload) : null,
-    }
-}
-
-function packMessage(message: ExtMessage, payload?: string) {
-    return {
-        message: btoa(message),
-        payload: payload ? btoa(payload) : null,
-    }
-}
-
-function validGeneratedLoginToken(loginToken: any) {
-    return loginToken && typeof loginToken === 'string'
-}
-
-export function logPackedMessage(
-    msg: ReturnType<typeof packMessage>,
-    comment?: string,
-    shouldLog: boolean = false,
-) {
-    if (shouldLog) {
-        if (comment) {
-            comment += ': '
-        } else {
-            comment = ''
-        }
-        console.log(comment + unpackMessage(msg).message)
-    }
-}
-
-export function logUnpackedMessage(
-    msg: ReturnType<typeof unpackMessage>,
-    comment?: string,
-    shouldLog: boolean = false,
-) {
-    if (shouldLog) {
-        if (comment) {
-            comment += ': '
-        } else {
-            comment = ''
-        }
-        console.log(comment + msg.message)
-    }
-}
+import {
+    ExtMessage,
+    logPackedMessage,
+    logUnpackedMessage,
+    packMessage,
+    unpackMessage,
+    validGeneratedLoginToken,
+    validMessage,
+} from '@worldbrain/memex-common/lib/authentication/auth-sync'
 
 const enableMessageLogging = false
 
