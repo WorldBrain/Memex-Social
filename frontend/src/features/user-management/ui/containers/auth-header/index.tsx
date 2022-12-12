@@ -117,16 +117,9 @@ export default class AuthHeader extends UIElement<
                             : 'Sign Up'
                     }
                     onClick={() => this.processEvent('login', null)}
-                    backgroundColor={
-                        this.state.isMemexInstalled === true
-                            ? 'lightHover'
-                            : 'normalText'
-                    }
-                    fontColor={
-                        this.state.isMemexInstalled === true
-                            ? 'normalText'
-                            : 'black'
-                    }
+                    type={'forth'}
+                    size={'medium'}
+                    icon={'login'}
                 />
             )
         }

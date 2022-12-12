@@ -770,7 +770,28 @@ export default class CollectionDetailsPage extends UIElement<
                             ? 'click-page'
                             : 'add-page'
                     }
+                    intent={'openLink'}
                     clickedPageUrl={this.state.clickedPageUrl!}
+                />
+            )
+        }
+
+        console.log(this.state.showFollowModal)
+
+        if (this.state.showFollowModal) {
+            return (
+                <InstallExtOverlay
+                    services={this.props.services}
+                    viewportBreakpoint={this.viewportBreakpoint}
+                    onCloseRequested={() =>
+                        this.processEvent('toggleFollowSpaceOverlay', {})
+                    }
+                    mode={
+                        this.state.clickedPageUrl != null
+                            ? 'click-page'
+                            : 'add-page'
+                    }
+                    intent={'follow'}
                 />
             )
         }
@@ -783,23 +804,6 @@ export default class CollectionDetailsPage extends UIElement<
                     onCloseRequested={() =>
                         this.processEvent('toggleMissingPdfModal', {})
                     }
-                />
-            )
-        }
-
-        if (this.state.showFollowModal) {
-            return (
-                <FollowSpaceOverlay
-                    services={this.props.services}
-                    viewportBreakpoint={this.viewportBreakpoint}
-                    onCloseRequested={() =>
-                        this.processEvent('toggleFollowSpaceOverlay', {})
-                    }
-                    isSpaceFollowed={this.state.isCollectionFollowed}
-                    currentUrl={this.state.clickedPageUrl!}
-                    renderFollowBtn={this.renderFollowBtn(
-                        this.state.clickedPageUrl!,
-                    )}
                 />
             )
         }
@@ -1404,16 +1408,19 @@ const BreadCrumbBox = styled.div`
 const AbovePagesBox = styled.div<{
     viewportWidth: ViewportBreakpoint
 }>`
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  margin: 10px 0 10px;
-  width: 100%;
-  position: relative;
-  z-index: 2;
-  border-radius: 5px;
-  justify-content: space-between;
-}
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin: 10px 0 2px 0;
+    width: 100%;
+    position: relative;
+    z-index: 2;
+    border-radius: 5px;
+    justify-content: space-between;
+    border-bottom: 1px solid
+        ${(props) => props.theme.colors.backgroundColorDarker};
+    padding-bottom: 10px;
+    border-radius: 3px 3px 0 0;
 `
 
 const DescriptionActions = styled(Margin)`
@@ -1443,7 +1450,6 @@ const AddPageBtn = styled.div`
 
 const ToggleAllAnnotations = styled.div`
     text-align: right;
-    font-weight: bold;
     font-family: ${(props) => props.theme.fonts.primary};
     color: ${(props) => props.theme.colors.primary};
     font-weight: bold;

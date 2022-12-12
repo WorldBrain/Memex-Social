@@ -944,6 +944,7 @@ export default class HomeFeedPage extends UIElement<
                             ? 'click-page'
                             : 'add-page'
                     }
+                    intent={'openLink'}
                     clickedPageUrl={this.state.clickedPageUrl!}
                 />
             )

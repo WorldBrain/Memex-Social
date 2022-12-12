@@ -1,14 +1,17 @@
-import React from 'react'
+import React, { ReactElement } from 'react'
 import styled, { css } from 'styled-components'
 import Overlay from '../../../../main-ui/containers/overlay'
 import { ViewportBreakpoint } from '../../../../main-ui/styles/types'
 import { UIElementServices } from '../../../../services/types'
 import { Margin } from 'styled-components-spacing'
-import { PrimaryAction } from '../../../../common-ui/components/PrimaryAction'
+import { PrimaryAction } from '@worldbrain/memex-common/lib/common-ui/components/PrimaryAction'
+import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
+import { detect } from 'detect-browser'
 
-const braveLogo = require('../../../../assets/img/logo-brave.svg')
+const braveLogo = require('../../../../assets/img/braveLogo.svg')
 const firefoxLogo = require('../../../../assets/img/logo-firefox.svg')
 const chromeLogo = require('../../../../assets/img/logo-chrome.svg')
+const bannerImage = require('../../../../assets/img/installBanner.svg')
 const noteIcon = require('../../../../assets/img/comment.svg')
 
 const Content = styled.div<{
@@ -19,9 +22,10 @@ const Content = styled.div<{
     display: flex;
     justify-content: center;
     align-items: center;
-    flex-direction: column;
-    padding: 40px;
+    flex-direction: row;
+    padding: 40px 40px 10px 40px;
     width: 100%;
+    grid-gap: 30px;
 
     > * {
         font-family: ${(props) => props.theme.fonts.primary};
@@ -45,10 +49,10 @@ const Content = styled.div<{
 const Title = styled.div<{
     viewportBreakpoint: ViewportBreakpoint
 }>`
-    font-weight: 800;
+    font-weight: 700;
     font-size: 24px;
-    color: ${(props) => props.theme.colors.lighterText};
-    text-align: center;
+    color: ${(props) => props.theme.colors.normalText};
+    text-align: left;
 
     ${(props) =>
         props.viewportBreakpoint === 'small' &&
@@ -62,145 +66,396 @@ const Title = styled.div<{
         `}
 `
 
-const SubTitle = styled.div`
-    font-size: 1rem;
-    color: ${(props) => props.theme.colors.lighterText};
-    margin-bottom: 10px;
-    margin-top: 5px;
-    pointer-events: none;
-    text-align: center;
-`
-
-const NoteIconContainer = styled.img`
-    height: 16px;
-    width: 16px;
-    display: flex;
-    mask-image: url(${noteIcon});
-    background-color: ${(props) => props.theme.colors.lighterText};
-    mask-position: center center;
-    mask-repeat: no-repeat;
-    margin: 0 5px;
-    height: 19px;
-    width: 16px;
-    mask-size: contain;
-`
-
-const SubSubTitle = styled.div`
-    font-size: 0.8rem;
-    color: ${(props) => props.theme.colors.lighterText};
-    text-align: center;
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-`
-
-const SubSubSubTitle = styled.div`
-    font-size: 0.8rem;
-    color: ${(props) => props.theme.colors.lighterText};
-    text-align: center;
-    display: inline-box;
-    justify-content: center;
-    align-items: center;
-    white-space: nowrap;
-`
-
-const BrowserIconsBox = styled.div`
-    display: grid;
-    padding: 15px 0px;
-    justify-content: space-between;
-    grid-auto-flow: column;
-    grid-gap: 30px;
-`
-
-const BrowserIcon = styled.img`
-    height: 40px;
-    cursor: pointer;
-`
-
 const ButtonsBox = styled.div`
     display: flex;
     justify-content: center;
-    width: 250px;
-    padding: 15px 0px;
     align-items: center;
-    width: 120%;
     justify-content: center;
-    margin-bottom: -30px;
-    margin-top: 50px;
+    margin-top: 20px;
+    grid-gap: 10px;
 `
+
+const TitleContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+`
+const ContentBox = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+`
+
+const OverlayContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+`
+
+const BannerImage = styled.img`
+    height: auto;
+    max-width: 400px;
+    width: fill-available;
+`
+
+const BenefitList = styled.div`
+    display: flex;
+    flex-direction: column;
+    grid-gap: 20px;
+    padding: 30px 0px;
+`
+
+const BenefitListEntry = styled.div`
+    display: flex;
+    align-items: flex-start;
+    grid-gap: 10px;
+`
+
+const BenefitListEntryContentBox = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    grid-gap: 5px;
+`
+
+const BenefitListEntryTitle = styled.div`
+    display: flex;
+    color: ${(props) => props.theme.colors.greyScale9};
+    font-weight: 600;
+    font-size: 14px;
+`
+
+const BenefitListEntrySubTitle = styled.div`
+    display: flex;
+    color: ${(props) => props.theme.colors.greyScale9};
+    font-weight: 300;
+    font-size: 14px;
+`
+
 interface PageAddProps {
     mode: 'add-page'
+    intent?: string
 }
 
 interface PageClickProps {
     mode: 'click-page'
-    clickedPageUrl: string
+    clickedPageUrl?: string
 }
 
 type Props = {
     services: UIElementServices<'overlay'>
     viewportBreakpoint: ViewportBreakpoint
+    intent?: string
     onCloseRequested: () => void
 } & (PageAddProps | PageClickProps)
 
+function getBrowserIcon(): JSX.Element {
+    const browserDetect = detect()
+    let browserIcon
+
+    /* @ts-ignore */
+    if (navigator.brave) {
+        return (browserIcon = require('../../../../assets/img/braveLogo.svg'))
+    }
+
+    switch (browserDetect && browserDetect.name) {
+        case 'chrome':
+            return (browserIcon = require('../../../../assets/img/chromeLogo.svg'))
+            break
+        case 'firefox':
+            return (browserIcon = require('../../../../assets/img/firefoxLogo.svg'))
+            break
+        default:
+            // TODO: Fallback case? Default is Chrome link
+            return (browserIcon = require('../../../../assets/img/chromeLogo.svg'))
+            break
+    }
+}
+
+function getBrowserDownloadLink() {
+    const browserDetect = detect()
+    let downloadLink
+
+    /* @ts-ignore */
+    if (navigator.brave) {
+        downloadLink =
+            'https://chrome.google.com/webstore/detail/abkfbakhjpmblaafnpgjppbmioombali'
+
+        return downloadLink
+    }
+
+    switch (browserDetect && browserDetect.name) {
+        case 'chrome':
+            return (downloadLink =
+                'https://chrome.google.com/webstore/detail/abkfbakhjpmblaafnpgjppbmioombali')
+            break
+        case 'firefox':
+            return (downloadLink =
+                'https://addons.mozilla.org/en-US/firefox/addon/worldbrain/')
+            break
+        default:
+            // TODO: Fallback case? Default is Chrome link
+            return (downloadLink =
+                'https://chrome.google.com/webstore/detail/abkfbakhjpmblaafnpgjppbmioombali')
+            break
+    }
+}
+
 export default function InstallExtOverlay(props: Props) {
-    return (
-        <Overlay
-            services={props.services}
-            onCloseRequested={props.onCloseRequested}
-        >
-            <Content viewportBreakpoint={props.viewportBreakpoint}>
-                <Margin>
-                    <Title viewportBreakpoint={props.viewportBreakpoint}>
-                        {props.mode === 'add-page'
-                            ? 'Use the Memex extension to add pages to this Space'
-                            : 'Use the Memex extension to view the annotations on the live page'}
-                    </Title>
-                    <SubTitle>
-                        {props.mode === 'add-page'
-                            ? 'Download the extension, login in and add pages via the Space picker.'
-                            : 'Download the extension, follow this Space and then open the page.'}
-                    </SubTitle>
-                </Margin>
-                <Margin top={'small'}>
-                    <BrowserIconsBox>
-                        <BrowserIcon
-                            src={braveLogo}
-                            onClick={() => window.open('https://memex.garden')}
-                        />
-                        <BrowserIcon
-                            src={firefoxLogo}
-                            onClick={() => window.open('https://memex.garden')}
-                        />
-                        <BrowserIcon
-                            src={chromeLogo}
-                            onClick={() => window.open('https://memex.garden')}
-                        />
-                    </BrowserIconsBox>
-                </Margin>
-                {/* {props.installModalState && (*/}
-                <Margin top={'medium'}>
-                    <SubSubTitle>
-                        You just want to read the highlights?
-                        <SubSubSubTitle>
-                            Click on the <NoteIconContainer />
-                            icon in each result to see them.
-                        </SubSubSubTitle>
-                    </SubSubTitle>
-                </Margin>
-                {/* )} */}
-                {props.mode === 'click-page' && (
-                    <ButtonsBox>
-                        <PrimaryAction
-                            onClick={() =>
-                                window.open(props.clickedPageUrl, '_blank')
-                            }
-                            label={'Continue to page without Memex'}
-                        />
-                    </ButtonsBox>
-                )}
-            </Content>
-        </Overlay>
-    )
+    if (props.intent === 'openLink') {
+        return (
+            <>
+                <Overlay
+                    services={props.services}
+                    onCloseRequested={props.onCloseRequested}
+                >
+                    <OverlayContainer>
+                        <Content viewportBreakpoint={props.viewportBreakpoint}>
+                            <BannerImage src={bannerImage}></BannerImage>
+                            <ContentBox>
+                                <TitleContainer>
+                                    <Title
+                                        viewportBreakpoint={
+                                            props.viewportBreakpoint
+                                        }
+                                    >
+                                        Download the Memex extension for an
+                                        enhanced reading experience
+                                    </Title>
+                                    <BenefitList>
+                                        <BenefitListEntry>
+                                            <Icon
+                                                filePath={'commentEmpty'}
+                                                heightAndWidth={'22px'}
+                                                hoverOff
+                                                color="purple"
+                                            />
+                                            <BenefitListEntryContentBox>
+                                                <BenefitListEntryTitle>
+                                                    Tap into your community's
+                                                    knowledge while browsing
+                                                </BenefitListEntryTitle>
+                                                <BenefitListEntrySubTitle>
+                                                    See when pages you're
+                                                    reading are annotated in
+                                                    Spaces you follow
+                                                </BenefitListEntrySubTitle>
+                                            </BenefitListEntryContentBox>
+                                        </BenefitListEntry>
+                                        <BenefitListEntry>
+                                            <Icon
+                                                filePath={'highlight'}
+                                                heightAndWidth={'22px'}
+                                                hoverOff
+                                                color="purple"
+                                            />
+                                            <BenefitListEntryContentBox>
+                                                <BenefitListEntryTitle>
+                                                    Highlights, notes and
+                                                    conversations across the web
+                                                </BenefitListEntryTitle>
+                                                <BenefitListEntrySubTitle>
+                                                    View, make & share
+                                                    highlights on websites,
+                                                    videos and PDFs
+                                                </BenefitListEntrySubTitle>
+                                            </BenefitListEntryContentBox>
+                                        </BenefitListEntry>
+                                        <BenefitListEntry>
+                                            <Icon
+                                                filePath={'heartEmpty'}
+                                                heightAndWidth={'22px'}
+                                                hoverOff
+                                                color="purple"
+                                            />
+                                            <BenefitListEntryContentBox>
+                                                <BenefitListEntryTitle>
+                                                    Powerful bookmarking
+                                                </BenefitListEntryTitle>
+                                                <BenefitListEntrySubTitle>
+                                                    Save anything with one click
+                                                    and find it again in seconds
+                                                </BenefitListEntrySubTitle>
+                                            </BenefitListEntryContentBox>
+                                        </BenefitListEntry>
+                                    </BenefitList>
+                                </TitleContainer>
+                                {props.mode === 'click-page' && (
+                                    <ButtonsBox>
+                                        <PrimaryAction
+                                            onClick={() =>
+                                                window.open(
+                                                    getBrowserDownloadLink(),
+                                                    '_blank',
+                                                )
+                                            }
+                                            type={'primary'}
+                                            label={'Download'}
+                                            size={'large'}
+                                            icon={getBrowserIcon()}
+                                        />
+                                        <PrimaryAction
+                                            onClick={() =>
+                                                window.open(
+                                                    props.clickedPageUrl,
+                                                    '_blank',
+                                                )
+                                            }
+                                            label={'Watch Demo'}
+                                            type={'forth'}
+                                            size={'large'}
+                                            icon={'play'}
+                                        />
+                                    </ButtonsBox>
+                                )}
+                            </ContentBox>
+                        </Content>
+                        {props.mode === 'click-page' && (
+                            <PrimaryAction
+                                onClick={() =>
+                                    window.open(props.clickedPageUrl, '_blank')
+                                }
+                                label={'...or continue to the page'}
+                                type={'tertiary'}
+                                size={'medium'}
+                                icon={'arrowRight'}
+                                iconPosition={'right'}
+                            />
+                        )}
+                    </OverlayContainer>
+                </Overlay>
+            </>
+        )
+    }
+
+    if (props.intent === 'follow') {
+        return (
+            <>
+                <Overlay
+                    services={props.services}
+                    onCloseRequested={props.onCloseRequested}
+                >
+                    <OverlayContainer>
+                        <Content viewportBreakpoint={props.viewportBreakpoint}>
+                            <BannerImage src={bannerImage}></BannerImage>
+                            <ContentBox>
+                                <TitleContainer>
+                                    <Title
+                                        viewportBreakpoint={
+                                            props.viewportBreakpoint
+                                        }
+                                    >
+                                        Download Memex to see annotations of
+                                        Spaces you follow when reading online
+                                    </Title>
+                                    <BenefitList>
+                                        <BenefitListEntry>
+                                            <Icon
+                                                filePath={'commentEmpty'}
+                                                heightAndWidth={'22px'}
+                                                hoverOff
+                                                color="purple"
+                                            />
+                                            <BenefitListEntryContentBox>
+                                                <BenefitListEntryTitle>
+                                                    Tap into your community's
+                                                    knowledge while browsing
+                                                </BenefitListEntryTitle>
+                                                <BenefitListEntrySubTitle>
+                                                    See when pages you're
+                                                    reading are annotated in
+                                                    Spaces you follow
+                                                </BenefitListEntrySubTitle>
+                                            </BenefitListEntryContentBox>
+                                        </BenefitListEntry>
+                                        <BenefitListEntry>
+                                            <Icon
+                                                filePath={'highlight'}
+                                                heightAndWidth={'22px'}
+                                                hoverOff
+                                                color="purple"
+                                            />
+                                            <BenefitListEntryContentBox>
+                                                <BenefitListEntryTitle>
+                                                    Highlights, notes and
+                                                    conversations across the web
+                                                </BenefitListEntryTitle>
+                                                <BenefitListEntrySubTitle>
+                                                    View, make & share
+                                                    highlights on websites,
+                                                    videos and PDFs
+                                                </BenefitListEntrySubTitle>
+                                            </BenefitListEntryContentBox>
+                                        </BenefitListEntry>
+                                        <BenefitListEntry>
+                                            <Icon
+                                                filePath={'heartEmpty'}
+                                                heightAndWidth={'22px'}
+                                                hoverOff
+                                                color="purple"
+                                            />
+                                            <BenefitListEntryContentBox>
+                                                <BenefitListEntryTitle>
+                                                    Powerful bookmarking
+                                                </BenefitListEntryTitle>
+                                                <BenefitListEntrySubTitle>
+                                                    Save anything with one click
+                                                    and find it again in seconds
+                                                </BenefitListEntrySubTitle>
+                                            </BenefitListEntryContentBox>
+                                        </BenefitListEntry>
+                                    </BenefitList>
+                                </TitleContainer>
+                                {props.mode === 'click-page' && (
+                                    <ButtonsBox>
+                                        <PrimaryAction
+                                            onClick={() =>
+                                                window.open(
+                                                    getBrowserDownloadLink(),
+                                                    '_blank',
+                                                )
+                                            }
+                                            type={'primary'}
+                                            label={'Download'}
+                                            size={'large'}
+                                            icon={getBrowserIcon()}
+                                        />
+                                        <PrimaryAction
+                                            onClick={() =>
+                                                window.open(
+                                                    props.clickedPageUrl,
+                                                    '_blank',
+                                                )
+                                            }
+                                            label={'Watch Demo'}
+                                            type={'forth'}
+                                            size={'large'}
+                                            icon={'play'}
+                                        />
+                                    </ButtonsBox>
+                                )}
+                            </ContentBox>
+                        </Content>
+                        {props.mode === 'click-page' && (
+                            <PrimaryAction
+                                onClick={() =>
+                                    window.open(props.clickedPageUrl, '_blank')
+                                }
+                                label={'...or continue to the page'}
+                                type={'tertiary'}
+                                size={'medium'}
+                                icon={'arrowRight'}
+                                iconPosition={'right'}
+                            />
+                        )}
+                    </OverlayContainer>
+                </Overlay>
+            </>
+        )
+    }
+
+    return null
 }
