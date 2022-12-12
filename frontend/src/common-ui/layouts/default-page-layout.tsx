@@ -41,6 +41,7 @@ export default function DefaultPageLayout(props: {
     viewportBreakpoint: ViewportBreakpoint
     children: React.ReactNode
     scrollTop?: number
+    breadCrumbs?: JSX.Element
 }) {
     const { viewportBreakpoint: viewportWidth } = props
     const renderSubtitle = props.renderSubtitle ?? ((props) => props.children)
@@ -158,6 +159,7 @@ export default function DefaultPageLayout(props: {
                                 scrollTop={props.scrollTop}
                                 viewportWidth={viewportWidth}
                             >
+                                {props.breadCrumbs && props.breadCrumbs}
                                 {props.headerTitle && (
                                     <HeaderTitle
                                         viewportWidth={viewportWidth}
@@ -178,10 +180,6 @@ export default function DefaultPageLayout(props: {
                                     viewportWidth={viewportWidth}
                                 >
                                     {props.renderHeaderActionArea}
-
-                                    {/* {props.webMonetizationIcon &&
-                                        props.webMonetizationIcon}
-                                    {props.followBtn && props.followBtn} */}
                                 </PageMidleAreaAction>
                             )}
                             {/* <LeftRightBlock /> */}
