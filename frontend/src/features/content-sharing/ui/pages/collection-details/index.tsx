@@ -776,8 +776,6 @@ export default class CollectionDetailsPage extends UIElement<
             )
         }
 
-        console.log(this.state.showFollowModal)
-
         if (this.state.showFollowModal) {
             return (
                 <InstallExtOverlay
@@ -804,6 +802,7 @@ export default class CollectionDetailsPage extends UIElement<
                     onCloseRequested={() =>
                         this.processEvent('toggleMissingPdfModal', {})
                     }
+                    transparent={true}
                 />
             )
         }

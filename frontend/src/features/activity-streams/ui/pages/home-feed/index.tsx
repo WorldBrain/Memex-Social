@@ -317,7 +317,6 @@ export default class HomeFeedPage extends UIElement<
     }
 
     renderNewLine() {
-        console.log('test')
         return (
             <StyledLastSeenLine>
                 <LastSeenLineLabel>
