@@ -14,6 +14,7 @@ import {
 import { AuthServiceBase } from './base'
 import { waitForAuth } from './utils'
 import { LimitedWebStorage } from '../../utils/web-storage/types'
+import { syncWithExtension } from './auth-sync'
 
 const FIREBASE_AUTH_CACHE_KEY = 'firebase.wasAuthenticated'
 
@@ -60,6 +61,8 @@ export default class FirebaseAuthService extends AuthServiceBase {
             }
             await this.refreshCurrentUser()
         })
+
+        syncWithExtension(this)
     }
 
     getSupportedMethods(options: {
@@ -163,6 +166,10 @@ export default class FirebaseAuthService extends AuthServiceBase {
         return this._user
     }
 
+    isLoggedIn() {
+        return !!this.getCurrentUser()
+    }
+
     getCurrentUserEmail() {
         return firebase.auth().currentUser?.email ?? null
     }
@@ -206,6 +213,19 @@ export default class FirebaseAuthService extends AuthServiceBase {
 
     async waitForAuthReady() {
         await this._initialWaitForAuth
+    }
+
+    async generateLoginToken() {
+        const response = await this._callFirebaseFunction('getLoginToken')
+        return { token: response.data }
+    }
+
+    _callFirebaseFunction(name: string, ...args: any[]) {
+        return this._firebase.functions().httpsCallable(name)(...args)
+    }
+
+    async loginWithToken(token: string) {
+        await this._firebase.auth().signInWithCustomToken(token)
     }
 }
 
