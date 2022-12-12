@@ -188,6 +188,7 @@ export default class CollectionDetailsLogic extends UILogic<
             allAnnotationExpanded: false,
             isListShareModalShown: false,
             pageAnnotationsExpanded: {},
+            searchType: 'pages',
             hoverState: false,
             ...extDetectionInitialState(),
             ...listsSidebarInitialState(),
@@ -295,11 +296,16 @@ export default class CollectionDetailsLogic extends UILogic<
         )
     }
 
-    setPageHover: EventHandler<'setPageHover'> = ({ event, previousState }) => {
-        console.log(
-            previousState.listData?.listEntries[event.entryIndex].hoverState,
-        )
+    setSearchType: EventHandler<'setPageHover'> = ({
+        event,
+        previousState,
+    }) => {
+        this.emitMutation({
+            searchType: { $set: event },
+        })
+    }
 
+    setPageHover: EventHandler<'setPageHover'> = ({ event, previousState }) => {
         this.emitMutation({
             listData: {
                 listEntries: {

@@ -65,11 +65,11 @@ objects:
           originalUrl: 'https://notion.so'
         - sharedList: { $ref: sharedLists.default }
           creator: { $ref: users.default }
-          createdWhen: 1594225289914
-          updatedWhen: 1594225289914
-          entryTitle: Notion
-          normalizedUrl: notion.so/#2
-          originalUrl: 'https://notion.so'
+          createdWhen: 1594225555555
+          updatedWhen: 1594225555555
+          entryTitle: 'The Simplest Math Problem No One Can Solve - Collatz Conjecture'
+          normalizedUrl: youtube.com/watch?v=094y1Z2wpJg
+          originalUrl: 'https://www.youtube.com/watch?v=094y1Z2wpJg'
         - sharedList: { $ref: sharedLists.default }
           creator: { $ref: users.default }
           createdWhen: 1594225289914

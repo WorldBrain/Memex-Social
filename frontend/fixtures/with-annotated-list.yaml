@@ -135,11 +135,11 @@ objects:
           originalUrl: 'https://obsidian.md'
         - sharedList: { $ref: sharedLists.default }
           creator: { $ref: users.default }
-          createdWhen: 1594225289914
-          updatedWhen: 1594225289914
-          entryTitle: Roam Research
-          normalizedUrl: roamresearch-2.com
-          originalUrl: 'https://www.youtube.com/watch?v=d2Dw-PuNZSE'
+          createdWhen: 1594225555555
+          updatedWhen: 1594225555555
+          entryTitle: 'The Simplest Math Problem No One Can Solve - Collatz Conjecture'
+          normalizedUrl: youtube.com/watch?v=094y1Z2wpJg
+          originalUrl: 'https://www.youtube.com/watch?v=094y1Z2wpJg'
         - sharedList: { $ref: sharedLists.default }
           creator: { $ref: users.default }
           createdWhen: 1594225255555
@@ -183,6 +183,13 @@ objects:
           fullTitle: Apples
           normalizedUrl: apples.so
           originalUrl: 'https://apples.so'
+        - id: youtube-page
+          creator: { $ref: users.default }
+          createdWhen: 1594225555555
+          updatedWhen: 1594225555555
+          fullTitle: 'The Simplest Math Problem No One Can Solve - Collatz Conjecture'
+          normalizedUrl: youtube.com/watch?v=094y1Z2wpJg
+          originalUrl: 'https://www.youtube.com/watch?v=094y1Z2wpJg'
     sharedContentLocators:
         - $store: locator-1
           id: first-locator
@@ -254,7 +261,22 @@ objects:
           comment: |
               Memex 3.1 brings local PDF support!
           selector: 'Selector 3'
+        - $store: annotation-5
+          id: fifth-annotation
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          normalizedPageUrl: 'youtube.com/watch?v=094y1Z2wpJ'
+          comment: |
+              [9:49](https://www.youtube.com/watch?v=094y1Z2wpJg&t=589s)
+          selector: 'Selector 5'
     sharedAnnotationListEntries:
+        - creator: { $ref: users.default }
+          sharedList: { $ref: sharedLists.default }
+          sharedAnnotation: { $ref: sharedAnnotations.annotation-5 }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          normalizedPageUrl: 'youtube.com/watch?v=094y1Z2wpJ'
         - creator: { $ref: users.default }
           sharedList: { $ref: sharedLists.default }
           sharedAnnotation: { $ref: sharedAnnotations.annotation-1 }

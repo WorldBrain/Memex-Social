@@ -12,7 +12,7 @@ objects:
           creator: { $ref: users.default }
           createdWhen: 1594225289914
           updatedWhen: 1594225289914
-          fullTitle: "WorldBrain's Memex"
+          fullTitle: "WorldBrain's Memexxx"
           normalizedUrl: getmemex.com
           originalUrl: 'https://getmemex.com'
         - sharedList: { $ref: sharedLists.cocurated }
@@ -22,6 +22,13 @@ objects:
           fullTitle: Notion
           normalizedUrl: notion.so
           originalUrl: 'https://notion.so'
+        - sharedList: { $ref: sharedLists.cocurated }
+          creator: { $ref: users.default }
+          createdWhen: 1594225555555
+          updatedWhen: 1594225555555
+          entryTitle: 'The Simplest Math Problem No One Can Solve - Collatz Conjecture'
+          normalizedUrl: youtube.com/watch?v=094y1Z2wpJg
+          originalUrl: 'https://www.youtube.com/watch?v=094y1Z2wpJg'
     sharedPageInfo:
         - id: default-page
           creator: { $ref: users.default }
@@ -37,6 +44,13 @@ objects:
           fullTitle: 'Notion'
           normalizedUrl: notion.so
           originalUrl: 'https://notion.so'
+        - id: youtube-page
+          creator: { $ref: users.default }
+          createdWhen: 1594225555555
+          updatedWhen: 1594225555555
+          fullTitle: 'The Simplest Math Problem No One Can Solve - Collatz Conjecture'
+          normalizedUrl: youtube.com/watch?v=094y1Z2wpJg
+          originalUrl: 'https://www.youtube.com/watch?v=094y1Z2wpJg'
     sharedAnnotations:
         - $store: annotation-1
           id: default-annotation
@@ -55,6 +69,15 @@ objects:
           normalizedPageUrl: 'notion.so'
           comment: 'Annotation text by second user'
           selector: 'Selector 2'
+        - $store: annotation-5
+          id: fifth-annotation
+          creator: { $ref: users.default }
+          createdWhen: 1594225289914
+          updatedWhen: 1594225289914
+          normalizedPageUrl: 'youtube.com/watch?v=094y1Z2wpJg'
+          comment: |
+              [9:49](https://www.youtube.com/watch?v=094y1Z2wpJg&t=589s)
+          selector: 'Selector 5'
     sharedAnnotationListEntries:
         - creator: { $ref: users.default }
           sharedList: { $ref: sharedLists.cocurated }
@@ -68,3 +91,9 @@ objects:
           createdWhen: 1594225289914
           updatedWhen: 1594225289914
           normalizedPageUrl: 'notion.so'
+        - creator: { $ref: users.default }
+          sharedList: { $ref: sharedLists.cocurated }
+          sharedAnnotation: { $ref: sharedAnnotations.annotation-5 }
+          createdWhen: 1594225289913
+          updatedWhen: 1594225289913
+          normalizedPageUrl: 'youtube.com/watch?v=094y1Z2wpJg'

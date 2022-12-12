@@ -31,6 +31,7 @@ import type {
 } from '../../../../ext-detection/ui/logic'
 import { SharedListRole } from '@worldbrain/memex-common/lib/web-interface/types/storex-generated/content-sharing'
 import { ProcessSharedListKeyResult } from '@worldbrain/memex-common/lib/content-sharing/service/types'
+import { SearchType } from '@worldbrain/memex-common/lib/common-ui/components/types'
 
 export interface CollectionDetailsDependencies {
     listID: string
@@ -108,6 +109,7 @@ export type CollectionDetailsState = AnnotationConversationsState &
         pageAnnotationsExpanded: { [normalizedPageUrl: string]: true }
         annotationEntryData?: GetAnnotationListEntriesResult
         annotations: GetAnnotationsResult
+        searchType: SearchType
     }
 
 export interface PageEventArgs {
@@ -137,6 +139,7 @@ export type CollectionDetailsEvent = UIEvent<
             hideMoreCollaborators: {}
             updateScrollState: { previousScrollTop: number }
             setPageHover: (PageEventArgs & { hover: ResultHoverState }) | any
+            setSearchType: SearchType
         }
 >
 

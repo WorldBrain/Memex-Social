@@ -47,11 +47,12 @@ import ItemBox from '@worldbrain/memex-common/lib/common-ui/components/item-box'
 import ItemBoxBottom, {
     ItemBoxBottomAction,
 } from '@worldbrain/memex-common/lib/common-ui/components/item-box-bottom'
+import SearchTypeSwitch from '@worldbrain/memex-common/lib/common-ui/components/search-type-switch'
 import { PrimaryAction } from '@worldbrain/memex-common/lib/common-ui/components/PrimaryAction'
 import IconBox from '@worldbrain/memex-common/lib/common-ui/components/icon-box'
+import { TooltipBox } from '@worldbrain/memex-common/lib/common-ui/components/tooltip-box'
 import moment from 'moment'
 import RouteLink from '../../../../../common-ui/components/route-link'
-import { Services } from '../../../../../services/types'
 
 const commentImage = require('../../../../../assets/img/comment.svg')
 const commentEmptyImage = require('../../../../../assets/img/comment-empty.svg')
@@ -246,9 +247,7 @@ export default class CollectionDetailsPage extends UIElement<
                 //     ),
                 // },
             ]
-        }
-
-        if (this.state.listData?.listEntries[entryIndex].hoverState) {
+        } else if (this.state.listData?.listEntries[entryIndex].hoverState) {
             return [
                 {
                     // key: 'expand-notes-btn',
@@ -292,6 +291,7 @@ export default class CollectionDetailsPage extends UIElement<
         const { state } = this
         return (
             <AnnotationsInPage
+                contextLocation={'webUI'}
                 variant={'dark-mode'}
                 newPageReply={
                     this.isListContributor || state.isListOwner
@@ -689,9 +689,25 @@ export default class CollectionDetailsPage extends UIElement<
             allAnnotationExpanded,
             isListOwner,
         } = this.state
+
         return (
             <AbovePagesBox viewportWidth={this.viewportBreakpoint}>
-                <SectionTitle>References</SectionTitle>
+                <SearchTypeSwitch
+                    onPagesSearchSwitch={() =>
+                        this.processEvent('setSearchType', 'pages')
+                    }
+                    onVideosSearchSwitch={() =>
+                        this.processEvent('setSearchType', 'videos')
+                    }
+                    onTwitterSearchSwitch={() =>
+                        this.processEvent('setSearchType', 'twitter')
+                    }
+                    onPDFSearchSwitch={() =>
+                        this.processEvent('setSearchType', 'pdf')
+                    }
+                    searchType={this.state.searchType}
+                    toExclude={['notes']}
+                />
                 <ActionItems>
                     {(this.isListContributor || isListOwner) && (
                         <AddPageBtn
@@ -713,15 +729,25 @@ export default class CollectionDetailsPage extends UIElement<
                                 }
                             >
                                 {allAnnotationExpanded ? (
-                                    <Icon
-                                        icon={'compress'}
-                                        heightAndWidth="22px"
-                                    />
+                                    <TooltipBox
+                                        tooltipText={'Hide all notes'}
+                                        placement={'bottom'}
+                                    >
+                                        <Icon
+                                            icon={'compress'}
+                                            heightAndWidth="22px"
+                                        />
+                                    </TooltipBox>
                                 ) : (
-                                    <Icon
-                                        icon={'expand'}
-                                        heightAndWidth="22px"
-                                    />
+                                    <TooltipBox
+                                        tooltipText={'Show all notes'}
+                                        placement={'bottom'}
+                                    >
+                                        <Icon
+                                            icon={'expand'}
+                                            heightAndWidth="22px"
+                                        />
+                                    </TooltipBox>
                                 )}
                             </ToggleAllAnnotations>
                         )}
@@ -874,6 +900,87 @@ export default class CollectionDetailsPage extends UIElement<
         }
     }
 
+    getFilePathforSearchType() {
+        if (this.state.searchType === 'twitter') {
+            return 'twitter'
+        }
+        if (this.state.searchType === 'videos') {
+            return 'play'
+        }
+        if (this.state.searchType === 'pdf') {
+            return 'file'
+        }
+        if (this.state.searchType === 'pages') {
+            return 'heartEmpty'
+        }
+
+        return 'searchIcon'
+    }
+
+    getNoResultsTextforSearchType() {
+        if (this.state.searchType === 'twitter') {
+            return 'No Tweets saved in this Space'
+        }
+        if (this.state.searchType === 'videos') {
+            return 'No videos saved in this Space'
+        }
+        if (this.state.searchType === 'pdf') {
+            return 'No PDFs saved in this Space'
+        }
+        if (this.state.searchType === 'pages') {
+            return 'Nothing saved in this Space yet'
+        }
+    }
+
+    renderNoResults() {
+        return (
+            <NoResultsContainer>
+                <IconBox heightAndWidth="40px">
+                    <Icon
+                        heightAndWidth={'22px'}
+                        filePath={this.getFilePathforSearchType()}
+                        hoverOff
+                        color="purple"
+                    />
+                </IconBox>
+                <EmptyListBox>
+                    {this.getNoResultsTextforSearchType()}
+                </EmptyListBox>
+            </NoResultsContainer>
+        )
+    }
+
+    getContentFilteredByType() {
+        const data = this.state.listData
+
+        const entries = data ? [...data.listEntries.entries()] : undefined
+
+        if (this.state.searchType === 'twitter') {
+            const newEntries = entries?.filter((entry) => {
+                return entry[1].normalizedUrl.startsWith('twitter.com')
+            })
+            return newEntries
+        }
+        if (this.state.searchType === 'videos') {
+            const newEntries = entries?.filter((entry) => {
+                return (
+                    entry[1].normalizedUrl.includes('youtube.com') ||
+                    entry[1].normalizedUrl.includes('vimeo.com')
+                )
+            })
+            return newEntries
+        }
+
+        if (this.state.searchType === 'pdf') {
+            const newEntries = entries?.filter((entry) => {
+                return entry[1].normalizedUrl.endsWith('.pdf')
+            })
+            return newEntries
+        }
+
+        return entries
+    }
+
     render() {
         const { state } = this
         if (
@@ -937,7 +1044,7 @@ export default class CollectionDetailsPage extends UIElement<
         const isPageView = this.props.entryID
         const isPageLink = data.list.type === 'page-link'
 
-        // console.log(this.state.listData?.listEntries[1].hoverState)
+        const resultsFilteredByType = this.getContentFilteredByType()
 
         return (
             <DocumentContainer id="DocumentContainer">
@@ -982,19 +1089,27 @@ export default class CollectionDetailsPage extends UIElement<
                                     >
                                         {data.listDescriptionState ===
                                         'collapsed' ? (
-                                            <>
+                                            <TooltipBox
+                                                tooltipText={
+                                                    'Show full description'
+                                                }
+                                                placement={'bottom'}
+                                            >
                                                 <Icon
-                                                    icon="expand"
+                                                    icon={'expand'}
                                                     heightAndWidth="22px"
                                                 />
-                                            </>
+                                            </TooltipBox>
                                         ) : (
-                                            <>
+                                            <TooltipBox
+                                                tooltipText={'Hide description'}
+                                                placement={'bottom'}
+                                            >
                                                 <Icon
-                                                    icon="compress"
+                                                    icon={'compress'}
                                                     heightAndWidth="22px"
                                                 />
-                                            </>
+                                            </TooltipBox>
                                         )}
                                     </CollectionDescriptionToggle>
                                 )}
@@ -1020,119 +1135,127 @@ export default class CollectionDetailsPage extends UIElement<
                                 </ErrorWithAction>
                             </Margin>
                         )}
-                        {data.listEntries.length === 0 && (
-                            <EmptyListBox>
-                                <IconBox heightAndWidth="50px">
-                                    <Icon
-                                        icon={'heartEmpty'}
-                                        heightAndWidth="25px"
-                                        color="purple"
-                                    />
-                                </IconBox>
-                                This Space is empty (still).
-                            </EmptyListBox>
-                        )}
-                        {[...data.listEntries.entries()].map(
-                            ([entryIndex, entry]) => (
-                                <Margin
-                                    bottom="small"
-                                    key={entry.normalizedUrl}
-                                >
-                                    {!isPageView && (
-                                        <ItemBox
-                                            onMouseOver={(
-                                                event: React.MouseEventHandler,
-                                            ) =>
-                                                this.processEvent(
-                                                    'setPageHover',
-                                                    { entryIndex },
-                                                )
-                                            }
-                                            hoverState={
-                                                this.state.listData
-                                                    ?.listEntries[entryIndex]
-                                                    .hoverState
-                                            }
-                                        >
-                                            <BlockContent
-                                                // pageLink ={'https://memex.social/' + this.props.listID + '/' + entry.reference.id}
-                                                type={
-                                                    isPagePdf({
-                                                        url:
-                                                            entry.normalizedUrl,
-                                                    })
-                                                        ? 'pdf'
-                                                        : 'page'
-                                                }
-                                                normalizedUrl={
-                                                    entry.normalizedUrl
-                                                }
-                                                originalUrl={entry.originalUrl}
-                                                fullTitle={
-                                                    entry && entry.entryTitle
-                                                }
-                                                onClick={(e) => {
-                                                    this.processEvent(
-                                                        'clickPageResult',
-                                                        {
-                                                            urlToOpen:
-                                                                entry.originalUrl,
-                                                            preventOpening: () =>
-                                                                e.preventDefault(),
-                                                            isFollowedSpace:
-                                                                this.state
-                                                                    .isCollectionFollowed ||
-                                                                this.state
-                                                                    .isListOwner,
-                                                            notifAlreadyShown: this
-                                                                .state
-                                                                .notifAlreadyShown,
-                                                        },
-                                                    )
-                                                }}
-                                                viewportBreakpoint={
-                                                    this.viewportBreakpoint
-                                                }
-                                            />
-                                            <ItemBoxBottom
-                                                creationInfo={{
-                                                    creator: this.state.users[
-                                                        entry.creator.id
-                                                    ],
-                                                    createdWhen:
-                                                        entry.createdWhen,
-                                                }}
-                                                actions={this.getPageEntryActions(
-                                                    entry,
-                                                    entryIndex,
-                                                )}
-                                            />
-                                        </ItemBox>
-                                    )}
-                                    {state.pageAnnotationsExpanded[
-                                        entry.normalizedUrl
-                                    ] && (
-                                        <>{this.renderPageAnnotations(entry)}</>
-                                    )}
-                                    {state.allAnnotationExpanded &&
-                                        state.annotationEntriesLoadState ===
-                                            'success' &&
-                                        entryIndex > 0 &&
-                                        entryIndex % PAGE_SIZE === 0 && (
-                                            <Waypoint
-                                                onEnter={() => {
-                                                    this.processEvent(
-                                                        'pageBreakpointHit',
-                                                        {
-                                                            entryIndex,
-                                                        },
-                                                    )
-                                                }}
-                                            />
-                                        )}
-                                </Margin>
-                            ),
-                        )}
+                        {resultsFilteredByType?.length
+                            ? resultsFilteredByType?.map(
+                                  ([entryIndex, entry]) => (
+                                      <Margin
+                                          bottom="small"
+                                          key={entry.normalizedUrl}
+                                      >
+                                          {!isPageView && (
+                                              <ItemBox
+                                                  onMouseEnter={(
+                                                      event: React.MouseEventHandler,
+                                                  ) =>
+                                                      this.processEvent(
+                                                          'setPageHover',
+                                                          { entryIndex },
+                                                      )
+                                                  }
+                                                  onMouseLeave={(
+                                                      event: React.MouseEventHandler,
+                                                  ) =>
+                                                      this.processEvent(
+                                                          'setPageHover',
+                                                          { entryIndex },
+                                                      )
+                                                  }
+                                                  hoverState={
+                                                      this.state.listData
+                                                          ?.listEntries[
+                                                          entryIndex
+                                                      ].hoverState
+                                                  }
+                                              >
+                                                  <BlockContent
+                                                      // pageLink ={'https://memex.social/' + this.props.listID + '/' + entry.reference.id}
+                                                      type={
+                                                          isPagePdf({
+                                                              url:
+                                                                  entry.normalizedUrl,
+                                                          })
+                                                              ? 'pdf'
+                                                              : 'page'
+                                                      }
+                                                      normalizedUrl={
+                                                          entry.normalizedUrl
+                                                      }
+                                                      originalUrl={
+                                                          entry.originalUrl
+                                                      }
+                                                      fullTitle={
+                                                          entry &&
+                                                          entry.entryTitle
+                                                      }
+                                                      onClick={(e) => {
+                                                          this.processEvent(
+                                                              'clickPageResult',
+                                                              {
+                                                                  urlToOpen:
+                                                                      entry.originalUrl,
+                                                                  preventOpening: () =>
+                                                                      e.preventDefault(),
+                                                                  isFollowedSpace:
+                                                                      this.state
+                                                                          .isCollectionFollowed ||
+                                                                      this.state
+                                                                          .isListOwner,
+                                                                  notifAlreadyShown: this
+                                                                      .state
+                                                                      .notifAlreadyShown,
+                                                              },
+                                                          )
+                                                      }}
+                                                      viewportBreakpoint={
+                                                          this
+                                                              .viewportBreakpoint
+                                                      }
+                                                  />
+                                                  <ItemBoxBottom
+                                                      creationInfo={{
+                                                          creator: this.state
+                                                              .users[
+                                                              entry.creator.id
+                                                          ],
+                                                          createdWhen:
+                                                              entry.createdWhen,
+                                                      }}
+                                                      actions={this.getPageEntryActions(
+                                                          entry,
+                                                          entryIndex,
+                                                      )}
+                                                  />
+                                              </ItemBox>
+                                          )}
+                                          {state.pageAnnotationsExpanded[
+                                              entry.normalizedUrl
+                                          ] && (
+                                              <>
+                                                  {this.renderPageAnnotations(
+                                                      entry,
+                                                  )}
+                                              </>
+                                          )}
+                                          {state.allAnnotationExpanded &&
+                                              state.annotationEntriesLoadState ===
+                                                  'success' &&
+                                              entryIndex > 0 &&
+                                              entryIndex % PAGE_SIZE === 0 && (
+                                                  <Waypoint
+                                                      onEnter={() => {
+                                                          this.processEvent(
+                                                              'pageBreakpointHit',
+                                                              {
+                                                                  entryIndex,
+                                                              },
+                                                          )
+                                                      }}
+                                                  />
+                                              )}
+                                      </Margin>
+                                  ),
+                              )
+                            : this.renderNoResults()}
                     </PageInfoList>
                 </DefaultPageLayout>
                 {this.state.isListShareModalShown && (
@@ -1186,6 +1309,15 @@ const DocumentContainer = styled.div`
 //         background-color: ${(props) => props.theme.hoverBackgrounds.primary};
 //     }
 // `
+
+const NoResultsContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: fill-available;
+    padding: 50px 0px;
+`
 
 const HeaderButtonRow = styled.div`
     display: flex;
@@ -1346,9 +1478,8 @@ const EmptyListBox = styled.div`
     font-family: ${(props) => props.theme.fonts.primary};
     width: 100%;
     padding: 20px 20px;
-    color: ${(props) => props.theme.colors.normalText};
+    color: ${(props) => props.theme.colors.greyScale8};
     display: flex;
-    margin-top: 30px;
     font-size: 16px;
     font-weight: normal;
     justify-content: center;
