@@ -11,6 +11,7 @@ import {
     SharedListEntry,
     SharedList,
     SharedListRoleID,
+    SharedListEntryReference,
 } from '@worldbrain/memex-common/lib/content-sharing/types'
 import type { DiscordList } from '@worldbrain/memex-common/lib/discord/types'
 import { UITaskState } from '../../../../../main-ui/types'
@@ -33,6 +34,7 @@ import { ProcessSharedListKeyResult } from '@worldbrain/memex-common/lib/content
 
 export interface CollectionDetailsDependencies {
     listID: string
+    entryID?: string
     services: UIElementServices<
         | 'auth'
         | 'overlay'
@@ -64,7 +66,7 @@ export type CollectionDetailsState = AnnotationConversationsState &
     ExtDetectionState & {
         listLoadState: UITaskState
         followLoadState: UITaskState
-
+        hoverState: boolean
         permissionKeyState: UITaskState
         permissionKeyResult?: ProcessSharedListKeyResult
         showPermissionKeyIssue?: boolean
@@ -87,7 +89,16 @@ export type CollectionDetailsState = AnnotationConversationsState &
             creator?: Pick<User, 'displayName'> | null
             list: SharedList
             discordList: DiscordList | null
-            listEntries: Array<SharedListEntry & { creator: UserReference }>
+            listEntries: Array<
+                SharedListEntry & {
+                    reference: SharedListEntryReference
+                    id?: number
+                } & {
+                    creator: UserReference
+                    hoverState?: boolean
+                    id?: string
+                }
+            >
             listDescriptionState: 'fits' | 'collapsed' | 'expanded'
             listDescriptionTruncated: string
         }
@@ -98,6 +109,13 @@ export type CollectionDetailsState = AnnotationConversationsState &
         annotationEntryData?: GetAnnotationListEntriesResult
         annotations: GetAnnotationsResult
     }
+
+export interface PageEventArgs {
+    pageId: string
+    day: number
+}
+
+export type ResultHoverState = 'main-content' | 'footer' | null
 
 export type CollectionDetailsEvent = UIEvent<
     AnnotationConversationEvent &
@@ -118,6 +136,7 @@ export type CollectionDetailsEvent = UIEvent<
             toggleMoreCollaborators: {}
             hideMoreCollaborators: {}
             updateScrollState: { previousScrollTop: number }
+            setPageHover: (PageEventArgs & { hover: ResultHoverState }) | any
         }
 >
 
