@@ -158,8 +158,8 @@ export default class ProfileEditModal extends UIElement<
                             )}
                             label="Cancel"
                             onClick={() => this.props.onCloseRequested()}
-                            backgroundColor={'transparent'}
-                            fontColor={'normalText'}
+                            type={'tertiary'}
+                            size={'medium'}
                         />
                         <PrimaryAction
                             disabled={this.state.inputErrorArray.some(
@@ -167,6 +167,8 @@ export default class ProfileEditModal extends UIElement<
                             )}
                             label="Save"
                             onClick={() => this.handleSaveClick()}
+                            type={'primary'}
+                            size={'medium'}
                         />
                     </ButtonContainer>
                 </HeaderSection>
@@ -323,10 +325,9 @@ export default class ProfileEditModal extends UIElement<
                             onClick={() =>
                                 this.sendPasswordResetEmail(this.state.email)
                             }
-                            iconSize="20px"
                             icon={'reload'}
-                            backgroundColor={'darkhover'}
-                            fontColor={'normalText'}
+                            type={'secondary'}
+                            size={'medium'}
                         />
                     ) : (
                         <ResetEmailConfirmation>

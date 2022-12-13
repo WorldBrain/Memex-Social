@@ -47,6 +47,10 @@ const UserInfo = styled.div`
     width: fit-content;
     grid-gap: 10px;
     padding: 0 10px 0 14px;
+
+    & * {
+        cursor: pointer;
+    }
 `
 const DisplayName = styled.div`
     display: block;
@@ -136,7 +140,7 @@ export default class AuthHeader extends UIElement<
                             heightAndWidth="18px"
                             hoverOff
                             color="purple"
-                        ></Icon>
+                        />
                     </UserInfo>
                     {this.state.showMenu && (
                         <Closable

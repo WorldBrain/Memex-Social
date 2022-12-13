@@ -693,6 +693,7 @@ export default class CollectionDetailsPage extends UIElement<
         return (
             <AbovePagesBox viewportWidth={this.viewportBreakpoint}>
                 <SearchTypeSwitch
+                    viewportWidth={this.viewportBreakpoint}
                     onPagesSearchSwitch={() =>
                         this.processEvent('setSearchType', 'pages')
                     }
@@ -802,7 +803,6 @@ export default class CollectionDetailsPage extends UIElement<
                     onCloseRequested={() =>
                         this.processEvent('toggleMissingPdfModal', {})
                     }
-                    transparent={true}
                 />
             )
         }
