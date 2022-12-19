@@ -56,6 +56,13 @@ export default class RouterService {
         }
         return parsed
     }
+    getSpaceId() {
+        const url = window.location.href
+        let ID = url.split('/c/')
+        let spaceID = ID[1].split('/')[0]
+
+        return spaceID
+    }
 
     matchUrl(
         url: string,

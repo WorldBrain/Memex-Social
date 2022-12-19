@@ -45,7 +45,13 @@ export class ListKeysService extends AbstractListKeysService {
 
     hasCurrentKey: ListKeysServiceInterface['hasCurrentKey'] = () => {
         const routeMatch = this.dependencies.router.matchCurrentUrl()
-        if (routeMatch.route !== 'collectionDetails') {
+        if (
+            !(
+                routeMatch.route === 'collectionDetails' ||
+                routeMatch.route === 'landingPage' ||
+                routeMatch.route === 'userHome'
+            )
+        ) {
             return false
         }
         const keyString = this.dependencies.router.getQueryParam('key')
@@ -56,8 +62,15 @@ export class ListKeysService extends AbstractListKeysService {
         result: ProcessSharedListKeyResult
     }> => {
         const routeMatch = this.dependencies.router.matchCurrentUrl()
-        if (routeMatch.route !== 'collectionDetails') {
-            return { result: 'no-key-present' }
+        const spaceId = this.dependencies.router.getSpaceId()
+        if (
+            !(
+                routeMatch.route === 'collectionDetails' ||
+                routeMatch.route === 'landingPage' ||
+                routeMatch.route === 'userHome'
+            )
+        ) {
+            return { result: 'not-supported-route' }
         }
         const keyString = this.dependencies.router.getQueryParam('key')
         if (!keyString) {
@@ -68,9 +81,10 @@ export class ListKeysService extends AbstractListKeysService {
         }
 
         const { success } = await this.backend.processListKey({
-            listId: routeMatch.params.id,
+            listId: routeMatch.params.id || spaceId,
             keyString,
         })
+
         return { result: success ? 'success' : 'denied' }
     }
 }
