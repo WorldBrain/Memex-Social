@@ -125,6 +125,15 @@ export const theme: Theme = THEME({
         threadIcon: require('../../assets/img/reply.svg'),
         invite: require('../../assets/img/invite.svg'),
         block: require('../../assets/img/block.svg'),
+        boldIcon: require('../../assets/img/boldIcon.svg'),
+        italicIcon: require('../../assets/img/italicIcon.svg'),
+        h1Icon: require('../../assets/img/h1Icon.svg'),
+        h2Icon: require('../../assets/img/h2Icon.svg'),
+        imageIcon: require('../../assets/img/imageIcon.svg'),
+        timestampIcon: require('../../assets/img/timeStampIcon.svg'),
+        numberedListIcon: require('../../assets/img/numberedListIcon.svg'),
+        bulletListIcon: require('../../assets/img/bulletListIcon.svg'),
+        strikethroughIcon: require('../../assets/img/strikethroughIcon.svg'),
 
         // doubleArrow: require('../../assets/img/doubleArrow.svg'),,
         // import tagFull from '../../assets/img/tag_full.svg'

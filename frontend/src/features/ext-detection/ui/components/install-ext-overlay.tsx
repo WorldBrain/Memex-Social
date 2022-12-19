@@ -165,6 +165,7 @@ type Props = {
     viewportBreakpoint: ViewportBreakpoint
     intent?: string
     onCloseRequested: () => void
+    clickedPageUrl?: string
 } & (PageAddProps | PageClickProps)
 
 function getBrowserIcon(): JSX.Element {
