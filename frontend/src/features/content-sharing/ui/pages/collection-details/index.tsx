@@ -693,6 +693,7 @@ export default class CollectionDetailsPage extends UIElement<
         return (
             <AbovePagesBox viewportWidth={this.viewportBreakpoint}>
                 <SearchTypeSwitch
+                    viewportWidth={this.viewportBreakpoint}
                     onPagesSearchSwitch={() =>
                         this.processEvent('setSearchType', 'pages')
                     }
@@ -802,7 +803,6 @@ export default class CollectionDetailsPage extends UIElement<
                     onCloseRequested={() =>
                         this.processEvent('toggleMissingPdfModal', {})
                     }
-                    transparent={true}
                 />
             )
         }
@@ -829,12 +829,6 @@ export default class CollectionDetailsPage extends UIElement<
                     <InvitedNotification
                         viewportBreakpoint={this.viewportBreakpoint}
                         withFrame={true}
-                        // onClick={() =>
-                        //     this.processEvent(
-                        //         'acceptInvitation',
-                        //         {},
-                        //     )
-                        // }
                     >
                         <InvitationTextContainer>
                             <Icon
@@ -849,12 +843,8 @@ export default class CollectionDetailsPage extends UIElement<
                             label="Accept Invitation"
                             icon="check"
                             iconPosition="left"
-                            iconSize="16px"
-                            backgroundColor="purple"
-                            fontColor="black"
-                            height="28px"
-                            width="130px"
-                            fontSize="12"
+                            type={'primary'}
+                            size={'small'}
                             onClick={() =>
                                 this.processEvent('acceptInvitation', {})
                             }
@@ -1351,8 +1341,8 @@ const InvitedNotification = styled.div<{
     margin: auto;
     width: 100%;
     max-width: 800px;
-    min-height: 50px;
-    padding: 00px 15px;
+    min-height: 40px;
+    padding: 00px 10px;
     color: ${(props) => props.theme.colors.greyScale8};
     font-size: 14px;
     font-weight: 300;
@@ -1379,7 +1369,7 @@ const InvitedNotification = styled.div<{
             border: 1px solid ${(props) => props.theme.colors.brand3};
             border-radius: 8px;
             width: fill-available;
-            padding: 5px 15px;
+            padding: 5px 5px 5px 15px;
             height: 100%;
             justify-content: center;
         `}

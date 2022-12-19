@@ -57,10 +57,15 @@ export const extDetectionEventHandlers = (
                 : {}),
         })
 
+    console.log('etension', doesMemexExtDetectionElExist())
+
     return {
         clickPageResult: async ({ previousState, event }) => {
             if (event.notifAlreadyShown) {
-                if (isPagePdf({ url: event.urlToOpen })) {
+                if (
+                    isPagePdf({ url: event.urlToOpen }) &&
+                    doesMemexExtDetectionElExist()
+                ) {
                     event.preventOpening()
                     logic.emitMutation({
                         isMissingPDFModalShown: { $set: true },
@@ -71,7 +76,10 @@ export const extDetectionEventHandlers = (
                     window.open(event.urlToOpen)
                 }
             } else {
-                if (isPagePdf({ url: event.urlToOpen })) {
+                if (
+                    isPagePdf({ url: event.urlToOpen }) &&
+                    doesMemexExtDetectionElExist()
+                ) {
                     event.preventOpening()
                     logic.emitMutation({
                         isMissingPDFModalShown: { $set: true },

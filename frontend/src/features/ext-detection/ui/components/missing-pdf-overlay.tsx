@@ -86,6 +86,7 @@ const LocatorContainer = styled.div<{ isBeingDraggedOver?: boolean }>`
     align-items: center;
     flex-direction: column;
     font-family: ${(props) => props.theme.fonts.primary};
+    padding: 150px;
 `
 
 const LocatorHeader = styled.h1`

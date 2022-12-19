@@ -365,8 +365,8 @@ const LogoAndFeed = styled(Margin)<{
     z-index: 3001;
     cursor: pointer;
     position: absolute;
-    top: 15px;
-    left: 15px;
+    top: 20px;
+    left: 20px;
 
     ${(props) =>
         (props.viewportWidth === 'small' || props.viewportWidth === 'mobile') &&

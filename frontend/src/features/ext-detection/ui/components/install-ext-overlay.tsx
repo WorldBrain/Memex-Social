@@ -81,11 +81,19 @@ const TitleContainer = styled.div`
     align-items: flex-start;
     justify-content: flex-start;
 `
-const ContentBox = styled.div`
+const ContentBox = styled.div<{
+    viewportBreakpoint: ViewportBreakpoint
+}>`
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     justify-content: flex-start;
+
+    ${(props) =>
+        props.viewportBreakpoint === 'small' &&
+        css`
+            padding: 30px;
+        `}
 `
 
 const OverlayContainer = styled.div`
@@ -95,10 +103,17 @@ const OverlayContainer = styled.div`
     position: relative;
 `
 
-const BannerImage = styled.img`
+const BannerImage = styled.img<{ viewportBreakpoint: ViewportBreakpoint }>`
     height: auto;
     max-width: 400px;
     width: fill-available;
+    display: flex;
+
+    ${(props) =>
+        props.viewportBreakpoint === 'mobile' &&
+        css`
+            display: none;
+        `}
 `
 
 const BenefitList = styled.div`
@@ -150,6 +165,7 @@ type Props = {
     viewportBreakpoint: ViewportBreakpoint
     intent?: string
     onCloseRequested: () => void
+    clickedPageUrl?: string
 } & (PageAddProps | PageClickProps)
 
 function getBrowserIcon(): JSX.Element {
@@ -214,8 +230,13 @@ export default function InstallExtOverlay(props: Props) {
                 >
                     <OverlayContainer>
                         <Content viewportBreakpoint={props.viewportBreakpoint}>
-                            <BannerImage src={bannerImage}></BannerImage>
-                            <ContentBox>
+                            <BannerImage
+                                viewportBreakpoint={props.viewportBreakpoint}
+                                src={bannerImage}
+                            />
+                            <ContentBox
+                                viewportBreakpoint={props.viewportBreakpoint}
+                            >
                                 <TitleContainer>
                                     <Title
                                         viewportBreakpoint={
@@ -340,8 +361,13 @@ export default function InstallExtOverlay(props: Props) {
                 >
                     <OverlayContainer>
                         <Content viewportBreakpoint={props.viewportBreakpoint}>
-                            <BannerImage src={bannerImage}></BannerImage>
-                            <ContentBox>
+                            <BannerImage
+                                viewportBreakpoint={props.viewportBreakpoint}
+                                src={bannerImage}
+                            />
+                            <ContentBox
+                                viewportBreakpoint={props.viewportBreakpoint}
+                            >
                                 <TitleContainer>
                                     <Title
                                         viewportBreakpoint={
