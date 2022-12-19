@@ -189,17 +189,38 @@ async function sync(authService: FirebaseAuthService, extensionID: string) {
 }
 
 export async function syncWithExtension(authService: FirebaseAuthService) {
-    const extensionID =
-        process.env.NODE_ENV === 'development'
-            ? 'ifcleiemikljppfppdojadoghfghbinn' //needs to be adjusted for dev, this depends on your local environment
-            : 'abkfbakhjpmblaafnpgjppbmioombali'
+    let extensionID
+    if (process.env.NODE_ENV === 'development') {
+        let idGetterInterval = setInterval(() => {
+            extensionID = document
+                .querySelector('__memex-extension-id-development')
+                ?.getAttribute('id')
+            if (extensionID != null) {
+                clearInterval(idGetterInterval)
+                sync(authService, extensionID)
+                if (!authService.isLoggedIn()) {
+                    bothNotLoggedInHandler(authService, extensionID)
+                } else {
+                    console.log(
+                        'Successfully synced with extension immediately after it was ready.',
+                    )
+                }
+            }
+        }, 500)
+    }
 
-    await sync(authService, extensionID)
-    if (!authService.isLoggedIn()) {
-        bothNotLoggedInHandler(authService, extensionID)
-    } else {
-        console.log(
-            'Successfully synced with extension immediately after it was ready.',
-        )
+    if (process.env.NODE_ENV === 'production') {
+        extensionID = 'abkfbakhjpmblaafnpgjppbmioombali'
+
+        if (extensionID != null) {
+            await sync(authService, extensionID)
+            if (!authService.isLoggedIn()) {
+                bothNotLoggedInHandler(authService, extensionID)
+            } else {
+                console.log(
+                    'Successfully synced with extension immediately after it was ready.',
+                )
+            }
+        }
     }
 }
