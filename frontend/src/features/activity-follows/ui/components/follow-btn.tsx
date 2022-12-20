@@ -3,7 +3,6 @@ import styled, { css } from 'styled-components'
 import { UITaskState } from '../../../../main-ui/types'
 import LoadingIndicator from '@worldbrain/memex-common/lib/common-ui/components/loading-indicator'
 import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
-import ButtonTooltip from '@worldbrain/memex-common/lib/common-ui/components/button-tooltip'
 
 const Container = styled.div<{
     isOwner?: boolean

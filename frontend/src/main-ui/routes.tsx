@@ -6,7 +6,7 @@ import { Storage } from '../storage/types'
 import { Services } from '../services/types'
 import { EventHandlers } from './classes/events'
 
-import ROUTES, { RoutePart } from '../routes'
+import ROUTES from '../routes'
 import UserHome from './pages/user-home'
 import NotFound from './pages/not-found'
 import LandingPage from './pages/landing-page'

@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import styled, { css } from 'styled-components'
 import { ViewportBreakpoint } from '../../main-ui/styles/types'
 import { UIElementServices } from '../../services/types'
 import AuthHeader from '../../features/user-management/ui/containers/auth-header'
 import { StorageModules } from '../../storage/types'
 import { Margin } from 'styled-components-spacing'
-import RouteLink from '../components/route-link'
-import UnseenActivityIndicator from '../../features/activity-streams/ui/containers/unseen-activity-indicator'
-import ListsSidebar, {
-    Props as ListsSidebarProps,
-} from '../../features/lists-sidebar/ui/components/lists-sidebar'
+// import RouteLink from '../components/route-link'
+// import UnseenActivityIndicator from '../../features/activity-streams/ui/containers/unseen-activity-indicator'
+// import ListsSidebar, {
+//     Props as ListsSidebarProps,
+// } from '../../features/lists-sidebar/ui/components/lists-sidebar'
 
 const middleMaxWidth = '800px'
 const logoImage = require('../../assets/img/memex-logo.svg')
@@ -33,10 +33,10 @@ export default function DefaultPageLayout(props: {
     webMonetizationIcon?: JSX.Element
     hideActivityIndicator?: boolean
     isSidebarShown?: boolean
-    listsSidebarProps?: Omit<
-        ListsSidebarProps,
-        'services' | 'storage' | 'viewportBreakpoint'
-    >
+    // listsSidebarProps?: Omit<
+    //     ListsSidebarProps,
+    //     'services' | 'storage' | 'viewportBreakpoint'
+    // >
     renderSubtitle?: (props: { children: React.ReactNode }) => React.ReactNode
     viewportBreakpoint: ViewportBreakpoint
     children: React.ReactNode
@@ -46,18 +46,18 @@ export default function DefaultPageLayout(props: {
     const { viewportBreakpoint: viewportWidth } = props
     const renderSubtitle = props.renderSubtitle ?? ((props) => props.children)
 
-    const [isAuthenticated, setAuthenticated] = useState(
-        !!props.services.auth.getCurrentUser(),
-    )
-    useEffect(() => {
-        const handler = () => {
-            setAuthenticated(!!props.services.auth.getCurrentUser())
-        }
-        props.services.auth.events.addListener('changed', handler)
-        return () => {
-            props.services.auth.events.removeListener('changed', handler)
-        }
-    })
+    // const [isAuthenticated, setAuthenticated] = useState(
+    //     !!props.services.auth.getCurrentUser(),
+    // )
+    // useEffect(() => {
+    //     const handler = () => {
+    //         setAuthenticated(!!props.services.auth.getCurrentUser())
+    //     }
+    //     props.services.auth.events.addListener('changed', handler)
+    //     return () => {
+    //         props.services.auth.events.removeListener('changed', handler)
+    //     }
+    // })
 
     const getHeaderHeight = () => {
         const headerHeight = document.getElementById('StyledHeader')
@@ -66,51 +66,51 @@ export default function DefaultPageLayout(props: {
         return headerHeight
     }
 
-    const renderFeedArea = () => {
-        if (!isAuthenticated) {
-            return null
-        }
+    // const renderFeedArea = () => {
+    //     if (!isAuthenticated) {
+    //         return null
+    //     }
 
-        return (
-            <FeedArea>
-                <FeedLink
-                    services={props.services}
-                    route="homeFeed"
-                    params={{}}
-                >
-                    {!props.hideActivityIndicator && (
-                        <Margin left="small">
-                            <UnseenActivityIndicator
-                                services={props.services}
-                                storage={props.storage}
-                                renderContent={(feedState) => {
-                                    if (feedState === 'has-unseen') {
-                                        return <UnseenActivityDot />
-                                    }
-                                    return null
-                                }}
-                            />
-                        </Margin>
-                    )}
-                </FeedLink>
-            </FeedArea>
-        )
-    }
+    //     return (
+    //         <FeedArea>
+    //             <FeedLink
+    //                 services={props.services}
+    //                 route="homeFeed"
+    //                 params={{}}
+    //             >
+    //                 {!props.hideActivityIndicator && (
+    //                     <Margin left="small">
+    //                         <UnseenActivityIndicator
+    //                             services={props.services}
+    //                             storage={props.storage}
+    //                             renderContent={(feedState) => {
+    //                                 if (feedState === 'has-unseen') {
+    //                                     return <UnseenActivityDot />
+    //                                 }
+    //                                 return null
+    //                             }}
+    //                         />
+    //                     </Margin>
+    //                 )}
+    //             </FeedLink>
+    //         </FeedArea>
+    //     )
+    // }
 
-    const renderListsSidebar = () => {
-        if (props.listsSidebarProps == null) {
-            return null
-        }
+    // const renderListsSidebar = () => {
+    //     if (props.listsSidebarProps == null) {
+    //         return null
+    //     }
 
-        return (
-            <ListsSidebar
-                {...props.listsSidebarProps}
-                storage={props.storage}
-                services={props.services}
-                viewportBreakpoint={props.viewportBreakpoint}
-            />
-        )
-    }
+    //     return (
+    //         <ListsSidebar
+    //             {...props.listsSidebarProps}
+    //             storage={props.storage}
+    //             services={props.services}
+    //             viewportBreakpoint={props.viewportBreakpoint}
+    //         />
+    //     )
+    // }
 
     const isIframe = () => {
         try {
@@ -282,23 +282,23 @@ const StyledHeader = styled.div<{
         `}
 `
 
-const FeedArea = styled(Margin)`
-    display: flex;
-    align-items: center;
-`
+// const FeedArea = styled(Margin)`
+//     display: flex;
+//     align-items: center;
+// `
 
-const FeedLink = styled(RouteLink)`
-    display: flex;
-    align-items: center;
-    color: ${(props) => props.theme.colors.primary};
-`
+// const FeedLink = styled(RouteLink)`
+//     display: flex;
+//     align-items: center;
+//     color: ${(props) => props.theme.colors.primary};
+// `
 
-const UnseenActivityDot = styled.div`
-    background: #5cd9a6;
-    width: 14px;
-    height: 14px;
-    border-radius: 10px;
-`
+// const UnseenActivityDot = styled.div`
+//     background: #5cd9a6;
+//     width: 14px;
+//     height: 14px;
+//     border-radius: 10px;
+// `
 
 const HeaderMiddleArea = styled.div<{
     viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
@@ -485,21 +485,21 @@ const StyledHeaderContainer = styled.div<{
         props.viewportWidth === 'mobile' ? 'column' : 'row'};
 `
 
-const MenuBar = styled.div<{ isIframe: boolean }>`
-    top: 0px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    padding: 20px 30px 10px 30px;
-    z-index: 10000;
+// const MenuBar = styled.div<{ isIframe: boolean }>`
+//     top: 0px;
+//     display: flex;
+//     justify-content: space-between;
+//     align-items: center;
+//     width: 100%;
+//     padding: 20px 30px 10px 30px;
+//     z-index: 10000;
 
-    ${(props) =>
-        props.isIframe &&
-        css`
-            display: none;
-        `};
-`
+//     ${(props) =>
+//         props.isIframe &&
+//         css`
+//             display: none;
+//         `};
+// `
 
 const MemexLogo = styled.img<{
     viewportWidth: 'mobile' | 'small' | 'normal' | 'big'

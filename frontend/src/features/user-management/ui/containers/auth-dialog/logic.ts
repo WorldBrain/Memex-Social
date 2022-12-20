@@ -56,6 +56,12 @@ export default class AuthDialogLogic extends UILogic<
                 })
             }
         })
+
+        auth.events.on('changed', () => {
+            if (auth.getCurrentUserReference()) {
+                this._result({ status: 'authenticated' })
+            }
+        })
     }
 
     getInitialState(): AuthDialogState {

@@ -15,11 +15,7 @@ import {
 } from './types'
 import DocumentTitle from '../../../../../main-ui/components/document-title'
 import DefaultPageLayout from '../../../../../common-ui/layouts/default-page-layout'
-import LoadingScreen from '../../../../../common-ui/components/loading-screen'
 import { Margin } from 'styled-components-spacing'
-import PageInfoBox, {
-    PageInfoBoxAction,
-} from '../../../../../common-ui/components/page-info-box'
 import AnnotationsInPage from '../../../../annotations/ui/components/annotations-in-page'
 import { SharedAnnotationInPage } from '../../../../annotations/ui/components/types'
 import MessageBox from '../../../../../common-ui/components/message-box'
@@ -77,28 +73,6 @@ const FeedContainer = styled.div<{ viewportBreakpoint: ViewportBreakpoint }>`
         `}
 `
 
-const CommentIconBox = styled.div`
-    background: #ffffff09;
-    border-radius: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 24px;
-    width: fit-content;
-    padding: 0 10px;
-    grid-gap: 6px;
-    cursor: pointer;
-
-    & * {
-        cursor: pointer;
-    }
-`
-
-const Counter = styled.div`
-    color: ${(props) => props.theme.colors.purple};
-    font-size: 14px;
-`
-
 const ActivityType = styled.div`
     white-space: nowrap;
     color: ${(props) => props.theme.colors.normalText};
@@ -130,11 +104,11 @@ const StyledActivityReason = styled.div`
     margin-bottom: 15px;
 `
 
-const LoadingIndicatorBox = styled.div`
+const LoadingIndicatorBox = styled.div<{ height?: string }>`
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 60px;
+    height: ${(props) => (props.height ? props.height : '60px')};
 `
 
 const ActivityReasonLabel = styled.div<{
@@ -211,16 +185,6 @@ const LoadMoreReplies = styled.div`
     }
 `
 
-const SectionCircle = styled.div<{ size: string }>`
-    //background: ${(props) => props.theme.colors.backgroundHighlight};
-    border-radius: 100px;
-    height: ${(props) => (props.size ? props.size : '60px')};
-    width: ${(props) => (props.size ? props.size : '60px')};
-    display: flex;
-    justify-content: center;
-    align-items: center;
-`
-
 const Separator = styled.div`
     height: 1px;
     display: flex;
@@ -292,7 +256,11 @@ export default class HomeFeedPage extends UIElement<
     renderContent() {
         const { state } = this
         if (state.loadState === 'pristine' || state.loadState === 'running') {
-            return <LoadingIndicator />
+            return (
+                <LoadingIndicatorBox height={'180px'}>
+                    <LoadingIndicator />
+                </LoadingIndicatorBox>
+            )
         }
         if (state.loadState === 'error') {
             return 'Error'
@@ -983,14 +951,14 @@ export default class HomeFeedPage extends UIElement<
                     hideActivityIndicator
                     headerTitle="Activity Feed"
                     headerSubtitle={this.renderHeaderSubTitle()}
-                    listsSidebarProps={{
-                        collaborativeLists: this.state.collaborativeLists,
-                        followedLists: this.state.followedLists,
-                        isShown: this.state.isListSidebarShown,
-                        loadState: this.state.listSidebarLoadState,
-                        onToggle: () =>
-                            this.processEvent('toggleListSidebar', undefined),
-                    }}
+                    // listsSidebarProps={{
+                    //     collaborativeLists: this.state.collaborativeLists,
+                    //     followedLists: this.state.followedLists,
+                    //     isShown: this.state.isListSidebarShown,
+                    //     loadState: this.state.listSidebarLoadState,
+                    //     onToggle: () =>
+                    //         this.processEvent('toggleListSidebar', undefined),
+                    // }}
                 >
                     {this.renderContent()}
                 </DefaultPageLayout>

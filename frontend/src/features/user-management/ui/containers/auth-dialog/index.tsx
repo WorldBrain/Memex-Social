@@ -20,7 +20,6 @@ import { ViewportBreakpoint } from '../../../../../main-ui/styles/types'
 import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
 import IconBox from '@worldbrain/memex-common/lib/common-ui/components/icon-box'
 import TextField from '@worldbrain/memex-common/lib/common-ui/components/text-field'
-import { theme } from '../../../../../main-ui/styles/theme'
 
 const FRIENDLY_ERRORS: { [Key in AuthError['reason']]: string } = {
     'popup-blocked': 'Could not open a popup for you to log in',
@@ -598,35 +597,6 @@ const AuthBox = styled(Margin)`
     display: flex;
     justify-content: center;
     width: 100%;
-`
-
-const TextInputContainer = styled.div`
-    display: flex;
-    grid-auto-flow: column;
-    grid-gap: 10px;
-    align-items: center;
-    justify-content: flex-start;
-    border: 1px solid ${(props) => props.theme.colors.lineLightGrey};
-    height: 50px;
-    border-radius: 8px;
-    width: 350px;
-    padding: 0 15px;
-`
-
-const TextInputOneLine = styled.input`
-    outline: none;
-    height: fill-available;
-    width: fill-available;
-    color: #96a0b5;
-    font-size: 14px;
-    border: none;
-    background: transparent;
-    font-family: 'Inter';
-    color: ${(props) => props.theme.colors.normalText};
-
-    &::placeholder {
-        color: #96a0b5;
-    }
 `
 
 const LoadingBox = styled.div`

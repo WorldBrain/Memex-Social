@@ -4,7 +4,7 @@ import { THEME } from '@worldbrain/memex-common/lib/common-ui/styles/theme'
 export const theme: Theme = THEME({
     icons: {
         addPeople: require('../../assets/img/addPeople.svg'),
-        alertRound: require('../../assets/img/alertRound.svg'),
+        warning: require('../../assets/img/alertRound.svg'),
         arrowLeft: require('../../assets/img/arrowLeft.svg'),
         arrowRight: require('../../assets/img/arrowRight.svg'),
         arrowDown: require('../../assets/img/arrowRight.svg'),
@@ -109,7 +109,7 @@ export const theme: Theme = THEME({
         twitter: require('../../assets/img/twitter.svg'),
         twitterThin: require('../../assets/img/twitterThin.svg'),
         twitterLogo: require('../../assets/img/twitter-logo.svg'),
-        warning: require('../../assets/img/info.svg'),
+        info: require('../../assets/img/infoIcon.svg'),
         webLogo: require('../../assets/img/web-logo.svg'),
         webMonetizationLogo: require('../../assets/img/web-monetization-logo.svg'),
         webMonetizationLogoConfirmed: require('../../assets/img/web-monetization-logo-confirmed.svg'),

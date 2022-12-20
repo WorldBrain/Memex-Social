@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react'
 import styled from 'styled-components'
-import { Margin, Padding } from 'styled-components-spacing'
-import * as linkify from 'linkifyjs'
+import { Margin } from 'styled-components-spacing'
 import linkifyHtml from 'linkify-html'
 import DOMPurify from 'dompurify'
 import parse from 'html-react-parser'
@@ -60,14 +59,6 @@ const LoadingContainer = styled.div`
     justify-content: center;
     align-items: center;
     padding: 20px;
-`
-
-const ProfileHeader = styled.div`
-    width: 100%;
-    height: min-content;
-    display: flex;
-    justify-content: start;
-    color: ${(props) => props.theme.colors.lighterText};
 `
 
 const ProfileHeaderInnerContainer = styled.div<{ theme: Theme }>`

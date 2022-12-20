@@ -7,7 +7,6 @@ import {
     AuthHeaderState,
 } from './types'
 import styled from 'styled-components'
-import { Margin } from 'styled-components-spacing'
 import { Closable } from '../../../../../common-ui/components/closable'
 import AuthMenu from '../../components/auth-menu'
 import ProfileEditModal from '../profile-edit-modal'
@@ -17,23 +16,7 @@ import { getViewportBreakpoint } from '../../../../../main-ui/styles/utils'
 import { ViewportBreakpoint } from '../../../../../main-ui/styles/types'
 import { PrimaryAction } from '@worldbrain/memex-common/lib/common-ui/components/PrimaryAction'
 
-const settingsImg = require('../../../../../assets/img/settings.svg')
-
 const StyledAuthHeader = styled.div``
-
-const SettingsIcon = styled.div`
-    height: 20px;
-    background-position: center;
-    background-size: contain;
-    border: none;
-    cursor: pointer;
-    background-repeat: no-repeat;
-    background-image: url(${settingsImg});
-    display: flex;
-    width: 20px;
-    background-position: center;
-    background-size: contain;
-`
 
 const UserInfo = styled.div`
     display: flex;
