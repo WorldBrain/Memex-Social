@@ -22,11 +22,8 @@ const Header = styled.div`
 `
 
 function handleEnter(f: () => void) {
-    console.log('test')
     const handler = (event: React.KeyboardEvent<HTMLInputElement>) => {
-        console.log('test2')
         if (event.keyCode === 13) {
-            console.log('test3')
             f()
         }
     }
