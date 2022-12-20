@@ -1456,7 +1456,6 @@ const PageInfoList = styled.div<{
     viewportBreakpoint: ViewportBreakpoint
 }>`
     width: 100%;
-    margin-top: 30px;
 
     ${(props) =>
         props.viewportBreakpoint === 'mobile' &&
