@@ -1214,6 +1214,14 @@ export default class CollectionDetailsPage extends UIElement<
                                                           this
                                                               .viewportBreakpoint
                                                       }
+                                                      mainContentHover={
+                                                          this.state.listData
+                                                              ?.listEntries[
+                                                              entryIndex
+                                                          ].hoverState
+                                                              ? 'main-content'
+                                                              : undefined
+                                                      }
                                                   />
                                                   <ItemBoxBottom
                                                       creationInfo={{
