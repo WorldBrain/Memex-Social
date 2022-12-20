@@ -190,7 +190,11 @@ async function sync(authService: FirebaseAuthService, extensionID: string) {
 
 export async function syncWithExtension(authService: FirebaseAuthService) {
     let extensionID
-    if (process.env.NODE_ENV === 'development') {
+    let staging = window.location.href.startsWith(
+        'https://staging.memex.social',
+    )
+    console.log('env', process.env.NODE_ENV)
+    if (process.env.NODE_ENV === 'development' || staging) {
         let idGetterInterval = setInterval(() => {
             extensionID = document
                 .querySelector('__memex-extension-id-development')
@@ -207,9 +211,7 @@ export async function syncWithExtension(authService: FirebaseAuthService) {
                 }
             }
         }, 500)
-    }
-
-    if (process.env.NODE_ENV === 'production') {
+    } else {
         extensionID = 'abkfbakhjpmblaafnpgjppbmioombali'
 
         if (extensionID != null) {
