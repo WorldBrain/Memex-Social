@@ -85,6 +85,8 @@ function getClientEnvironment(publicUrl) {
                 WDS_SOCKET_HOST: process.env.WDS_SOCKET_HOST,
                 WDS_SOCKET_PATH: process.env.WDS_SOCKET_PATH,
                 WDS_SOCKET_PORT: process.env.WDS_SOCKET_PORT,
+                // Needed for auth sync.
+                MEMEX_EXTENSION_ID: process.env.MEMEX_EXTENSION_ID,
             },
         )
     // Stringify all values so we can feed into webpack DefinePlugin
