@@ -50,6 +50,7 @@ export interface CollectionDetailsDependencies {
         | 'localStorage'
         | 'clipboard'
         | 'userMessages'
+        | 'youtube'
     >
     storage: Pick<
         StorageModules,

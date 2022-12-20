@@ -42,7 +42,9 @@ import { isPagePdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
 import MissingPdfOverlay from '../../../../ext-detection/ui/components/missing-pdf-overlay'
 import { HoverBox } from '../../../../../common-ui/components/hoverbox'
 import Markdown from '@worldbrain/memex-common/lib/common-ui/components/markdown'
-import BlockContent from '@worldbrain/memex-common/lib/common-ui/components/block-content'
+import BlockContent, {
+    getBlockContentYoutubePlayerId,
+} from '@worldbrain/memex-common/lib/common-ui/components/block-content'
 import ItemBox from '@worldbrain/memex-common/lib/common-ui/components/item-box'
 import ItemBoxBottom, {
     ItemBoxBottomAction,
@@ -289,10 +291,19 @@ export default class CollectionDetailsPage extends UIElement<
 
     renderPageAnnotations(entry: SharedListEntry & { creator: UserReference }) {
         const { state } = this
+
+        const youtubeElementId = getBlockContentYoutubePlayerId(
+            entry.normalizedUrl,
+        )
+        const youtubePlayer = this.props.services.youtube.getPlayerByElementId(
+            youtubeElementId,
+        )
+
         return (
             <AnnotationsInPage
                 contextLocation={'webUI'}
                 variant={'dark-mode'}
+                youtubePlayer={youtubePlayer}
                 newPageReply={
                     this.isListContributor || state.isListOwner
                         ? state.newPageReplies[entry.normalizedUrl]
@@ -1162,6 +1173,10 @@ export default class CollectionDetailsPage extends UIElement<
                                               >
                                                   <BlockContent
                                                       // pageLink ={'https://memex.social/' + this.props.listID + '/' + entry.reference.id}
+                                                      youtubeService={
+                                                          this.props.services
+                                                              .youtube
+                                                      }
                                                       type={
                                                           isPagePdf({
                                                               url:

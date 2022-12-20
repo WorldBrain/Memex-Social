@@ -70,7 +70,7 @@ export class ListKeysService extends AbstractListKeysService {
                 routeMatch.route === 'userHome'
             )
         ) {
-            return { result: 'not-supported-route' }
+            return { result: 'not-supported-route' as any } // TODO: fix this
         }
         const keyString = this.dependencies.router.getQueryParam('key')
         if (!keyString) {

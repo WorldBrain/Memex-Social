@@ -12,6 +12,7 @@ import { Scenario } from '../services/scenarios/types'
 import { mainProgram } from './main'
 import { mockClipboardAPI } from '../services/clipboard/mock'
 import type { _Tuple } from '@worldbrain/memex-common/lib/_workarounds/types'
+import { createYoutubeServiceOptions } from '@worldbrain/memex-common/lib/services/youtube/library'
 
 export async function metaProgram(options: {
     history: History
@@ -60,6 +61,7 @@ export async function metaProgram(options: {
                         queryParams: {
                             scenario: `${scenarioIdentifier.pageName}.${scenarioName}.$start`,
                         },
+                        youtubeOptions: createYoutubeServiceOptions(),
                     })
                 },
             }
@@ -78,6 +80,7 @@ export async function metaProgram(options: {
                         queryParams: {
                             scenario: `${scenarioIdentifier.pageName}.${scenarioName}.${step.name}`,
                         },
+                        youtubeOptions: createYoutubeServiceOptions(),
                     })
                 }
             }

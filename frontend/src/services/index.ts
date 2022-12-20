@@ -34,6 +34,8 @@ import { BrowserLocalStorageService } from './local-storage/browser'
 import { ListKeysService } from '../features/content-sharing/service'
 import { ProgramQueryParams } from '../setup/types'
 import ClipboardService from './clipboard'
+import type { YoutubeServiceOptions } from '@worldbrain/memex-common/lib/services/youtube/types'
+import { YoutubeService } from '@worldbrain/memex-common/lib/services/youtube'
 
 export function createServices(options: {
     backend: BackendType
@@ -46,6 +48,7 @@ export function createServices(options: {
     logLogicEvents?: boolean
     fixtureFetcher?: FixtureFetcher
     clipboard: Pick<Clipboard, 'writeText'>
+    youtubeOptions: YoutubeServiceOptions
 }): Services {
     const firebase = options.firebase ?? firebaseModule
     const logicRegistry = new LogicRegistryService({
@@ -209,6 +212,7 @@ export function createServices(options: {
             auth,
         }),
         webMonetization,
+        youtube: new YoutubeService(options.youtubeOptions),
     }
 
     return services
