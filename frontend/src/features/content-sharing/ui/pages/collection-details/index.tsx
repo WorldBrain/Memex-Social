@@ -21,9 +21,6 @@ import { User } from '@worldbrain/memex-common/lib/web-interface/types/users'
 import { PAGE_SIZE } from './constants'
 import DocumentTitle from '../../../../../main-ui/components/document-title'
 import DefaultPageLayout from '../../../../../common-ui/layouts/default-page-layout'
-import PageInfoBox, {
-    PageInfoBoxAction,
-} from '../../../../../common-ui/components/page-info-box'
 import ProfilePopupContainer from '../../../../user-management/ui/containers/profile-popup-container'
 import { ViewportBreakpoint } from '../../../../../main-ui/styles/types'
 import { getViewportBreakpoint } from '../../../../../main-ui/styles/utils'
@@ -33,11 +30,10 @@ import FollowBtn from '../../../../activity-follows/ui/components/follow-btn'
 import WebMonetizationIcon from '../../../../web-monetization/ui/components/web-monetization-icon'
 import PermissionKeyOverlay from './permission-key-overlay'
 import InstallExtOverlay from '../../../../ext-detection/ui/components/install-ext-overlay'
-import FollowSpaceOverlay from '../../../../ext-detection/ui/components/follow-space-overlay'
 import { mergeTaskStates } from '../../../../../main-ui/classes/logic'
 import { UserReference } from '../../../../user-management/types'
 import ListShareModal from '@worldbrain/memex-common/lib/content-sharing/ui/list-share-modal'
-import type { Props as ListsSidebarProps } from '../../../../lists-sidebar/ui/components/lists-sidebar'
+// import type { Props as ListsSidebarProps } from '../../../../lists-sidebar/ui/components/lists-sidebar'
 import { isPagePdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
 import MissingPdfOverlay from '../../../../ext-detection/ui/components/missing-pdf-overlay'
 import { HoverBox } from '../../../../../common-ui/components/hoverbox'
@@ -66,18 +62,18 @@ export default class CollectionDetailsPage extends UIElement<
         super(props, { logic: new Logic({ ...props }) })
     }
 
-    get listsSidebarProps(): Omit<
-        ListsSidebarProps,
-        'services' | 'storage' | 'viewportBreakpoint'
-    > {
-        return {
-            collaborativeLists: this.state.collaborativeLists,
-            followedLists: this.state.followedLists,
-            isShown: this.state.isListSidebarShown,
-            loadState: this.state.listSidebarLoadState,
-            onToggle: () => this.processEvent('toggleListSidebar', undefined),
-        }
-    }
+    // get listsSidebarProps(): Omit<
+    //     ListsSidebarProps,
+    //     'services' | 'storage' | 'viewportBreakpoint'
+    // > {
+    //     return {
+    //         collaborativeLists: this.state.collaborativeLists,
+    //         followedLists: this.state.followedLists,
+    //         isShown: this.state.isListSidebarShown,
+    //         loadState: this.state.listSidebarLoadState,
+    //         onToggle: () => this.processEvent('toggleListSidebar', undefined),
+    //     }
+    // }
 
     get isListContributor(): boolean {
         return (
@@ -1000,7 +996,7 @@ export default class CollectionDetailsPage extends UIElement<
                         services={this.props.services}
                         storage={this.props.storage}
                         viewportBreakpoint={this.viewportBreakpoint}
-                        listsSidebarProps={this.listsSidebarProps}
+                        // listsSidebarProps={this.listsSidebarProps}
                         scrollTop={this.state.scrollTop}
                     >
                         <ErrorWithAction errorType="internal-error">
@@ -1019,7 +1015,7 @@ export default class CollectionDetailsPage extends UIElement<
                     services={this.props.services}
                     storage={this.props.storage}
                     viewportBreakpoint={this.viewportBreakpoint}
-                    listsSidebarProps={this.listsSidebarProps}
+                    // listsSidebarProps={this.listsSidebarProps}
                 >
                     <ErrorWithAction
                         errorType="not-found"
@@ -1035,7 +1031,7 @@ export default class CollectionDetailsPage extends UIElement<
             )
         }
         const isPageView = this.props.entryID
-        const isPageLink = data.list.type === 'page-link'
+        // const isPageLink = data.list.type === 'page-link'
 
         const resultsFilteredByType = this.getContentFilteredByType()
 
@@ -1056,8 +1052,8 @@ export default class CollectionDetailsPage extends UIElement<
                     followBtn={this.renderFollowBtn()()}
                     renderHeaderActionArea={this.renderHeaderActionArea()}
                     webMonetizationIcon={this.renderWebMonetizationIcon()}
-                    listsSidebarProps={this.listsSidebarProps}
-                    isSidebarShown={this.listsSidebarProps.isShown}
+                    // listsSidebarProps={this.listsSidebarProps}
+                    // isSidebarShown={this.listsSidebarProps.isShown}
                     permissionKeyOverlay={this.renderPermissionKeyOverlay()}
                     scrollTop={this.state.scrollTop}
                     breadCrumbs={this.renderBreadCrumbs()}
@@ -1492,10 +1488,6 @@ const ShowMoreCollaborators = styled.span`
     display: inline-box;
 `
 
-const Text = styled.span`
-    padding-left: 5px;
-`
-
 const LoadingScreen = styled.div`
     height: 100%;
     width: 100%;
@@ -1656,9 +1648,4 @@ const ListEntry = styled.div`
         white-space: pre-wrap;
         font-weight: initial;
     }
-`
-
-const Counter = styled.div`
-    color: ${(props) => props.theme.colors.purple};
-    font-size: 14px;
 `

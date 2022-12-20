@@ -13,7 +13,6 @@ import { ProfileWebLinkName, UserPublicProfile } from '../../../types'
 
 import { theme } from '../../../../../main-ui/styles/theme'
 import ProfileEditModalLogic from './logic'
-import { SecondaryActionButton } from '../../components/ActionButtons'
 import { VALID_URL_TEST } from '../../../../../constants'
 import Overlay from '../../../../../main-ui/containers/overlay'
 import { UITaskState } from '../../../../../main-ui/types'
@@ -391,34 +390,6 @@ const Container = styled.div<{ loadState: UITaskState; theme: Theme }>`
         `}
 `
 
-const TextInputContainer = styled.div`
-    display: flex;
-    grid-auto-flow: column;
-    grid-gap: 10px;
-    align-items: center;
-    justify-content: flex-start;
-    border: 1px solid ${(props) => props.theme.colors.lineLightGrey};
-    min-height: 50px;
-    border-radius: 8px;
-    width: 100%;
-    padding: 0 0 0 15px;
-    align-items: center;
-`
-
-const TextInputOneLine = styled.input`
-    outline: none;
-    height: fill-available;
-    width: fill-available;
-    color: #96a0b5;
-    font-size: 14px;
-    border: none;
-    background: transparent;
-    color: ${(props) => props.theme.colors.lighterText};
-
-    &::placeholder {
-        color: #96a0b5;
-    }
-`
 const SectionCircle = styled.div<{ size: string }>`
     background: ${(props) => props.theme.colors.backgroundHighlight};
     border-radius: 100px;
@@ -491,22 +462,6 @@ const DisplayNameContainer = styled.div`
     margin-bottom: 20px;
 `
 
-const TextInputMultiLine = styled.textarea`
-    outline: none;
-    height: fill-available;
-    width: fill-available;
-    color: #96a0b5;
-    font-size: 14px;
-    border: none;
-    padding: 15px 0px;
-    min-height: 150px;
-    font-family: 'Inter';
-    background: transparent;
-    &::placeholder {
-        color: ${(props) => props.theme.colors.lighterText};
-    }
-`
-
 const EmailBox = styled.div`
     display: flex;
     flex-direction: row;
@@ -535,36 +490,6 @@ const LoadingBox = styled.div`
     align-items: center;
     justify-content: center;
     background: transparent;
-`
-
-// const LargeUserAvatar = styled.div<{ path: string }>`
-//     height: 100px;
-//     width: 100px;
-//     border-radius: 50px;
-//     background-position: center;
-//     background-size: contain;
-//     background: url(${(props) => props.path});
-// `
-
-// const AvatarPlaceholder = styled.div<{ theme: Theme }>`
-//     height: 100px;
-//     width: 100px;
-//     border-radius: 50px;
-//     background: ${(props) => props.theme.colors.grey};
-//     display: flex;
-//     justify-content: center;
-//     align-items: center;
-// `
-
-// const CameraIcon = styled(Icon)`
-//     background-position: center;
-//     background-size: contain;
-// `
-
-const StyledSecondaryButton = styled(SecondaryActionButton)`
-    padding-top: 0;
-    padding-bottom: 0;
-    color: ${(props) => props.theme.colors.lighterText};
 `
 
 const ResetEmailConfirmation = styled.div`

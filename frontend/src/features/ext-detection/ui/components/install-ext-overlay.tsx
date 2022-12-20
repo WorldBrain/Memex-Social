@@ -1,18 +1,12 @@
-import React, { ReactElement } from 'react'
+import React from 'react'
 import styled, { css } from 'styled-components'
 import Overlay from '../../../../main-ui/containers/overlay'
 import { ViewportBreakpoint } from '../../../../main-ui/styles/types'
 import { UIElementServices } from '../../../../services/types'
-import { Margin } from 'styled-components-spacing'
 import { PrimaryAction } from '@worldbrain/memex-common/lib/common-ui/components/PrimaryAction'
 import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
 import { detect } from 'detect-browser'
-
-const braveLogo = require('../../../../assets/img/braveLogo.svg')
-const firefoxLogo = require('../../../../assets/img/logo-firefox.svg')
-const chromeLogo = require('../../../../assets/img/logo-chrome.svg')
 const bannerImage = require('../../../../assets/img/installBanner.svg')
-const noteIcon = require('../../../../assets/img/comment.svg')
 
 const Content = styled.div<{
     viewportBreakpoint: ViewportBreakpoint
@@ -174,20 +168,21 @@ function getBrowserIcon(): JSX.Element {
 
     /* @ts-ignore */
     if (navigator.brave) {
-        return (browserIcon = require('../../../../assets/img/braveLogo.svg'))
+        browserIcon = require('../../../../assets/img/braveLogo.svg')
+        return browserIcon
     }
 
     switch (browserDetect && browserDetect.name) {
         case 'chrome':
-            return (browserIcon = require('../../../../assets/img/chromeLogo.svg'))
-            break
+            browserIcon = require('../../../../assets/img/chromeLogo.svg')
+            return browserIcon
         case 'firefox':
-            return (browserIcon = require('../../../../assets/img/firefoxLogo.svg'))
-            break
+            browserIcon = require('../../../../assets/img/firefoxLogo.svg')
+            return browserIcon
         default:
             // TODO: Fallback case? Default is Chrome link
-            return (browserIcon = require('../../../../assets/img/chromeLogo.svg'))
-            break
+            browserIcon = require('../../../../assets/img/chromeLogo.svg')
+            return browserIcon
     }
 }
 
@@ -207,16 +202,13 @@ function getBrowserDownloadLink() {
         case 'chrome':
             return (downloadLink =
                 'https://chrome.google.com/webstore/detail/abkfbakhjpmblaafnpgjppbmioombali')
-            break
         case 'firefox':
             return (downloadLink =
                 'https://addons.mozilla.org/en-US/firefox/addon/worldbrain/')
-            break
         default:
             // TODO: Fallback case? Default is Chrome link
             return (downloadLink =
                 'https://chrome.google.com/webstore/detail/abkfbakhjpmblaafnpgjppbmioombali')
-            break
     }
 }
 
