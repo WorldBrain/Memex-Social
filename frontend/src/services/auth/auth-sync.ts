@@ -202,39 +202,4 @@ export async function syncWithExtension(authService: FirebaseAuthService) {
             )
         }
     }
-    // let staging = window.location.href.startsWith(
-    //     'https://staging.memex.social',
-    // )
-    // console.log('env', process.env.NODE_ENV)
-    // if (process.env.NODE_ENV === 'development' || staging) {
-    //     let idGetterInterval = setInterval(() => {
-    //         extensionID = document
-    //             .querySelector('__memex-extension-id-development')
-    //             ?.getAttribute('id')
-    //         if (extensionID != null) {
-    //             clearInterval(idGetterInterval)
-    //             sync(authService, extensionID)
-    //             if (!authService.isLoggedIn()) {
-    //                 bothNotLoggedInHandler(authService, extensionID)
-    //             } else {
-    //                 console.log(
-    //                     'Successfully synced with extension immediately after it was ready.',
-    //                 )
-    //             }
-    //         }
-    //     }, 500)
-    // } else {
-    //     extensionID = 'abkfbakhjpmblaafnpgjppbmioombali'
-
-    //     if (extensionID != null) {
-    //         await sync(authService, extensionID)
-    //         if (!authService.isLoggedIn()) {
-    //             bothNotLoggedInHandler(authService, extensionID)
-    //         } else {
-    //             console.log(
-    //                 'Successfully synced with extension immediately after it was ready.',
-    //             )
-    //         }
-    //     }
-    // }
 }
