@@ -3,6 +3,8 @@ import styled, { css } from 'styled-components'
 import { UITaskState } from '../../../../main-ui/types'
 import LoadingIndicator from '@worldbrain/memex-common/lib/common-ui/components/loading-indicator'
 import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
+import { PrimaryAction } from '@worldbrain/memex-common/lib/common-ui/components/PrimaryAction'
+import { ViewportBreakpoint } from '@worldbrain/memex-common/lib/common-ui/styles/types'
 
 const Container = styled.div<{
     isOwner?: boolean
@@ -73,12 +75,20 @@ const BtnText = styled.span`
     font-weight: 500;
 `
 
+const LoadingIndicatorBox = styled.div`
+    width: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+`
+
 export interface Props {
     onClick: React.MouseEventHandler<HTMLDivElement>
     loadState: UITaskState
     isOwner?: boolean
     isFollowed?: boolean
     isContributor?: boolean
+    viewPortWidth?: ViewportBreakpoint
 }
 
 export default class FollowBtn extends PureComponent<Props> {
@@ -100,7 +110,7 @@ export default class FollowBtn extends PureComponent<Props> {
 
     getText() {
         if (this.props.isOwner) {
-            return 'Owner'
+            return 'Creator'
         } else if (this.props.isContributor) {
             return 'Contributor'
         } else if (this.props.isFollowed) {
@@ -117,7 +127,7 @@ export default class FollowBtn extends PureComponent<Props> {
     followStateIcon() {
         const { props } = this
         if (props.isOwner) {
-            return 'check'
+            return 'personFine'
         } else if (props.isContributor) {
             return 'peopleFine'
         } else if (!props.isOwner && !props.isContributor && props.isFollowed) {
@@ -145,59 +155,77 @@ export default class FollowBtn extends PureComponent<Props> {
             return 'black'
         }
     }
+    buttonType() {
+        const { props } = this
+        if (props.isContributor) {
+            return 'forth'
+        }
+        if (props.isOwner) {
+            return 'forth'
+        }
+        if (!props.isOwner && !props.isContributor && props.isFollowed) {
+            return 'forth'
+        } else {
+            return 'secondary'
+        }
+    }
 
     private renderBody() {
         const { props } = this
 
-        if (props.loadState === 'running') {
-            return <LoadingIndicator size={16} />
-        }
-
-        const icon = (
-            <Icon
-                height="16px"
-                icon={this.followStateIcon()}
-                color={this.followStateIconColor()}
-                hoverOff
-            />
-        )
-
         return (
-            <ButtonBox>
-                {icon && <PlusIcon>{icon}</PlusIcon>}
-                <BtnText>{this.getText()}</BtnText>
-            </ButtonBox>
+            <PrimaryAction
+                label={
+                    props.loadState === 'running' ? (
+                        <LoadingIndicatorBox>
+                            <LoadingIndicator size={16} />
+                        </LoadingIndicatorBox>
+                    ) : (
+                        this.getText()
+                    )
+                }
+                icon={
+                    props.loadState === 'running'
+                        ? undefined
+                        : this.followStateIcon()
+                }
+                // iconColor={this.followStateIconColor()}
+                size={props.viewPortWidth === 'mobile' ? 'small' : 'medium'}
+                type={this.buttonType()}
+                onClick={props.onClick}
+            />
         )
     }
 
     render() {
-        const { props } = this
-        return props.isContributor ? (
-            <Container
-                onMouseEnter={() => this.handleMouseEnter()}
-                onMouseLeave={() => this.handleMouseLeave()}
-                onClick={props.onClick}
-                isContributor={props.isContributor}
-                isFollowed={
-                    props.isFollowed || props.isOwner || props.isContributor
-                }
-                isOwner={props.isOwner}
-            >
-                {this.renderBody()}
-            </Container>
-        ) : (
-            <Container
-                onMouseEnter={() => this.handleMouseEnter()}
-                onMouseLeave={() => this.handleMouseLeave()}
-                onClick={props.onClick}
-                isContributor={props.isContributor}
-                isFollowed={
-                    props.isFollowed || props.isOwner || props.isContributor
-                }
-                isOwner={props.isOwner}
-            >
-                {this.renderBody()}
-            </Container>
-        )
+        return this.renderBody()
+
+        // props.isContributor ? (
+        //     <Container
+        //         onMouseEnter={() => this.handleMouseEnter()}
+        //         onMouseLeave={() => this.handleMouseLeave()}
+        //         onClick={props.onClick}
+        //         isContributor={props.isContributor}
+        //         isFollowed={
+        //             props.isFollowed || props.isOwner || props.isContributor
+        //         }
+        //         isOwner={props.isOwner}
+        //     >
+        //         {this.renderBody()}
+        //     </Container>
+        // ) : (
+        //     <Container
+        //         onMouseEnter={() => this.handleMouseEnter()}
+        //         onMouseLeave={() => this.handleMouseLeave()}
+        //         onClick={props.onClick}
+        //         isContributor={props.isContributor}
+        //         isFollowed={
+        //             props.isFollowed || props.isOwner || props.isContributor
+        //         }
+        //         isOwner={props.isOwner}
+        //     >
+        //         {this.renderBody()}
+        //     </Container>
+        // )
     }
 }

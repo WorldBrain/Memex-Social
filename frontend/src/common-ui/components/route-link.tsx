@@ -25,8 +25,18 @@ const isIframe = () => {
     }
 }
 
+function isStaging() {
+    let location = window.location.href
+    let staging = location.startsWith('https://staging.')
+
+    return staging
+}
+
 export default function RouteLink(props: Props) {
     const url = props.services.router.getUrl(props.route, props.params)
+
+    const isStagingEnv = isStaging()
+
     return (
         <StyledRouteLink
             className={props.className}
@@ -36,8 +46,10 @@ export default function RouteLink(props: Props) {
                     return
                 }
                 event.preventDefault()
-                if (isIframe() === true) {
-                    window.open('localhost:3000/c/' + props.params.id)
+                if (isStagingEnv === true) {
+                    window.open(
+                        'https://staging.memex.social/c/' + props.params.id,
+                    )
                 } else {
                     props.services.router.goTo(props.route, props.params)
                 }

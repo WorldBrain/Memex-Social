@@ -279,6 +279,7 @@ export default class CollectionDetailsPage extends UIElement<
                     this.state.listRolesLoadState,
                     this.state.permissionKeyState,
                 ])}
+                viewPortWidth={this.viewportBreakpoint}
             />
         )
     }
@@ -809,7 +810,7 @@ export default class CollectionDetailsPage extends UIElement<
     renderHeaderActionArea() {
         const isPageView = this.props.entryID
         if (
-            this.state.followLoadState === 'running' ||
+            // this.state.followLoadState === 'running' ||
             this.state.listRolesLoadState === 'running' ||
             this.state.permissionKeyState === 'running'
         ) {
@@ -1112,18 +1113,17 @@ export default class CollectionDetailsPage extends UIElement<
                             </CollectionDescriptionText>
                         </CollectionDescriptionBox>
                     )}
-                    <PageInfoList viewportBreakpoint={this.viewportBreakpoint}>
-                        {data.listEntries.length > 0 &&
-                            !isPageView &&
-                            this.renderAbovePagesBox()}
-                        {state.annotationEntriesLoadState === 'error' && (
-                            <Margin bottom={'large'}>
-                                <ErrorWithAction errorType="internal-error">
-                                    Error loading page notes. Reload page to
-                                    retry.
-                                </ErrorWithAction>
-                            </Margin>
-                        )}
+                    {data.listEntries.length > 0 &&
+                        !isPageView &&
+                        this.renderAbovePagesBox()}
+                    {state.annotationEntriesLoadState === 'error' && (
+                        <Margin bottom={'large'}>
+                            <ErrorWithAction errorType="internal-error">
+                                Error loading page notes. Reload page to retry.
+                            </ErrorWithAction>
+                        </Margin>
+                    )}
+                    <ResultsList>
                         {resultsFilteredByType?.length
                             ? resultsFilteredByType?.map(
                                   ([entryIndex, entry]) => (
@@ -1245,7 +1245,7 @@ export default class CollectionDetailsPage extends UIElement<
                                   ),
                               )
                             : this.renderNoResults()}
-                    </PageInfoList>
+                    </ResultsList>
                 </DefaultPageLayout>
                 {this.state.isListShareModalShown && (
                     <ListShareModal
@@ -1260,6 +1260,17 @@ export default class CollectionDetailsPage extends UIElement<
         )
     }
 }
+
+const ResultsList = styled.div`
+    height: fill-available;
+    overflow-y: scroll;
+    scrollbar-width: none;
+    padding-bottom: 100px;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+`
 
 const DocumentView = styled.div`
     height: 100%;
@@ -1456,7 +1467,6 @@ const PageInfoList = styled.div<{
     viewportBreakpoint: ViewportBreakpoint
 }>`
     width: 100%;
-    margin-top: 30px;
 
     ${(props) =>
         props.viewportBreakpoint === 'mobile' &&

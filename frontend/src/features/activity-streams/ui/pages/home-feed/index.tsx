@@ -120,17 +120,8 @@ const ActivityReasonLabel = styled.div<{
     color: ${(props) => props.theme.colors.normalText};
     display: flex;
     width: 92%;
-    ${(props) =>
-        props.viewportBreakpoint === 'mobile' &&
-        css`
-            display: flex;
-            flex-direction: column;
-            grid-gap: 3px;
-
-            & > a {
-                padding-left: 0px;
-            }
-        `}
+    overflow: hidden;
+    text-overflow: ellipsis;
 `
 
 const AnnotationEntriesLoadingContainer = styled.div`
@@ -1011,7 +1002,7 @@ function LastSeenLine() {
         <StyledLastSeenLine>
             <LastSeenLineLabel>
                 <Icon icon="clock" heightAndWidth="22px" hoverOff />
-                Read
+                Seen
             </LastSeenLineLabel>
             <Separator />
         </StyledLastSeenLine>

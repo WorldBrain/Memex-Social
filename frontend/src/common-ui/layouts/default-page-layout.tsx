@@ -126,23 +126,30 @@ export default function DefaultPageLayout(props: {
             sidebarShown={props.isSidebarShown}
             id={'MainContainer'}
         >
-            <LogoAndFeed
-                isIframe={isIframe() === true}
-                viewportWidth={viewportWidth}
-            >
-                <MemexLogo
-                    src={logoImage}
-                    onClick={() => window.open('https://memex.garden')}
-                    viewportWidth={viewportWidth}
-                />
-                {/* )} */}
-            </LogoAndFeed>
-            <HeaderAuthArea
-                isIframe={isIframe() === true}
-                viewportWidth={viewportWidth}
-            >
-                <AuthHeader services={props.services} storage={props.storage} />
-            </HeaderAuthArea>
+            {isIframe() ? undefined : (
+                <>
+                    <LogoAndFeed
+                        isIframe={isIframe() === true}
+                        viewportWidth={viewportWidth}
+                    >
+                        <MemexLogo
+                            src={logoImage}
+                            onClick={() => window.open('https://memex.garden')}
+                            viewportWidth={viewportWidth}
+                        />
+                        {/* )} */}
+                    </LogoAndFeed>
+                    <HeaderAuthArea
+                        isIframe={isIframe() === true}
+                        viewportWidth={viewportWidth}
+                    >
+                        <AuthHeader
+                            services={props.services}
+                            storage={props.storage}
+                        />
+                    </HeaderAuthArea>
+                </>
+            )}
             <MainColumn>
                 <StyledHeader
                     isIframe={isIframe() === true}
@@ -186,19 +193,13 @@ export default function DefaultPageLayout(props: {
                         </HeaderMiddleArea>
                     </StyledHeaderContainer>
                 </StyledHeader>
-                <PageMiddleArea
+                {/* {renderListsSidebar()} */}
+                <PageResultsArea
+                    headerHeight={getHeaderHeight()}
                     viewportWidth={viewportWidth}
-                    isSidebarShown={props.isSidebarShown === true}
-                    id="pageMiddleArea"
                 >
-                    {/* {renderListsSidebar()} */}
-                    <PageResultsArea
-                        headerHeight={getHeaderHeight()}
-                        viewportWidth={viewportWidth}
-                    >
-                        {props.children}
-                    </PageResultsArea>
-                </PageMiddleArea>
+                    {props.children}
+                </PageResultsArea>
             </MainColumn>
         </MainContainer>
     )
@@ -212,9 +213,10 @@ const MainContainer = styled.div<{
     align-items: center;
     flex-direction: column;
     justify-content: flex-start;
-    overflow: scroll;
+    overflow: hidden;
+    position: relative;
 
-    height: 100%;
+    height: 100vh;
     width: 100%;
 
     scrollbar-width: none;
@@ -262,7 +264,7 @@ const StyledHeader = styled.div<{
             align-items: flex-start;
             top: 0;
             width: 100%;
-            padding: 80px 15px 30px 15px;
+            padding: 60px 15px 0px 15px;
         `}
 
     ${(props) =>
@@ -271,7 +273,7 @@ const StyledHeader = styled.div<{
             flex-direction: row;
             align-items: flex-start;
             top: 0;
-            padding: 80px 20px 30px 20px;
+            padding: 80px 40px 30px 40px;
         `}
 
     ${(props) =>
@@ -319,24 +321,27 @@ const HeaderTitle = styled.div<{
     viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
     scrollTop?: number
 }>`
-    font-weight: 600;
+    font-weight: 500;
     width: fill-available;
     letter-spacing: 1px;
     text-overflow: ${(props) => props.scrollTop! >= 100 && 'ellipsis'};
     font-family: ${(props) => props.theme.fonts.primary};
-    font-size: 25px;
+    font-size: 30px;
+    line-height: 45px;
+    letter-spacing: 0.5px;
     overflow-wrap: break-word;
     color: ${(props) => props.theme.colors.normalText};
     ${(props) =>
         props.viewportWidth === 'small' &&
         css`
-            font-size: 20px;
+            font-size: 28px;
+            line-height: 38px;
         `}
     ${(props) =>
         props.viewportWidth === 'mobile' &&
         css`
-            font-size: 18px;
-            line-height: 27px;
+            font-size: 24px;
+            line-height: 34px;
         `};
 `
 
@@ -376,52 +381,26 @@ const LogoAndFeed = styled(Margin)<{
         `}
 `
 
-const PageMiddleArea = styled.div<{
-    viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
-    isSidebarShown: boolean
-}>`
-    width: 100%;
-    display: flex;
-    height: 100%;
-    position: relative;
-
-    ${(props) =>
-        props.viewportWidth === 'mobile' &&
-        props.isSidebarShown &&
-        css`
-            overflow: hidden;
-            padding: 0 20px;
-        `}
-
-    ${(props) =>
-        props.viewportWidth === 'small' &&
-        props.isSidebarShown &&
-        css`
-            overflow: hidden;
-            padding: 0 20px;
-        `}
-`
-
 const PageResultsArea = styled.div<{
     viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
     headerHeight: number | undefined
 }>`
     max-width: ${middleMaxWidth};
     position: relative;
-    padding-bottom: 100px;
     margin: 0px auto 0;
     width: 100%;
-    min-height: 300px;
+    min-height: 100px;
+    height: fill-available;
 
     ${(props) =>
         props.viewportWidth === 'mobile' &&
         css`
-            padding: 0px 15px 100px 15px;
+            padding: 0px 15px 0px 15px;
         `}
     ${(props) =>
         props.viewportWidth === 'small' &&
         css`
-            padding: 0px 20px 100px 20px;
+            padding: 0px 15px 0px 15px;
         `}
 `
 
@@ -469,6 +448,9 @@ const MainColumn = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
+    height: 100vh;
+    overflow: hidden;
+    position: relative;
 `
 
 const StyledHeaderContainer = styled.div<{
