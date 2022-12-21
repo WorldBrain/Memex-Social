@@ -118,13 +118,19 @@ export default class CollectionDetailsPage extends UIElement<
 
         if (this.state.isListOwner) {
             return (
-                <Icon
-                    height="20px"
-                    icon="addPeople"
-                    color="purple"
+                <PrimaryAction
+                    type={'tertiary'}
+                    icon={'addPeople'}
+                    iconColor={'purple'}
+                    size={
+                        this.viewportBreakpoint === 'mobile'
+                            ? 'small'
+                            : 'medium'
+                    }
                     onClick={() =>
                         this.processEvent('toggleListShareModal', {})
                     }
+                    label={'Invite'}
                 />
             )
         }
@@ -484,7 +490,12 @@ export default class CollectionDetailsPage extends UIElement<
                         storage={this.props.storage}
                         userRef={userReference!}
                     >
-                        <Creator>{user.displayName}</Creator>
+                        <Creator>
+                            {this.props.services.auth.getCurrentUser()?.id ===
+                            user.id
+                                ? 'You'
+                                : user.displayName}
+                        </Creator>
                     </ProfilePopupContainer>
                 </React.Fragment>
             )

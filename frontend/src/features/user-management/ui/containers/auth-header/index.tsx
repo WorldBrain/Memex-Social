@@ -25,7 +25,6 @@ const UserInfo = styled.div`
     cursor: pointer;
     border-radius: 8px;
     justify-content: center;
-    border: 1px solid ${(props) => props.theme.colors.lightHover};
     height: 34px;
     width: fit-content;
     grid-gap: 10px;
@@ -40,10 +39,10 @@ const DisplayName = styled.div`
     align-items: center;
     grid-gap: 5px;
     font-size: 14px;
-    font-weight: bold;
+    font-weight: 300;
     cursor: pointer;
     font-family: ${(props) => props.theme.fonts.primary};
-    color: ${(props) => props.theme.colors.normalText};
+    color: ${(props) => props.theme.colors.greyScale8};
     max-width: 150px;
     overflow: hidden;
     white-space: nowrap;
@@ -52,8 +51,6 @@ const DisplayName = styled.div`
     & * {
         cursor: pointer;
     }
-
-    color: ${(props) => props.theme.colors.normalText};
 `
 const MenuContainerOuter = styled.div`
     position: relative;
