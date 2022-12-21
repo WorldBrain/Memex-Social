@@ -291,15 +291,16 @@ export default class CollectionDetailsPage extends UIElement<
         const youtubeElementId = getBlockContentYoutubePlayerId(
             entry.normalizedUrl,
         )
-        const youtubePlayer = this.props.services.youtube.getPlayerByElementId(
-            youtubeElementId,
-        )
 
         return (
             <AnnotationsInPage
                 contextLocation={'webUI'}
                 variant={'dark-mode'}
-                youtubePlayer={youtubePlayer}
+                getYoutubePlayer={() =>
+                    this.props.services.youtube.getPlayerByElementId(
+                        youtubeElementId,
+                    )
+                }
                 newPageReply={
                     this.isListContributor || state.isListOwner
                         ? state.newPageReplies[entry.normalizedUrl]
