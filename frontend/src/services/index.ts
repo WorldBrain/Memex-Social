@@ -36,6 +36,7 @@ import { ProgramQueryParams } from '../setup/types'
 import ClipboardService from './clipboard'
 import type { YoutubeServiceOptions } from '@worldbrain/memex-common/lib/services/youtube/types'
 import { YoutubeService } from '@worldbrain/memex-common/lib/services/youtube'
+import { MemexExtensionService } from './memex-extension'
 
 export function createServices(options: {
     backend: BackendType
@@ -180,6 +181,7 @@ export function createServices(options: {
         fixtures,
         localStorage,
         userMessages,
+        memexExtension: new MemexExtensionService(),
         scenarios: new ScenarioService({
             services: { fixtures: fixtures, logicRegistry, auth },
             modifyCalls: (getModifications) => {
