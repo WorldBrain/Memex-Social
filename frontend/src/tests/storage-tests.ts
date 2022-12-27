@@ -84,6 +84,7 @@ async function createMemoryTestDevice(
         history: null!,
         uiMountPoint: null!,
         localStorage: null!,
+        youtubeOptions: {} as any,
     })
     storageHooksChangeWatcher.setUp({
         fetch,
@@ -183,6 +184,7 @@ async function createFirebaseTestDevice(
         uiMountPoint: null!,
         localStorage: null!,
         clipboard: mockClipboardAPI,
+        youtubeOptions: {} as any,
     })
     if (userId) {
         await services.auth.loginWithEmailPassword({

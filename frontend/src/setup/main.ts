@@ -9,6 +9,7 @@ import { createStorage } from '../storage'
 import { getReplayOptionsFromQueryParams } from '../services/scenarios'
 import { MemoryLocalStorage } from '../utils/web-storage'
 import { RouteName } from '../routes'
+import { createYoutubeServiceOptions } from '@worldbrain/memex-common/lib/services/youtube/library'
 
 export async function mainProgram(
     options: MainProgramOptions,
@@ -55,6 +56,7 @@ export async function mainProgram(
             options.backend.indexOf('memory') === 0
                 ? new MemoryLocalStorage()
                 : localStorage,
+        youtubeOptions: options.youtubeOptions ?? createYoutubeServiceOptions(),
     })
 
     if (!options.domUnavailable) {

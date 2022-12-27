@@ -7,7 +7,6 @@ import {
     AuthHeaderState,
 } from './types'
 import styled from 'styled-components'
-import { Closable } from '../../../../../common-ui/components/closable'
 import AuthMenu from '../../components/auth-menu'
 import ProfileEditModal from '../profile-edit-modal'
 import LoadingIndicator from '../../../../../common-ui/components/loading-indicator'
@@ -123,33 +122,26 @@ export default class AuthHeader extends UIElement<
                         />
                     </UserInfo>
                     {this.state.showMenu && (
-                        <Closable
-                            onClose={() => this.processEvent('hideMenu', null)}
-                        >
-                            <MenuContainerOuter>
-                                <MenuContainerInner>
-                                    <AuthMenu
-                                        onSettingsRequested={() => {
-                                            this.processEvent('hideMenu', null)
-                                            this.processEvent(
-                                                'showSettings',
-                                                null,
-                                            )
-                                        }}
-                                        onLogoutRequested={() =>
-                                            this.processEvent('logout', null)
-                                        }
-                                        onAccountSettingsRequested={() => {
-                                            this.processEvent('hideMenu', null)
-                                            this.processEvent(
-                                                'showAccountSettings',
-                                                null,
-                                            )
-                                        }}
-                                    />
-                                </MenuContainerInner>
-                            </MenuContainerOuter>
-                        </Closable>
+                        <MenuContainerOuter>
+                            <MenuContainerInner>
+                                <AuthMenu
+                                    onSettingsRequested={() => {
+                                        this.processEvent('hideMenu', null)
+                                        this.processEvent('showSettings', null)
+                                    }}
+                                    onLogoutRequested={() =>
+                                        this.processEvent('logout', null)
+                                    }
+                                    onAccountSettingsRequested={() => {
+                                        this.processEvent('hideMenu', null)
+                                        this.processEvent(
+                                            'showAccountSettings',
+                                            null,
+                                        )
+                                    }}
+                                />
+                            </MenuContainerInner>
+                        </MenuContainerOuter>
                     )}
                 </StyledAuthHeader>
                 {/* {this.state.showSettings && (

@@ -1,11 +1,12 @@
-import { History } from 'history'
-import { ScenarioReplayQueryParams } from '../services/scenarios/types'
-import { Services } from '../services/types'
-import { Storage } from '../storage/types'
-import { BackendType } from '../types'
-import { UiRunner } from '../main-ui/types'
-import { FixtureFetcher } from '../services/fixtures/types'
-import { ContentSharingQueryParams } from '../features/content-sharing/types'
+import type { History } from 'history'
+import type { ScenarioReplayQueryParams } from '../services/scenarios/types'
+import type { Services } from '../services/types'
+import type { Storage } from '../storage/types'
+import type { BackendType } from '../types'
+import type { UiRunner } from '../main-ui/types'
+import type { FixtureFetcher } from '../services/fixtures/types'
+import type { ContentSharingQueryParams } from '../features/content-sharing/types'
+import type { YoutubeServiceOptions } from '@worldbrain/memex-common/lib/services/youtube/types'
 
 export type MetaScreenSize = 'small' | 'large'
 
@@ -20,6 +21,7 @@ export type ProgramQueryParams = DevQueryParams &
 export interface MainProgramOptions {
     backend: BackendType
     queryParams: ProgramQueryParams
+    youtubeOptions?: YoutubeServiceOptions
     navigateToScenarioStart?: boolean
     history?: History
     clipboard?: Pick<Clipboard, 'writeText'>
