@@ -51,6 +51,7 @@ export interface CollectionDetailsDependencies {
         | 'clipboard'
         | 'userMessages'
         | 'youtube'
+        | 'memexExtension'
     >
     storage: Pick<
         StorageModules,

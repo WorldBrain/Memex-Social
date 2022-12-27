@@ -30,7 +30,7 @@ export class MemexExtensionService {
     }
 
     async _waitForConfirmation(requestId: number) {
-        return new Promise<boolean>((resolve) => {
+        return new Promise<true>((resolve) => {
             const eventName = MEMEX_REQUEST_HANDLED_EVENT_NAME
             const handler = (
                 event: Event & { detail: MemexRequestHandledDetail },

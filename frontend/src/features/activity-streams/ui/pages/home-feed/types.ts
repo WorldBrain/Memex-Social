@@ -44,6 +44,7 @@ export interface HomeFeedDependencies {
         | 'localStorage'
         | 'documentTitle'
         | 'userMessages'
+        | 'memexExtension'
     >
     storage: Pick<
         StorageModules,

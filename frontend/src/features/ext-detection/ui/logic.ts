@@ -2,8 +2,12 @@ import { UILogic } from 'ui-logic-core'
 import { UIEventHandler } from '../../../main-ui/classes/logic'
 import { doesMemexExtDetectionElExist } from '@worldbrain/memex-common/lib/common-ui/utils/content-script'
 import { isPagePdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
+import { Services } from '../../../services/types'
+import { SharedListReference } from '@worldbrain/memex-common/lib/content-sharing/types'
 
-export interface Dependencies {}
+export interface Dependencies {
+    services?: Pick<Services, 'memexExtension'>
+}
 
 export interface ExtDetectionState {
     showFollowModal: boolean
@@ -23,6 +27,7 @@ export interface ExtDetectionEvent {
         isFollowedSpace?: boolean
         isFeed?: boolean
         notifAlreadyShown?: boolean
+        sharedListReference?: SharedListReference
     }
 }
 
@@ -103,6 +108,14 @@ export const extDetectionEventHandlers = (
                             clickedPageUrl: { $set: event.urlToOpen },
                             notifAlreadyShown: { $set: true },
                         })
+                        const didOpen = await dependencies.services?.memexExtension.openLink(
+                            {
+                                originalPageUrl: event.urlToOpen,
+                                sharedListId: event.sharedListReference
+                                    ?.id as string,
+                            },
+                        )
+                        // if the extension does not respond, didOpen is `false` and we can do something useful
                         return
                     }
                 }
