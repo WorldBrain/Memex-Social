@@ -1310,6 +1310,11 @@ export default class CollectionDetailsPage extends UIElement<
     }
 }
 
+const ResultsList = styled.div`
+    display: flex;
+    flex-direction: column;
+`
+
 const PageStickyBox = styled.div<{ beSticky: boolean }>`
     z-index: 20;
     ${(props) =>

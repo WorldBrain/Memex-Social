@@ -134,6 +134,8 @@ export const theme: Theme = THEME({
         numberedListIcon: require('../../assets/img/numberedListIcon.svg'),
         bulletListIcon: require('../../assets/img/bulletListIcon.svg'),
         strikethroughIcon: require('../../assets/img/strikethroughIcon.svg'),
+        fullPageReading: require('../../assets/img/bulletListIcon.svg'),
+        sideBySide: require('../../assets/img/strikethroughIcon.svg'),
 
         // doubleArrow: require('../../assets/img/doubleArrow.svg'),,
         // import tagFull from '../../assets/img/tag_full.svg'
