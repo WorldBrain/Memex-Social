@@ -2,6 +2,8 @@ import {
     MemexOpenLinkParams,
     MemexOpenLinkDetail,
     MemexRequestHandledDetail,
+    MEMEX_OPEN_LINK_EVENT_NAME,
+    MEMEX_REQUEST_HANDLED_EVENT_NAME,
 } from '@worldbrain/memex-common/lib/services/memex-extension'
 
 export class MemexExtensionService {
@@ -13,7 +15,7 @@ export class MemexExtensionService {
             ...params,
             requestId,
         }
-        const event = new CustomEvent('memex:open-link', { detail })
+        const event = new CustomEvent(MEMEX_OPEN_LINK_EVENT_NAME, { detail })
         const confirmation = this._waitForConfirmation(requestId)
         document.dispatchEvent(event)
 
@@ -29,7 +31,7 @@ export class MemexExtensionService {
 
     async _waitForConfirmation(requestId: number) {
         return new Promise<boolean>((resolve) => {
-            const eventName = 'memex:request-handled'
+            const eventName = MEMEX_REQUEST_HANDLED_EVENT_NAME
             const handler = (
                 event: Event & { detail: MemexRequestHandledDetail },
             ) => {
