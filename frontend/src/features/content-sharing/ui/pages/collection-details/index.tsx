@@ -994,6 +994,72 @@ export default class CollectionDetailsPage extends UIElement<
         return entries
     }
 
+    renderDescription() {
+        const { state } = this
+        const data = state.listData
+
+        if (data && !data.list.description) {
+            return
+        }
+
+        return (
+            <CollectionDescriptionText
+                viewportBreakpoint={this.viewportBreakpoint}
+            >
+                {data?.listDescriptionState === 'collapsed'
+                    ? data?.listDescriptionTruncated
+                    : data?.list.description}
+            </CollectionDescriptionText>
+
+            // <CollectionDescriptionBox
+            //     viewportBreakpoint={this.viewportBreakpoint}
+            // >
+            //     <DescriptionActions bottom={'small'}>
+            //         {data?.listDescriptionState !== 'fits' && (
+            //             <CollectionDescriptionToggle
+            //                 onClick={() =>
+            //                     this.processEvent(
+            //                         'toggleDescriptionTruncation',
+            //                         {},
+            //                     )
+            //                 }
+            //                 viewportBreakpoint={this.viewportBreakpoint}
+            //             >
+            //                 {data?.listDescriptionState === 'collapsed' ? (
+            //                     <TooltipBox
+            //                         tooltipText={'Show full description'}
+            //                         placement={'bottom'}
+            //                     >
+            //                         <Icon
+            //                             icon={'expand'}
+            //                             heightAndWidth="22px"
+            //                         />
+            //                     </TooltipBox>
+            //                 ) : (
+            //                     <TooltipBox
+            //                         tooltipText={'Hide description'}
+            //                         placement={'bottom'}
+            //                     >
+            //                         <Icon
+            //                             icon={'compress'}
+            //                             heightAndWidth="22px"
+            //                         />
+            //                     </TooltipBox>
+            //                 )}
+            //             </CollectionDescriptionToggle>
+            //         )}
+            //     </DescriptionActions>
+            //     <CollectionDescriptionText
+            //         viewportBreakpoint={this.viewportBreakpoint}
+            //     >
+            //         {data?.listDescriptionState === 'collapsed'
+            //             ? data?.listDescriptionTruncated
+            //             : data?.list.description}
+            //     </CollectionDescriptionText>
+            // </CollectionDescriptionBox>
+        )
+    }
+
     render() {
         const { state } = this
         if (
@@ -1081,61 +1147,8 @@ export default class CollectionDetailsPage extends UIElement<
                     permissionKeyOverlay={this.renderPermissionKeyOverlay()}
                     scrollTop={this.state.scrollTop}
                     breadCrumbs={this.renderBreadCrumbs()}
+                    renderDescription={this.renderDescription()}
                 >
-                    {data.list.description && (
-                        <CollectionDescriptionBox
-                            viewportBreakpoint={this.viewportBreakpoint}
-                        >
-                            <DescriptionActions bottom={'small'}>
-                                <SectionTitle>Description</SectionTitle>
-                                {data.listDescriptionState !== 'fits' && (
-                                    <CollectionDescriptionToggle
-                                        onClick={() =>
-                                            this.processEvent(
-                                                'toggleDescriptionTruncation',
-                                                {},
-                                            )
-                                        }
-                                        viewportBreakpoint={
-                                            this.viewportBreakpoint
-                                        }
-                                    >
-                                        {data.listDescriptionState ===
-                                        'collapsed' ? (
-                                            <TooltipBox
-                                                tooltipText={
-                                                    'Show full description'
-                                                }
-                                                placement={'bottom'}
-                                            >
-                                                <Icon
-                                                    icon={'expand'}
-                                                    heightAndWidth="22px"
-                                                />
-                                            </TooltipBox>
-                                        ) : (
-                                            <TooltipBox
-                                                tooltipText={'Hide description'}
-                                                placement={'bottom'}
-                                            >
-                                                <Icon
-                                                    icon={'compress'}
-                                                    heightAndWidth="22px"
-                                                />
-                                            </TooltipBox>
-                                        )}
-                                    </CollectionDescriptionToggle>
-                                )}
-                            </DescriptionActions>
-                            <CollectionDescriptionText
-                                viewportBreakpoint={this.viewportBreakpoint}
-                            >
-                                {data.listDescriptionState === 'collapsed'
-                                    ? data.listDescriptionTruncated
-                                    : data.list.description}
-                            </CollectionDescriptionText>
-                        </CollectionDescriptionBox>
-                    )}
                     {data.listEntries.length > 0 &&
                         !isPageView &&
                         this.renderAbovePagesBox()}

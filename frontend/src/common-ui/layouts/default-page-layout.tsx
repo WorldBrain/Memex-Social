@@ -42,6 +42,7 @@ export default function DefaultPageLayout(props: {
     children: React.ReactNode
     scrollTop?: number
     breadCrumbs?: JSX.Element
+    renderDescription?: JSX.Element
 }) {
     const { viewportBreakpoint: viewportWidth } = props
     const renderSubtitle = props.renderSubtitle ?? ((props) => props.children)
@@ -195,6 +196,7 @@ export default function DefaultPageLayout(props: {
                                         children: props.headerSubtitle,
                                     })}
                             </PageMidleAreaTitles>
+                            {props.renderDescription && props.renderDescription}
                             {/* <LeftRightBlock /> */}
                         </HeaderMiddleArea>
                     </StyledHeaderContainer>
