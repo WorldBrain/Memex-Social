@@ -132,7 +132,7 @@ export default class CollectionDetailsPage extends UIElement<
                     onClick={() =>
                         this.processEvent('toggleListShareModal', {})
                     }
-                    label={'Invite'}
+                    label={'Invite Contributors'}
                 />
             )
         }
@@ -571,7 +571,7 @@ export default class CollectionDetailsPage extends UIElement<
                     >
                         {renderedPreview && (
                             <>
-                                <SharedBy>by</SharedBy>{' '}
+                                <SharedBy>Space by</SharedBy>{' '}
                                 {renderedPreview.slice(0, showListRoleLimit())}
                                 {users.length - showListRoleLimit() > 0 && (
                                     <ShowMoreCollaborators
@@ -895,20 +895,20 @@ export default class CollectionDetailsPage extends UIElement<
                                     extension or app.
                                 </InvitationTextContainer>
                             </InvitedNotification>
-                            {this.renderFollowBtn()()}
+                            {/* {this.renderFollowBtn()()} */}
                         </>
                     )
                 }
             } else {
                 if (!isPageView) {
                     // only show buttons when its a Space View, not pageView
-                    return (
-                        <HeaderButtonRow>
-                            {this.renderFollowBtn()()}
-                            {this.renderWebMonetizationIcon()}
-                        </HeaderButtonRow>
-                    )
+                    return
+                    // <HeaderButtonRow>
+                    //     {/* {this.renderFollowBtn()()} */}
+                    //     {/* {this.renderWebMonetizationIcon()} */}
+                    // </HeaderButtonRow>
                 }
+                return
             }
         }
     }
@@ -1313,6 +1313,7 @@ export default class CollectionDetailsPage extends UIElement<
 const ResultsList = styled.div`
     display: flex;
     flex-direction: column;
+    z-index: 20;
 `
 
 const PageStickyBox = styled.div<{ beSticky: boolean }>`
@@ -1321,7 +1322,7 @@ const PageStickyBox = styled.div<{ beSticky: boolean }>`
         props.beSticky &&
         css`
             position: sticky;
-            top: 30px;
+            top: 62px;
             bottom: 0px;
         `}
 `
@@ -1464,13 +1465,17 @@ const AbovePagesBox = styled.div<{
     margin: 10px 0 2px 0;
     width: 100%;
     position: relative;
-    z-index: 2;
+    z-index: 30;
     border-radius: 5px;
     justify-content: space-between;
     border-bottom: 1px solid
         ${(props) => props.theme.colors.backgroundColorDarker};
     padding-bottom: 10px;
     border-radius: 3px 3px 0 0;
+    background: ${(props) => props.theme.colors.backgroundColor};
+    position: sticky;
+    top: 0px;
+    padding-top: 15px;
 `
 
 const DescriptionActions = styled(Margin)`
@@ -1511,9 +1516,9 @@ const ToggleAllAnnotations = styled.div`
 
 const SectionTitle = styled.div`
     font-family: ${(props) => props.theme.fonts.primary};
-    color: ${(props) => props.theme.colors.normalText};
-    font-weight: 500;
-    font-size: 18px;
+    color: ${(props) => props.theme.colors.greyScale8};
+    font-weight: 300;
+    font-size: 16px;
     letter-spacing: 1px;
 `
 
@@ -1603,7 +1608,7 @@ const DiscordGuildName = styled.span`
 const CollectionDescriptionBox = styled.div<{
     viewportBreakpoint: ViewportBreakpoint
 }>`
-    margin-top: 20px;
+    margin: 20px 0 15px 0;
     display: flex;
     align-items: flex-start;
     flex-direction: column;

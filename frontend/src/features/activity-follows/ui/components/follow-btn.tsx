@@ -166,7 +166,7 @@ export default class FollowBtn extends PureComponent<Props> {
         if (!props.isOwner && !props.isContributor && props.isFollowed) {
             return 'forth'
         } else {
-            return 'secondary'
+            return 'primary'
         }
     }
 

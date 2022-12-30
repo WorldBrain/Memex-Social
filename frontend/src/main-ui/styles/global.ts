@@ -19,6 +19,12 @@ const GlobalStyle = createGlobalStyle`
 
     margin: 0;
     background: ${theme.colors.background};
+
+    scrollbar-width: none;
+
+&::-webkit-scrollbar {
+    display: none;
+}
   }
 
   body, input, button {
