@@ -895,20 +895,20 @@ export default class CollectionDetailsPage extends UIElement<
                                     extension or app.
                                 </InvitationTextContainer>
                             </InvitedNotification>
-                            {/* {this.renderFollowBtn()()} */}
+                            {this.renderFollowBtn()()}
                         </>
                     )
                 }
             } else {
                 if (!isPageView) {
                     // only show buttons when its a Space View, not pageView
-                    return
-                    // <HeaderButtonRow>
-                    //     {/* {this.renderFollowBtn()()} */}
-                    //     {/* {this.renderWebMonetizationIcon()} */}
-                    // </HeaderButtonRow>
+                    return (
+                        <HeaderButtonRow>
+                            {this.renderWebMonetizationIcon()}
+                            {this.renderFollowBtn()()}
+                        </HeaderButtonRow>
+                    )
                 }
-                return
             }
         }
     }
@@ -1314,6 +1314,7 @@ const ResultsList = styled.div`
     display: flex;
     flex-direction: column;
     z-index: 20;
+    padding-bottom: 200px;
 `
 
 const PageStickyBox = styled.div<{ beSticky: boolean }>`
@@ -1378,6 +1379,7 @@ const HeaderButtonRow = styled.div`
     display: flex;
     align-items: center;
     grid-gap: 5px;
+    flex-direction: row;
 `
 
 const InvitationTextContainer = styled.div`
@@ -1393,7 +1395,6 @@ const LoadingBoxHeaderActionArea = styled.div`
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    height: ;
 `
 
 const InvitedNotification = styled.div<{

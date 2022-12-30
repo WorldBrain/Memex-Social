@@ -164,10 +164,18 @@ export default function DefaultPageLayout(props: {
                             viewportWidth={viewportWidth}
                             id={'HeaderMiddleArea'}
                         >
-                            <SpaceActionBar>
+                            {/* <SpaceActionBar>
                                 {props.webMonetizationIcon}
                                 {props.followBtn}
-                            </SpaceActionBar>
+                            </SpaceActionBar> */}
+                            {props.renderHeaderActionArea != null && (
+                                <PageMidleAreaAction
+                                    scrollTop={props.scrollTop}
+                                    viewportWidth={viewportWidth}
+                                >
+                                    {props.renderHeaderActionArea}
+                                </PageMidleAreaAction>
+                            )}
                             <PageMidleAreaTitles
                                 scrollTop={props.scrollTop}
                                 viewportWidth={viewportWidth}
@@ -196,14 +204,6 @@ export default function DefaultPageLayout(props: {
                     headerHeight={getHeaderHeight()}
                     viewportWidth={viewportWidth}
                 >
-                    {props.renderHeaderActionArea != null && (
-                        <PageMidleAreaAction
-                            scrollTop={props.scrollTop}
-                            viewportWidth={viewportWidth}
-                        >
-                            {props.renderHeaderActionArea}
-                        </PageMidleAreaAction>
-                    )}
                     {props.children}
                 </PageResultsArea>
             </MainColumn>
@@ -439,7 +439,7 @@ const PageMidleAreaAction = styled.div<{
     justify-content: flex-end;
     align-self: flex-start;
     align-items: center;
-    flex-direction: row-reverse;
+    flex-direction: row;
     grid-gap: 10px;
     min-height: 50px;
     width: fill-available;
