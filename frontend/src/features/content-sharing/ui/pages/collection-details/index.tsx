@@ -188,6 +188,8 @@ export default class CollectionDetailsPage extends UIElement<
                 ? annotationEntries[entry.normalizedUrl].length
                 : 0
 
+        const currentBaseURL = new URL(window.location.href).origin
+
         if (
             state.annotationEntriesLoadState === 'success' &&
             toggleAnnotationsIcon !== null
@@ -196,16 +198,22 @@ export default class CollectionDetailsPage extends UIElement<
                 return [
                     {
                         // key: 'expand-notes-btn',
-                        image: 'link',
-                        imageColor: 'greyScale8',
-                        ButtonText: 'Copy Link',
+                        image: this.state.copiedLink ? 'check' : 'link',
+                        imageColor: this.state.copiedLink
+                            ? 'purple'
+                            : 'greyScale8',
+                        ButtonText: this.state.copiedLink
+                            ? 'Copied to Clipboard'
+                            : 'Copy Link',
                         onClick: () => {
                             navigator.clipboard.writeText(
-                                'https://memex.social/' +
+                                currentBaseURL +
+                                    '/c/' +
                                     this.props.listID +
-                                    '/' +
+                                    '/p/' +
                                     entry.reference?.id,
                             )
+                            this.processEvent('copiedLinkButton', null)
                         },
                     },
                     {
@@ -1476,7 +1484,6 @@ const AbovePagesBox = styled.div<{
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    margin: 10px 0 2px 0;
     width: 100%;
     position: relative;
     z-index: 30;
@@ -1489,7 +1496,7 @@ const AbovePagesBox = styled.div<{
     background: ${(props) => props.theme.colors.backgroundColor};
     position: sticky;
     top: 0px;
-    padding-top: 15px;
+    padding-top: 10px;
 `
 
 const DescriptionActions = styled(Margin)`

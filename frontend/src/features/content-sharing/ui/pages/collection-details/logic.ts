@@ -177,6 +177,7 @@ export default class CollectionDetailsLogic extends UILogic<
             followLoadState: 'running',
             permissionKeyState: 'running',
             listRolesLoadState: 'running',
+            copiedLink: false,
             showMoreCollaborators: false,
             listRoleLimit: 3,
             users: {},
@@ -319,6 +320,17 @@ export default class CollectionDetailsLogic extends UILogic<
                 },
             },
         })
+    }
+
+    copiedLinkButton: EventHandler<'copiedLinkButton'> = () => {
+        this.emitMutation({
+            copiedLink: { $set: true },
+        })
+        setTimeout(() => {
+            this.emitMutation({
+                copiedLink: { $set: false },
+            })
+        }, 2000)
     }
 
     acceptInvitation: EventHandler<'acceptInvitation'> = async (incoming) => {

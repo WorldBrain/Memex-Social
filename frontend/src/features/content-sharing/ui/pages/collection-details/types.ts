@@ -73,6 +73,7 @@ export type CollectionDetailsState = AnnotationConversationsState &
         permissionKeyResult?: ProcessSharedListKeyResult
         showPermissionKeyIssue?: boolean
         requestingAuth?: boolean
+        copiedLink?: boolean
 
         listRolesLoadState: UITaskState
         listRoleID?: SharedListRoleID
@@ -141,6 +142,7 @@ export type CollectionDetailsEvent = UIEvent<
             updateScrollState: { previousScrollTop: number }
             setPageHover: (PageEventArgs & { hover: ResultHoverState }) | any
             setSearchType: SearchType
+            copiedLinkButton: null
         }
 >
 
