@@ -405,7 +405,6 @@ const PageResultsArea = styled.div<{
     position: relative;
     margin: 0px auto 0;
     width: 100%;
-    min-height: 100px;
     height: fit-content;
 
     ${(props) =>
