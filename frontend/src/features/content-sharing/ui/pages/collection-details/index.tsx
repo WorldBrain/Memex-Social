@@ -168,6 +168,7 @@ export default class CollectionDetailsPage extends UIElement<
                             <LoadingIndicator size={16} key="loading" />{' '}
                         </ActionLoaderBox>
                     ),
+                    key: 'loader',
                 },
             ]
         }
@@ -197,7 +198,7 @@ export default class CollectionDetailsPage extends UIElement<
             if (this.state.listData?.listEntries[entryIndex].hoverState) {
                 return [
                     {
-                        // key: 'expand-notes-btn',
+                        key: 'expand-notes-btn',
                         image: this.state.copiedLink ? 'check' : 'link',
                         imageColor: this.state.copiedLink
                             ? 'purple'
@@ -217,7 +218,7 @@ export default class CollectionDetailsPage extends UIElement<
                         },
                     },
                     {
-                        // key: 'expand-notes-btn',
+                        key: 'expand-notes-btn',
                         image: count > 0 ? 'commentFull' : 'commentEmpty',
                         ButtonText: count > 0 ? count : '',
                         imageColor: 'purple',
@@ -231,7 +232,7 @@ export default class CollectionDetailsPage extends UIElement<
 
             return [
                 {
-                    // key: 'expand-notes-btn',
+                    key: 'expand-notes-btn',
                     image: count > 0 ? 'commentFull' : 'commentEmpty',
                     ButtonText: count > 0 ? count : '',
                     imageColor: 'purple',
@@ -262,7 +263,7 @@ export default class CollectionDetailsPage extends UIElement<
         } else if (this.state.listData?.listEntries[entryIndex].hoverState) {
             return [
                 {
-                    // key: 'expand-notes-btn',
+                    key: 'expand-notes-btn',
                     image: 'link',
                     imageColor: 'greyScale8',
                     ButtonText: 'Copy Link',

@@ -736,10 +736,11 @@ export default class HomeFeedPage extends UIElement<
                                             </Margin>
                                         </AnnotationEntriesLoadingContainer>
                                     ),
+                                    key: 'loader',
                                 })
                             } else if (entry.hasAnnotations) {
                                 actions.push({
-                                    // key: 'expand-notes-btn',
+                                    key: 'expand-notes-btn',
                                     image: 'commentFull',
                                     imageColor: 'purple',
                                     onClick: () =>
