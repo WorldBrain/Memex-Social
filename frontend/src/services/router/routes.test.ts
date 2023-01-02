@@ -134,6 +134,26 @@ describe('Routes', () => {
                 },
             })
         })
+        it('should resolve URLs containing a literal, a placeholder, a massing optional literal and placeholder and query param', () => {
+            testResolve({
+                routeMap: TEST_ROUTES,
+                authenticated: false,
+                path: '/bar/123?key=foo',
+                expected: {
+                    route: 'testE',
+                    params: { id: '123' },
+                },
+            })
+            testResolve({
+                routeMap: TEST_ROUTES,
+                authenticated: false,
+                path: '/bar/123/spam/456?key=foo',
+                expected: {
+                    route: 'testE',
+                    params: { id: '123', spamId: '456' },
+                },
+            })
+        })
     })
 
     describe('reversing', () => {

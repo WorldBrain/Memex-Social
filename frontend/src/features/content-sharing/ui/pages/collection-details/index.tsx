@@ -853,7 +853,7 @@ export default class CollectionDetailsPage extends UIElement<
             )
         } else {
             // Case: Get contributor invitation link
-            if (this.state.requestingAuth === true) {
+            if (this.state.listKeyPresent && !this.state.listRoleID) {
                 return (
                     <InvitedNotification
                         viewportBreakpoint={this.viewportBreakpoint}
@@ -900,8 +900,8 @@ export default class CollectionDetailsPage extends UIElement<
                                         heightAndWidth={'22px'}
                                         hoverOff
                                     />
-                                    You can add highlights & pages via the Memex
-                                    extension or app.
+                                    You can add highlights &amp; pages via the
+                                    Memex extension or app.
                                 </InvitationTextContainer>
                             </InvitedNotification>
                             {this.renderFollowBtn()()}

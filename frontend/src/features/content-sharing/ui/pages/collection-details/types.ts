@@ -79,6 +79,7 @@ export type CollectionDetailsState = AnnotationConversationsState &
         listRolesLoadState: UITaskState
         listRoleID?: SharedListRoleID
         listRoles?: Array<SharedListRole & { user: UserReference }>
+        listKeyPresent?: boolean
         listRoleLimit: number | null // how many collaborators to show in the subtitle
         showMoreCollaborators: boolean
         isListOwner?: boolean
