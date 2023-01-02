@@ -62,14 +62,9 @@ export class ListKeysService extends AbstractListKeysService {
         result: ProcessSharedListKeyResult
     }> => {
         const routeMatch = this.dependencies.router.matchCurrentUrl()
-        const spaceId = this.dependencies.router.getSpaceId()
-        if (
-            !(
-                routeMatch.route === 'collectionDetails' ||
-                routeMatch.route === 'landingPage' ||
-                routeMatch.route === 'userHome'
-            )
-        ) {
+        const listId =
+            routeMatch.params.id ?? this.dependencies.router.getSpaceId()
+        if (!listId) {
             return { result: 'not-supported-route' as any } // TODO: fix this
         }
         const keyString = this.dependencies.router.getQueryParam('key')
@@ -81,7 +76,7 @@ export class ListKeysService extends AbstractListKeysService {
         }
 
         const { success } = await this.backend.processListKey({
-            listId: routeMatch.params.id || spaceId,
+            listId: listId,
             keyString,
         })
 

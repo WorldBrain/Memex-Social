@@ -56,6 +56,7 @@ export default class Routes {
     matchUrl(
         url: string,
     ): { route: RouteName; params: { [key: string]: string } } | null {
+        url = url.split('?')[0]
         const urlParts = url.split('/').slice(1)
         if (urlParts.length === 1 && !urlParts[0].length) {
             urlParts.splice(0)
