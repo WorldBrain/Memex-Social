@@ -3,6 +3,7 @@ import fromPairs from 'lodash/fromPairs'
 import {
     SharedAnnotationReference,
     SharedListReference,
+    SharedListRoleID,
 } from '@worldbrain/memex-common/lib/content-sharing/types'
 import {
     GetAnnotationListEntriesResult,
@@ -180,6 +181,7 @@ export default class CollectionDetailsLogic extends UILogic<
             copiedLink: false,
             showMoreCollaborators: false,
             listRoleLimit: 3,
+            listKeyPresent: this.dependencies.services.listKeys.hasCurrentKey(),
             users: {},
             scrollTop: 0,
             annotationEntriesLoadState: 'pristine',
@@ -340,8 +342,20 @@ export default class CollectionDetailsLogic extends UILogic<
             async () => {
                 await this.dependencies.services.auth.waitForAuthReady()
 
-                // const userReference = this.dependencies.services.auth.getCurrentUserReference()
-                // const isAuthenticated = userReference
+                const userReference = this.dependencies.services.auth.getCurrentUserReference()
+                const sucessMutation: UIMutation<CollectionDetailsState> = {
+                    listRoleID: { $set: SharedListRoleID.ReadWrite },
+                    listRoles: {
+                        $unshift: [
+                            {
+                                createdWhen: Date.now(),
+                                updatedWhen: Date.now(),
+                                roleID: SharedListRoleID.ReadWrite,
+                                user: userReference!,
+                            },
+                        ],
+                    },
+                }
 
                 const {
                     result,
@@ -351,6 +365,7 @@ export default class CollectionDetailsLogic extends UILogic<
                         mutation: {
                             permissionKeyResult: { $set: result },
                             requestingAuth: { $set: false },
+                            ...(result === 'success' ? sucessMutation : {}),
                         },
                     }
                 }
@@ -376,6 +391,7 @@ export default class CollectionDetailsLogic extends UILogic<
                             permissionKeyResult: { $set: secondKeyResult },
                             permissionKeyState: { $set: 'success' },
                             requestingAuth: { $set: false },
+                            ...sucessMutation,
                         },
                     }
                 }
