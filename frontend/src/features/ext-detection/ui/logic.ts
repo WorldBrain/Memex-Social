@@ -62,8 +62,6 @@ export const extDetectionEventHandlers = (
                 : {}),
         })
 
-    console.log('etension', doesMemexExtDetectionElExist())
-
     return {
         clickPageResult: async ({ previousState, event }) => {
             if (event.notifAlreadyShown) {

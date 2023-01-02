@@ -1252,6 +1252,8 @@ export default class CollectionDetailsPage extends UIElement<
                                                                       notifAlreadyShown: this
                                                                           .state
                                                                           .notifAlreadyShown,
+                                                                      sharedListReference: this
+                                                                          .sharedListReference,
                                                                   },
                                                               )
                                                           }}
