@@ -205,6 +205,7 @@ export default function DefaultPageLayout(props: {
                 <PageResultsArea
                     headerHeight={getHeaderHeight()}
                     viewportWidth={viewportWidth}
+                    isIframe={isIframe()}
                 >
                     {props.children}
                 </PageResultsArea>
@@ -400,6 +401,7 @@ const LogoAndFeed = styled(Margin)<{
 const PageResultsArea = styled.div<{
     viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
     headerHeight: number | undefined
+    isIframe: boolean
 }>`
     max-width: ${middleMaxWidth};
     position: relative;
@@ -416,6 +418,11 @@ const PageResultsArea = styled.div<{
         props.viewportWidth === 'small' &&
         css`
             padding: 0px 15px 0px 15px;
+        `}
+    ${(props) =>
+        props.isIframe &&
+        css`
+            padding: 0px;
         `}
 `
 

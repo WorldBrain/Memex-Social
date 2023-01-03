@@ -1256,6 +1256,8 @@ export default class CollectionDetailsPage extends UIElement<
                                                                           .sharedListReference,
                                                                   },
                                                               )
+                                                              e.preventDefault()
+                                                              e.stopPropagation()
                                                           }}
                                                           viewportBreakpoint={
                                                               this

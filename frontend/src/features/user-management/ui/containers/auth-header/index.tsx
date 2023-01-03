@@ -14,6 +14,7 @@ import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
 import { getViewportBreakpoint } from '../../../../../main-ui/styles/utils'
 import { ViewportBreakpoint } from '../../../../../main-ui/styles/types'
 import { PrimaryAction } from '@worldbrain/memex-common/lib/common-ui/components/PrimaryAction'
+import { PopoutBox } from '@worldbrain/memex-common/lib/common-ui/components/popout-box'
 
 const StyledAuthHeader = styled.div``
 
@@ -53,6 +54,8 @@ const DisplayName = styled.div`
 `
 const MenuContainerOuter = styled.div`
     position: relative;
+    height: fit-content;
+    width: fit-content;
 `
 const MenuContainerInner = styled.div`
     position: absolute;
@@ -77,8 +80,40 @@ export default class AuthHeader extends UIElement<
         super(props, { logic: new Logic(props) })
     }
 
+    private UserInfoButtonRef = React.createRef<HTMLDivElement>()
+
     get viewportBreakpoint(): ViewportBreakpoint {
         return getViewportBreakpoint(this.getViewportWidth())
+    }
+
+    renderAuthMenu() {
+        if (!this.state.showMenu) {
+            return null
+        }
+
+        return (
+            <PopoutBox
+                placement="bottom-end"
+                closeComponent={() => this.processEvent('hideMenu', null)}
+                targetElementRef={this.UserInfoButtonRef?.current}
+            >
+                <MenuContainerOuter>
+                    <AuthMenu
+                        onSettingsRequested={() => {
+                            this.processEvent('hideMenu', null)
+                            this.processEvent('showSettings', null)
+                        }}
+                        onLogoutRequested={() =>
+                            this.processEvent('logout', null)
+                        }
+                        onAccountSettingsRequested={() => {
+                            this.processEvent('hideMenu', null)
+                            this.processEvent('showAccountSettings', null)
+                        }}
+                    />
+                </MenuContainerOuter>
+            </PopoutBox>
+        )
     }
 
     render() {
@@ -109,10 +144,11 @@ export default class AuthHeader extends UIElement<
 
         return (
             <>
-                <StyledAuthHeader>
-                    <UserInfo
-                        onClick={() => this.processEvent('toggleMenu', null)}
-                    >
+                <StyledAuthHeader
+                    ref={this.UserInfoButtonRef}
+                    onClick={() => this.processEvent('toggleMenu', null)}
+                >
+                    <UserInfo>
                         <DisplayName>{this.state.user.displayName}</DisplayName>
                         <Icon
                             filePath="settings"
@@ -121,36 +157,8 @@ export default class AuthHeader extends UIElement<
                             color="purple"
                         />
                     </UserInfo>
-                    {this.state.showMenu && (
-                        <MenuContainerOuter>
-                            <MenuContainerInner>
-                                <AuthMenu
-                                    onSettingsRequested={() => {
-                                        this.processEvent('hideMenu', null)
-                                        this.processEvent('showSettings', null)
-                                    }}
-                                    onLogoutRequested={() =>
-                                        this.processEvent('logout', null)
-                                    }
-                                    onAccountSettingsRequested={() => {
-                                        this.processEvent('hideMenu', null)
-                                        this.processEvent(
-                                            'showAccountSettings',
-                                            null,
-                                        )
-                                    }}
-                                />
-                            </MenuContainerInner>
-                        </MenuContainerOuter>
-                    )}
                 </StyledAuthHeader>
-                {/* {this.state.showSettings && (
-          <AccountSettings
-            services={this.props.services}
-            storage={this.props.storage}
-            onCloseRequested={() => this.processEvent("hideSettings", null)}
-          />
-        )} */}
+                {this.renderAuthMenu()}
                 {this.state.showAccountSettings && (
                     <ProfileEditModal
                         services={this.props.services}
