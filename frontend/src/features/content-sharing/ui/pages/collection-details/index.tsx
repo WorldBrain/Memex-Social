@@ -1429,7 +1429,7 @@ const InvitedNotification = styled.div<{
     width: 100%;
     max-width: 800px;
     min-height: 40px;
-    padding: 00px 10px;
+    padding: 0px 10px 0px 0px;
     color: ${(props) => props.theme.colors.greyScale8};
     font-size: 14px;
     font-weight: 300;
@@ -1438,6 +1438,7 @@ const InvitedNotification = styled.div<{
     align-items: center;
     font-family: ${(props) => props.theme.fonts.primary};
     grid-gap: 10px;
+    margin-left: -7px;
 
     ${(props) =>
         props.viewportBreakpoint === 'mobile' &&
@@ -1459,6 +1460,7 @@ const InvitedNotification = styled.div<{
             padding: 5px 5px 5px 15px;
             height: 100%;
             justify-content: center;
+            margin-left: 0px;
         `}
             ${(props) =>
         props.withFrame &&
