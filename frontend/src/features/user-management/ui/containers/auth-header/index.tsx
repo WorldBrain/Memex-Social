@@ -92,27 +92,29 @@ export default class AuthHeader extends UIElement<
         }
 
         return (
-            <PopoutBox
-                placement="bottom-end"
-                closeComponent={() => this.processEvent('hideMenu', null)}
-                targetElementRef={this.UserInfoButtonRef?.current}
-            >
-                <MenuContainerOuter>
-                    <AuthMenu
-                        onSettingsRequested={() => {
-                            this.processEvent('hideMenu', null)
-                            this.processEvent('showSettings', null)
-                        }}
-                        onLogoutRequested={() =>
-                            this.processEvent('logout', null)
-                        }
-                        onAccountSettingsRequested={() => {
-                            this.processEvent('hideMenu', null)
-                            this.processEvent('showAccountSettings', null)
-                        }}
-                    />
-                </MenuContainerOuter>
-            </PopoutBox>
+            this.UserInfoButtonRef?.current && (
+                <PopoutBox
+                    placement="bottom-end"
+                    closeComponent={() => this.processEvent('hideMenu', null)}
+                    targetElementRef={this.UserInfoButtonRef?.current}
+                >
+                    <MenuContainerOuter>
+                        <AuthMenu
+                            onSettingsRequested={() => {
+                                this.processEvent('hideMenu', null)
+                                this.processEvent('showSettings', null)
+                            }}
+                            onLogoutRequested={() =>
+                                this.processEvent('logout', null)
+                            }
+                            onAccountSettingsRequested={() => {
+                                this.processEvent('hideMenu', null)
+                                this.processEvent('showAccountSettings', null)
+                            }}
+                        />
+                    </MenuContainerOuter>
+                </PopoutBox>
+            )
         )
     }
 
