@@ -10,7 +10,6 @@ import styled, { css } from 'styled-components'
 import Overlay from '../../../../../main-ui/containers/overlay'
 import { Margin } from 'styled-components-spacing'
 import { AuthError } from '../../../../../services/auth/types'
-import ProfileSetupForm from '../../components/profile-setup-form'
 import LoadingScreen from '../../../../../common-ui/components/loading-screen'
 import { PrimaryAction } from '@worldbrain/memex-common/lib/common-ui/components/PrimaryAction'
 
@@ -196,6 +195,38 @@ export default class AuthDialog extends UIElement<
                 <AuthBox top="medium">
                     <AuthenticationMethods>
                         <EmailPasswordLogin>
+                            {this.state.mode === 'register' && (
+                                <>
+                                    <TextField
+                                        icon={'smileFace'}
+                                        type={'text'}
+                                        placeholder={'Display Name'}
+                                        value={this.state.displayName}
+                                        onChange={(event) =>
+                                            this.processEvent(
+                                                'editDisplayName',
+                                                (event.target as HTMLInputElement)
+                                                    .value,
+                                            )
+                                        }
+                                        onKeyDown={this.handleEnter(() => {
+                                            if (
+                                                this.state.displayName.length >
+                                                0
+                                            ) {
+                                                this.processEvent(
+                                                    'emailPasswordConfirm',
+                                                    null,
+                                                )
+                                            }
+                                        })}
+                                    />
+                                    <InfoText>
+                                        Name shown on shared Spaces, page links
+                                        and annotations
+                                    </InfoText>
+                                </>
+                            )}
                             {this.state.mode !== 'ConfirmResetPassword' && (
                                 <TextField
                                     icon={'mail'}
@@ -246,33 +277,6 @@ export default class AuthDialog extends UIElement<
                                     >
                                         Forgot Password?
                                     </ForgotPassword>
-
-                                    {/* <TextInputContainer>
-                                        <Icon
-                                            icon={theme.icons.lockFine}
-                                            heightAndWidth="20px"
-                                            hoverOff
-                                        />
-                                        <TextInputOneLine
-                                            type="password"
-                                            placeholder="Password"
-                                            value={this.state.password}
-                                            onChange={(e) =>
-                                                this.processEvent(
-                                                    'editPassword',
-                                                    {
-                                                        value: e.target.value,
-                                                    },
-                                                )
-                                            }
-                                            onKeyDown={this.handleEnter(() => {
-                                                this.processEvent(
-                                                    'emailPasswordConfirm',
-                                                    null,
-                                                )
-                                            })}
-                                        />
-                                    </TextInputContainer> */}
                                 </Margin>
                             )}
                             {this.state.mode === 'register' && (
@@ -338,6 +342,8 @@ export default class AuthDialog extends UIElement<
                                         }
                                         label={'Log in'}
                                         width={'100%'}
+                                        type={'primary'}
+                                        size={'large'}
                                         disabled={
                                             !(
                                                 this.state.password.length >
@@ -362,6 +368,8 @@ export default class AuthDialog extends UIElement<
                                         }
                                         label={'Sign Up'}
                                         width={'100%'}
+                                        type={'primary'}
+                                        size={'large'}
                                         disabled={
                                             !(
                                                 this.state.passwordMatch &&
@@ -403,6 +411,8 @@ export default class AuthDialog extends UIElement<
                                             )
                                         }
                                         width={'100%'}
+                                        type={'primary'}
+                                        size={'large'}
                                     />
                                 </PrimaryActionContainer>
                             )}
@@ -418,6 +428,8 @@ export default class AuthDialog extends UIElement<
                                                 )
                                             }}
                                             label={'Go back'}
+                                            type={'primary'}
+                                            size={'large'}
                                         />
                                     </PrimaryActionContainer>
                                 </>
@@ -452,18 +464,6 @@ export default class AuthDialog extends UIElement<
         )
     }
 
-    renderProfileForm() {
-        return (
-            <ProfileSetupForm
-                displayName={this.state.displayName}
-                onDisplayNameChange={(value) =>
-                    this.processEvent('editDisplayName', { value })
-                }
-                onConfirm={() => this.processEvent('confirmDisplayName', null)}
-            />
-        )
-    }
-
     renderOverlayContent() {
         if (this.state.saveState === 'running') {
             return (
@@ -471,9 +471,6 @@ export default class AuthDialog extends UIElement<
                     <LoadingScreen />
                 </LoadingBox>
             )
-        }
-        if (this.state.mode === 'profile') {
-            return this.renderProfileForm()
         }
         return this.renderAuthForm()
     }
@@ -556,6 +553,16 @@ const AuthenticationMethods = styled.div`
     max-width: 350px;
   }
 `
+
+const InfoText = styled.div`
+    color: ${(props) => props.theme.colors.darkText};
+    font-size: 12px;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    text-align: center;
+    padding: 0px;
+`
+
 const EmailPasswordLogin = styled.div`
     display: flex;
     flex-direction: column;
@@ -600,8 +607,8 @@ const AuthBox = styled(Margin)`
 `
 
 const LoadingBox = styled.div`
-    min-height: 200px;
-    min-width: 200px;
+    min-height: 450px;
+    min-width: 600px;
 `
 
 // const SocialLogins = styled.div`

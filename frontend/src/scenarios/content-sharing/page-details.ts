@@ -267,7 +267,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                 name: 'display-name',
                 target: 'AuthDialog',
                 eventName: 'editDisplayName',
-                eventArgs: { value: 'This is me!' },
+                eventArgs: 'This is me!',
             }),
             step({
                 name: 'confirm-profile',

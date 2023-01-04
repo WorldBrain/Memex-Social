@@ -148,7 +148,32 @@ export default class AuthDialogLogic extends UILogic<
                 if (result.status === 'error') {
                     this.emitMutation({ error: { $set: result.reason } })
                 } else {
-                    this.emitMutation({ mode: { $set: 'profile' } })
+                    await executeUITask<AuthDialogState>(
+                        this,
+                        'saveState',
+                        async () => {
+                            const userReference = await this.dependencies.services.auth.getCurrentUserReference()
+                            if (!userReference) {
+                                throw new Error(
+                                    `Cannot set up profile without user being authenticated`,
+                                )
+                            }
+                            await this.dependencies.storage.users.updateUser(
+                                userReference,
+                                {},
+                                {
+                                    displayName: previousState.displayName,
+                                },
+                            )
+                            await this.dependencies.services.auth.refreshCurrentUser()
+                        },
+                    )
+                    this._result({
+                        status:
+                            this.action === 'register'
+                                ? 'registered-and-authenticated'
+                                : 'authenticated',
+                    })
                 }
             } else if (previousState.mode === 'login') {
                 const { result } = await auth.loginWithEmailPassword(
@@ -177,7 +202,7 @@ export default class AuthDialogLogic extends UILogic<
     }
 
     editDisplayName: EventHandler<'editDisplayName'> = ({ event }) => {
-        return { displayName: { $set: event.value } }
+        return { displayName: { $set: event } }
     }
 
     confirmDisplayName: EventHandler<'confirmDisplayName'> = async ({

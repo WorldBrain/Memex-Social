@@ -132,7 +132,7 @@ export default class CollectionDetailsPage extends UIElement<
                     onClick={() =>
                         this.processEvent('toggleListShareModal', {})
                     }
-                    label={'Invite'}
+                    label={'Invite Contributors'}
                 />
             )
         }
@@ -168,6 +168,7 @@ export default class CollectionDetailsPage extends UIElement<
                             <LoadingIndicator size={16} key="loading" />{' '}
                         </ActionLoaderBox>
                     ),
+                    key: 'loader',
                 },
             ]
         }
@@ -188,6 +189,8 @@ export default class CollectionDetailsPage extends UIElement<
                 ? annotationEntries[entry.normalizedUrl].length
                 : 0
 
+        const currentBaseURL = new URL(window.location.href).origin
+
         if (
             state.annotationEntriesLoadState === 'success' &&
             toggleAnnotationsIcon !== null
@@ -195,21 +198,27 @@ export default class CollectionDetailsPage extends UIElement<
             if (this.state.listData?.listEntries[entryIndex].hoverState) {
                 return [
                     {
-                        // key: 'expand-notes-btn',
-                        image: 'link',
-                        imageColor: 'greyScale8',
-                        ButtonText: 'Copy Link',
+                        key: 'expand-notes-btn',
+                        image: this.state.copiedLink ? 'check' : 'link',
+                        imageColor: this.state.copiedLink
+                            ? 'purple'
+                            : 'greyScale8',
+                        ButtonText: this.state.copiedLink
+                            ? 'Copied to Clipboard'
+                            : 'Copy Link',
                         onClick: () => {
                             navigator.clipboard.writeText(
-                                'https://memex.social/' +
+                                currentBaseURL +
+                                    '/c/' +
                                     this.props.listID +
-                                    '/' +
+                                    '/p/' +
                                     entry.reference?.id,
                             )
+                            this.processEvent('copiedLinkButton', null)
                         },
                     },
                     {
-                        // key: 'expand-notes-btn',
+                        key: 'expand-notes-btn',
                         image: count > 0 ? 'commentFull' : 'commentEmpty',
                         ButtonText: count > 0 ? count : '',
                         imageColor: 'purple',
@@ -223,7 +232,7 @@ export default class CollectionDetailsPage extends UIElement<
 
             return [
                 {
-                    // key: 'expand-notes-btn',
+                    key: 'expand-notes-btn',
                     image: count > 0 ? 'commentFull' : 'commentEmpty',
                     ButtonText: count > 0 ? count : '',
                     imageColor: 'purple',
@@ -254,7 +263,7 @@ export default class CollectionDetailsPage extends UIElement<
         } else if (this.state.listData?.listEntries[entryIndex].hoverState) {
             return [
                 {
-                    // key: 'expand-notes-btn',
+                    key: 'expand-notes-btn',
                     image: 'link',
                     imageColor: 'greyScale8',
                     ButtonText: 'Copy Link',
@@ -571,7 +580,7 @@ export default class CollectionDetailsPage extends UIElement<
                     >
                         {renderedPreview && (
                             <>
-                                <SharedBy>by</SharedBy>{' '}
+                                <SharedBy>Space by</SharedBy>{' '}
                                 {renderedPreview.slice(0, showListRoleLimit())}
                                 {users.length - showListRoleLimit() > 0 && (
                                     <ShowMoreCollaborators
@@ -844,7 +853,7 @@ export default class CollectionDetailsPage extends UIElement<
             )
         } else {
             // Case: Get contributor invitation link
-            if (this.state.requestingAuth === true) {
+            if (this.state.listKeyPresent && !this.state.listRoleID) {
                 return (
                     <InvitedNotification
                         viewportBreakpoint={this.viewportBreakpoint}
@@ -891,8 +900,8 @@ export default class CollectionDetailsPage extends UIElement<
                                         heightAndWidth={'22px'}
                                         hoverOff
                                     />
-                                    You can add highlights & pages via the Memex
-                                    extension or app.
+                                    You can add highlights &amp; pages via the
+                                    Memex extension or app.
                                 </InvitationTextContainer>
                             </InvitedNotification>
                             {this.renderFollowBtn()()}
@@ -904,8 +913,8 @@ export default class CollectionDetailsPage extends UIElement<
                     // only show buttons when its a Space View, not pageView
                     return (
                         <HeaderButtonRow>
-                            {this.renderFollowBtn()()}
                             {this.renderWebMonetizationIcon()}
+                            {this.renderFollowBtn()()}
                         </HeaderButtonRow>
                     )
                 }
@@ -992,6 +1001,72 @@ export default class CollectionDetailsPage extends UIElement<
         }
 
         return entries
+    }
+
+    renderDescription() {
+        const { state } = this
+        const data = state.listData
+
+        if (data && !data.list.description) {
+            return
+        }
+
+        return (
+            <CollectionDescriptionText
+                viewportBreakpoint={this.viewportBreakpoint}
+            >
+                {data?.listDescriptionState === 'collapsed'
+                    ? data?.listDescriptionTruncated
+                    : data?.list.description}
+            </CollectionDescriptionText>
+
+            // <CollectionDescriptionBox
+            //     viewportBreakpoint={this.viewportBreakpoint}
+            // >
+            //     <DescriptionActions bottom={'small'}>
+            //         {data?.listDescriptionState !== 'fits' && (
+            //             <CollectionDescriptionToggle
+            //                 onClick={() =>
+            //                     this.processEvent(
+            //                         'toggleDescriptionTruncation',
+            //                         {},
+            //                     )
+            //                 }
+            //                 viewportBreakpoint={this.viewportBreakpoint}
+            //             >
+            //                 {data?.listDescriptionState === 'collapsed' ? (
+            //                     <TooltipBox
+            //                         tooltipText={'Show full description'}
+            //                         placement={'bottom'}
+            //                     >
+            //                         <Icon
+            //                             icon={'expand'}
+            //                             heightAndWidth="22px"
+            //                         />
+            //                     </TooltipBox>
+            //                 ) : (
+            //                     <TooltipBox
+            //                         tooltipText={'Hide description'}
+            //                         placement={'bottom'}
+            //                     >
+            //                         <Icon
+            //                             icon={'compress'}
+            //                             heightAndWidth="22px"
+            //                         />
+            //                     </TooltipBox>
+            //                 )}
+            //             </CollectionDescriptionToggle>
+            //         )}
+            //     </DescriptionActions>
+            //     <CollectionDescriptionText
+            //         viewportBreakpoint={this.viewportBreakpoint}
+            //     >
+            //         {data?.listDescriptionState === 'collapsed'
+            //             ? data?.listDescriptionTruncated
+            //             : data?.list.description}
+            //     </CollectionDescriptionText>
+            // </CollectionDescriptionBox>
+        )
     }
 
     render() {
@@ -1081,61 +1156,8 @@ export default class CollectionDetailsPage extends UIElement<
                     permissionKeyOverlay={this.renderPermissionKeyOverlay()}
                     scrollTop={this.state.scrollTop}
                     breadCrumbs={this.renderBreadCrumbs()}
+                    renderDescription={this.renderDescription()}
                 >
-                    {data.list.description && (
-                        <CollectionDescriptionBox
-                            viewportBreakpoint={this.viewportBreakpoint}
-                        >
-                            <DescriptionActions bottom={'small'}>
-                                <SectionTitle>Description</SectionTitle>
-                                {data.listDescriptionState !== 'fits' && (
-                                    <CollectionDescriptionToggle
-                                        onClick={() =>
-                                            this.processEvent(
-                                                'toggleDescriptionTruncation',
-                                                {},
-                                            )
-                                        }
-                                        viewportBreakpoint={
-                                            this.viewportBreakpoint
-                                        }
-                                    >
-                                        {data.listDescriptionState ===
-                                        'collapsed' ? (
-                                            <TooltipBox
-                                                tooltipText={
-                                                    'Show full description'
-                                                }
-                                                placement={'bottom'}
-                                            >
-                                                <Icon
-                                                    icon={'expand'}
-                                                    heightAndWidth="22px"
-                                                />
-                                            </TooltipBox>
-                                        ) : (
-                                            <TooltipBox
-                                                tooltipText={'Hide description'}
-                                                placement={'bottom'}
-                                            >
-                                                <Icon
-                                                    icon={'compress'}
-                                                    heightAndWidth="22px"
-                                                />
-                                            </TooltipBox>
-                                        )}
-                                    </CollectionDescriptionToggle>
-                                )}
-                            </DescriptionActions>
-                            <CollectionDescriptionText
-                                viewportBreakpoint={this.viewportBreakpoint}
-                            >
-                                {data.listDescriptionState === 'collapsed'
-                                    ? data.listDescriptionTruncated
-                                    : data.list.description}
-                            </CollectionDescriptionText>
-                        </CollectionDescriptionBox>
-                    )}
                     {data.listEntries.length > 0 &&
                         !isPageView &&
                         this.renderAbovePagesBox()}
@@ -1230,8 +1252,12 @@ export default class CollectionDetailsPage extends UIElement<
                                                                       notifAlreadyShown: this
                                                                           .state
                                                                           .notifAlreadyShown,
+                                                                      sharedListReference: this
+                                                                          .sharedListReference,
                                                                   },
                                                               )
+                                                              e.preventDefault()
+                                                              e.stopPropagation()
                                                           }}
                                                           viewportBreakpoint={
                                                               this
@@ -1313,6 +1339,8 @@ export default class CollectionDetailsPage extends UIElement<
 const ResultsList = styled.div`
     display: flex;
     flex-direction: column;
+    z-index: 20;
+    padding-bottom: 200px;
 `
 
 const PageStickyBox = styled.div<{ beSticky: boolean }>`
@@ -1321,7 +1349,7 @@ const PageStickyBox = styled.div<{ beSticky: boolean }>`
         props.beSticky &&
         css`
             position: sticky;
-            top: 30px;
+            top: 62px;
             bottom: 0px;
         `}
 `
@@ -1377,6 +1405,7 @@ const HeaderButtonRow = styled.div`
     display: flex;
     align-items: center;
     grid-gap: 5px;
+    flex-direction: row;
 `
 
 const InvitationTextContainer = styled.div`
@@ -1392,7 +1421,6 @@ const LoadingBoxHeaderActionArea = styled.div`
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    height: ;
 `
 
 const InvitedNotification = styled.div<{
@@ -1403,7 +1431,7 @@ const InvitedNotification = styled.div<{
     width: 100%;
     max-width: 800px;
     min-height: 40px;
-    padding: 00px 10px;
+    padding: 0px 10px 0px 0px;
     color: ${(props) => props.theme.colors.greyScale8};
     font-size: 14px;
     font-weight: 300;
@@ -1412,6 +1440,7 @@ const InvitedNotification = styled.div<{
     align-items: center;
     font-family: ${(props) => props.theme.fonts.primary};
     grid-gap: 10px;
+    margin-left: -7px;
 
     ${(props) =>
         props.viewportBreakpoint === 'mobile' &&
@@ -1433,6 +1462,7 @@ const InvitedNotification = styled.div<{
             padding: 5px 5px 5px 15px;
             height: 100%;
             justify-content: center;
+            margin-left: 0px;
         `}
             ${(props) =>
         props.withFrame &&
@@ -1461,16 +1491,19 @@ const AbovePagesBox = styled.div<{
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    margin: 10px 0 2px 0;
     width: 100%;
     position: relative;
-    z-index: 2;
+    z-index: 30;
     border-radius: 5px;
     justify-content: space-between;
     border-bottom: 1px solid
         ${(props) => props.theme.colors.backgroundColorDarker};
     padding-bottom: 10px;
     border-radius: 3px 3px 0 0;
+    background: ${(props) => props.theme.colors.backgroundColor};
+    position: sticky;
+    top: 0px;
+    padding-top: 10px;
 `
 
 const DescriptionActions = styled(Margin)`
@@ -1511,9 +1544,9 @@ const ToggleAllAnnotations = styled.div`
 
 const SectionTitle = styled.div`
     font-family: ${(props) => props.theme.fonts.primary};
-    color: ${(props) => props.theme.colors.normalText};
-    font-weight: 500;
-    font-size: 18px;
+    color: ${(props) => props.theme.colors.greyScale8};
+    font-weight: 300;
+    font-size: 16px;
     letter-spacing: 1px;
 `
 
@@ -1603,7 +1636,7 @@ const DiscordGuildName = styled.span`
 const CollectionDescriptionBox = styled.div<{
     viewportBreakpoint: ViewportBreakpoint
 }>`
-    margin-top: 20px;
+    margin: 20px 0 15px 0;
     display: flex;
     align-items: flex-start;
     flex-direction: column;

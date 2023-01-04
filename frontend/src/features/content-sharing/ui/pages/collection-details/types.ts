@@ -51,6 +51,7 @@ export interface CollectionDetailsDependencies {
         | 'clipboard'
         | 'userMessages'
         | 'youtube'
+        | 'memexExtension'
     >
     storage: Pick<
         StorageModules,
@@ -73,10 +74,12 @@ export type CollectionDetailsState = AnnotationConversationsState &
         permissionKeyResult?: ProcessSharedListKeyResult
         showPermissionKeyIssue?: boolean
         requestingAuth?: boolean
+        copiedLink?: boolean
 
         listRolesLoadState: UITaskState
         listRoleID?: SharedListRoleID
         listRoles?: Array<SharedListRole & { user: UserReference }>
+        listKeyPresent?: boolean
         listRoleLimit: number | null // how many collaborators to show in the subtitle
         showMoreCollaborators: boolean
         isListOwner?: boolean
@@ -141,6 +144,7 @@ export type CollectionDetailsEvent = UIEvent<
             updateScrollState: { previousScrollTop: number }
             setPageHover: (PageEventArgs & { hover: ResultHoverState }) | any
             setSearchType: SearchType
+            copiedLinkButton: null
         }
 >
 

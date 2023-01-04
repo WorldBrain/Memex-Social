@@ -40,7 +40,7 @@ export type AuthDialogEvent = UIEvent<{
     emailPasswordConfirm: null
     socialSignIn: { provider: AuthProvider }
 
-    editDisplayName: { value: string }
+    editDisplayName: string
     confirmDisplayName: null
     passwordReset: null
     passwordResetSwitch: null

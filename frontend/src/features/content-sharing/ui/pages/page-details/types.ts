@@ -39,6 +39,7 @@ export interface PageDetailsDependencies {
         | 'localStorage'
         | 'documentTitle'
         | 'userMessages'
+        | 'memexExtension'
     >
     storage: Pick<
         StorageModules,
