@@ -144,6 +144,7 @@
     "workbox-webpack-plugin": "4.3.1"
   },
   "devDependencies": {
+    "@babel/plugin-proposal-export-namespace-from":"7.18.9",
     "@storybook/addon-actions": "^5.3.19",
     "@storybook/addon-links": "^5.3.19",
     "@storybook/addons": "^5.3.19",

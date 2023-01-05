@@ -1,5 +1,5 @@
 {
-    "name": "website",
+    "name": "memex-social",
     "private": true,
     "scripts": {
         "bootstrap": "yarn && yarn install-dependencies && yarn prepare-packages",

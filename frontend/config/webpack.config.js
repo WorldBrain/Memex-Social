@@ -372,7 +372,13 @@ module.exports = function (webpackEnv) {
                         // The preset includes JSX, Flow, TypeScript, and some ESnext features.
                         {
                             test: /\.(js|mjs|jsx|ts|tsx)$/,
-                            include: paths.appSrc,
+                            include: [
+                                paths.appSrc,
+                                path.resolve(
+                                    __dirname,
+                                    '../../external/@worldbrain/memex-common/node_modules/htmlparser2/lib/esm/index.js',
+                                ),
+                            ],
                             loader: require.resolve('babel-loader'),
                             options: {
                                 customize: require.resolve(
@@ -398,6 +404,12 @@ module.exports = function (webpackEnv) {
                                         {
                                             fileName: false,
                                         },
+                                    ],
+                                    [
+                                        require.resolve(
+                                            '@babel/plugin-proposal-export-namespace-from',
+                                        ),
+                                        {},
                                     ],
                                 ],
                                 // This is a feature of `babel-loader` for webpack (not Babel itself).
