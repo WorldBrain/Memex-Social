@@ -51,12 +51,14 @@ const Title = styled.div<{
     ${(props) =>
         props.viewportBreakpoint === 'small' &&
         css`
-            font-size: 18px;
+            font-size: 20px;
+            text-align: center;
         `}
     ${(props) =>
         props.viewportBreakpoint === 'mobile' &&
         css`
             font-size: 18px;
+            text-align: center;
         `}
 `
 
@@ -69,11 +71,20 @@ const ButtonsBox = styled.div`
     grid-gap: 10px;
 `
 
-const TitleContainer = styled.div`
+const TitleContainer = styled.div<{
+    viewportBreakpoint: ViewportBreakpoint
+}>`
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     justify-content: flex-start;
+
+    ${(props) =>
+        (props.viewportBreakpoint === 'small' ||
+            props.viewportBreakpoint === 'mobile') &&
+        css`
+            align-items: center;
+        `}
 `
 const ContentBox = styled.div<{
     viewportBreakpoint: ViewportBreakpoint
@@ -87,6 +98,7 @@ const ContentBox = styled.div<{
         props.viewportBreakpoint === 'small' &&
         css`
             padding: 30px;
+            align-items: center;
         `}
 `
 
@@ -105,6 +117,11 @@ const BannerImage = styled.img<{ viewportBreakpoint: ViewportBreakpoint }>`
 
     ${(props) =>
         props.viewportBreakpoint === 'mobile' &&
+        css`
+            display: none;
+        `}
+    ${(props) =>
+        props.viewportBreakpoint === 'small' &&
         css`
             display: none;
         `}
@@ -229,14 +246,18 @@ export default function InstallExtOverlay(props: Props) {
                             <ContentBox
                                 viewportBreakpoint={props.viewportBreakpoint}
                             >
-                                <TitleContainer>
+                                <TitleContainer
+                                    viewportBreakpoint={
+                                        props.viewportBreakpoint
+                                    }
+                                >
                                     <Title
                                         viewportBreakpoint={
                                             props.viewportBreakpoint
                                         }
                                     >
-                                        Download the Memex extension for an
-                                        enhanced reading experience
+                                        Download Memex for an enhanced reading
+                                        experience
                                     </Title>
                                     <BenefitList>
                                         <BenefitListEntry>
@@ -360,7 +381,11 @@ export default function InstallExtOverlay(props: Props) {
                             <ContentBox
                                 viewportBreakpoint={props.viewportBreakpoint}
                             >
-                                <TitleContainer>
+                                <TitleContainer
+                                    viewportBreakpoint={
+                                        props.viewportBreakpoint
+                                    }
+                                >
                                     <Title
                                         viewportBreakpoint={
                                             props.viewportBreakpoint

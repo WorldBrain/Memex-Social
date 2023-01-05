@@ -65,19 +65,21 @@ export const extDetectionEventHandlers = (
     return {
         clickPageResult: async ({ previousState, event }) => {
             if (!doesMemexExtDetectionElExist()) {
-                console.log('falsssss')
+                console.log('doesnot', doesMemexExtDetectionElExist())
                 event.preventOpening()
-                logic.emitMutation({
-                    isInstallExtModalShown: { $set: true },
-                    clickedPageUrl: { $set: event.urlToOpen },
-                    notifAlreadyShown: { $set: true },
-                })
-
                 if (event.notifAlreadyShown) {
-                    if (
-                        isPagePdf({ url: event.urlToOpen }) &&
-                        doesMemexExtDetectionElExist()
-                    ) {
+                    console.log(event.notifAlreadyShown)
+                    if (isPagePdf({ url: event.urlToOpen })) {
+                        event.preventOpening()
+                        logic.emitMutation({
+                            isMissingPDFModalShown: { $set: true },
+                            clickedPageUrl: { $set: null },
+                        })
+                        return
+                    }
+                    window.open(event.urlToOpen)
+                } else {
+                    if (isPagePdf({ url: event.urlToOpen })) {
                         event.preventOpening()
                         logic.emitMutation({
                             isMissingPDFModalShown: { $set: true },
@@ -85,43 +87,19 @@ export const extDetectionEventHandlers = (
                         })
                         return
                     } else {
-                        const didOpen = await dependencies.services?.memexExtension.openLink(
-                            {
-                                originalPageUrl: event.urlToOpen,
-                                sharedListId: event.sharedListReference
-                                    ?.id as string,
-                            },
-                        )
-
-                        window.open(event.urlToOpen)
-                    }
-                } else {
-                    if (
-                        isPagePdf({ url: event.urlToOpen }) &&
-                        doesMemexExtDetectionElExist()
-                    ) {
-                        event.preventOpening()
                         logic.emitMutation({
-                            isMissingPDFModalShown: { $set: true },
-                            clickedPageUrl: { $set: null },
-                        })
-                        return
-                    }
-
-                    if (event.isFollowedSpace || event.isFeed) {
-                        const didOpen = await dependencies.services?.memexExtension.openLink(
-                            {
-                                originalPageUrl: event.urlToOpen,
-                                sharedListId: event.sharedListReference
-                                    ?.id as string,
-                            },
-                        )
-
-                        logic.emitMutation({
-                            showFollowModal: { $set: false },
+                            isInstallExtModalShown: { $set: true },
                             clickedPageUrl: { $set: event.urlToOpen },
+                            notifAlreadyShown: { $set: true },
                         })
                     }
+
+                    // if (event.isFollowedSpace || event.isFeed) {
+                    //     logic.emitMutation({
+                    //         showFollowModal: { $set: true },
+                    //         clickedPageUrl: { $set: event.urlToOpen },
+                    //     })
+                    // }
                     return
                 }
             }
