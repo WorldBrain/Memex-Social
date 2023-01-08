@@ -198,13 +198,13 @@ export default class CollectionDetailsPage extends UIElement<
             if (this.state.listData?.listEntries[entryIndex].hoverState) {
                 return [
                     {
-                        key: 'expand-notes-btn',
+                        key: 'copy-link-btn',
                         image: this.state.copiedLink ? 'check' : 'link',
                         imageColor: this.state.copiedLink
                             ? 'purple'
                             : 'greyScale8',
                         ButtonText: this.state.copiedLink
-                            ? 'Copied to Clipboard'
+                            ? 'Copied'
                             : 'Copy Link',
                         onClick: () => {
                             navigator.clipboard.writeText(
@@ -1194,6 +1194,20 @@ export default class CollectionDetailsPage extends UIElement<
                                                               { entryIndex },
                                                           )
                                                       }
+                                                      onMouseOver={(
+                                                          event: React.MouseEventHandler,
+                                                      ) => {
+                                                          !this.state.listData
+                                                              ?.listEntries[
+                                                              entryIndex
+                                                          ].hoverState &&
+                                                              this.processEvent(
+                                                                  'setPageHover',
+                                                                  {
+                                                                      entryIndex,
+                                                                  },
+                                                              )
+                                                      }}
                                                       onMouseLeave={(
                                                           event: React.MouseEventHandler,
                                                       ) =>
