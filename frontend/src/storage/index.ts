@@ -27,6 +27,7 @@ import ActivityFollowsStorage from '../features/activity-follows/storage'
 
 import { BackendType } from '../types'
 import { Storage } from './types'
+import { RetroSyncStorage } from '@worldbrain/memex-common/lib/discord/queue'
 
 // import { checkAccountCollectionInfoMap } from './checks';
 // import { ACCOUNT_COLLECTIONS } from './constants';
@@ -125,6 +126,7 @@ export async function createStorage(options: {
         serverModules: {
             // auth: new AuthStorage({ storageManager }),
             discord: new DiscordStorage({ storageManager }),
+            discordRetroSync: new RetroSyncStorage({ storageManager }),
             activityFollows: new ActivityFollowsStorage({
                 storageManager,
                 operationExecuter: operationExecuter('activityFollows'),

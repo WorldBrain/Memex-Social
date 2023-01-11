@@ -442,7 +442,11 @@ export default class CollectionDetailsLogic extends UILogic<
     }
 
     loadListData: EventHandler<'loadListData'> = async ({ event }) => {
-        const { contentSharing, discord } = this.dependencies.storage
+        const {
+            contentSharing,
+            discord,
+            discordRetroSync,
+        } = this.dependencies.storage
         const listReference = makeStorageReference<SharedListReference>(
             'shared-list-reference',
             event.listID,
@@ -509,6 +513,7 @@ export default class CollectionDetailsLogic extends UILogic<
                         listDescription.length < LIST_DESCRIPTION_CHAR_LIMIT
 
                     let discordList: DiscordList | null = null
+                    let isDiscordSyncing = false
 
                     if (result.sharedList.platform === 'discord') {
                         discordList = await discord.findDiscordListForSharedList(
@@ -519,12 +524,16 @@ export default class CollectionDetailsLogic extends UILogic<
                                 mutation: { listData: { $set: undefined } },
                             }
                         }
+                        isDiscordSyncing = await discordRetroSync.channelHasSyncEntry(
+                            { channelId: discordList.channelId },
+                        )
                     }
 
                     this.emitMutation({
                         listData: {
                             $set: {
                                 discordList,
+                                isDiscordSyncing,
                                 creatorReference: result.creator,
                                 creator: await this._users.loadUser(
                                     result.creator,
