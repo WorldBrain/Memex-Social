@@ -52,10 +52,10 @@ export const HoverBoxDiv = styled.div<Props>`
     ${(props) => (props.left ? `left: ${props.left};` : '')}
     ${(props) => (props.right ? `right: ${props.right};` : '')}
     ${(props) => (props.bottom ? `bottom: ${props.bottom};` : '')}
-    background: ${(props) => props.theme.colors.backgroundColorDarker};
+    background: ${(props) => props.theme.colors.greyScale1};
     z-index: 1001;
     padding: ${(props) => (props.padding ? props.padding : '10px 0px')};
-    border: 1px solid ${(props) => props.theme.colors.lineGrey};
+    border: 1px solid ${(props) => props.theme.colors.greyScale3};
     margin-top: ${(props) => (props.marginTop ? props.marginTop : '0px')};
     margin-left: ${(props) => (props.marginLeft ? props.marginLeft : '0px')};
 
@@ -72,7 +72,7 @@ export const HoverBoxDashboard = styled.div`
     position: absolute;
     width: 300px;
     z-index: 1;
-    background-color: ${(props) => props.theme.colors.background};
+    background-color: ${(props) => props.theme.colors.black};
     border-radius: 12px;
     right: 20px;
     padding: 10px 0px;

@@ -91,14 +91,14 @@ const LocatorContainer = styled.div<{ isBeingDraggedOver?: boolean }>`
 
 const LocatorHeader = styled.h1`
     text-align: center;
-    color: ${(props) => props.theme.colors.normalText};
+    color: ${(props) => props.theme.colors.white};
     font-size: 24px;
     pointer-events: none;
 `
 
 const LocatorText = styled.div`
     font-size: 1.2rem;
-    color: ${(props) => props.theme.colors.greyScale8};
+    color: ${(props) => props.theme.colors.greyScale5};
     margin-bottom: 50px;
     pointer-events: none;
     text-align: center;
@@ -126,7 +126,7 @@ const DropImage = styled.img`
     border-radius: 100px;
     padding: 20px;
     margin-bottom: 40px;
-    border: 3px solid ${(props) => props.theme.colors.purple};
+    border: 3px solid ${(props) => props.theme.colors.prime1};
     height: fill-available;
     min-height: 30px;
     max-height: 80px;
@@ -136,7 +136,7 @@ const DropImage = styled.img`
 `
 
 const LocatorDropText = styled.div`
-    color: ${(props) => props.theme.colors.purple};
+    color: ${(props) => props.theme.colors.prime1};
     text-align: center;
     pointer-events: none;
     font-size: 1.5rem;

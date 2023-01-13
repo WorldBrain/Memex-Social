@@ -16,15 +16,15 @@ const Container = styled.div<{
     border-width: 1px;
     font-weight: bold;
     width: 160px;
-    background-color: ${(props) => props.theme.colors.normalText};
+    background-color: ${(props) => props.theme.colors.white};
     color: ${(props) => props.theme.colors.black};
     ${(props) =>
         (props.isContributor || props.isFollowed || props.isOwner) &&
         css`
             cursor: default;
             background-color: transparent;
-            border: 1px solid ${(props) => props.theme.colors.normalText};
-            color: ${(props) => props.theme.colors.normalText};
+            border: 1px solid ${(props) => props.theme.colors.white};
+            color: ${(props) => props.theme.colors.white};
             & div {
                 cursor: default;
             }
@@ -132,7 +132,7 @@ export default class FollowBtn extends PureComponent<Props> {
             return 'peopleFine'
         } else if (!props.isOwner && !props.isContributor && props.isFollowed) {
             if (this.state.hoverButton) {
-                return 'close'
+                return 'removeX'
             } else {
                 return 'check'
             }

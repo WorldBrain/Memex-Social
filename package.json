@@ -18,6 +18,7 @@
     "dependencies": {
         "@popperjs/core": "^2.11.6",
         "detect-browser": "^5.3.0",
+        "discord.js": "^14.7.1",
         "dompurify": "^2.1.0",
         "html-react-parser": "^3.0.4",
         "immutability-helper": "^3.0.0",

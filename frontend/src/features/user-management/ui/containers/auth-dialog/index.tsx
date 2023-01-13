@@ -163,7 +163,7 @@ export default class AuthDialog extends UIElement<
                         <IconBox heightAndWidth={'40px'} background="light">
                             <Icon
                                 icon={'reload'}
-                                color={'purple'}
+                                color={'prime1'}
                                 heightAndWidth={'20px'}
                                 hoverOff
                             />
@@ -180,7 +180,7 @@ export default class AuthDialog extends UIElement<
                         <IconBox heightAndWidth={'40px'} background="light">
                             <Icon
                                 icon={'mail'}
-                                color={'purple'}
+                                color={'prime1'}
                                 heightAndWidth={'40px'}
                                 hoverOff
                             />
@@ -538,7 +538,7 @@ const Header = styled.div`
     text-align: center;
     font-size: 26px;
     font-weight: 900;
-    color: ${(props) => props.theme.colors.normalText};
+    color: ${(props) => props.theme.colors.white};
     margin-bottom: 10px;
 `
 const AuthenticationMethods = styled.div`
@@ -555,7 +555,7 @@ const AuthenticationMethods = styled.div`
 `
 
 const InfoText = styled.div`
-    color: ${(props) => props.theme.colors.darkText};
+    color: ${(props) => props.theme.colors.greyScale2};
     font-size: 12px;
     margin-top: 5px;
     margin-bottom: 15px;
@@ -583,7 +583,7 @@ const EmailPasswordError = styled.div`
 const FormTitle = styled.div<{ viewportBreakpoint: ViewportBreakpoint }>`
     font-weight: 900;
     font-size: 24px;
-    color: ${(props) => props.theme.colors.lighterText};
+    color: ${(props) => props.theme.colors.greyScale5};
     text-align: center;
     white-space: break-spaces;
 
@@ -597,7 +597,7 @@ const FormSubtitle = styled.div`
     font-weight: 400;
     font-size: 16px;
     text-align: center;
-    color: ${(props) => props.theme.colors.lighterText};
+    color: ${(props) => props.theme.colors.greyScale5};
 `
 
 const AuthBox = styled(Margin)`
@@ -630,14 +630,14 @@ const LoadingBox = styled.div`
 const Footer = styled.div`
     text-align: center;
     user-select: none;
-    color: ${(props) => props.theme.colors.greyScale8};
+    color: ${(props) => props.theme.colors.greyScale5};
     font-size: 16px;
     margin: -10px 0 20px 0;
 `
 const ModeSwitch = styled.span`
     cursor: pointer;
     font-weight: bold;
-    color: ${(props) => props.theme.colors.purple};
+    color: ${(props) => props.theme.colors.prime1};
     text-decoration: none;
 `
 
@@ -656,7 +656,7 @@ const PrimaryActionContainer = styled.div`
 
 const ForgotPassword = styled.div`
     white-space: nowrap;
-    color: ${(props) => props.theme.colors.purple};
+    color: ${(props) => props.theme.colors.prime1};
     cursor: pointer;
     font-weight: 500;
     font-size: 12px;
@@ -669,7 +669,7 @@ const ForgotPassword = styled.div`
 const InvitationBox = styled.div`
     height: 150px;
     width: fill-available;
-    background: ${(props) => props.theme.colors.lightgrey}90;
+    background: ${(props) => props.theme.colors.greyScale5}90;
     border-radius: 12px;
     display: flex;
     align-items: center;

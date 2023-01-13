@@ -52,13 +52,13 @@ const LoadMoreLink = styled(RouteLink)`
     display: flex;
     justify-content: center;
     font-family: ${(props) => props.theme.fonts.primary};
-    color: ${(props) => props.theme.colors.primary};
+    color: ${(props) => props.theme.colors.prime1};
     font-size: 11px;
     cursor: pointer;
     border-radius: 3px;
     align-items: center;
     &:hover {
-        background: ${(props) => props.theme.colors.grey};
+        background: ${(props) => props.theme.colors.greyScale2};
     }
 `
 
@@ -75,14 +75,14 @@ const FeedContainer = styled.div<{ viewportBreakpoint: ViewportBreakpoint }>`
 
 const ActivityType = styled.div`
     white-space: nowrap;
-    color: ${(props) => props.theme.colors.normalText};
+    color: ${(props) => props.theme.colors.white};
 `
 
 const CollectionLink = styled(RouteLink)`
     display: block;
     justify-content: center;
     font-family: ${(props) => props.theme.fonts.primary};
-    color: ${(props) => props.theme.colors.purple};
+    color: ${(props) => props.theme.colors.prime1};
     padding-left: 5px;
     cursor: pointer;
     align-items: center;
@@ -117,7 +117,7 @@ const ActivityReasonLabel = styled.div<{
     font-family: ${(props) => props.theme.fonts.primary};
     font-weight: normal;
     font-size: 16px;
-    color: ${(props) => props.theme.colors.normalText};
+    color: ${(props) => props.theme.colors.white};
     display: flex;
     width: 92%;
     overflow: hidden;
@@ -143,7 +143,7 @@ const StyledLastSeenLine = styled.div`
     justify-content: flex-start;
     font-size: 16px;
     align-items: center;
-    color: ${(props) => props.theme.colors.darkerText};
+    color: ${(props) => props.theme.colors.greyScale2};
     font-weight: 800;
     margin-bottom: -20px;
 `
@@ -151,13 +151,13 @@ const LastSeenLineLabel = styled.div`
     font-family: ${(props) => props.theme.fonts.primary};
     text-align: center;
     padding: 5px 15px 5px 10px;
-    color: ${(props) => props.theme.colors.normalText};
+    color: ${(props) => props.theme.colors.white};
     z-index: 2;
     display: flex;
     align-items: center;
     grid-gap: 10px;
     border-radius: 8px;
-    border: 1px solid ${(props) => props.theme.colors.lightHover};
+    border: 1px solid ${(props) => props.theme.colors.greyScale3};
 `
 
 const LoadMoreReplies = styled.div`
@@ -170,17 +170,14 @@ const LoadMoreReplies = styled.div`
     height: 20px;
     grid-gap: 5px;
     align-items: center;
-    color: ${(props) => props.theme.colors.normalText};
-    &:hover {
-        background: ${(props) => props.theme.colors.backgroundHighlight};
-    }
+    color: ${(props) => props.theme.colors.white};
 `
 
 const Separator = styled.div`
     height: 1px;
     display: flex;
     width: fill-available;
-    background: ${(props) => props.theme.colors.lightHover};
+    background: ${(props) => props.theme.colors.greyScale3};
 `
 
 const NoActivitiesContainer = styled.div`
@@ -192,7 +189,7 @@ const NoActivitiesContainer = styled.div`
 
 const HeaderSubTitle = styled.div`
     display: flex;
-    color: ${(props) => props.theme.colors.greyScale8};
+    color: ${(props) => props.theme.colors.greyScale5};
     font-size: 16px;
     font-weight: 300;
     margin-bottom: 15px;
@@ -281,7 +278,7 @@ export default class HomeFeedPage extends UIElement<
                 <LastSeenLineLabel>
                     <Icon
                         icon="stars"
-                        color="purple"
+                        color="prime1"
                         heightAndWidth="22px"
                         hoverOff
                     />
@@ -305,7 +302,7 @@ export default class HomeFeedPage extends UIElement<
                             <Icon
                                 icon={'newFeed'}
                                 heightAndWidth="25px"
-                                color="purple"
+                                color="prime1"
                                 hoverOff
                             />
                         </IconBox>
@@ -398,7 +395,7 @@ export default class HomeFeedPage extends UIElement<
         if (activityItem.reason === 'new-annotations' && activityItem.list) {
             return (
                 <ActivityReason
-                    icon={'commentEmpty'}
+                    icon={'commentAdd'}
                     label={
                         <>
                             <ActivityType>
@@ -742,7 +739,7 @@ export default class HomeFeedPage extends UIElement<
                                 actions.push({
                                     key: 'expand-notes-btn',
                                     image: 'commentFull',
-                                    imageColor: 'purple',
+                                    imageColor: 'prime1',
                                     onClick: () =>
                                         this.processEvent(
                                             'toggleListEntryActivityAnnotations',
@@ -967,7 +964,7 @@ const ActivityReason = (props: {
     return (
         <StyledActivityReason>
             <StyledIconMargin right="small">
-                <Icon icon={props.icon} heightAndWidth="22px" color="purple" />
+                <Icon icon={props.icon} heightAndWidth="22px" color="prime1" />
             </StyledIconMargin>
             <ActivityReasonLabel viewportBreakpoint={props.viewportBreakpoint}>
                 {props.label}

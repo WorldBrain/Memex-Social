@@ -16,7 +16,7 @@ const StyledPrimaryAction = styled.div`
     justify-content: center;
     align-items: center;
     vertical-align: middle;
-    background: ${(props) => props.theme.colors.purple};
+    background: ${(props) => props.theme.colors.prime1};
     box-sizing: border-box;
     border-radius: 5px;
     cursor: pointer;

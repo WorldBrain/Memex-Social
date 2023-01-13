@@ -29,7 +29,7 @@ const Container = styled.div`
 const ButtonInnerText = styled.div<{
     theme: Theme
 }>`
-    color: ${(props) => props.theme.colors.primary};
+    color: ${(props) => props.theme.colors.prime1};
     font-family: ${(props) => props.theme.fonts.primary};
     font-size: 12px;
     line-height: ${(props) => props.theme.lineHeights.text};
@@ -57,7 +57,7 @@ const ButtonContent = styled.div`
 //     ${(props) => `line-height: ${props.theme.lineHeights.text};`}
 //     text-decoration: underline;
 //     ${(props) => `margin-left: ${props.theme.spacing.medium};`}
-//     color: ${(props) => props.theme.colors.primary};
+//     color: ${(props) => props.theme.colors.prime1};
 //     cursor: pointer;
 // `
 

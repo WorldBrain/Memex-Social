@@ -53,7 +53,7 @@ const SubtitleContainer = styled.div<{
 `
 
 const DomainName = styled.a`
-    color: ${(props) => props.theme.colors.normalText};
+    color: ${(props) => props.theme.colors.white};
     text-decoration: none;
 `
 
@@ -63,7 +63,7 @@ const RearBox = styled.div<{
     display: inline-block;
     align-items: center;
     grid-gap: 5px;
-    color: ${(props) => props.theme.colors.lighterText};
+    color: ${(props) => props.theme.colors.greyScale5};
 
     /* ${(props) =>
         props.viewportBreakpoint === 'mobile' &&
@@ -75,17 +75,17 @@ const RearBox = styled.div<{
 `
 
 const Creator = styled.span`
-    color: ${(props) => props.theme.colors.purple};
+    color: ${(props) => props.theme.colors.prime1};
     padding: 0 4px;
 `
 
 const SharedBy = styled.span`
-    color: ${(props) => props.theme.colors.lighterText};
+    color: ${(props) => props.theme.colors.greyScale5};
     display: inline-block;
 `
 
 const Date = styled.span`
-    color: ${(props) => props.theme.colors.lighterText};
+    color: ${(props) => props.theme.colors.greyScale5};
     display: inline-block;
 `
 

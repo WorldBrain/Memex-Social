@@ -26,7 +26,7 @@ export const PopupContainer = styled.div<{ theme: Theme }>`
     width: 300px;
     max-height: 400px;
     font-family: ${(props) => props.theme.fonts.primary};
-    color: ${(props) => props.theme.colors.primary};
+    color: ${(props) => props.theme.colors.prime1};
     padding: 15px;
     border-radius: ${(props) => props.theme.borderRadii.default};
     z-index: ${(props) => props.theme.zIndices.overlay};
@@ -76,7 +76,7 @@ const DisplayName = styled.div<{ theme: Theme }>`
     font-weight: 700;
     letter-spacing: 1px;
     font-size: 16px;
-    color: ${(props) => props.theme.colors.normalText};
+    color: ${(props) => props.theme.colors.white};
     white-space: normal;
 `
 
@@ -98,7 +98,7 @@ const ProfileBio = styled(Margin)<{ theme: Theme }>`
     justify-content: flex-start;
     float: left;
     text-align: left;
-    color: ${(props) => props.theme.colors.greyScale8};
+    color: ${(props) => props.theme.colors.greyScale5};
     white-space: pre-wrap;
     overflow-y: scroll;
     overflow-x: hidden;
@@ -107,7 +107,7 @@ const ProfileBio = styled(Margin)<{ theme: Theme }>`
     max-height: 350px;
 
     & > a {
-        color: ${(props) => props.theme.colors.purple}70;
+        color: ${(props) => props.theme.colors.prime1}70;
     }
 `
 
@@ -185,7 +185,7 @@ export default class ProfilePopup extends PureComponent<ProfilePopupProps> {
                                             <Icon
                                                 icon={icon}
                                                 height="18px"
-                                                color="purple"
+                                                color="prime1"
                                                 onClick={() =>
                                                     this.handleWebLinkClick(url)
                                                 }

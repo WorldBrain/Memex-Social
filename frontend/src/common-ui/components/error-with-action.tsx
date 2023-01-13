@@ -8,7 +8,7 @@ const ListNotFoundBox = styled.div`
     font-family: ${(props) => props.theme.fonts.primary};
     width: 100%;
     padding: 20px 20px;
-    color: ${(props) => props.theme.colors.primary};
+    color: ${(props) => props.theme.colors.prime1};
     display: flex;
     justify-content: center;
     align-items: center;

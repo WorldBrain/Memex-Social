@@ -45,7 +45,7 @@ const Title = styled.div<{
 }>`
     font-weight: 700;
     font-size: 24px;
-    color: ${(props) => props.theme.colors.normalText};
+    color: ${(props) => props.theme.colors.white};
     text-align: left;
 
     ${(props) =>
@@ -149,14 +149,14 @@ const BenefitListEntryContentBox = styled.div`
 
 const BenefitListEntryTitle = styled.div`
     display: flex;
-    color: ${(props) => props.theme.colors.greyScale9};
+    color: ${(props) => props.theme.colors.greyScale6};
     font-weight: 600;
     font-size: 14px;
 `
 
 const BenefitListEntrySubTitle = styled.div`
     display: flex;
-    color: ${(props) => props.theme.colors.greyScale9};
+    color: ${(props) => props.theme.colors.greyScale6};
     font-weight: 300;
     font-size: 14px;
 `
@@ -262,10 +262,10 @@ export default function InstallExtOverlay(props: Props) {
                                     <BenefitList>
                                         <BenefitListEntry>
                                             <Icon
-                                                filePath={'commentEmpty'}
+                                                filePath={'commentAdd'}
                                                 heightAndWidth={'22px'}
                                                 hoverOff
-                                                color="purple"
+                                                color="prime1"
                                             />
                                             <BenefitListEntryContentBox>
                                                 <BenefitListEntryTitle>
@@ -284,7 +284,7 @@ export default function InstallExtOverlay(props: Props) {
                                                 filePath={'highlight'}
                                                 heightAndWidth={'22px'}
                                                 hoverOff
-                                                color="purple"
+                                                color="prime1"
                                             />
                                             <BenefitListEntryContentBox>
                                                 <BenefitListEntryTitle>
@@ -303,7 +303,7 @@ export default function InstallExtOverlay(props: Props) {
                                                 filePath={'heartEmpty'}
                                                 heightAndWidth={'22px'}
                                                 hoverOff
-                                                color="purple"
+                                                color="prime1"
                                             />
                                             <BenefitListEntryContentBox>
                                                 <BenefitListEntryTitle>
@@ -397,10 +397,10 @@ export default function InstallExtOverlay(props: Props) {
                                     <BenefitList>
                                         <BenefitListEntry>
                                             <Icon
-                                                filePath={'commentEmpty'}
+                                                filePath={'commentAdd'}
                                                 heightAndWidth={'22px'}
                                                 hoverOff
-                                                color="purple"
+                                                color="prime1"
                                             />
                                             <BenefitListEntryContentBox>
                                                 <BenefitListEntryTitle>
@@ -419,7 +419,7 @@ export default function InstallExtOverlay(props: Props) {
                                                 filePath={'highlight'}
                                                 heightAndWidth={'22px'}
                                                 hoverOff
-                                                color="purple"
+                                                color="prime1"
                                             />
                                             <BenefitListEntryContentBox>
                                                 <BenefitListEntryTitle>
@@ -438,7 +438,7 @@ export default function InstallExtOverlay(props: Props) {
                                                 filePath={'heartEmpty'}
                                                 heightAndWidth={'22px'}
                                                 hoverOff
-                                                color="purple"
+                                                color="prime1"
                                             />
                                             <BenefitListEntryContentBox>
                                                 <BenefitListEntryTitle>

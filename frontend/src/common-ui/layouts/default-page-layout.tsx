@@ -264,7 +264,7 @@ const StyledHeader = styled.div<{
     border-radius: 10px 10px 0px 0px;
     padding: 15px 30px 30px 30px;
     grid-gap: 25px;
-    border-bottom: 1px solid ${(props) => props.theme.colors.brand3};
+    border-bottom: 1px solid ${(props) => props.theme.colors.prime1};
 
     ${(props) =>
         props.viewportWidth === 'mobile' &&
@@ -301,7 +301,7 @@ const StyledHeader = styled.div<{
 // const FeedLink = styled(RouteLink)`
 //     display: flex;
 //     align-items: center;
-//     color: ${(props) => props.theme.colors.primary};
+//     color: ${(props) => props.theme.colors.prime1};
 // `
 
 // const UnseenActivityDot = styled.div`
@@ -347,7 +347,7 @@ const HeaderTitle = styled.div<{
     line-height: 45px;
     letter-spacing: 0.5px;
     overflow-wrap: break-word;
-    color: ${(props) => props.theme.colors.normalText};
+    color: ${(props) => props.theme.colors.white};
     ${(props) =>
         props.viewportWidth === 'small' &&
         css`
@@ -463,7 +463,6 @@ const PageMidleAreaAction = styled.div<{
 `
 
 const MainColumn = styled.div`
-    //background: ${(props) => props.theme.colors.backgroundColor};
     border-radius: 20px;
     width: 100%;
     display: flex;

@@ -123,7 +123,7 @@ export default class CollectionDetailsPage extends UIElement<
                 <PrimaryAction
                     type={'tertiary'}
                     icon={'addPeople'}
-                    iconColor={'purple'}
+                    iconColor={'prime1'}
                     size={
                         this.viewportBreakpoint === 'mobile'
                             ? 'small'
@@ -201,8 +201,8 @@ export default class CollectionDetailsPage extends UIElement<
                         key: 'copy-link-btn',
                         image: this.state.copiedLink ? 'check' : 'link',
                         imageColor: this.state.copiedLink
-                            ? 'purple'
-                            : 'greyScale8',
+                            ? 'prime1'
+                            : 'greyScale5',
                         ButtonText: this.state.copiedLink
                             ? 'Copied'
                             : 'Copy Link',
@@ -219,9 +219,9 @@ export default class CollectionDetailsPage extends UIElement<
                     },
                     {
                         key: 'expand-notes-btn',
-                        image: count > 0 ? 'commentFull' : 'commentEmpty',
+                        image: count > 0 ? 'commentFull' : 'commentAdd',
                         ButtonText: count > 0 ? count : '',
-                        imageColor: 'purple',
+                        imageColor: 'prime1',
                         onClick: () =>
                             this.processEvent('togglePageAnnotations', {
                                 normalizedUrl: entry.normalizedUrl,
@@ -233,9 +233,9 @@ export default class CollectionDetailsPage extends UIElement<
             return [
                 {
                     key: 'expand-notes-btn',
-                    image: count > 0 ? 'commentFull' : 'commentEmpty',
+                    image: count > 0 ? 'commentFull' : 'commentAdd',
                     ButtonText: count > 0 ? count : '',
-                    imageColor: 'purple',
+                    imageColor: 'prime1',
                     onClick: () =>
                         this.processEvent('togglePageAnnotations', {
                             normalizedUrl: entry.normalizedUrl,
@@ -265,7 +265,7 @@ export default class CollectionDetailsPage extends UIElement<
                 {
                     key: 'expand-notes-btn',
                     image: 'link',
-                    imageColor: 'greyScale8',
+                    imageColor: 'greyScale5',
                     ButtonText: 'Copy Link',
                     onClick: () => {
                         navigator.clipboard.writeText(
@@ -449,8 +449,8 @@ export default class CollectionDetailsPage extends UIElement<
 
         return (
             <DiscordChannelName>
-                <Icon height="35px" icon="discord" color="blue" hoverOff />#
-                {title}
+                <Icon height="35px" icon="discord" color="secondary" hoverOff />
+                #{title}
             </DiscordChannelName>
         )
     }
@@ -745,7 +745,7 @@ export default class CollectionDetailsPage extends UIElement<
                                 this.processEvent('toggleInstallExtModal', {})
                             }
                         >
-                            <Icon icon="plus" height="22px" color="purple" />
+                            <Icon icon="plus" height="22px" color="prime1" />
                         </AddPageBtn>
                     )}
                     {annotationEntryData &&
@@ -862,7 +862,7 @@ export default class CollectionDetailsPage extends UIElement<
                         <InvitationTextContainer>
                             <Icon
                                 filePath={'invite'}
-                                color={'purple'}
+                                color={'prime1'}
                                 heightAndWidth={'22px'}
                             />
                             You've been invited to contribute to this Space and
@@ -896,7 +896,7 @@ export default class CollectionDetailsPage extends UIElement<
                                 <InvitationTextContainer>
                                     <Icon
                                         filePath={'invite'}
-                                        color={'purple'}
+                                        color={'prime1'}
                                         heightAndWidth={'22px'}
                                         hoverOff
                                     />
@@ -962,7 +962,7 @@ export default class CollectionDetailsPage extends UIElement<
                         heightAndWidth={'22px'}
                         filePath={this.getFilePathforSearchType()}
                         hoverOff
-                        color="purple"
+                        color="prime1"
                     />
                 </IconBox>
                 <EmptyListBox>
@@ -1446,7 +1446,7 @@ const InvitedNotification = styled.div<{
     max-width: 800px;
     min-height: 40px;
     padding: 0px 10px 0px 0px;
-    color: ${(props) => props.theme.colors.greyScale8};
+    color: ${(props) => props.theme.colors.greyScale5};
     font-size: 14px;
     font-weight: 300;
     display: flex;
@@ -1470,7 +1470,7 @@ const InvitedNotification = styled.div<{
     ${(props) =>
         props.withFrame &&
         css`
-            border: 1px solid ${(props) => props.theme.colors.brand3};
+            border: 1px solid ${(props) => props.theme.colors.prime1};
             border-radius: 8px;
             width: fill-available;
             padding: 5px 5px 5px 15px;
@@ -1482,7 +1482,7 @@ const InvitedNotification = styled.div<{
         props.withFrame &&
         props.viewportBreakpoint === 'mobile' &&
         css`
-            border: 1px solid ${(props) => props.theme.colors.brand3};
+            border: 1px solid ${(props) => props.theme.colors.prime1};
             border-radius: 8px;
             width: fill-available;
             padding: 15px 15px;
@@ -1510,11 +1510,10 @@ const AbovePagesBox = styled.div<{
     z-index: 30;
     border-radius: 5px;
     justify-content: space-between;
-    border-bottom: 1px solid
-        ${(props) => props.theme.colors.backgroundColorDarker};
+    border-bottom: 1px solid ${(props) => props.theme.colors.greyScale1};
     padding-bottom: 10px;
     border-radius: 3px 3px 0 0;
-    background: ${(props) => props.theme.colors.backgroundColor};
+    background: ${(props) => props.theme.colors.black};
     position: sticky;
     top: 0px;
     padding-top: 10px;
@@ -1539,7 +1538,7 @@ const AddPageBtn = styled.div`
     align-items: center;
     left: 0;
     font-family: ${(props) => props.theme.fonts.primary};
-    color: ${(props) => props.theme.colors.lighterText};
+    color: ${(props) => props.theme.colors.greyScale5};
     font-weight: 400;
     cursor: pointer;
     border-radius: 3px;
@@ -1548,7 +1547,7 @@ const AddPageBtn = styled.div`
 const ToggleAllAnnotations = styled.div`
     text-align: right;
     font-family: ${(props) => props.theme.fonts.primary};
-    color: ${(props) => props.theme.colors.primary};
+    color: ${(props) => props.theme.colors.prime1};
     font-weight: bold;
     cursor: pointer;
     font-size: 12px;
@@ -1558,7 +1557,7 @@ const ToggleAllAnnotations = styled.div`
 
 const SectionTitle = styled.div`
     font-family: ${(props) => props.theme.fonts.primary};
-    color: ${(props) => props.theme.colors.greyScale8};
+    color: ${(props) => props.theme.colors.greyScale5};
     font-weight: 300;
     font-size: 16px;
     letter-spacing: 1px;
@@ -1580,7 +1579,7 @@ const EmptyListBox = styled.div`
     font-family: ${(props) => props.theme.fonts.primary};
     width: 100%;
     padding: 20px 20px;
-    color: ${(props) => props.theme.colors.greyScale8};
+    color: ${(props) => props.theme.colors.greyScale5};
     display: flex;
     font-size: 16px;
     font-weight: normal;
@@ -1593,7 +1592,7 @@ const EmptyListBox = styled.div`
 
 const ShowMoreCollaborators = styled.span`
     cursor: pointer;
-    color: ${(props) => props.theme.colors.darkerText};
+    color: ${(props) => props.theme.colors.greyScale2};
     align-items: center;
     grid-gap: 5px;
     display: inline-box;
@@ -1643,7 +1642,7 @@ const DiscordChannelName = styled.span`
     align-items: center;
 `
 const DiscordGuildName = styled.span`
-    color: ${(props) => props.theme.colors.blue};
+    color: ${(props) => props.theme.colors.secondary};
     font-weight: 600;
 `
 
@@ -1665,7 +1664,7 @@ const CollectionDescriptionText = styled(Markdown)<{
     viewportBreakpoint: ViewportBreakpoint
 }>`
     font-size: 16px;
-    color: ${(props) => props.theme.colors.normalText};
+    color: ${(props) => props.theme.colors.white};
     font-weight: 200;
     font-family: ${(props) => props.theme.fonts.primary};
     border-radius: 10px;
@@ -1680,7 +1679,7 @@ const CollectionDescriptionToggle = styled.div<{
     font-family: ${(props) => props.theme.fonts.primary};
     font-size: 12px;
     cursor: pointer;
-    color: ${(props) => props.theme.colors.lighterText};
+    color: ${(props) => props.theme.colors.greyScale5};
 
     & * {
         cursor: pointer;
@@ -1688,7 +1687,7 @@ const CollectionDescriptionToggle = styled.div<{
 `
 
 // const DomainName = styled.div`
-//     color: ${(props) => props.theme.colors.normalText};
+//     color: ${(props) => props.theme.colors.white};
 // `
 
 // const RearBox = styled.div<{
@@ -1697,7 +1696,7 @@ const CollectionDescriptionToggle = styled.div<{
 //     display: inline-block;
 //     align-items: center;
 //     grid-gap: 5px;
-//     color: ${(props) => props.theme.colors.lighterText};
+//     color: ${(props) => props.theme.colors.greyScale5};
 
 //     /* ${(props) =>
 //         props.viewportBreakpoint === 'mobile' &&
@@ -1709,18 +1708,18 @@ const CollectionDescriptionToggle = styled.div<{
 // `
 
 const Creator = styled.span`
-    color: ${(props) => props.theme.colors.purple};
+    color: ${(props) => props.theme.colors.prime1};
     padding: 0 4px;
     cursor: pointer;
 `
 
 const SharedBy = styled.span`
-    color: ${(props) => props.theme.colors.lighterText};
+    color: ${(props) => props.theme.colors.greyScale5};
     display: contents;
 `
 
 // const Date = styled.span`
-//     color: ${(props) => props.theme.colors.lighterText};
+//     color: ${(props) => props.theme.colors.greyScale5};
 //     display: inline-block;
 // `
 
@@ -1741,7 +1740,7 @@ const ListEntryBox = styled.div`
     padding: 0 15px;
 
     &:hover {
-        background: ${(props) => props.theme.colors.backgroundColorDarker};
+        background: ${(props) => props.theme.colors.greyScale1};
     }
 `
 
@@ -1751,7 +1750,7 @@ const ListEntry = styled.div`
 
     font-weight: 400;
     width: fill-available;
-    color: ${(props) => props.theme.colors.normalText};
+    color: ${(props) => props.theme.colors.white};
     text-overflow: ellipsis;
     overflow: hidden;
 

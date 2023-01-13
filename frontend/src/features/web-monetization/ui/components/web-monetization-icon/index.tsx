@@ -81,7 +81,7 @@ export default class WebMonetizationIcon extends UIElement<
                     <WebMonetizationPaymentProgress>
                         <Icon
                             height={'24px'}
-                            color="normalText"
+                            color="white"
                             icon={'webMonetizationLogo'}
                             onClick={this.handleClick}
                         />
@@ -91,7 +91,7 @@ export default class WebMonetizationIcon extends UIElement<
                     <WebMonetizationPaymentProgress>
                         <Icon
                             height={'24px'}
-                            color="purple"
+                            color="prime1"
                             icon={'webMonetizationLogo'}
                             onClick={this.handleClick}
                             hoverOff

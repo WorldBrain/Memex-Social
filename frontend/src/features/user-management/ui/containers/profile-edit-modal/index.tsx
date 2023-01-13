@@ -301,7 +301,7 @@ export default class ProfileEditModal extends UIElement<
                             <Icon
                                 icon={'check'}
                                 heightAndWidth="16px"
-                                color="purple"
+                                color="prime1"
                             />
                         </SectionCircle>
                     )}
@@ -334,7 +334,7 @@ export default class ProfileEditModal extends UIElement<
                                 <Icon
                                     icon={'check'}
                                     heightAndWidth="20px"
-                                    color="purple"
+                                    color="prime1"
                                 />
                             </IconBox>
                             Check your email account.
@@ -391,7 +391,6 @@ const Container = styled.div<{ loadState: UITaskState; theme: Theme }>`
 `
 
 const SectionCircle = styled.div<{ size: string }>`
-    background: ${(props) => props.theme.colors.backgroundHighlight};
     border-radius: 100px;
     height: ${(props) => (props.size ? props.size : '60px')};
     width: ${(props) => (props.size ? props.size : '60px')};
@@ -409,7 +408,7 @@ const ButtonContainer = styled.div`
 `
 
 const TextInputInfoText = styled.div`
-    color: ${(props) => props.theme.colors.lighterText};
+    color: ${(props) => props.theme.colors.greyScale5};
     font-size: 12px;
     opacity: 0.7;
     padding-left: 10px;
@@ -417,7 +416,7 @@ const TextInputInfoText = styled.div`
 `
 
 const InfoText = styled.div<{ margin?: string }>`
-    color: ${(props) => props.theme.colors.greyScale8};
+    color: ${(props) => props.theme.colors.greyScale5};
     font-size: 14px;
     margin: ${(props) => (props.margin ? props.margin : '0 0 20px 0')};
     font-weight: 300;
@@ -433,7 +432,7 @@ const SectionHeader = styled.div<{
     font-weight: 800;
     font-size: ${(props) => (props.small ? '16px' : '22px')};
     line-height: ${(props) => props.theme.lineHeights.header};
-    color: ${(props) => props.theme.colors.normalText};
+    color: ${(props) => props.theme.colors.white};
     text-align: left;
 `
 
@@ -497,6 +496,6 @@ const ResetEmailConfirmation = styled.div`
     align-items: center;
     grid-gap: 10px;
     font-size: 14px;
-    color: ${(props) => props.theme.colors.purple};
+    color: ${(props) => props.theme.colors.prime1};
     justify-content: center;
 `
