@@ -264,7 +264,7 @@ const StyledHeader = styled.div<{
     border-radius: 10px 10px 0px 0px;
     padding: 15px 30px 30px 30px;
     grid-gap: 25px;
-    border-bottom: 1px solid ${(props) => props.theme.colors.prime1};
+    border-bottom: 1px solid ${(props) => props.theme.colors.prime1}60;
 
     ${(props) =>
         props.viewportWidth === 'mobile' &&

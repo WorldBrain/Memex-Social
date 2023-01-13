@@ -49,6 +49,7 @@ import SearchTypeSwitch from '@worldbrain/memex-common/lib/common-ui/components/
 import { PrimaryAction } from '@worldbrain/memex-common/lib/common-ui/components/PrimaryAction'
 import IconBox from '@worldbrain/memex-common/lib/common-ui/components/icon-box'
 import { TooltipBox } from '@worldbrain/memex-common/lib/common-ui/components/tooltip-box'
+import { eventProviderUrls } from '@worldbrain/memex-common/lib/constants'
 import moment from 'moment'
 import RouteLink from '../../../../../common-ui/components/route-link'
 
@@ -735,6 +736,9 @@ export default class CollectionDetailsPage extends UIElement<
                     onPDFSearchSwitch={() =>
                         this.processEvent('setSearchType', 'pdf')
                     }
+                    onEventSearchSwitch={() =>
+                        this.processEvent('setSearchType', 'events')
+                    }
                     searchType={this.state.searchType}
                     toExclude={['notes']}
                 />
@@ -935,6 +939,9 @@ export default class CollectionDetailsPage extends UIElement<
         if (this.state.searchType === 'pages') {
             return 'heartEmpty'
         }
+        if (this.state.searchType === 'events') {
+            return 'calendar'
+        }
 
         return 'searchIcon'
     }
@@ -948,6 +955,9 @@ export default class CollectionDetailsPage extends UIElement<
         }
         if (this.state.searchType === 'pdf') {
             return 'No PDFs saved in this Space'
+        }
+        if (this.state.searchType === 'events') {
+            return 'No Events posted in this Space'
         }
         if (this.state.searchType === 'pages') {
             return 'Nothing saved in this Space yet'
@@ -990,6 +1000,15 @@ export default class CollectionDetailsPage extends UIElement<
                     entry[1].normalizedUrl.includes('vimeo.com')
                 )
             })
+            return newEntries
+        }
+        if (this.state.searchType === 'events') {
+            const newEntries = entries?.filter((entry) => {
+                return eventProviderUrls.some((url) =>
+                    entry[1].normalizedUrl.includes(url),
+                )
+            })
+
             return newEntries
         }
 
