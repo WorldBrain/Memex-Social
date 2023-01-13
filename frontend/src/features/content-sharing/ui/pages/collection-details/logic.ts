@@ -683,16 +683,29 @@ export default class CollectionDetailsLogic extends UILogic<
 
     toggleAllAnnotations: EventHandler<'toggleAllAnnotations'> = (incoming) => {
         const shouldBeExpanded = !incoming.previousState.allAnnotationExpanded
+        const currentExpandedCount = Object.keys(
+            incoming.previousState.pageAnnotationsExpanded,
+        ).length
+
         if (shouldBeExpanded) {
             this.emitMutation({
                 allAnnotationExpanded: { $set: true },
-                pageAnnotationsExpanded: {
-                    $set: fromPairs(
-                        incoming.previousState.listData!.listEntries.map(
-                            (entry) => [entry.normalizedUrl, true],
-                        ),
-                    ),
-                },
+            })
+
+            incoming.previousState.listData!.listEntries.map((entry) => {
+                let hasAnnotations =
+                    incoming.previousState.annotationEntryData &&
+                    incoming.previousState.annotationEntryData[
+                        entry.normalizedUrl
+                    ]
+
+                if (hasAnnotations) {
+                    this.emitMutation({
+                        pageAnnotationsExpanded: {
+                            [entry.normalizedUrl]: { $set: true },
+                        },
+                    })
+                }
             })
         } else {
             this.emitMutation({

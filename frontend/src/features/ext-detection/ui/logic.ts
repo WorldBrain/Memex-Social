@@ -65,10 +65,8 @@ export const extDetectionEventHandlers = (
     return {
         clickPageResult: async ({ previousState, event }) => {
             if (!doesMemexExtDetectionElExist()) {
-                console.log('doesnot', doesMemexExtDetectionElExist())
                 event.preventOpening()
                 if (event.notifAlreadyShown) {
-                    console.log(event.notifAlreadyShown)
                     if (isPagePdf({ url: event.urlToOpen })) {
                         event.preventOpening()
                         logic.emitMutation({

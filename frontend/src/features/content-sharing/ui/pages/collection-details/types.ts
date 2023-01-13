@@ -110,7 +110,7 @@ export type CollectionDetailsState = AnnotationConversationsState &
         isCollectionFollowed: boolean
         allAnnotationExpanded: boolean
         isListShareModalShown: boolean
-        pageAnnotationsExpanded: { [normalizedPageUrl: string]: true }
+        pageAnnotationsExpanded: { [normalizedPageUrl: string]: boolean }
         annotationEntryData?: GetAnnotationListEntriesResult
         annotations: GetAnnotationsResult
         searchType: SearchType
