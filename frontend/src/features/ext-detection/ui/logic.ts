@@ -62,8 +62,21 @@ export const extDetectionEventHandlers = (
                 : {}),
         })
 
+    const isIframe = () => {
+        try {
+            return window.self !== window.top
+        } catch (e) {
+            return true
+        }
+    }
+
     return {
         clickPageResult: async ({ previousState, event }) => {
+            if (isIframe()) {
+                window.open(event.urlToOpen)
+                return
+            }
+
             if (!doesMemexExtDetectionElExist()) {
                 event.preventOpening()
                 if (event.notifAlreadyShown) {
@@ -108,32 +121,6 @@ export const extDetectionEventHandlers = (
                         sharedListId: event.sharedListReference?.id as string,
                     },
                 )
-                // if (!event.isFollowedSpace && !event.isFeed) {
-                //     event.preventOpening()
-                //     logic.emitMutation({
-                //         showFollowModal: { $set: true },
-                //         clickedPageUrl: { $set: event.urlToOpen },
-                //         notifAlreadyShown: { $set: true },
-                //     })
-
-                //     const didOpen = await dependencies.services?.memexExtension.openLink(
-                //         {
-                //             originalPageUrl: event.urlToOpen,
-                //             sharedListId: event.sharedListReference
-                //                 ?.id as string,
-                //         },
-                //     )
-                //     // if the extension does not respond, didOpen is `false` and we can do something useful
-                //     return
-                // } else {
-                //     const didOpen = await dependencies.services?.memexExtension.openLink(
-                //         {
-                //             originalPageUrl: event.urlToOpen,
-                //             sharedListId: event.sharedListReference
-                //                 ?.id as string,
-                //         },
-                //     )
-                // }
             }
             // This means it's a local PDF page
         },

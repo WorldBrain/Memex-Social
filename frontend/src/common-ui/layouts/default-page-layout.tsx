@@ -164,19 +164,22 @@ export default function DefaultPageLayout(props: {
                         <HeaderMiddleArea
                             viewportWidth={viewportWidth}
                             id={'HeaderMiddleArea'}
+                            isIframe={isIframe() === true}
                         >
                             {/* <SpaceActionBar>
                                 {props.webMonetizationIcon}
                                 {props.followBtn}
                             </SpaceActionBar> */}
-                            {props.renderHeaderActionArea != null && (
-                                <PageMidleAreaAction
-                                    scrollTop={props.scrollTop}
-                                    viewportWidth={viewportWidth}
-                                >
-                                    {props.renderHeaderActionArea}
-                                </PageMidleAreaAction>
-                            )}
+                            {isIframe()
+                                ? undefined
+                                : props.renderHeaderActionArea != null && (
+                                      <PageMidleAreaAction
+                                          scrollTop={props.scrollTop}
+                                          viewportWidth={viewportWidth}
+                                      >
+                                          {props.renderHeaderActionArea}
+                                      </PageMidleAreaAction>
+                                  )}
                             <PageMidleAreaTitles
                                 scrollTop={props.scrollTop}
                                 viewportWidth={viewportWidth}
@@ -186,6 +189,16 @@ export default function DefaultPageLayout(props: {
                                     <HeaderTitle
                                         viewportWidth={viewportWidth}
                                         scrollTop={props.scrollTop}
+                                        isIframe={isIframe()}
+                                        onClick={
+                                            isIframe()
+                                                ? () =>
+                                                      window.open(
+                                                          window.location.href,
+                                                          '_blank',
+                                                      )
+                                                : undefined
+                                        }
                                     >
                                         {props.headerTitle}
                                     </HeaderTitle>
@@ -291,6 +304,11 @@ const StyledHeader = styled.div<{
         css`
             display: none;
         `}
+    ${(props) =>
+        props.isIframe &&
+        css`
+            padding: 20px 20px 20px 20px;
+        `}
 `
 
 // const FeedArea = styled(Margin)`
@@ -321,6 +339,7 @@ const SpaceActionBar = styled.div`
 
 const HeaderMiddleArea = styled.div<{
     viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
+    isIframe: Boolean
 }>`
     width: fill-available;
     max-width: ${middleMaxWidth};
@@ -337,6 +356,7 @@ const HeaderMiddleArea = styled.div<{
 const HeaderTitle = styled.div<{
     viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
     scrollTop?: number
+    isIframe?: boolean
 }>`
     font-weight: 600;
     width: fill-available;
@@ -360,6 +380,11 @@ const HeaderTitle = styled.div<{
             font-size: 24px;
             line-height: 34px;
         `};
+    ${(props) =>
+        props.isIframe &&
+        css`
+            cursor: pointer;
+        `}
 `
 
 const HeaderAuthArea = styled.div<{
@@ -422,7 +447,7 @@ const PageResultsArea = styled.div<{
     ${(props) =>
         props.isIframe &&
         css`
-            padding: 0px;
+            padding: 10px;
         `}
 `
 
