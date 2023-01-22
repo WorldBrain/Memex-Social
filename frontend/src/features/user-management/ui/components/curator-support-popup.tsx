@@ -35,6 +35,11 @@ const LoadingBox = styled.div`
     justify-content: center;
 `
 
+const Container = styled.div`
+    padding: 30px;
+    width: 340px;
+`
+
 interface CuratorSupportPopupProps {
     services: UIElementServices<
         'userManagement' | 'webMonetization' | 'documentTitle'
@@ -58,7 +63,7 @@ export default class CuratorSupportPopup extends PureComponent<CuratorSupportPop
         } = this.props
 
         return (
-            <HoverBox width="340px" padding={'20px 30px'}>
+            <Container>
                 {loadState === 'running' && (
                     <LoadingBox>
                         <LoadingIndicator size={30} />
@@ -114,7 +119,7 @@ export default class CuratorSupportPopup extends PureComponent<CuratorSupportPop
                         )}
                     </>
                 )}
-            </HoverBox>
+            </Container>
         )
     }
 }

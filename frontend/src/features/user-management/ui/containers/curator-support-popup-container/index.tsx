@@ -13,12 +13,6 @@ import CuratorSupportPopup from '../../components/curator-support-popup'
 import { UITaskState } from '../../../../../main-ui/types'
 import { UserReference } from '../../../types'
 
-const CuratorPopupBox = styled.div`
-    margin-left: -140px;
-    margin-top: 10px;
-    position: absolute;
-`
-
 export type CuratorSupportPopupContainerDependencies = Omit<
     ProfilePopupContainerDependencies,
     'userRef'
@@ -54,17 +48,15 @@ export default class CuratorSupportPopupContainer extends UIElement<
         const { props } = this
 
         return (
-            <CuratorPopupBox onMouseLeave={props.onMouseLeave}>
-                <CuratorSupportPopup
-                    loadState={loadState}
-                    curatorUserRef={props.userRef}
-                    services={props.services}
-                    storage={props.storage}
-                    paymentMade={props.paymentMade}
-                    paymentState={props.paymentState}
-                    isMonetizationAvailable={props.isMonetizationAvailable}
-                />
-            </CuratorPopupBox>
+            <CuratorSupportPopup
+                loadState={loadState}
+                curatorUserRef={props.userRef}
+                services={props.services}
+                storage={props.storage}
+                paymentMade={props.paymentMade}
+                paymentState={props.paymentState}
+                isMonetizationAvailable={props.isMonetizationAvailable}
+            />
         )
     }
 }

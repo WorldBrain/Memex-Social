@@ -36,7 +36,6 @@ import ListShareModal from '@worldbrain/memex-common/lib/content-sharing/ui/list
 // import type { Props as ListsSidebarProps } from '../../../../lists-sidebar/ui/components/lists-sidebar'
 import { isPagePdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
 import MissingPdfOverlay from '../../../../ext-detection/ui/components/missing-pdf-overlay'
-import { HoverBox } from '../../../../../common-ui/components/hoverbox'
 import Markdown from '@worldbrain/memex-common/lib/common-ui/components/markdown'
 import BlockContent, {
     getBlockContentYoutubePlayerId,
@@ -1522,7 +1521,7 @@ const NoResultsContainer = styled.div`
 const HeaderButtonRow = styled.div`
     display: flex;
     align-items: center;
-    grid-gap: 5px;
+    grid-gap: 10px;
     flex-direction: row;
 `
 
