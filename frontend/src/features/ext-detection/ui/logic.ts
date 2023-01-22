@@ -13,7 +13,7 @@ export interface ExtDetectionState {
     showFollowModal: boolean
     isInstallExtModalShown: boolean
     isMissingPDFModalShown: boolean
-    clickedPageUrl: string | null
+    clickedPageUrl: string | undefined
     notifAlreadyShown?: boolean
 }
 
@@ -43,7 +43,7 @@ export const extDetectionInitialState = (): ExtDetectionState => ({
     isInstallExtModalShown: false,
     isMissingPDFModalShown: false,
     showFollowModal: false,
-    clickedPageUrl: null,
+    clickedPageUrl: undefined,
     notifAlreadyShown: false,
 })
 
@@ -58,7 +58,7 @@ export const extDetectionEventHandlers = (
         logic.emitMutation({
             [stateKey]: { $set: !previousState[stateKey] },
             ...(previousState[stateKey]
-                ? { clickedPageUrl: { $set: null } }
+                ? { clickedPageUrl: { $set: undefined } }
                 : {}),
         })
 
@@ -85,7 +85,7 @@ export const extDetectionEventHandlers = (
                         event.preventOpening()
                         logic.emitMutation({
                             isMissingPDFModalShown: { $set: true },
-                            clickedPageUrl: { $set: null },
+                            clickedPageUrl: { $set: undefined },
                         })
                         return
                     }
@@ -95,7 +95,7 @@ export const extDetectionEventHandlers = (
                         event.preventOpening()
                         logic.emitMutation({
                             isMissingPDFModalShown: { $set: true },
-                            clickedPageUrl: { $set: null },
+                            clickedPageUrl: { $set: undefined },
                         })
                         return
                     } else {

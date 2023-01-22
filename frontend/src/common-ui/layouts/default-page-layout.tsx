@@ -43,7 +43,7 @@ export default function DefaultPageLayout(props: {
     scrollTop?: number
     breadCrumbs?: JSX.Element
     renderDescription?: JSX.Element
-    isPageView?: string
+    isPageView?: string | undefined
 }) {
     const { viewportBreakpoint: viewportWidth } = props
     const renderSubtitle = props.renderSubtitle ?? ((props) => props.children)
@@ -266,7 +266,7 @@ const StyledHeader = styled.div<{
     viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
     hideActivityIndicator: boolean | undefined
     isIframe: boolean
-    isPageView: string
+    isPageView: string | undefined
 }>`
     font-family: ${(props) => props.theme.fonts.primary};
     width: fill-available;
