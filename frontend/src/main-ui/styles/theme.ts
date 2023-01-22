@@ -22,6 +22,7 @@ export const theme: Theme = THEME({
         commentAdd: require('../../assets/img/comment_add.svg'),
         commentFull: require('../../assets/img/comment_full.svg'),
         compress: require('../../assets/img/compress.svg'),
+        calendar: require('../../assets/img/date.svg'),
         copy: require('../../assets/img/copy.svg'),
         cursor: require('../../assets/img/cursor.svg'),
         date: require('../../assets/img/date.svg'),

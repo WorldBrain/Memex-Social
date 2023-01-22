@@ -73,6 +73,7 @@ export const extDetectionEventHandlers = (
     return {
         clickPageResult: async ({ previousState, event }) => {
             if (isIframe()) {
+                event.preventOpening()
                 window.open(event.urlToOpen)
                 return
             }

@@ -52,6 +52,7 @@ import { TooltipBox } from '@worldbrain/memex-common/lib/common-ui/components/to
 import { eventProviderUrls } from '@worldbrain/memex-common/lib/constants'
 import moment from 'moment'
 import RouteLink from '../../../../../common-ui/components/route-link'
+import { PopoutBox } from '@worldbrain/memex-common/lib/common-ui/components/popout-box'
 
 const commentImage = require('../../../../../assets/img/comment.svg')
 const commentEmptyImage = require('../../../../../assets/img/comment-empty.svg')
@@ -64,6 +65,8 @@ export default class CollectionDetailsPage extends UIElement<
     constructor(props: CollectionDetailsDependencies) {
         super(props, { logic: new Logic({ ...props }) })
     }
+
+    showMoreCollaboratorsRef = React.createRef<HTMLElement>()
 
     // get listsSidebarProps(): Omit<
     //     ListsSidebarProps,
@@ -598,47 +601,60 @@ export default class CollectionDetailsPage extends UIElement<
                                 <SharedBy>Space by</SharedBy>{' '}
                                 {renderedPreview.slice(0, showListRoleLimit())}
                                 {users.length - showListRoleLimit() > 0 && (
-                                    <ShowMoreCollaborators
-                                        onClick={(event) =>
-                                            this.processEvent(
-                                                'toggleMoreCollaborators',
-                                                {
-                                                    value: this.state
-                                                        .showMoreCollaborators,
-                                                },
-                                            )
-                                        }
-                                    >
-                                        {users.length - showListRoleLimit() && (
-                                            <>
-                                                <SharedBy>and</SharedBy>{' '}
-                                                {renderedPreview.slice(
-                                                    0,
-                                                    showListRoleLimit(),
-                                                ) && (
-                                                    <>
-                                                        {users.length -
-                                                            showListRoleLimit()}{' '}
-                                                        more{' '}
-                                                    </>
-                                                )}
-                                            </>
-                                        )}
+                                    <>
+                                        <ShowMoreCollaborators
+                                            onClick={(event) =>
+                                                this.processEvent(
+                                                    'toggleMoreCollaborators',
+                                                    {
+                                                        value: this.state
+                                                            .showMoreCollaborators,
+                                                    },
+                                                )
+                                            }
+                                            ref={this.showMoreCollaboratorsRef}
+                                        >
+                                            {users.length -
+                                                showListRoleLimit() && (
+                                                <>
+                                                    <SharedBy>and</SharedBy>{' '}
+                                                    {renderedPreview.slice(
+                                                        0,
+                                                        showListRoleLimit(),
+                                                    ) && (
+                                                        <SharedBy>
+                                                            {users.length -
+                                                                showListRoleLimit()}{' '}
+                                                            more{' '}
+                                                        </SharedBy>
+                                                    )}
+                                                </>
+                                            )}
+                                            <Icon
+                                                icon={'arrowDown'}
+                                                heightAndWidth={'16px'}
+                                            />
+                                        </ShowMoreCollaborators>
                                         {this.state.showMoreCollaborators && (
-                                            <HoverBox
-                                                marginLeft={'-90px'}
-                                                width={'unset'}
-                                                marginTop={'5px'}
-                                                padding={'0px'}
+                                            <PopoutBox
+                                                targetElementRef={
+                                                    this
+                                                        .showMoreCollaboratorsRef
+                                                        ?.current ?? undefined
+                                                }
+                                                placement="bottom"
+                                                closeComponent={() =>
+                                                    this.processEvent(
+                                                        'toggleMoreCollaborators',
+                                                        {
+                                                            value: !this.state
+                                                                .showMoreCollaborators,
+                                                        },
+                                                    )
+                                                }
+                                                offsetX={5}
                                             >
-                                                <ContributorContainer
-                                                    onMouseLeave={() =>
-                                                        this.processEvent(
-                                                            'toggleMoreCollaborators',
-                                                            {},
-                                                        )
-                                                    }
-                                                >
+                                                <ContributorContainer>
                                                     {users.map(
                                                         ({
                                                             userReference,
@@ -675,13 +691,9 @@ export default class CollectionDetailsPage extends UIElement<
                                                         ),
                                                     )}
                                                 </ContributorContainer>
-                                            </HoverBox>
+                                            </PopoutBox>
                                         )}
-                                        <Icon
-                                            icon={'arrowDown'}
-                                            heightAndWidth={'16px'}
-                                        />
-                                    </ShowMoreCollaborators>
+                                    </>
                                 )}
                                 {/* {rendered} */}
                             </>
@@ -871,7 +883,11 @@ export default class CollectionDetailsPage extends UIElement<
             )
         } else {
             // Case: Get contributor invitation link
-            if (this.state.listKeyPresent && !this.state.listRoleID) {
+            if (
+                this.state.listKeyPresent &&
+                !this.state.listRoleID &&
+                !this.state.isListOwner
+            ) {
                 return (
                     <InvitedNotification
                         viewportBreakpoint={this.viewportBreakpoint}
@@ -948,7 +964,7 @@ export default class CollectionDetailsPage extends UIElement<
             return 'play'
         }
         if (this.state.searchType === 'pdf') {
-            return 'file'
+            return 'filePDF'
         }
         if (this.state.searchType === 'pages') {
             return 'heartEmpty'
@@ -1498,7 +1514,7 @@ const InvitedNotification = styled.div<{
     ${(props) =>
         props.withFrame &&
         css`
-            border: 1px solid ${(props) => props.theme.colors.prime1};
+            border: 1px solid ${(props) => props.theme.colors.prime1}40;
             border-radius: 8px;
             width: fill-available;
             padding: 5px 5px 5px 15px;
@@ -1510,7 +1526,7 @@ const InvitedNotification = styled.div<{
         props.withFrame &&
         props.viewportBreakpoint === 'mobile' &&
         css`
-            border: 1px solid ${(props) => props.theme.colors.prime1};
+            border: 1px solid ${(props) => props.theme.colors.prime1}40;
             border-radius: 8px;
             width: fill-available;
             padding: 15px 15px;

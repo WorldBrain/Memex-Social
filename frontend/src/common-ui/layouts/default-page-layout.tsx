@@ -488,7 +488,6 @@ const PageMidleAreaAction = styled.div<{
 `
 
 const MainColumn = styled.div`
-    border-radius: 20px;
     width: 100%;
     display: flex;
     flex-direction: column;

@@ -555,7 +555,7 @@ const AuthenticationMethods = styled.div`
 `
 
 const InfoText = styled.div`
-    color: ${(props) => props.theme.colors.greyScale2};
+    color: ${(props) => props.theme.colors.greyScale5};
     font-size: 12px;
     margin-top: 5px;
     margin-bottom: 15px;
