@@ -22,7 +22,7 @@ export interface ExtDetectionEvent {
     toggleMissingPdfModal: {}
     toggleFollowSpaceOverlay: {}
     clickPageResult: {
-        urlToOpen: string
+        urlToOpen: string | undefined
         preventOpening: () => void
         isFollowedSpace?: boolean
         isFeed?: boolean

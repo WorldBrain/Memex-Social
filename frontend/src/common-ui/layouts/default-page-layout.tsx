@@ -43,6 +43,7 @@ export default function DefaultPageLayout(props: {
     scrollTop?: number
     breadCrumbs?: JSX.Element
     renderDescription?: JSX.Element
+    isPageView?: string
 }) {
     const { viewportBreakpoint: viewportWidth } = props
     const renderSubtitle = props.renderSubtitle ?? ((props) => props.children)
@@ -133,6 +134,7 @@ export default function DefaultPageLayout(props: {
                     hideActivityIndicator={props.hideActivityIndicator}
                     id={'StyledHeader'}
                     viewportWidth={viewportWidth}
+                    isPageView={props.isPageView}
                 >
                     {isIframe() ? undefined : (
                         <>
@@ -160,59 +162,64 @@ export default function DefaultPageLayout(props: {
                             </HeaderAuthArea>
                         </>
                     )}
-                    <StyledHeaderContainer viewportWidth={viewportWidth}>
-                        <HeaderMiddleArea
-                            viewportWidth={viewportWidth}
-                            id={'HeaderMiddleArea'}
-                            isIframe={isIframe() === true}
-                        >
-                            {/* <SpaceActionBar>
+                    {props.isPageView ? (
+                        props.breadCrumbs && props.breadCrumbs
+                    ) : (
+                        <StyledHeaderContainer viewportWidth={viewportWidth}>
+                            <HeaderMiddleArea
+                                viewportWidth={viewportWidth}
+                                id={'HeaderMiddleArea'}
+                                isIframe={isIframe() === true}
+                            >
+                                {/* <SpaceActionBar>
                                 {props.webMonetizationIcon}
                                 {props.followBtn}
                             </SpaceActionBar> */}
-                            {isIframe()
-                                ? undefined
-                                : props.renderHeaderActionArea != null && (
-                                      <PageMidleAreaAction
-                                          scrollTop={props.scrollTop}
-                                          viewportWidth={viewportWidth}
-                                      >
-                                          {props.renderHeaderActionArea}
-                                      </PageMidleAreaAction>
-                                  )}
-                            <PageMidleAreaTitles
-                                scrollTop={props.scrollTop}
-                                viewportWidth={viewportWidth}
-                            >
-                                {props.breadCrumbs && props.breadCrumbs}
-                                {props.headerTitle && (
-                                    <HeaderTitle
-                                        viewportWidth={viewportWidth}
-                                        scrollTop={props.scrollTop}
-                                        isIframe={isIframe()}
-                                        onClick={
-                                            isIframe()
-                                                ? () =>
-                                                      window.open(
-                                                          window.location.href,
-                                                          '_blank',
-                                                      )
-                                                : undefined
-                                        }
-                                    >
-                                        {props.headerTitle}
-                                    </HeaderTitle>
-                                )}
-                                {props.headerTitle &&
-                                    props.headerSubtitle &&
-                                    renderSubtitle({
-                                        children: props.headerSubtitle,
-                                    })}
-                            </PageMidleAreaTitles>
-                            {props.renderDescription && props.renderDescription}
-                            {/* <LeftRightBlock /> */}
-                        </HeaderMiddleArea>
-                    </StyledHeaderContainer>
+                                {isIframe()
+                                    ? undefined
+                                    : props.renderHeaderActionArea != null && (
+                                          <PageMidleAreaAction
+                                              scrollTop={props.scrollTop}
+                                              viewportWidth={viewportWidth}
+                                          >
+                                              {props.renderHeaderActionArea}
+                                          </PageMidleAreaAction>
+                                      )}
+                                <PageMidleAreaTitles
+                                    scrollTop={props.scrollTop}
+                                    viewportWidth={viewportWidth}
+                                >
+                                    {props.headerTitle && (
+                                        <HeaderTitle
+                                            viewportWidth={viewportWidth}
+                                            scrollTop={props.scrollTop}
+                                            isIframe={isIframe()}
+                                            onClick={
+                                                isIframe()
+                                                    ? () =>
+                                                          window.open(
+                                                              window.location
+                                                                  .href,
+                                                              '_blank',
+                                                          )
+                                                    : undefined
+                                            }
+                                        >
+                                            {props.headerTitle}
+                                        </HeaderTitle>
+                                    )}
+                                    {props.headerTitle &&
+                                        props.headerSubtitle &&
+                                        renderSubtitle({
+                                            children: props.headerSubtitle,
+                                        })}
+                                </PageMidleAreaTitles>
+                                {props.renderDescription &&
+                                    props.renderDescription}
+                                {/* <LeftRightBlock /> */}
+                            </HeaderMiddleArea>
+                        </StyledHeaderContainer>
+                    )}
                 </StyledHeader>
                 {/* {renderListsSidebar()} */}
                 <PageResultsArea
@@ -259,6 +266,7 @@ const StyledHeader = styled.div<{
     viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
     hideActivityIndicator: boolean | undefined
     isIframe: boolean
+    isPageView: string
 }>`
     font-family: ${(props) => props.theme.fonts.primary};
     width: fill-available;
@@ -277,7 +285,7 @@ const StyledHeader = styled.div<{
     border-radius: 10px 10px 0px 0px;
     padding: 15px 30px 30px 30px;
     grid-gap: 25px;
-    border-bottom: 1px solid ${(props) => props.theme.colors.prime1}60;
+    border-bottom: 1px solid ${(props) => props.theme.colors.prime1}30;
 
     ${(props) =>
         props.viewportWidth === 'mobile' &&
@@ -308,6 +316,12 @@ const StyledHeader = styled.div<{
         props.isIframe &&
         css`
             padding: 20px 20px 20px 20px;
+        `}
+       ${(props) =>
+        props.isPageView &&
+        css`
+            padding: 20px 20px 20px 20px;
+            margin-bottom: 10px;
         `}
 `
 
@@ -357,28 +371,29 @@ const HeaderTitle = styled.div<{
     viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
     scrollTop?: number
     isIframe?: boolean
+    isPageView?: boolean
 }>`
-    font-weight: 600;
+    font-weight: 500;
     width: fill-available;
     letter-spacing: 2px;
     text-overflow: ${(props) => props.scrollTop! >= 100 && 'ellipsis'};
     font-family: ${(props) => props.theme.fonts.primary};
-    font-size: 30px;
-    line-height: 45px;
+    font-size: 26px;
+    line-height: 39px;
     letter-spacing: 0.5px;
     overflow-wrap: break-word;
     color: ${(props) => props.theme.colors.white};
     ${(props) =>
         props.viewportWidth === 'small' &&
         css`
-            font-size: 28px;
-            line-height: 38px;
+            font-size: 24px;
+            line-height: 36px;
         `}
     ${(props) =>
         props.viewportWidth === 'mobile' &&
         css`
-            font-size: 24px;
-            line-height: 34px;
+            font-size: 20px;
+            line-height: 30px;
         `};
     ${(props) =>
         props.isIframe &&

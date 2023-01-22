@@ -438,11 +438,11 @@ export default class CollectionDetailsPage extends UIElement<
 
     private renderBreadCrumbs() {
         const isPageView = this.props.entryID
+        const title = this.state.listData!.list.title
 
         if (isPageView) {
             return (
-                <BreadCrumbBox>
-                    <Icon filePath="arrowLeft" heightAndWidth="22px" hoverOff />
+                <BreadCrumbBox isPageView={isPageView}>
                     <RouteLink
                         route="collectionDetails"
                         services={this.props.services}
@@ -450,7 +450,12 @@ export default class CollectionDetailsPage extends UIElement<
                             id: this.props.listID,
                         }}
                     >
-                        Go to collection
+                        <Icon
+                            filePath="arrowLeft"
+                            heightAndWidth="20px"
+                            hoverOff
+                        />
+                        {title}
                     </RouteLink>
                 </BreadCrumbBox>
             )
@@ -460,6 +465,36 @@ export default class CollectionDetailsPage extends UIElement<
     private renderTitle() {
         const { listData } = this.state
         const title = listData!.list.title
+        const isPageView = this.props.entryID
+
+        if (isPageView) {
+            return (
+                <TitleClick
+                    onClick={
+                        !this.isIframe()
+                            ? (e) => {
+                                  this.processEvent('clickPageResult', {
+                                      urlToOpen:
+                                          listData?.listEntries[0].originalUrl,
+                                      preventOpening: () => e.preventDefault(),
+                                      isFollowedSpace:
+                                          this.state.isCollectionFollowed ||
+                                          this.state.isListOwner,
+                                      notifAlreadyShown: this.state
+                                          .notifAlreadyShown,
+                                      sharedListReference: this
+                                          .sharedListReference,
+                                  })
+                                  e.preventDefault()
+                                  e.stopPropagation()
+                              }
+                            : undefined
+                    }
+                >
+                    {this.state.listData?.listEntries[0].entryTitle}
+                </TitleClick>
+            )
+        }
 
         if (listData!.discordList == null) {
             return title
@@ -567,12 +602,17 @@ export default class CollectionDetailsPage extends UIElement<
             )[0]
 
             return (
-                <>
-                    <>{domain}</>
-                    <>added by</>
-                    <>{contributorName}</>
-                    <>{moment(addedDate).format('lll')}</>
-                </>
+                <PageViewFooter>
+                    <Domain>{domain}</Domain>
+                    <PageViewSubtitleHelpText>
+                        added by
+                    </PageViewSubtitleHelpText>
+                    <PageViewSubtitle>{contributorName}</PageViewSubtitle>
+                    <PageViewSubtitleHelpText>on </PageViewSubtitleHelpText>
+                    <PageViewSubtitle>
+                        {moment(addedDate).format('lll')}
+                    </PageViewSubtitle>
+                </PageViewFooter>
             )
         }
 
@@ -871,6 +911,11 @@ export default class CollectionDetailsPage extends UIElement<
 
     renderHeaderActionArea() {
         const isPageView = this.props.entryID
+
+        if (isPageView) {
+            return
+        }
+
         if (
             // this.state.followLoadState === 'running' ||
             this.state.listRolesLoadState === 'running' ||
@@ -1053,6 +1098,12 @@ export default class CollectionDetailsPage extends UIElement<
     }
 
     renderDescription() {
+        const isPageView = this.props.entryID
+
+        if (isPageView) {
+            return
+        }
+
         const { state } = this
         const data = state.listData
 
@@ -1206,6 +1257,7 @@ export default class CollectionDetailsPage extends UIElement<
                     scrollTop={this.state.scrollTop}
                     breadCrumbs={this.renderBreadCrumbs()}
                     renderDescription={this.renderDescription()}
+                    isPageView={this.props.entryID}
                 >
                     {data.listEntries.length > 0 &&
                         !isPageView &&
@@ -1225,130 +1277,114 @@ export default class CollectionDetailsPage extends UIElement<
                                           bottom="small"
                                           key={entry.normalizedUrl}
                                       >
-                                          {!isPageView && (
-                                              //   <PageStickyBox
-                                              //       beSticky={
-                                              //           state
-                                              //               .pageAnnotationsExpanded[
-                                              //               entry.normalizedUrl
-                                              //           ]
-                                              //       }
-                                              //   >
-                                              <ItemBox
-                                                  onMouseEnter={(
-                                                      event: React.MouseEventHandler,
-                                                  ) =>
+                                          <ItemBox
+                                              onMouseEnter={(
+                                                  event: React.MouseEventHandler,
+                                              ) =>
+                                                  this.processEvent(
+                                                      'setPageHover',
+                                                      { entryIndex },
+                                                  )
+                                              }
+                                              onMouseOver={(
+                                                  event: React.MouseEventHandler,
+                                              ) => {
+                                                  !this.state.listData
+                                                      ?.listEntries[entryIndex]
+                                                      .hoverState &&
                                                       this.processEvent(
                                                           'setPageHover',
-                                                          { entryIndex },
+                                                          {
+                                                              entryIndex,
+                                                          },
                                                       )
+                                              }}
+                                              onMouseLeave={(
+                                                  event: React.MouseEventHandler,
+                                              ) =>
+                                                  this.processEvent(
+                                                      'setPageHover',
+                                                      { entryIndex },
+                                                  )
+                                              }
+                                              hoverState={
+                                                  this.state.listData
+                                                      ?.listEntries[entryIndex]
+                                                      .hoverState
+                                              }
+                                          >
+                                              <BlockContent
+                                                  // pageLink ={'https://memex.social/' + this.props.listID + '/' + entry.reference.id}
+                                                  youtubeService={
+                                                      this.props.services
+                                                          .youtube
                                                   }
-                                                  onMouseOver={(
-                                                      event: React.MouseEventHandler,
-                                                  ) => {
-                                                      !this.state.listData
-                                                          ?.listEntries[
-                                                          entryIndex
-                                                      ].hoverState &&
-                                                          this.processEvent(
-                                                              'setPageHover',
-                                                              {
-                                                                  entryIndex,
-                                                              },
-                                                          )
+                                                  type={
+                                                      isPagePdf({
+                                                          url:
+                                                              entry.normalizedUrl,
+                                                      })
+                                                          ? 'pdf'
+                                                          : 'page'
+                                                  }
+                                                  normalizedUrl={
+                                                      entry.normalizedUrl
+                                                  }
+                                                  originalUrl={
+                                                      entry.originalUrl
+                                                  }
+                                                  fullTitle={
+                                                      entry && entry.entryTitle
+                                                  }
+                                                  onClick={(e) => {
+                                                      this.processEvent(
+                                                          'clickPageResult',
+                                                          {
+                                                              urlToOpen:
+                                                                  entry.originalUrl,
+                                                              preventOpening: () =>
+                                                                  e.preventDefault(),
+                                                              isFollowedSpace:
+                                                                  this.state
+                                                                      .isCollectionFollowed ||
+                                                                  this.state
+                                                                      .isListOwner,
+                                                              notifAlreadyShown: this
+                                                                  .state
+                                                                  .notifAlreadyShown,
+                                                              sharedListReference: this
+                                                                  .sharedListReference,
+                                                          },
+                                                      )
+                                                      e.preventDefault()
+                                                      e.stopPropagation()
                                                   }}
-                                                  onMouseLeave={(
-                                                      event: React.MouseEventHandler,
-                                                  ) =>
-                                                      this.processEvent(
-                                                          'setPageHover',
-                                                          { entryIndex },
-                                                      )
+                                                  viewportBreakpoint={
+                                                      this.viewportBreakpoint
                                                   }
-                                                  hoverState={
+                                                  mainContentHover={
                                                       this.state.listData
                                                           ?.listEntries[
                                                           entryIndex
                                                       ].hoverState
+                                                          ? 'main-content'
+                                                          : undefined
                                                   }
-                                              >
-                                                  <BlockContent
-                                                      // pageLink ={'https://memex.social/' + this.props.listID + '/' + entry.reference.id}
-                                                      youtubeService={
-                                                          this.props.services
-                                                              .youtube
-                                                      }
-                                                      type={
-                                                          isPagePdf({
-                                                              url:
-                                                                  entry.normalizedUrl,
-                                                          })
-                                                              ? 'pdf'
-                                                              : 'page'
-                                                      }
-                                                      normalizedUrl={
-                                                          entry.normalizedUrl
-                                                      }
-                                                      originalUrl={
-                                                          entry.originalUrl
-                                                      }
-                                                      fullTitle={
-                                                          entry &&
-                                                          entry.entryTitle
-                                                      }
-                                                      onClick={(e) => {
-                                                          this.processEvent(
-                                                              'clickPageResult',
-                                                              {
-                                                                  urlToOpen:
-                                                                      entry.originalUrl,
-                                                                  preventOpening: () =>
-                                                                      e.preventDefault(),
-                                                                  isFollowedSpace:
-                                                                      this.state
-                                                                          .isCollectionFollowed ||
-                                                                      this.state
-                                                                          .isListOwner,
-                                                                  notifAlreadyShown: this
-                                                                      .state
-                                                                      .notifAlreadyShown,
-                                                                  sharedListReference: this
-                                                                      .sharedListReference,
-                                                              },
-                                                          )
-                                                          e.preventDefault()
-                                                          e.stopPropagation()
-                                                      }}
-                                                      viewportBreakpoint={
-                                                          this
-                                                              .viewportBreakpoint
-                                                      }
-                                                      mainContentHover={
-                                                          this.state.listData
-                                                              ?.listEntries[
-                                                              entryIndex
-                                                          ].hoverState
-                                                              ? 'main-content'
-                                                              : undefined
-                                                      }
-                                                  />
-                                                  <ItemBoxBottom
-                                                      creationInfo={{
-                                                          creator: this.state
-                                                              .users[
-                                                              entry.creator.id
-                                                          ],
-                                                          createdWhen:
-                                                              entry.createdWhen,
-                                                      }}
-                                                      actions={this.getPageEntryActions(
-                                                          entry,
-                                                          entryIndex,
-                                                      )}
-                                                  />
-                                              </ItemBox>
-                                              //   </PageStickyBox>
-                                          )}
+                                              />
+                                              <ItemBoxBottom
+                                                  creationInfo={{
+                                                      creator: this.state.users[
+                                                          entry.creator.id
+                                                      ],
+                                                      createdWhen:
+                                                          entry.createdWhen,
+                                                  }}
+                                                  actions={this.getPageEntryActions(
+                                                      entry,
+                                                      entryIndex,
+                                                  )}
+                                              />
+                                          </ItemBox>
                                           {state.pageAnnotationsExpanded[
                                               entry.normalizedUrl
                                           ] && (
@@ -1393,6 +1429,30 @@ export default class CollectionDetailsPage extends UIElement<
         )
     }
 }
+
+const TitleClick = styled.div`
+    cursor: pointer;
+    &:hover {
+        text-decoration: underline;
+    }
+`
+
+const Domain = styled.div`
+    color: ${(props) => props.theme.colors.white};
+    margin-right: 20px;
+`
+const PageViewSubtitle = styled.div`
+    color: ${(props) => props.theme.colors.greyScale5};
+`
+const PageViewSubtitleHelpText = styled.div`
+    color: ${(props) => props.theme.colors.greyScale4};
+`
+
+const PageViewFooter = styled.div`
+    display: flex;
+    align-items: center;
+    grid-gap: 5px;
+`
 
 const ResultsList = styled.div`
     display: flex;
@@ -1536,11 +1596,26 @@ const InvitedNotification = styled.div<{
         `}
 `
 
-const BreadCrumbBox = styled.div`
+const BreadCrumbBox = styled.div<{
+    isPageView: string
+}>`
     display: flex;
     align-items: center;
     grid-gap: 10px;
-    margin-left: 5px;
+    margin-left: -8px;
+    margin-top: 15px;
+
+    & * {
+        cursor: pointer;
+    }
+
+    ${(props) =>
+        props.isPageView &&
+        css`
+            margin-top: 0px;
+            max-width: 800px;
+            width: 100%;
+        `}
 `
 
 const AbovePagesBox = styled.div<{
