@@ -27,6 +27,7 @@ import { IconKeys } from '@worldbrain/memex-common/lib/common-ui/styles/types'
 import LoadingIndicator from '@worldbrain/memex-common/lib/common-ui/components/loading-indicator'
 import { Waypoint } from 'react-waypoint'
 import { mapOrderedMap } from '../../../../../utils/ordered-map'
+import { act } from 'react-dom/test-utils'
 
 const StyledIconMargin = styled(Margin)`
     display: flex;
@@ -215,7 +216,7 @@ export default class HomeFeedPage extends UIElement<
         if (state.loadState === 'error') {
             return 'Error'
         }
-        if (!this.state.activityItems.order.length) {
+        if (!this.state.activityItems.length) {
             return this.renderNoActivities()
         }
         // this.shouldRenderNewLine()
@@ -276,7 +277,7 @@ export default class HomeFeedPage extends UIElement<
         const lastSeenLine = new LastSeenLineState(
             this.state.lastSeenTimestamp ?? null,
         )
-        return mapOrderedMap(activities, (item) => {
+        return activities.map((item) => {
             const shouldRenderLastSeenLine = lastSeenLine.shouldRenderBeforeItem(
                 item,
             )

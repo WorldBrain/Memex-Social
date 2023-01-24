@@ -10,7 +10,6 @@ import { UIEvent } from '../../../../../main-ui/classes/logic'
 import { UIElementServices } from '../../../../../services/types'
 import { StorageModules } from '../../../../../storage/types'
 import { UITaskState } from '../../../../../main-ui/types'
-import { OrderedMap } from '../../../../../utils/ordered-map'
 import {
     ListsSidebarState,
     ListsSidebarEvent,
@@ -48,7 +47,7 @@ export interface HomeFeedDependencies {
 export type HomeFeedState = {
     loadState: UITaskState
     needsAuth?: boolean
-    activityItems: OrderedMap<ActivityItem>
+    activityItems: ActivityItem[]
     users: { [userId: string]: Pick<User, 'displayName'> | null }
     lastSeenTimestamp?: number | null
     shouldShowNewLine: boolean

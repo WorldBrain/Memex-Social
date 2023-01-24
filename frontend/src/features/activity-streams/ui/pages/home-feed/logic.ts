@@ -78,7 +78,7 @@ export default class HomeFeedLogic extends UILogic<
     getInitialState(): HomeFeedState {
         return {
             loadState: 'pristine',
-            activityItems: createOrderedMap(),
+            activityItems: [],
             users: {},
             shouldShowNewLine: true,
             loadingIncludingUIFinished: false,
@@ -185,19 +185,8 @@ export default class HomeFeedLogic extends UILogic<
                 lastSeenTimestamp,
             })
 
-            const nextActivityItems = arrayToOrderedMap(
-                organized.activityItems,
-                (item) => {
-                    if (item.type === 'list-item') {
-                        return item.listReference.id
-                    }
-                    return item.groupId
-                },
-            )
-
             mainMutation.activityItems = {
-                order: { $push: nextActivityItems.order },
-                items: { $merge: nextActivityItems.items },
+                $push: organized.activityItems,
             }
 
             mainMutation.shouldShowNewLine = {
