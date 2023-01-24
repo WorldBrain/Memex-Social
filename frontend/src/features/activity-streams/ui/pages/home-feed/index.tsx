@@ -389,8 +389,8 @@ export default class HomeFeedPage extends UIElement<
 
         return (
             <div style={{ color: 'white', margin: '20px 0px' }}>
-                {activityItem.activityCount}{' '}
-                {pluralize(activityItem.activityCount, 'annotations')}
+                {activityItem.activities.length}{' '}
+                {pluralize(activityItem.activities.length, 'annotations')}
                 <br />
                 {activityItem.list && (
                     <>
@@ -416,8 +416,8 @@ export default class HomeFeedPage extends UIElement<
         }
         return (
             <div style={{ color: 'white', margin: '20px 0px' }}>
-                {activityItem.activityCount}{' '}
-                {pluralize(activityItem.activityCount, 'reply', 'replies')}
+                {activityItem.activities.length}{' '}
+                {pluralize(activityItem.activities.length, 'reply', 'replies')}
                 <br />
                 {activityItem.list && (
                     <>
@@ -452,8 +452,8 @@ export default class HomeFeedPage extends UIElement<
         }
         return (
             <div style={{ color: 'white', margin: '20px 0px' }}>
-                {listItem.activityCount}{' '}
-                {pluralize(listItem.activityCount, 'page')} added in{' '}
+                {listItem.activities.length}{' '}
+                {pluralize(listItem.activities.length, 'page')} added in{' '}
                 {listItem.listName}
             </div>
         )

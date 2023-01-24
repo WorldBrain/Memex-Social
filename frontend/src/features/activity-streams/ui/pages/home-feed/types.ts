@@ -77,7 +77,7 @@ export type ActivityItem =
 interface TopLevelActivityItem {
     groupId: string
     notifiedWhen: number
-    activityCount: number
+    activities: Array<{ notifiedWhen: number }>
 }
 
 export interface ListActivityItem extends TopLevelActivityItem {

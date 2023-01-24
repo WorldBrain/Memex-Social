@@ -24,10 +24,6 @@ import {
 } from '../../../../lists-sidebar/ui/logic'
 import UserProfileCache from '../../../../user-management/utils/user-profile-cache'
 import {
-    createOrderedMap,
-    arrayToOrderedMap,
-} from '../../../../../utils/ordered-map'
-import {
     extDetectionInitialState,
     extDetectionEventHandlers,
 } from '../../../../ext-detection/ui/logic'
@@ -211,7 +207,7 @@ export function organizeActivities(
         [conversationKey: string]: UITaskState
     } = {}
 
-    const activityItems: ActivityItem[] = []
+    let activityItems: ActivityItem[] = []
     for (const activityGroup of activities) {
         if (
             activityGroup.entityType === 'conversationThread' &&
@@ -231,7 +227,11 @@ export function organizeActivities(
             const pageItem: AnnotationActivityItem = {
                 groupId: activityGroup.id,
                 notifiedWhen: 0,
-                activityCount: activityGroup.activities.length,
+                activities: replyActivityGroup.activities.map(
+                    ({ activity }) => ({
+                        notifiedWhen: activity.reply.createdWhen,
+                    }),
+                ),
                 type: 'annotation-item',
                 reason: 'new-replies',
                 pageTitle: firstReplyActivity.pageInfo.fullTitle,
@@ -263,7 +263,11 @@ export function organizeActivities(
             activityItems.push({
                 groupId: entryActivityGroup.id,
                 notifiedWhen: firstActivity.entry.createdWhen,
-                activityCount: activityGroup.activities.length,
+                activities: entryActivityGroup.activities.map(
+                    ({ activity }) => ({
+                        notifiedWhen: activity.entry.createdWhen,
+                    }),
+                ),
                 type: 'list-item',
                 reason: 'pages-added-to-list',
                 listName: firstActivity.list.title,
@@ -289,7 +293,11 @@ export function organizeActivities(
             activityItems.push({
                 groupId: entryActivityGroup.id,
                 notifiedWhen: firstActivity.annotation.createdWhen,
-                activityCount: activityGroup.activities.length,
+                activities: entryActivityGroup.activities.map(
+                    ({ activity }) => ({
+                        notifiedWhen: activity.annotation.createdWhen,
+                    }),
+                ),
                 type: 'page-item',
                 reason: 'new-annotations',
                 pageTitle: firstActivity.pageInfo.fullTitle,
@@ -305,6 +313,54 @@ export function organizeActivities(
                 `Ignored unknown activity ${activityGroup.entityType}:${activityGroup.activityType}`,
             )
         }
+    }
+
+    if (options.lastSeenTimestamp) {
+        let itemsToSplit: ActivityItem[] = []
+        activityItems = activityItems.filter((activityItem) => {
+            const firstActivity = activityItem.activities[0]
+            const lastActivity =
+                activityItem.activities[activityItem.activities.length - 1]
+            if (
+                firstActivity.notifiedWhen < options.lastSeenTimestamp! &&
+                lastActivity.notifiedWhen > options.lastSeenTimestamp!
+            ) {
+                itemsToSplit.push(activityItem)
+                return false
+            }
+            return true
+        })
+
+        for (const itemToSplit of itemsToSplit) {
+            const before: ActivityItem = {
+                ...itemToSplit,
+                groupId: `${itemToSplit.groupId}-before`,
+                activities: [],
+            }
+            const after: ActivityItem = {
+                ...itemToSplit,
+                groupId: `${itemToSplit.groupId}-after`,
+                activities: [],
+            }
+            for (const activity of itemToSplit.activities) {
+                if (activity.notifiedWhen < options.lastSeenTimestamp) {
+                    before.activities.push(activity)
+                } else {
+                    after.activities.push(activity)
+                }
+            }
+            before.notifiedWhen =
+                before.activities[before.activities.length - 1].notifiedWhen
+            after.notifiedWhen =
+                after.activities[after.activities.length - 1].notifiedWhen
+
+            activityItems.push(before, after)
+        }
+        activityItems = orderBy(
+            activityItems,
+            [(activityItem) => activityItem.notifiedWhen],
+            ['desc'],
+        )
     }
 
     return {
