@@ -1,9 +1,7 @@
-import pick from 'lodash/pick'
 import React from 'react'
-import { Waypoint } from 'react-waypoint'
 import styled, { css } from 'styled-components'
 import { UIElement } from '../../../../../main-ui/classes'
-import Logic, { getConversationKey } from './logic'
+import Logic from './logic'
 import {
     HomeFeedEvent,
     HomeFeedDependencies,
@@ -16,21 +14,9 @@ import {
 import DocumentTitle from '../../../../../main-ui/components/document-title'
 import DefaultPageLayout from '../../../../../common-ui/layouts/default-page-layout'
 import { Margin } from 'styled-components-spacing'
-import AnnotationsInPage from '../../../../annotations/ui/components/annotations-in-page'
-import { SharedAnnotationInPage } from '../../../../annotations/ui/components/types'
 import MessageBox from '../../../../../common-ui/components/message-box'
-import LoadingIndicator from '../../../../../common-ui/components/loading-indicator'
 import RouteLink from '../../../../../common-ui/components/route-link'
-import {
-    mapOrderedMap,
-    getOrderedMapIndex,
-    OrderedMap,
-    filterOrderedMap,
-} from '../../../../../utils/ordered-map'
-import { SharedAnnotationReference } from '@worldbrain/memex-common/lib/content-sharing/types'
-import AnnotationReply from '../../../../content-conversations/ui/components/annotation-reply'
 import ErrorBox from '../../../../../common-ui/components/error-box'
-import { isPagePdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
 import InstallExtOverlay from '../../../../ext-detection/ui/components/install-ext-overlay'
 import { getViewportBreakpoint } from '../../../../../main-ui/styles/utils'
 import { ViewportBreakpoint } from '../../../../../main-ui/styles/types'
@@ -38,11 +24,9 @@ import MissingPdfOverlay from '../../../../ext-detection/ui/components/missing-p
 import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
 import IconBox from '@worldbrain/memex-common/lib/common-ui/components/icon-box'
 import { IconKeys } from '@worldbrain/memex-common/lib/common-ui/styles/types'
-import BlockContent from '@worldbrain/memex-common/lib/common-ui/components/block-content'
-import ItemBox from '@worldbrain/memex-common/lib/common-ui/components/item-box'
-import ItemBoxBottom, {
-    ItemBoxBottomAction,
-} from '@worldbrain/memex-common/lib/common-ui/components/item-box-bottom'
+import LoadingIndicator from '@worldbrain/memex-common/lib/common-ui/components/loading-indicator'
+import { Waypoint } from 'react-waypoint'
+import { mapOrderedMap } from '../../../../../utils/ordered-map'
 
 const StyledIconMargin = styled(Margin)`
     display: flex;
@@ -196,10 +180,7 @@ const HeaderSubTitle = styled.div`
 `
 
 type ActivityItemRendererOpts = { groupAlreadySeen: boolean }
-type ActivityItemRendererResult = {
-    key: string | number
-    rendered: JSX.Element
-}
+type ActivityItemRendererResult = React.ReactNode
 type ActivityItemRenderer<T extends ActivityItem> = (
     item: T,
     options: ActivityItemRendererOpts,
@@ -222,25 +203,6 @@ export default class HomeFeedPage extends UIElement<
         return getViewportBreakpoint(this.getViewportWidth())
     }
 
-    private getRenderableAnnotation = (
-        reference: SharedAnnotationReference,
-        hasReplies: boolean,
-    ): SharedAnnotationInPage | null => {
-        const annotation = this.state.annotations[reference.id]
-
-        if (!annotation) {
-            return null
-        }
-
-        return {
-            linkId: reference.id as string,
-            reference: reference,
-            hasThread: hasReplies,
-            createdWhen: annotation.updatedWhen,
-            ...pick(annotation, 'comment', 'body'),
-        } as SharedAnnotationInPage
-    }
-
     renderContent() {
         const { state } = this
         if (state.loadState === 'pristine' || state.loadState === 'running') {
@@ -256,9 +218,7 @@ export default class HomeFeedPage extends UIElement<
         if (!this.state.activityItems.order.length) {
             return this.renderNoActivities()
         }
-
-        this.shouldRenderNewLine()
-
+        // this.shouldRenderNewLine()
         return (
             <FeedContainer viewportBreakpoint={this.viewportBreakpoint}>
                 {this.state.shouldShowNewLine && (
@@ -289,10 +249,6 @@ export default class HomeFeedPage extends UIElement<
         )
     }
 
-    shouldRenderNewLine() {
-        return this.processEvent('getLastSeenLinePosition', null)
-    }
-
     renderNoActivities() {
         return (
             <Margin vertical="largest">
@@ -320,12 +276,10 @@ export default class HomeFeedPage extends UIElement<
         const lastSeenLine = new LastSeenLineState(
             this.state.lastSeenTimestamp ?? null,
         )
-
         return mapOrderedMap(activities, (item) => {
             const shouldRenderLastSeenLine = lastSeenLine.shouldRenderBeforeItem(
                 item,
             )
-
             let result: ActivityItemRendererResult
             if (item.type === 'page-item') {
                 result = this.renderPageItem(item, {
@@ -335,6 +289,10 @@ export default class HomeFeedPage extends UIElement<
                 result = this.renderListItem(item, {
                     groupAlreadySeen: lastSeenLine.alreadyRenderedLine,
                 })
+            } else if (item.type === 'annotation-item') {
+                result = this.renderAnnotationItem(item, {
+                    groupAlreadySeen: lastSeenLine.alreadyRenderedLine,
+                })
             } else {
                 throw new Error(
                     `Received unsupported activity type to render: ${
@@ -342,9 +300,8 @@ export default class HomeFeedPage extends UIElement<
                     }`,
                 )
             }
-
             return (
-                <React.Fragment key={result.key}>
+                <React.Fragment key={item.groupId}>
                     {shouldRenderLastSeenLine && (
                         <LastSeenLineContainer
                             shouldShowNewLine={this.state.shouldShowNewLine}
@@ -353,7 +310,7 @@ export default class HomeFeedPage extends UIElement<
                             <LastSeenLine />
                         </LastSeenLineContainer>
                     )}
-                    {result.rendered}
+                    {result}
                 </React.Fragment>
             )
         })
@@ -422,61 +379,62 @@ export default class HomeFeedPage extends UIElement<
     }
 
     renderPageItem: ActivityItemRenderer<PageActivityItem> = (
-        pageItem,
+        activityItem,
         options,
     ) => {
-        const pageInfo = this.state.pageInfo[pageItem.normalizedPageUrl]
-        const pageCreator = this.state.users[pageItem.creatorReference.id]
-        return {
-            key: getOrderedMapIndex(pageItem.annotations, 0).reference.id,
-            rendered: (
-                <Margin top={'larger'} bottom="large">
-                    <Margin>
-                        <Margin bottom="small">
-                            {this.renderActivityReason(pageItem)}
-                        </Margin>
-                        <ItemBox>
-                            <BlockContent
-                                type={
-                                    isPagePdf({
-                                        url: pageItem?.normalizedPageUrl,
-                                    })
-                                        ? 'pdf'
-                                        : 'page'
-                                }
-                                normalizedUrl={pageItem?.normalizedPageUrl}
-                                originalUrl={pageInfo?.originalUrl}
-                                fullTitle={pageInfo?.fullTitle}
-                                onClick={(e) =>
-                                    this.processEvent('clickPageResult', {
-                                        urlToOpen: pageInfo.originalUrl,
-                                        preventOpening: () =>
-                                            e.preventDefault(),
-                                        isFeed: true,
-                                    })
-                                }
-                                viewportBreakpoint={this.viewportBreakpoint}
-                            />
-                            <ItemBoxBottom
-                                creationInfo={{
-                                    creator: pageCreator,
-                                    createdWhen: pageInfo?.createdWhen,
-                                }}
-                                actions={[]}
-                            />
-                        </ItemBox>
-                    </Margin>
-                    <Margin left={'small'}>
-                        {this.renderAnnotationsInPage(
-                            pageItem.groupId,
-                            pageItem,
-                            pageItem.annotations,
-                            options,
-                        )}
-                    </Margin>
-                </Margin>
-            ),
+        if (activityItem.reason !== 'new-annotations') {
+            return null
         }
+
+        return (
+            <div style={{ color: 'white', margin: '20px 0px' }}>
+                {activityItem.activityCount}{' '}
+                {pluralize(activityItem.activityCount, 'annotations')}
+                <br />
+                {activityItem.list && (
+                    <>
+                        in
+                        {activityItem.list?.title}
+                        <br />
+                    </>
+                )}
+                added to
+                {activityItem.pageTitle}
+                <br />
+                {activityItem.normalizedPageUrl}
+            </div>
+        )
+    }
+
+    renderAnnotationItem: ActivityItemRenderer<AnnotationActivityItem> = (
+        activityItem,
+        options,
+    ) => {
+        if (activityItem.reason !== 'new-replies') {
+            return null
+        }
+        return (
+            <div style={{ color: 'white', margin: '20px 0px' }}>
+                {activityItem.activityCount}{' '}
+                {pluralize(activityItem.activityCount, 'reply', 'replies')}
+                <br />
+                {activityItem.list && (
+                    <>
+                        in
+                        {activityItem.list?.title}
+                        <br />
+                    </>
+                )}
+                added to
+                {activityItem.pageTitle}
+                <br />
+                {activityItem.normalizedPageUrl}
+                <br />
+                {activityItem.annotation.body}
+                <br />
+                {activityItem.annotation.comment}
+            </div>
+        )
     }
 
     isSeen(timestamp: number) {
@@ -484,378 +442,20 @@ export default class HomeFeedPage extends UIElement<
         return !!lastSeenTimestamp && lastSeenTimestamp > timestamp
     }
 
-    renderAnnotationsInPage = (
-        groupId: string,
-        parentItem: PageActivityItem | ListActivityItem,
-        annotationItems: OrderedMap<AnnotationActivityItem>,
-        options: ActivityItemRendererOpts,
-    ) => {
-        const { state } = this
-
-        return (
-            <AnnotationsInPage
-                variant="dark-mode"
-                loadState="success"
-                annotations={mapOrderedMap(
-                    filterOrderedMap(annotationItems, (item) => {
-                        if (parentItem.reason !== 'new-annotations') {
-                            return true
-                        }
-                        if (this.isSeen(parentItem.notifiedWhen)) {
-                            return true
-                        }
-
-                        const annotation = state.annotations[item.reference.id]
-                        const seenState =
-                            !!annotation && this.isSeen(annotation.updatedWhen)
-                                ? 'seen'
-                                : 'unseen'
-
-                        return seenState !== 'seen'
-                    }),
-                    (annotationItem) => {
-                        return this.getRenderableAnnotation(
-                            annotationItem.reference,
-                            !!annotationItem.replies?.length,
-                        )
-                    },
-                )}
-                getAnnotationCreator={(annotationReference) =>
-                    state.users[
-                        state.annotations[annotationReference.id]
-                            .creatorReference.id
-                    ]
-                }
-                profilePopupProps={{
-                    services: this.props.services,
-                    storage: this.props.storage,
-                }}
-                getAnnotationCreatorRef={(annotationReference) =>
-                    state.annotations[annotationReference.id].creatorReference
-                }
-                getAnnotationConversation={(annotationReference) => {
-                    const conversationKey = getConversationKey({
-                        groupId,
-                        annotationReference,
-                    })
-                    return this.state.conversations[conversationKey]
-                }}
-                getReplyCreator={(annotationReference, replyReference) => {
-                    const conversationKey = getConversationKey({
-                        groupId,
-                        annotationReference,
-                    })
-                    const groupReplies = state.replies[conversationKey]
-                    const reply = groupReplies?.[replyReference.id]
-
-                    // When the reply is newly submitted, it's not in state.replies yet
-                    if (reply) {
-                        return state.users[reply.creatorReference.id]
-                    }
-
-                    return (
-                        state.conversations[conversationKey]?.replies ?? []
-                    ).find((reply) => reply.reference.id === replyReference.id)
-                        ?.user
-                }}
-                renderBeforeReplies={(annotationReference) => {
-                    const conversationKey = getConversationKey({
-                        groupId,
-                        annotationReference,
-                    })
-                    const annotationItem =
-                        annotationItems.items[annotationReference.id]
-                    if (!annotationItem || !annotationItem.hasEarlierReplies) {
-                        return null
-                    }
-                    const loadState =
-                        state.moreRepliesLoadStates[conversationKey] ??
-                        'pristine'
-                    if (loadState === 'success') {
-                        return null
-                    }
-                    if (loadState === 'pristine') {
-                        return (
-                            <LoadingIndicatorBox>
-                                <LoadingIndicator size={25} />
-                            </LoadingIndicatorBox>
-                        )
-                    }
-                    if (loadState === 'error') {
-                        return (
-                            <LoadMoreReplies>
-                                Error loading earlier replies
-                            </LoadMoreReplies>
-                        )
-                    }
-                    return (
-                        <LoadMoreReplies
-                            onClick={() =>
-                                this.processEvent('loadMoreReplies', {
-                                    groupId: groupId,
-                                    annotationReference,
-                                    listReference: parentItem.listReference,
-                                })
-                            }
-                        >
-                            <Icon icon="clock" heightAndWidth="14px" />
-                            Load older replies
-                        </LoadMoreReplies>
-                    )
-                }}
-                renderReply={(props) => {
-                    const conversationKey = getConversationKey({
-                        groupId,
-                        annotationReference: props.annotationReference,
-                    })
-                    const moreRepliesLoadStates =
-                        state.moreRepliesLoadStates[conversationKey] ??
-                        'pristine'
-                    const seenState =
-                        state.lastSeenTimestamp &&
-                        props.reply &&
-                        (state.lastSeenTimestamp > props.reply.createdWhen
-                            ? 'seen'
-                            : 'unseen')
-                    const shouldRender =
-                        parentItem.type === 'list-item' ||
-                        parentItem.reason === 'new-annotations' ||
-                        seenState === 'unseen' ||
-                        options.groupAlreadySeen ||
-                        moreRepliesLoadStates === 'success'
-                    return shouldRender && <AnnotationReply {...props} />
-                }}
-                newPageReplyEventHandlers={{}}
-                newAnnotationReplyEventHandlers={{
-                    onNewReplyInitiate: (annotationReference) => {
-                        const conversationKey = getConversationKey({
-                            groupId,
-                            annotationReference,
-                        })
-                        return () =>
-                            this.processEvent('initiateNewReplyToAnnotation', {
-                                annotationReference,
-                                conversationId: conversationKey,
-                                sharedListReference: parentItem.listReference,
-                            })
-                    },
-                    onNewReplyCancel: (annotationReference) => {
-                        const conversationKey = getConversationKey({
-                            groupId,
-                            annotationReference,
-                        })
-                        return () =>
-                            this.processEvent('cancelNewReplyToAnnotation', {
-                                annotationReference,
-                                conversationId: conversationKey,
-                                sharedListReference: parentItem.listReference,
-                            })
-                    },
-                    onNewReplyConfirm: (annotationReference) => {
-                        const conversationKey = getConversationKey({
-                            groupId,
-                            annotationReference,
-                        })
-                        return () =>
-                            this.processEvent('confirmNewReplyToAnnotation', {
-                                annotationReference,
-                                conversationId: conversationKey,
-                                sharedListReference: parentItem.listReference,
-                            })
-                    },
-                    onNewReplyEdit: (annotationReference) => {
-                        const conversationKey = getConversationKey({
-                            groupId,
-                            annotationReference,
-                        })
-                        return ({ content }) =>
-                            this.processEvent('editNewReplyToAnnotation', {
-                                content,
-                                annotationReference,
-                                conversationId: conversationKey,
-                                sharedListReference: parentItem.listReference,
-                            })
-                    },
-                }}
-                onToggleReplies={(event) => {
-                    const conversationKey = getConversationKey({
-                        groupId,
-                        annotationReference: event.annotationReference,
-                    })
-                    return this.processEvent('toggleAnnotationReplies', {
-                        ...event,
-                        conversationId: conversationKey,
-                        sharedListReference: parentItem.listReference,
-                    })
-                }}
-            />
-        )
-    }
-
     renderListItem: ActivityItemRenderer<ListActivityItem> = (
         listItem,
         options,
     ) => {
-        const { state } = this
-        return {
-            key:
-                listItem.listReference.id +
-                ':' +
-                getOrderedMapIndex(listItem.entries, 0).normalizedUrl,
-            rendered: (
-                <Margin top={'larger'} bottom="large">
-                    <Margin bottom="small">
-                        {this.renderActivityReason(listItem)}
-                    </Margin>
-                    {mapOrderedMap(
-                        listItem.entries,
-                        (entry) => {
-                            const seenState =
-                                state.lastSeenTimestamp &&
-                                (state.lastSeenTimestamp >
-                                entry.activityTimestamp
-                                    ? 'seen'
-                                    : 'unseen')
-                            const shouldRender =
-                                options.groupAlreadySeen || seenState !== 'seen'
-                            if (!shouldRender) {
-                                return null
-                            }
-                            const actions: ItemBoxBottomAction[] = []
-                            if (
-                                entry.annotationEntriesLoadState === 'running'
-                            ) {
-                                actions.push({
-                                    node: (
-                                        <AnnotationEntriesLoadingContainer>
-                                            <Margin right="medium">
-                                                <LoadingIndicator size={16} />
-                                            </Margin>
-                                        </AnnotationEntriesLoadingContainer>
-                                    ),
-                                    key: 'loader',
-                                })
-                            } else if (entry.hasAnnotations) {
-                                actions.push({
-                                    key: 'expand-notes-btn',
-                                    image: 'commentFull',
-                                    imageColor: 'prime1',
-                                    onClick: () =>
-                                        this.processEvent(
-                                            'toggleListEntryActivityAnnotations',
-                                            {
-                                                listReference:
-                                                    listItem.listReference,
-                                                listEntryReference:
-                                                    entry.reference,
-                                                groupId: listItem.groupId,
-                                            },
-                                        ),
-                                })
-
-                                // actions.push({
-                                //     node: (
-                                //         <CommentIconBox
-                                //             onClick={() =>
-                                //                 this.processEvent(
-                                //                     'toggleListEntryActivityAnnotations',
-                                //                     {
-                                //                         listReference:
-                                //                             listItem.listReference,
-                                //                         listEntryReference:
-                                //                             entry.reference,
-                                //                         groupId:
-                                //                             listItem.groupId,
-                                //                     },
-                                //                 )
-                                //             }
-                                //         >
-                                //             {/* {count.length > 0 && <Counter>{count}</Counter>} */}
-                                //             <Icon
-                                //                 icon={commentImage}
-                                //                 heightAndWidth={'16px'}
-                                //                 hoverOff
-                                //             />
-                                //         </CommentIconBox>
-                                //     ),
-                                // })
-                            }
-
-                            const creator = state.users[entry.creator.id]
-                            return (
-                                <Margin
-                                    bottom="small"
-                                    key={entry.normalizedUrl}
-                                >
-                                    <ItemBox>
-                                        <BlockContent
-                                            type={
-                                                isPagePdf({
-                                                    url: entry.normalizedUrl,
-                                                })
-                                                    ? 'pdf'
-                                                    : 'page'
-                                            }
-                                            normalizedUrl={entry.normalizedUrl}
-                                            originalUrl={entry.originalUrl}
-                                            fullTitle={entry.entryTitle}
-                                            onClick={(e) =>
-                                                this.processEvent(
-                                                    'clickPageResult',
-                                                    {
-                                                        urlToOpen:
-                                                            entry.originalUrl,
-                                                        preventOpening: () =>
-                                                            e.preventDefault(),
-                                                        isFeed: true,
-                                                    },
-                                                )
-                                            }
-                                            viewportBreakpoint={
-                                                this.viewportBreakpoint
-                                            }
-                                        />
-                                        <ItemBoxBottom
-                                            creationInfo={{
-                                                creator: creator,
-                                                createdWhen:
-                                                    entry.activityTimestamp,
-                                            }}
-                                            actions={actions}
-                                        />
-                                    </ItemBox>
-                                    {entry.annotationsLoadState ===
-                                        'running' && (
-                                        <LoadingIndicatorBox>
-                                            <LoadingIndicator size={25} />
-                                        </LoadingIndicatorBox>
-                                    )}
-                                    {entry.areAnnotationsShown &&
-                                        this.renderAnnotationsInPage(
-                                            listItem.groupId,
-                                            listItem,
-                                            entry.annotations,
-                                            options,
-                                        )}
-                                </Margin>
-                            )
-                        },
-                        (inputArr) =>
-                            inputArr.slice(0, this.props.listActivitiesLimit),
-                    )}
-                    {listItem.entries.order.length >
-                        this.props.listActivitiesLimit && (
-                        <LoadMoreLink
-                            route="collectionDetails"
-                            services={this.props.services}
-                            params={{ id: listItem.listReference.id as string }}
-                        >
-                            View All
-                        </LoadMoreLink>
-                    )}
-                </Margin>
-            ),
+        if (listItem.reason !== 'pages-added-to-list') {
+            return null
         }
+        return (
+            <div style={{ color: 'white', margin: '20px 0px' }}>
+                {listItem.activityCount}{' '}
+                {pluralize(listItem.activityCount, 'page')} added in{' '}
+                {listItem.listName}
+            </div>
+        )
     }
 
     renderNeedsAuth() {
@@ -1005,4 +605,11 @@ function LastSeenLine() {
             <Separator />
         </StyledLastSeenLine>
     )
+}
+
+function pluralize(count: number, singular: string, plural?: string) {
+    if (count === 1) {
+        return singular
+    }
+    return plural ?? `${singular}s`
 }
