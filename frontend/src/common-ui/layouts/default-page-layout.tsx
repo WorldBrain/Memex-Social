@@ -44,6 +44,7 @@ export default function DefaultPageLayout(props: {
     breadCrumbs?: JSX.Element
     renderDescription?: JSX.Element
     isPageView?: string | undefined
+    context?: string
 }) {
     const { viewportBreakpoint: viewportWidth } = props
     const renderSubtitle = props.renderSubtitle ?? ((props) => props.children)
@@ -186,6 +187,7 @@ export default function DefaultPageLayout(props: {
                                           </PageMidleAreaAction>
                                       )}
                                 <PageMidleAreaTitles
+                                    context={props.context}
                                     scrollTop={props.scrollTop}
                                     viewportWidth={viewportWidth}
                                 >
@@ -469,6 +471,7 @@ const PageResultsArea = styled.div<{
 const PageMidleAreaTitles = styled.div<{
     viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
     scrollTop?: number
+    context?: string
 }>`
     display: flex;
     justify-content: flex-start;
@@ -477,6 +480,7 @@ const PageMidleAreaTitles = styled.div<{
     flex: 1;
     width: 100%;
     grid-gap: 5px;
+    margin-top: ${(props) => props.context === 'feed' && '20px'};
 `
 
 const PageMidleAreaAction = styled.div<{

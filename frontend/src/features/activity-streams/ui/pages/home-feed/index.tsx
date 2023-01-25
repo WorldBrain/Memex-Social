@@ -725,6 +725,7 @@ export default class HomeFeedPage extends UIElement<
                     hideActivityIndicator
                     headerTitle="Activity Feed"
                     headerSubtitle={this.renderHeaderSubTitle()}
+                    context="feed"
                     // listsSidebarProps={{
                     //     collaborativeLists: this.state.collaborativeLists,
                     //     followedLists: this.state.followedLists,
