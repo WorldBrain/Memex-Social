@@ -203,10 +203,6 @@ export function organizeActivities(
 ): {
     activityItems: Array<ActivityItem>
 } {
-    const conversationLoadStates: {
-        [conversationKey: string]: UITaskState
-    } = {}
-
     let activityItems: ActivityItem[] = []
     for (const activityGroup of activities) {
         if (
@@ -224,6 +220,7 @@ export function organizeActivities(
 
             const firstReplyActivity = replyActivityGroup.activities[0].activity
 
+            console.log(firstReplyActivity.sharedList)
             const pageItem: AnnotationActivityItem = {
                 groupId: activityGroup.id,
                 notifiedWhen: 0,
@@ -236,6 +233,7 @@ export function organizeActivities(
                 reason: 'new-replies',
                 pageTitle: firstReplyActivity.pageInfo.fullTitle,
                 normalizedPageUrl: firstReplyActivity.normalizedPageUrl,
+                list: firstReplyActivity.sharedList,
                 creatorReference:
                     firstReplyActivity.annotationCreator.reference,
                 annotation: firstReplyActivity.annotation,
@@ -270,8 +268,7 @@ export function organizeActivities(
                 ),
                 type: 'list-item',
                 reason: 'pages-added-to-list',
-                listName: firstActivity.list.title,
-                listReference: firstActivity.list.reference,
+                list: firstActivity.list,
             })
         } else if (
             (activityGroup.entityType === 'sharedList' ||
@@ -303,10 +300,7 @@ export function organizeActivities(
                 pageTitle: firstActivity.pageInfo.fullTitle,
                 creatorReference: firstActivity.listEntryCreator.reference,
                 normalizedPageUrl: firstActivity.pageInfo.normalizedUrl,
-                list: {
-                    reference: firstActivity.list.reference,
-                    title: firstActivity.list.title,
-                },
+                list: firstActivity.list,
             })
         } else {
             console.warn(

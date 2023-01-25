@@ -338,10 +338,11 @@ export default class HomeFeedPage extends UIElement<
                                 route="collectionDetails"
                                 services={this.props.services}
                                 params={{
-                                    id: activityItem.listReference.id as string,
+                                    id: activityItem.list.reference
+                                        .id as string,
                                 }}
                             >
-                                {activityItem.listName}
+                                {activityItem.list.title}
                             </CollectionLink>
                         </>
                     }
@@ -403,6 +404,19 @@ export default class HomeFeedPage extends UIElement<
                 {activityItem.pageTitle}
                 <br />
                 {activityItem.normalizedPageUrl}
+                <br />
+                {activityItem.list && (
+                    <RouteLink
+                        services={this.props.services}
+                        route="collectionDetails"
+                        params={{
+                            id: activityItem.list.reference.id.toString(),
+                        }}
+                        query={getRangeQueryParams('AnnotEntry', activityItem)}
+                    >
+                        link
+                    </RouteLink>
+                )}
             </div>
         )
     }
@@ -434,6 +448,19 @@ export default class HomeFeedPage extends UIElement<
                 {activityItem.annotation.body}
                 <br />
                 {activityItem.annotation.comment}
+                <br />
+                {activityItem.list && (
+                    <RouteLink
+                        services={this.props.services}
+                        route="collectionDetails"
+                        params={{
+                            id: activityItem.list?.reference.id.toString(),
+                        }}
+                        query={getRangeQueryParams('ListEntry', activityItem)}
+                    >
+                        link
+                    </RouteLink>
+                )}
             </div>
         )
     }
@@ -454,7 +481,15 @@ export default class HomeFeedPage extends UIElement<
             <div style={{ color: 'white', margin: '20px 0px' }}>
                 {listItem.activities.length}{' '}
                 {pluralize(listItem.activities.length, 'page')} added in{' '}
-                {listItem.listName}
+                {listItem.list.title}
+                <RouteLink
+                    services={this.props.services}
+                    route="collectionDetails"
+                    params={{ id: listItem.list.reference.id.toString() }}
+                    query={getRangeQueryParams('ListEntry', listItem)}
+                >
+                    link
+                </RouteLink>
             </div>
         )
     }
@@ -613,4 +648,16 @@ function pluralize(count: number, singular: string, plural?: string) {
         return singular
     }
     return plural ?? `${singular}s`
+}
+
+function getRangeQueryParams(
+    type: 'ListEntry' | 'AnnotEntry' | 'Reply',
+    activityItem: ActivityItem,
+) {
+    const lastActivitiy =
+        activityItem.activities[activityItem.activities.length - 1]
+    return {
+        [`from${type}`]: activityItem.activities[0].notifiedWhen.toString(),
+        [`to${type}`]: lastActivitiy.notifiedWhen.toString(),
+    }
 }

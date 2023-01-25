@@ -83,8 +83,7 @@ interface TopLevelActivityItem {
 export interface ListActivityItem extends TopLevelActivityItem {
     type: 'list-item'
     reason: 'pages-added-to-list'
-    listName: string
-    listReference: SharedListReference
+    list: { title: string; reference: SharedListReference }
 }
 
 export interface PageActivityItem extends TopLevelActivityItem {
