@@ -107,6 +107,7 @@ export const theme: Theme = THEME({
         webMonetizationLogoConfirmed: require('../../assets/img/web-monetization-logo-confirmed.svg'),
         winLogo: require('../../assets/img/windows_logo.svg'),
         youtubeLogo: require('../../assets/img/youtube-logo.svg'),
+        reply: require('../../assets/img/reply.svg'),
         blueRoundCheck: require('../../assets/img/info.svg'),
         bell: require('../../assets/img/bell.svg'),
         checkedRound: require('../../assets/img/info.svg'),

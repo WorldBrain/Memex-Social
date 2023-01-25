@@ -28,6 +28,8 @@ import LoadingIndicator from '@worldbrain/memex-common/lib/common-ui/components/
 import { Waypoint } from 'react-waypoint'
 import { mapOrderedMap } from '../../../../../utils/ordered-map'
 import { act } from 'react-dom/test-utils'
+import { PrimaryAction } from '@worldbrain/memex-common/lib/common-ui/components/PrimaryAction'
+import Markdown from '@worldbrain/memex-common/lib/common-ui/components/markdown'
 
 const StyledIconMargin = styled(Margin)`
     display: flex;
@@ -130,7 +132,7 @@ const StyledLastSeenLine = styled.div`
     align-items: center;
     color: ${(props) => props.theme.colors.greyScale2};
     font-weight: 800;
-    margin-bottom: -20px;
+    margin-bottom: 20px;
 `
 const LastSeenLineLabel = styled.div`
     font-family: ${(props) => props.theme.fonts.primary};
@@ -389,35 +391,81 @@ export default class HomeFeedPage extends UIElement<
         }
 
         return (
-            <div style={{ color: 'white', margin: '20px 0px' }}>
-                {activityItem.activities.length}{' '}
-                {pluralize(activityItem.activities.length, 'annotations')}
-                <br />
-                {activityItem.list && (
-                    <>
-                        in
-                        {activityItem.list?.title}
-                        <br />
-                    </>
-                )}
-                added to
-                {activityItem.pageTitle}
-                <br />
-                {activityItem.normalizedPageUrl}
-                <br />
-                {activityItem.list && (
-                    <RouteLink
-                        services={this.props.services}
-                        route="collectionDetails"
-                        params={{
-                            id: activityItem.list.reference.id.toString(),
-                        }}
-                        query={getRangeQueryParams('AnnotEntry', activityItem)}
-                    >
-                        link
-                    </RouteLink>
-                )}
-            </div>
+            <UpdateItemContainer>
+                <UpdateItemTopBar>
+                    <UpdateItemTitleArea>
+                        <Icon
+                            filePath="reply"
+                            heightAndWidth={'30px'}
+                            hoverOff
+                            color={'prime1'}
+                        />
+                        <UpdateCounter>
+                            {activityItem.activities.length}{' '}
+                        </UpdateCounter>
+                        <UpdateItemTitle>
+                            new{' '}
+                            {pluralize(
+                                activityItem.activities.length,
+                                'annotation',
+                            )}{' '}
+                            in{' '}
+                            {activityItem.list && (
+                                <SpaceTitleContainer>
+                                    {' '}
+                                    <SpaceTitle>
+                                        {' '}
+                                        <RouteLink
+                                            services={this.props.services}
+                                            route="collectionDetails"
+                                            params={{
+                                                id: activityItem.list.reference.id.toString(),
+                                            }}
+                                            query={getRangeQueryParams(
+                                                'ListEntry',
+                                                activityItem,
+                                            )}
+                                        >
+                                            {activityItem.list?.title}
+                                        </RouteLink>
+                                    </SpaceTitle>
+                                </SpaceTitleContainer>
+                            )}
+                            added to
+                        </UpdateItemTitle>
+                    </UpdateItemTitleArea>
+                    {activityItem.list && (
+                        <RouteLink
+                            services={this.props.services}
+                            route="collectionDetails"
+                            params={{
+                                id: activityItem.list.reference.id.toString(),
+                            }}
+                            query={getRangeQueryParams(
+                                'AnnotEntry',
+                                activityItem,
+                            )}
+                        >
+                            <PrimaryAction
+                                label="View"
+                                onClick={null}
+                                icon="arrowRight"
+                                iconPosition="right"
+                                type="primary"
+                                size="medium"
+                            />
+                        </RouteLink>
+                    )}
+                </UpdateItemTopBar>
+                <UpdateItemReferencedContentContainer>
+                    <PageBox>
+                        <PageTitle>{activityItem.pageTitle}</PageTitle>
+                        <PageDomain>
+                            {activityItem.normalizedPageUrl.split('/')[0]}
+                        </PageDomain>
+                    </PageBox>
+                </UpdateItemReferencedContentContainer>
+            </UpdateItemContainer>
         )
     }
 
@@ -429,39 +477,100 @@ export default class HomeFeedPage extends UIElement<
             return null
         }
         return (
-            <div style={{ color: 'white', margin: '20px 0px' }}>
-                {activityItem.activities.length}{' '}
-                {pluralize(activityItem.activities.length, 'reply', 'replies')}
-                <br />
-                {activityItem.list && (
-                    <>
-                        in
-                        {activityItem.list?.title}
-                        <br />
-                    </>
-                )}
-                added to
-                {activityItem.pageTitle}
-                <br />
-                {activityItem.normalizedPageUrl}
-                <br />
-                {activityItem.annotation.body}
-                <br />
-                {activityItem.annotation.comment}
-                <br />
-                {activityItem.list && (
-                    <RouteLink
-                        services={this.props.services}
-                        route="collectionDetails"
-                        params={{
-                            id: activityItem.list?.reference.id.toString(),
-                        }}
-                        query={getRangeQueryParams('ListEntry', activityItem)}
-                    >
-                        link
-                    </RouteLink>
-                )}
-            </div>
+            <UpdateItemContainer>
+                <UpdateItemTopBar>
+                    <UpdateItemTitleArea>
+                        <Icon
+                            filePath="reply"
+                            heightAndWidth={'30px'}
+                            hoverOff
+                            color={'prime1'}
+                        />
+                        <UpdateCounter>
+                            {activityItem.activities.length}{' '}
+                        </UpdateCounter>
+                        <UpdateItemTitle>
+                            {pluralize(
+                                activityItem.activities.length,
+                                'reply',
+                                'replies',
+                            )}{' '}
+                            in{' '}
+                            {activityItem.list && (
+                                <SpaceTitleContainer>
+                                    {' '}
+                                    <SpaceTitle>
+                                        {' '}
+                                        <RouteLink
+                                            services={this.props.services}
+                                            route="collectionDetails"
+                                            params={{
+                                                id: activityItem.list.reference.id.toString(),
+                                            }}
+                                            query={getRangeQueryParams(
+                                                'ListEntry',
+                                                activityItem,
+                                            )}
+                                        >
+                                            {activityItem.list?.title}
+                                        </RouteLink>
+                                    </SpaceTitle>
+                                </SpaceTitleContainer>
+                            )}
+                            added to
+                        </UpdateItemTitle>
+                    </UpdateItemTitleArea>
+                    {activityItem.list && (
+                        <RouteLink
+                            services={this.props.services}
+                            route="collectionDetails"
+                            params={{
+                                id: activityItem.list.reference.id.toString(),
+                            }}
+                            query={getRangeQueryParams(
+                                'ListEntry',
+                                activityItem,
+                            )}
+                        >
+                            <PrimaryAction
+                                label="View"
+                                onClick={null}
+                                icon="arrowRight"
+                                iconPosition="right"
+                                type="primary"
+                                size="medium"
+                            />
+                        </RouteLink>
+                    )}
+                </UpdateItemTopBar>
+                <UpdateItemReferencedContentContainer>
+                    <AnnotationBox>
+                        {activityItem.annotation.body && (
+                            <HighlightBox>
+                                <HighlightVerticalBar></HighlightVerticalBar>
+                                <Highlight>
+                                    <Markdown>
+                                        {activityItem.annotation.body}
+                                    </Markdown>
+                                </Highlight>
+                            </HighlightBox>
+                        )}
+                        {activityItem.annotation.comment && (
+                            <Comment>
+                                <Markdown>
+                                    {activityItem.annotation.comment}
+                                </Markdown>
+                            </Comment>
+                        )}
+                    </AnnotationBox>
+                    <PageBox>
+                        <PageTitle>{activityItem.pageTitle}</PageTitle>
+                        <PageDomain>
+                            {activityItem.normalizedPageUrl.split('/')[0]}
+                        </PageDomain>
+                    </PageBox>
+                </UpdateItemReferencedContentContainer>
+            </UpdateItemContainer>
         )
     }
 
@@ -478,19 +587,59 @@ export default class HomeFeedPage extends UIElement<
             return null
         }
         return (
-            <div style={{ color: 'white', margin: '20px 0px' }}>
-                {listItem.activities.length}{' '}
-                {pluralize(listItem.activities.length, 'page')} added in{' '}
-                {listItem.list.title}
-                <RouteLink
-                    services={this.props.services}
-                    route="collectionDetails"
-                    params={{ id: listItem.list.reference.id.toString() }}
-                    query={getRangeQueryParams('ListEntry', listItem)}
-                >
-                    link
-                </RouteLink>
-            </div>
+            <UpdateItemContainer>
+                <UpdateItemTopBar>
+                    <UpdateItemTitleArea>
+                        <Icon
+                            filePath="heartEmpty"
+                            heightAndWidth={'30px'}
+                            hoverOff
+                            color={'prime1'}
+                        />
+                        <UpdateCounter>
+                            {listItem.activities.length}{' '}
+                        </UpdateCounter>
+                        <UpdateItemTitle>
+                            {pluralize(listItem.activities.length, 'page')}{' '}
+                            added in{' '}
+                            <SpaceTitleContainer>
+                                {' '}
+                                <SpaceTitle>
+                                    {' '}
+                                    <RouteLink
+                                        services={this.props.services}
+                                        route="collectionDetails"
+                                        params={{
+                                            id: listItem.list.reference.id.toString(),
+                                        }}
+                                        query={getRangeQueryParams(
+                                            'ListEntry',
+                                            listItem,
+                                        )}
+                                    >
+                                        {listItem.list.title}
+                                    </RouteLink>
+                                </SpaceTitle>
+                            </SpaceTitleContainer>
+                        </UpdateItemTitle>
+                    </UpdateItemTitleArea>
+                    <RouteLink
+                        services={this.props.services}
+                        route="collectionDetails"
+                        params={{ id: listItem.list.reference.id.toString() }}
+                        query={getRangeQueryParams('ListEntry', listItem)}
+                    >
+                        <PrimaryAction
+                            label="View"
+                            onClick={null}
+                            icon="arrowRight"
+                            iconPosition="right"
+                            type="primary"
+                            size="medium"
+                        />
+                    </RouteLink>
+                </UpdateItemTopBar>
+            </UpdateItemContainer>
         )
     }
 
@@ -661,3 +810,148 @@ function getRangeQueryParams(
         [`to${type}`]: lastActivitiy.notifiedWhen.toString(),
     }
 }
+
+const UpdateItemReferencedContentContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    border-radius: 10px;
+    border: 1px solid ${(props) => props.theme.colors.greyScale2};
+    margin-top: 15px;
+    align-items: flex-start;
+    margin-left: 45px;
+`
+
+const AnnotationBox = styled.div`
+    display: flex;
+    padding: 20px;
+    flex-direction: column;
+    align-items: center;
+    grid-gap: 15px;
+    border-bottom: 1px solid ${(props) => props.theme.colors.greyScale2};
+    width: -webkit-fill-available;
+    justify-content: flex-start;
+`
+
+const HighlightBox = styled.div`
+    justify-content: flex-start;
+    display: flex;
+    grid-gap: 10px;
+    width: fill-available;
+`
+
+const Highlight = styled.div`
+    flex: 1;
+    color: ${(props) => props.theme.colors.white};
+    font-size: 14px;
+    justify-content: flex-start;
+    text-align: left;
+    float: left;
+    align-items: center;
+`
+
+const HighlightVerticalBar = styled.div`
+    width: 6px;
+    height: auto;
+    background: ${(props) => props.theme.colors.prime1};
+    border-radius: 10px;
+`
+
+const Comment = styled.div`
+    color: ${(props) => props.theme.colors.white};
+    font-size: 14px;
+    text-align: left;
+    float: left;
+    display: flex;
+    justify-content: flex-start;
+    width: fill-available;
+`
+
+const PageBox = styled.div`
+    display: flex;
+    padding: 15px 20px;
+    flex-direction: column;
+    grid-gap: 2px;
+`
+
+const PageTitle = styled.div`
+    display: flex;
+    color: ${(props) => props.theme.colors.greyScale5};
+    font-size: 14px;
+`
+
+const PageDomain = styled.div`
+    display: flex;
+    color: ${(props) => props.theme.colors.greyScale4};
+    font-size: 14px;
+`
+
+const UpdateItemContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    width: fill-available;
+    background: ${(props) => props.theme.colors.greyScale1};
+    border-radius: 10px;
+    margin-bottom: 10px;
+
+    font-family: ${(props) => props.theme.fonts.primary};
+
+    & * {
+        font-family: ${(props) => props.theme.fonts.primary};
+    }
+`
+
+const UpdateItemTopBar = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: fill-available;
+    grid-gap: 50px;
+`
+
+const UpdateItemTitleArea = styled.div`
+    display: flex;
+    align-items: center;
+    grid-gap: 10px;
+    width: fill-available;
+`
+
+const UpdateCounter = styled.div`
+    display: flex;
+    align-items: center;
+    border-radius: 30px;
+    background: ${(props) => props.theme.colors.prime1};
+    align-items: center;
+    justify-content: center;
+    padding: 2px 15px;
+    font-weight: 500;
+    font-size: 14px;
+    min-width: 40px;
+`
+
+const UpdateItemTitle = styled.div`
+    display: flex;
+    align-items: center;
+    color: ${(props) => props.theme.colors.greyScale5};
+    font-size: 14px;
+    width: 100px;
+    flex-direction: row;
+    grid-gap: 6px;
+    white-space: nowrap;
+    flex: 1;
+`
+
+const SpaceTitle = styled.span`
+    color: ${(props) => props.theme.colors.white};
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+`
+const SpaceTitleContainer = styled.div`
+    display: contents;
+    color: ${(props) => props.theme.colors.white};
+    font-weight: 500;
+    flex: 1;
+    overflow: hidden;
+`

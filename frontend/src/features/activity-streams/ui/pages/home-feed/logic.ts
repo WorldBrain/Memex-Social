@@ -220,7 +220,6 @@ export function organizeActivities(
 
             const firstReplyActivity = replyActivityGroup.activities[0].activity
 
-            console.log(firstReplyActivity.sharedList)
             const pageItem: AnnotationActivityItem = {
                 groupId: activityGroup.id,
                 notifiedWhen: 0,
