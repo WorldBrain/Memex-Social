@@ -1268,6 +1268,18 @@ export default class CollectionDetailsPage extends UIElement<
                             </ErrorWithAction>
                         </Margin>
                     )}
+                    {state.listData.discordList != null && (
+                        <DiscordSyncNotif>
+                            <Icon
+                                filePath="redo"
+                                heightAndWidth="22px"
+                                hoverOff
+                                color="prime1"
+                            />{' '}
+                            This channels is still being synced. It may take a
+                            while for everything to show up.
+                        </DiscordSyncNotif>
+                    )}
                     <ResultsList>
                         {resultsFilteredByType?.length
                             ? resultsFilteredByType?.map(
@@ -1428,6 +1440,17 @@ export default class CollectionDetailsPage extends UIElement<
         )
     }
 }
+
+const DiscordSyncNotif = styled.div`
+    border: 1px solid ${(props) => props.theme.colors.greyScale3};
+    padding: 10px 20px;
+    border-radius: 8px;
+    color: ${(props) => props.theme.colors.greyScale5};
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+`
 
 const TitleClick = styled.div`
     cursor: pointer;
