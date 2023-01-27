@@ -371,7 +371,6 @@ export default class CollectionDetailsLogic extends UILogic<
                 }
 
                 this.emitMutation({ requestingAuth: { $set: true } })
-                await this.dependencies.services.memexExtension.requestFetchFollowedListUpdates()
                 const {
                     result: authResult,
                 } = await this.dependencies.services.auth.requestAuth({
@@ -752,12 +751,7 @@ export default class CollectionDetailsLogic extends UILogic<
         } = this.dependencies
         let userReference = auth.getCurrentUserReference()
 
-        await memexExtension.requestFetchFollowedListUpdates()
-
-        if (previousState.listRoleID) {
-            return
-        }
-        if (previousState.isListOwner) {
+        if (previousState.listRoleID || previousState.isListOwner) {
             return
         }
 
