@@ -420,6 +420,7 @@ export default class HomeFeedPage extends UIElement<
                                             route="collectionDetails"
                                             params={{
                                                 id: activityItem.list.reference.id.toString(),
+                                                entryId: activityItem.list.entry.id.toString(),
                                             }}
                                             query={getRangeQueryParams(
                                                 'ListEntry',
@@ -440,6 +441,7 @@ export default class HomeFeedPage extends UIElement<
                             route="collectionDetails"
                             params={{
                                 id: activityItem.list.reference.id.toString(),
+                                entryId: activityItem.list.entry.id.toString(),
                             }}
                             query={getRangeQueryParams(
                                 'AnnotEntry',
@@ -476,6 +478,7 @@ export default class HomeFeedPage extends UIElement<
         if (activityItem.reason !== 'new-replies') {
             return null
         }
+
         return (
             <UpdateItemContainer>
                 <UpdateItemTopBar>
@@ -506,9 +509,10 @@ export default class HomeFeedPage extends UIElement<
                                             route="collectionDetails"
                                             params={{
                                                 id: activityItem.list.reference.id.toString(),
+                                                entryId: activityItem.list.entry.id.toString(),
                                             }}
                                             query={getRangeQueryParams(
-                                                'ListEntry',
+                                                'Reply',
                                                 activityItem,
                                             )}
                                         >
@@ -526,6 +530,7 @@ export default class HomeFeedPage extends UIElement<
                             route="collectionDetails"
                             params={{
                                 id: activityItem.list.reference.id.toString(),
+                                entryId: activityItem.list.entry.id.toString(),
                             }}
                             query={getRangeQueryParams(
                                 'ListEntry',

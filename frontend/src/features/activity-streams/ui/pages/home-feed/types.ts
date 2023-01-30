@@ -1,5 +1,6 @@
 import {
     SharedAnnotation,
+    SharedListEntryReference,
     SharedListReference,
 } from '@worldbrain/memex-common/lib/content-sharing/types'
 import {
@@ -90,7 +91,11 @@ export interface PageActivityItem extends TopLevelActivityItem {
     type: 'page-item'
     reason: 'new-annotations'
     pageTitle?: string
-    list?: { title: string; reference: SharedListReference }
+    list?: {
+        title: string
+        reference: SharedListReference
+        entry: SharedListEntryReference
+    }
     normalizedPageUrl: string
     creatorReference: UserReference
 }

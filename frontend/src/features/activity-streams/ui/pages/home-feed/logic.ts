@@ -213,6 +213,7 @@ export function organizeActivities(
                 'conversationThread',
                 'conversationReply'
             >
+            console.log(replyActivityGroup)
             replyActivityGroup.activities = sortBy(
                 replyActivityGroup.activities,
                 ({ activity }) => activity.reply.createdWhen,
@@ -232,7 +233,17 @@ export function organizeActivities(
                 reason: 'new-replies',
                 pageTitle: firstReplyActivity.pageInfo.fullTitle,
                 normalizedPageUrl: firstReplyActivity.normalizedPageUrl,
-                list: firstReplyActivity.sharedList,
+                list:
+                    firstReplyActivity.sharedList &&
+                    firstReplyActivity.listEntryId
+                        ? {
+                              ...firstReplyActivity.sharedList,
+                              entry: {
+                                  type: 'shared-list-entry-reference',
+                                  id: firstReplyActivity.listEntryId,
+                              },
+                          }
+                        : undefined,
                 creatorReference:
                     firstReplyActivity.annotationCreator.reference,
                 annotation: firstReplyActivity.annotation,
@@ -299,7 +310,12 @@ export function organizeActivities(
                 pageTitle: firstActivity.pageInfo.fullTitle,
                 creatorReference: firstActivity.listEntryCreator.reference,
                 normalizedPageUrl: firstActivity.pageInfo.normalizedUrl,
-                list: firstActivity.list,
+                list: firstActivity.list
+                    ? {
+                          ...firstActivity.list,
+                          entry: entryActivityGroup.entity,
+                      }
+                    : undefined,
             })
         } else {
             console.warn(
