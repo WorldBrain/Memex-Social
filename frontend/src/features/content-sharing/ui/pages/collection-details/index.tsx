@@ -59,6 +59,7 @@ import { AnnotationsInPageProps } from '@worldbrain/memex-common/lib/content-con
 const commentImage = require('../../../../../assets/img/comment.svg')
 const commentEmptyImage = require('../../../../../assets/img/comment-empty.svg')
 
+type TimestampRange = { fromTimestamp: number; toTimestamp: number }
 export default class CollectionDetailsPage extends UIElement<
     CollectionDetailsDependencies,
     CollectionDetailsState,
@@ -66,10 +67,22 @@ export default class CollectionDetailsPage extends UIElement<
 > {
     constructor(props: CollectionDetailsDependencies) {
         super(props, { logic: new Logic({ ...props }) })
+
+        const { query } = props
+        this.itemRanges = {
+            listEntry: parseRange(query.fromListEntry, query.toListEntry),
+            annotEntry: parseRange(query.fromAnnotEntry, query.toAnnotEntry),
+            reply: parseRange(query.fromReply, query.toReply),
+        }
     }
 
     showMoreCollaboratorsRef = React.createRef<HTMLElement>()
 
+    itemRanges: {
+        [Key in 'listEntry' | 'annotEntry' | 'reply']:
+            | TimestampRange
+            | undefined
+    }
     scrollableRef?: { element: HTMLElement; timestammp: number }
     scrollTimeout?: ReturnType<typeof setTimeout>
 
@@ -93,8 +106,7 @@ export default class CollectionDetailsPage extends UIElement<
         this.handleScrollableRef(
             event.entry.createdWhen,
             event.element,
-            this.props.query.fromListEntry,
-            this.props.query.toListEntry,
+            this.itemRanges.listEntry,
         )
     }
 
@@ -104,8 +116,7 @@ export default class CollectionDetailsPage extends UIElement<
         this.handleScrollableRef(
             event.annotation.createdWhen,
             event.element,
-            this.props.query.fromAnnotEntry,
-            this.props.query.toAnnotEntry,
+            this.itemRanges.annotEntry,
         )
     }
 
@@ -113,25 +124,25 @@ export default class CollectionDetailsPage extends UIElement<
         this.handleScrollableRef(
             event.reply.reply.createdWhen,
             event.element,
-            this.props.query.fromReply,
-            this.props.query.toReply,
+            this.itemRanges.reply,
         )
     }
 
     handleScrollableRef = (
         timestammp: number,
         element: HTMLElement,
-        fromString: string | undefined,
-        toString: string | undefined,
+        range: TimestampRange | undefined,
     ) => {
-        if (!fromString || !toString || !element) {
+        if (!range || !element) {
             return
         }
         if (this.scrollableRef && this.scrollableRef.timestammp < timestammp) {
             return
         }
-        const range = [parseInt(fromString), parseInt(toString)]
-        if (timestammp >= range[0] && timestammp <= range[1]) {
+        if (
+            timestammp >= range.fromTimestamp &&
+            timestammp <= range.toTimestamp
+        ) {
             this.scrollableRef = { element, timestammp }
             this.scheduleScrollToItems()
         }
@@ -147,7 +158,6 @@ export default class CollectionDetailsPage extends UIElement<
         if (!this.scrollableRef) {
             return
         }
-        console.log(this.scrollableRef.element)
         this.scrollableRef.element.scrollTo({
             behavior: 'smooth',
         })
@@ -1507,6 +1517,19 @@ export default class CollectionDetailsPage extends UIElement<
                 )}
             </DocumentContainer>
         )
+    }
+}
+
+function parseRange(
+    fromString: string | undefined,
+    toString: string | undefined,
+): TimestampRange | undefined {
+    if (!fromString || !toString) {
+        return undefined
+    }
+    return {
+        fromTimestamp: parseInt(fromString),
+        toTimestamp: parseInt(toString),
     }
 }
 
