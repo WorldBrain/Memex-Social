@@ -129,6 +129,18 @@ export const SCENARIOS: ScenarioMap<Targets> = {
             }),
         ],
     })),
+    'list-entry-range': scenario<Targets>(({ step }) => ({
+        fixture: 'default-lists-with-user',
+        startRoute: {
+            route: 'collectionDetails',
+            params: { id: 'default-list' },
+            query: {
+                fromListEntry: '1594225249914',
+                toListEntry: '1594225269914',
+            },
+        },
+        steps: [],
+    })),
     annotations: scenario<Targets>(({ step, callModification }) => ({
         fixture: 'annotated-list-with-user',
         startRoute: {

@@ -91,10 +91,16 @@ export async function mainProgram(
         const scenario = services.scenarios.findScenario(
             options.queryParams.scenario,
         )
-        const startUrlPath = services.router.getUrl(
+        let startUrlPath = services.router.getUrl(
             scenario.startRoute.route as RouteName,
             scenario.startRoute.params,
         )
+        if (scenario.startRoute.query) {
+            startUrlPath += '?'
+            startUrlPath += Object.entries(scenario.startRoute.query)
+                .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
+                .join('&')
+        }
         history.replace(startUrlPath)
     }
     if (scenarioIdentifier) {

@@ -32,6 +32,7 @@ import type {
 import { SharedListRole } from '@worldbrain/memex-common/lib/web-interface/types/storex-generated/content-sharing'
 import { ProcessSharedListKeyResult } from '@worldbrain/memex-common/lib/content-sharing/service/types'
 import { SearchType } from '@worldbrain/memex-common/lib/common-ui/components/types'
+import { ContentSharingQueryParams } from '../../../types'
 
 export interface CollectionDetailsDependencies {
     listID: string
@@ -62,6 +63,7 @@ export interface CollectionDetailsDependencies {
         | 'activityStreams'
         | 'activityFollows'
     >
+    query: ContentSharingQueryParams
 }
 
 export type CollectionDetailsState = AnnotationConversationsState &

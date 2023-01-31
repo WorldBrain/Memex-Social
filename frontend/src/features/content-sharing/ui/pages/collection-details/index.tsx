@@ -40,7 +40,9 @@ import Markdown from '@worldbrain/memex-common/lib/common-ui/components/markdown
 import BlockContent, {
     getBlockContentYoutubePlayerId,
 } from '@worldbrain/memex-common/lib/common-ui/components/block-content'
-import ItemBox from '@worldbrain/memex-common/lib/common-ui/components/item-box'
+import ItemBox, {
+    ItemBoxProps,
+} from '@worldbrain/memex-common/lib/common-ui/components/item-box'
 import ItemBoxBottom, {
     ItemBoxBottomAction,
 } from '@worldbrain/memex-common/lib/common-ui/components/item-box-bottom'
@@ -52,6 +54,7 @@ import { eventProviderUrls } from '@worldbrain/memex-common/lib/constants'
 import moment from 'moment'
 import RouteLink from '../../../../../common-ui/components/route-link'
 import { PopoutBox } from '@worldbrain/memex-common/lib/common-ui/components/popout-box'
+import { AnnotationsInPageProps } from '@worldbrain/memex-common/lib/content-conversations/ui/components/annotations-in-page'
 
 const commentImage = require('../../../../../assets/img/comment.svg')
 const commentEmptyImage = require('../../../../../assets/img/comment-empty.svg')
@@ -67,6 +70,9 @@ export default class CollectionDetailsPage extends UIElement<
 
     showMoreCollaboratorsRef = React.createRef<HTMLElement>()
 
+    scrollableRef?: { element: HTMLElement; timestammp: number }
+    scrollTimeout?: ReturnType<typeof setTimeout>
+
     // get listsSidebarProps(): Omit<
     //     ListsSidebarProps,
     //     'services' | 'storage' | 'viewportBreakpoint'
@@ -79,6 +85,73 @@ export default class CollectionDetailsPage extends UIElement<
     //         onToggle: () => this.processEvent('toggleListSidebar', undefined),
     //     }
     // }
+
+    onListEntryRef = (event: {
+        element: HTMLElement
+        entry: SharedListEntry
+    }) => {
+        this.handleScrollableRef(
+            event.entry.createdWhen,
+            event.element,
+            this.props.query.fromListEntry,
+            this.props.query.toListEntry,
+        )
+    }
+
+    onAnnotEntryRef: AnnotationsInPageProps['onAnnotationBoxRootRef'] = (
+        event,
+    ) => {
+        this.handleScrollableRef(
+            event.annotation.createdWhen,
+            event.element,
+            this.props.query.fromAnnotEntry,
+            this.props.query.toAnnotEntry,
+        )
+    }
+
+    onReplyRef: AnnotationsInPageProps['onReplyRootRef'] = (event) => {
+        this.handleScrollableRef(
+            event.reply.reply.createdWhen,
+            event.element,
+            this.props.query.fromReply,
+            this.props.query.toReply,
+        )
+    }
+
+    handleScrollableRef = (
+        timestammp: number,
+        element: HTMLElement,
+        fromString: string | undefined,
+        toString: string | undefined,
+    ) => {
+        if (!fromString || !toString || !element) {
+            return
+        }
+        if (this.scrollableRef && this.scrollableRef.timestammp < timestammp) {
+            return
+        }
+        const range = [parseInt(fromString), parseInt(toString)]
+        if (timestammp >= range[0] && timestammp <= range[1]) {
+            this.scrollableRef = { element, timestammp }
+            this.scheduleScrollToItems()
+        }
+    }
+
+    scheduleScrollToItems() {
+        if (!this.scrollTimeout) {
+            this.scrollTimeout = setTimeout(this.scrollToItems, 1000)
+        }
+    }
+
+    scrollToItems = () => {
+        if (!this.scrollableRef) {
+            return
+        }
+        console.log(this.scrollableRef.element)
+        this.scrollableRef.element.scrollTo({
+            behavior: 'smooth',
+        })
+    }
 
     isIframe = () => {
         try {
@@ -418,6 +491,8 @@ export default class CollectionDetailsPage extends UIElement<
                             sharedListReference: this.sharedListReference,
                         }),
                 }}
+                onAnnotationBoxRootRef={this.onAnnotEntryRef}
+                onReplyRootRef={this.onReplyRef}
             />
         )
     }
@@ -1311,6 +1386,12 @@ export default class CollectionDetailsPage extends UIElement<
                                                       ?.listEntries[entryIndex]
                                                       .hoverState
                                               }
+                                              onRef={(event) => {
+                                                  this.onListEntryRef({
+                                                      ...event,
+                                                      entry,
+                                                  })
+                                              }}
                                           >
                                               <BlockContent
                                                   // pageLink ={'https://memex.social/' + this.props.listID + '/' + entry.reference.id}
