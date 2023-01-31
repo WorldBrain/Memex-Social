@@ -1362,6 +1362,7 @@ export default class CollectionDetailsPage extends UIElement<
                                           key={entry.normalizedUrl}
                                       >
                                           <ItemBox
+                                              //   highlight={isInRange(entry.createdWhen, this.itemRanges.listEntry)}
                                               onMouseEnter={(
                                                   event: React.MouseEventHandler,
                                               ) =>
@@ -1531,6 +1532,13 @@ function parseRange(
         fromTimestamp: parseInt(fromString),
         toTimestamp: parseInt(toString),
     }
+}
+
+function isInRange(timestamp: number, range: TimestampRange | undefined) {
+    if (!range) {
+        return false
+    }
+    return range.fromTimestamp >= timestamp && range.toTimestamp <= timestamp
 }
 
 const TitleClick = styled.div`
