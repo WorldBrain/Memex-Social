@@ -126,7 +126,10 @@ export async function createStorage(options: {
         serverModules: {
             // auth: new AuthStorage({ storageManager }),
             discord: new DiscordStorage({ storageManager }),
-            discordRetroSync: new RetroSyncStorage({ storageManager }),
+            discordRetroSync: new RetroSyncStorage({
+                storageManager,
+                operationExecuter: operationExecuter('discordRetroSync'),
+            }),
             activityFollows: new ActivityFollowsStorage({
                 storageManager,
                 operationExecuter: operationExecuter('activityFollows'),

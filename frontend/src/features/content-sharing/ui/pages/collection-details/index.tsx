@@ -1272,7 +1272,7 @@ export default class CollectionDetailsPage extends UIElement<
                         <DiscordSyncNotif>
                             <Icon
                                 filePath="redo"
-                                heightAndWidth="22px"
+                                heightAndWidth="18px"
                                 hoverOff
                                 color="prime1"
                             />{' '}
@@ -1450,6 +1450,7 @@ const DiscordSyncNotif = styled.div`
     align-items: center;
     justify-content: center;
     margin-bottom: 10px;
+    grid-gap: 10px;
 `
 
 const TitleClick = styled.div`
