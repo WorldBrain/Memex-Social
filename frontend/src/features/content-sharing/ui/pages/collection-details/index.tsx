@@ -1268,18 +1268,19 @@ export default class CollectionDetailsPage extends UIElement<
                             </ErrorWithAction>
                         </Margin>
                     )}
-                    {state.listData.discordList != null && (
-                        <DiscordSyncNotif>
-                            <Icon
-                                filePath="redo"
-                                heightAndWidth="18px"
-                                hoverOff
-                                color="prime1"
-                            />{' '}
-                            This channels is still being synced. It may take a
-                            while for everything to show up.
-                        </DiscordSyncNotif>
-                    )}
+                    {state.listData.discordList != null &&
+                        state.listData?.isDiscordSyncing && (
+                            <DiscordSyncNotif>
+                                <Icon
+                                    filePath="redo"
+                                    heightAndWidth="18px"
+                                    hoverOff
+                                    color="prime1"
+                                />{' '}
+                                This discord channel is still being synced. It
+                                may take a while for everything to show up.
+                            </DiscordSyncNotif>
+                        )}
                     <ResultsList>
                         {resultsFilteredByType?.length
                             ? resultsFilteredByType?.map(
