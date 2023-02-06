@@ -440,13 +440,12 @@ export default class CollectionDetailsPage extends UIElement<
                         this.itemRanges.annotEntry,
                     )
                 }
-                shouldHighlightReply={(_, replyData) => {
-                    console.log(replyData.reply.createdWhen)
-                    return isInRange(
+                shouldHighlightReply={(_, replyData) =>
+                    isInRange(
                         replyData.reply.createdWhen,
                         this.itemRanges.reply,
                     )
-                }}
+                }
                 getAnnotationCreator={(annotationReference) => {
                     const creatorRef = this.state.annotations[
                         annotationReference.id.toString()
