@@ -371,7 +371,6 @@ export default class CollectionDetailsLogic extends UILogic<
                 }
 
                 this.emitMutation({ requestingAuth: { $set: true } })
-                await this.dependencies.services.memexExtension.requestFetchFollowedListUpdates()
                 const {
                     result: authResult,
                 } = await this.dependencies.services.auth.requestAuth({
@@ -442,7 +441,11 @@ export default class CollectionDetailsLogic extends UILogic<
     }
 
     loadListData: EventHandler<'loadListData'> = async ({ event }) => {
-        const { contentSharing, discord } = this.dependencies.storage
+        const {
+            contentSharing,
+            discord,
+            discordRetroSync,
+        } = this.dependencies.storage
         const listReference = makeStorageReference<SharedListReference>(
             'shared-list-reference',
             event.listID,
@@ -509,6 +512,7 @@ export default class CollectionDetailsLogic extends UILogic<
                         listDescription.length < LIST_DESCRIPTION_CHAR_LIMIT
 
                     let discordList: DiscordList | null = null
+                    let isDiscordSyncing = false
 
                     if (result.sharedList.platform === 'discord') {
                         discordList = await discord.findDiscordListForSharedList(
@@ -519,12 +523,16 @@ export default class CollectionDetailsLogic extends UILogic<
                                 mutation: { listData: { $set: undefined } },
                             }
                         }
+                        isDiscordSyncing = await discordRetroSync.channelHasSyncEntry(
+                            { channelId: discordList.channelId },
+                        )
                     }
 
                     this.emitMutation({
                         listData: {
                             $set: {
                                 discordList,
+                                isDiscordSyncing,
                                 creatorReference: result.creator,
                                 creator: await this._users.loadUser(
                                     result.creator,
@@ -683,16 +691,29 @@ export default class CollectionDetailsLogic extends UILogic<
 
     toggleAllAnnotations: EventHandler<'toggleAllAnnotations'> = (incoming) => {
         const shouldBeExpanded = !incoming.previousState.allAnnotationExpanded
+        const currentExpandedCount = Object.keys(
+            incoming.previousState.pageAnnotationsExpanded,
+        ).length
+
         if (shouldBeExpanded) {
             this.emitMutation({
                 allAnnotationExpanded: { $set: true },
-                pageAnnotationsExpanded: {
-                    $set: fromPairs(
-                        incoming.previousState.listData!.listEntries.map(
-                            (entry) => [entry.normalizedUrl, true],
-                        ),
-                    ),
-                },
+            })
+
+            incoming.previousState.listData!.listEntries.map((entry) => {
+                let hasAnnotations =
+                    incoming.previousState.annotationEntryData &&
+                    incoming.previousState.annotationEntryData[
+                        entry.normalizedUrl
+                    ]
+
+                if (hasAnnotations) {
+                    this.emitMutation({
+                        pageAnnotationsExpanded: {
+                            [entry.normalizedUrl]: { $set: true },
+                        },
+                    })
+                }
             })
         } else {
             this.emitMutation({
@@ -739,12 +760,7 @@ export default class CollectionDetailsLogic extends UILogic<
         } = this.dependencies
         let userReference = auth.getCurrentUserReference()
 
-        await memexExtension.requestFetchFollowedListUpdates()
-
-        if (previousState.listRoleID) {
-            return
-        }
-        if (previousState.isListOwner) {
+        if (previousState.listRoleID || previousState.isListOwner) {
             return
         }
 

@@ -11,9 +11,10 @@ import {
 } from '../../../logic/buttons/types'
 import CuratorSupportPopupContainer from '../../../../user-management/ui/containers/curator-support-popup-container'
 import LoadingIndicator from '@worldbrain/memex-common/lib/common-ui/components/loading-indicator'
+import { PopoutBox } from '@worldbrain/memex-common/lib/common-ui/components/popout-box'
+import { TooltipBox } from '@worldbrain/memex-common/lib/common-ui/components/tooltip-box'
 
 const Container = styled.div`
-    margin-left: 10px;
     z-index: 10000;
 `
 
@@ -30,7 +31,6 @@ const WebMonetizationPaymentProgress = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-right: 15px;
 
     & > div {
         position: absolute;
@@ -46,17 +46,10 @@ export default class WebMonetizationIcon extends UIElement<
     WebMonetizationIconState,
     WebMonetizationIconEvent
 > {
-    private iconHeight = '30px'
+    iconRef = React.createRef<HTMLDivElement>()
 
     constructor(props: WebMonetizationIconDependencies) {
         super(props, { logic: new Logic(props) })
-    }
-
-    private get isClickable(): boolean {
-        return (
-            this.state.isMonetizationAvailable &&
-            this.state.paymentState !== 'success'
-        )
     }
 
     handleClick = () => {
@@ -72,16 +65,13 @@ export default class WebMonetizationIcon extends UIElement<
         ) {
             this.handleClick()
         }
-
         return (
-            <IconContainer
-                onMouseEnter={() => this.processEvent('showPopup', null)}
-            >
+            <IconContainer onClick={() => this.processEvent('showPopup', null)}>
                 {paymentState === 'pristine' && (
                     <WebMonetizationPaymentProgress>
                         <Icon
                             height={'24px'}
-                            color="normalText"
+                            color="white"
                             icon={'webMonetizationLogo'}
                             onClick={this.handleClick}
                         />
@@ -91,7 +81,7 @@ export default class WebMonetizationIcon extends UIElement<
                     <WebMonetizationPaymentProgress>
                         <Icon
                             height={'24px'}
-                            color="purple"
+                            color="prime1"
                             icon={'webMonetizationLogo'}
                             onClick={this.handleClick}
                             hoverOff
@@ -106,23 +96,43 @@ export default class WebMonetizationIcon extends UIElement<
 
     render() {
         return (
-            <Container>
-                {this.renderIcon()}
-
+            <Container ref={this.iconRef}>
+                <TooltipBox
+                    placement="bottom"
+                    tooltipText={
+                        <span>
+                            Support the Curator <br />
+                            of this Space
+                        </span>
+                    }
+                    targetElementRef={this.iconRef.current ?? undefined}
+                >
+                    {this.renderIcon()}
+                </TooltipBox>
                 {this.state.isDisplayed === true && (
-                    <CuratorSupportPopupContainer
-                        services={this.props.services}
-                        storage={this.props.storage}
-                        userRef={this.props.curatorUserRef}
-                        paymentMade={this.state.paymentMade}
-                        paymentState={this.state.paymentState}
-                        isMonetizationAvailable={
-                            this.state.isMonetizationAvailable
-                        }
-                        onMouseLeave={() =>
+                    <PopoutBox
+                        placement="bottom"
+                        strategy="fixed"
+                        targetElementRef={this.iconRef.current ?? undefined}
+                        closeComponent={() =>
                             this.processEvent('hidePopup', null)
                         }
-                    />
+                        offsetX={10}
+                    >
+                        <CuratorSupportPopupContainer
+                            services={this.props.services}
+                            storage={this.props.storage}
+                            userRef={this.props.curatorUserRef}
+                            paymentMade={this.state.paymentMade}
+                            paymentState={this.state.paymentState}
+                            isMonetizationAvailable={
+                                this.state.isMonetizationAvailable
+                            }
+                            onMouseLeave={() =>
+                                this.processEvent('hidePopup', null)
+                            }
+                        />
+                    </PopoutBox>
                 )}
             </Container>
         )

@@ -60,7 +60,7 @@ const InvitedNotification = styled.div<{
     width: 100%;
     max-width: 800px;
     padding: 10px 15px;
-    color: ${(props) => props.theme.colors.greyScale8};
+    color: ${(props) => props.theme.colors.greyScale5};
     font-size: 14px;
     font-weight: 300;
     display: flex;
@@ -78,14 +78,14 @@ const InvitedNotification = styled.div<{
 const Title = styled.div`
     font-weight: 800;
     font-size: 22px;
-    color: ${(props) => props.theme.colors.darkerText};
+    color: ${(props) => props.theme.colors.greyScale2};
     text-align: center;
 `
 const SubTitle = styled.div`
     font-weight: 400;
     font-size: 16px;
     text-align: center;
-    color: ${(props) => props.theme.colors.lighterText};
+    color: ${(props) => props.theme.colors.greyScale5};
 `
 const ButtonsBox = styled.div`
     display: flex;
@@ -104,7 +104,7 @@ const secondaryButtonCss = css`
     border-radius: 3px;
     cursor: pointer;
     font-weight: 600;
-    color: ${(props) => props.theme.colors.primary};
+    color: ${(props) => props.theme.colors.prime1};
     text-decoration: none;
 `
 
@@ -195,7 +195,7 @@ export default function PermissionKeyOverlay(props: {
                 >
                     <Icon
                         filePath={'personPlus'}
-                        color={'purple'}
+                        color={'prime1'}
                         heightAndWidth={'22px'}
                     />
                     You can add highlights and pages via the Memex extension.

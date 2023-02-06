@@ -36,7 +36,6 @@ import ListShareModal from '@worldbrain/memex-common/lib/content-sharing/ui/list
 // import type { Props as ListsSidebarProps } from '../../../../lists-sidebar/ui/components/lists-sidebar'
 import { isPagePdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
 import MissingPdfOverlay from '../../../../ext-detection/ui/components/missing-pdf-overlay'
-import { HoverBox } from '../../../../../common-ui/components/hoverbox'
 import Markdown from '@worldbrain/memex-common/lib/common-ui/components/markdown'
 import BlockContent, {
     getBlockContentYoutubePlayerId,
@@ -49,8 +48,10 @@ import SearchTypeSwitch from '@worldbrain/memex-common/lib/common-ui/components/
 import { PrimaryAction } from '@worldbrain/memex-common/lib/common-ui/components/PrimaryAction'
 import IconBox from '@worldbrain/memex-common/lib/common-ui/components/icon-box'
 import { TooltipBox } from '@worldbrain/memex-common/lib/common-ui/components/tooltip-box'
+import { eventProviderUrls } from '@worldbrain/memex-common/lib/constants'
 import moment from 'moment'
 import RouteLink from '../../../../../common-ui/components/route-link'
+import { PopoutBox } from '@worldbrain/memex-common/lib/common-ui/components/popout-box'
 
 const commentImage = require('../../../../../assets/img/comment.svg')
 const commentEmptyImage = require('../../../../../assets/img/comment-empty.svg')
@@ -64,6 +65,8 @@ export default class CollectionDetailsPage extends UIElement<
         super(props, { logic: new Logic({ ...props }) })
     }
 
+    showMoreCollaboratorsRef = React.createRef<HTMLElement>()
+
     // get listsSidebarProps(): Omit<
     //     ListsSidebarProps,
     //     'services' | 'storage' | 'viewportBreakpoint'
@@ -76,6 +79,14 @@ export default class CollectionDetailsPage extends UIElement<
     //         onToggle: () => this.processEvent('toggleListSidebar', undefined),
     //     }
     // }
+
+    isIframe = () => {
+        try {
+            return window.self !== window.top
+        } catch (e) {
+            return true
+        }
+    }
 
     get isListContributor(): boolean {
         return (
@@ -123,7 +134,7 @@ export default class CollectionDetailsPage extends UIElement<
                 <PrimaryAction
                     type={'tertiary'}
                     icon={'addPeople'}
-                    iconColor={'purple'}
+                    iconColor={'prime1'}
                     size={
                         this.viewportBreakpoint === 'mobile'
                             ? 'small'
@@ -195,16 +206,19 @@ export default class CollectionDetailsPage extends UIElement<
             state.annotationEntriesLoadState === 'success' &&
             toggleAnnotationsIcon !== null
         ) {
-            if (this.state.listData?.listEntries[entryIndex].hoverState) {
+            if (
+                this.state.listData?.listEntries[entryIndex].hoverState &&
+                !this.isIframe()
+            ) {
                 return [
                     {
-                        key: 'expand-notes-btn',
+                        key: 'copy-link-btn',
                         image: this.state.copiedLink ? 'check' : 'link',
                         imageColor: this.state.copiedLink
-                            ? 'purple'
-                            : 'greyScale8',
+                            ? 'prime1'
+                            : 'greyScale5',
                         ButtonText: this.state.copiedLink
-                            ? 'Copied to Clipboard'
+                            ? 'Copied'
                             : 'Copy Link',
                         onClick: () => {
                             navigator.clipboard.writeText(
@@ -219,9 +233,9 @@ export default class CollectionDetailsPage extends UIElement<
                     },
                     {
                         key: 'expand-notes-btn',
-                        image: count > 0 ? 'commentFull' : 'commentEmpty',
+                        image: count > 0 ? 'commentFull' : 'commentAdd',
                         ButtonText: count > 0 ? count : '',
-                        imageColor: 'purple',
+                        imageColor: 'prime1',
                         onClick: () =>
                             this.processEvent('togglePageAnnotations', {
                                 normalizedUrl: entry.normalizedUrl,
@@ -233,9 +247,9 @@ export default class CollectionDetailsPage extends UIElement<
             return [
                 {
                     key: 'expand-notes-btn',
-                    image: count > 0 ? 'commentFull' : 'commentEmpty',
+                    image: count > 0 ? 'commentFull' : 'commentAdd',
                     ButtonText: count > 0 ? count : '',
-                    imageColor: 'purple',
+                    imageColor: 'prime1',
                     onClick: () =>
                         this.processEvent('togglePageAnnotations', {
                             normalizedUrl: entry.normalizedUrl,
@@ -260,12 +274,15 @@ export default class CollectionDetailsPage extends UIElement<
                 //     ),
                 // },
             ]
-        } else if (this.state.listData?.listEntries[entryIndex].hoverState) {
+        } else if (
+            this.state.listData?.listEntries[entryIndex].hoverState &&
+            !this.isIframe()
+        ) {
             return [
                 {
                     key: 'expand-notes-btn',
                     image: 'link',
-                    imageColor: 'greyScale8',
+                    imageColor: 'greyScale5',
                     ButtonText: 'Copy Link',
                     onClick: () => {
                         navigator.clipboard.writeText(
@@ -420,11 +437,11 @@ export default class CollectionDetailsPage extends UIElement<
 
     private renderBreadCrumbs() {
         const isPageView = this.props.entryID
+        const title = this.state.listData!.list.title
 
         if (isPageView) {
             return (
-                <BreadCrumbBox>
-                    <Icon filePath="arrowLeft" heightAndWidth="22px" hoverOff />
+                <BreadCrumbBox isPageView={isPageView}>
                     <RouteLink
                         route="collectionDetails"
                         services={this.props.services}
@@ -432,7 +449,12 @@ export default class CollectionDetailsPage extends UIElement<
                             id: this.props.listID,
                         }}
                     >
-                        Go to collection
+                        <Icon
+                            filePath="arrowLeft"
+                            heightAndWidth="20px"
+                            hoverOff
+                        />
+                        {title}
                     </RouteLink>
                 </BreadCrumbBox>
             )
@@ -442,6 +464,36 @@ export default class CollectionDetailsPage extends UIElement<
     private renderTitle() {
         const { listData } = this.state
         const title = listData!.list.title
+        const isPageView = this.props.entryID
+
+        if (isPageView) {
+            return (
+                <TitleClick
+                    onClick={
+                        !this.isIframe()
+                            ? (e) => {
+                                  this.processEvent('clickPageResult', {
+                                      urlToOpen:
+                                          listData?.listEntries[0].originalUrl,
+                                      preventOpening: () => e.preventDefault(),
+                                      isFollowedSpace:
+                                          this.state.isCollectionFollowed ||
+                                          this.state.isListOwner,
+                                      notifAlreadyShown: this.state
+                                          .notifAlreadyShown,
+                                      sharedListReference: this
+                                          .sharedListReference,
+                                  })
+                                  e.preventDefault()
+                                  e.stopPropagation()
+                              }
+                            : undefined
+                    }
+                >
+                    {this.state.listData?.listEntries[0].entryTitle}
+                </TitleClick>
+            )
+        }
 
         if (listData!.discordList == null) {
             return title
@@ -449,8 +501,8 @@ export default class CollectionDetailsPage extends UIElement<
 
         return (
             <DiscordChannelName>
-                <Icon height="35px" icon="discord" color="blue" hoverOff />#
-                {title}
+                <Icon height="35px" icon="discord" color="secondary" hoverOff />
+                #{title}
             </DiscordChannelName>
         )
     }
@@ -549,12 +601,17 @@ export default class CollectionDetailsPage extends UIElement<
             )[0]
 
             return (
-                <>
-                    <>{domain}</>
-                    <>added by</>
-                    <>{contributorName}</>
-                    <>{moment(addedDate).format('lll')}</>
-                </>
+                <PageViewFooter>
+                    <Domain>{domain}</Domain>
+                    <PageViewSubtitleHelpText>
+                        added by
+                    </PageViewSubtitleHelpText>
+                    <PageViewSubtitle>{contributorName}</PageViewSubtitle>
+                    <PageViewSubtitleHelpText>on </PageViewSubtitleHelpText>
+                    <PageViewSubtitle>
+                        {moment(addedDate).format('lll')}
+                    </PageViewSubtitle>
+                </PageViewFooter>
             )
         }
 
@@ -583,47 +640,60 @@ export default class CollectionDetailsPage extends UIElement<
                                 <SharedBy>Space by</SharedBy>{' '}
                                 {renderedPreview.slice(0, showListRoleLimit())}
                                 {users.length - showListRoleLimit() > 0 && (
-                                    <ShowMoreCollaborators
-                                        onClick={(event) =>
-                                            this.processEvent(
-                                                'toggleMoreCollaborators',
-                                                {
-                                                    value: this.state
-                                                        .showMoreCollaborators,
-                                                },
-                                            )
-                                        }
-                                    >
-                                        {users.length - showListRoleLimit() && (
-                                            <>
-                                                <SharedBy>and</SharedBy>{' '}
-                                                {renderedPreview.slice(
-                                                    0,
-                                                    showListRoleLimit(),
-                                                ) && (
-                                                    <>
-                                                        {users.length -
-                                                            showListRoleLimit()}{' '}
-                                                        more{' '}
-                                                    </>
-                                                )}
-                                            </>
-                                        )}
+                                    <>
+                                        <ShowMoreCollaborators
+                                            onClick={(event) =>
+                                                this.processEvent(
+                                                    'toggleMoreCollaborators',
+                                                    {
+                                                        value: this.state
+                                                            .showMoreCollaborators,
+                                                    },
+                                                )
+                                            }
+                                            ref={this.showMoreCollaboratorsRef}
+                                        >
+                                            {users.length -
+                                                showListRoleLimit() && (
+                                                <>
+                                                    <SharedBy>and</SharedBy>{' '}
+                                                    {renderedPreview.slice(
+                                                        0,
+                                                        showListRoleLimit(),
+                                                    ) && (
+                                                        <SharedBy>
+                                                            {users.length -
+                                                                showListRoleLimit()}{' '}
+                                                            more{' '}
+                                                        </SharedBy>
+                                                    )}
+                                                </>
+                                            )}
+                                            <Icon
+                                                icon={'arrowDown'}
+                                                heightAndWidth={'16px'}
+                                            />
+                                        </ShowMoreCollaborators>
                                         {this.state.showMoreCollaborators && (
-                                            <HoverBox
-                                                marginLeft={'-90px'}
-                                                width={'unset'}
-                                                marginTop={'5px'}
-                                                padding={'0px'}
+                                            <PopoutBox
+                                                targetElementRef={
+                                                    this
+                                                        .showMoreCollaboratorsRef
+                                                        ?.current ?? undefined
+                                                }
+                                                placement="bottom"
+                                                closeComponent={() =>
+                                                    this.processEvent(
+                                                        'toggleMoreCollaborators',
+                                                        {
+                                                            value: !this.state
+                                                                .showMoreCollaborators,
+                                                        },
+                                                    )
+                                                }
+                                                offsetX={5}
                                             >
-                                                <ContributorContainer
-                                                    onMouseLeave={() =>
-                                                        this.processEvent(
-                                                            'toggleMoreCollaborators',
-                                                            {},
-                                                        )
-                                                    }
-                                                >
+                                                <ContributorContainer>
                                                     {users.map(
                                                         ({
                                                             userReference,
@@ -660,13 +730,9 @@ export default class CollectionDetailsPage extends UIElement<
                                                         ),
                                                     )}
                                                 </ContributorContainer>
-                                            </HoverBox>
+                                            </PopoutBox>
                                         )}
-                                        <Icon
-                                            icon={'arrowDown'}
-                                            heightAndWidth={'16px'}
-                                        />
-                                    </ShowMoreCollaborators>
+                                    </>
                                 )}
                                 {/* {rendered} */}
                             </>
@@ -735,6 +801,9 @@ export default class CollectionDetailsPage extends UIElement<
                     onPDFSearchSwitch={() =>
                         this.processEvent('setSearchType', 'pdf')
                     }
+                    onEventSearchSwitch={() =>
+                        this.processEvent('setSearchType', 'events')
+                    }
                     searchType={this.state.searchType}
                     toExclude={['notes']}
                 />
@@ -745,7 +814,7 @@ export default class CollectionDetailsPage extends UIElement<
                                 this.processEvent('toggleInstallExtModal', {})
                             }
                         >
-                            <Icon icon="plus" height="22px" color="purple" />
+                            <Icon icon="plus" height="22px" color="prime1" />
                         </AddPageBtn>
                     )}
                     {annotationEntryData &&
@@ -841,6 +910,11 @@ export default class CollectionDetailsPage extends UIElement<
 
     renderHeaderActionArea() {
         const isPageView = this.props.entryID
+
+        if (isPageView) {
+            return
+        }
+
         if (
             // this.state.followLoadState === 'running' ||
             this.state.listRolesLoadState === 'running' ||
@@ -853,7 +927,11 @@ export default class CollectionDetailsPage extends UIElement<
             )
         } else {
             // Case: Get contributor invitation link
-            if (this.state.listKeyPresent && !this.state.listRoleID) {
+            if (
+                this.state.listKeyPresent &&
+                !this.state.listRoleID &&
+                !this.state.isListOwner
+            ) {
                 return (
                     <InvitedNotification
                         viewportBreakpoint={this.viewportBreakpoint}
@@ -862,7 +940,7 @@ export default class CollectionDetailsPage extends UIElement<
                         <InvitationTextContainer>
                             <Icon
                                 filePath={'invite'}
-                                color={'purple'}
+                                color={'prime1'}
                                 heightAndWidth={'22px'}
                             />
                             You've been invited to contribute to this Space and
@@ -896,7 +974,7 @@ export default class CollectionDetailsPage extends UIElement<
                                 <InvitationTextContainer>
                                     <Icon
                                         filePath={'invite'}
-                                        color={'purple'}
+                                        color={'prime1'}
                                         heightAndWidth={'22px'}
                                         hoverOff
                                     />
@@ -930,10 +1008,13 @@ export default class CollectionDetailsPage extends UIElement<
             return 'play'
         }
         if (this.state.searchType === 'pdf') {
-            return 'file'
+            return 'filePDF'
         }
         if (this.state.searchType === 'pages') {
             return 'heartEmpty'
+        }
+        if (this.state.searchType === 'events') {
+            return 'calendar'
         }
 
         return 'searchIcon'
@@ -949,6 +1030,9 @@ export default class CollectionDetailsPage extends UIElement<
         if (this.state.searchType === 'pdf') {
             return 'No PDFs saved in this Space'
         }
+        if (this.state.searchType === 'events') {
+            return 'No Events posted in this Space'
+        }
         if (this.state.searchType === 'pages') {
             return 'Nothing saved in this Space yet'
         }
@@ -962,7 +1046,7 @@ export default class CollectionDetailsPage extends UIElement<
                         heightAndWidth={'22px'}
                         filePath={this.getFilePathforSearchType()}
                         hoverOff
-                        color="purple"
+                        color="prime1"
                     />
                 </IconBox>
                 <EmptyListBox>
@@ -992,6 +1076,15 @@ export default class CollectionDetailsPage extends UIElement<
             })
             return newEntries
         }
+        if (this.state.searchType === 'events') {
+            const newEntries = entries?.filter((entry) => {
+                return eventProviderUrls.some((url) =>
+                    entry[1].normalizedUrl.includes(url),
+                )
+            })
+
+            return newEntries
+        }
 
         if (this.state.searchType === 'pdf') {
             const newEntries = entries?.filter((entry) => {
@@ -1004,6 +1097,12 @@ export default class CollectionDetailsPage extends UIElement<
     }
 
     renderDescription() {
+        const isPageView = this.props.entryID
+
+        if (isPageView) {
+            return
+        }
+
         const { state } = this
         const data = state.listData
 
@@ -1157,6 +1256,7 @@ export default class CollectionDetailsPage extends UIElement<
                     scrollTop={this.state.scrollTop}
                     breadCrumbs={this.renderBreadCrumbs()}
                     renderDescription={this.renderDescription()}
+                    isPageView={this.props.entryID}
                 >
                     {data.listEntries.length > 0 &&
                         !isPageView &&
@@ -1168,6 +1268,19 @@ export default class CollectionDetailsPage extends UIElement<
                             </ErrorWithAction>
                         </Margin>
                     )}
+                    {state.listData.discordList != null &&
+                        state.listData?.isDiscordSyncing && (
+                            <DiscordSyncNotif>
+                                <Icon
+                                    filePath="redo"
+                                    heightAndWidth="18px"
+                                    hoverOff
+                                    color="prime1"
+                                />{' '}
+                                This discord channel is still being synced. It
+                                may take a while for everything to show up.
+                            </DiscordSyncNotif>
+                        )}
                     <ResultsList>
                         {resultsFilteredByType?.length
                             ? resultsFilteredByType?.map(
@@ -1176,121 +1289,114 @@ export default class CollectionDetailsPage extends UIElement<
                                           bottom="small"
                                           key={entry.normalizedUrl}
                                       >
-                                          {!isPageView && (
-                                              <PageStickyBox
-                                                  beSticky={
-                                                      state
-                                                          .pageAnnotationsExpanded[
-                                                          entry.normalizedUrl
-                                                      ]
-                                                  }
-                                              >
-                                                  <ItemBox
-                                                      onMouseEnter={(
-                                                          event: React.MouseEventHandler,
-                                                      ) =>
-                                                          this.processEvent(
-                                                              'setPageHover',
-                                                              { entryIndex },
-                                                          )
-                                                      }
-                                                      onMouseLeave={(
-                                                          event: React.MouseEventHandler,
-                                                      ) =>
-                                                          this.processEvent(
-                                                              'setPageHover',
-                                                              { entryIndex },
-                                                          )
-                                                      }
-                                                      hoverState={
-                                                          this.state.listData
-                                                              ?.listEntries[
-                                                              entryIndex
-                                                          ].hoverState
-                                                      }
-                                                  >
-                                                      <BlockContent
-                                                          // pageLink ={'https://memex.social/' + this.props.listID + '/' + entry.reference.id}
-                                                          youtubeService={
-                                                              this.props
-                                                                  .services
-                                                                  .youtube
-                                                          }
-                                                          type={
-                                                              isPagePdf({
-                                                                  url:
-                                                                      entry.normalizedUrl,
-                                                              })
-                                                                  ? 'pdf'
-                                                                  : 'page'
-                                                          }
-                                                          normalizedUrl={
-                                                              entry.normalizedUrl
-                                                          }
-                                                          originalUrl={
-                                                              entry.originalUrl
-                                                          }
-                                                          fullTitle={
-                                                              entry &&
-                                                              entry.entryTitle
-                                                          }
-                                                          onClick={(e) => {
-                                                              this.processEvent(
-                                                                  'clickPageResult',
-                                                                  {
-                                                                      urlToOpen:
-                                                                          entry.originalUrl,
-                                                                      preventOpening: () =>
-                                                                          e.preventDefault(),
-                                                                      isFollowedSpace:
-                                                                          this
-                                                                              .state
-                                                                              .isCollectionFollowed ||
-                                                                          this
-                                                                              .state
-                                                                              .isListOwner,
-                                                                      notifAlreadyShown: this
-                                                                          .state
-                                                                          .notifAlreadyShown,
-                                                                      sharedListReference: this
-                                                                          .sharedListReference,
-                                                                  },
-                                                              )
-                                                              e.preventDefault()
-                                                              e.stopPropagation()
-                                                          }}
-                                                          viewportBreakpoint={
-                                                              this
-                                                                  .viewportBreakpoint
-                                                          }
-                                                          mainContentHover={
-                                                              this.state
-                                                                  .listData
-                                                                  ?.listEntries[
-                                                                  entryIndex
-                                                              ].hoverState
-                                                                  ? 'main-content'
-                                                                  : undefined
-                                                          }
-                                                      />
-                                                      <ItemBoxBottom
-                                                          creationInfo={{
-                                                              creator: this
-                                                                  .state.users[
-                                                                  entry.creator
-                                                                      .id
-                                                              ],
-                                                              createdWhen:
-                                                                  entry.createdWhen,
-                                                          }}
-                                                          actions={this.getPageEntryActions(
-                                                              entry,
+                                          <ItemBox
+                                              onMouseEnter={(
+                                                  event: React.MouseEventHandler,
+                                              ) =>
+                                                  this.processEvent(
+                                                      'setPageHover',
+                                                      { entryIndex },
+                                                  )
+                                              }
+                                              onMouseOver={(
+                                                  event: React.MouseEventHandler,
+                                              ) => {
+                                                  !this.state.listData
+                                                      ?.listEntries[entryIndex]
+                                                      .hoverState &&
+                                                      this.processEvent(
+                                                          'setPageHover',
+                                                          {
                                                               entryIndex,
-                                                          )}
-                                                      />
-                                                  </ItemBox>
-                                              </PageStickyBox>
-                                          )}
+                                                          },
+                                                      )
+                                              }}
+                                              onMouseLeave={(
+                                                  event: React.MouseEventHandler,
+                                              ) =>
+                                                  this.processEvent(
+                                                      'setPageHover',
+                                                      { entryIndex },
+                                                  )
+                                              }
+                                              hoverState={
+                                                  this.state.listData
+                                                      ?.listEntries[entryIndex]
+                                                      .hoverState
+                                              }
+                                          >
+                                              <BlockContent
+                                                  // pageLink ={'https://memex.social/' + this.props.listID + '/' + entry.reference.id}
+                                                  youtubeService={
+                                                      this.props.services
+                                                          .youtube
+                                                  }
+                                                  type={
+                                                      isPagePdf({
+                                                          url:
+                                                              entry.normalizedUrl,
+                                                      })
+                                                          ? 'pdf'
+                                                          : 'page'
+                                                  }
+                                                  normalizedUrl={
+                                                      entry.normalizedUrl
+                                                  }
+                                                  originalUrl={
+                                                      entry.originalUrl
+                                                  }
+                                                  fullTitle={
+                                                      entry && entry.entryTitle
+                                                  }
+                                                  onClick={(e) => {
+                                                      this.processEvent(
+                                                          'clickPageResult',
+                                                          {
+                                                              urlToOpen:
+                                                                  entry.originalUrl,
+                                                              preventOpening: () =>
+                                                                  e.preventDefault(),
+                                                              isFollowedSpace:
+                                                                  this.state
+                                                                      .isCollectionFollowed ||
+                                                                  this.state
+                                                                      .isListOwner,
+                                                              notifAlreadyShown: this
+                                                                  .state
+                                                                  .notifAlreadyShown,
+                                                              sharedListReference: this
+                                                                  .sharedListReference,
+                                                          },
+                                                      )
+                                                      e.preventDefault()
+                                                      e.stopPropagation()
+                                                  }}
+                                                  viewportBreakpoint={
+                                                      this.viewportBreakpoint
+                                                  }
+                                                  mainContentHover={
+                                                      this.state.listData
+                                                          ?.listEntries[
+                                                          entryIndex
+                                                      ].hoverState
+                                                          ? 'main-content'
+                                                          : undefined
+                                                  }
+                                              />
+                                              <ItemBoxBottom
+                                                  creationInfo={{
+                                                      creator: this.state.users[
+                                                          entry.creator.id
+                                                      ],
+                                                      createdWhen:
+                                                          entry.createdWhen,
+                                                  }}
+                                                  actions={this.getPageEntryActions(
+                                                      entry,
+                                                      entryIndex,
+                                                  )}
+                                              />
+                                          </ItemBox>
                                           {state.pageAnnotationsExpanded[
                                               entry.normalizedUrl
                                           ] && (
@@ -1335,6 +1441,42 @@ export default class CollectionDetailsPage extends UIElement<
         )
     }
 }
+
+const DiscordSyncNotif = styled.div`
+    border: 1px solid ${(props) => props.theme.colors.greyScale3};
+    padding: 10px 20px;
+    border-radius: 8px;
+    color: ${(props) => props.theme.colors.greyScale5};
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+    grid-gap: 10px;
+`
+
+const TitleClick = styled.div`
+    cursor: pointer;
+    &:hover {
+        text-decoration: underline;
+    }
+`
+
+const Domain = styled.div`
+    color: ${(props) => props.theme.colors.white};
+    margin-right: 20px;
+`
+const PageViewSubtitle = styled.div`
+    color: ${(props) => props.theme.colors.greyScale5};
+`
+const PageViewSubtitleHelpText = styled.div`
+    color: ${(props) => props.theme.colors.greyScale4};
+`
+
+const PageViewFooter = styled.div`
+    display: flex;
+    align-items: center;
+    grid-gap: 5px;
+`
 
 const ResultsList = styled.div`
     display: flex;
@@ -1404,7 +1546,7 @@ const NoResultsContainer = styled.div`
 const HeaderButtonRow = styled.div`
     display: flex;
     align-items: center;
-    grid-gap: 5px;
+    grid-gap: 10px;
     flex-direction: row;
 `
 
@@ -1432,7 +1574,7 @@ const InvitedNotification = styled.div<{
     max-width: 800px;
     min-height: 40px;
     padding: 0px 10px 0px 0px;
-    color: ${(props) => props.theme.colors.greyScale8};
+    color: ${(props) => props.theme.colors.greyScale5};
     font-size: 14px;
     font-weight: 300;
     display: flex;
@@ -1456,7 +1598,7 @@ const InvitedNotification = styled.div<{
     ${(props) =>
         props.withFrame &&
         css`
-            border: 1px solid ${(props) => props.theme.colors.brand3};
+            border: 1px solid ${(props) => props.theme.colors.prime1}40;
             border-radius: 8px;
             width: fill-available;
             padding: 5px 5px 5px 15px;
@@ -1468,7 +1610,7 @@ const InvitedNotification = styled.div<{
         props.withFrame &&
         props.viewportBreakpoint === 'mobile' &&
         css`
-            border: 1px solid ${(props) => props.theme.colors.brand3};
+            border: 1px solid ${(props) => props.theme.colors.prime1}40;
             border-radius: 8px;
             width: fill-available;
             padding: 15px 15px;
@@ -1478,11 +1620,26 @@ const InvitedNotification = styled.div<{
         `}
 `
 
-const BreadCrumbBox = styled.div`
+const BreadCrumbBox = styled.div<{
+    isPageView: string
+}>`
     display: flex;
     align-items: center;
     grid-gap: 10px;
-    margin-left: 5px;
+    margin-left: -8px;
+    margin-top: 15px;
+
+    & * {
+        cursor: pointer;
+    }
+
+    ${(props) =>
+        props.isPageView &&
+        css`
+            margin-top: 0px;
+            max-width: 800px;
+            width: 100%;
+        `}
 `
 
 const AbovePagesBox = styled.div<{
@@ -1496,11 +1653,10 @@ const AbovePagesBox = styled.div<{
     z-index: 30;
     border-radius: 5px;
     justify-content: space-between;
-    border-bottom: 1px solid
-        ${(props) => props.theme.colors.backgroundColorDarker};
+    border-bottom: 1px solid ${(props) => props.theme.colors.greyScale1};
     padding-bottom: 10px;
     border-radius: 3px 3px 0 0;
-    background: ${(props) => props.theme.colors.backgroundColor};
+    background: ${(props) => props.theme.colors.black};
     position: sticky;
     top: 0px;
     padding-top: 10px;
@@ -1525,7 +1681,7 @@ const AddPageBtn = styled.div`
     align-items: center;
     left: 0;
     font-family: ${(props) => props.theme.fonts.primary};
-    color: ${(props) => props.theme.colors.lighterText};
+    color: ${(props) => props.theme.colors.greyScale5};
     font-weight: 400;
     cursor: pointer;
     border-radius: 3px;
@@ -1534,7 +1690,7 @@ const AddPageBtn = styled.div`
 const ToggleAllAnnotations = styled.div`
     text-align: right;
     font-family: ${(props) => props.theme.fonts.primary};
-    color: ${(props) => props.theme.colors.primary};
+    color: ${(props) => props.theme.colors.prime1};
     font-weight: bold;
     cursor: pointer;
     font-size: 12px;
@@ -1544,7 +1700,7 @@ const ToggleAllAnnotations = styled.div`
 
 const SectionTitle = styled.div`
     font-family: ${(props) => props.theme.fonts.primary};
-    color: ${(props) => props.theme.colors.greyScale8};
+    color: ${(props) => props.theme.colors.greyScale5};
     font-weight: 300;
     font-size: 16px;
     letter-spacing: 1px;
@@ -1566,7 +1722,7 @@ const EmptyListBox = styled.div`
     font-family: ${(props) => props.theme.fonts.primary};
     width: 100%;
     padding: 20px 20px;
-    color: ${(props) => props.theme.colors.greyScale8};
+    color: ${(props) => props.theme.colors.greyScale5};
     display: flex;
     font-size: 16px;
     font-weight: normal;
@@ -1579,7 +1735,7 @@ const EmptyListBox = styled.div`
 
 const ShowMoreCollaborators = styled.span`
     cursor: pointer;
-    color: ${(props) => props.theme.colors.darkerText};
+    color: ${(props) => props.theme.colors.greyScale2};
     align-items: center;
     grid-gap: 5px;
     display: inline-box;
@@ -1629,7 +1785,7 @@ const DiscordChannelName = styled.span`
     align-items: center;
 `
 const DiscordGuildName = styled.span`
-    color: ${(props) => props.theme.colors.blue};
+    color: ${(props) => props.theme.colors.secondary};
     font-weight: 600;
 `
 
@@ -1651,7 +1807,7 @@ const CollectionDescriptionText = styled(Markdown)<{
     viewportBreakpoint: ViewportBreakpoint
 }>`
     font-size: 16px;
-    color: ${(props) => props.theme.colors.normalText};
+    color: ${(props) => props.theme.colors.white};
     font-weight: 200;
     font-family: ${(props) => props.theme.fonts.primary};
     border-radius: 10px;
@@ -1666,7 +1822,7 @@ const CollectionDescriptionToggle = styled.div<{
     font-family: ${(props) => props.theme.fonts.primary};
     font-size: 12px;
     cursor: pointer;
-    color: ${(props) => props.theme.colors.lighterText};
+    color: ${(props) => props.theme.colors.greyScale5};
 
     & * {
         cursor: pointer;
@@ -1674,7 +1830,7 @@ const CollectionDescriptionToggle = styled.div<{
 `
 
 // const DomainName = styled.div`
-//     color: ${(props) => props.theme.colors.normalText};
+//     color: ${(props) => props.theme.colors.white};
 // `
 
 // const RearBox = styled.div<{
@@ -1683,7 +1839,7 @@ const CollectionDescriptionToggle = styled.div<{
 //     display: inline-block;
 //     align-items: center;
 //     grid-gap: 5px;
-//     color: ${(props) => props.theme.colors.lighterText};
+//     color: ${(props) => props.theme.colors.greyScale5};
 
 //     /* ${(props) =>
 //         props.viewportBreakpoint === 'mobile' &&
@@ -1695,18 +1851,18 @@ const CollectionDescriptionToggle = styled.div<{
 // `
 
 const Creator = styled.span`
-    color: ${(props) => props.theme.colors.purple};
+    color: ${(props) => props.theme.colors.prime1};
     padding: 0 4px;
     cursor: pointer;
 `
 
 const SharedBy = styled.span`
-    color: ${(props) => props.theme.colors.lighterText};
+    color: ${(props) => props.theme.colors.greyScale5};
     display: contents;
 `
 
 // const Date = styled.span`
-//     color: ${(props) => props.theme.colors.lighterText};
+//     color: ${(props) => props.theme.colors.greyScale5};
 //     display: inline-block;
 // `
 
@@ -1727,7 +1883,7 @@ const ListEntryBox = styled.div`
     padding: 0 15px;
 
     &:hover {
-        background: ${(props) => props.theme.colors.backgroundColorDarker};
+        background: ${(props) => props.theme.colors.greyScale1};
     }
 `
 
@@ -1737,7 +1893,7 @@ const ListEntry = styled.div`
 
     font-weight: 400;
     width: fill-available;
-    color: ${(props) => props.theme.colors.normalText};
+    color: ${(props) => props.theme.colors.white};
     text-overflow: ellipsis;
     overflow: hidden;
 

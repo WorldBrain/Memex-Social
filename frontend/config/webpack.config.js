@@ -378,6 +378,7 @@ module.exports = function (webpackEnv) {
                                     __dirname,
                                     '../../external/@worldbrain/memex-common/node_modules/htmlparser2/lib/esm/index.js',
                                 ),
+                                path.join(__dirname, 'node_modules/zeed-dom'),
                             ],
                             loader: require.resolve('babel-loader'),
                             options: {

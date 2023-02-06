@@ -42,7 +42,7 @@ const DisplayName = styled.div`
     font-weight: 300;
     cursor: pointer;
     font-family: ${(props) => props.theme.fonts.primary};
-    color: ${(props) => props.theme.colors.greyScale8};
+    color: ${(props) => props.theme.colors.greyScale5};
     max-width: 150px;
     overflow: hidden;
     white-space: nowrap;
@@ -156,7 +156,7 @@ export default class AuthHeader extends UIElement<
                             filePath="settings"
                             heightAndWidth="18px"
                             hoverOff
-                            color="purple"
+                            color="prime1"
                         />
                     </UserInfo>
                 </StyledAuthHeader>

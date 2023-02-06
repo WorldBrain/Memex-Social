@@ -9,7 +9,7 @@ const GlobalStyle = createGlobalStyle`
     width: 100%;
 
     margin: 0;
-    background: ${theme.colors.backgroundColor};
+    background: ${theme.colors.black};
   }
   
   body {
@@ -18,7 +18,7 @@ const GlobalStyle = createGlobalStyle`
     overflow: scroll;
 
     margin: 0;
-    background: ${theme.colors.background};
+    background: ${theme.colors.black};
 
     scrollbar-width: none;
 

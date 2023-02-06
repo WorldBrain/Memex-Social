@@ -18,7 +18,7 @@ const StyledActionButton = styled.div<{
     vertical-align: middle;
     background: ${(props) =>
         props.disabled
-            ? props.theme.colors.lightgrey
+            ? props.theme.colors.greyScale5
             : props.backgroundColor ?? props.theme.colors.secondary};
 
     box-sizing: border-box;
@@ -39,7 +39,7 @@ const StyledActionLinkText = styled.div`
     font-weight: 'bold';
     font-size: ${(props) => props.theme.fontSizes.text};
     line-height: ${(props) => props.theme.lineHeights.text};
-    color: ${(props) => props.theme.colors.primary};
+    color: ${(props) => props.theme.colors.prime1};
     text-align: center;
     overflow: visible;
     white-space: nowrap;

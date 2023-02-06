@@ -59,6 +59,7 @@ export interface CollectionDetailsDependencies {
         | 'contentConversations'
         | 'users'
         | 'discord'
+        | 'discordRetroSync'
         | 'activityStreams'
         | 'activityFollows'
     >
@@ -94,6 +95,7 @@ export type CollectionDetailsState = AnnotationConversationsState &
             creator?: Pick<User, 'displayName'> | null
             list: SharedList
             discordList: DiscordList | null
+            isDiscordSyncing?: boolean
             listEntries: Array<
                 SharedListEntry & {
                     reference: SharedListEntryReference
@@ -110,7 +112,7 @@ export type CollectionDetailsState = AnnotationConversationsState &
         isCollectionFollowed: boolean
         allAnnotationExpanded: boolean
         isListShareModalShown: boolean
-        pageAnnotationsExpanded: { [normalizedPageUrl: string]: true }
+        pageAnnotationsExpanded: { [normalizedPageUrl: string]: boolean }
         annotationEntryData?: GetAnnotationListEntriesResult
         annotations: GetAnnotationsResult
         searchType: SearchType

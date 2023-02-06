@@ -15,7 +15,7 @@ const StyledSecondaryAction = styled.div`
     justify-content: center;
     align-items: center;
     vertical-align: middle;
-    border: 1.5px solid ${(props) => props.theme.colors.purple};
+    border: 1.5px solid ${(props) => props.theme.colors.prime1};
     background: white;
     box-sizing: border-box;
     border-radius: 5px;
@@ -37,7 +37,7 @@ const StyledSecondaryAction = styled.div`
 
 const StyledSecondaryActionLinkText = styled.div<{ fontSize?: string }>`
     font-size: ${(props) => props.fontSize ?? '14px'};
-    color: ${(props) => props.theme.colors.purple};
+    color: ${(props) => props.theme.colors.prime1};
 `
 export const SecondaryAction = ({
     label,
@@ -70,7 +70,7 @@ export const SecondaryAction = ({
             <Icon
                 icon={icon}
                 heightAndWidth={iconSize}
-                color={iconColor ? iconColor : 'purple'}
+                color={iconColor ? iconColor : 'prime1'}
                 hoverOff={iconHoverOff}
             />
         )}

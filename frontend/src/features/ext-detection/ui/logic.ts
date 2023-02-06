@@ -13,7 +13,7 @@ export interface ExtDetectionState {
     showFollowModal: boolean
     isInstallExtModalShown: boolean
     isMissingPDFModalShown: boolean
-    clickedPageUrl: string | null
+    clickedPageUrl: string | undefined
     notifAlreadyShown?: boolean
 }
 
@@ -22,7 +22,7 @@ export interface ExtDetectionEvent {
     toggleMissingPdfModal: {}
     toggleFollowSpaceOverlay: {}
     clickPageResult: {
-        urlToOpen: string
+        urlToOpen: string | undefined
         preventOpening: () => void
         isFollowedSpace?: boolean
         isFeed?: boolean
@@ -43,7 +43,7 @@ export const extDetectionInitialState = (): ExtDetectionState => ({
     isInstallExtModalShown: false,
     isMissingPDFModalShown: false,
     showFollowModal: false,
-    clickedPageUrl: null,
+    clickedPageUrl: undefined,
     notifAlreadyShown: false,
 })
 
@@ -58,22 +58,34 @@ export const extDetectionEventHandlers = (
         logic.emitMutation({
             [stateKey]: { $set: !previousState[stateKey] },
             ...(previousState[stateKey]
-                ? { clickedPageUrl: { $set: null } }
+                ? { clickedPageUrl: { $set: undefined } }
                 : {}),
         })
 
+    const isIframe = () => {
+        try {
+            return window.self !== window.top
+        } catch (e) {
+            return true
+        }
+    }
+
     return {
         clickPageResult: async ({ previousState, event }) => {
+            if (isIframe()) {
+                event.preventOpening()
+                window.open(event.urlToOpen)
+                return
+            }
+
             if (!doesMemexExtDetectionElExist()) {
-                console.log('doesnot', doesMemexExtDetectionElExist())
                 event.preventOpening()
                 if (event.notifAlreadyShown) {
-                    console.log(event.notifAlreadyShown)
                     if (isPagePdf({ url: event.urlToOpen })) {
                         event.preventOpening()
                         logic.emitMutation({
                             isMissingPDFModalShown: { $set: true },
-                            clickedPageUrl: { $set: null },
+                            clickedPageUrl: { $set: undefined },
                         })
                         return
                     }
@@ -83,7 +95,7 @@ export const extDetectionEventHandlers = (
                         event.preventOpening()
                         logic.emitMutation({
                             isMissingPDFModalShown: { $set: true },
-                            clickedPageUrl: { $set: null },
+                            clickedPageUrl: { $set: undefined },
                         })
                         return
                     } else {
@@ -110,32 +122,6 @@ export const extDetectionEventHandlers = (
                         sharedListId: event.sharedListReference?.id as string,
                     },
                 )
-                // if (!event.isFollowedSpace && !event.isFeed) {
-                //     event.preventOpening()
-                //     logic.emitMutation({
-                //         showFollowModal: { $set: true },
-                //         clickedPageUrl: { $set: event.urlToOpen },
-                //         notifAlreadyShown: { $set: true },
-                //     })
-
-                //     const didOpen = await dependencies.services?.memexExtension.openLink(
-                //         {
-                //             originalPageUrl: event.urlToOpen,
-                //             sharedListId: event.sharedListReference
-                //                 ?.id as string,
-                //         },
-                //     )
-                //     // if the extension does not respond, didOpen is `false` and we can do something useful
-                //     return
-                // } else {
-                //     const didOpen = await dependencies.services?.memexExtension.openLink(
-                //         {
-                //             originalPageUrl: event.urlToOpen,
-                //             sharedListId: event.sharedListReference
-                //                 ?.id as string,
-                //         },
-                //     )
-                // }
             }
             // This means it's a local PDF page
         },

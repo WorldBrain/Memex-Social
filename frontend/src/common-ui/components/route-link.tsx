@@ -6,6 +6,14 @@ import { RouteMap } from '../../routes'
 const StyledRouteLink = styled.a`
     text-decoration: none;
     font-family: ${(props) => props.theme.fonts.primary};
+    color: ${(props) => props.theme.colors.prime1};
+    display: flex;
+    grid-gap: 5px;
+    align-items: center;
+
+    & > * {
+        cursor: pointer;
+    }
 `
 
 export interface Props {
