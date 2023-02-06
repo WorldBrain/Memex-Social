@@ -213,7 +213,6 @@ export function organizeActivities(
                 'conversationThread',
                 'conversationReply'
             >
-            console.log(replyActivityGroup)
             replyActivityGroup.activities = sortBy(
                 replyActivityGroup.activities,
                 ({ activity }) => activity.reply.createdWhen,

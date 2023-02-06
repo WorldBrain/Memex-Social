@@ -434,6 +434,19 @@ export default class CollectionDetailsPage extends UIElement<
                     )
                 }
                 annotationConversations={this.state.conversations}
+                shouldHighlightAnnotation={(annotation) =>
+                    isInRange(
+                        annotation.createdWhen,
+                        this.itemRanges.annotEntry,
+                    )
+                }
+                shouldHighlightReply={(_, replyData) => {
+                    console.log(replyData.reply.createdWhen)
+                    return isInRange(
+                        replyData.reply.createdWhen,
+                        this.itemRanges.reply,
+                    )
+                }}
                 getAnnotationCreator={(annotationReference) => {
                     const creatorRef = this.state.annotations[
                         annotationReference.id.toString()
@@ -1362,7 +1375,10 @@ export default class CollectionDetailsPage extends UIElement<
                                           key={entry.normalizedUrl}
                                       >
                                           <ItemBox
-                                              //   highlight={isInRange(entry.createdWhen, this.itemRanges.listEntry)}
+                                              highlight={isInRange(
+                                                  entry.createdWhen,
+                                                  this.itemRanges.listEntry,
+                                              )}
                                               onMouseEnter={(
                                                   event: React.MouseEventHandler,
                                               ) =>
@@ -1528,9 +1544,11 @@ function parseRange(
     if (!fromString || !toString) {
         return undefined
     }
+    const fromTimestamp = parseInt(fromString)
+    const toTimestamp = parseInt(toString)
     return {
-        fromTimestamp: parseInt(fromString),
-        toTimestamp: parseInt(toString),
+        fromTimestamp: Math.min(fromTimestamp, toTimestamp),
+        toTimestamp: Math.max(fromTimestamp, toTimestamp),
     }
 }
 
@@ -1538,7 +1556,7 @@ function isInRange(timestamp: number, range: TimestampRange | undefined) {
     if (!range) {
         return false
     }
-    return range.fromTimestamp >= timestamp && range.toTimestamp <= timestamp
+    return range.fromTimestamp <= timestamp && range.toTimestamp >= timestamp
 }
 
 const TitleClick = styled.div`

@@ -1,5 +1,6 @@
 import {
     SharedAnnotation,
+    SharedAnnotationReference,
     SharedListEntryReference,
     SharedListReference,
 } from '@worldbrain/memex-common/lib/content-sharing/types'
@@ -106,5 +107,8 @@ export type AnnotationActivityItem = Omit<
 > & {
     type: 'annotation-item'
     reason: 'new-replies'
-    annotation: Pick<SharedAnnotation, 'body' | 'comment'>
+    annotation: { reference: SharedAnnotationReference } & Pick<
+        SharedAnnotation,
+        'body' | 'comment'
+    >
 }

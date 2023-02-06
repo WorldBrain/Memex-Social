@@ -8,7 +8,8 @@ objects:
           title: 'Productivity Tools: Networked Thoughts Productivity Tools: Networked Thoughts Productivity Tools: Networked Thoughts'
           description: 'A new breed of note-taking tools. Here is a collection of tools for networked thoughts. A new breed of note-taking tools. Here is a collection of tools for networked thoughts. A new breed of note-taking tools. Here is a collection of tools for networked thoughts. A new breed of note-taking tools. Here is a collection of tools for networked thoughts. A new breed of note-taking tools. Here is a collection of tools for networked thoughts. A new breed of note-taking tools. Here is a collection of tools for networked thoughts.'
     sharedListEntries:
-        - sharedList: { $ref: sharedLists.default }
+        - id: entry-1
+          sharedList: { $ref: sharedLists.default }
           creator: { $ref: users.default }
           createdWhen: 1594225555555
           updatedWhen: 1594225555555
@@ -192,7 +193,7 @@ objects:
     conversationThreads:
         - $store: default
           user: { $ref: users.default }
-          sharedList: null
+          sharedList: { $ref: sharedLists.default }
           sharedAnnotation: { $ref: sharedAnnotations.annotation-1 }
           updatedWhen: 1594225289914
           fullTitle: "WorldBrain's Memex"
@@ -200,7 +201,7 @@ objects:
     conversationReplies:
         - user: { $ref: users.default }
           conversationThread: { $ref: conversationThreads.default }
-          sharedList: null
+          sharedList: { $ref: sharedLists.default }
           sharedAnnotation: { $ref: sharedAnnotations.annotation-1 }
           createdWhen: 1594225289914
           normalizedPageUrl: getmemex.com
@@ -216,9 +217,9 @@ objects:
               <i>should ignore html</i>
         - user: { $ref: users.default }
           conversationThread: { $ref: conversationThreads.default }
-          sharedList: null
+          sharedList: { $ref: sharedLists.default }
           sharedAnnotation: { $ref: sharedAnnotations.annotation-1 }
-          createdWhen: 1594225289914
+          createdWhen: 1594225279914
           normalizedPageUrl: getmemex.com
           fullTitle: "WorldBrain's Memex"
-          content: SEcond comment!
+          content: Second comment!

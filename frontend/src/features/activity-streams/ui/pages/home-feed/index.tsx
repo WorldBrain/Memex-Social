@@ -511,10 +511,13 @@ export default class HomeFeedPage extends UIElement<
                                                 id: activityItem.list.reference.id.toString(),
                                                 entryId: activityItem.list.entry.id.toString(),
                                             }}
-                                            query={getRangeQueryParams(
-                                                'Reply',
-                                                activityItem,
-                                            )}
+                                            query={{
+                                                annotationId: activityItem.annotation.reference.id.toString(),
+                                                ...getRangeQueryParams(
+                                                    'Reply',
+                                                    activityItem,
+                                                ),
+                                            }}
                                         >
                                             {activityItem.list?.title}
                                         </RouteLink>

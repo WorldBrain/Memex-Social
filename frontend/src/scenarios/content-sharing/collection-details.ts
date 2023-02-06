@@ -135,8 +135,8 @@ export const SCENARIOS: ScenarioMap<Targets> = {
             route: 'collectionDetails',
             params: { id: 'default-list' },
             query: {
-                fromListEntry: '1594225249914',
-                toListEntry: '1594225269914',
+                fromListEntry: '1594225279914',
+                toListEntry: '1594225289914',
             },
         },
         steps: [],
@@ -146,6 +146,18 @@ export const SCENARIOS: ScenarioMap<Targets> = {
         startRoute: {
             route: 'collectionDetails',
             params: { id: 'default-list' },
+        },
+        steps: [],
+    })),
+    'annotation-entry-range': scenario<Targets>(({ step }) => ({
+        fixture: 'annotated-list-with-user',
+        startRoute: {
+            route: 'collectionDetails',
+            params: { id: 'default-list', entryId: 'entry-1' },
+            query: {
+                fromAnnotEntry: '1594225279914',
+                toAnnotEntry: '1594225279914',
+            },
         },
         steps: [],
     })),
@@ -787,6 +799,20 @@ export const SCENARIOS: ScenarioMap<Targets> = {
             ],
         }),
     ),
+    'reply-range': scenario<Targets>(({ step, callModification }) => ({
+        authenticated: true,
+        fixture: 'annotation-coversation-with-user',
+        startRoute: {
+            route: 'collectionDetails',
+            params: { id: 'default-list', entryId: 'entry-1' },
+            query: {
+                annotationId: 'default-annotation',
+                fromReply: '1594225289914',
+                toReply: '1594225289914',
+            },
+        },
+        steps: [],
+    })),
     'page-link': scenario<Targets>(({ step }) => ({
         fixture: 'page-link-with-user',
         startRoute: {
