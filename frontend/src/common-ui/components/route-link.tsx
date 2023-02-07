@@ -6,8 +6,8 @@ import { RouteMap } from '../../routes'
 const StyledRouteLink = styled.a`
     text-decoration: none;
     font-family: ${(props) => props.theme.fonts.primary};
-    color: ${(props) => props.theme.colors.prime1};
-    display: flex;
+    color: inherit;
+    display: contents;
     grid-gap: 5px;
     align-items: center;
 
@@ -21,6 +21,7 @@ export interface Props {
     route: keyof RouteMap
     params: { [key: string]: string }
     children: React.ReactNode
+    query?: { [key: string]: string }
     className?: string
     title?: string
 }
@@ -41,7 +42,13 @@ function isStaging() {
 }
 
 export default function RouteLink(props: Props) {
-    const url = props.services.router.getUrl(props.route, props.params)
+    let url = props.services.router.getUrl(props.route, props.params)
+    if (props.query) {
+        url += '?'
+        url += Object.entries(props.query)
+            .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
+            .join('&')
+    }
 
     const isStagingEnv = isStaging()
 

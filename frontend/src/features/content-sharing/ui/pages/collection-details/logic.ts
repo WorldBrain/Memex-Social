@@ -440,7 +440,7 @@ export default class CollectionDetailsLogic extends UILogic<
         await this._users.loadUsers(usersToLoad)
     }
 
-    loadListData: EventHandler<'loadListData'> = async ({ event }) => {
+    loadListData: EventHandler<'loadListData'> = async (incoming) => {
         const {
             contentSharing,
             discord,
@@ -448,7 +448,7 @@ export default class CollectionDetailsLogic extends UILogic<
         } = this.dependencies.storage
         const listReference = makeStorageReference<SharedListReference>(
             'shared-list-reference',
-            event.listID,
+            incoming.event.listID,
         )
         const {
             success: listDataSuccess,
@@ -486,9 +486,21 @@ export default class CollectionDetailsLogic extends UILogic<
                         },
                     })
 
-                    this.loadPageAnnotations(entries, [
+                    await this.loadPageAnnotations(entries, [
                         result.entries[0].normalizedUrl,
                     ])
+                    if (this.dependencies.query.annotationId) {
+                        this.processUIEvent('toggleAnnotationReplies', {
+                            previousState: incoming.getState!(),
+                            event: {
+                                sharedListReference: listReference,
+                                annotationReference: {
+                                    type: 'shared-annotation-reference',
+                                    id: this.dependencies.query.annotationId,
+                                },
+                            },
+                        })
+                    }
                 }
 
                 if (result) {
@@ -523,9 +535,9 @@ export default class CollectionDetailsLogic extends UILogic<
                                 mutation: { listData: { $set: undefined } },
                             }
                         }
-                        isDiscordSyncing = await discordRetroSync.channelHasSyncEntry(
+                        isDiscordSyncing = !!(await discordRetroSync.getSyncEntryByChannel(
                             { channelId: discordList.channelId },
-                        )
+                        ))
                     }
 
                     this.emitMutation({

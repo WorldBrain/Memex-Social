@@ -118,6 +118,10 @@ function MetaUI({ options }: { options: MetaUIOptions }) {
         if (options.stepName) {
             url = `${url}.${options.stepName}`
         }
+        const { query } = options.metaScenario.scenario.startRoute
+        for (const [key, value] of Object.entries(query ?? {})) {
+            url += `&${key}=${encodeURIComponent(value)}`
+        }
         return url
     }
     const getScenarioMetaUrl = (options: {

@@ -40,7 +40,9 @@ import Markdown from '@worldbrain/memex-common/lib/common-ui/components/markdown
 import BlockContent, {
     getBlockContentYoutubePlayerId,
 } from '@worldbrain/memex-common/lib/common-ui/components/block-content'
-import ItemBox from '@worldbrain/memex-common/lib/common-ui/components/item-box'
+import ItemBox, {
+    ItemBoxProps,
+} from '@worldbrain/memex-common/lib/common-ui/components/item-box'
 import ItemBoxBottom, {
     ItemBoxBottomAction,
 } from '@worldbrain/memex-common/lib/common-ui/components/item-box-bottom'
@@ -52,10 +54,12 @@ import { eventProviderUrls } from '@worldbrain/memex-common/lib/constants'
 import moment from 'moment'
 import RouteLink from '../../../../../common-ui/components/route-link'
 import { PopoutBox } from '@worldbrain/memex-common/lib/common-ui/components/popout-box'
+import { AnnotationsInPageProps } from '@worldbrain/memex-common/lib/content-conversations/ui/components/annotations-in-page'
 
 const commentImage = require('../../../../../assets/img/comment.svg')
 const commentEmptyImage = require('../../../../../assets/img/comment-empty.svg')
 
+type TimestampRange = { fromTimestamp: number; toTimestamp: number }
 export default class CollectionDetailsPage extends UIElement<
     CollectionDetailsDependencies,
     CollectionDetailsState,
@@ -63,9 +67,24 @@ export default class CollectionDetailsPage extends UIElement<
 > {
     constructor(props: CollectionDetailsDependencies) {
         super(props, { logic: new Logic({ ...props }) })
+
+        const { query } = props
+        this.itemRanges = {
+            listEntry: parseRange(query.fromListEntry, query.toListEntry),
+            annotEntry: parseRange(query.fromAnnotEntry, query.toAnnotEntry),
+            reply: parseRange(query.fromReply, query.toReply),
+        }
     }
 
     showMoreCollaboratorsRef = React.createRef<HTMLElement>()
+
+    itemRanges: {
+        [Key in 'listEntry' | 'annotEntry' | 'reply']:
+            | TimestampRange
+            | undefined
+    }
+    scrollableRef?: { element: HTMLElement; timestammp: number }
+    scrollTimeout?: ReturnType<typeof setTimeout>
 
     // get listsSidebarProps(): Omit<
     //     ListsSidebarProps,
@@ -79,6 +98,70 @@ export default class CollectionDetailsPage extends UIElement<
     //         onToggle: () => this.processEvent('toggleListSidebar', undefined),
     //     }
     // }
+
+    onListEntryRef = (event: {
+        element: HTMLElement
+        entry: SharedListEntry
+    }) => {
+        this.handleScrollableRef(
+            event.entry.createdWhen,
+            event.element,
+            this.itemRanges.listEntry,
+        )
+    }
+
+    onAnnotEntryRef: AnnotationsInPageProps['onAnnotationBoxRootRef'] = (
+        event,
+    ) => {
+        this.handleScrollableRef(
+            event.annotation.createdWhen,
+            event.element,
+            this.itemRanges.annotEntry,
+        )
+    }
+
+    onReplyRef: AnnotationsInPageProps['onReplyRootRef'] = (event) => {
+        this.handleScrollableRef(
+            event.reply.reply.createdWhen,
+            event.element,
+            this.itemRanges.reply,
+        )
+    }
+
+    handleScrollableRef = (
+        timestammp: number,
+        element: HTMLElement,
+        range: TimestampRange | undefined,
+    ) => {
+        if (!range || !element) {
+            return
+        }
+        if (this.scrollableRef && this.scrollableRef.timestammp < timestammp) {
+            return
+        }
+        if (
+            timestammp >= range.fromTimestamp &&
+            timestammp <= range.toTimestamp
+        ) {
+            this.scrollableRef = { element, timestammp }
+            this.scheduleScrollToItems()
+        }
+    }
+
+    scheduleScrollToItems() {
+        if (!this.scrollTimeout) {
+            this.scrollTimeout = setTimeout(this.scrollToItems, 1000)
+        }
+    }
+
+    scrollToItems = () => {
+        if (!this.scrollableRef) {
+            return
+        }
+        this.scrollableRef.element.scrollTo({
+            behavior: 'smooth',
+        })
+    }
 
     isIframe = () => {
         try {
@@ -351,6 +434,18 @@ export default class CollectionDetailsPage extends UIElement<
                     )
                 }
                 annotationConversations={this.state.conversations}
+                shouldHighlightAnnotation={(annotation) =>
+                    isInRange(
+                        annotation.createdWhen,
+                        this.itemRanges.annotEntry,
+                    )
+                }
+                shouldHighlightReply={(_, replyData) =>
+                    isInRange(
+                        replyData.reply.createdWhen,
+                        this.itemRanges.reply,
+                    )
+                }
                 getAnnotationCreator={(annotationReference) => {
                     const creatorRef = this.state.annotations[
                         annotationReference.id.toString()
@@ -418,6 +513,8 @@ export default class CollectionDetailsPage extends UIElement<
                             sharedListReference: this.sharedListReference,
                         }),
                 }}
+                onAnnotationBoxRootRef={this.onAnnotEntryRef}
+                onReplyRootRef={this.onReplyRef}
             />
         )
     }
@@ -1290,6 +1387,10 @@ export default class CollectionDetailsPage extends UIElement<
                                           key={entry.normalizedUrl}
                                       >
                                           <ItemBox
+                                              highlight={isInRange(
+                                                  entry.createdWhen,
+                                                  this.itemRanges.listEntry,
+                                              )}
                                               onMouseEnter={(
                                                   event: React.MouseEventHandler,
                                               ) =>
@@ -1324,6 +1425,12 @@ export default class CollectionDetailsPage extends UIElement<
                                                       ?.listEntries[entryIndex]
                                                       .hoverState
                                               }
+                                              onRef={(event) => {
+                                                  this.onListEntryRef({
+                                                      ...event,
+                                                      entry,
+                                                  })
+                                              }}
                                           >
                                               <BlockContent
                                                   // pageLink ={'https://memex.social/' + this.props.listID + '/' + entry.reference.id}
@@ -1440,6 +1547,28 @@ export default class CollectionDetailsPage extends UIElement<
             </DocumentContainer>
         )
     }
+}
+
+function parseRange(
+    fromString: string | undefined,
+    toString: string | undefined,
+): TimestampRange | undefined {
+    if (!fromString || !toString) {
+        return undefined
+    }
+    const fromTimestamp = parseInt(fromString)
+    const toTimestamp = parseInt(toString)
+    return {
+        fromTimestamp: Math.min(fromTimestamp, toTimestamp),
+        toTimestamp: Math.max(fromTimestamp, toTimestamp),
+    }
+}
+
+function isInRange(timestamp: number, range: TimestampRange | undefined) {
+    if (!range) {
+        return false
+    }
+    return range.fromTimestamp <= timestamp && range.toTimestamp >= timestamp
 }
 
 const DiscordSyncNotif = styled.div`
