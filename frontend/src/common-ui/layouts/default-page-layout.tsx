@@ -130,6 +130,14 @@ export default function DefaultPageLayout(props: {
             id={'MainContainer'}
         >
             <MainColumn>
+                <HeaderImage
+                    // src={headerBackground}
+                    isIframe={isIframe() === true}
+                    hideActivityIndicator={props.hideActivityIndicator}
+                    id={'StyledHeader'}
+                    viewportWidth={viewportWidth}
+                    isPageView={props.isPageView}
+                />
                 <StyledHeader
                     isIframe={isIframe() === true}
                     hideActivityIndicator={props.hideActivityIndicator}
@@ -264,6 +272,35 @@ const MainContainer = styled.div<{
         `}
 `
 
+const HeaderImage = styled.div<{
+    viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
+    hideActivityIndicator: boolean | undefined
+    isIframe: boolean
+    isPageView: string | undefined
+}>`
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-image: url(${headerBackground});
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: fill-available;
+    height: fit-content;
+    opacity: 0.5;
+    max-height: 600px;
+    z-index: 0;
+    min-height: 400px;
+
+    ${(props) =>
+        props.viewportWidth === 'mobile' &&
+        css`
+            flex-direction: column;
+            align-items: flex-start;
+            top: 0;
+        `}
+`
+
 const StyledHeader = styled.div<{
     viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
     hideActivityIndicator: boolean | undefined
@@ -280,14 +317,10 @@ const StyledHeader = styled.div<{
     z-index: 2000;
     align-items: flex-start;
     //box-shadow: #101e7308 0 4px 16px;
-    background: url(${headerBackground});
-    background-position: center top;
-    background-repeat: no-repeat;
-    background-size: cover;
     border-radius: 10px 10px 0px 0px;
     padding: 15px 30px 30px 30px;
     grid-gap: 25px;
-    border-bottom: 1px solid ${(props) => props.theme.colors.prime1}30;
+    z-index: 2;
 
     ${(props) =>
         props.viewportWidth === 'mobile' &&
@@ -305,7 +338,7 @@ const StyledHeader = styled.div<{
             flex-direction: row;
             align-items: flex-start;
             top: 0;
-            padding: 80px 40px 30px 40px;
+            padding: 80px 15px 30px 15px;
         `}
 
     ${(props) =>
@@ -368,6 +401,11 @@ const HeaderMiddleArea = styled.div<{
     border-radius: 20px;
     flex-direction: column;
     max-width: 800px;
+    ${(props) =>
+        props.viewportWidth === 'mobile' &&
+        css`
+            grid-gap: 0px;
+        `}
 `
 const HeaderTitle = styled.div<{
     viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
@@ -450,22 +488,10 @@ const PageResultsArea = styled.div<{
     margin: 0px auto 0;
     width: 100%;
     height: fit-content;
-
-    ${(props) =>
-        props.viewportWidth === 'mobile' &&
-        css`
-            padding: 0px 15px 0px 15px;
-        `}
-    ${(props) =>
-        props.viewportWidth === 'small' &&
-        css`
-            padding: 0px 15px 0px 15px;
-        `}
-    ${(props) =>
-        props.isIframe &&
-        css`
-            padding: 10px;
-        `}
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 `
 
 const PageMidleAreaTitles = styled.div<{
@@ -502,7 +528,7 @@ const PageMidleAreaAction = styled.div<{
         css`
             display: flex;
             flex-direction: column-reverse;
-            align-items: flex-start;
+            align-items: flex-end;
         `}
 `
 
@@ -531,9 +557,16 @@ const StyledHeaderContainer = styled.div<{
     align-items: flex-start;
     min-height: 34px;
     max-width: 820px;
+    margin-top: 50px;
 
     flex-direction: ${(props) =>
         props.viewportWidth === 'mobile' ? 'column' : 'row'};
+
+    ${(props) =>
+        (props.viewportWidth === 'mobile' || props.viewportWidth === 'small') &&
+        css`
+            margin-top: 0px;
+        `}
 `
 
 // const MenuBar = styled.div<{ isIframe: boolean }>`

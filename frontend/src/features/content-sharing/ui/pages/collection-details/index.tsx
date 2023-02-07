@@ -1378,7 +1378,10 @@ export default class CollectionDetailsPage extends UIElement<
                                 may take a while for everything to show up.
                             </DiscordSyncNotif>
                         )}
-                    <ResultsList>
+                    <ResultsList
+                        isIframe={this.isIframe()}
+                        viewportWidth={this.viewportBreakpoint}
+                    >
                         {resultsFilteredByType?.length
                             ? resultsFilteredByType?.map(
                                   ([entryIndex, entry]) => (
@@ -1607,11 +1610,31 @@ const PageViewFooter = styled.div`
     grid-gap: 5px;
 `
 
-const ResultsList = styled.div`
+const ResultsList = styled.div<{
+    viewportWidth: ViewportBreakpoint
+    loading?: boolean
+    isIframe?: boolean
+}>`
     display: flex;
     flex-direction: column;
     z-index: 20;
     padding-bottom: 200px;
+
+    ${(props) =>
+        props.viewportWidth === 'mobile' &&
+        css`
+            padding: 0px 15px 0px 15px;
+        `}
+    ${(props) =>
+        props.viewportWidth === 'small' &&
+        css`
+            padding: 0px 15px 0px 15px;
+        `}
+        ${(props) =>
+        props.isIframe &&
+        css`
+            padding: 10px;
+        `};
 `
 
 const PageStickyBox = styled.div<{ beSticky: boolean }>`
@@ -1777,18 +1800,28 @@ const AbovePagesBox = styled.div<{
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    width: 100%;
+    width: calc(100% + 40px);
     position: relative;
     z-index: 30;
-    border-radius: 5px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
     justify-content: space-between;
-    border-bottom: 1px solid ${(props) => props.theme.colors.greyScale1};
     padding-bottom: 10px;
     border-radius: 3px 3px 0 0;
-    background: ${(props) => props.theme.colors.black};
     position: sticky;
     top: 0px;
-    padding-top: 10px;
+    margin-left: -20px;
+    padding: 10px 20px 10px 20px;
+    background-color: ${(props) => props.theme.colors.black}40;
+    backdrop-filter: blur(10px);
+
+    ${(props) =>
+        (props.viewportWidth === 'mobile' || props.viewportWidth === 'small') &&
+        css`
+            padding: 10px 15px 10px 15px;
+            margin-left: 0px;
+            width: calc(100%);
+        `}
 `
 
 const DescriptionActions = styled(Margin)`
