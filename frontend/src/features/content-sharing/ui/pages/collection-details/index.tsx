@@ -968,6 +968,7 @@ export default class CollectionDetailsPage extends UIElement<
                     }
                     intent={'openLink'}
                     clickedPageUrl={this.state.clickedPageUrl!}
+                    sharedListReference={this.sharedListReference}
                 />
             )
         }

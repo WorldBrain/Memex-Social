@@ -41,7 +41,7 @@ function canMessageExtension(extensionID: string) {
     }
 }
 
-async function awaitExtensionReady(extensionID: string) {
+export async function awaitExtensionReady(extensionID: string) {
     const shortTriesInterval = 300
     let shortTriesLeft = 10
 
@@ -84,15 +84,14 @@ async function awaitExtensionReady(extensionID: string) {
     })
 }
 
-function sendMessageToExtension(
+export function sendMessageToExtension(
     message: ExtMessage,
-    extensionID: string,
+    extensionID?: string,
     payload?: string,
 ): Promise<null | ReturnType<typeof unpackMessage>> {
     return new Promise((resolve) => {
         //@ts-ignore next-line
         const base = chrome || browser
-
         const packedMessage = packMessage(message, payload)
         logPackedMessage(packedMessage, 'Sending', enableMessageLogging)
 
