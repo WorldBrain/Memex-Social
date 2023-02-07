@@ -26,6 +26,8 @@ import IconBox from '@worldbrain/memex-common/lib/common-ui/components/icon-box'
 import { IconKeys } from '@worldbrain/memex-common/lib/common-ui/styles/types'
 import LoadingIndicator from '@worldbrain/memex-common/lib/common-ui/components/loading-indicator'
 import { Waypoint } from 'react-waypoint'
+import { mapOrderedMap } from '../../../../../utils/ordered-map'
+import { act } from 'react-dom/test-utils'
 import { PrimaryAction } from '@worldbrain/memex-common/lib/common-ui/components/PrimaryAction'
 import Markdown from '@worldbrain/memex-common/lib/common-ui/components/markdown'
 
@@ -438,7 +440,12 @@ export default class HomeFeedPage extends UIElement<
                                             route="collectionDetails"
                                             params={{
                                                 id: activityItem.list.reference.id.toString(),
+                                                entryId: activityItem.list.entry.id.toString(),
                                             }}
+                                            query={getRangeQueryParams(
+                                                'AnnotEntry',
+                                                activityItem,
+                                            )}
                                         >
                                             {activityItem.list?.title}
                                         </RouteLink>
@@ -548,7 +555,10 @@ export default class HomeFeedPage extends UIElement<
                                 id: activityItem.list.reference.id.toString(),
                                 entryId: activityItem.list.entry.id.toString(),
                             }}
-                            query={getRangeQueryParams('Reply', activityItem)}
+                            query={getRangeQueryParams(
+                                'ListEntry',
+                                activityItem,
+                            )}
                         >
                             <PrimaryAction
                                 label="View"
