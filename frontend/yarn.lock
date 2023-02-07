@@ -18432,20 +18432,21 @@ uglify-js@^3.1.4:
     commander "~2.17.1"
     source-map "~0.6.1"
 
-ui-logic-core@^0.2.1:
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/ui-logic-core/-/ui-logic-core-0.2.1.tgz#00b903e3f83a75e3e6d7979aa387602d4363eab1"
-  integrity sha512-Baylw50isDsWCY4Qv9ek1p/6dl20Vuz2oKcBgnmnXjwVO99Yai1fm1ALamesFg3iC8ePaGxY7sHh3kT0h3Z3kA==
+ui-logic-core@^0.2.2:
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/ui-logic-core/-/ui-logic-core-0.2.2.tgz#1d6308742cea93af53af347b859abcb5e57c5d50"
+  integrity sha512-IsoqBSXqXZGjXoZvFt+EhoQb3E4iNBv365JJw7Rrm/QCBx9ajxVDnEg7ieXH91DMGsK8WQT5Wo4qx1Jf+5ZP3Q==
   dependencies:
     events "^3.0.0"
     source-map-support "^0.4.18"
 
-ui-logic-react@^0.1.4:
-  version "0.1.4"
-  resolved "https://registry.yarnpkg.com/ui-logic-react/-/ui-logic-react-0.1.4.tgz#ea1da05b650fc2c7401271e42c3dfc0996c28987"
-  integrity sha512-uSFYvW0hWjdvBmarOJRglOnV63tlNIlQRGBUGl38gzfDlsiMl6l/iXivKdxWRerrRclxRBgmO9Nu8fv1OSanew==
+ui-logic-react@^0.1.6:
+  version "0.1.6"
+  resolved "https://registry.yarnpkg.com/ui-logic-react/-/ui-logic-react-0.1.6.tgz#9b749d87e098549118759ab599b6f14bcfbe1172"
+  integrity sha512-aiS8p82CCnT9R3dTyEFG5L398eio1GcC7KIcGKmfsRlAO6BfW91iwsxQhUfvNPZG3jLwRcvNUf4YfJltN+vNyQ==
   dependencies:
     events "^3.0.0"
+    immutability-helper "^3.0.0"
     react "^16.8.6"
     source-map-support "^0.4.18"
 

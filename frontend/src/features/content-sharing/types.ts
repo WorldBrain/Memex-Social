@@ -1,6 +1,6 @@
 export interface ContentSharingQueryParams {
     key?: string
-    annotationEntry?: string
+    annotationId?: string
     fromListEntry?: string
     toListEntry?: string
     fromAnnotEntry?: string

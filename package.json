@@ -52,8 +52,8 @@
         "react-popper": "^2.3.0",
         "styled-components": "^5.1.1",
         "typeface-inter": "^3.18.1",
-        "ui-logic-core": "^0.2.1",
-        "ui-logic-react": "^0.1.4",
+        "ui-logic-core": "^0.2.2",
+        "ui-logic-react": "^0.1.6",
         "webextension-polyfill": "^0.10.0"
     },
     "devDependencies": {
