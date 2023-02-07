@@ -130,14 +130,16 @@ export default function DefaultPageLayout(props: {
             id={'MainContainer'}
         >
             <MainColumn>
-                <HeaderImage
-                    // src={headerBackground}
-                    isIframe={isIframe() === true}
-                    hideActivityIndicator={props.hideActivityIndicator}
-                    id={'StyledHeader'}
-                    viewportWidth={viewportWidth}
-                    isPageView={props.isPageView}
-                />
+                {!isIframe() && (
+                    <HeaderImage
+                        // src={headerBackground}
+                        isIframe={isIframe() === true}
+                        hideActivityIndicator={props.hideActivityIndicator}
+                        id={'StyledHeader'}
+                        viewportWidth={viewportWidth}
+                        isPageView={props.isPageView}
+                    />
+                )}
                 <StyledHeader
                     isIframe={isIframe() === true}
                     hideActivityIndicator={props.hideActivityIndicator}

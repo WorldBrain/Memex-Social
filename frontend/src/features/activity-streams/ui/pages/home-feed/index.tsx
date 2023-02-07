@@ -47,7 +47,10 @@ const LoadMoreLink = styled(RouteLink)`
     }
 `
 
-const FeedContainer = styled.div<{ viewportBreakpoint: ViewportBreakpoint }>`
+const FeedContainer = styled.div<{
+    viewportBreakpoint: ViewportBreakpoint
+    isIframe: boolean
+}>`
     margin-top: 20px;
     padding-bottom: 200px;
 
@@ -55,6 +58,12 @@ const FeedContainer = styled.div<{ viewportBreakpoint: ViewportBreakpoint }>`
         props.viewportBreakpoint === 'small' &&
         css`
             padding: 0 10px 200px 10px;
+        `}
+
+    ${(props) =>
+        props.isIframe &&
+        css`
+            padding: 0 15px 100px 15px;
         `}
 `
 
@@ -204,6 +213,14 @@ export default class HomeFeedPage extends UIElement<
         return getViewportBreakpoint(this.getViewportWidth())
     }
 
+    isIframe = () => {
+        try {
+            return window.self !== window.top
+        } catch (e) {
+            return true
+        }
+    }
+
     renderContent() {
         const { state } = this
         if (state.loadState === 'pristine' || state.loadState === 'running') {
@@ -221,7 +238,10 @@ export default class HomeFeedPage extends UIElement<
         }
         // this.shouldRenderNewLine()
         return (
-            <FeedContainer viewportBreakpoint={this.viewportBreakpoint}>
+            <FeedContainer
+                isIframe={this.isIframe()}
+                viewportBreakpoint={this.viewportBreakpoint}
+            >
                 {this.state.shouldShowNewLine && (
                     <div id="1">{this.renderNewLine()}</div>
                 )}
@@ -418,12 +438,7 @@ export default class HomeFeedPage extends UIElement<
                                             route="collectionDetails"
                                             params={{
                                                 id: activityItem.list.reference.id.toString(),
-                                                entryId: activityItem.list.entry.id.toString(),
                                             }}
-                                            query={getRangeQueryParams(
-                                                'AnnotEntry',
-                                                activityItem,
-                                            )}
                                         >
                                             {activityItem.list?.title}
                                         </RouteLink>

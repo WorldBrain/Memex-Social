@@ -1780,6 +1780,10 @@ const BreadCrumbBox = styled.div<{
     grid-gap: 10px;
     margin-left: -8px;
     margin-top: 15px;
+    color: ${(props) => props.theme.colors.white};
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
 
     & * {
         cursor: pointer;
