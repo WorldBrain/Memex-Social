@@ -24,6 +24,7 @@ export interface Props {
     query?: { [key: string]: string }
     className?: string
     title?: string
+    target?: string
 }
 
 const isIframe = () => {
@@ -34,40 +35,28 @@ const isIframe = () => {
     }
 }
 
-function isStaging() {
-    let location = window.location.href
-    let staging = location.startsWith('https://staging.')
-
-    return staging
-}
-
 export default function RouteLink(props: Props) {
-    let url = props.services.router.getUrl(props.route, props.params)
-    if (props.query) {
-        url += '?'
-        url += Object.entries(props.query)
-            .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
-            .join('&')
-    }
-
-    const isStagingEnv = isStaging()
+    const url = props.services.router.getUrl(props.route, props.params, {
+        query: props.query,
+    })
 
     return (
         <StyledRouteLink
             className={props.className}
             href={url}
+            target={props.target}
             onClick={(event) => {
-                if (event.metaKey || event.ctrlKey) {
+                if (
+                    event.metaKey ||
+                    event.ctrlKey ||
+                    props.target === '_blank'
+                ) {
                     return
                 }
                 event.preventDefault()
-                if (isStagingEnv === true) {
-                    window.open(
-                        'https://staging.memex.social/c/' + props.params.id,
-                    )
-                } else {
-                    props.services.router.goTo(props.route, props.params)
-                }
+                props.services.router.goTo(props.route, props.params, {
+                    query: props.query,
+                })
             }}
             title={props.title}
         >
