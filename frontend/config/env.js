@@ -69,6 +69,8 @@ function getClientEnvironment(publicUrl) {
                 return env
             },
             {
+                MEMEX_EXTENSION_ID: 'abkfbakhjpmblaafnpgjppbmioombali',
+                // staging Oliver: 'ielfhekmfbpebfogdeipegfeooelelge',
                 // Useful for determining whether we’re running in production mode.
                 // Most importantly, it switches React into the correct mode.
                 NODE_ENV: process.env.NODE_ENV || 'development',
@@ -85,8 +87,6 @@ function getClientEnvironment(publicUrl) {
                 WDS_SOCKET_HOST: process.env.WDS_SOCKET_HOST,
                 WDS_SOCKET_PATH: process.env.WDS_SOCKET_PATH,
                 WDS_SOCKET_PORT: process.env.WDS_SOCKET_PORT,
-                // Needed for auth sync.
-                MEMEX_EXTENSION_ID: process.env.MEMEX_EXTENSION_ID,
             },
         )
     // Stringify all values so we can feed into webpack DefinePlugin

@@ -255,9 +255,9 @@ const trySendingURLToOpenToExtension = async (
 
     let extensionID = process.env.MEMEX_EXTENSION_ID
         ? process.env.MEMEX_EXTENSION_ID
-        : undefined
+        : 'abkfbakhjpmblaafnpgjppbmioombali'
 
-    while (!sendingSuccessful && extensionID) {
+    while (!sendingSuccessful) {
         try {
             await awaitExtensionReady(extensionID)
 
