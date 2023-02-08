@@ -69,8 +69,9 @@ function getClientEnvironment(publicUrl) {
                 return env
             },
             {
-                MEMEX_EXTENSION_ID: 'abkfbakhjpmblaafnpgjppbmioombali',
+                MEMEX_EXTENSION_ID: 'ielfhekmfbpebfogdeipegfeooelelge',
                 // staging Oliver: 'ielfhekmfbpebfogdeipegfeooelelge',
+                // prod extensionID: 'abkfbakhjpmblaafnpgjppbmioombali',
                 // Useful for determining whether we’re running in production mode.
                 // Most importantly, it switches React into the correct mode.
                 NODE_ENV: process.env.NODE_ENV || 'development',

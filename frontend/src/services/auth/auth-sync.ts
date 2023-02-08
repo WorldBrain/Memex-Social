@@ -42,6 +42,7 @@ function canMessageExtension(extensionID: string) {
 }
 
 export async function awaitExtensionReady(extensionID: string) {
+    let extensionIsReady = false
     const shortTriesInterval = 300
     let shortTriesLeft = 10
 
@@ -59,6 +60,7 @@ export async function awaitExtensionReady(extensionID: string) {
             } else {
                 shortTriesLeft--
                 if (canMessageExtension(extensionID)) {
+                    let extensionIsReady = true
                     clearInterval(shortTimer)
                     resolve()
                 }
@@ -67,21 +69,24 @@ export async function awaitExtensionReady(extensionID: string) {
     })
 
     const longTriesInterval = 2000
-    console.log(
-        'Extension was not ready or installed after initial wait period. Starting polling.',
-    )
 
-    return new Promise<void>((resolve) => {
+    await new Promise<void>((resolve) => {
+        console.log(
+            'Extension was not ready or installed after initial wait period. Starting polling.',
+        )
         //in this case, the extension is not installed currently
         //so we poll in case it is installed later - which we want to encourage
         const longTimer = setInterval(() => {
             if (canMessageExtension(extensionID)) {
+                let extensionIsReady = true
                 clearInterval(longTimer)
                 resolve()
                 return
             }
         }, longTriesInterval)
     })
+
+    return extensionIsReady
 }
 
 export function sendMessageToExtension(
@@ -179,9 +184,10 @@ function bothNotLoggedInHandler(
 
 async function sync(authService: FirebaseAuthService, extensionID: string) {
     await authService.waitForAuthReady()
-    await awaitExtensionReady(extensionID)
-    if (authService.isLoggedIn()) {
-        await sendTokenToExtHandler(authService, extensionID)
+    if (authService.isLoggedIn() && (await awaitExtensionReady(extensionID))) {
+        setTimeout(async () => {
+            await sendTokenToExtHandler(authService, extensionID)
+        }, 4000)
     } else {
         await loginWithExtTokenHandler(authService, extensionID)
     }

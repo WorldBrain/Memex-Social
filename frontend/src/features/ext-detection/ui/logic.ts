@@ -4,6 +4,11 @@ import { doesMemexExtDetectionElExist } from '@worldbrain/memex-common/lib/commo
 import { isPagePdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
 import { Services } from '../../../services/types'
 import { SharedListReference } from '@worldbrain/memex-common/lib/content-sharing/types'
+import {
+    sendMessageToExtension,
+    awaitExtensionReady,
+} from '../../../services/auth/auth-sync'
+import { ExtMessage } from '@worldbrain/memex-common/lib/authentication/auth-sync'
 
 export interface Dependencies {
     services?: Pick<Services, 'memexExtension'>
@@ -105,6 +110,12 @@ export const extDetectionEventHandlers = (
                             notifAlreadyShown: { $set: true },
                         })
                     }
+                    if (event.urlToOpen && event.sharedListReference) {
+                        await trySendingURLToOpenToExtension(
+                            event.urlToOpen,
+                            event.sharedListReference,
+                        )
+                    }
 
                     // if (event.isFollowedSpace || event.isFeed) {
                     //     logic.emitMutation({
@@ -116,12 +127,11 @@ export const extDetectionEventHandlers = (
                 }
             }
             if (doesMemexExtDetectionElExist()) {
-                const didOpen = await dependencies.services?.memexExtension.openLink(
-                    {
-                        originalPageUrl: event.urlToOpen,
-                        sharedListId: event.sharedListReference?.id as string,
-                    },
-                )
+                console.log('exists')
+                await dependencies.services?.memexExtension.openLink({
+                    originalPageUrl: event.urlToOpen,
+                    sharedListId: event.sharedListReference?.id as string,
+                })
             }
             // This means it's a local PDF page
         },
@@ -134,5 +144,39 @@ export const extDetectionEventHandlers = (
         toggleMissingPdfModal: ({ previousState }) => {
             performToggleMutation('isMissingPDFModalShown', previousState)
         },
+    }
+}
+
+const trySendingURLToOpenToExtension = async (
+    url: string,
+    sharedListReference: SharedListReference,
+) => {
+    let sendingSuccessful = false
+    let didOpen
+
+    let payload = JSON.stringify({
+        originalPageUrl: url,
+        sharedListId: sharedListReference?.id as string,
+    })
+
+    let extensionID = process.env.MEMEX_EXTENSION_ID
+        ? process.env.MEMEX_EXTENSION_ID
+        : 'abkfbakhjpmblaafnpgjppbmioombali'
+
+    const extensionReady = await awaitExtensionReady(extensionID)
+
+    if (extensionReady) {
+        // while (!sendingSuccessful) {
+        //     console.log('trying to send')
+        setTimeout(async () => {
+            await sendMessageToExtension(
+                ExtMessage.URL_TO_OPEN,
+                extensionID,
+                payload.toString(),
+            )
+        }, 3000)
+        //     sendingSuccessful = true
+        //     await delay(1000)
+        // }
     }
 }

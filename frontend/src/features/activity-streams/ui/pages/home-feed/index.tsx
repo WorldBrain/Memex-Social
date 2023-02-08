@@ -700,36 +700,36 @@ export default class HomeFeedPage extends UIElement<
     }
 
     private renderModals() {
-        if (this.state.isInstallExtModalShown) {
-            return (
-                <InstallExtOverlay
-                    services={this.props.services}
-                    viewportBreakpoint={this.viewportBreakpoint}
-                    onCloseRequested={() =>
-                        this.processEvent('toggleInstallExtModal', {})
-                    }
-                    mode={
-                        this.state.clickedPageUrl != null
-                            ? 'click-page'
-                            : 'add-page'
-                    }
-                    intent={'openLink'}
-                    clickedPageUrl={this.state.clickedPageUrl!}
-                />
-            )
-        }
+        // if (this.state.isInstallExtModalShown) {
+        //     return (
+        //         <InstallExtOverlay
+        //             services={this.props.services}
+        //             viewportBreakpoint={this.viewportBreakpoint}
+        //             onCloseRequested={() =>
+        //                 this.processEvent('toggleInstallExtModal', {})
+        //             }
+        //             mode={
+        //                 this.state.clickedPageUrl != null
+        //                     ? 'click-page'
+        //                     : 'add-page'
+        //             }
+        //             intent={'openLink'}
+        //             clickedPageUrl={this.state.clickedPageUrl!}
+        //         />
+        //     )
+        // }
 
-        if (this.state.isMissingPDFModalShown) {
-            return (
-                <MissingPdfOverlay
-                    services={this.props.services}
-                    viewportBreakpoint={this.viewportBreakpoint}
-                    onCloseRequested={() =>
-                        this.processEvent('toggleMissingPdfModal', {})
-                    }
-                />
-            )
-        }
+        // if (this.state.isMissingPDFModalShown) {
+        //     return (
+        //         <MissingPdfOverlay
+        //             services={this.props.services}
+        //             viewportBreakpoint={this.viewportBreakpoint}
+        //             onCloseRequested={() =>
+        //                 this.processEvent('toggleMissingPdfModal', {})
+        //             }
+        //         />
+        //     )
+        // }
 
         return null
     }

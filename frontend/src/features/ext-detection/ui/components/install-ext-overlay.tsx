@@ -7,11 +7,6 @@ import { PrimaryAction } from '@worldbrain/memex-common/lib/common-ui/components
 import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
 import { detect } from 'detect-browser'
 import { SharedListReference } from '@worldbrain/memex-common/lib/content-sharing/types'
-import {
-    sendMessageToExtension,
-    awaitExtensionReady,
-} from '../../../../services/auth/auth-sync'
-import { ExtMessage } from '@worldbrain/memex-common/lib/authentication/auth-sync'
 const bannerImage = require('../../../../assets/img/installBanner.svg')
 
 const Content = styled.div<{
@@ -236,55 +231,8 @@ function getBrowserDownloadLink() {
     }
 }
 
-function delay(t: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, t))
-}
-
-const trySendingURLToOpenToExtension = async (
-    url: string,
-    services: any,
-    sharedListReference: SharedListReference,
-) => {
-    let sendingSuccessful = false
-    let didOpen
-
-    let payload = JSON.stringify({
-        originalPageUrl: url,
-        sharedListId: sharedListReference?.id as string,
-    })
-
-    let extensionID = process.env.MEMEX_EXTENSION_ID
-        ? process.env.MEMEX_EXTENSION_ID
-        : 'abkfbakhjpmblaafnpgjppbmioombali'
-
-    while (!sendingSuccessful) {
-        try {
-            await awaitExtensionReady(extensionID)
-
-            setTimeout(async () => {
-                await sendMessageToExtension(
-                    ExtMessage.URL_TO_OPEN,
-                    extensionID,
-                    payload.toString(),
-                )
-            }, 2000)
-            sendingSuccessful = true
-        } catch {
-            await delay(1000)
-        }
-        await delay(1000)
-    }
-}
-
 export default function InstallExtOverlay(props: Props) {
     if (props.intent === 'openLink') {
-        if (props.clickedPageUrl && props.sharedListReference) {
-            trySendingURLToOpenToExtension(
-                props.clickedPageUrl,
-                props.services,
-                props.sharedListReference,
-            )
-        }
         return (
             <>
                 <Overlay
