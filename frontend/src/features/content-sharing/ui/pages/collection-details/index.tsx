@@ -1950,9 +1950,17 @@ const DiscordChannelName = styled.span`
     display: flex;
     flex-direction: row;
     align-items: center;
+    grid-gap: 10px;
+    letter-spacing: 1px;
+    background-clip: text;
+    background: linear-gradient(269.15deg, #6ae394 -34.22%, #ffffff 149.84%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: 34px;
+    font-weight: 900;
 `
 const DiscordGuildName = styled.span`
-    color: ${(props) => props.theme.colors.secondary};
+    color: ${(props) => props.theme.colors.greyScale6};
     font-weight: 600;
 `
 
