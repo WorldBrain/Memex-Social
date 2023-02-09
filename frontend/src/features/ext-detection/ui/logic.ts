@@ -4,12 +4,6 @@ import { doesMemexExtDetectionElExist } from '@worldbrain/memex-common/lib/commo
 import { isPagePdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
 import { Services } from '../../../services/types'
 import { SharedListReference } from '@worldbrain/memex-common/lib/content-sharing/types'
-import {
-    sendMessageToExtension,
-    awaitExtensionReady,
-} from '../../../services/auth/auth-sync'
-import { ExtMessage } from '@worldbrain/memex-common/lib/authentication/auth-sync'
-import { AuthService } from '../../../services/auth/types'
 
 export interface Dependencies {
     services: Pick<Services, 'memexExtension' | 'auth'>
@@ -152,27 +146,11 @@ export const extDetectionEventHandlers = (
 const trySendingURLToOpenToExtension = async (
     url: string,
     sharedListReference: SharedListReference,
-    authService: AuthService,
 ) => {
-    let sendingSuccessful = false
-    let didOpen
-
     let payload = JSON.stringify({
         originalPageUrl: url,
         sharedListId: sharedListReference?.id as string,
     })
 
-    let extensionID = process.env.MEMEX_EXTENSION_ID
-        ? process.env.MEMEX_EXTENSION_ID
-        : 'abkfbakhjpmblaafnpgjppbmioombali'
-
-    console.log('waiting for auth sync')
-    await authService.waitForAuthSync()
-    console.log('finished waiting for auth sync')
-    await sendMessageToExtension(
-        ExtMessage.URL_TO_OPEN,
-        extensionID,
-        payload.toString(),
-    )
-    console.log('sent URL message')
+    localStorage.setItem('urlAndSpaceToOpen', payload.toString())
 }

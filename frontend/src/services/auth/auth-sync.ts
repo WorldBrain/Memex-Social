@@ -38,12 +38,16 @@ async function canMessageExtension(extensionID: string) {
         console.log('Another extension is listening for the webpage.')
         return false
     }
-    await sendMessageToExtension(
+    const response = await sendMessageToExtension(
         ExtMessage.EXT_IS_READY,
         extensionID,
         'ext is ready payload',
     )
-    return true
+
+    if (response && response.message.length) {
+        console.log('Extension is ready.')
+        return true
+    }
 }
 
 export async function awaitExtensionReady(extensionID: string) {
@@ -87,15 +91,14 @@ export async function awaitExtensionReady(extensionID: string) {
         //so we poll in case it is installed later - which we want to encourage
         const longTimer = setInterval(async () => {
             if (await canMessageExtension(extensionID)) {
+                console.log('Extension is ready.')
                 extensionIsReady = true
                 clearInterval(longTimer)
                 resolve()
-                return
             }
+            console.log('Trying to message extension...')
         }, longTriesInterval)
     })
-
-    return extensionIsReady
 }
 
 export function sendMessageToExtension(
@@ -108,6 +111,8 @@ export function sendMessageToExtension(
         const base = chrome || browser
         const packedMessage = packMessage(message, payload)
         logPackedMessage(packedMessage, 'Sending', enableMessageLogging)
+
+        console.log('Sending message to extension.')
 
         //@ts-ignore next-line
         base.runtime.sendMessage(
@@ -200,6 +205,18 @@ async function bothNotLoggedInHandler(
 async function sync(authService: FirebaseAuthService, extensionID: string) {
     await authService.waitForAuthReady()
     await awaitExtensionReady(extensionID)
+
+    let urlAndSpaceOpenRequestData = localStorage.getItem('urlAndSpaceToOpen')
+
+    if (urlAndSpaceOpenRequestData && urlAndSpaceOpenRequestData.length > 0) {
+        await sendMessageToExtension(
+            ExtMessage.URL_TO_OPEN,
+            extensionID,
+            urlAndSpaceOpenRequestData,
+        )
+        localStorage.removeItem('urlAndSpaceToOpen')
+    }
+
     if (authService.isLoggedIn()) {
         await sendTokenToExtHandler(authService, extensionID)
     } else {
