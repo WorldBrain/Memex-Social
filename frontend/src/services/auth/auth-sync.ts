@@ -33,24 +33,16 @@ async function canMessageExtension(extensionID: string) {
     //which means this check also works if the content-script is not executed
     try {
         //@ts-ignore next-line
-        console.log('sending message', extensionID)
         base.runtime.sendMessage(extensionID, null)
-        console.log('sent message')
     } catch (error) {
         console.log('Another extension is listening for the webpage.')
-        console.error(error)
         return false
     }
-    console.log('sending probe')
-
-    console.log(
-        await sendMessageToExtension(
-            ExtMessage.EXT_IS_READY,
-            extensionID,
-            'ext is ready payload',
-        ),
+    await sendMessageToExtension(
+        ExtMessage.EXT_IS_READY,
+        extensionID,
+        'ext is ready payload',
     )
-    console.log('sent probe')
     return true
 }
 
@@ -61,7 +53,6 @@ export async function awaitExtensionReady(extensionID: string) {
 
     await new Promise<void>(async (resolve) => {
         if (await canMessageExtension(extensionID)) {
-            console.log('got ext on first try')
             resolve()
             return
         }
@@ -69,7 +60,6 @@ export async function awaitExtensionReady(extensionID: string) {
         //first, we wait a fixed amount of short intervals
         //this gives the extension enough time to start listening
         const shortTimer = setInterval(async () => {
-            console.log('short poll', { shortTriesLeft })
             if (shortTriesLeft === 0) {
                 clearInterval(shortTimer)
                 resolve()
@@ -84,7 +74,6 @@ export async function awaitExtensionReady(extensionID: string) {
         }, shortTriesInterval)
     })
     if (extensionIsReady) {
-        console.log('got ext after short polling')
         return true
     }
 
@@ -97,7 +86,6 @@ export async function awaitExtensionReady(extensionID: string) {
         //in this case, the extension is not installed currently
         //so we poll in case it is installed later - which we want to encourage
         const longTimer = setInterval(async () => {
-            console.log('long polling extension')
             if (await canMessageExtension(extensionID)) {
                 extensionIsReady = true
                 clearInterval(longTimer)
