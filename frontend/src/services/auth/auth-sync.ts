@@ -11,7 +11,7 @@ import {
 
 const enableMessageLogging = false
 
-function canMessageExtension(extensionID: string) {
+async function canMessageExtension(extensionID: string) {
     //@ts-ignore next-line
     const base = chrome || browser
     //@ts-ignore next-line
@@ -34,11 +34,16 @@ function canMessageExtension(extensionID: string) {
     try {
         //@ts-ignore next-line
         base.runtime.sendMessage(extensionID, null)
-        return true
     } catch (error) {
         console.log('Another extension is listening for the webpage.')
         return false
     }
+    await sendMessageToExtension(
+        ExtMessage.EXT_IS_READY,
+        extensionID,
+        'ext is ready payload',
+    )
+    return true
 }
 
 export async function awaitExtensionReady(extensionID: string) {
@@ -46,27 +51,31 @@ export async function awaitExtensionReady(extensionID: string) {
     const shortTriesInterval = 300
     let shortTriesLeft = 10
 
-    await new Promise<void>((resolve) => {
-        if (canMessageExtension(extensionID)) {
+    await new Promise<void>(async (resolve) => {
+        if (await canMessageExtension(extensionID)) {
             resolve()
+            return
         }
 
         //first, we wait a fixed amount of short intervals
         //this gives the extension enough time to start listening
-        const shortTimer = setInterval(() => {
+        const shortTimer = setInterval(async () => {
             if (shortTriesLeft === 0) {
                 clearInterval(shortTimer)
                 resolve()
             } else {
                 shortTriesLeft--
-                if (canMessageExtension(extensionID)) {
-                    let extensionIsReady = true
+                if (await canMessageExtension(extensionID)) {
+                    extensionIsReady = true
                     clearInterval(shortTimer)
                     resolve()
                 }
             }
         }, shortTriesInterval)
     })
+    if (extensionIsReady) {
+        return true
+    }
 
     const longTriesInterval = 2000
 
@@ -76,9 +85,9 @@ export async function awaitExtensionReady(extensionID: string) {
         )
         //in this case, the extension is not installed currently
         //so we poll in case it is installed later - which we want to encourage
-        const longTimer = setInterval(() => {
-            if (canMessageExtension(extensionID)) {
-                let extensionIsReady = true
+        const longTimer = setInterval(async () => {
+            if (await canMessageExtension(extensionID)) {
+                extensionIsReady = true
                 clearInterval(longTimer)
                 resolve()
                 return
@@ -184,7 +193,8 @@ function bothNotLoggedInHandler(
 
 async function sync(authService: FirebaseAuthService, extensionID: string) {
     await authService.waitForAuthReady()
-    if (authService.isLoggedIn() && (await awaitExtensionReady(extensionID))) {
+    await awaitExtensionReady(extensionID)
+    if (authService.isLoggedIn()) {
         setTimeout(async () => {
             await sendTokenToExtHandler(authService, extensionID)
         }, 4000)
