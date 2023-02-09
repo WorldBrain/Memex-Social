@@ -71,6 +71,7 @@ export abstract class AuthServiceBase implements AuthService {
         await waitingForAuth
         stopWaiting()
     }
+    abstract waitForAuthSync(): Promise<void>
 
     requestAuth(request?: AuthRequest): Promise<{ result: AuthResult }> {
         return new Promise<{ result: AuthResult }>((resolve) => {

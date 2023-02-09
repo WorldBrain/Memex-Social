@@ -4,14 +4,9 @@ import { doesMemexExtDetectionElExist } from '@worldbrain/memex-common/lib/commo
 import { isPagePdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
 import { Services } from '../../../services/types'
 import { SharedListReference } from '@worldbrain/memex-common/lib/content-sharing/types'
-import {
-    sendMessageToExtension,
-    awaitExtensionReady,
-} from '../../../services/auth/auth-sync'
-import { ExtMessage } from '@worldbrain/memex-common/lib/authentication/auth-sync'
 
 export interface Dependencies {
-    services?: Pick<Services, 'memexExtension'>
+    services: Pick<Services, 'memexExtension' | 'auth'>
 }
 
 export interface ExtDetectionState {
@@ -114,6 +109,7 @@ export const extDetectionEventHandlers = (
                         await trySendingURLToOpenToExtension(
                             event.urlToOpen,
                             event.sharedListReference,
+                            dependencies.services.auth,
                         )
                     }
 
@@ -151,32 +147,10 @@ const trySendingURLToOpenToExtension = async (
     url: string,
     sharedListReference: SharedListReference,
 ) => {
-    let sendingSuccessful = false
-    let didOpen
-
     let payload = JSON.stringify({
         originalPageUrl: url,
         sharedListId: sharedListReference?.id as string,
     })
 
-    let extensionID = process.env.MEMEX_EXTENSION_ID
-        ? process.env.MEMEX_EXTENSION_ID
-        : 'abkfbakhjpmblaafnpgjppbmioombali'
-
-    const extensionReady = await awaitExtensionReady(extensionID)
-
-    if (extensionReady) {
-        // while (!sendingSuccessful) {
-        //     console.log('trying to send')
-        setTimeout(async () => {
-            await sendMessageToExtension(
-                ExtMessage.URL_TO_OPEN,
-                extensionID,
-                payload.toString(),
-            )
-        }, 3000)
-        //     sendingSuccessful = true
-        //     await delay(1000)
-        // }
-    }
+    localStorage.setItem('urlAndSpaceToOpen', payload.toString())
 }
