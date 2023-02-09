@@ -9,9 +9,10 @@ import {
     awaitExtensionReady,
 } from '../../../services/auth/auth-sync'
 import { ExtMessage } from '@worldbrain/memex-common/lib/authentication/auth-sync'
+import { AuthService } from '../../../services/auth/types'
 
 export interface Dependencies {
-    services?: Pick<Services, 'memexExtension'>
+    services: Pick<Services, 'memexExtension' | 'auth'>
 }
 
 export interface ExtDetectionState {
@@ -114,6 +115,7 @@ export const extDetectionEventHandlers = (
                         await trySendingURLToOpenToExtension(
                             event.urlToOpen,
                             event.sharedListReference,
+                            dependencies.services.auth,
                         )
                     }
 
@@ -150,6 +152,7 @@ export const extDetectionEventHandlers = (
 const trySendingURLToOpenToExtension = async (
     url: string,
     sharedListReference: SharedListReference,
+    authService: AuthService,
 ) => {
     let sendingSuccessful = false
     let didOpen
@@ -163,20 +166,13 @@ const trySendingURLToOpenToExtension = async (
         ? process.env.MEMEX_EXTENSION_ID
         : 'abkfbakhjpmblaafnpgjppbmioombali'
 
-    const extensionReady = await awaitExtensionReady(extensionID)
-
-    if (extensionReady) {
-        // while (!sendingSuccessful) {
-        //     console.log('trying to send')
-        setTimeout(async () => {
-            await sendMessageToExtension(
-                ExtMessage.URL_TO_OPEN,
-                extensionID,
-                payload.toString(),
-            )
-        }, 3000)
-        //     sendingSuccessful = true
-        //     await delay(1000)
-        // }
-    }
+    console.log('waiting for auth sync')
+    await authService.waitForAuthSync()
+    console.log('finished waiting for auth sync')
+    await sendMessageToExtension(
+        ExtMessage.URL_TO_OPEN,
+        extensionID,
+        payload.toString(),
+    )
+    console.log('sent URL message')
 }

@@ -124,6 +124,8 @@ export function sendMessageToExtension(
                     )
 
                     resolve(unpackedMessage)
+                } else {
+                    resolve(null)
                 }
             },
         )
@@ -164,11 +166,12 @@ async function loginWithExtTokenHandler(
         return
     }
     //currently we can not avoid duplicate token generation if multiple tabs exist, but we can at least try to avoid duplicate login
-    if (!(await authService.isLoggedIn()))
+    if (!(await authService.isLoggedIn())) {
         await authService.loginWithToken(tokenFromExtension.payload)
+    }
 }
 
-function bothNotLoggedInHandler(
+async function bothNotLoggedInHandler(
     authService: FirebaseAuthService,
     extensionID: string,
 ) {
@@ -176,28 +179,29 @@ function bothNotLoggedInHandler(
         'Neither app nor extension are logged in. Starting polling until either one logs in.',
     )
     const interval = 4000
-    const tryAgain = () => {
-        setTimeout(async () => {
-            await sync(authService, extensionID)
-            if (!authService.isLoggedIn()) {
-                tryAgain()
-            } else {
-                console.log(
-                    'Successfully synced with extension after trying multiple times.',
-                )
-            }
-        }, interval)
-    }
-    tryAgain()
+    await new Promise<void>((resolve) => {
+        const tryAgain = () => {
+            setTimeout(async () => {
+                await sync(authService, extensionID)
+                if (!authService.isLoggedIn()) {
+                    tryAgain()
+                } else {
+                    resolve()
+                    console.log(
+                        'Successfully synced with extension after trying multiple times.',
+                    )
+                }
+            }, interval)
+        }
+        tryAgain()
+    })
 }
 
 async function sync(authService: FirebaseAuthService, extensionID: string) {
     await authService.waitForAuthReady()
     await awaitExtensionReady(extensionID)
     if (authService.isLoggedIn()) {
-        setTimeout(async () => {
-            await sendTokenToExtHandler(authService, extensionID)
-        }, 4000)
+        await sendTokenToExtHandler(authService, extensionID)
     } else {
         await loginWithExtTokenHandler(authService, extensionID)
     }
@@ -210,7 +214,7 @@ export async function syncWithExtension(authService: FirebaseAuthService) {
     } else {
         await sync(authService, extensionID)
         if (!authService.isLoggedIn()) {
-            bothNotLoggedInHandler(authService, extensionID)
+            await bothNotLoggedInHandler(authService, extensionID)
         } else {
             console.log(
                 'Successfully synced with extension immediately after it was ready.',

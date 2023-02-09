@@ -24,6 +24,7 @@ export default class FirebaseAuthService extends AuthServiceBase {
     private _user: User | null = null
     private _initialized = false
     _initialWaitForAuth?: Promise<void>
+    _authSyncPromise: Promise<void>
 
     constructor(
         firebaseRoot: typeof firebase,
@@ -62,7 +63,7 @@ export default class FirebaseAuthService extends AuthServiceBase {
             await this.refreshCurrentUser()
         })
 
-        syncWithExtension(this)
+        this._authSyncPromise = syncWithExtension(this)
     }
 
     getSupportedMethods(options: {
@@ -213,6 +214,10 @@ export default class FirebaseAuthService extends AuthServiceBase {
 
     async waitForAuthReady() {
         await this._initialWaitForAuth
+    }
+
+    async waitForAuthSync(): Promise<void> {
+        await this._authSyncPromise
     }
 
     async generateLoginToken() {

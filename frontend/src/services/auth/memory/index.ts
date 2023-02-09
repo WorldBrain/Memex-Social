@@ -122,4 +122,6 @@ export default class MemoryAuthService extends AuthServiceBase {
     async waitForAuthReady() {
         // return new Promise<void>(() => { })
     }
+
+    async waitForAuthSync(): Promise<void> {}
 }
