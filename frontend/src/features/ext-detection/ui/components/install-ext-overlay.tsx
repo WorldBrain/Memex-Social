@@ -7,6 +7,7 @@ import { PrimaryAction } from '@worldbrain/memex-common/lib/common-ui/components
 import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
 import { detect } from 'detect-browser'
 import { SharedListReference } from '@worldbrain/memex-common/lib/content-sharing/types'
+import LoadingIndicator from '@worldbrain/memex-common/lib/common-ui/components/loading-indicator'
 const bannerImage = require('../../../../assets/img/installBanner.svg')
 
 const Content = styled.div<{
@@ -162,6 +163,8 @@ const BenefitListEntrySubTitle = styled.div`
     font-size: 14px;
 `
 
+const LoadingBox = styled.div``
+
 interface PageAddProps {
     mode: 'add-page'
     intent?: string
@@ -232,6 +235,32 @@ function getBrowserDownloadLink() {
 }
 
 export default function InstallExtOverlay(props: Props) {
+    const [
+        extensionDetectionLoadState,
+        setExtensionDetectionLoadState,
+    ] = React.useState('pristine')
+
+    const config = { attributes: true, childList: true }
+
+    const detectExtensionReady = () => {
+        console.log('detecting extension')
+        const observer = new MutationObserver((mutation) => {
+            const targetObject = mutation[0].addedNodes[0]
+            if (
+                (targetObject as HTMLElement).id ===
+                '__memex-ext-installed-detection-element'
+            ) {
+                setExtensionDetectionLoadState('success')
+                console.log('extension detected')
+                observer.disconnect()
+            }
+        })
+
+        console.log(observer)
+
+        observer.observe(document.body, config)
+    }
+
     if (props.intent === 'openLink') {
         return (
             <>
@@ -376,113 +405,138 @@ export default function InstallExtOverlay(props: Props) {
                 >
                     <OverlayContainer>
                         <Content viewportBreakpoint={props.viewportBreakpoint}>
-                            <BannerImage
-                                viewportBreakpoint={props.viewportBreakpoint}
-                                src={bannerImage}
-                            />
-                            <ContentBox
-                                viewportBreakpoint={props.viewportBreakpoint}
-                            >
-                                <TitleContainer
-                                    viewportBreakpoint={
-                                        props.viewportBreakpoint
-                                    }
-                                >
-                                    <Title
+                            {extensionDetectionLoadState === 'running' && (
+                                <LoadingBox>
+                                    <LoadingIndicator size={30} />
+                                    Waiting for extension to be ready
+                                </LoadingBox>
+                            )}
+                            {extensionDetectionLoadState === 'success' && (
+                                <LoadingBox>Extension ready</LoadingBox>
+                            )}
+
+                            {extensionDetectionLoadState === 'pristine' && (
+                                <>
+                                    <BannerImage
+                                        viewportBreakpoint={
+                                            props.viewportBreakpoint
+                                        }
+                                        src={bannerImage}
+                                    />
+                                    <ContentBox
                                         viewportBreakpoint={
                                             props.viewportBreakpoint
                                         }
                                     >
-                                        Download Memex to see annotations of
-                                        Spaces you follow when reading online
-                                    </Title>
-                                    <BenefitList>
-                                        <BenefitListEntry>
-                                            <Icon
-                                                filePath={'commentAdd'}
-                                                heightAndWidth={'22px'}
-                                                hoverOff
-                                                color="prime1"
-                                            />
-                                            <BenefitListEntryContentBox>
-                                                <BenefitListEntryTitle>
-                                                    Tap into your community's
-                                                    knowledge while browsing
-                                                </BenefitListEntryTitle>
-                                                <BenefitListEntrySubTitle>
-                                                    See when pages you're
-                                                    reading are annotated in
-                                                    Spaces you follow
-                                                </BenefitListEntrySubTitle>
-                                            </BenefitListEntryContentBox>
-                                        </BenefitListEntry>
-                                        <BenefitListEntry>
-                                            <Icon
-                                                filePath={'highlight'}
-                                                heightAndWidth={'22px'}
-                                                hoverOff
-                                                color="prime1"
-                                            />
-                                            <BenefitListEntryContentBox>
-                                                <BenefitListEntryTitle>
-                                                    Highlights, notes and
-                                                    conversations across the web
-                                                </BenefitListEntryTitle>
-                                                <BenefitListEntrySubTitle>
-                                                    View, make & share
-                                                    highlights on websites,
-                                                    videos and PDFs
-                                                </BenefitListEntrySubTitle>
-                                            </BenefitListEntryContentBox>
-                                        </BenefitListEntry>
-                                        <BenefitListEntry>
-                                            <Icon
-                                                filePath={'heartEmpty'}
-                                                heightAndWidth={'22px'}
-                                                hoverOff
-                                                color="prime1"
-                                            />
-                                            <BenefitListEntryContentBox>
-                                                <BenefitListEntryTitle>
-                                                    Powerful bookmarking
-                                                </BenefitListEntryTitle>
-                                                <BenefitListEntrySubTitle>
-                                                    Save anything with one click
-                                                    and find it again in seconds
-                                                </BenefitListEntrySubTitle>
-                                            </BenefitListEntryContentBox>
-                                        </BenefitListEntry>
-                                    </BenefitList>
-                                </TitleContainer>
-                                {props.mode === 'click-page' && (
-                                    <ButtonsBox>
-                                        <PrimaryAction
-                                            onClick={() =>
-                                                window.open(
-                                                    getBrowserDownloadLink(),
-                                                    '_blank',
-                                                )
+                                        <TitleContainer
+                                            viewportBreakpoint={
+                                                props.viewportBreakpoint
                                             }
-                                            type={'primary'}
-                                            label={'Download'}
-                                            size={'large'}
-                                            icon={getBrowserIcon()}
-                                        />
-                                        <PrimaryAction
-                                            onClick={() =>
-                                                window.open(
-                                                    props.clickedPageUrl,
-                                                    '_blank',
-                                                )
-                                            }
-                                            label={'Watch Demo'}
-                                            type={'forth'}
-                                            size={'large'}
-                                            icon={'play'}
-                                        />
-                                    </ButtonsBox>
-                                )}
-                            </ContentBox>
+                                        >
+                                            <Title
+                                                viewportBreakpoint={
+                                                    props.viewportBreakpoint
+                                                }
+                                            >
+                                                Follow Space flow
+                                            </Title>
+                                            <BenefitList>
+                                                <BenefitListEntry>
+                                                    <Icon
+                                                        filePath={'commentAdd'}
+                                                        heightAndWidth={'22px'}
+                                                        hoverOff
+                                                        color="prime1"
+                                                    />
+                                                    <BenefitListEntryContentBox>
+                                                        <BenefitListEntryTitle>
+                                                            Tap into your
+                                                            community's
+                                                            knowledge while
+                                                            browsing
+                                                        </BenefitListEntryTitle>
+                                                        <BenefitListEntrySubTitle>
+                                                            See when pages
+                                                            you're reading are
+                                                            annotated in Spaces
+                                                            you follow
+                                                        </BenefitListEntrySubTitle>
+                                                    </BenefitListEntryContentBox>
+                                                </BenefitListEntry>
+                                                <BenefitListEntry>
+                                                    <Icon
+                                                        filePath={'highlight'}
+                                                        heightAndWidth={'22px'}
+                                                        hoverOff
+                                                        color="prime1"
+                                                    />
+                                                    <BenefitListEntryContentBox>
+                                                        <BenefitListEntryTitle>
+                                                            Highlights, notes
+                                                            and conversations
+                                                            across the web
+                                                        </BenefitListEntryTitle>
+                                                        <BenefitListEntrySubTitle>
+                                                            View, make & share
+                                                            highlights on
+                                                            websites, videos and
+                                                            PDFs
+                                                        </BenefitListEntrySubTitle>
+                                                    </BenefitListEntryContentBox>
+                                                </BenefitListEntry>
+                                                <BenefitListEntry>
+                                                    <Icon
+                                                        filePath={'heartEmpty'}
+                                                        heightAndWidth={'22px'}
+                                                        hoverOff
+                                                        color="prime1"
+                                                    />
+                                                    <BenefitListEntryContentBox>
+                                                        <BenefitListEntryTitle>
+                                                            Powerful bookmarking
+                                                        </BenefitListEntryTitle>
+                                                        <BenefitListEntrySubTitle>
+                                                            Save anything with
+                                                            one click and find
+                                                            it again in seconds
+                                                        </BenefitListEntrySubTitle>
+                                                    </BenefitListEntryContentBox>
+                                                </BenefitListEntry>
+                                            </BenefitList>
+                                        </TitleContainer>
+                                        <ButtonsBox>
+                                            <PrimaryAction
+                                                onClick={() => {
+                                                    window.open(
+                                                        getBrowserDownloadLink(),
+                                                        '_blank',
+                                                    )
+                                                    setExtensionDetectionLoadState(
+                                                        'running',
+                                                    )
+                                                    detectExtensionReady()
+                                                }}
+                                                type={'primary'}
+                                                label={'Download'}
+                                                size={'large'}
+                                                icon={getBrowserIcon()}
+                                            />
+                                            <PrimaryAction
+                                                onClick={() =>
+                                                    window.open(
+                                                        props.clickedPageUrl,
+                                                        '_blank',
+                                                    )
+                                                }
+                                                label={'Watch Demo'}
+                                                type={'forth'}
+                                                size={'large'}
+                                                icon={'play'}
+                                            />
+                                        </ButtonsBox>
+                                    </ContentBox>
+                                </>
+                            )}
                         </Content>
                         {props.mode === 'click-page' && (
                             <PrimaryAction
