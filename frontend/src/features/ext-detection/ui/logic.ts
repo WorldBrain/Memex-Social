@@ -109,7 +109,6 @@ export const extDetectionEventHandlers = (
                         await trySendingURLToOpenToExtension(
                             event.urlToOpen,
                             event.sharedListReference,
-                            dependencies.services.auth,
                         )
                     }
 
