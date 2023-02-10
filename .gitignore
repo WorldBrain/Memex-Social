@@ -10,3 +10,5 @@ firebase/.runtimeconfig.json
 .env.staging
 
 .env.development
+
+frontend/.env
