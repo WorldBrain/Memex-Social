@@ -387,6 +387,11 @@ export default class CollectionDetailsPage extends UIElement<
                     this.processEvent('clickFollowBtn', {
                         pageToOpenPostFollow,
                     })
+                    this.processEvent('clickFollowButtonForNotif', {
+                        spaceToFollow: this.props.listID && this.props.listID,
+                        sharedListReference: this.sharedListReference,
+                        urlToSpace: window.location.href,
+                    })
                 }}
                 isFollowed={this.state.isCollectionFollowed}
                 isOwner={this.state.isListOwner}
@@ -991,17 +996,17 @@ export default class CollectionDetailsPage extends UIElement<
             )
         }
 
-        if (this.state.isMissingPDFModalShown) {
-            return (
-                <MissingPdfOverlay
-                    services={this.props.services}
-                    viewportBreakpoint={this.viewportBreakpoint}
-                    onCloseRequested={() =>
-                        this.processEvent('toggleMissingPdfModal', {})
-                    }
-                />
-            )
-        }
+        // if (this.state.isMissingPDFModalShown) {
+        //     return (
+        //         <MissingPdfOverlay
+        //             services={this.props.services}
+        //             viewportBreakpoint={this.viewportBreakpoint}
+        //             onCloseRequested={() =>
+        //                 this.processEvent('toggleMissingPdfModal', {})
+        //             }
+        //         />
+        //     )
+        // }
 
         return null
     }

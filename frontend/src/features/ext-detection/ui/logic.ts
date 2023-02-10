@@ -29,6 +29,12 @@ export interface ExtDetectionEvent {
         notifAlreadyShown?: boolean
         sharedListReference?: SharedListReference
     }
+    clickFollowButtonForNotif: {
+        spaceToFollow: string | undefined
+        sharedListReference?: SharedListReference
+        notifAlreadyShown?: boolean
+        urlToSpace?: string
+    }
 }
 
 export type EventHandlers = {
@@ -130,6 +136,21 @@ export const extDetectionEventHandlers = (
             }
             // This means it's a local PDF page
         },
+        clickFollowButtonForNotif: async ({ previousState, event }) => {
+            if (!doesMemexExtDetectionElExist()) {
+                logic.emitMutation({
+                    showFollowModal: { $set: true },
+                })
+
+                let payload = JSON.stringify({
+                    type: 'returnToFollowedSpace',
+                    originalPageUrl: event.urlToSpace,
+                    sharedListId: undefined,
+                })
+
+                localStorage.setItem('urlAndSpaceToOpen', payload.toString())
+            }
+        },
         toggleInstallExtModal: ({ previousState }) => {
             performToggleMutation('isInstallExtModalShown', previousState)
         },
@@ -147,6 +168,7 @@ const trySendingURLToOpenToExtension = async (
     sharedListReference: SharedListReference,
 ) => {
     let payload = JSON.stringify({
+        type: 'pageToOpen',
         originalPageUrl: url,
         sharedListId: sharedListReference?.id as string,
     })
