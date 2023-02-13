@@ -8,30 +8,31 @@ import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
 import { detect } from 'detect-browser'
 import { SharedListReference } from '@worldbrain/memex-common/lib/content-sharing/types'
 import LoadingIndicator from '@worldbrain/memex-common/lib/common-ui/components/loading-indicator'
+import { Margin } from 'styled-components-spacing'
 const bannerImage = require('../../../../assets/img/installBanner.svg')
+const sidebarAndHighlights = require('../../../../assets/img/illustrations/sidebarAndHighlights.svg')
+const browsingNotifications = require('../../../../assets/img/illustrations/browsingNotifications.svg')
 
 const Content = styled.div<{
     viewportBreakpoint: ViewportBreakpoint
 }>`
     max-width: 900px;
-    min-width: 500px;
+    min-width: 900px;
+    min-height: 570px;
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: row;
-    padding: 40px 40px 10px 40px;
     width: 100%;
-    grid-gap: 30px;
-
-    > * {
-        font-family: ${(props) => props.theme.fonts.primary};
-    }
+    grid-gap: 40px;
+    padding: 80px 80px 100px 0px;
 
     ${(props) =>
         props.viewportBreakpoint === 'small' &&
         css`
             max-width: 90%;
             padding: 20px;
+            min-width: 600px;
         `}
     ${(props) =>
         props.viewportBreakpoint === 'mobile' &&
@@ -46,22 +47,34 @@ const Title = styled.div<{
     viewportBreakpoint: ViewportBreakpoint
 }>`
     font-weight: 700;
-    font-size: 24px;
-    color: ${(props) => props.theme.colors.white};
+    font-size: 40px;
+    background: ${(props) => props.theme.colors.headerGradient};
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     text-align: left;
 
     ${(props) =>
         props.viewportBreakpoint === 'small' &&
         css`
-            font-size: 20px;
-            text-align: center;
+            font-size: 40px;
         `}
     ${(props) =>
         props.viewportBreakpoint === 'mobile' &&
         css`
-            font-size: 18px;
-            text-align: center;
+            font-size: 32px;
         `}
+`
+
+const SupportText = styled.div`
+    font-size: 14px;
+    background: ${(props) => props.theme.colors.headerGradient};
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 500;
+    margin-left: 8px;
+    white-space: nowrap;
 `
 
 const ButtonsBox = styled.div`
@@ -85,7 +98,7 @@ const TitleContainer = styled.div<{
         (props.viewportBreakpoint === 'small' ||
             props.viewportBreakpoint === 'mobile') &&
         css`
-            align-items: center;
+            align-items: flex-start;
         `}
 `
 const ContentBox = styled.div<{
@@ -94,13 +107,14 @@ const ContentBox = styled.div<{
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    justify-content: flex-start;
+    justify-content: space-between;
+    height: fill-available;
 
     ${(props) =>
         props.viewportBreakpoint === 'small' &&
         css`
             padding: 30px;
-            align-items: center;
+            align-items: flex-start;
         `}
 `
 
@@ -109,24 +123,32 @@ const OverlayContainer = styled.div`
     flex-direction: column;
     align-items: center;
     position: relative;
+
+    > * {
+        font-family: ${(props) => props.theme.fonts.primary};
+    }
 `
 
-const BannerImage = styled.img<{ viewportBreakpoint: ViewportBreakpoint }>`
+const BannerImage = styled.div<{
+    viewportBreakpoint: ViewportBreakpoint
+    backgroundImage: string
+}>`
     height: auto;
-    max-width: 400px;
-    width: fill-available;
+    min-width: 320px;
+    height: 100%;
+    background: url(${(props) => props.backgroundImage});
+    background-position: center left;
+    background-repeat: no-repeat;
     display: flex;
-
+    max-height: 450px;
+    background-size: contain;
+    margin: 80px 0px;
     ${(props) =>
-        props.viewportBreakpoint === 'mobile' &&
+        (props.viewportBreakpoint === 'mobile' ||
+            props.viewportBreakpoint === 'small') &&
         css`
             display: none;
-        `}
-    ${(props) =>
-        props.viewportBreakpoint === 'small' &&
-        css`
-            display: none;
-        `}
+        `};
 `
 
 const BenefitList = styled.div`
@@ -152,8 +174,9 @@ const BenefitListEntryContentBox = styled.div`
 const BenefitListEntryTitle = styled.div`
     display: flex;
     color: ${(props) => props.theme.colors.greyScale6};
-    font-weight: 600;
-    font-size: 14px;
+    font-weight: 300;
+    font-size: 16px;
+    line-height: 28px;
 `
 
 const BenefitListEntrySubTitle = styled.div`
@@ -163,7 +186,126 @@ const BenefitListEntrySubTitle = styled.div`
     font-size: 14px;
 `
 
-const LoadingBox = styled.div``
+const PrimaryActionBox = styled.div`
+    position: absolute;
+    right: 30px;
+    bottom: 30px;
+`
+
+const LoadingBox = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    grid-gap: 40px;
+    font-weight: 300;
+    padding: 150px 200px;
+    color: ${(props) => props.theme.colors.greyScale6};
+    font-size: 18px;
+    text-align: center;
+    line-height: 27px;
+`
+
+const SuccessBox = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    grid-gap: 20px;
+    padding: 150px 200px;
+`
+
+const SuccessBoxDescription = styled.div`
+    color: ${(props) => props.theme.colors.greyScale6};
+    font-size: 18px;
+    margin-bottom: 20px;
+    text-align: center;
+    line-height: 27px;
+`
+
+const SuccessTitle = styled.div<{
+    viewportBreakpoint: ViewportBreakpoint
+}>`
+    font-weight: 700;
+    font-size: 40px;
+    background: ${(props) => props.theme.colors.headerGradient};
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-align: center;
+    line-height: 60px;
+
+    ${(props) =>
+        props.viewportBreakpoint === 'small' &&
+        css`
+            font-size: 40px;
+        `}
+    ${(props) =>
+        props.viewportBreakpoint === 'mobile' &&
+        css`
+            font-size: 32px;
+        `}
+`
+
+const ChatGroupList = styled(Margin)`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    grid-gap: 10px;
+`
+
+const ChatGroupItem = styled.div`
+    display: flex;
+    color: ${(props) => props.theme.colors.greyScale5};
+    justify-content: center;
+    align-items: center;
+    grid-gap: 5px;
+`
+
+const VideoBox = styled.div`
+    width: fill-available;
+    height: 0px;
+    padding-top: 56.25%;
+    position: relative;
+    margin-bottom: 20px;
+`
+
+const VideoContainer = styled.div<{
+    viewportBreakpoint: ViewportBreakpoint
+}>`
+    width: 800px;
+    height: auto;
+    padding: 40px;
+
+    ${(props) =>
+        props.viewportBreakpoint === 'small' &&
+        css`
+            height: 100%;
+            max-height: 600px;
+            max-width: auto;
+            width: 100%;
+            padding: 20px;
+        `}
+    ${(props) =>
+        props.viewportBreakpoint === 'mobile' &&
+        css`
+            height: 100%;
+            max-height: 600px;
+            max-width: auto;
+            width: 100%;
+            padding: 10px;
+        `}
+`
+
+const Video = styled.iframe`
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    border-radius: 10px;
+    border: none;
+`
 
 interface PageAddProps {
     mode: 'add-page'
@@ -239,6 +381,8 @@ export default function InstallExtOverlay(props: Props) {
         extensionDetectionLoadState,
         setExtensionDetectionLoadState,
     ] = React.useState('pristine')
+    const [oneMoreThingState, setOneMoreThingState] = React.useState(false)
+    const [showVideo, setShowVideo] = React.useState<string>()
 
     const config = { attributes: true, childList: true }
 
@@ -251,13 +395,9 @@ export default function InstallExtOverlay(props: Props) {
                 '__memex-ext-installed-detection-element'
             ) {
                 setExtensionDetectionLoadState('success')
-                console.log('extension detected')
                 observer.disconnect()
             }
         })
-
-        console.log(observer)
-
         observer.observe(document.body, config)
     }
 
@@ -269,159 +409,56 @@ export default function InstallExtOverlay(props: Props) {
                     onCloseRequested={props.onCloseRequested}
                 >
                     <OverlayContainer>
-                        <Content viewportBreakpoint={props.viewportBreakpoint}>
-                            <BannerImage
-                                viewportBreakpoint={props.viewportBreakpoint}
-                                src={bannerImage}
-                            />
-                            <ContentBox
+                        {showVideo && showVideo?.length ? (
+                            <VideoContainer
                                 viewportBreakpoint={props.viewportBreakpoint}
                             >
-                                <TitleContainer
+                                <VideoBox>
+                                    <Video
+                                        allowFullScreen
+                                        src={`${showVideo}?autoplay=1`}
+                                    />
+                                </VideoBox>
+                                <ButtonsBox>
+                                    <PrimaryAction
+                                        onClick={() =>
+                                            window.open(
+                                                getBrowserDownloadLink(),
+                                                '_blank',
+                                            )
+                                        }
+                                        type={'primary'}
+                                        label={'Download Memex'}
+                                        size={'large'}
+                                        icon={getBrowserIcon()}
+                                    />
+                                    <PrimaryAction
+                                        onClick={() =>
+                                            window.open(
+                                                props.clickedPageUrl,
+                                                '_blank',
+                                            )
+                                        }
+                                        label={'Go to Page'}
+                                        type={'tertiary'}
+                                        size={'large'}
+                                        icon={'arrowRight'}
+                                        iconPosition={'right'}
+                                    />
+                                </ButtonsBox>
+                            </VideoContainer>
+                        ) : (
+                            <>
+                                <Content
                                     viewportBreakpoint={
                                         props.viewportBreakpoint
                                     }
                                 >
-                                    <Title
-                                        viewportBreakpoint={
-                                            props.viewportBreakpoint
-                                        }
-                                    >
-                                        Download Memex for an enhanced reading
-                                        experience
-                                    </Title>
-                                    <BenefitList>
-                                        <BenefitListEntry>
-                                            <Icon
-                                                filePath={'commentAdd'}
-                                                heightAndWidth={'22px'}
-                                                hoverOff
-                                                color="prime1"
-                                            />
-                                            <BenefitListEntryContentBox>
-                                                <BenefitListEntryTitle>
-                                                    Tap into your community's
-                                                    knowledge while browsing
-                                                </BenefitListEntryTitle>
-                                                <BenefitListEntrySubTitle>
-                                                    See when pages you're
-                                                    reading are annotated in
-                                                    Spaces you follow
-                                                </BenefitListEntrySubTitle>
-                                            </BenefitListEntryContentBox>
-                                        </BenefitListEntry>
-                                        <BenefitListEntry>
-                                            <Icon
-                                                filePath={'highlight'}
-                                                heightAndWidth={'22px'}
-                                                hoverOff
-                                                color="prime1"
-                                            />
-                                            <BenefitListEntryContentBox>
-                                                <BenefitListEntryTitle>
-                                                    Highlights, notes and
-                                                    conversations across the web
-                                                </BenefitListEntryTitle>
-                                                <BenefitListEntrySubTitle>
-                                                    View, make & share
-                                                    highlights on websites,
-                                                    videos and PDFs
-                                                </BenefitListEntrySubTitle>
-                                            </BenefitListEntryContentBox>
-                                        </BenefitListEntry>
-                                        <BenefitListEntry>
-                                            <Icon
-                                                filePath={'heartEmpty'}
-                                                heightAndWidth={'22px'}
-                                                hoverOff
-                                                color="prime1"
-                                            />
-                                            <BenefitListEntryContentBox>
-                                                <BenefitListEntryTitle>
-                                                    Powerful bookmarking
-                                                </BenefitListEntryTitle>
-                                                <BenefitListEntrySubTitle>
-                                                    Save anything with one click
-                                                    and find it again in seconds
-                                                </BenefitListEntrySubTitle>
-                                            </BenefitListEntryContentBox>
-                                        </BenefitListEntry>
-                                    </BenefitList>
-                                </TitleContainer>
-                                {props.mode === 'click-page' && (
-                                    <ButtonsBox>
-                                        <PrimaryAction
-                                            onClick={() =>
-                                                window.open(
-                                                    getBrowserDownloadLink(),
-                                                    '_blank',
-                                                )
-                                            }
-                                            type={'primary'}
-                                            label={'Download'}
-                                            size={'large'}
-                                            icon={getBrowserIcon()}
-                                        />
-                                        <PrimaryAction
-                                            onClick={() =>
-                                                window.open(
-                                                    props.clickedPageUrl,
-                                                    '_blank',
-                                                )
-                                            }
-                                            label={'Watch Demo'}
-                                            type={'forth'}
-                                            size={'large'}
-                                            icon={'play'}
-                                        />
-                                    </ButtonsBox>
-                                )}
-                            </ContentBox>
-                        </Content>
-                        {props.mode === 'click-page' && (
-                            <PrimaryAction
-                                onClick={() =>
-                                    window.open(props.clickedPageUrl, '_blank')
-                                }
-                                label={'...or continue to the page'}
-                                type={'tertiary'}
-                                size={'medium'}
-                                icon={'arrowRight'}
-                                iconPosition={'right'}
-                            />
-                        )}
-                    </OverlayContainer>
-                </Overlay>
-            </>
-        )
-    }
-
-    if (props.intent === 'follow') {
-        return (
-            <>
-                <Overlay
-                    services={props.services}
-                    onCloseRequested={props.onCloseRequested}
-                >
-                    <OverlayContainer>
-                        <Content viewportBreakpoint={props.viewportBreakpoint}>
-                            {extensionDetectionLoadState === 'running' && (
-                                <LoadingBox>
-                                    <LoadingIndicator size={30} />
-                                    Waiting for extension to be ready
-                                </LoadingBox>
-                            )}
-                            {extensionDetectionLoadState === 'success' && (
-                                <LoadingBox>Extension ready</LoadingBox>
-                            )}
-
-                            {extensionDetectionLoadState === 'pristine' && (
-                                <>
                                     <BannerImage
                                         viewportBreakpoint={
                                             props.viewportBreakpoint
                                         }
-                                        src={bannerImage}
+                                        backgroundImage={sidebarAndHighlights}
                                     />
                                     <ContentBox
                                         viewportBreakpoint={
@@ -438,7 +475,8 @@ export default function InstallExtOverlay(props: Props) {
                                                     props.viewportBreakpoint
                                                 }
                                             >
-                                                Follow Space flow
+                                                View people’s highlights while
+                                                reading
                                             </Title>
                                             <BenefitList>
                                                 <BenefitListEntry>
@@ -450,17 +488,13 @@ export default function InstallExtOverlay(props: Props) {
                                                     />
                                                     <BenefitListEntryContentBox>
                                                         <BenefitListEntryTitle>
-                                                            Tap into your
-                                                            community's
-                                                            knowledge while
-                                                            browsing
+                                                            See the highlights
+                                                            and replies on the
+                                                            text of the articles
+                                                            you’re reading
+                                                            without context
+                                                            switches.{' '}
                                                         </BenefitListEntryTitle>
-                                                        <BenefitListEntrySubTitle>
-                                                            See when pages
-                                                            you're reading are
-                                                            annotated in Spaces
-                                                            you follow
-                                                        </BenefitListEntrySubTitle>
                                                     </BenefitListEntryContentBox>
                                                 </BenefitListEntry>
                                                 <BenefitListEntry>
@@ -472,83 +506,479 @@ export default function InstallExtOverlay(props: Props) {
                                                     />
                                                     <BenefitListEntryContentBox>
                                                         <BenefitListEntryTitle>
-                                                            Highlights, notes
-                                                            and conversations
-                                                            across the web
+                                                            Get notified when
+                                                            what you're reading
+                                                            is discussed in
+                                                            Spaces you follow.{' '}
                                                         </BenefitListEntryTitle>
-                                                        <BenefitListEntrySubTitle>
-                                                            View, make & share
-                                                            highlights on
-                                                            websites, videos and
-                                                            PDFs
-                                                        </BenefitListEntrySubTitle>
-                                                    </BenefitListEntryContentBox>
-                                                </BenefitListEntry>
-                                                <BenefitListEntry>
-                                                    <Icon
-                                                        filePath={'heartEmpty'}
-                                                        heightAndWidth={'22px'}
-                                                        hoverOff
-                                                        color="prime1"
-                                                    />
-                                                    <BenefitListEntryContentBox>
-                                                        <BenefitListEntryTitle>
-                                                            Powerful bookmarking
-                                                        </BenefitListEntryTitle>
-                                                        <BenefitListEntrySubTitle>
-                                                            Save anything with
-                                                            one click and find
-                                                            it again in seconds
-                                                        </BenefitListEntrySubTitle>
                                                     </BenefitListEntryContentBox>
                                                 </BenefitListEntry>
                                             </BenefitList>
                                         </TitleContainer>
-                                        <ButtonsBox>
-                                            <PrimaryAction
-                                                onClick={() => {
-                                                    window.open(
-                                                        getBrowserDownloadLink(),
-                                                        '_blank',
-                                                    )
-                                                    setExtensionDetectionLoadState(
-                                                        'running',
-                                                    )
-                                                    detectExtensionReady()
-                                                }}
-                                                type={'primary'}
-                                                label={'Download'}
-                                                size={'large'}
-                                                icon={getBrowserIcon()}
+                                        {props.mode === 'click-page' && (
+                                            <ButtonsBox>
+                                                <PrimaryAction
+                                                    onClick={() =>
+                                                        setShowVideo(
+                                                            'https://share.descript.com/embed/sGbmupT7rMz',
+                                                        )
+                                                    }
+                                                    label={'Watch Demo'}
+                                                    type={'forth'}
+                                                    size={'large'}
+                                                    icon={'play'}
+                                                />
+                                                <PrimaryAction
+                                                    onClick={() =>
+                                                        window.open(
+                                                            getBrowserDownloadLink(),
+                                                            '_blank',
+                                                        )
+                                                    }
+                                                    type={'primary'}
+                                                    label={'Download'}
+                                                    size={'large'}
+                                                    icon={getBrowserIcon()}
+                                                />
+                                                <SupportText>
+                                                    2 clicks to get started
+                                                </SupportText>
+                                            </ButtonsBox>
+                                        )}
+                                    </ContentBox>
+                                </Content>
+
+                                {props.mode === 'click-page' && (
+                                    <PrimaryActionBox>
+                                        <PrimaryAction
+                                            onClick={() =>
+                                                window.open(
+                                                    props.clickedPageUrl,
+                                                    '_blank',
+                                                )
+                                            }
+                                            label={'...or continue to the page'}
+                                            type={'tertiary'}
+                                            size={'medium'}
+                                            icon={'arrowRight'}
+                                            iconPosition={'right'}
+                                        />
+                                    </PrimaryActionBox>
+                                )}
+                            </>
+                        )}
+                    </OverlayContainer>
+                </Overlay>
+            </>
+        )
+    }
+
+    if (props.intent === 'follow') {
+        return (
+            <>
+                <Overlay
+                    services={props.services}
+                    onCloseRequested={props.onCloseRequested}
+                >
+                    <OverlayContainer>
+                        {oneMoreThingState ? (
+                            <>
+                                {showVideo && showVideo?.length ? (
+                                    <VideoContainer
+                                        viewportBreakpoint={
+                                            props.viewportBreakpoint
+                                        }
+                                    >
+                                        <VideoBox>
+                                            <Video
+                                                allowFullScreen
+                                                src={`${showVideo}?autoplay=1`}
                                             />
+                                        </VideoBox>
+                                        <ButtonsBox>
                                             <PrimaryAction
                                                 onClick={() =>
                                                     window.open(
-                                                        props.clickedPageUrl,
+                                                        'https://links.memex.garden/bots/discord',
                                                         '_blank',
                                                     )
                                                 }
-                                                label={'Watch Demo'}
-                                                type={'forth'}
+                                                type={'primary'}
+                                                label={'Install Memex Bot'}
                                                 size={'large'}
-                                                icon={'play'}
                                             />
+                                            <ChatGroupList>
+                                                <ChatGroupItem>
+                                                    <Icon
+                                                        filePath={'discord'}
+                                                        heightAndWidth={'22px'}
+                                                        hoverOff
+                                                        color="greyScale7"
+                                                    />{' '}
+                                                    Discord
+                                                </ChatGroupItem>
+                                            </ChatGroupList>
                                         </ButtonsBox>
-                                    </ContentBox>
-                                </>
-                            )}
-                        </Content>
-                        {props.mode === 'click-page' && (
-                            <PrimaryAction
-                                onClick={() =>
-                                    window.open(props.clickedPageUrl, '_blank')
-                                }
-                                label={'...or continue to the page'}
-                                type={'tertiary'}
-                                size={'medium'}
-                                icon={'arrowRight'}
-                                iconPosition={'right'}
-                            />
+                                    </VideoContainer>
+                                ) : (
+                                    <>
+                                        <Content
+                                            viewportBreakpoint={
+                                                props.viewportBreakpoint
+                                            }
+                                        >
+                                            <BannerImage
+                                                viewportBreakpoint={
+                                                    props.viewportBreakpoint
+                                                }
+                                                backgroundImage={
+                                                    browsingNotifications
+                                                }
+                                            />
+                                            <ContentBox
+                                                viewportBreakpoint={
+                                                    props.viewportBreakpoint
+                                                }
+                                            >
+                                                <TitleContainer
+                                                    viewportBreakpoint={
+                                                        props.viewportBreakpoint
+                                                    }
+                                                >
+                                                    <ChatGroupList bottom="small">
+                                                        <ChatGroupItem>
+                                                            <Icon
+                                                                filePath={
+                                                                    'discord'
+                                                                }
+                                                                heightAndWidth={
+                                                                    '22px'
+                                                                }
+                                                                hoverOff
+                                                                color="greyScale7"
+                                                            />{' '}
+                                                            Discord
+                                                        </ChatGroupItem>
+                                                    </ChatGroupList>
+                                                    <Title
+                                                        viewportBreakpoint={
+                                                            props.viewportBreakpoint
+                                                        }
+                                                    >
+                                                        Add your chat groups as
+                                                        Reading Copilots
+                                                    </Title>
+                                                    <BenefitList>
+                                                        <BenefitListEntry>
+                                                            <Icon
+                                                                filePath={
+                                                                    'commentAdd'
+                                                                }
+                                                                heightAndWidth={
+                                                                    '22px'
+                                                                }
+                                                                hoverOff
+                                                                color="prime1"
+                                                            />
+                                                            <BenefitListEntryContentBox>
+                                                                <BenefitListEntryTitle>
+                                                                    All
+                                                                    articles,
+                                                                    PDFs and
+                                                                    Events
+                                                                    people
+                                                                    posted in
+                                                                    your chat
+                                                                    group synced
+                                                                    into easily
+                                                                    digestible
+                                                                    Memex
+                                                                    Spaces.
+                                                                </BenefitListEntryTitle>
+                                                            </BenefitListEntryContentBox>
+                                                        </BenefitListEntry>
+                                                        <BenefitListEntry>
+                                                            <Icon
+                                                                filePath={
+                                                                    'highlight'
+                                                                }
+                                                                heightAndWidth={
+                                                                    '22px'
+                                                                }
+                                                                hoverOff
+                                                                color="prime1"
+                                                            />
+                                                            <BenefitListEntryContentBox>
+                                                                <BenefitListEntryTitle>
+                                                                    Get notified
+                                                                    when what
+                                                                    you're
+                                                                    reading was
+                                                                    discussed in
+                                                                    your chat
+                                                                    groups and
+                                                                    jump back to
+                                                                    the
+                                                                    conversation.
+                                                                </BenefitListEntryTitle>
+                                                            </BenefitListEntryContentBox>
+                                                        </BenefitListEntry>
+                                                    </BenefitList>
+                                                </TitleContainer>
+                                                <ButtonsBox>
+                                                    <PrimaryAction
+                                                        onClick={() =>
+                                                            setShowVideo(
+                                                                'https://share.descript.com/embed/rWKVpzB3C4u',
+                                                            )
+                                                        }
+                                                        label={'Watch Demo'}
+                                                        type={'forth'}
+                                                        size={'large'}
+                                                        icon={'play'}
+                                                    />
+                                                    <PrimaryAction
+                                                        onClick={() =>
+                                                            window.open(
+                                                                'https://links.memex.garden/bots/discord',
+                                                                '_blank',
+                                                            )
+                                                        }
+                                                        type={'primary'}
+                                                        label={'Install Bot'}
+                                                        size={'large'}
+                                                    />
+                                                </ButtonsBox>
+                                            </ContentBox>
+                                        </Content>
+                                    </>
+                                )}
+                            </>
+                        ) : (
+                            <>
+                                {extensionDetectionLoadState === 'running' && (
+                                    <LoadingBox>
+                                        <LoadingIndicator size={30} />
+                                        Waiting for extension to be <br />{' '}
+                                        installed and ready
+                                    </LoadingBox>
+                                )}
+                                {extensionDetectionLoadState === 'success' && (
+                                    <SuccessBox>
+                                        <SuccessTitle
+                                            viewportBreakpoint={
+                                                props.viewportBreakpoint
+                                            }
+                                        >
+                                            You’re set!
+                                            <br />
+                                            ...and there is more!
+                                        </SuccessTitle>
+                                        <SuccessBoxDescription>
+                                            Get notified when something you're
+                                            reading{' '}
+                                            {props.viewportBreakpoint !==
+                                                'mobile' && <br />}{' '}
+                                            is discussed in your chat groups.
+                                        </SuccessBoxDescription>
+                                        <PrimaryAction
+                                            label={'Sync your chat groups'}
+                                            type={'primary'}
+                                            onClick={() =>
+                                                setOneMoreThingState(true)
+                                            }
+                                            size={'medium'}
+                                        />
+                                        <ChatGroupList>
+                                            <ChatGroupItem>
+                                                <Icon
+                                                    filePath={'discord'}
+                                                    heightAndWidth={'22px'}
+                                                    hoverOff
+                                                    color="greyScale7"
+                                                />{' '}
+                                                Discord
+                                            </ChatGroupItem>
+                                        </ChatGroupList>
+                                    </SuccessBox>
+                                )}
+                                {extensionDetectionLoadState === 'pristine' && (
+                                    <>
+                                        {showVideo && showVideo?.length ? (
+                                            <VideoContainer
+                                                viewportBreakpoint={
+                                                    props.viewportBreakpoint
+                                                }
+                                            >
+                                                <VideoBox>
+                                                    <Video
+                                                        allowFullScreen
+                                                        src={`${showVideo}?autoplay=1`}
+                                                    />
+                                                </VideoBox>
+                                                <ButtonsBox>
+                                                    <PrimaryAction
+                                                        onClick={() => {
+                                                            window.open(
+                                                                getBrowserDownloadLink(),
+                                                                '_blank',
+                                                            )
+                                                            setExtensionDetectionLoadState(
+                                                                'running',
+                                                            )
+                                                            detectExtensionReady()
+                                                        }}
+                                                        type={'primary'}
+                                                        label={'Download Memex'}
+                                                        size={'large'}
+                                                        icon={getBrowserIcon()}
+                                                    />
+                                                </ButtonsBox>
+                                            </VideoContainer>
+                                        ) : (
+                                            <>
+                                                <Content
+                                                    viewportBreakpoint={
+                                                        props.viewportBreakpoint
+                                                    }
+                                                >
+                                                    <BannerImage
+                                                        viewportBreakpoint={
+                                                            props.viewportBreakpoint
+                                                        }
+                                                        backgroundImage={
+                                                            browsingNotifications
+                                                        }
+                                                    />
+                                                    <ContentBox
+                                                        viewportBreakpoint={
+                                                            props.viewportBreakpoint
+                                                        }
+                                                    >
+                                                        <TitleContainer
+                                                            viewportBreakpoint={
+                                                                props.viewportBreakpoint
+                                                            }
+                                                        >
+                                                            <Title
+                                                                viewportBreakpoint={
+                                                                    props.viewportBreakpoint
+                                                                }
+                                                            >
+                                                                Your community
+                                                                as Reading
+                                                                Copilots{' '}
+                                                            </Title>
+                                                            <BenefitList>
+                                                                <BenefitListEntry>
+                                                                    <Icon
+                                                                        filePath={
+                                                                            'commentAdd'
+                                                                        }
+                                                                        heightAndWidth={
+                                                                            '22px'
+                                                                        }
+                                                                        hoverOff
+                                                                        color="prime1"
+                                                                    />
+                                                                    <BenefitListEntryContentBox>
+                                                                        <BenefitListEntryTitle>
+                                                                            Get
+                                                                            notified
+                                                                            when
+                                                                            what
+                                                                            you’re
+                                                                            reading
+                                                                            is
+                                                                            posted,
+                                                                            annotated
+                                                                            or
+                                                                            discussed
+                                                                            in
+                                                                            Spaces
+                                                                            you
+                                                                            follow
+                                                                        </BenefitListEntryTitle>
+                                                                    </BenefitListEntryContentBox>
+                                                                </BenefitListEntry>
+                                                                <BenefitListEntry>
+                                                                    <Icon
+                                                                        filePath={
+                                                                            'highlight'
+                                                                        }
+                                                                        heightAndWidth={
+                                                                            '22px'
+                                                                        }
+                                                                        hoverOff
+                                                                        color="prime1"
+                                                                    />
+                                                                    <BenefitListEntryContentBox>
+                                                                        <BenefitListEntryTitle>
+                                                                            See
+                                                                            and
+                                                                            reply
+                                                                            to
+                                                                            the
+                                                                            highlights
+                                                                            of
+                                                                            Spaces
+                                                                            you
+                                                                            follow
+                                                                            while
+                                                                            reading
+                                                                            articles,
+                                                                            videos
+                                                                            and
+                                                                            PDFs.
+                                                                        </BenefitListEntryTitle>
+                                                                    </BenefitListEntryContentBox>
+                                                                </BenefitListEntry>
+                                                            </BenefitList>
+                                                        </TitleContainer>
+                                                        <ButtonsBox>
+                                                            <PrimaryAction
+                                                                onClick={() => {
+                                                                    setShowVideo(
+                                                                        'https://share.descript.com/embed/sGbmupT7rMz',
+                                                                    )
+                                                                }}
+                                                                label={
+                                                                    'Watch Demo'
+                                                                }
+                                                                type={'forth'}
+                                                                size={'large'}
+                                                                icon={'play'}
+                                                            />
+                                                            <PrimaryAction
+                                                                onClick={() => {
+                                                                    window.open(
+                                                                        getBrowserDownloadLink(),
+                                                                        '_blank',
+                                                                    )
+                                                                    setExtensionDetectionLoadState(
+                                                                        'running',
+                                                                    )
+                                                                    detectExtensionReady()
+                                                                }}
+                                                                type={'primary'}
+                                                                label={
+                                                                    'Download Memex'
+                                                                }
+                                                                size={'large'}
+                                                                icon={getBrowserIcon()}
+                                                            />
+                                                            <SupportText>
+                                                                2 clicks to get
+                                                                started
+                                                            </SupportText>
+                                                        </ButtonsBox>
+                                                    </ContentBox>
+                                                </Content>
+                                            </>
+                                        )}
+                                    </>
+                                )}
+                            </>
                         )}
                     </OverlayContainer>
                 </Overlay>
