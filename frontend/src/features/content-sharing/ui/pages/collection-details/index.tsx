@@ -1026,7 +1026,7 @@ export default class CollectionDetailsPage extends UIElement<
         ) {
             return (
                 <LoadingBoxHeaderActionArea>
-                    <LoadingIndicator size={24} />
+                    <LoadingIndicator size={20} />
                 </LoadingBoxHeaderActionArea>
             )
         } else {
@@ -1718,10 +1718,11 @@ const InvitationTextContainer = styled.div`
 
 const LoadingBoxHeaderActionArea = styled.div`
     height: fill-available;
-    padding-left: 10px;
     display: flex;
     align-items: center;
     justify-content: flex-start;
+    padding-right: 20px;
+    padding-top: 10px;
 `
 
 const InvitedNotification = styled.div<{
