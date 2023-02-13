@@ -193,6 +193,8 @@ export default class CollectionDetailsLogic extends UILogic<
             pageAnnotationsExpanded: {},
             searchType: 'pages',
             hoverState: false,
+            renderEmbedModal: false,
+            isEmbedShareModalCopyTextShown: '',
             ...extDetectionInitialState(),
             ...listsSidebarInitialState(),
             ...annotationConversationInitialState(),
@@ -656,9 +658,30 @@ export default class CollectionDetailsLogic extends UILogic<
         )
     }
 
+    toggleEmbedShareModalCopyText: EventHandler<'toggleEmbedShareModalCopyText'> = ({
+        event,
+    }) => {
+        this.emitMutation({
+            isEmbedShareModalCopyTextShown: { $set: event.embedOrLink },
+        })
+
+        setTimeout(() => {
+            this.emitMutation({
+                isEmbedShareModalCopyTextShown: { $set: '' },
+            })
+        }, 3000)
+    }
+
     toggleListShareModal: EventHandler<'toggleListShareModal'> = () => {
         this.emitMutation({
             isListShareModalShown: { $apply: (shown) => !shown },
+        })
+    }
+    toggleEmbedModal: EventHandler<'toggleEmbedModal'> = (incoming) => {
+        this.emitMutation({
+            renderEmbedModal: {
+                $set: !incoming.previousState.renderEmbedModal,
+            },
         })
     }
 

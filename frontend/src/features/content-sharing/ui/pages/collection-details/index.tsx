@@ -55,6 +55,8 @@ import moment from 'moment'
 import RouteLink from '../../../../../common-ui/components/route-link'
 import { PopoutBox } from '@worldbrain/memex-common/lib/common-ui/components/popout-box'
 import { AnnotationsInPageProps } from '@worldbrain/memex-common/lib/content-conversations/ui/components/annotations-in-page'
+import TextField from '@worldbrain/memex-common/lib/common-ui/components/text-field'
+import TextArea from '@worldbrain/memex-common/lib/common-ui/components/text-area'
 
 const commentImage = require('../../../../../assets/img/comment.svg')
 const commentEmptyImage = require('../../../../../assets/img/comment-empty.svg')
@@ -77,6 +79,7 @@ export default class CollectionDetailsPage extends UIElement<
     }
 
     showMoreCollaboratorsRef = React.createRef<HTMLElement>()
+    embedButtonRef = React.createRef<HTMLDivElement>()
 
     itemRanges: {
         [Key in 'listEntry' | 'annotEntry' | 'reply']:
@@ -1012,6 +1015,114 @@ export default class CollectionDetailsPage extends UIElement<
         return null
     }
 
+    renderEmbedButton() {
+        return (
+            <TooltipBox
+                tooltipText={
+                    <span>
+                        Share & Embed <br /> this Space
+                    </span>
+                }
+                placement={'bottom'}
+            >
+                <Icon
+                    icon="link"
+                    heightAndWidth="24px"
+                    onClick={() => this.processEvent('toggleEmbedModal', null)}
+                    containerRef={this.embedButtonRef}
+                    color={'white'}
+                />
+            </TooltipBox>
+        )
+    }
+    renderEmbedModal() {
+        const currentURL = window.location.href
+
+        const embedCode = `<iframe src="${currentURL}" height="1500px" width="1200px"></iframe>`
+
+        if (this.state.renderEmbedModal) {
+            return (
+                <PopoutBox
+                    closeComponent={() =>
+                        this.processEvent('toggleEmbedModal', null)
+                    }
+                    placement={'bottom'}
+                    targetElementRef={this.embedButtonRef?.current ?? undefined}
+                    offsetX={10}
+                >
+                    <EmbedContainer>
+                        <EmbedLinkContainer>
+                            <TextField
+                                textColor={'greyScale6'}
+                                value={currentURL}
+                            />
+                            <PrimaryAction
+                                icon={
+                                    this.state
+                                        .isEmbedShareModalCopyTextShown ===
+                                    'copyLink'
+                                        ? 'check'
+                                        : 'copy'
+                                }
+                                size="large"
+                                type="forth"
+                                onClick={() => {
+                                    navigator.clipboard.writeText(currentURL)
+                                    this.processEvent(
+                                        'toggleEmbedShareModalCopyText',
+                                        { embedOrLink: 'copyLink' },
+                                    )
+                                }}
+                                label={
+                                    this.state
+                                        .isEmbedShareModalCopyTextShown ===
+                                    'copyLink'
+                                        ? 'Copied'
+                                        : 'Copy Link'
+                                }
+                            />
+                        </EmbedLinkContainer>
+                        <EmbedSectionContainer>
+                            <TextArea
+                                textColor={'greyScale6'}
+                                disabled
+                                notResizable
+                                value={embedCode}
+                            />
+                        </EmbedSectionContainer>
+                        <PrimaryActionContainer>
+                            <PrimaryAction
+                                icon={
+                                    this.state
+                                        .isEmbedShareModalCopyTextShown ===
+                                    'copyEmbed'
+                                        ? 'check'
+                                        : 'copy'
+                                }
+                                size="medium"
+                                type="forth"
+                                onClick={() => {
+                                    navigator.clipboard.writeText(embedCode)
+                                    this.processEvent(
+                                        'toggleEmbedShareModalCopyText',
+                                        { embedOrLink: 'copyEmbed' },
+                                    )
+                                }}
+                                label={
+                                    this.state
+                                        .isEmbedShareModalCopyTextShown ===
+                                    'copyEmbed'
+                                        ? 'Copied'
+                                        : 'Copy Embed Code'
+                                }
+                            />
+                        </PrimaryActionContainer>
+                    </EmbedContainer>
+                </PopoutBox>
+            )
+        }
+    }
+
     renderHeaderActionArea() {
         const isPageView = this.props.entryID
 
@@ -1095,6 +1206,8 @@ export default class CollectionDetailsPage extends UIElement<
                     // only show buttons when its a Space View, not pageView
                     return (
                         <HeaderButtonRow>
+                            {this.renderEmbedModal()}
+                            {this.renderEmbedButton()}
                             {this.renderWebMonetizationIcon()}
                             {this.renderFollowBtn()()}
                         </HeaderButtonRow>
@@ -1580,6 +1693,52 @@ function isInRange(timestamp: number, range: TimestampRange | undefined) {
     }
     return range.fromTimestamp <= timestamp && range.toTimestamp >= timestamp
 }
+
+const PrimaryActionContainer = styled.div`
+    display: flex;
+    position: absolute;
+    right: 25px;
+    bottom: 25px;
+`
+
+const EmbedContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    grid-gap: 15px;
+    height: fit-content;
+    width: 400px;
+    padding: 20px;
+    position: relative;
+`
+
+const EmbedLinkContainer = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    grid-gap: 10px;
+    width: 100%;
+`
+
+const EmbedSectionContainer = styled.div`
+    width: fill-available;
+    position: relative;
+
+    & > div {
+        height: 120px;
+    }
+
+    & textarea {
+        &::-webkit-scrollbar {
+            display: none;
+        }
+
+        height: 120px;
+
+        scrollbar-width: none;
+    }
+`
 
 const DiscordSyncNotif = styled.div`
     border: 1px solid ${(props) => props.theme.colors.greyScale3};

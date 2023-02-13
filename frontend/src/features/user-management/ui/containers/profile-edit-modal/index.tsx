@@ -373,12 +373,8 @@ const Container = styled.div<{ loadState: UITaskState; theme: Theme }>`
     min-height: 358px;
     max-height: 100%;
     width: 520px;
+    padding: 20px;
     flex-direction: column;
-
-    padding-left: ${(props) => props.theme.spacing.small};
-    padding-right: ${(props) => props.theme.spacing.small};
-    padding-top: ${(props) => props.theme.spacing.small};
-    padding-bottom: ${(props) => props.theme.spacing.small};
     & * {
         font-family: ${(props) => props.theme.fonts.primary};
     }

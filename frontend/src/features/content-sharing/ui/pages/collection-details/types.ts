@@ -78,6 +78,8 @@ export type CollectionDetailsState = AnnotationConversationsState &
         showPermissionKeyIssue?: boolean
         requestingAuth?: boolean
         copiedLink?: boolean
+        renderEmbedModal?: boolean
+        isEmbedShareModalCopyTextShown: string
 
         listRolesLoadState: UITaskState
         listRoleID?: SharedListRoleID
@@ -149,6 +151,8 @@ export type CollectionDetailsEvent = UIEvent<
             setPageHover: (PageEventArgs & { hover: ResultHoverState }) | any
             setSearchType: SearchType
             copiedLinkButton: null
+            toggleEmbedModal: null
+            toggleEmbedShareModalCopyText: { embedOrLink: string }
         }
 >
 
