@@ -5,6 +5,7 @@ import { UIElementServices } from '../../services/types'
 import AuthHeader from '../../features/user-management/ui/containers/auth-header'
 import { StorageModules } from '../../storage/types'
 import { Margin } from 'styled-components-spacing'
+import { PrimaryAction } from '@worldbrain/memex-common/lib/common-ui/components/PrimaryAction'
 // import RouteLink from '../components/route-link'
 // import UnseenActivityIndicator from '../../features/activity-streams/ui/containers/unseen-activity-indicator'
 // import ListsSidebar, {
@@ -176,7 +177,10 @@ export default function DefaultPageLayout(props: {
                     {props.isPageView ? (
                         props.breadCrumbs && props.breadCrumbs
                     ) : (
-                        <StyledHeaderContainer viewportWidth={viewportWidth}>
+                        <StyledHeaderContainer
+                            isIframe={isIframe() === true}
+                            viewportWidth={viewportWidth}
+                        >
                             <HeaderMiddleArea
                                 viewportWidth={viewportWidth}
                                 id={'HeaderMiddleArea'}
@@ -186,16 +190,34 @@ export default function DefaultPageLayout(props: {
                                 {props.webMonetizationIcon}
                                 {props.followBtn}
                             </SpaceActionBar> */}
-                                {isIframe()
-                                    ? undefined
-                                    : props.renderHeaderActionArea != null && (
-                                          <PageMidleAreaAction
-                                              scrollTop={props.scrollTop}
-                                              viewportWidth={viewportWidth}
-                                          >
-                                              {props.renderHeaderActionArea}
-                                          </PageMidleAreaAction>
-                                      )}
+                                {isIframe() ? (
+                                    <PageMidleAreaAction
+                                        scrollTop={props.scrollTop}
+                                        viewportWidth={viewportWidth}
+                                    >
+                                        <PrimaryAction
+                                            label="Go to Space"
+                                            icon="goTo"
+                                            onClick={() =>
+                                                window.open(
+                                                    window.location.href,
+                                                    '_blank',
+                                                )
+                                            }
+                                            size="medium"
+                                            type="forth"
+                                        />
+                                    </PageMidleAreaAction>
+                                ) : (
+                                    props.renderHeaderActionArea != null && (
+                                        <PageMidleAreaAction
+                                            scrollTop={props.scrollTop}
+                                            viewportWidth={viewportWidth}
+                                        >
+                                            {props.renderHeaderActionArea}
+                                        </PageMidleAreaAction>
+                                    )
+                                )}
                                 <PageMidleAreaTitles
                                     context={props.context}
                                     scrollTop={props.scrollTop}
@@ -408,6 +430,11 @@ const HeaderMiddleArea = styled.div<{
         css`
             grid-gap: 0px;
         `}
+    ${(props) =>
+        props.isIframe &&
+        css`
+            grid-gap: 0px;
+        `}
 `
 const HeaderTitle = styled.div<{
     viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
@@ -415,14 +442,14 @@ const HeaderTitle = styled.div<{
     isIframe?: boolean
     isPageView?: boolean
 }>`
-    font-weight: 500;
+    font-weight: 800;
     width: fill-available;
     letter-spacing: 2px;
     text-overflow: ${(props) => props.scrollTop! >= 100 && 'ellipsis'};
     font-family: ${(props) => props.theme.fonts.primary};
     font-size: 26px;
     line-height: 39px;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.7px;
     overflow-wrap: break-word;
     color: ${(props) => props.theme.colors.white};
     ${(props) =>
@@ -494,6 +521,12 @@ const PageResultsArea = styled.div<{
     display: flex;
     flex-direction: column;
     justify-content: center;
+
+    ${(props) =>
+        props.isIframe &&
+        css`
+            padding: 0 10px;
+        `}
 `
 
 const PageMidleAreaTitles = styled.div<{
@@ -514,6 +547,7 @@ const PageMidleAreaTitles = styled.div<{
 const PageMidleAreaAction = styled.div<{
     viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
     scrollTop?: number
+    isIframe?: boolean
 }>`
     display: flex;
     justify-content: flex-end;
@@ -552,6 +586,7 @@ const MainColumn = styled.div`
 
 const StyledHeaderContainer = styled.div<{
     viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
+    isIframe: boolean
 }>`
     display: flex;
     justify-content: center;
@@ -560,6 +595,13 @@ const StyledHeaderContainer = styled.div<{
     min-height: 34px;
     max-width: 820px;
     margin-top: 50px;
+
+    ${(props) =>
+        props.isIframe &&
+        css`
+            padding: 0px 20px;
+            margin-top: 0px;
+        `}
 
     flex-direction: ${(props) =>
         props.viewportWidth === 'mobile' ? 'column' : 'row'};

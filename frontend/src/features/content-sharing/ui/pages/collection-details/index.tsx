@@ -1636,12 +1636,11 @@ const ResultsList = styled.div<{
         props.viewportWidth === 'small' &&
         css`
             padding: 0px 15px 0px 15px;
-        `}
-        ${(props) =>
+        `} /* ${(props) =>
         props.isIframe &&
         css`
             padding: 10px;
-        `};
+        `}; */
 `
 
 const PageStickyBox = styled.div<{ beSticky: boolean }>`
