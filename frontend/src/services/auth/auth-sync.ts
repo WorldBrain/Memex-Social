@@ -225,13 +225,39 @@ async function sync(
 
     if (authService.isLoggedIn()) {
         await sendTokenToExtHandler(authService, extensionID)
+        if (
+            urlAndSpaceOpenRequestData &&
+            urlAndSpaceOpenRequestData.length > 0
+        ) {
+            const payload = JSON.parse(urlAndSpaceOpenRequestData)
+
+            if (payload.type === 'pageToOpen') {
+                analyticsService.trackEvent('AUTH-AFTER-URL-OPEN', 'CG6NFYPD')
+            }
+            if (payload.type === 'returnToFollowedSpace') {
+                analyticsService.trackEvent(
+                    'Install Memex after Space Follow',
+                    'QEJNWHRI',
+                )
+            }
+        }
     } else {
         await loginWithExtTokenHandler(authService, extensionID)
         if (
             urlAndSpaceOpenRequestData &&
             urlAndSpaceOpenRequestData.length > 0
         ) {
-            analyticsService.trackEvent('AUTH-AFTER-URL-OPEN')
+            const payload = JSON.parse(urlAndSpaceOpenRequestData)
+
+            if (payload.type === 'pageToOpen') {
+                analyticsService.trackEvent('AUTH-AFTER-URL-OPEN', 'CG6NFYPD')
+            }
+            if (payload.type === 'returnToFollowedSpace') {
+                analyticsService.trackEvent(
+                    'Install Memex after Space Follow',
+                    'QEJNWHRI',
+                )
+            }
         }
     }
 }

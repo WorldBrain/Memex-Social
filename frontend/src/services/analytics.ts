@@ -1,8 +1,8 @@
 export class AnalyticsService {
-    trackEvent(eventName: string) {
+    trackEvent(eventName: string, eventId: string) {
         const fathom = (globalThis as any)['fathom']
         if (fathom) {
-            fathom.trackGoal(eventName, 0)
+            fathom.trackGoal(eventId, 0)
         }
     }
 }
