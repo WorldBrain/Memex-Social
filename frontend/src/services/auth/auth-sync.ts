@@ -8,6 +8,7 @@ import {
     validGeneratedLoginToken,
     validMessage,
 } from '@worldbrain/memex-common/lib/authentication/auth-sync'
+import { AnalyticsService } from '../analytics'
 
 const enableMessageLogging = false
 
@@ -179,6 +180,7 @@ async function loginWithExtTokenHandler(
 async function bothNotLoggedInHandler(
     authService: FirebaseAuthService,
     extensionID: string,
+    analyticsService: AnalyticsService,
 ) {
     console.log(
         'Neither app nor extension are logged in. Starting polling until either one logs in.',
@@ -187,7 +189,7 @@ async function bothNotLoggedInHandler(
     await new Promise<void>((resolve) => {
         const tryAgain = () => {
             setTimeout(async () => {
-                await sync(authService, extensionID)
+                await sync(authService, extensionID, analyticsService)
                 if (!authService.isLoggedIn()) {
                     tryAgain()
                 } else {
@@ -202,7 +204,11 @@ async function bothNotLoggedInHandler(
     })
 }
 
-async function sync(authService: FirebaseAuthService, extensionID: string) {
+async function sync(
+    authService: FirebaseAuthService,
+    extensionID: string,
+    analyticsService: AnalyticsService,
+) {
     await authService.waitForAuthReady()
     await awaitExtensionReady(extensionID)
 
@@ -221,17 +227,30 @@ async function sync(authService: FirebaseAuthService, extensionID: string) {
         await sendTokenToExtHandler(authService, extensionID)
     } else {
         await loginWithExtTokenHandler(authService, extensionID)
+        if (
+            urlAndSpaceOpenRequestData &&
+            urlAndSpaceOpenRequestData.length > 0
+        ) {
+            analyticsService.trackEvent('AUTH-AFTER-URL-OPEN')
+        }
     }
 }
 
-export async function syncWithExtension(authService: FirebaseAuthService) {
+export async function syncWithExtension(
+    authService: FirebaseAuthService,
+    analyticsService: AnalyticsService,
+) {
     const extensionID = process.env.MEMEX_EXTENSION_ID
     if (!extensionID) {
         console.error('Could not find extension ID for auth sync')
     } else {
-        await sync(authService, extensionID)
+        await sync(authService, extensionID, analyticsService)
         if (!authService.isLoggedIn()) {
-            await bothNotLoggedInHandler(authService, extensionID)
+            await bothNotLoggedInHandler(
+                authService,
+                extensionID,
+                analyticsService,
+            )
         } else {
             console.log(
                 'Successfully synced with extension immediately after it was ready.',

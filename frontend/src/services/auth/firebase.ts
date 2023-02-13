@@ -15,6 +15,7 @@ import { AuthServiceBase } from './base'
 import { waitForAuth } from './utils'
 import { LimitedWebStorage } from '../../utils/web-storage/types'
 import { syncWithExtension } from './auth-sync'
+import { AnalyticsService } from '../analytics'
 
 const FIREBASE_AUTH_CACHE_KEY = 'firebase.wasAuthenticated'
 
@@ -31,6 +32,7 @@ export default class FirebaseAuthService extends AuthServiceBase {
         private options: {
             localStorage: LimitedWebStorage
             storage: Storage
+            analyticsService: AnalyticsService
         },
     ) {
         super()
@@ -63,7 +65,10 @@ export default class FirebaseAuthService extends AuthServiceBase {
             await this.refreshCurrentUser()
         })
 
-        this._authSyncPromise = syncWithExtension(this)
+        this._authSyncPromise = syncWithExtension(
+            this,
+            options.analyticsService,
+        )
     }
 
     getSupportedMethods(options: {

@@ -11,6 +11,7 @@ import type UserManagementService from '../features/user-management/service'
 import type WebMonetizationService from '../features/web-monetization/service'
 import type { LocalStorageService } from './local-storage/types'
 import type { MemexExtensionService } from './memex-extension'
+import type { AnalyticsService } from './analytics'
 
 type UIServices = 'logicRegistry' | 'device'
 export type UIElementServices<Wanted extends keyof Services = never> = Pick<
@@ -28,6 +29,7 @@ export type Services = SharedServices & {
     userMessages: UserMessageService
     youtube: YoutubeService
     memexExtension: MemexExtensionService
+    analytics: AnalyticsService
 
     // Feature specific services
     activityStreams: ActivityStreamsService

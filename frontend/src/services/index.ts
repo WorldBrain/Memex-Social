@@ -37,6 +37,7 @@ import ClipboardService from './clipboard'
 import type { YoutubeServiceOptions } from '@worldbrain/memex-common/lib/services/youtube/types'
 import { YoutubeService } from '@worldbrain/memex-common/lib/services/youtube'
 import { MemexExtensionService } from './memex-extension'
+import { AnalyticsService } from './analytics'
 
 export function createServices(options: {
     backend: BackendType
@@ -61,6 +62,7 @@ export function createServices(options: {
             clientHeight: 800,
         },
     })
+    const analytics = new AnalyticsService()
 
     let auth: AuthService
     if (
@@ -70,6 +72,7 @@ export function createServices(options: {
         auth = new FirebaseAuthService(firebase, {
             storage: options.storage,
             localStorage: options.localStorage,
+            analyticsService: analytics,
         })
         if (process.env.NODE_ENV === 'development') {
             if (options.backend === 'firebase-emulator') {
@@ -215,6 +218,7 @@ export function createServices(options: {
         }),
         webMonetization,
         youtube: new YoutubeService(options.youtubeOptions),
+        analytics,
     }
 
     return services
