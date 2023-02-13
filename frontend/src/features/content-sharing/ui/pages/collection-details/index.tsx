@@ -369,9 +369,10 @@ export default class CollectionDetailsPage extends UIElement<
                     ButtonText: 'Copy Link',
                     onClick: () => {
                         navigator.clipboard.writeText(
-                            'https://memex.social/' +
+                            currentBaseURL +
+                                '/c/' +
                                 this.props.listID +
-                                '/' +
+                                '/p/' +
                                 entry.reference?.id,
                         )
                     },
