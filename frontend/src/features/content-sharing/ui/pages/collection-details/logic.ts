@@ -474,21 +474,28 @@ export default class CollectionDetailsLogic extends UILogic<
                 )
 
                 if (this.dependencies.entryID) {
-                    const entries = await contentSharing.getAnnotationListEntries(
+                    const normalizedPageUrl = result.entries[0].normalizedUrl
+                    const entriesByList = await contentSharing.getAnnotationListEntriesForListsOnPage(
                         {
-                            listReference,
+                            listReferences: [listReference],
+                            normalizedPageUrl,
                         },
                     )
+                    const entries = entriesByList[listReference.id] ?? []
+                    if (!entries.length) {
+                        return
+                    }
 
                     this.emitMutation({
                         pageAnnotationsExpanded: {
-                            [result.entries[0].normalizedUrl]: { $set: true },
+                            [normalizedPageUrl]: { $set: true },
                         },
                     })
 
-                    await this.loadPageAnnotations(entries, [
-                        result.entries[0].normalizedUrl,
-                    ])
+                    await this.loadPageAnnotations(
+                        { [normalizedPageUrl]: entries },
+                        [normalizedPageUrl],
+                    )
                     if (this.dependencies.query.annotationId) {
                         this.processUIEvent('toggleAnnotationReplies', {
                             previousState: incoming.getState!(),
