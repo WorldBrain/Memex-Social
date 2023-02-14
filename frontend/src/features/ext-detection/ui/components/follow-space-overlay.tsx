@@ -44,7 +44,7 @@ const Title = styled.div<{
 }>`
     font-weight: 800;
     font-size: 22px;
-    color: ${(props) => props.theme.colors.darkerText};
+    color: ${(props) => props.theme.colors.greyScale2};
     text-align: center;
     margin-bottom: 5px;
 
@@ -62,7 +62,7 @@ const Title = styled.div<{
 
 const SubTitle = styled.div`
     font-size: 16px;
-    color: ${(props) => props.theme.colors.lighterText};
+    color: ${(props) => props.theme.colors.greyScale5};
     margin-bottom: 10px;
     margin-top: 10px;
     pointer-events: none;
@@ -70,7 +70,7 @@ const SubTitle = styled.div`
     line-height: 26px;
 
     & * {
-        color: ${(props) => props.theme.colors.lighterText} !important;
+        color: ${(props) => props.theme.colors.greyScale5} !important;
         font-size: 1rem !important;
     }
 `
@@ -80,7 +80,7 @@ const NoteIconContainer = styled.div`
     width: 16px;
     display: inline-block;
     mask-image: url(${noteIcon});
-    background-color: ${(props) => props.theme.colors.lighterText};
+    background-color: ${(props) => props.theme.colors.greyScale5};
     mask-position: center center;
     mask-repeat: no-repeat;
     margin: 0 5px;
@@ -116,7 +116,7 @@ const secondaryButtonCss = css`
     border-radius: 3px;
     cursor: pointer;
     font-weight: 600;
-    color: ${(props) => props.theme.colors.primary};
+    color: ${(props) => props.theme.colors.prime1};
     text-decoration: none;
     margin-top: 10px;
 `

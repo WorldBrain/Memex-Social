@@ -14,6 +14,7 @@ export interface Props {
     services: UIElementServices<'overlay'>
     viewportBreakpoint: ViewportBreakpoint
     onCloseRequested: () => void
+    transparent?: boolean
 }
 
 export default class MissingPdfOverlay extends React.PureComponent<
@@ -38,6 +39,7 @@ export default class MissingPdfOverlay extends React.PureComponent<
             <Overlay
                 services={this.props.services}
                 onCloseRequested={this.props.onCloseRequested}
+                transparent={true}
             >
                 <LocatorContainer
                     onDragOver={this.handleDragOver}
@@ -75,28 +77,28 @@ export default class MissingPdfOverlay extends React.PureComponent<
 }
 
 const LocatorContainer = styled.div<{ isBeingDraggedOver?: boolean }>`
-    width: 50vw;
-    height: 50vh;
+    width: 90vw;
+    height: 90vh;
     min-height: 500px;
     min-width: 600px;
     display: flex;
-    justify-content: flex-start;
+    justify-content: center;
     align-items: center;
     flex-direction: column;
-    padding: 50px;
     font-family: ${(props) => props.theme.fonts.primary};
+    padding: 150px;
 `
 
 const LocatorHeader = styled.h1`
     text-align: center;
-    color: ${(props) => props.theme.colors.primary};
-    font-size: 1.5rem;
+    color: ${(props) => props.theme.colors.white};
+    font-size: 24px;
     pointer-events: none;
 `
 
 const LocatorText = styled.div`
     font-size: 1.2rem;
-    color: ${(props) => props.theme.colors.purple};
+    color: ${(props) => props.theme.colors.greyScale5};
     margin-bottom: 50px;
     pointer-events: none;
     text-align: center;
@@ -104,7 +106,6 @@ const LocatorText = styled.div`
 
 const LocatorDropContainerInner = styled.div<{ isBeingDraggedOver?: boolean }>`
     border-radius: 5px;
-    border: 2px dashed ${(props) => props.theme.colors.purple};
     box-sizing: border-box;
     height: fill-available;
     width: fill-available;
@@ -125,7 +126,7 @@ const DropImage = styled.img`
     border-radius: 100px;
     padding: 20px;
     margin-bottom: 40px;
-    border: 3px solid ${(props) => props.theme.colors.purple};
+    border: 3px solid ${(props) => props.theme.colors.prime1};
     height: fill-available;
     min-height: 30px;
     max-height: 80px;
@@ -135,7 +136,7 @@ const DropImage = styled.img`
 `
 
 const LocatorDropText = styled.div`
-    color: ${(props) => props.theme.colors.purple};
+    color: ${(props) => props.theme.colors.prime1};
     text-align: center;
     pointer-events: none;
     font-size: 1.5rem;

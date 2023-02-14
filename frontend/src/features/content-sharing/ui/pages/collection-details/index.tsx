@@ -21,9 +21,6 @@ import { User } from '@worldbrain/memex-common/lib/web-interface/types/users'
 import { PAGE_SIZE } from './constants'
 import DocumentTitle from '../../../../../main-ui/components/document-title'
 import DefaultPageLayout from '../../../../../common-ui/layouts/default-page-layout'
-import PageInfoBox, {
-    PageInfoBoxAction,
-} from '../../../../../common-ui/components/page-info-box'
 import ProfilePopupContainer from '../../../../user-management/ui/containers/profile-popup-container'
 import { ViewportBreakpoint } from '../../../../../main-ui/styles/types'
 import { getViewportBreakpoint } from '../../../../../main-ui/styles/utils'
@@ -33,343 +30,38 @@ import FollowBtn from '../../../../activity-follows/ui/components/follow-btn'
 import WebMonetizationIcon from '../../../../web-monetization/ui/components/web-monetization-icon'
 import PermissionKeyOverlay from './permission-key-overlay'
 import InstallExtOverlay from '../../../../ext-detection/ui/components/install-ext-overlay'
-import FollowSpaceOverlay from '../../../../ext-detection/ui/components/follow-space-overlay'
 import { mergeTaskStates } from '../../../../../main-ui/classes/logic'
 import { UserReference } from '../../../../user-management/types'
 import ListShareModal from '@worldbrain/memex-common/lib/content-sharing/ui/list-share-modal'
-import type { Props as ListsSidebarProps } from '../../../../lists-sidebar/ui/components/lists-sidebar'
+// import type { Props as ListsSidebarProps } from '../../../../lists-sidebar/ui/components/lists-sidebar'
 import { isPagePdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
 import MissingPdfOverlay from '../../../../ext-detection/ui/components/missing-pdf-overlay'
-import { HoverBox } from '../../../../../common-ui/components/hoverbox'
 import Markdown from '@worldbrain/memex-common/lib/common-ui/components/markdown'
+import BlockContent, {
+    getBlockContentYoutubePlayerId,
+} from '@worldbrain/memex-common/lib/common-ui/components/block-content'
+import ItemBox, {
+    ItemBoxProps,
+} from '@worldbrain/memex-common/lib/common-ui/components/item-box'
+import ItemBoxBottom, {
+    ItemBoxBottomAction,
+} from '@worldbrain/memex-common/lib/common-ui/components/item-box-bottom'
+import SearchTypeSwitch from '@worldbrain/memex-common/lib/common-ui/components/search-type-switch'
+import { PrimaryAction } from '@worldbrain/memex-common/lib/common-ui/components/PrimaryAction'
+import IconBox from '@worldbrain/memex-common/lib/common-ui/components/icon-box'
+import { TooltipBox } from '@worldbrain/memex-common/lib/common-ui/components/tooltip-box'
+import { eventProviderUrls } from '@worldbrain/memex-common/lib/constants'
+import moment from 'moment'
+import RouteLink from '../../../../../common-ui/components/route-link'
+import { PopoutBox } from '@worldbrain/memex-common/lib/common-ui/components/popout-box'
+import { AnnotationsInPageProps } from '@worldbrain/memex-common/lib/content-conversations/ui/components/annotations-in-page'
+import TextField from '@worldbrain/memex-common/lib/common-ui/components/text-field'
+import TextArea from '@worldbrain/memex-common/lib/common-ui/components/text-area'
 
 const commentImage = require('../../../../../assets/img/comment.svg')
 const commentEmptyImage = require('../../../../../assets/img/comment-empty.svg')
 
-const DocumentView = styled.div`
-    height: 100%;
-    width: 100%;
-`
-
-const DocumentContainer = styled.div`
-    height: 100%;
-`
-
-// const CollectionDescriptionBox = styled.div<{
-//     viewportWidth: ViewportBreakpoint
-// }>`
-//     font-family: ${(props) => props.theme.fonts.primary};
-//     font-size: 14px;
-//     display: flex;
-//     flex-direction: column;
-//     align-items: flex-start;
-//     margin: ${(props) =>
-//         props.viewportWidth === 'small' || props.viewportWidth === 'mobile'
-//             ? '20px 5px'
-//             : '20px auto'};
-// `
-// const CollectionDescriptionText = styled.div<{
-//     viewportWidth: ViewportBreakpoint
-// }>``
-// const CollectionDescriptionToggle = styled.div<{
-//     viewportWidth: ViewportBreakpoint
-// }>`
-//     cursor: pointer;
-//     padding: 3px 5px;
-//     margin-left: -5px;
-//     border-radius: ${(props) => props.theme.borderRadii.default};
-//     color: ${(props) => props.theme.colors.subText};
-//     &:hover {
-//         background-color: ${(props) => props.theme.hoverBackgrounds.primary};
-//     }
-// `
-
-const AbovePagesBox = styled.div<{
-    viewportWidth: ViewportBreakpoint
-}>`
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  margin: 10px 0 10px;
-  width: 100%;
-  position: relative;
-  z-index: 2;
-  border-radius: 5px;
-  justify-content: space-between;
-}
-`
-
-const DescriptionActions = styled(Margin)`
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-`
-
-const ActionItems = styled.div`
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    grid-gap: 10px;
-`
-
-const AddPageBtn = styled.div`
-    display: flex;
-    align-items: center;
-    left: 0;
-    font-family: ${(props) => props.theme.fonts.primary};
-    color: ${(props) => props.theme.colors.lighterText};
-    font-weight: 400;
-    cursor: pointer;
-    border-radius: 3px;
-`
-
-const ToggleAllAnnotations = styled.div`
-    text-align: right;
-    font-weight: bold;
-    font-family: ${(props) => props.theme.fonts.primary};
-    color: ${(props) => props.theme.colors.primary};
-    font-weight: bold;
-    cursor: pointer;
-    font-size: 12px;
-    width: fit-content;
-    border-radius: 5px;
-`
-
-const SectionTitle = styled.div`
-    font-family: ${(props) => props.theme.fonts.primary};
-    color: ${(props) => props.theme.colors.normalText};
-    font-weight: 200;
-    font-size: 20px;
-`
-
-const PageInfoList = styled.div<{
-    viewportBreakpoint: ViewportBreakpoint
-}>`
-    width: 100%;
-    padding: 0 20px 20px 20px;
-
-    ${(props) =>
-        props.viewportBreakpoint === 'mobile' &&
-        css`
-            padding: 0 0px 20px 0px;
-        `}
-`
-
-const EmptyListBox = styled.div`
-    font-family: ${(props) => props.theme.fonts.primary};
-    width: 100%;
-    padding: 20px 20px;
-    color: ${(props) => props.theme.colors.normalText};
-    display: flex;
-    margin-top: 30px;
-    font-size: 16px;
-    font-weight: normal;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    text-align: center;
-`
-
-const ShowMoreCollaborators = styled.span`
-    cursor: pointer;
-    color: ${(props) => props.theme.colors.darkerText};
-    align-items: center;
-    grid-gap: 5px;
-    display: inline-box;
-`
-
-const Text = styled.span`
-    padding-left: 5px;
-`
-
-const LoadingScreen = styled.div`
-    height: 100%;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-`
-
-const ActionLoaderBox = styled.div`
-    margin-right: 10px;
-`
-
-const SubtitleContainer = styled.div<{
-    viewportBreakpoint: ViewportBreakpoint
-    loading?: boolean
-}>`
-    display: flex;
-    align-items: center;
-    /* grid-gap: 10px; */
-    font-size: 14px;
-    height: 24px;
-    white-space: nowrap;
-
-    ${(props) =>
-        props.viewportBreakpoint === 'mobile' &&
-        css`
-            align-items: center;
-        `}
-
-    ${(props) =>
-        props.loading &&
-        css`
-            margin-top: 5px;
-            margin-bottom: -5px;
-            padding-left: 10px;
-        `}
-`
-
-const CollectionDescriptionBox = styled.div<{
-    viewportBreakpoint: ViewportBreakpoint
-}>`
-    padding: 20px 20px;
-    display: flex;
-    align-items: flex-start;
-    flex-direction: column;
-    margin-top: 10px;
-
-    ${(props) =>
-        props.viewportBreakpoint === 'mobile' &&
-        css`
-            padding: 20px 0px;
-        `}
-`
-const CollectionDescriptionText = styled(Markdown)<{
-    viewportBreakpoint: ViewportBreakpoint
-}>`
-    font-size: 16px;
-    color: ${(props) => props.theme.colors.lighterText};
-    font-family: ${(props) => props.theme.fonts.primary};
-    background: #fffff005;
-    padding: 20px;
-    border-radius: 10px;
-`
-const CollectionDescriptionToggle = styled.div<{
-    viewportBreakpoint: ViewportBreakpoint
-}>`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    justify-self: flex-start;
-    font-family: ${(props) => props.theme.fonts.primary};
-    font-size: 12px;
-    cursor: pointer;
-    color: ${(props) => props.theme.colors.lighterText};
-
-    & * {
-        cursor: pointer;
-    }
-`
-
-// const DomainName = styled.div`
-//     color: ${(props) => props.theme.colors.normalText};
-// `
-
-// const RearBox = styled.div<{
-//     viewportBreakpoint: ViewportBreakpoint
-// }>`
-//     display: inline-block;
-//     align-items: center;
-//     grid-gap: 5px;
-//     color: ${(props) => props.theme.colors.lighterText};
-
-//     /* ${(props) =>
-//         props.viewportBreakpoint === 'mobile' &&
-//         css`
-//             grid-gap: 3px;
-//             flex-direction: column;
-//             align-items: flex-start;
-//         `} */
-// `
-
-const Creator = styled.span`
-    color: ${(props) => props.theme.colors.purple};
-    padding: 0 4px;
-    cursor: pointer;
-`
-
-const SharedBy = styled.span`
-    color: ${(props) => props.theme.colors.lighterText};
-    display: contents;
-`
-
-// const Date = styled.span`
-//     color: ${(props) => props.theme.colors.lighterText};
-//     display: inline-block;
-// `
-
-const SectionCircle = styled.div<{ size: string }>`
-    background: ${(props) => props.theme.colors.backgroundHighlight};
-    border-radius: 100px;
-    height: ${(props) => (props.size ? props.size : '60px')};
-    width: ${(props) => (props.size ? props.size : '60px')};
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 20px;
-`
-
-const ContributorContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    padding: 10px;
-    width: 210px;
-    max-width: 300px;
-    border-radius: 12px;
-`
-const ListEntryBox = styled.div`
-    display: flex;
-    align-items: center;
-    height: 40px;
-    border-radius: 5px;
-    padding: 0 15px;
-
-    &:hover {
-        background: ${(props) => props.theme.colors.backgroundColorDarker};
-    }
-`
-
-const ListEntry = styled.div`
-    display: block;
-    align-items: center;
-
-    font-weight: 400;
-    width: fill-available;
-    color: ${(props) => props.theme.colors.normalText};
-    text-overflow: ellipsis;
-    overflow: hidden;
-
-    & * {
-        white-space: pre-wrap;
-        font-weight: initial;
-    }
-`
-
-const CommentIconBox = styled.div`
-    background: #ffffff09;
-    border-radius: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 24px;
-    width: fit-content;
-    padding: 0 10px;
-    grid-gap: 6px;
-    cursor: pointer;
-
-    & * {
-        cursor: pointer;
-    }
-`
-
-const Counter = styled.div`
-    color: ${(props) => props.theme.colors.purple};
-    font-size: 14px;
-`
-
+type TimestampRange = { fromTimestamp: number; toTimestamp: number }
 export default class CollectionDetailsPage extends UIElement<
     CollectionDetailsDependencies,
     CollectionDetailsState,
@@ -377,18 +69,108 @@ export default class CollectionDetailsPage extends UIElement<
 > {
     constructor(props: CollectionDetailsDependencies) {
         super(props, { logic: new Logic({ ...props }) })
+
+        const { query } = props
+        this.itemRanges = {
+            listEntry: parseRange(query.fromListEntry, query.toListEntry),
+            annotEntry: parseRange(query.fromAnnotEntry, query.toAnnotEntry),
+            reply: parseRange(query.fromReply, query.toReply),
+        }
     }
 
-    get listsSidebarProps(): Omit<
-        ListsSidebarProps,
-        'services' | 'storage' | 'viewportBreakpoint'
-    > {
-        return {
-            collaborativeLists: this.state.collaborativeLists,
-            followedLists: this.state.followedLists,
-            isShown: this.state.isListSidebarShown,
-            loadState: this.state.listSidebarLoadState,
-            onToggle: () => this.processEvent('toggleListSidebar', undefined),
+    showMoreCollaboratorsRef = React.createRef<HTMLElement>()
+    embedButtonRef = React.createRef<HTMLDivElement>()
+
+    itemRanges: {
+        [Key in 'listEntry' | 'annotEntry' | 'reply']:
+            | TimestampRange
+            | undefined
+    }
+    scrollableRef?: { element: HTMLElement; timestammp: number }
+    scrollTimeout?: ReturnType<typeof setTimeout>
+
+    // get listsSidebarProps(): Omit<
+    //     ListsSidebarProps,
+    //     'services' | 'storage' | 'viewportBreakpoint'
+    // > {
+    //     return {
+    //         collaborativeLists: this.state.collaborativeLists,
+    //         followedLists: this.state.followedLists,
+    //         isShown: this.state.isListSidebarShown,
+    //         loadState: this.state.listSidebarLoadState,
+    //         onToggle: () => this.processEvent('toggleListSidebar', undefined),
+    //     }
+    // }
+
+    onListEntryRef = (event: {
+        element: HTMLElement
+        entry: SharedListEntry
+    }) => {
+        this.handleScrollableRef(
+            event.entry.createdWhen,
+            event.element,
+            this.itemRanges.listEntry,
+        )
+    }
+
+    onAnnotEntryRef: AnnotationsInPageProps['onAnnotationBoxRootRef'] = (
+        event,
+    ) => {
+        this.handleScrollableRef(
+            event.annotation.createdWhen,
+            event.element,
+            this.itemRanges.annotEntry,
+        )
+    }
+
+    onReplyRef: AnnotationsInPageProps['onReplyRootRef'] = (event) => {
+        this.handleScrollableRef(
+            event.reply.reply.createdWhen,
+            event.element,
+            this.itemRanges.reply,
+        )
+    }
+
+    handleScrollableRef = (
+        timestammp: number,
+        element: HTMLElement,
+        range: TimestampRange | undefined,
+    ) => {
+        if (!range || !element) {
+            return
+        }
+        if (this.scrollableRef && this.scrollableRef.timestammp < timestammp) {
+            return
+        }
+        if (
+            timestammp >= range.fromTimestamp &&
+            timestammp <= range.toTimestamp
+        ) {
+            this.scrollableRef = { element, timestammp }
+            this.scheduleScrollToItems()
+        }
+    }
+
+    scheduleScrollToItems() {
+        if (!this.scrollTimeout) {
+            this.scrollTimeout = setTimeout(this.scrollToItems, 1000)
+        }
+    }
+
+    scrollToItems = () => {
+        if (!this.scrollableRef) {
+            return
+        }
+        this.scrollableRef.element.scrollTo({
+            behavior: 'smooth',
+        })
+    }
+
+    isIframe = () => {
+        try {
+            return window.self !== window.top
+        } catch (e) {
+            return true
         }
     }
 
@@ -435,13 +217,19 @@ export default class CollectionDetailsPage extends UIElement<
 
         if (this.state.isListOwner) {
             return (
-                <Icon
-                    height="20px"
-                    icon="addPeople"
-                    color="purple"
+                <PrimaryAction
+                    type={'tertiary'}
+                    icon={'addPeople'}
+                    iconColor={'prime1'}
+                    size={
+                        this.viewportBreakpoint === 'mobile'
+                            ? 'small'
+                            : 'medium'
+                    }
                     onClick={() =>
                         this.processEvent('toggleListShareModal', {})
                     }
+                    label={'Invite Contributors'}
                 />
             )
         }
@@ -462,7 +250,8 @@ export default class CollectionDetailsPage extends UIElement<
 
     getPageEntryActions(
         entry: SharedListEntry,
-    ): Array<PageInfoBoxAction> | undefined {
+        entryIndex: number,
+    ): Array<ItemBoxBottomAction> | undefined {
         const { state } = this
         const annotationEntries = this.state.annotationEntryData
         if (
@@ -476,6 +265,7 @@ export default class CollectionDetailsPage extends UIElement<
                             <LoadingIndicator size={16} key="loading" />{' '}
                         </ActionLoaderBox>
                     ),
+                    key: 'loader',
                 },
             ]
         }
@@ -496,28 +286,99 @@ export default class CollectionDetailsPage extends UIElement<
                 ? annotationEntries[entry.normalizedUrl].length
                 : 0
 
+        const currentBaseURL = new URL(window.location.href).origin
+
         if (
             state.annotationEntriesLoadState === 'success' &&
             toggleAnnotationsIcon !== null
         ) {
+            if (
+                this.state.listData?.listEntries[entryIndex].hoverState &&
+                !this.isIframe()
+            ) {
+                return [
+                    {
+                        key: 'copy-link-btn',
+                        image: this.state.copiedLink ? 'check' : 'link',
+                        imageColor: this.state.copiedLink
+                            ? 'prime1'
+                            : 'greyScale5',
+                        ButtonText: this.state.copiedLink
+                            ? 'Copied'
+                            : 'Copy Link',
+                        onClick: () => {
+                            navigator.clipboard.writeText(
+                                currentBaseURL +
+                                    '/c/' +
+                                    this.props.listID +
+                                    '/p/' +
+                                    entry.reference?.id,
+                            )
+                            this.processEvent('copiedLinkButton', null)
+                        },
+                    },
+                    {
+                        key: 'expand-notes-btn',
+                        image: count > 0 ? 'commentFull' : 'commentAdd',
+                        ButtonText: count > 0 ? count : '',
+                        imageColor: 'prime1',
+                        onClick: () =>
+                            this.processEvent('togglePageAnnotations', {
+                                normalizedUrl: entry.normalizedUrl,
+                            }),
+                    },
+                ]
+            }
+
             return [
                 {
-                    node: (
-                        <CommentIconBox
-                            onClick={() =>
-                                this.processEvent('togglePageAnnotations', {
-                                    normalizedUrl: entry.normalizedUrl,
-                                })
-                            }
-                        >
-                            {count > 0 && <Counter>{count}</Counter>}
-                            <Icon
-                                icon={toggleAnnotationsIcon}
-                                heightAndWidth={'16px'}
-                                hoverOff
-                            />
-                        </CommentIconBox>
-                    ),
+                    key: 'expand-notes-btn',
+                    image: count > 0 ? 'commentFull' : 'commentAdd',
+                    ButtonText: count > 0 ? count : '',
+                    imageColor: 'prime1',
+                    onClick: () =>
+                        this.processEvent('togglePageAnnotations', {
+                            normalizedUrl: entry.normalizedUrl,
+                        }),
+                },
+                // {
+                //     node: (
+                //         <CommentIconBox
+                //             onClick={() =>
+                //                 this.processEvent('togglePageAnnotations', {
+                //                     normalizedUrl: entry.normalizedUrl,
+                //                 })
+                //             }
+                //         >
+                //             {count > 0 && <Counter>{count}</Counter>}
+                //             <Icon
+                //                 icon={toggleAnnotationsIcon}
+                //                 heightAndWidth={'16px'}
+                //                 hoverOff
+                //             />
+                //         </CommentIconBox>
+                //     ),
+                // },
+            ]
+        } else if (
+            this.state.listData?.listEntries[entryIndex].hoverState &&
+            !this.isIframe()
+        ) {
+            return [
+                {
+                    key: 'expand-notes-btn',
+                    image: 'link',
+                    imageColor: 'greyScale5',
+                    ButtonText: 'Copy Link',
+                    onClick: () => {
+                        navigator.clipboard.writeText(
+                            currentBaseURL +
+                                '/c/' +
+                                this.props.listID +
+                                '/p/' +
+                                entry.reference?.id,
+                        )
+                    },
                 },
             ]
         }
@@ -530,6 +391,11 @@ export default class CollectionDetailsPage extends UIElement<
                     this.processEvent('clickFollowBtn', {
                         pageToOpenPostFollow,
                     })
+                    this.processEvent('clickFollowButtonForNotif', {
+                        spaceToFollow: this.props.listID && this.props.listID,
+                        sharedListReference: this.sharedListReference,
+                        urlToSpace: window.location.href,
+                    })
                 }}
                 isFollowed={this.state.isCollectionFollowed}
                 isOwner={this.state.isListOwner}
@@ -539,15 +405,27 @@ export default class CollectionDetailsPage extends UIElement<
                     this.state.listRolesLoadState,
                     this.state.permissionKeyState,
                 ])}
+                viewPortWidth={this.viewportBreakpoint}
             />
         )
     }
 
     renderPageAnnotations(entry: SharedListEntry & { creator: UserReference }) {
         const { state } = this
+
+        const youtubeElementId = getBlockContentYoutubePlayerId(
+            entry.normalizedUrl,
+        )
+
         return (
             <AnnotationsInPage
+                contextLocation={'webUI'}
                 variant={'dark-mode'}
+                getYoutubePlayer={() =>
+                    this.props.services.youtube.getPlayerByElementId(
+                        youtubeElementId,
+                    )
+                }
                 newPageReply={
                     this.isListContributor || state.isListOwner
                         ? state.newPageReplies[entry.normalizedUrl]
@@ -565,6 +443,18 @@ export default class CollectionDetailsPage extends UIElement<
                     )
                 }
                 annotationConversations={this.state.conversations}
+                shouldHighlightAnnotation={(annotation) =>
+                    isInRange(
+                        annotation.createdWhen,
+                        this.itemRanges.annotEntry,
+                    )
+                }
+                shouldHighlightReply={(_, replyData) =>
+                    isInRange(
+                        replyData.reply.createdWhen,
+                        this.itemRanges.reply,
+                    )
+                }
                 getAnnotationCreator={(annotationReference) => {
                     const creatorRef = this.state.annotations[
                         annotationReference.id.toString()
@@ -632,6 +522,8 @@ export default class CollectionDetailsPage extends UIElement<
                             sharedListReference: this.sharedListReference,
                         }),
                 }}
+                onAnnotationBoxRootRef={this.onAnnotEntryRef}
+                onReplyRootRef={this.onReplyRef}
             />
         )
     }
@@ -649,10 +541,83 @@ export default class CollectionDetailsPage extends UIElement<
         return annotation ?? null
     }
 
+    private renderBreadCrumbs() {
+        const isPageView = this.props.entryID
+        const title = this.state.listData!.list.title
+
+        if (isPageView) {
+            return (
+                <BreadCrumbBox isPageView={isPageView}>
+                    <RouteLink
+                        route="collectionDetails"
+                        services={this.props.services}
+                        params={{
+                            id: this.props.listID,
+                        }}
+                    >
+                        <Icon
+                            filePath="arrowLeft"
+                            heightAndWidth="20px"
+                            hoverOff
+                        />
+                        {title}
+                    </RouteLink>
+                </BreadCrumbBox>
+            )
+        }
+    }
+
+    private renderTitle() {
+        const { listData } = this.state
+        const title = listData!.list.title
+        const isPageView = this.props.entryID
+
+        if (isPageView) {
+            return (
+                <TitleClick
+                    onClick={
+                        !this.isIframe()
+                            ? (e) => {
+                                  this.processEvent('clickPageResult', {
+                                      urlToOpen:
+                                          listData?.listEntries[0].originalUrl,
+                                      preventOpening: () => e.preventDefault(),
+                                      isFollowedSpace:
+                                          this.state.isCollectionFollowed ||
+                                          this.state.isListOwner,
+                                      notifAlreadyShown: this.state
+                                          .notifAlreadyShown,
+                                      sharedListReference: this
+                                          .sharedListReference,
+                                  })
+                                  e.preventDefault()
+                                  e.stopPropagation()
+                              }
+                            : undefined
+                    }
+                >
+                    {this.state.listData?.listEntries[0].entryTitle}
+                </TitleClick>
+            )
+        }
+
+        if (listData!.discordList == null) {
+            return title
+        }
+
+        return (
+            <DiscordChannelName>
+                <Icon height="35px" icon="discord" color="secondary" hoverOff />
+                #{title}
+            </DiscordChannelName>
+        )
+    }
+
     renderSubtitle() {
+        const isPageView = this.props.entryID
         const { state } = this
         const { listData: data } = state
-        const users: Array<[UserReference, User]> = []
+        const users: Array<{ userReference: UserReference; user: User }> = []
         if (
             (state.listRolesLoadState === 'running' ||
                 state.listRolesLoadState === 'pristine') &&
@@ -677,15 +642,20 @@ export default class CollectionDetailsPage extends UIElement<
         }
 
         if (data.creatorReference && data.creator) {
-            users.push([data.creatorReference, data.creator])
+            users.push({
+                userReference: data.creatorReference,
+                user: data.creator,
+            })
         }
+
         for (const role of state.listRoles ?? []) {
             const user = state.users[role.user.id]
             if (user) {
-                users.push([role.user, user])
+                users.push({ userReference: role.user, user })
             }
         }
-        const renderedPreview = users.map(([userReference, user], index) => {
+
+        const renderedPreview = users.map(({ userReference, user }, index) => {
             const isFirst = index === 0
             const isLast = index === users.length - 1
             return (
@@ -699,119 +669,183 @@ export default class CollectionDetailsPage extends UIElement<
                         storage={this.props.storage}
                         userRef={userReference!}
                     >
-                        <Creator>{user.displayName}</Creator>
+                        <Creator>
+                            {this.props.services.auth.getCurrentUser()?.id ===
+                            user.id
+                                ? 'You'
+                                : user.displayName}
+                        </Creator>
                     </ProfilePopupContainer>
                 </React.Fragment>
             )
         })
 
-        if (state.listRolesLoadState === 'success' && users.length > 0) {
-            const showListRoleLimit = () => {
-                if (this.viewportBreakpoint === 'small') {
-                    return 2
-                }
+        // Case: Discord List
 
-                if (this.viewportBreakpoint === 'mobile') {
-                    return 1
-                }
-
-                return 3
-            }
-
+        if (data?.discordList != null && !isPageView) {
             return (
                 <SubtitleContainer viewportBreakpoint={this.viewportBreakpoint}>
-                    {renderedPreview && (
-                        <>
-                            <SharedBy>by</SharedBy>{' '}
-                            {renderedPreview.slice(0, showListRoleLimit())}
-                            {users.length - showListRoleLimit() > 0 && (
-                                <ShowMoreCollaborators
-                                    onClick={(event) =>
-                                        this.processEvent(
-                                            'toggleMoreCollaborators',
-                                            {
-                                                value: this.state
-                                                    .showMoreCollaborators,
-                                            },
-                                        )
-                                    }
-                                >
-                                    {users.length - showListRoleLimit() && (
-                                        <>
-                                            <SharedBy>and</SharedBy>{' '}
-                                            {renderedPreview.slice(
-                                                0,
-                                                showListRoleLimit(),
-                                            ) && (
-                                                <>
-                                                    {users.length -
-                                                        showListRoleLimit()}{' '}
-                                                    more{' '}
-                                                </>
-                                            )}
-                                        </>
-                                    )}
-                                    {this.state.showMoreCollaborators && (
-                                        <HoverBox
-                                            marginLeft={'-90px'}
-                                            width={'unset'}
-                                            marginTop={'5px'}
-                                            padding={'0px'}
-                                        >
-                                            <ContributorContainer
-                                                onMouseLeave={() =>
-                                                    this.processEvent(
-                                                        'toggleMoreCollaborators',
-                                                        {},
-                                                    )
-                                                }
-                                            >
-                                                {users.map(
-                                                    ([userReference, user]) => (
-                                                        <ProfilePopupContainer
-                                                            key={
-                                                                userReference.id
-                                                            }
-                                                            services={
-                                                                this.props
-                                                                    .services
-                                                            }
-                                                            storage={
-                                                                this.props
-                                                                    .storage
-                                                            }
-                                                            userRef={
-                                                                userReference!
-                                                            }
-                                                        >
-                                                            <ListEntryBox>
-                                                                <ListEntry
-                                                                    key={
-                                                                        userReference.id
-                                                                    }
-                                                                >
-                                                                    {
-                                                                        user.displayName
-                                                                    }
-                                                                </ListEntry>
-                                                            </ListEntryBox>
-                                                        </ProfilePopupContainer>
-                                                    ),
-                                                )}
-                                            </ContributorContainer>
-                                        </HoverBox>
-                                    )}
-                                    <Icon
-                                        icon={'arrowDown'}
-                                        heightAndWidth={'16px'}
-                                    />
-                                </ShowMoreCollaborators>
-                            )}
-                            {/* {rendered} */}
-                        </>
-                    )}
+                    <DiscordGuildName>
+                        {data.discordList.guildName}
+                    </DiscordGuildName>
                 </SubtitleContainer>
             )
+        }
+
+        // Case: Page View
+        if (isPageView) {
+            const contributorName = users.map((creator) => {
+                if (
+                    creator.user.id ===
+                    this.state.listData?.listEntries[0].creator.id
+                )
+                    return creator.user.displayName
+            })
+            const addedDate = this.state.listData?.listEntries[0].createdWhen
+            const domain = this.state.listData?.listEntries[0].normalizedUrl.split(
+                '/',
+            )[0]
+
+            return (
+                <PageViewFooter>
+                    <Domain>{domain}</Domain>
+                    <PageViewSubtitleHelpText>
+                        added by
+                    </PageViewSubtitleHelpText>
+                    <PageViewSubtitle>{contributorName}</PageViewSubtitle>
+                    <PageViewSubtitleHelpText>on </PageViewSubtitleHelpText>
+                    <PageViewSubtitle>
+                        {moment(addedDate).format('lll')}
+                    </PageViewSubtitle>
+                </PageViewFooter>
+            )
+        }
+
+        // Case Space View
+
+        if (!isPageView) {
+            if (state.listRolesLoadState === 'success' && users.length > 0) {
+                const showListRoleLimit = () => {
+                    if (this.viewportBreakpoint === 'small') {
+                        return 2
+                    }
+
+                    if (this.viewportBreakpoint === 'mobile') {
+                        return 1
+                    }
+
+                    return 3
+                }
+
+                return (
+                    <SubtitleContainer
+                        viewportBreakpoint={this.viewportBreakpoint}
+                    >
+                        {renderedPreview && (
+                            <>
+                                <SharedBy>Space by</SharedBy>{' '}
+                                {renderedPreview.slice(0, showListRoleLimit())}
+                                {users.length - showListRoleLimit() > 0 && (
+                                    <>
+                                        <ShowMoreCollaborators
+                                            onClick={(event) =>
+                                                this.processEvent(
+                                                    'toggleMoreCollaborators',
+                                                    {
+                                                        value: this.state
+                                                            .showMoreCollaborators,
+                                                    },
+                                                )
+                                            }
+                                            ref={this.showMoreCollaboratorsRef}
+                                        >
+                                            {users.length -
+                                                showListRoleLimit() && (
+                                                <>
+                                                    <SharedBy>and</SharedBy>{' '}
+                                                    {renderedPreview.slice(
+                                                        0,
+                                                        showListRoleLimit(),
+                                                    ) && (
+                                                        <SharedBy>
+                                                            {users.length -
+                                                                showListRoleLimit()}{' '}
+                                                            more{' '}
+                                                        </SharedBy>
+                                                    )}
+                                                </>
+                                            )}
+                                            <Icon
+                                                icon={'arrowDown'}
+                                                heightAndWidth={'16px'}
+                                            />
+                                        </ShowMoreCollaborators>
+                                        {this.state.showMoreCollaborators && (
+                                            <PopoutBox
+                                                targetElementRef={
+                                                    this
+                                                        .showMoreCollaboratorsRef
+                                                        ?.current ?? undefined
+                                                }
+                                                placement="bottom"
+                                                closeComponent={() =>
+                                                    this.processEvent(
+                                                        'toggleMoreCollaborators',
+                                                        {
+                                                            value: !this.state
+                                                                .showMoreCollaborators,
+                                                        },
+                                                    )
+                                                }
+                                                offsetX={5}
+                                            >
+                                                <ContributorContainer>
+                                                    {users.map(
+                                                        ({
+                                                            userReference,
+                                                            user,
+                                                        }) => (
+                                                            <ProfilePopupContainer
+                                                                key={
+                                                                    userReference.id
+                                                                }
+                                                                services={
+                                                                    this.props
+                                                                        .services
+                                                                }
+                                                                storage={
+                                                                    this.props
+                                                                        .storage
+                                                                }
+                                                                userRef={
+                                                                    userReference!
+                                                                }
+                                                            >
+                                                                <ListEntryBox>
+                                                                    <ListEntry
+                                                                        key={
+                                                                            userReference.id
+                                                                        }
+                                                                    >
+                                                                        {
+                                                                            user.displayName
+                                                                        }
+                                                                    </ListEntry>
+                                                                </ListEntryBox>
+                                                            </ProfilePopupContainer>
+                                                        ),
+                                                    )}
+                                                </ContributorContainer>
+                                            </PopoutBox>
+                                        )}
+                                    </>
+                                )}
+                                {/* {rendered} */}
+                            </>
+                        )}
+                    </SubtitleContainer>
+                )
+            }
         }
         // return (
         //     <SubtitleContainer viewportBreakpoint={this.viewportBreakpoint}>
@@ -856,9 +890,29 @@ export default class CollectionDetailsPage extends UIElement<
             allAnnotationExpanded,
             isListOwner,
         } = this.state
+
         return (
             <AbovePagesBox viewportWidth={this.viewportBreakpoint}>
-                <SectionTitle>References</SectionTitle>
+                <SearchTypeSwitch
+                    viewportWidth={this.viewportBreakpoint}
+                    onPagesSearchSwitch={() =>
+                        this.processEvent('setSearchType', 'pages')
+                    }
+                    onVideosSearchSwitch={() =>
+                        this.processEvent('setSearchType', 'videos')
+                    }
+                    onTwitterSearchSwitch={() =>
+                        this.processEvent('setSearchType', 'twitter')
+                    }
+                    onPDFSearchSwitch={() =>
+                        this.processEvent('setSearchType', 'pdf')
+                    }
+                    onEventSearchSwitch={() =>
+                        this.processEvent('setSearchType', 'events')
+                    }
+                    searchType={this.state.searchType}
+                    toExclude={['notes']}
+                />
                 <ActionItems>
                     {(this.isListContributor || isListOwner) && (
                         <AddPageBtn
@@ -866,7 +920,7 @@ export default class CollectionDetailsPage extends UIElement<
                                 this.processEvent('toggleInstallExtModal', {})
                             }
                         >
-                            <Icon icon="plus" height="16px" color="purple" />
+                            <Icon icon="plus" height="22px" color="prime1" />
                         </AddPageBtn>
                     )}
                     {annotationEntryData &&
@@ -880,17 +934,25 @@ export default class CollectionDetailsPage extends UIElement<
                                 }
                             >
                                 {allAnnotationExpanded ? (
-                                    <Icon
-                                        color={'purple'}
-                                        icon={'compress'}
-                                        heightAndWidth="16px"
-                                    />
+                                    <TooltipBox
+                                        tooltipText={'Hide all notes'}
+                                        placement={'bottom'}
+                                    >
+                                        <Icon
+                                            icon={'compress'}
+                                            heightAndWidth="22px"
+                                        />
+                                    </TooltipBox>
                                 ) : (
-                                    <Icon
-                                        color={'purple'}
-                                        icon={'expand'}
-                                        heightAndWidth="16px"
-                                    />
+                                    <TooltipBox
+                                        tooltipText={'Show all notes'}
+                                        placement={'bottom'}
+                                    >
+                                        <Icon
+                                            icon={'expand'}
+                                            heightAndWidth="22px"
+                                        />
+                                    </TooltipBox>
                                 )}
                             </ToggleAllAnnotations>
                         )}
@@ -913,45 +975,417 @@ export default class CollectionDetailsPage extends UIElement<
                             ? 'click-page'
                             : 'add-page'
                     }
+                    intent={'openLink'}
                     clickedPageUrl={this.state.clickedPageUrl!}
-                />
-            )
-        }
-
-        if (this.state.isMissingPDFModalShown) {
-            return (
-                <MissingPdfOverlay
-                    services={this.props.services}
-                    viewportBreakpoint={this.viewportBreakpoint}
-                    onCloseRequested={() =>
-                        this.processEvent('toggleMissingPdfModal', {})
-                    }
+                    sharedListReference={this.sharedListReference}
                 />
             )
         }
 
         if (this.state.showFollowModal) {
             return (
-                <FollowSpaceOverlay
+                <InstallExtOverlay
                     services={this.props.services}
                     viewportBreakpoint={this.viewportBreakpoint}
                     onCloseRequested={() =>
                         this.processEvent('toggleFollowSpaceOverlay', {})
                     }
-                    isSpaceFollowed={this.state.isCollectionFollowed}
-                    currentUrl={this.state.clickedPageUrl!}
-                    renderFollowBtn={this.renderFollowBtn(
-                        this.state.clickedPageUrl!,
-                    )}
+                    mode={
+                        this.state.clickedPageUrl != null
+                            ? 'click-page'
+                            : 'add-page'
+                    }
+                    intent={'follow'}
                 />
             )
         }
 
+        // if (this.state.isMissingPDFModalShown) {
+        //     return (
+        //         <MissingPdfOverlay
+        //             services={this.props.services}
+        //             viewportBreakpoint={this.viewportBreakpoint}
+        //             onCloseRequested={() =>
+        //                 this.processEvent('toggleMissingPdfModal', {})
+        //             }
+        //         />
+        //     )
+        // }
+
         return null
     }
 
+    renderEmbedButton() {
+        return (
+            <TooltipBox
+                tooltipText={
+                    <span>
+                        Share & Embed <br /> this Space
+                    </span>
+                }
+                placement={'bottom'}
+            >
+                <Icon
+                    icon="link"
+                    heightAndWidth="24px"
+                    onClick={() => this.processEvent('toggleEmbedModal', null)}
+                    containerRef={this.embedButtonRef}
+                    color={'white'}
+                />
+            </TooltipBox>
+        )
+    }
+    renderEmbedModal() {
+        const currentURL = window.location.href
+
+        const embedCode = `<iframe src="${currentURL}" height="1500px" width="1200px"></iframe>`
+
+        if (this.state.renderEmbedModal) {
+            return (
+                <PopoutBox
+                    closeComponent={() =>
+                        this.processEvent('toggleEmbedModal', null)
+                    }
+                    placement={'bottom'}
+                    targetElementRef={this.embedButtonRef?.current ?? undefined}
+                    offsetX={10}
+                >
+                    <EmbedContainer>
+                        <EmbedLinkContainer>
+                            <TextField
+                                textColor={'greyScale6'}
+                                value={currentURL}
+                            />
+                            <PrimaryAction
+                                icon={
+                                    this.state
+                                        .isEmbedShareModalCopyTextShown ===
+                                    'copyLink'
+                                        ? 'check'
+                                        : 'copy'
+                                }
+                                size="large"
+                                type="forth"
+                                onClick={() => {
+                                    navigator.clipboard.writeText(currentURL)
+                                    this.processEvent(
+                                        'toggleEmbedShareModalCopyText',
+                                        { embedOrLink: 'copyLink' },
+                                    )
+                                }}
+                                label={
+                                    this.state
+                                        .isEmbedShareModalCopyTextShown ===
+                                    'copyLink'
+                                        ? 'Copied'
+                                        : 'Copy Link'
+                                }
+                            />
+                        </EmbedLinkContainer>
+                        <EmbedSectionContainer>
+                            <TextArea
+                                textColor={'greyScale6'}
+                                disabled
+                                notResizable
+                                value={embedCode}
+                            />
+                        </EmbedSectionContainer>
+                        <PrimaryActionContainer>
+                            <PrimaryAction
+                                icon={
+                                    this.state
+                                        .isEmbedShareModalCopyTextShown ===
+                                    'copyEmbed'
+                                        ? 'check'
+                                        : 'copy'
+                                }
+                                size="medium"
+                                type="forth"
+                                onClick={() => {
+                                    navigator.clipboard.writeText(embedCode)
+                                    this.processEvent(
+                                        'toggleEmbedShareModalCopyText',
+                                        { embedOrLink: 'copyEmbed' },
+                                    )
+                                }}
+                                label={
+                                    this.state
+                                        .isEmbedShareModalCopyTextShown ===
+                                    'copyEmbed'
+                                        ? 'Copied'
+                                        : 'Copy Embed Code'
+                                }
+                            />
+                        </PrimaryActionContainer>
+                    </EmbedContainer>
+                </PopoutBox>
+            )
+        }
+    }
+
+    renderHeaderActionArea() {
+        const isPageView = this.props.entryID
+
+        if (isPageView) {
+            return
+        }
+
+        if (
+            // this.state.followLoadState === 'running' ||
+            this.state.listRolesLoadState === 'running' ||
+            this.state.permissionKeyState === 'running'
+        ) {
+            return (
+                <LoadingBoxHeaderActionArea>
+                    <LoadingIndicator size={20} />
+                </LoadingBoxHeaderActionArea>
+            )
+        } else {
+            // Case: Get contributor invitation link
+            if (
+                this.state.listKeyPresent &&
+                !this.state.listRoleID &&
+                !this.state.isListOwner
+            ) {
+                return (
+                    <InvitedNotification
+                        viewportBreakpoint={this.viewportBreakpoint}
+                        withFrame={true}
+                    >
+                        <InvitationTextContainer>
+                            <Icon
+                                filePath={'invite'}
+                                color={'prime1'}
+                                heightAndWidth={'22px'}
+                            />
+                            You've been invited to contribute to this Space and
+                            can now add pages and annotations.
+                        </InvitationTextContainer>
+                        <PrimaryAction
+                            label="Accept Invitation"
+                            icon="check"
+                            iconPosition="left"
+                            type={'primary'}
+                            size={'small'}
+                            onClick={() =>
+                                this.processEvent('acceptInvitation', {})
+                            }
+                        />
+                    </InvitedNotification>
+                )
+            }
+
+            if (this.state.permissionKeyResult === 'success') {
+                if (
+                    this.state.permissionKeyState === 'success' &&
+                    this.isListContributor &&
+                    !this.state.isListOwner
+                ) {
+                    return (
+                        <>
+                            <InvitedNotification
+                                viewportBreakpoint={this.viewportBreakpoint}
+                            >
+                                <InvitationTextContainer>
+                                    <Icon
+                                        filePath={'invite'}
+                                        color={'prime1'}
+                                        heightAndWidth={'22px'}
+                                        hoverOff
+                                    />
+                                    You can add highlights &amp; pages via the
+                                    Memex extension or app.
+                                </InvitationTextContainer>
+                            </InvitedNotification>
+                            {this.renderFollowBtn()()}
+                        </>
+                    )
+                }
+            } else {
+                if (!isPageView) {
+                    // only show buttons when its a Space View, not pageView
+                    return (
+                        <HeaderButtonRow>
+                            {this.renderEmbedModal()}
+                            {this.renderEmbedButton()}
+                            {this.renderWebMonetizationIcon()}
+                            {this.renderFollowBtn()()}
+                        </HeaderButtonRow>
+                    )
+                }
+            }
+        }
+    }
+
+    getFilePathforSearchType() {
+        if (this.state.searchType === 'twitter') {
+            return 'twitter'
+        }
+        if (this.state.searchType === 'videos') {
+            return 'play'
+        }
+        if (this.state.searchType === 'pdf') {
+            return 'filePDF'
+        }
+        if (this.state.searchType === 'pages') {
+            return 'heartEmpty'
+        }
+        if (this.state.searchType === 'events') {
+            return 'calendar'
+        }
+
+        return 'searchIcon'
+    }
+
+    getNoResultsTextforSearchType() {
+        if (this.state.searchType === 'twitter') {
+            return 'No Tweets saved in this Space'
+        }
+        if (this.state.searchType === 'videos') {
+            return 'No videos saved in this Space'
+        }
+        if (this.state.searchType === 'pdf') {
+            return 'No PDFs saved in this Space'
+        }
+        if (this.state.searchType === 'events') {
+            return 'No Events posted in this Space'
+        }
+        if (this.state.searchType === 'pages') {
+            return 'Nothing saved in this Space yet'
+        }
+    }
+
+    renderNoResults() {
+        return (
+            <NoResultsContainer>
+                <IconBox heightAndWidth="40px">
+                    <Icon
+                        heightAndWidth={'22px'}
+                        filePath={this.getFilePathforSearchType()}
+                        hoverOff
+                        color="prime1"
+                    />
+                </IconBox>
+                <EmptyListBox>
+                    {this.getNoResultsTextforSearchType()}
+                </EmptyListBox>
+            </NoResultsContainer>
+        )
+    }
+
+    getContentFilteredByType() {
+        const data = this.state.listData
+
+        const entries = data ? [...data.listEntries.entries()] : undefined
+
+        if (this.state.searchType === 'twitter') {
+            const newEntries = entries?.filter((entry) => {
+                return entry[1].normalizedUrl.startsWith('twitter.com')
+            })
+            return newEntries
+        }
+        if (this.state.searchType === 'videos') {
+            const newEntries = entries?.filter((entry) => {
+                return (
+                    entry[1].normalizedUrl.includes('youtube.com') ||
+                    entry[1].normalizedUrl.includes('vimeo.com')
+                )
+            })
+            return newEntries
+        }
+        if (this.state.searchType === 'events') {
+            const newEntries = entries?.filter((entry) => {
+                return eventProviderUrls.some((url) =>
+                    entry[1].normalizedUrl.includes(url),
+                )
+            })
+
+            return newEntries
+        }
+
+        if (this.state.searchType === 'pdf') {
+            const newEntries = entries?.filter((entry) => {
+                return entry[1].normalizedUrl.endsWith('.pdf')
+            })
+            return newEntries
+        }
+
+        return entries
+    }
+
+    renderDescription() {
+        const isPageView = this.props.entryID
+
+        if (isPageView) {
+            return
+        }
+
+        const { state } = this
+        const data = state.listData
+
+        if (data && !data.list.description) {
+            return
+        }
+
+        return (
+            <CollectionDescriptionText
+                viewportBreakpoint={this.viewportBreakpoint}
+            >
+                {data?.listDescriptionState === 'collapsed'
+                    ? data?.listDescriptionTruncated
+                    : data?.list.description}
+            </CollectionDescriptionText>
+
+            // <CollectionDescriptionBox
+            //     viewportBreakpoint={this.viewportBreakpoint}
+            // >
+            //     <DescriptionActions bottom={'small'}>
+            //         {data?.listDescriptionState !== 'fits' && (
+            //             <CollectionDescriptionToggle
+            //                 onClick={() =>
+            //                     this.processEvent(
+            //                         'toggleDescriptionTruncation',
+            //                         {},
+            //                     )
+            //                 }
+            //                 viewportBreakpoint={this.viewportBreakpoint}
+            //             >
+            //                 {data?.listDescriptionState === 'collapsed' ? (
+            //                     <TooltipBox
+            //                         tooltipText={'Show full description'}
+            //                         placement={'bottom'}
+            //                     >
+            //                         <Icon
+            //                             icon={'expand'}
+            //                             heightAndWidth="22px"
+            //                         />
+            //                     </TooltipBox>
+            //                 ) : (
+            //                     <TooltipBox
+            //                         tooltipText={'Hide description'}
+            //                         placement={'bottom'}
+            //                     >
+            //                         <Icon
+            //                             icon={'compress'}
+            //                             heightAndWidth="22px"
+            //                         />
+            //                     </TooltipBox>
+            //                 )}
+            //             </CollectionDescriptionToggle>
+            //         )}
+            //     </DescriptionActions>
+            //     <CollectionDescriptionText
+            //         viewportBreakpoint={this.viewportBreakpoint}
+            //     >
+            //         {data?.listDescriptionState === 'collapsed'
+            //             ? data?.listDescriptionTruncated
+            //             : data?.list.description}
+            //     </CollectionDescriptionText>
+            // </CollectionDescriptionBox>
+        )
+    }
+
     render() {
-        ;(window as any)['blurt'] = () => console.log(this.state)
         const { state } = this
         if (
             state.listLoadState === 'pristine' ||
@@ -959,7 +1393,6 @@ export default class CollectionDetailsPage extends UIElement<
         ) {
             return (
                 <DocumentView id="DocumentView">
-                    {this.renderPermissionKeyOverlay()}
                     <DocumentTitle
                         documentTitle={this.props.services.documentTitle}
                         subTitle="Loading list..."
@@ -978,7 +1411,7 @@ export default class CollectionDetailsPage extends UIElement<
                         services={this.props.services}
                         storage={this.props.storage}
                         viewportBreakpoint={this.viewportBreakpoint}
-                        listsSidebarProps={this.listsSidebarProps}
+                        // listsSidebarProps={this.listsSidebarProps}
                         scrollTop={this.state.scrollTop}
                     >
                         <ErrorWithAction errorType="internal-error">
@@ -997,7 +1430,7 @@ export default class CollectionDetailsPage extends UIElement<
                     services={this.props.services}
                     storage={this.props.storage}
                     viewportBreakpoint={this.viewportBreakpoint}
-                    listsSidebarProps={this.listsSidebarProps}
+                    // listsSidebarProps={this.listsSidebarProps}
                 >
                     <ErrorWithAction
                         errorType="not-found"
@@ -1012,6 +1445,10 @@ export default class CollectionDetailsPage extends UIElement<
                 </DefaultPageLayout>
             )
         }
+        const isPageView = this.props.entryID
+        // const isPageLink = data.list.type === 'page-link'
+
+        const resultsFilteredByType = this.getContentFilteredByType()
 
         return (
             <DocumentContainer id="DocumentContainer">
@@ -1025,165 +1462,201 @@ export default class CollectionDetailsPage extends UIElement<
                     services={this.props.services}
                     storage={this.props.storage}
                     viewportBreakpoint={this.viewportBreakpoint}
-                    headerTitle={data.list.title}
+                    headerTitle={this.renderTitle()}
                     headerSubtitle={this.renderSubtitle()}
                     followBtn={this.renderFollowBtn()()}
+                    renderHeaderActionArea={this.renderHeaderActionArea()}
                     webMonetizationIcon={this.renderWebMonetizationIcon()}
-                    listsSidebarProps={this.listsSidebarProps}
-                    isSidebarShown={this.listsSidebarProps.isShown}
+                    // listsSidebarProps={this.listsSidebarProps}
+                    // isSidebarShown={this.listsSidebarProps.isShown}
                     permissionKeyOverlay={this.renderPermissionKeyOverlay()}
                     scrollTop={this.state.scrollTop}
+                    breadCrumbs={this.renderBreadCrumbs()}
+                    renderDescription={this.renderDescription()}
+                    isPageView={this.props.entryID}
                 >
-                    {data.list.description && (
-                        <CollectionDescriptionBox
-                            viewportBreakpoint={this.viewportBreakpoint}
-                        >
-                            <DescriptionActions bottom={'small'}>
-                                <SectionTitle>Description</SectionTitle>
-                                {data.listDescriptionState !== 'fits' && (
-                                    <CollectionDescriptionToggle
-                                        onClick={() =>
-                                            this.processEvent(
-                                                'toggleDescriptionTruncation',
-                                                {},
-                                            )
-                                        }
-                                        viewportBreakpoint={
-                                            this.viewportBreakpoint
-                                        }
-                                    >
-                                        {data.listDescriptionState ===
-                                        'collapsed' ? (
-                                            <>
-                                                <Icon
-                                                    icon="expand"
-                                                    color="purple"
-                                                    heightAndWidth="16px"
-                                                />
-                                            </>
-                                        ) : (
-                                            <>
-                                                <Icon
-                                                    icon="compress"
-                                                    color="purple"
-                                                    heightAndWidth="16px"
-                                                />
-                                            </>
-                                        )}
-                                    </CollectionDescriptionToggle>
-                                )}
-                            </DescriptionActions>
-                            <CollectionDescriptionText
-                                viewportBreakpoint={this.viewportBreakpoint}
-                            >
-                                {data.listDescriptionState === 'collapsed'
-                                    ? data.listDescriptionTruncated
-                                    : data.list.description}
-                            </CollectionDescriptionText>
-                        </CollectionDescriptionBox>
+                    {data.listEntries.length > 0 &&
+                        !isPageView &&
+                        this.renderAbovePagesBox()}
+                    {state.annotationEntriesLoadState === 'error' && (
+                        <Margin bottom={'large'}>
+                            <ErrorWithAction errorType="internal-error">
+                                Error loading page notes. Reload page to retry.
+                            </ErrorWithAction>
+                        </Margin>
                     )}
-                    <PageInfoList viewportBreakpoint={this.viewportBreakpoint}>
-                        {this.renderAbovePagesBox()}
-                        {state.annotationEntriesLoadState === 'error' && (
-                            <Margin bottom={'large'}>
-                                <ErrorWithAction errorType="internal-error">
-                                    Error loading page notes. Reload page to
-                                    retry.
-                                </ErrorWithAction>
-                            </Margin>
+                    {state.listData.discordList != null &&
+                        state.listData?.isDiscordSyncing && (
+                            <DiscordSyncNotif>
+                                <Icon
+                                    filePath="redo"
+                                    heightAndWidth="18px"
+                                    hoverOff
+                                    color="prime1"
+                                />{' '}
+                                This discord channel is still being synced. It
+                                may take a while for everything to show up.
+                            </DiscordSyncNotif>
                         )}
-                        {data.listEntries.length === 0 && (
-                            <EmptyListBox>
-                                <SectionCircle size="50px">
-                                    <Icon
-                                        icon={'heartEmpty'}
-                                        heightAndWidth="25px"
-                                        color="purple"
-                                    />
-                                </SectionCircle>
-                                This Space is empty (still).
-                            </EmptyListBox>
-                        )}
-                        {[...data.listEntries.entries()].map(
-                            ([entryIndex, entry]) => (
-                                <Margin
-                                    bottom="small"
-                                    key={entry.normalizedUrl}
-                                >
-                                    <PageInfoBox
-                                        viewportBreakpoint={
-                                            this.viewportBreakpoint
-                                        }
-                                        variant="dark-mode"
-                                        onClick={(e) =>
-                                            this.processEvent(
-                                                'clickPageResult',
-                                                {
-                                                    urlToOpen:
-                                                        entry.originalUrl,
-                                                    preventOpening: () =>
-                                                        e.preventDefault(),
-                                                    isFollowedSpace:
-                                                        this.state
-                                                            .isCollectionFollowed ||
-                                                        this.state.isListOwner,
-                                                },
-                                            )
-                                        }
-                                        type={
-                                            isPagePdf({
-                                                url: entry.normalizedUrl,
-                                            })
-                                                ? 'pdf'
-                                                : 'page'
-                                        }
-                                        profilePopup={{
-                                            services: this.props.services,
-                                            storage: this.props.storage,
-                                            userRef: entry.creator,
-                                        }}
-                                        pageInfo={{
-                                            ...entry,
-                                            fullTitle: entry.entryTitle,
-                                        }}
-                                        creator={
-                                            this.state.users[entry.creator.id]
-                                        }
-                                        actions={this.getPageEntryActions(
-                                            entry,
-                                        )}
-                                    />
-                                    {state.pageAnnotationsExpanded[
-                                        entry.normalizedUrl
-                                    ] && (
-                                        <Margin>
-                                            <Margin bottom={'smallest'}>
-                                                {this.renderPageAnnotations(
-                                                    entry,
-                                                )}
-                                            </Margin>
-                                        </Margin>
-                                    )}
-                                    {state.allAnnotationExpanded &&
-                                        state.annotationEntriesLoadState ===
-                                            'success' &&
-                                        entryIndex > 0 &&
-                                        entryIndex % PAGE_SIZE === 0 && (
-                                            <Waypoint
-                                                onEnter={() => {
-                                                    this.processEvent(
-                                                        'pageBreakpointHit',
-                                                        {
-                                                            entryIndex,
-                                                        },
-                                                    )
-                                                }}
-                                            />
-                                        )}
-                                </Margin>
-                            ),
-                        )}
-                    </PageInfoList>
+                    <ResultsList
+                        isIframe={this.isIframe()}
+                        viewportWidth={this.viewportBreakpoint}
+                    >
+                        {resultsFilteredByType?.length
+                            ? resultsFilteredByType?.map(
+                                  ([entryIndex, entry]) => (
+                                      <Margin
+                                          bottom="small"
+                                          key={entry.normalizedUrl}
+                                      >
+                                          <ItemBox
+                                              highlight={isInRange(
+                                                  entry.createdWhen,
+                                                  this.itemRanges.listEntry,
+                                              )}
+                                              onMouseEnter={(
+                                                  event: React.MouseEventHandler,
+                                              ) =>
+                                                  this.processEvent(
+                                                      'setPageHover',
+                                                      { entryIndex },
+                                                  )
+                                              }
+                                              onMouseOver={(
+                                                  event: React.MouseEventHandler,
+                                              ) => {
+                                                  !this.state.listData
+                                                      ?.listEntries[entryIndex]
+                                                      .hoverState &&
+                                                      this.processEvent(
+                                                          'setPageHover',
+                                                          {
+                                                              entryIndex,
+                                                          },
+                                                      )
+                                              }}
+                                              onMouseLeave={(
+                                                  event: React.MouseEventHandler,
+                                              ) =>
+                                                  this.processEvent(
+                                                      'setPageHover',
+                                                      { entryIndex },
+                                                  )
+                                              }
+                                              hoverState={
+                                                  this.state.listData
+                                                      ?.listEntries[entryIndex]
+                                                      .hoverState
+                                              }
+                                              onRef={(event) => {
+                                                  this.onListEntryRef({
+                                                      ...event,
+                                                      entry,
+                                                  })
+                                              }}
+                                          >
+                                              <BlockContent
+                                                  // pageLink ={'https://memex.social/' + this.props.listID + '/' + entry.reference.id}
+                                                  youtubeService={
+                                                      this.props.services
+                                                          .youtube
+                                                  }
+                                                  type={
+                                                      isPagePdf({
+                                                          url:
+                                                              entry.normalizedUrl,
+                                                      })
+                                                          ? 'pdf'
+                                                          : 'page'
+                                                  }
+                                                  normalizedUrl={
+                                                      entry.normalizedUrl
+                                                  }
+                                                  originalUrl={
+                                                      entry.originalUrl
+                                                  }
+                                                  fullTitle={
+                                                      entry && entry.entryTitle
+                                                  }
+                                                  onClick={(e) => {
+                                                      this.processEvent(
+                                                          'clickPageResult',
+                                                          {
+                                                              urlToOpen:
+                                                                  entry.originalUrl,
+                                                              preventOpening: () =>
+                                                                  e.preventDefault(),
+                                                              isFollowedSpace:
+                                                                  this.state
+                                                                      .isCollectionFollowed ||
+                                                                  this.state
+                                                                      .isListOwner,
+                                                              notifAlreadyShown: this
+                                                                  .state
+                                                                  .notifAlreadyShown,
+                                                              sharedListReference: this
+                                                                  .sharedListReference,
+                                                          },
+                                                      )
+                                                      e.preventDefault()
+                                                      e.stopPropagation()
+                                                  }}
+                                                  viewportBreakpoint={
+                                                      this.viewportBreakpoint
+                                                  }
+                                                  mainContentHover={
+                                                      this.state.listData
+                                                          ?.listEntries[
+                                                          entryIndex
+                                                      ].hoverState
+                                                          ? 'main-content'
+                                                          : undefined
+                                                  }
+                                              />
+                                              <ItemBoxBottom
+                                                  creationInfo={{
+                                                      creator: this.state.users[
+                                                          entry.creator.id
+                                                      ],
+                                                      createdWhen:
+                                                          entry.createdWhen,
+                                                  }}
+                                                  actions={this.getPageEntryActions(
+                                                      entry,
+                                                      entryIndex,
+                                                  )}
+                                              />
+                                          </ItemBox>
+                                          {state.pageAnnotationsExpanded[
+                                              entry.normalizedUrl
+                                          ] && (
+                                              <>
+                                                  {this.renderPageAnnotations(
+                                                      entry,
+                                                  )}
+                                              </>
+                                          )}
+                                          {state.allAnnotationExpanded &&
+                                              state.annotationEntriesLoadState ===
+                                                  'success' &&
+                                              entryIndex > 0 &&
+                                              entryIndex % PAGE_SIZE === 0 && (
+                                                  <Waypoint
+                                                      onEnter={() => {
+                                                          this.processEvent(
+                                                              'pageBreakpointHit',
+                                                              {
+                                                                  entryIndex,
+                                                              },
+                                                          )
+                                                      }}
+                                                  />
+                                              )}
+                                      </Margin>
+                                  ),
+                              )
+                            : this.renderNoResults()}
+                    </ResultsList>
                 </DefaultPageLayout>
                 {this.state.isListShareModalShown && (
                     <ListShareModal
@@ -1198,3 +1671,574 @@ export default class CollectionDetailsPage extends UIElement<
         )
     }
 }
+
+function parseRange(
+    fromString: string | undefined,
+    toString: string | undefined,
+): TimestampRange | undefined {
+    if (!fromString || !toString) {
+        return undefined
+    }
+    const fromTimestamp = parseInt(fromString)
+    const toTimestamp = parseInt(toString)
+    return {
+        fromTimestamp: Math.min(fromTimestamp, toTimestamp),
+        toTimestamp: Math.max(fromTimestamp, toTimestamp),
+    }
+}
+
+function isInRange(timestamp: number, range: TimestampRange | undefined) {
+    if (!range) {
+        return false
+    }
+    return range.fromTimestamp <= timestamp && range.toTimestamp >= timestamp
+}
+
+const PrimaryActionContainer = styled.div`
+    display: flex;
+    position: absolute;
+    right: 25px;
+    bottom: 25px;
+`
+
+const EmbedContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    grid-gap: 15px;
+    height: fit-content;
+    width: 400px;
+    padding: 20px;
+    position: relative;
+`
+
+const EmbedLinkContainer = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    grid-gap: 10px;
+    width: 100%;
+`
+
+const EmbedSectionContainer = styled.div`
+    width: fill-available;
+    position: relative;
+
+    & > div {
+        height: 120px;
+    }
+
+    & textarea {
+        &::-webkit-scrollbar {
+            display: none;
+        }
+
+        height: 120px;
+
+        scrollbar-width: none;
+    }
+`
+
+const DiscordSyncNotif = styled.div`
+    border: 1px solid ${(props) => props.theme.colors.greyScale3};
+    padding: 10px 20px;
+    border-radius: 8px;
+    color: ${(props) => props.theme.colors.greyScale5};
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+    grid-gap: 10px;
+`
+
+const TitleClick = styled.div`
+    cursor: pointer;
+    &:hover {
+        text-decoration: underline;
+    }
+`
+
+const Domain = styled.div`
+    color: ${(props) => props.theme.colors.white};
+    margin-right: 20px;
+`
+const PageViewSubtitle = styled.div`
+    color: ${(props) => props.theme.colors.greyScale5};
+`
+const PageViewSubtitleHelpText = styled.div`
+    color: ${(props) => props.theme.colors.greyScale4};
+`
+
+const PageViewFooter = styled.div`
+    display: flex;
+    align-items: center;
+    grid-gap: 5px;
+`
+
+const ResultsList = styled.div<{
+    viewportWidth: ViewportBreakpoint
+    loading?: boolean
+    isIframe?: boolean
+}>`
+    display: flex;
+    flex-direction: column;
+    z-index: 20;
+    padding-bottom: 200px;
+
+    ${(props) =>
+        props.viewportWidth === 'mobile' &&
+        css`
+            padding: 0px 15px 0px 15px;
+        `}
+    ${(props) =>
+        props.viewportWidth === 'small' &&
+        css`
+            padding: 0px 15px 0px 15px;
+        `} /* ${(props) =>
+        props.isIframe &&
+        css`
+            padding: 10px;
+        `}; */
+`
+
+const PageStickyBox = styled.div<{ beSticky: boolean }>`
+    z-index: 20;
+    ${(props) =>
+        props.beSticky &&
+        css`
+            position: sticky;
+            top: 62px;
+            bottom: 0px;
+        `}
+`
+
+const DocumentView = styled.div`
+    height: 100%;
+    width: 100%;
+`
+
+const DocumentContainer = styled.div`
+    height: 100%;
+`
+
+// const CollectionDescriptionBox = styled.div<{
+//     viewportWidth: ViewportBreakpoint
+// }>`
+//     font-family: ${(props) => props.theme.fonts.primary};
+//     font-size: 14px;
+//     display: flex;
+//     flex-direction: column;
+//     align-items: flex-start;
+//     margin: ${(props) =>
+//         props.viewportWidth === 'small' || props.viewportWidth === 'mobile'
+//             ? '20px 5px'
+//             : '20px auto'};
+// `
+// const CollectionDescriptionText = styled.div<{
+//     viewportWidth: ViewportBreakpoint
+// }>``
+// const CollectionDescriptionToggle = styled.div<{
+//     viewportWidth: ViewportBreakpoint
+// }>`
+//     cursor: pointer;
+//     padding: 3px 5px;
+//     margin-left: -5px;
+//     border-radius: ${(props) => props.theme.borderRadii.default};
+//     color: ${(props) => props.theme.colors.subText};
+//     &:hover {
+//         background-color: ${(props) => props.theme.hoverBackgrounds.primary};
+//     }
+// `
+
+const NoResultsContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: fill-available;
+    padding: 50px 0px;
+`
+
+const HeaderButtonRow = styled.div`
+    display: flex;
+    align-items: center;
+    grid-gap: 10px;
+    flex-direction: row;
+`
+
+const InvitationTextContainer = styled.div`
+    display: flex;
+    align-items: center;
+    grid-gap: 5px;
+    flex: 1;
+`
+
+const LoadingBoxHeaderActionArea = styled.div`
+    height: fill-available;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding-right: 20px;
+    padding-top: 10px;
+`
+
+const InvitedNotification = styled.div<{
+    viewportBreakpoint: ViewportBreakpoint
+    withFrame?: boolean
+}>`
+    margin: auto;
+    width: 100%;
+    max-width: 800px;
+    min-height: 40px;
+    padding: 0px 10px 0px 0px;
+    color: ${(props) => props.theme.colors.greyScale5};
+    font-size: 14px;
+    font-weight: 300;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    font-family: ${(props) => props.theme.fonts.primary};
+    grid-gap: 10px;
+    margin-left: -7px;
+
+    ${(props) =>
+        props.viewportBreakpoint === 'mobile' &&
+        css`
+            display: flex;
+            width: 100%;
+            padding: 10px 0px;
+            font-size: 11px;
+            flex-direction: column;
+            grid-gap: 10px;
+        `}
+
+    ${(props) =>
+        props.withFrame &&
+        css`
+            border: 1px solid ${(props) => props.theme.colors.prime1}40;
+            border-radius: 8px;
+            width: fill-available;
+            padding: 5px 5px 5px 15px;
+            height: 100%;
+            justify-content: center;
+            margin-left: 0px;
+        `}
+            ${(props) =>
+        props.withFrame &&
+        props.viewportBreakpoint === 'mobile' &&
+        css`
+            border: 1px solid ${(props) => props.theme.colors.prime1}40;
+            border-radius: 8px;
+            width: fill-available;
+            padding: 15px 15px;
+            font-size: 12px;
+            height: 100%;
+            justify-content: center;
+        `}
+`
+
+const BreadCrumbBox = styled.div<{
+    isPageView: string
+}>`
+    display: flex;
+    align-items: center;
+    grid-gap: 10px;
+    margin-left: -8px;
+    margin-top: 15px;
+    color: ${(props) => props.theme.colors.white};
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+
+    & * {
+        cursor: pointer;
+    }
+
+    ${(props) =>
+        props.isPageView &&
+        css`
+            margin-top: 0px;
+            max-width: 800px;
+            width: 100%;
+        `}
+`
+
+const AbovePagesBox = styled.div<{
+    viewportWidth: ViewportBreakpoint
+}>`
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    width: calc(100% + 40px);
+    position: relative;
+    z-index: 30;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    justify-content: space-between;
+    padding-bottom: 10px;
+    border-radius: 3px 3px 0 0;
+    position: sticky;
+    top: 0px;
+    margin-left: -20px;
+    padding: 10px 20px 10px 20px;
+    background-color: ${(props) => props.theme.colors.black}40;
+    backdrop-filter: blur(10px);
+
+    ${(props) =>
+        (props.viewportWidth === 'mobile' || props.viewportWidth === 'small') &&
+        css`
+            padding: 10px 15px 10px 15px;
+            margin-left: 0px;
+            width: calc(100%);
+        `}
+`
+
+const DescriptionActions = styled(Margin)`
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+`
+
+const ActionItems = styled.div`
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    grid-gap: 10px;
+`
+
+const AddPageBtn = styled.div`
+    display: flex;
+    align-items: center;
+    left: 0;
+    font-family: ${(props) => props.theme.fonts.primary};
+    color: ${(props) => props.theme.colors.greyScale5};
+    font-weight: 400;
+    cursor: pointer;
+    border-radius: 3px;
+`
+
+const ToggleAllAnnotations = styled.div`
+    text-align: right;
+    font-family: ${(props) => props.theme.fonts.primary};
+    color: ${(props) => props.theme.colors.prime1};
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 12px;
+    width: fit-content;
+    border-radius: 5px;
+`
+
+const SectionTitle = styled.div`
+    font-family: ${(props) => props.theme.fonts.primary};
+    color: ${(props) => props.theme.colors.greyScale5};
+    font-weight: 300;
+    font-size: 16px;
+    letter-spacing: 1px;
+`
+
+const PageInfoList = styled.div<{
+    viewportBreakpoint: ViewportBreakpoint
+}>`
+    width: 100%;
+
+    ${(props) =>
+        props.viewportBreakpoint === 'mobile' &&
+        css`
+            padding: 0 0px 20px 0px;
+        `}
+`
+
+const EmptyListBox = styled.div`
+    font-family: ${(props) => props.theme.fonts.primary};
+    width: 100%;
+    padding: 20px 20px;
+    color: ${(props) => props.theme.colors.greyScale5};
+    display: flex;
+    font-size: 16px;
+    font-weight: normal;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+    grid-gap: 10px;
+`
+
+const ShowMoreCollaborators = styled.span`
+    cursor: pointer;
+    color: ${(props) => props.theme.colors.greyScale2};
+    align-items: center;
+    grid-gap: 5px;
+    display: inline-box;
+`
+
+const LoadingScreen = styled.div`
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`
+
+const ActionLoaderBox = styled.div`
+    margin-right: 10px;
+`
+
+const SubtitleContainer = styled.div<{
+    viewportBreakpoint: ViewportBreakpoint
+    loading?: boolean
+}>`
+    display: flex;
+    align-items: center;
+    /* grid-gap: 10px; */
+    font-size: 14px;
+    height: 24px;
+    white-space: nowrap;
+
+    ${(props) =>
+        props.viewportBreakpoint === 'mobile' &&
+        css`
+            align-items: center;
+        `}
+
+    ${(props) =>
+        props.loading &&
+        css`
+            margin-top: 5px;
+            margin-bottom: -5px;
+            padding-left: 10px;
+        `}
+`
+
+const DiscordChannelName = styled.span`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    grid-gap: 10px;
+    letter-spacing: 1px;
+    background-clip: text;
+    background: linear-gradient(269.15deg, #6ae394 -34.22%, #ffffff 149.84%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: 34px;
+    font-weight: 900;
+`
+const DiscordGuildName = styled.span`
+    color: ${(props) => props.theme.colors.greyScale6};
+    font-weight: 600;
+`
+
+const CollectionDescriptionBox = styled.div<{
+    viewportBreakpoint: ViewportBreakpoint
+}>`
+    margin: 20px 0 15px 0;
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+
+    ${(props) =>
+        props.viewportBreakpoint === 'mobile' &&
+        css`
+            padding: 20px 0px;
+        `}
+`
+const CollectionDescriptionText = styled(Markdown)<{
+    viewportBreakpoint: ViewportBreakpoint
+}>`
+    font-size: 16px;
+    color: ${(props) => props.theme.colors.white};
+    font-weight: 200;
+    font-family: ${(props) => props.theme.fonts.primary};
+    border-radius: 10px;
+`
+const CollectionDescriptionToggle = styled.div<{
+    viewportBreakpoint: ViewportBreakpoint
+}>`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    justify-self: flex-start;
+    font-family: ${(props) => props.theme.fonts.primary};
+    font-size: 12px;
+    cursor: pointer;
+    color: ${(props) => props.theme.colors.greyScale5};
+
+    & * {
+        cursor: pointer;
+    }
+`
+
+// const DomainName = styled.div`
+//     color: ${(props) => props.theme.colors.white};
+// `
+
+// const RearBox = styled.div<{
+//     viewportBreakpoint: ViewportBreakpoint
+// }>`
+//     display: inline-block;
+//     align-items: center;
+//     grid-gap: 5px;
+//     color: ${(props) => props.theme.colors.greyScale5};
+
+//     /* ${(props) =>
+//         props.viewportBreakpoint === 'mobile' &&
+//         css`
+//             grid-gap: 3px;
+//             flex-direction: column;
+//             align-items: flex-start;
+//         `} */
+// `
+
+const Creator = styled.span`
+    color: ${(props) => props.theme.colors.prime1};
+    padding: 0 4px;
+    cursor: pointer;
+`
+
+const SharedBy = styled.span`
+    color: ${(props) => props.theme.colors.greyScale5};
+    display: contents;
+`
+
+// const Date = styled.span`
+//     color: ${(props) => props.theme.colors.greyScale5};
+//     display: inline-block;
+// `
+
+const ContributorContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    padding: 10px;
+    width: 210px;
+    max-width: 300px;
+    border-radius: 12px;
+`
+const ListEntryBox = styled.div`
+    display: flex;
+    align-items: center;
+    height: 40px;
+    border-radius: 5px;
+    padding: 0 15px;
+
+    &:hover {
+        background: ${(props) => props.theme.colors.greyScale1};
+    }
+`
+
+const ListEntry = styled.div`
+    display: block;
+    align-items: center;
+
+    font-weight: 400;
+    width: fill-available;
+    color: ${(props) => props.theme.colors.white};
+    text-overflow: ellipsis;
+    overflow: hidden;
+
+    & * {
+        white-space: pre-wrap;
+        font-weight: initial;
+    }
+`

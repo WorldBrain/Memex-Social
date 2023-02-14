@@ -8,6 +8,7 @@ import { Margin } from 'styled-components-spacing'
 import ExternalLink from '../../../../../common-ui/components/external-link'
 import { ProcessSharedListKeyResult } from '@worldbrain/memex-common/lib/content-sharing/service/types'
 import { PrimaryAction } from '../../../../../common-ui/components/PrimaryAction'
+import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
 
 const Content = styled.div<{
     viewportBreakpoint: ViewportBreakpoint
@@ -55,38 +56,36 @@ const InvitedNotificationContainer = styled.div<{
 const InvitedNotification = styled.div<{
     viewportBreakpoint: ViewportBreakpoint
 }>`
-        margin: auto;
-        width: 100%;
-        max-width: 800px;
-        padding: 10px 15px;
-        color ${(props) => props.theme.colors.purple};
-        font-size: 14px;
-        font-weight: 400;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        border: 1px solid ${(props) =>
-            props.theme.darkModeColors.lineLightGrey};
-        font-family: ${(props) => props.theme.fonts.primary};
+    margin: auto;
+    width: 100%;
+    max-width: 800px;
+    padding: 10px 15px;
+    color: ${(props) => props.theme.colors.greyScale5};
+    font-size: 14px;
+    font-weight: 300;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: ${(props) => props.theme.fonts.primary};
 
-        ${(props) =>
-            props.viewportBreakpoint === 'mobile' &&
-            css`
-                display: inline-block;
-            `}
+    ${(props) =>
+        props.viewportBreakpoint === 'mobile' &&
+        css`
+            display: inline-block;
+        `}
 `
 
 const Title = styled.div`
     font-weight: 800;
     font-size: 22px;
-    color: ${(props) => props.theme.colors.darkerText};
+    color: ${(props) => props.theme.colors.greyScale2};
     text-align: center;
 `
 const SubTitle = styled.div`
     font-weight: 400;
     font-size: 16px;
     text-align: center;
-    color: ${(props) => props.theme.colors.lighterText};
+    color: ${(props) => props.theme.colors.greyScale5};
 `
 const ButtonsBox = styled.div`
     display: flex;
@@ -105,7 +104,7 @@ const secondaryButtonCss = css`
     border-radius: 3px;
     cursor: pointer;
     font-weight: 600;
-    color: ${(props) => props.theme.colors.primary};
+    color: ${(props) => props.theme.colors.prime1};
     text-decoration: none;
 `
 
@@ -194,51 +193,14 @@ export default function PermissionKeyOverlay(props: {
                     viewportBreakpoint={props.viewportBreakpoint}
                     onClick={() => props.onCloseRequested}
                 >
-                    🎉 You’ve been invited as a contributor. Add pages and
-                    highlights via the{' '}
-                    <ExternalLink href="https://links.memex.garden/download_collab_notif">
-                        Memex extension
-                    </ExternalLink>
+                    <Icon
+                        filePath={'personPlus'}
+                        color={'prime1'}
+                        heightAndWidth={'22px'}
+                    />
+                    You can add highlights and pages via the Memex extension.
                 </InvitedNotification>
             </InvitedNotificationContainer>
-            // <Overlay
-            //     services={props.services}
-            //     onCloseRequested={props.onCloseRequested}
-            // >
-            //     <Content viewportBreakpoint={props.viewportBreakpoint}>
-            //         <Title>
-            //             You’re now a Contributor to this collection
-            //         </Title>
-            //         <Margin top={'small'}>
-            //             <SubTitle>
-            //                 Install the Memex Browser extension to add pages
-            //                 and annotations
-            //             </SubTitle>
-            //         </Margin>
-            //         <Margin top={'small'}>
-            //             <BrowserIconsBox>
-            //                 <BrowserIcon src={braveLogo} />
-            //                 <BrowserIcon src={firefoxLogo} />
-            //                 <BrowserIcon src={chromeLogo} />
-            //             </BrowserIconsBox>
-            //         </Margin>
-            //         <Margin top={'medium'}>
-            //             <ButtonsBox>
-            //                 <PrimaryAction
-            //                     onClick={() =>
-            //                         window.open('https://memex.garden')
-            //                     }
-            //                     label={'Download Memex'}
-            //                 />
-            //                 <SecondaryButton
-            //                     onClick={props.onCloseRequested}
-            //                 >
-            //                     Already have it
-            //                 </SecondaryButton>
-            //             </ButtonsBox>
-            //         </Margin>
-            //     </Content>
-            // </Overlay>
         )
     }
     return null

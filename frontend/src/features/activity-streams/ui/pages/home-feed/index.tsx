@@ -1,9 +1,7 @@
-import pick from 'lodash/pick'
 import React from 'react'
-import { Waypoint } from 'react-waypoint'
 import styled, { css } from 'styled-components'
 import { UIElement } from '../../../../../main-ui/classes'
-import Logic, { getConversationKey } from './logic'
+import Logic from './logic'
 import {
     HomeFeedEvent,
     HomeFeedDependencies,
@@ -15,34 +13,23 @@ import {
 } from './types'
 import DocumentTitle from '../../../../../main-ui/components/document-title'
 import DefaultPageLayout from '../../../../../common-ui/layouts/default-page-layout'
-import LoadingScreen from '../../../../../common-ui/components/loading-screen'
 import { Margin } from 'styled-components-spacing'
-import PageInfoBox, {
-    PageInfoBoxAction,
-} from '../../../../../common-ui/components/page-info-box'
-import AnnotationsInPage from '../../../../annotations/ui/components/annotations-in-page'
-import { SharedAnnotationInPage } from '../../../../annotations/ui/components/types'
 import MessageBox from '../../../../../common-ui/components/message-box'
-import LoadingIndicator from '../../../../../common-ui/components/loading-indicator'
 import RouteLink from '../../../../../common-ui/components/route-link'
-import {
-    mapOrderedMap,
-    getOrderedMapIndex,
-    OrderedMap,
-    filterOrderedMap,
-} from '../../../../../utils/ordered-map'
-import { SharedAnnotationReference } from '@worldbrain/memex-common/lib/content-sharing/types'
-import AnnotationReply from '../../../../content-conversations/ui/components/annotation-reply'
 import ErrorBox from '../../../../../common-ui/components/error-box'
-import { isPagePdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
 import InstallExtOverlay from '../../../../ext-detection/ui/components/install-ext-overlay'
 import { getViewportBreakpoint } from '../../../../../main-ui/styles/utils'
 import { ViewportBreakpoint } from '../../../../../main-ui/styles/types'
 import MissingPdfOverlay from '../../../../ext-detection/ui/components/missing-pdf-overlay'
 import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
+import IconBox from '@worldbrain/memex-common/lib/common-ui/components/icon-box'
 import { IconKeys } from '@worldbrain/memex-common/lib/common-ui/styles/types'
-
-const commentImage = require('../../../../../assets/img/comment.svg')
+import LoadingIndicator from '@worldbrain/memex-common/lib/common-ui/components/loading-indicator'
+import { Waypoint } from 'react-waypoint'
+import { mapOrderedMap } from '../../../../../utils/ordered-map'
+import { act } from 'react-dom/test-utils'
+import { PrimaryAction } from '@worldbrain/memex-common/lib/common-ui/components/PrimaryAction'
+import Markdown from '@worldbrain/memex-common/lib/common-ui/components/markdown'
 
 const StyledIconMargin = styled(Margin)`
     display: flex;
@@ -52,17 +39,20 @@ const LoadMoreLink = styled(RouteLink)`
     display: flex;
     justify-content: center;
     font-family: ${(props) => props.theme.fonts.primary};
-    color: ${(props) => props.theme.colors.primary};
+    color: ${(props) => props.theme.colors.prime1};
     font-size: 11px;
     cursor: pointer;
     border-radius: 3px;
     align-items: center;
     &:hover {
-        background: ${(props) => props.theme.colors.grey};
+        background: ${(props) => props.theme.colors.greyScale2};
     }
 `
 
-const FeedContainer = styled.div<{ viewportBreakpoint: ViewportBreakpoint }>`
+const FeedContainer = styled.div<{
+    viewportBreakpoint: ViewportBreakpoint
+    isIframe: boolean
+}>`
     margin-top: 20px;
     padding-bottom: 200px;
 
@@ -71,40 +61,24 @@ const FeedContainer = styled.div<{ viewportBreakpoint: ViewportBreakpoint }>`
         css`
             padding: 0 10px 200px 10px;
         `}
-`
 
-const CommentIconBox = styled.div`
-    background: #ffffff09;
-    border-radius: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 24px;
-    width: fit-content;
-    padding: 0 10px;
-    grid-gap: 6px;
-    cursor: pointer;
-
-    & * {
-        cursor: pointer;
-    }
-`
-
-const Counter = styled.div`
-    color: ${(props) => props.theme.colors.purple};
-    font-size: 14px;
+    ${(props) =>
+        props.isIframe &&
+        css`
+            padding: 0 15px 100px 15px;
+        `}
 `
 
 const ActivityType = styled.div`
     white-space: nowrap;
-    color: ${(props) => props.theme.colors.normalText};
+    color: ${(props) => props.theme.colors.white};
 `
 
 const CollectionLink = styled(RouteLink)`
     display: block;
     justify-content: center;
     font-family: ${(props) => props.theme.fonts.primary};
-    color: ${(props) => props.theme.colors.purple};
+    color: ${(props) => props.theme.colors.prime1};
     padding-left: 5px;
     cursor: pointer;
     align-items: center;
@@ -126,11 +100,11 @@ const StyledActivityReason = styled.div`
     margin-bottom: 15px;
 `
 
-const LoadingIndicatorBox = styled.div`
+const LoadingIndicatorBox = styled.div<{ height?: string }>`
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 60px;
+    height: ${(props) => (props.height ? props.height : '60px')};
 `
 
 const ActivityReasonLabel = styled.div<{
@@ -138,21 +112,12 @@ const ActivityReasonLabel = styled.div<{
 }>`
     font-family: ${(props) => props.theme.fonts.primary};
     font-weight: normal;
-    font-size: 14px;
-    color: ${(props) => props.theme.colors.normalText};
+    font-size: 16px;
+    color: ${(props) => props.theme.colors.white};
     display: flex;
     width: 92%;
-    ${(props) =>
-        props.viewportBreakpoint === 'mobile' &&
-        css`
-            display: flex;
-            flex-direction: column;
-            grid-gap: 3px;
-
-            & > a {
-                padding-left: 0px;
-            }
-        `}
+    overflow: hidden;
+    text-overflow: ellipsis;
 `
 
 const AnnotationEntriesLoadingContainer = styled.div`
@@ -174,17 +139,21 @@ const StyledLastSeenLine = styled.div`
     justify-content: flex-start;
     font-size: 16px;
     align-items: center;
-    color: ${(props) => props.theme.colors.darkerText};
+    color: ${(props) => props.theme.colors.greyScale2};
     font-weight: 800;
-    margin-bottom: -20px;
+    margin-bottom: 20px;
 `
 const LastSeenLineLabel = styled.div`
     font-family: ${(props) => props.theme.fonts.primary};
     text-align: center;
-    padding: 0 20px;
-    background: ${(props) => props.theme.darkModeColors.background};
-    color: ${(props) => props.theme.darkModeColors.lighterText};
+    padding: 5px 15px 5px 10px;
+    color: ${(props) => props.theme.colors.white};
     z-index: 2;
+    display: flex;
+    align-items: center;
+    grid-gap: 10px;
+    border-radius: 8px;
+    border: 1px solid ${(props) => props.theme.colors.greyScale3};
 `
 
 const LoadMoreReplies = styled.div`
@@ -197,27 +166,14 @@ const LoadMoreReplies = styled.div`
     height: 20px;
     grid-gap: 5px;
     align-items: center;
-    color: ${(props) => props.theme.colors.normalText};
-    &:hover {
-        background: ${(props) => props.theme.colors.backgroundHighlight};
-    }
-`
-
-const SectionCircle = styled.div<{ size: string }>`
-    //background: ${(props) => props.theme.colors.backgroundHighlight};
-    border-radius: 100px;
-    height: ${(props) => (props.size ? props.size : '60px')};
-    width: ${(props) => (props.size ? props.size : '60px')};
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    color: ${(props) => props.theme.colors.white};
 `
 
 const Separator = styled.div`
     height: 1px;
     display: flex;
     width: fill-available;
-    background: ${(props) => props.theme.colors.lighterText}70;
+    background: ${(props) => props.theme.colors.greyScale3};
 `
 
 const NoActivitiesContainer = styled.div`
@@ -227,11 +183,16 @@ const NoActivitiesContainer = styled.div`
     justify-content: center;
 `
 
+const HeaderSubTitle = styled.div`
+    display: flex;
+    color: ${(props) => props.theme.colors.greyScale5};
+    font-size: 16px;
+    font-weight: 300;
+    margin-bottom: 15px;
+`
+
 type ActivityItemRendererOpts = { groupAlreadySeen: boolean }
-type ActivityItemRendererResult = {
-    key: string | number
-    rendered: JSX.Element
-}
+type ActivityItemRendererResult = React.ReactNode
 type ActivityItemRenderer<T extends ActivityItem> = (
     item: T,
     options: ActivityItemRendererOpts,
@@ -254,41 +215,35 @@ export default class HomeFeedPage extends UIElement<
         return getViewportBreakpoint(this.getViewportWidth())
     }
 
-    private getRenderableAnnotation = (
-        reference: SharedAnnotationReference,
-        hasReplies: boolean,
-    ): SharedAnnotationInPage | null => {
-        const annotation = this.state.annotations[reference.id]
-
-        if (!annotation) {
-            return null
+    isIframe = () => {
+        try {
+            return window.self !== window.top
+        } catch (e) {
+            return true
         }
-
-        return {
-            linkId: reference.id as string,
-            reference: reference,
-            hasThread: hasReplies,
-            createdWhen: annotation.updatedWhen,
-            ...pick(annotation, 'comment', 'body'),
-        } as SharedAnnotationInPage
     }
 
     renderContent() {
         const { state } = this
         if (state.loadState === 'pristine' || state.loadState === 'running') {
-            return <LoadingScreen />
+            return (
+                <LoadingIndicatorBox height={'180px'}>
+                    <LoadingIndicator />
+                </LoadingIndicatorBox>
+            )
         }
         if (state.loadState === 'error') {
             return 'Error'
         }
-        if (!this.state.activityItems.order.length) {
+        if (!this.state.activityItems.length) {
             return this.renderNoActivities()
         }
-
-        this.shouldRenderNewLine()
-
+        // this.shouldRenderNewLine()
         return (
-            <FeedContainer viewportBreakpoint={this.viewportBreakpoint}>
+            <FeedContainer
+                isIframe={this.isIframe()}
+                viewportBreakpoint={this.viewportBreakpoint}
+            >
                 {this.state.shouldShowNewLine && (
                     <div id="1">{this.renderNewLine()}</div>
                 )}
@@ -303,15 +258,18 @@ export default class HomeFeedPage extends UIElement<
     renderNewLine() {
         return (
             <StyledLastSeenLine>
-                <Icon icon="newFeed" heightAndWidth="20px" hoverOff />
-                <LastSeenLineLabel>New</LastSeenLineLabel>
+                <LastSeenLineLabel>
+                    <Icon
+                        icon="stars"
+                        color="prime1"
+                        heightAndWidth="22px"
+                        hoverOff
+                    />
+                    New
+                </LastSeenLineLabel>
                 <Separator />
             </StyledLastSeenLine>
         )
-    }
-
-    shouldRenderNewLine() {
-        return this.processEvent('getLastSeenLinePosition', null)
     }
 
     renderNoActivities() {
@@ -319,17 +277,18 @@ export default class HomeFeedPage extends UIElement<
             <Margin vertical="largest">
                 <NoActivitiesContainer>
                     <Margin bottom={'small'}>
-                        <SectionCircle size="50px">
+                        <IconBox heightAndWidth="50px">
                             <Icon
                                 icon={'newFeed'}
                                 heightAndWidth="25px"
-                                color="purple"
+                                color="prime1"
+                                hoverOff
                             />
-                        </SectionCircle>
+                        </IconBox>
                     </Margin>
                     <MessageBox title="No Updates (yet)">
-                        Get updates from Spaces you follow or conversation you
-                        participate in.
+                        Follow, reply or collaboratively curate Spaces to see
+                        updates here.
                     </MessageBox>
                 </NoActivitiesContainer>
             </Margin>
@@ -340,12 +299,10 @@ export default class HomeFeedPage extends UIElement<
         const lastSeenLine = new LastSeenLineState(
             this.state.lastSeenTimestamp ?? null,
         )
-
-        return mapOrderedMap(activities, (item) => {
+        return activities.map((item) => {
             const shouldRenderLastSeenLine = lastSeenLine.shouldRenderBeforeItem(
                 item,
             )
-
             let result: ActivityItemRendererResult
             if (item.type === 'page-item') {
                 result = this.renderPageItem(item, {
@@ -355,6 +312,10 @@ export default class HomeFeedPage extends UIElement<
                 result = this.renderListItem(item, {
                     groupAlreadySeen: lastSeenLine.alreadyRenderedLine,
                 })
+            } else if (item.type === 'annotation-item') {
+                result = this.renderAnnotationItem(item, {
+                    groupAlreadySeen: lastSeenLine.alreadyRenderedLine,
+                })
             } else {
                 throw new Error(
                     `Received unsupported activity type to render: ${
@@ -362,9 +323,8 @@ export default class HomeFeedPage extends UIElement<
                     }`,
                 )
             }
-
             return (
-                <React.Fragment key={result.key}>
+                <React.Fragment key={item.groupId}>
                     {shouldRenderLastSeenLine && (
                         <LastSeenLineContainer
                             shouldShowNewLine={this.state.shouldShowNewLine}
@@ -373,7 +333,7 @@ export default class HomeFeedPage extends UIElement<
                             <LastSeenLine />
                         </LastSeenLineContainer>
                     )}
-                    {result.rendered}
+                    {result}
                 </React.Fragment>
             )
         })
@@ -400,10 +360,11 @@ export default class HomeFeedPage extends UIElement<
                                 route="collectionDetails"
                                 services={this.props.services}
                                 params={{
-                                    id: activityItem.listReference.id as string,
+                                    id: activityItem.list.reference
+                                        .id as string,
                                 }}
                             >
-                                {activityItem.listName}
+                                {activityItem.list.title}
                             </CollectionLink>
                         </>
                     }
@@ -415,7 +376,7 @@ export default class HomeFeedPage extends UIElement<
         if (activityItem.reason === 'new-annotations' && activityItem.list) {
             return (
                 <ActivityReason
-                    icon={'commentEmpty'}
+                    icon={'commentAdd'}
                     label={
                         <>
                             <ActivityType>
@@ -442,61 +403,203 @@ export default class HomeFeedPage extends UIElement<
     }
 
     renderPageItem: ActivityItemRenderer<PageActivityItem> = (
-        pageItem,
+        activityItem,
         options,
     ) => {
-        const pageInfo = this.state.pageInfo[pageItem.normalizedPageUrl]
-        console.log(pageInfo)
-        const pageCreator = this.state.users[pageItem.creatorReference.id]
-        return {
-            key: getOrderedMapIndex(pageItem.annotations, 0).reference.id,
-            rendered: (
-                <Margin top={'larger'} bottom="large">
-                    <Margin>
-                        <Margin bottom="small">
-                            {this.renderActivityReason(pageItem)}
-                        </Margin>
-                        <PageInfoBox
-                            viewportBreakpoint={this.viewportBreakpoint}
-                            variant="dark-mode"
-                            onClick={(e) =>
-                                this.processEvent('clickPageResult', {
-                                    urlToOpen: pageInfo.originalUrl,
-                                    preventOpening: () => e.preventDefault(),
-                                    isFeed: true,
-                                })
-                            }
-                            type={
-                                isPagePdf({ url: pageItem?.normalizedPageUrl })
-                                    ? 'pdf'
-                                    : 'page'
-                            }
-                            profilePopup={{
-                                services: this.props.services,
-                                storage: this.props.storage,
-                                userRef: pageItem.creatorReference,
-                            }}
-                            pageInfo={{
-                                createdWhen: pageInfo?.createdWhen,
-                                fullTitle: pageInfo?.fullTitle,
-                                normalizedUrl: pageItem?.normalizedPageUrl,
-                                originalUrl: pageInfo?.originalUrl,
-                            }}
-                            creator={pageCreator}
-                            actions={[]}
-                        />
-                    </Margin>
-                    <Margin left={'small'}>
-                        {this.renderAnnotationsInPage(
-                            pageItem.groupId,
-                            pageItem,
-                            pageItem.annotations,
-                            options,
-                        )}
-                    </Margin>
-                </Margin>
-            ),
+        if (activityItem.reason !== 'new-annotations') {
+            return null
         }
+
+        return (
+            <UpdateItemContainer>
+                <UpdateItemTopBar>
+                    <UpdateItemTitleArea>
+                        <Icon
+                            filePath="reply"
+                            heightAndWidth={'30px'}
+                            hoverOff
+                            color={'prime1'}
+                        />
+                        <UpdateCounter>
+                            {activityItem.activities.length}{' '}
+                        </UpdateCounter>
+                        <UpdateItemTitle>
+                            new{' '}
+                            {pluralize(
+                                activityItem.activities.length,
+                                'annotation',
+                            )}{' '}
+                            in{' '}
+                            {activityItem.list && (
+                                <SpaceTitleContainer>
+                                    {' '}
+                                    <SpaceTitle>
+                                        {' '}
+                                        <RouteLink
+                                            services={this.props.services}
+                                            route="collectionDetails"
+                                            params={{
+                                                id: activityItem.list.reference.id.toString(),
+                                                entryId: activityItem.list.entry.id.toString(),
+                                            }}
+                                            query={getRangeQueryParams(
+                                                'AnnotEntry',
+                                                activityItem,
+                                            )}
+                                        >
+                                            {activityItem.list?.title}
+                                        </RouteLink>
+                                    </SpaceTitle>
+                                </SpaceTitleContainer>
+                            )}
+                            added to
+                        </UpdateItemTitle>
+                    </UpdateItemTitleArea>
+                    {activityItem.list && (
+                        <RouteLink
+                            services={this.props.services}
+                            route="collectionDetails"
+                            params={{
+                                id: activityItem.list.reference.id.toString(),
+                                entryId: activityItem.list.entry.id.toString(),
+                            }}
+                            query={getRangeQueryParams(
+                                'AnnotEntry',
+                                activityItem,
+                            )}
+                        >
+                            <PrimaryAction
+                                label="View"
+                                onClick={null}
+                                icon="arrowRight"
+                                iconPosition="right"
+                                type="primary"
+                                size="medium"
+                            />
+                        </RouteLink>
+                    )}
+                </UpdateItemTopBar>
+                <UpdateItemReferencedContentContainer>
+                    <PageBox>
+                        <PageTitle>{activityItem.pageTitle}</PageTitle>
+                        <PageDomain>
+                            {activityItem.normalizedPageUrl.split('/')[0]}
+                        </PageDomain>
+                    </PageBox>
+                </UpdateItemReferencedContentContainer>
+            </UpdateItemContainer>
+        )
+    }
+
+    renderAnnotationItem: ActivityItemRenderer<AnnotationActivityItem> = (
+        activityItem,
+        options,
+    ) => {
+        if (activityItem.reason !== 'new-replies') {
+            return null
+        }
+
+        return (
+            <UpdateItemContainer>
+                <UpdateItemTopBar>
+                    <UpdateItemTitleArea>
+                        <Icon
+                            filePath="reply"
+                            heightAndWidth={'30px'}
+                            hoverOff
+                            color={'prime1'}
+                        />
+                        <UpdateCounter>
+                            {activityItem.activities.length}{' '}
+                        </UpdateCounter>
+                        <UpdateItemTitle>
+                            {pluralize(
+                                activityItem.activities.length,
+                                'reply',
+                                'replies',
+                            )}{' '}
+                            in{' '}
+                            {activityItem.list && (
+                                <SpaceTitleContainer>
+                                    {' '}
+                                    <SpaceTitle>
+                                        {' '}
+                                        <RouteLink
+                                            services={this.props.services}
+                                            route="collectionDetails"
+                                            params={{
+                                                id: activityItem.list.reference.id.toString(),
+                                                entryId: activityItem.list.entry.id.toString(),
+                                            }}
+                                            query={{
+                                                annotationId: activityItem.annotation.reference.id.toString(),
+                                                ...getRangeQueryParams(
+                                                    'Reply',
+                                                    activityItem,
+                                                ),
+                                            }}
+                                        >
+                                            {activityItem.list?.title}
+                                        </RouteLink>
+                                    </SpaceTitle>
+                                </SpaceTitleContainer>
+                            )}
+                            added to
+                        </UpdateItemTitle>
+                    </UpdateItemTitleArea>
+                    {activityItem.list && (
+                        <RouteLink
+                            services={this.props.services}
+                            route="collectionDetails"
+                            params={{
+                                id: activityItem.list.reference.id.toString(),
+                                entryId: activityItem.list.entry.id.toString(),
+                            }}
+                            query={getRangeQueryParams(
+                                'ListEntry',
+                                activityItem,
+                            )}
+                        >
+                            <PrimaryAction
+                                label="View"
+                                onClick={null}
+                                icon="arrowRight"
+                                iconPosition="right"
+                                type="primary"
+                                size="medium"
+                            />
+                        </RouteLink>
+                    )}
+                </UpdateItemTopBar>
+                <UpdateItemReferencedContentContainer>
+                    <AnnotationBox>
+                        {activityItem.annotation.body && (
+                            <HighlightBox>
+                                <HighlightVerticalBar></HighlightVerticalBar>
+                                <Highlight>
+                                    <Markdown>
+                                        {activityItem.annotation.body}
+                                    </Markdown>
+                                </Highlight>
+                            </HighlightBox>
+                        )}
+                        {activityItem.annotation.comment && (
+                            <Comment>
+                                <Markdown>
+                                    {activityItem.annotation.comment}
+                                </Markdown>
+                            </Comment>
+                        )}
+                    </AnnotationBox>
+                    <PageBox>
+                        <PageTitle>{activityItem.pageTitle}</PageTitle>
+                        <PageDomain>
+                            {activityItem.normalizedPageUrl.split('/')[0]}
+                        </PageDomain>
+                    </PageBox>
+                </UpdateItemReferencedContentContainer>
+            </UpdateItemContainer>
+        )
     }
 
     isSeen(timestamp: number) {
@@ -504,359 +607,68 @@ export default class HomeFeedPage extends UIElement<
         return !!lastSeenTimestamp && lastSeenTimestamp > timestamp
     }
 
-    renderAnnotationsInPage = (
-        groupId: string,
-        parentItem: PageActivityItem | ListActivityItem,
-        annotationItems: OrderedMap<AnnotationActivityItem>,
-        options: ActivityItemRendererOpts,
-    ) => {
-        const { state } = this
-
-        return (
-            <AnnotationsInPage
-                variant="dark-mode"
-                loadState="success"
-                annotations={mapOrderedMap(
-                    filterOrderedMap(annotationItems, (item) => {
-                        if (parentItem.reason !== 'new-annotations') {
-                            return true
-                        }
-                        if (this.isSeen(parentItem.notifiedWhen)) {
-                            return true
-                        }
-
-                        const annotation = state.annotations[item.reference.id]
-                        const seenState =
-                            !!annotation && this.isSeen(annotation.updatedWhen)
-                                ? 'seen'
-                                : 'unseen'
-
-                        return seenState !== 'seen'
-                    }),
-                    (annotationItem) => {
-                        return this.getRenderableAnnotation(
-                            annotationItem.reference,
-                            !!annotationItem.replies?.length,
-                        )
-                    },
-                )}
-                getAnnotationCreator={(annotationReference) =>
-                    state.users[
-                        state.annotations[annotationReference.id]
-                            .creatorReference.id
-                    ]
-                }
-                profilePopupProps={{
-                    services: this.props.services,
-                    storage: this.props.storage,
-                }}
-                getAnnotationCreatorRef={(annotationReference) =>
-                    state.annotations[annotationReference.id].creatorReference
-                }
-                getAnnotationConversation={(annotationReference) => {
-                    const conversationKey = getConversationKey({
-                        groupId,
-                        annotationReference,
-                    })
-                    return this.state.conversations[conversationKey]
-                }}
-                getReplyCreator={(annotationReference, replyReference) => {
-                    const conversationKey = getConversationKey({
-                        groupId,
-                        annotationReference,
-                    })
-                    const groupReplies = state.replies[conversationKey]
-                    const reply = groupReplies?.[replyReference.id]
-
-                    // When the reply is newly submitted, it's not in state.replies yet
-                    if (reply) {
-                        return state.users[reply.creatorReference.id]
-                    }
-
-                    return (
-                        state.conversations[conversationKey]?.replies ?? []
-                    ).find((reply) => reply.reference.id === replyReference.id)
-                        ?.user
-                }}
-                renderBeforeReplies={(annotationReference) => {
-                    const conversationKey = getConversationKey({
-                        groupId,
-                        annotationReference,
-                    })
-                    const annotationItem =
-                        annotationItems.items[annotationReference.id]
-                    if (!annotationItem || !annotationItem.hasEarlierReplies) {
-                        return null
-                    }
-                    const loadState =
-                        state.moreRepliesLoadStates[conversationKey] ??
-                        'pristine'
-                    if (loadState === 'success') {
-                        return null
-                    }
-                    if (loadState === 'pristine') {
-                        return (
-                            <LoadingIndicatorBox>
-                                <LoadingIndicator size={25} />
-                            </LoadingIndicatorBox>
-                        )
-                    }
-                    if (loadState === 'error') {
-                        return (
-                            <LoadMoreReplies>
-                                Error loading earlier replies
-                            </LoadMoreReplies>
-                        )
-                    }
-                    return (
-                        <LoadMoreReplies
-                            onClick={() =>
-                                this.processEvent('loadMoreReplies', {
-                                    groupId: groupId,
-                                    annotationReference,
-                                    listReference: parentItem.listReference,
-                                })
-                            }
-                        >
-                            <Icon icon="clock" heightAndWidth="14px" />
-                            Load older replies
-                        </LoadMoreReplies>
-                    )
-                }}
-                renderReply={(props) => {
-                    const conversationKey = getConversationKey({
-                        groupId,
-                        annotationReference: props.annotationReference,
-                    })
-                    const moreRepliesLoadStates =
-                        state.moreRepliesLoadStates[conversationKey] ??
-                        'pristine'
-                    const seenState =
-                        state.lastSeenTimestamp &&
-                        props.reply &&
-                        (state.lastSeenTimestamp > props.reply.createdWhen
-                            ? 'seen'
-                            : 'unseen')
-                    const shouldRender =
-                        parentItem.type === 'list-item' ||
-                        parentItem.reason === 'new-annotations' ||
-                        seenState === 'unseen' ||
-                        options.groupAlreadySeen ||
-                        moreRepliesLoadStates === 'success'
-                    return shouldRender && <AnnotationReply {...props} />
-                }}
-                newPageReplyEventHandlers={{}}
-                newAnnotationReplyEventHandlers={{
-                    onNewReplyInitiate: (annotationReference) => {
-                        const conversationKey = getConversationKey({
-                            groupId,
-                            annotationReference,
-                        })
-                        return () =>
-                            this.processEvent('initiateNewReplyToAnnotation', {
-                                annotationReference,
-                                conversationId: conversationKey,
-                                sharedListReference: parentItem.listReference,
-                            })
-                    },
-                    onNewReplyCancel: (annotationReference) => {
-                        const conversationKey = getConversationKey({
-                            groupId,
-                            annotationReference,
-                        })
-                        return () =>
-                            this.processEvent('cancelNewReplyToAnnotation', {
-                                annotationReference,
-                                conversationId: conversationKey,
-                                sharedListReference: parentItem.listReference,
-                            })
-                    },
-                    onNewReplyConfirm: (annotationReference) => {
-                        const conversationKey = getConversationKey({
-                            groupId,
-                            annotationReference,
-                        })
-                        return () =>
-                            this.processEvent('confirmNewReplyToAnnotation', {
-                                annotationReference,
-                                conversationId: conversationKey,
-                                sharedListReference: parentItem.listReference,
-                            })
-                    },
-                    onNewReplyEdit: (annotationReference) => {
-                        const conversationKey = getConversationKey({
-                            groupId,
-                            annotationReference,
-                        })
-                        return ({ content }) =>
-                            this.processEvent('editNewReplyToAnnotation', {
-                                content,
-                                annotationReference,
-                                conversationId: conversationKey,
-                                sharedListReference: parentItem.listReference,
-                            })
-                    },
-                }}
-                onToggleReplies={(event) => {
-                    const conversationKey = getConversationKey({
-                        groupId,
-                        annotationReference: event.annotationReference,
-                    })
-                    return this.processEvent('toggleAnnotationReplies', {
-                        ...event,
-                        conversationId: conversationKey,
-                        sharedListReference: parentItem.listReference,
-                    })
-                }}
-            />
-        )
-    }
-
     renderListItem: ActivityItemRenderer<ListActivityItem> = (
         listItem,
         options,
     ) => {
-        const { state } = this
-        return {
-            key:
-                listItem.listReference.id +
-                ':' +
-                getOrderedMapIndex(listItem.entries, 0).normalizedUrl,
-            rendered: (
-                <Margin top={'larger'} bottom="large">
-                    <Margin bottom="small">
-                        {this.renderActivityReason(listItem)}
-                    </Margin>
-                    {mapOrderedMap(
-                        listItem.entries,
-                        (entry) => {
-                            const seenState =
-                                state.lastSeenTimestamp &&
-                                (state.lastSeenTimestamp >
-                                entry.activityTimestamp
-                                    ? 'seen'
-                                    : 'unseen')
-                            const shouldRender =
-                                options.groupAlreadySeen || seenState !== 'seen'
-                            if (!shouldRender) {
-                                return null
-                            }
-                            const actions: PageInfoBoxAction[] = []
-                            if (
-                                entry.annotationEntriesLoadState === 'running'
-                            ) {
-                                actions.push({
-                                    node: (
-                                        <AnnotationEntriesLoadingContainer>
-                                            <Margin right="medium">
-                                                <LoadingIndicator size={16} />
-                                            </Margin>
-                                        </AnnotationEntriesLoadingContainer>
-                                    ),
-                                })
-                            } else if (entry.hasAnnotations) {
-                                actions.push({
-                                    node: (
-                                        <CommentIconBox
-                                            onClick={() =>
-                                                this.processEvent(
-                                                    'toggleListEntryActivityAnnotations',
-                                                    {
-                                                        listReference:
-                                                            listItem.listReference,
-                                                        listEntryReference:
-                                                            entry.reference,
-                                                        groupId:
-                                                            listItem.groupId,
-                                                    },
-                                                )
-                                            }
-                                        >
-                                            {/* {count.length > 0 && <Counter>{count}</Counter>} */}
-                                            <Icon
-                                                icon={commentImage}
-                                                heightAndWidth={'16px'}
-                                                hoverOff
-                                            />
-                                        </CommentIconBox>
-                                    ),
-                                })
-                            }
-
-                            const creator = state.users[entry.creator.id]
-                            return (
-                                <Margin
-                                    bottom="small"
-                                    key={entry.normalizedUrl}
-                                >
-                                    <PageInfoBox
-                                        onClick={(e) =>
-                                            this.processEvent(
-                                                'clickPageResult',
-                                                {
-                                                    urlToOpen:
-                                                        entry.originalUrl,
-                                                    preventOpening: () =>
-                                                        e.preventDefault(),
-                                                    isFeed: true,
-                                                },
-                                            )
-                                        }
-                                        type={
-                                            isPagePdf({
-                                                url: entry.normalizedUrl,
-                                            })
-                                                ? 'pdf'
-                                                : 'page'
-                                        }
-                                        profilePopup={{
-                                            services: this.props.services,
-                                            storage: this.props.storage,
-                                            userRef: entry.creator,
-                                        }}
-                                        pageInfo={{
-                                            fullTitle: entry.entryTitle,
-                                            originalUrl: entry.originalUrl,
-                                            createdWhen:
-                                                entry.activityTimestamp,
-                                            normalizedUrl: entry.normalizedUrl,
-                                        }}
-                                        creator={creator}
-                                        actions={actions}
-                                        variant="dark-mode"
-                                    />
-                                    {entry.annotationsLoadState ===
-                                        'running' && (
-                                        <LoadingIndicatorBox>
-                                            <LoadingIndicator size={25} />
-                                        </LoadingIndicatorBox>
-                                    )}
-                                    {entry.areAnnotationsShown &&
-                                        this.renderAnnotationsInPage(
-                                            listItem.groupId,
-                                            listItem,
-                                            entry.annotations,
-                                            options,
-                                        )}
-                                </Margin>
-                            )
-                        },
-                        (inputArr) =>
-                            inputArr.slice(0, this.props.listActivitiesLimit),
-                    )}
-                    {listItem.entries.order.length >
-                        this.props.listActivitiesLimit && (
-                        <LoadMoreLink
-                            route="collectionDetails"
-                            services={this.props.services}
-                            params={{ id: listItem.listReference.id as string }}
-                        >
-                            View All
-                        </LoadMoreLink>
-                    )}
-                </Margin>
-            ),
+        if (listItem.reason !== 'pages-added-to-list') {
+            return null
         }
+        return (
+            <UpdateItemContainer>
+                <UpdateItemTopBar>
+                    <UpdateItemTitleArea>
+                        <Icon
+                            filePath="heartEmpty"
+                            heightAndWidth={'30px'}
+                            hoverOff
+                            color={'prime1'}
+                        />
+                        <UpdateCounter>
+                            {listItem.activities.length}{' '}
+                        </UpdateCounter>
+                        <UpdateItemTitle>
+                            {pluralize(listItem.activities.length, 'page')}{' '}
+                            added in{' '}
+                            <SpaceTitleContainer>
+                                {' '}
+                                <SpaceTitle>
+                                    {' '}
+                                    <RouteLink
+                                        services={this.props.services}
+                                        route="collectionDetails"
+                                        params={{
+                                            id: listItem.list.reference.id.toString(),
+                                        }}
+                                        query={getRangeQueryParams(
+                                            'ListEntry',
+                                            listItem,
+                                        )}
+                                    >
+                                        {listItem.list.title}
+                                    </RouteLink>
+                                </SpaceTitle>
+                            </SpaceTitleContainer>
+                        </UpdateItemTitle>
+                    </UpdateItemTitleArea>
+                    <RouteLink
+                        services={this.props.services}
+                        route="collectionDetails"
+                        params={{ id: listItem.list.reference.id.toString() }}
+                        query={getRangeQueryParams('ListEntry', listItem)}
+                    >
+                        <PrimaryAction
+                            label="View"
+                            onClick={null}
+                            icon="arrowRight"
+                            iconPosition="right"
+                            type="primary"
+                            size="medium"
+                        />
+                    </RouteLink>
+                </UpdateItemTopBar>
+            </UpdateItemContainer>
+        )
     }
 
     renderNeedsAuth() {
@@ -878,36 +690,46 @@ export default class HomeFeedPage extends UIElement<
         )
     }
 
-    private renderModals() {
-        if (this.state.isInstallExtModalShown) {
-            return (
-                <InstallExtOverlay
-                    services={this.props.services}
-                    viewportBreakpoint={this.viewportBreakpoint}
-                    onCloseRequested={() =>
-                        this.processEvent('toggleInstallExtModal', {})
-                    }
-                    mode={
-                        this.state.clickedPageUrl != null
-                            ? 'click-page'
-                            : 'add-page'
-                    }
-                    clickedPageUrl={this.state.clickedPageUrl!}
-                />
-            )
-        }
+    renderHeaderSubTitle() {
+        return (
+            <HeaderSubTitle>
+                Updates from Spaces you follow or conversation you participate
+                in
+            </HeaderSubTitle>
+        )
+    }
 
-        if (this.state.isMissingPDFModalShown) {
-            return (
-                <MissingPdfOverlay
-                    services={this.props.services}
-                    viewportBreakpoint={this.viewportBreakpoint}
-                    onCloseRequested={() =>
-                        this.processEvent('toggleMissingPdfModal', {})
-                    }
-                />
-            )
-        }
+    private renderModals() {
+        // if (this.state.isInstallExtModalShown) {
+        //     return (
+        //         <InstallExtOverlay
+        //             services={this.props.services}
+        //             viewportBreakpoint={this.viewportBreakpoint}
+        //             onCloseRequested={() =>
+        //                 this.processEvent('toggleInstallExtModal', {})
+        //             }
+        //             mode={
+        //                 this.state.clickedPageUrl != null
+        //                     ? 'click-page'
+        //                     : 'add-page'
+        //             }
+        //             intent={'openLink'}
+        //             clickedPageUrl={this.state.clickedPageUrl!}
+        //         />
+        //     )
+        // }
+
+        // if (this.state.isMissingPDFModalShown) {
+        //     return (
+        //         <MissingPdfOverlay
+        //             services={this.props.services}
+        //             viewportBreakpoint={this.viewportBreakpoint}
+        //             onCloseRequested={() =>
+        //                 this.processEvent('toggleMissingPdfModal', {})
+        //             }
+        //         />
+        //     )
+        // }
 
         return null
     }
@@ -930,14 +752,16 @@ export default class HomeFeedPage extends UIElement<
                     viewportBreakpoint={this.viewportBreakpoint}
                     hideActivityIndicator
                     headerTitle="Activity Feed"
-                    listsSidebarProps={{
-                        collaborativeLists: this.state.collaborativeLists,
-                        followedLists: this.state.followedLists,
-                        isShown: this.state.isListSidebarShown,
-                        loadState: this.state.listSidebarLoadState,
-                        onToggle: () =>
-                            this.processEvent('toggleListSidebar', undefined),
-                    }}
+                    headerSubtitle={this.renderHeaderSubTitle()}
+                    context="feed"
+                    // listsSidebarProps={{
+                    //     collaborativeLists: this.state.collaborativeLists,
+                    //     followedLists: this.state.followedLists,
+                    //     isShown: this.state.isListSidebarShown,
+                    //     loadState: this.state.listSidebarLoadState,
+                    //     onToggle: () =>
+                    //         this.processEvent('toggleListSidebar', undefined),
+                    // }}
                 >
                     {this.renderContent()}
                 </DefaultPageLayout>
@@ -954,13 +778,7 @@ const ActivityReason = (props: {
     return (
         <StyledActivityReason>
             <StyledIconMargin right="small">
-                <SectionCircle size="36px">
-                    <Icon
-                        icon={props.icon}
-                        heightAndWidth="18px"
-                        color="purple"
-                    />
-                </SectionCircle>
+                <Icon icon={props.icon} heightAndWidth="22px" color="prime1" />
             </StyledIconMargin>
             <ActivityReasonLabel viewportBreakpoint={props.viewportBreakpoint}>
                 {props.label}
@@ -971,7 +789,6 @@ const ActivityReason = (props: {
 
 class LastSeenLineState {
     alreadyRenderedLine = false
-
     constructor(private lastSeenTimestamp: number | null) {}
 
     shouldRenderBeforeItem(activityItem: Pick<ActivityItem, 'notifiedWhen'>) {
@@ -987,6 +804,7 @@ class LastSeenLineState {
         if (shouldRenderLine) {
             this.alreadyRenderedLine = true
         }
+
         return this.alreadyRenderedLine
     }
 }
@@ -994,9 +812,175 @@ class LastSeenLineState {
 function LastSeenLine() {
     return (
         <StyledLastSeenLine>
-            <Icon icon="checkedRound" heightAndWidth="20px" hoverOff />
-            <LastSeenLineLabel>Read</LastSeenLineLabel>
+            <LastSeenLineLabel>
+                <Icon icon="clock" heightAndWidth="22px" hoverOff />
+                Seen
+            </LastSeenLineLabel>
             <Separator />
         </StyledLastSeenLine>
     )
 }
+
+function pluralize(count: number, singular: string, plural?: string) {
+    if (count === 1) {
+        return singular
+    }
+    return plural ?? `${singular}s`
+}
+
+function getRangeQueryParams(
+    type: 'ListEntry' | 'AnnotEntry' | 'Reply',
+    activityItem: ActivityItem,
+) {
+    const lastActivitiy =
+        activityItem.activities[activityItem.activities.length - 1]
+    return {
+        [`from${type}`]: activityItem.activities[0].notifiedWhen.toString(),
+        [`to${type}`]: lastActivitiy.notifiedWhen.toString(),
+    }
+}
+
+const UpdateItemReferencedContentContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    border-radius: 10px;
+    border: 1px solid ${(props) => props.theme.colors.greyScale2};
+    margin-top: 15px;
+    align-items: flex-start;
+    margin-left: 45px;
+`
+
+const AnnotationBox = styled.div`
+    display: flex;
+    padding: 20px;
+    flex-direction: column;
+    align-items: center;
+    grid-gap: 15px;
+    border-bottom: 1px solid ${(props) => props.theme.colors.greyScale2};
+    width: -webkit-fill-available;
+    justify-content: flex-start;
+`
+
+const HighlightBox = styled.div`
+    justify-content: flex-start;
+    display: flex;
+    grid-gap: 10px;
+    width: fill-available;
+`
+
+const Highlight = styled.div`
+    flex: 1;
+    color: ${(props) => props.theme.colors.white};
+    font-size: 14px;
+    justify-content: flex-start;
+    text-align: left;
+    float: left;
+    align-items: center;
+`
+
+const HighlightVerticalBar = styled.div`
+    width: 6px;
+    height: auto;
+    background: ${(props) => props.theme.colors.prime1};
+    border-radius: 10px;
+`
+
+const Comment = styled.div`
+    color: ${(props) => props.theme.colors.white};
+    font-size: 14px;
+    text-align: left;
+    float: left;
+    display: flex;
+    justify-content: flex-start;
+    width: fill-available;
+`
+
+const PageBox = styled.div`
+    display: flex;
+    padding: 15px 20px;
+    flex-direction: column;
+    grid-gap: 2px;
+`
+
+const PageTitle = styled.div`
+    display: flex;
+    color: ${(props) => props.theme.colors.greyScale5};
+    font-size: 14px;
+`
+
+const PageDomain = styled.div`
+    display: flex;
+    color: ${(props) => props.theme.colors.greyScale4};
+    font-size: 14px;
+`
+
+const UpdateItemContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    width: fill-available;
+    background: ${(props) => props.theme.colors.greyScale1};
+    border-radius: 10px;
+    margin-bottom: 10px;
+
+    font-family: ${(props) => props.theme.fonts.primary};
+
+    & * {
+        font-family: ${(props) => props.theme.fonts.primary};
+    }
+`
+
+const UpdateItemTopBar = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: fill-available;
+    grid-gap: 50px;
+`
+
+const UpdateItemTitleArea = styled.div`
+    display: flex;
+    align-items: center;
+    grid-gap: 10px;
+    width: fill-available;
+`
+
+const UpdateCounter = styled.div`
+    display: flex;
+    align-items: center;
+    border-radius: 30px;
+    background: ${(props) => props.theme.colors.prime1};
+    align-items: center;
+    justify-content: center;
+    padding: 2px 15px;
+    font-weight: 500;
+    font-size: 14px;
+    min-width: 40px;
+`
+
+const UpdateItemTitle = styled.div`
+    display: flex;
+    align-items: center;
+    color: ${(props) => props.theme.colors.greyScale5};
+    font-size: 14px;
+    width: 100px;
+    flex-direction: row;
+    grid-gap: 6px;
+    white-space: nowrap;
+    flex: 1;
+`
+
+const SpaceTitle = styled.span`
+    color: ${(props) => props.theme.colors.white};
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+`
+const SpaceTitleContainer = styled.div`
+    display: contents;
+    color: ${(props) => props.theme.colors.white};
+    font-weight: 500;
+    flex: 1;
+    overflow: hidden;
+`

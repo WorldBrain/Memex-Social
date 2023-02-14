@@ -40,6 +40,7 @@ export interface AuthService {
     enforceAuth(options?: AuthRequest): Promise<boolean>
     waitForAuthReady(): Promise<void>
     waitForAuth(): Promise<void>
+    waitForAuthSync(): Promise<void>
     requestAuth(options?: AuthRequest): Promise<{ result: AuthResult }>
 }
 

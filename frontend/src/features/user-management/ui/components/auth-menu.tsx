@@ -1,7 +1,6 @@
 import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
 import React from 'react'
 import styled from 'styled-components'
-import { HoverBox } from '../../../../common-ui/components/hoverbox'
 
 import { theme } from '../../../../main-ui/styles/theme'
 
@@ -12,11 +11,12 @@ const MenuItem = styled.div`
     border-radius: 8px;
     padding: 0 15px;
     height: 50px;
-    width: 100%;
+    min-width: fit-content;
+    width: fill-available;
     grid-gap: 10px;
 
     &:hover {
-        background: ${(props) => props.theme.darkModeColors.lightHover};
+        outline: 1px solid ${(props) => props.theme.colors.greyScale3};
     }
 `
 
@@ -29,7 +29,7 @@ const IconContainer = styled.div`
 `
 
 const MenuItemText = styled.div`
-    color: ${(props) => props.theme.darkModeColors.lighterText};
+    color: ${(props) => props.theme.colors.white};
     font-size: 14px;
     font-weight: 400;
     font-family: ${(props) => props.theme.fonts.primary};
@@ -41,6 +41,8 @@ const ContentBox = styled.div`
     flex-direction: column;
     align-items: flex-start;
     justify-content: flex-start;
+    height: fit-content;
+    width: fit-content;
 `
 
 export default function AuthMenu(props: {
@@ -49,25 +51,23 @@ export default function AuthMenu(props: {
     onAccountSettingsRequested(): void
 }) {
     return (
-        <HoverBox right="0px" padding="0px" width="270px">
-            <ContentBox>
-                <AuthMenuItem
-                    label={'Profile Information'}
-                    onClick={props.onAccountSettingsRequested}
-                    icon={theme.icons.settings}
-                />
-                <AuthMenuItem
-                    label={'Feature Requests & Bugs'}
-                    icon={theme.icons.sadFace}
-                    onClick={() => window.open('https://memex.garden/feedback')}
-                />
-                <AuthMenuItem
-                    label={'Logout'}
-                    icon={theme.icons.logout}
-                    onClick={props.onLogoutRequested}
-                />
-            </ContentBox>
-        </HoverBox>
+        <ContentBox>
+            <AuthMenuItem
+                label={'Profile Information'}
+                onClick={props.onAccountSettingsRequested}
+                icon={theme.icons.settings}
+            />
+            <AuthMenuItem
+                label={'Feature Requests & Bugs'}
+                icon={theme.icons.sadFace}
+                onClick={() => window.open('https://memex.garden/feedback')}
+            />
+            <AuthMenuItem
+                label={'Logout'}
+                icon={theme.icons.logout}
+                onClick={props.onLogoutRequested}
+            />
+        </ContentBox>
     )
 }
 

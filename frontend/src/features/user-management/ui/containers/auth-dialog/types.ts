@@ -19,6 +19,7 @@ export interface AuthDialogState {
     displayName: string
     error?: AuthError['reason']
     passwordRepeat: string
+    passwordMatch: boolean
 }
 export type AuthDialogMode =
     | 'hidden'
@@ -35,10 +36,11 @@ export type AuthDialogEvent = UIEvent<{
     editEmail: { value: string }
     editPassword: { value: string }
     passwordRepeat: { value: string }
+    passwordMatch: { value: boolean }
     emailPasswordConfirm: null
     socialSignIn: { provider: AuthProvider }
 
-    editDisplayName: { value: string }
+    editDisplayName: string
     confirmDisplayName: null
     passwordReset: null
     passwordResetSwitch: null

@@ -13,7 +13,7 @@ import LoadingIndicator from '@worldbrain/memex-common/lib/common-ui/components/
 
 const Title = styled.div<{}>`
     font-size: 16px;
-    color: ${(props) => props.theme.darkModeColors.lighterText};
+    color: ${(props) => props.theme.colors.white};
     font-weight: 800;
     text-align: center;
 `
@@ -23,7 +23,7 @@ const Text = styled.div<{}>`
     height: min-content;
     font-size: 14px;
     margin-top: 5px;
-    color: ${(props) => props.theme.darkModeColors.normalText};
+    color: ${(props) => props.theme.colors.greyScale5};
     line-height: 21px;
     text-align: center;
 `
@@ -33,6 +33,11 @@ const LoadingBox = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
+`
+
+const Container = styled.div`
+    padding: 30px;
+    width: 340px;
 `
 
 interface CuratorSupportPopupProps {
@@ -58,7 +63,7 @@ export default class CuratorSupportPopup extends PureComponent<CuratorSupportPop
         } = this.props
 
         return (
-            <HoverBox width="340px" padding={'20px 30px'}>
+            <Container>
                 {loadState === 'running' && (
                     <LoadingBox>
                         <LoadingIndicator size={30} />
@@ -114,7 +119,7 @@ export default class CuratorSupportPopup extends PureComponent<CuratorSupportPop
                         )}
                     </>
                 )}
-            </HoverBox>
+            </Container>
         )
     }
 }

@@ -11,12 +11,14 @@ const StyledMessageBox = styled.div`
 
 const MessageBoxTitle = styled.div`
     font-weight: 800;
-    color: ${(props) => props.theme.colors.darkerText};
+    color: ${(props) => props.theme.colors.white};
+    font-size: 18px;
 `
 
 const MessageBoxBody = styled.div`
-    color: ${(props) => props.theme.colors.lighterText};
-    font-weight: 400;
+    color: ${(props) => props.theme.colors.greyScale5};
+    font-weight: 300;
+    font-size: 16px;
 `
 
 export default function MessageBox(props: {

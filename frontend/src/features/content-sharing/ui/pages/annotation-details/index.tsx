@@ -204,7 +204,7 @@ const IntroText = styled.div`
     padding: 0 5px;
     box-decoration-break: clone;
     font-size: 16px;
-    color: ${(props) => props.theme.colors.primary};
+    color: ${(props) => props.theme.colors.prime1};
 `
 
 const LogoLinkArea = styled.a``
@@ -260,7 +260,7 @@ const AnnotationBody = styled.span`
     padding: 0 5px;
     box-decoration-break: clone;
     font-size: 16px;
-    color: ${(props) => props.theme.colors.primary};
+    color: ${(props) => props.theme.colors.prime1};
 `
 const AnnotationComment = styled.div`
     font-family: ${(props) => props.theme.fonts.primary};
@@ -271,7 +271,7 @@ const AnnotationComment = styled.div`
     padding: 0 5px;
     box-decoration-break: clone;
     font-size: 16px;
-    color: ${(props) => props.theme.colors.primary};
+    color: ${(props) => props.theme.colors.prime1};
 `
 const AnnotationAuthorBox = styled.div`
     display: flex;
@@ -282,7 +282,7 @@ const AnnotationAuthorBox = styled.div`
     margin-top: 15px;
 `
 const AnnotationAuthorName = styled.div`
-    color: ${(props) => props.theme.colors.primary};
+    color: ${(props) => props.theme.colors.prime1};
     font-size: 12px;
     font-weight: bold;
     height: 24px;
@@ -290,12 +290,12 @@ const AnnotationAuthorName = styled.div`
 `
 
 const AnnotationAuthorUploadDate = styled.div`
-    color: ${(props) => props.theme.colors.primary};
+    color: ${(props) => props.theme.colors.prime1};
     font-size: 12px;
     font-weight: normal;
 `
 const AnnotationFooter = styled.div`
-    border-top: 1px solid ${(props) => props.theme.darkModeColors.lineGrey};
+    border-top: 1px solid ${(props) => props.theme.colors.greyScale3};
     padding: 15px;
     display: flex;
     align-items: center;
@@ -333,7 +333,7 @@ const AnnotationPageTitle = styled.div`
 
 const AnnotationPageUrl = styled.div`
     font-family: ${(props) => props.theme.fonts.primary};
-    color: ${(props) => props.theme.colors.primary};
+    color: ${(props) => props.theme.colors.prime1};
     width: 355px;
     font-size: 12px;
     white-space: nowrap;
@@ -345,7 +345,7 @@ const AnnotationPageUrl = styled.div`
 
 const GoToAnnotationButton = styled.a`
     border-radius: 5px;
-    background-color: ${(props) => props.theme.colors.purple};
+    background-color: ${(props) => props.theme.colors.prime1};
     color: ${(props) => props.theme.colors.white};
     height: 36px;
     padding: 8px 16px;

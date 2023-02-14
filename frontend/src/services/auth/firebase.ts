@@ -1,5 +1,5 @@
 import { User } from '@worldbrain/memex-common/lib/web-interface/types/users'
-import firebase from 'firebase'
+import firebase from 'firebase/compat'
 import { EventEmitter } from 'events'
 import { Storage } from '../../storage/types'
 import { AuthProvider } from '../../types/auth'
@@ -14,6 +14,8 @@ import {
 import { AuthServiceBase } from './base'
 import { waitForAuth } from './utils'
 import { LimitedWebStorage } from '../../utils/web-storage/types'
+import { syncWithExtension } from './auth-sync'
+import { AnalyticsService } from '../analytics'
 
 const FIREBASE_AUTH_CACHE_KEY = 'firebase.wasAuthenticated'
 
@@ -23,12 +25,14 @@ export default class FirebaseAuthService extends AuthServiceBase {
     private _user: User | null = null
     private _initialized = false
     _initialWaitForAuth?: Promise<void>
+    _authSyncPromise: Promise<void>
 
     constructor(
         firebaseRoot: typeof firebase,
         private options: {
             localStorage: LimitedWebStorage
             storage: Storage
+            analyticsService: AnalyticsService
         },
     ) {
         super()
@@ -60,6 +64,11 @@ export default class FirebaseAuthService extends AuthServiceBase {
             }
             await this.refreshCurrentUser()
         })
+
+        this._authSyncPromise = syncWithExtension(
+            this,
+            options.analyticsService,
+        )
     }
 
     getSupportedMethods(options: {
@@ -88,7 +97,7 @@ export default class FirebaseAuthService extends AuthServiceBase {
             await this._firebase.auth().signInWithPopup(firebaseProvider)
             return { result: { status: 'authenticated' } }
         } catch (e) {
-            const firebaseError: firebase.FirebaseError = e
+            const firebaseError = e as firebase.FirebaseError
             if (firebaseError.code === 'auth/popup-closed-by-user') {
                 return { result: { status: 'cancelled' } }
             }
@@ -109,7 +118,7 @@ export default class FirebaseAuthService extends AuthServiceBase {
         options: EmailPasswordCredentials,
     ): Promise<{ result: LoginResult }> {
         try {
-            const waitForChange = new Promise((resolve) =>
+            const waitForChange = new Promise<void>((resolve) =>
                 this.events.once('changed', () => resolve()),
             )
             await this._firebase
@@ -118,7 +127,7 @@ export default class FirebaseAuthService extends AuthServiceBase {
             await waitForChange
             return { result: { status: 'authenticated' } }
         } catch (e) {
-            const firebaseError: firebase.FirebaseError = e
+            const firebaseError = e as firebase.FirebaseError
             if (firebaseError.code === 'auth/invalid-email') {
                 return { result: { status: 'error', reason: 'invalid-email' } }
             }
@@ -141,7 +150,7 @@ export default class FirebaseAuthService extends AuthServiceBase {
                 .createUserWithEmailAndPassword(options.email, options.password)
             return { result: { status: 'registered-and-authenticated' } }
         } catch (e) {
-            const firebaseError: firebase.FirebaseError = e
+            const firebaseError = e as firebase.FirebaseError
             if (firebaseError.code === 'auth/invalid-email') {
                 return { result: { status: 'error', reason: 'invalid-email' } }
             }
@@ -161,6 +170,10 @@ export default class FirebaseAuthService extends AuthServiceBase {
 
     getCurrentUser() {
         return this._user
+    }
+
+    isLoggedIn() {
+        return !!this.getCurrentUser()
     }
 
     getCurrentUserEmail() {
@@ -206,6 +219,23 @@ export default class FirebaseAuthService extends AuthServiceBase {
 
     async waitForAuthReady() {
         await this._initialWaitForAuth
+    }
+
+    async waitForAuthSync(): Promise<void> {
+        await this._authSyncPromise
+    }
+
+    async generateLoginToken() {
+        const response = await this._callFirebaseFunction('getLoginToken')
+        return { token: response.data }
+    }
+
+    _callFirebaseFunction(name: string, ...args: any[]) {
+        return this._firebase.functions().httpsCallable(name)(...args)
+    }
+
+    async loginWithToken(token: string) {
+        await this._firebase.auth().signInWithCustomToken(token)
     }
 }
 

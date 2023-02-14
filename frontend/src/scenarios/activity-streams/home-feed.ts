@@ -79,6 +79,53 @@ export const SCENARIOS: ScenarioMap<Targets> = {
         },
         steps: [],
     })),
+    'split-activity-groups': scenario<Targets>(
+        ({ step, callModification }) => ({
+            fixture: 'annotated-list-with-user',
+            startRoute: { route: 'homeFeed', params: {} },
+            setup: {
+                execute: (context) =>
+                    setupTestActivities({
+                        ...context,
+                        script: [
+                            { type: 'login', user: 'default-user' },
+                            {
+                                type: 'reply',
+                                annotation: 'default-annotation',
+                                list: 'default-list',
+                            },
+                            {
+                                type: 'follow-annotation',
+                                annotation: 'default-annotation',
+                                list: 'default-list',
+                            },
+                            {
+                                type: 'login',
+                                user: 'two@user.com',
+                                createProfile: true,
+                            },
+                            {
+                                type: 'reply',
+                                annotation: 'default-annotation',
+                                list: 'default-list',
+                            },
+                            {
+                                type: 'home-feed-timestamp',
+                                user: 'default-user',
+                                time: '$now',
+                            },
+                            {
+                                type: 'reply',
+                                annotation: 'default-annotation',
+                                list: 'default-list',
+                            },
+                            { type: 'login', user: 'default-user' },
+                        ],
+                    }),
+            },
+            steps: [],
+        }),
+    ),
     'bump-seen-list-entries': scenario<Targets>(
         ({ step, callModification }) => ({
             fixture: 'annotated-list-with-user',

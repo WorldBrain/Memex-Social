@@ -16,7 +16,7 @@ import AnnotationsInPage from '../../../../annotations/ui/components/annotations
 import LoadingIndicator from '../../../../../common-ui/components/loading-indicator'
 import ErrorWithAction from '../../../../../common-ui/components/error-with-action'
 import ProfilePopupContainer from '../../../../user-management/ui/containers/profile-popup-container'
-import type { Props as ListsSidebarProps } from '../../../../lists-sidebar/ui/components/lists-sidebar'
+//import type { Props as ListsSidebarProps } from '../../../../lists-sidebar/ui/components/lists-sidebar'
 import InstallExtOverlay from '../../../../ext-detection/ui/components/install-ext-overlay'
 import { ViewportBreakpoint } from '../../../../../main-ui/styles/types'
 import { getViewportBreakpoint } from '../../../../../main-ui/styles/utils'
@@ -53,7 +53,7 @@ const SubtitleContainer = styled.div<{
 `
 
 const DomainName = styled.a`
-    color: ${(props) => props.theme.colors.normalText};
+    color: ${(props) => props.theme.colors.white};
     text-decoration: none;
 `
 
@@ -63,7 +63,7 @@ const RearBox = styled.div<{
     display: inline-block;
     align-items: center;
     grid-gap: 5px;
-    color: ${(props) => props.theme.colors.lighterText};
+    color: ${(props) => props.theme.colors.greyScale5};
 
     /* ${(props) =>
         props.viewportBreakpoint === 'mobile' &&
@@ -75,17 +75,17 @@ const RearBox = styled.div<{
 `
 
 const Creator = styled.span`
-    color: ${(props) => props.theme.colors.purple};
+    color: ${(props) => props.theme.colors.prime1};
     padding: 0 4px;
 `
 
 const SharedBy = styled.span`
-    color: ${(props) => props.theme.colors.lighterText};
+    color: ${(props) => props.theme.colors.greyScale5};
     display: inline-block;
 `
 
 const Date = styled.span`
-    color: ${(props) => props.theme.colors.lighterText};
+    color: ${(props) => props.theme.colors.greyScale5};
     display: inline-block;
 `
 
@@ -109,18 +109,18 @@ export default class PageDetailsPage extends UIElement<
         return getViewportBreakpoint(this.getViewportWidth())
     }
 
-    get listsSidebarProps(): Omit<
-        ListsSidebarProps,
-        'services' | 'storage' | 'viewportBreakpoint'
-    > {
-        return {
-            collaborativeLists: this.state.collaborativeLists,
-            followedLists: this.state.followedLists,
-            isShown: this.state.isListSidebarShown,
-            loadState: this.state.listSidebarLoadState,
-            onToggle: () => this.processEvent('toggleListSidebar', undefined),
-        }
-    }
+    // get listsSidebarProps(): Omit<
+    //     ListsSidebarProps,
+    //     'services' | 'storage' | 'viewportBreakpoint'
+    // > {
+    //     return {
+    //         collaborativeLists: this.state.collaborativeLists,
+    //         followedLists: this.state.followedLists,
+    //         isShown: this.state.isListSidebarShown,
+    //         loadState: this.state.listSidebarLoadState,
+    //         onToggle: () => this.processEvent('toggleListSidebar', undefined),
+    //     }
+    // }
 
     private renderModals() {
         if (this.state.isInstallExtModalShown) {
@@ -171,7 +171,7 @@ export default class PageDetailsPage extends UIElement<
                     storage={storage}
                     viewportBreakpoint={this.viewportBreakpoint}
                     headerTitle={'Loading page...'}
-                    listsSidebarProps={this.listsSidebarProps}
+                    // listsSidebarProps={this.listsSidebarProps}
                 >
                     <DocumentTitle
                         documentTitle={services.documentTitle}
@@ -188,7 +188,7 @@ export default class PageDetailsPage extends UIElement<
                     storage={storage}
                     viewportBreakpoint={this.viewportBreakpoint}
                     headerTitle={'Could not load page'}
-                    listsSidebarProps={this.listsSidebarProps}
+                    // listsSidebarProps={this.listsSidebarProps}
                 >
                     <DocumentTitle
                         documentTitle={props.services.documentTitle}
@@ -209,7 +209,7 @@ export default class PageDetailsPage extends UIElement<
                     storage={storage}
                     viewportBreakpoint={this.viewportBreakpoint}
                     headerTitle={'Shared page not found'}
-                    listsSidebarProps={this.listsSidebarProps}
+                    // listsSidebarProps={this.listsSidebarProps}
                 >
                     <DocumentTitle
                         documentTitle={services.documentTitle}
@@ -244,7 +244,7 @@ export default class PageDetailsPage extends UIElement<
                     viewportBreakpoint={this.viewportBreakpoint}
                     headerTitle={this.getHeaderTitle()}
                     //headerSubtitle={this.state.pageInfo?.normalizedUrl}
-                    listsSidebarProps={this.listsSidebarProps}
+                    // listsSidebarProps={this.listsSidebarProps}
                     headerSubtitle={this.getHeaderSubtitle()}
                     renderSubtitle={(props) => (
                         <ProfilePopupContainer

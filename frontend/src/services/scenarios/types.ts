@@ -29,7 +29,11 @@ export interface Scenario<
     Targets extends { [Target: string]: { signals?: UISignal<any> } } = {}
 > {
     description?: string
-    startRoute: { route: string; params?: { [key: string]: string } }
+    startRoute: {
+        route: string
+        params?: { [key: string]: string }
+        query?: { [key: string]: string }
+    }
     authenticated?: boolean
     setup?: {
         callModifications?(context: {

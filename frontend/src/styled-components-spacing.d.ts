@@ -24,6 +24,7 @@ declare module 'styled-components-spacing' {
         bottom: SpacingLength<Breakpoints>
         left: SpacingLength<Breakpoints>
         right: SpacingLength<Breakpoints>
+        width: string
     }
 
     declare function Margin(

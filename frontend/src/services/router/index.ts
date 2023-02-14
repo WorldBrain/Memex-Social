@@ -26,9 +26,9 @@ export default class RouterService {
     goTo(
         route: RouteName,
         params: { [key: string]: string } = {},
-        options?: {},
+        options?: { query?: { [key: string]: string } },
     ) {
-        this.options.history.push(this.getUrl(route, params))
+        this.options.history.push(this.getUrl(route, params, options))
     }
 
     goToExternalUrl(url: string) {
@@ -40,9 +40,16 @@ export default class RouterService {
     getUrl(
         route: RouteName,
         params: { [key: string]: string } = {},
-        options?: {},
+        options?: { query?: { [key: string]: string } },
     ): string {
-        return this.routes.getUrl(route, params)
+        let url = this.routes.getUrl(route, params)
+        if (options?.query) {
+            url += '?'
+            url += Object.entries(options.query)
+                .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
+                .join('&')
+        }
+        return url
     }
 
     matchCurrentUrl(): { route: RouteName; params: { [key: string]: string } } {
@@ -55,6 +62,13 @@ export default class RouterService {
             )
         }
         return parsed
+    }
+    getSpaceId() {
+        const parts = window.location.pathname.split('/')
+        if (parts[1] === 'c') {
+            return parts[2]
+        }
+        return null
     }
 
     matchUrl(

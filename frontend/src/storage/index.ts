@@ -1,4 +1,4 @@
-import firebase from 'firebase'
+import firebase from 'firebase/compat'
 
 import StorageManager, { StorageBackend } from '@worldbrain/storex'
 import { DexieStorageBackend } from '@worldbrain/storex-backend-dexie'
@@ -15,6 +15,7 @@ import {
     ChangeWatchMiddlewareSettings,
 } from '@worldbrain/storex-middleware-change-watcher'
 
+import DiscordStorage from '@worldbrain/memex-common/lib/discord/storage'
 import StorexActivityStreamsStorage from '@worldbrain/memex-common/lib/activity-streams/storage'
 import PersonalCloudStorage from '../features/personal-cloud/storage'
 import { ALLOWED_STORAGE_MODULE_OPERATIONS } from '@worldbrain/memex-common/lib/firebase-backend/app-layer/allowed-operations'
@@ -26,6 +27,7 @@ import ActivityFollowsStorage from '../features/activity-follows/storage'
 
 import { BackendType } from '../types'
 import { Storage } from './types'
+import { RetroSyncStorage } from '@worldbrain/memex-common/lib/discord/queue'
 
 // import { checkAccountCollectionInfoMap } from './checks';
 // import { ACCOUNT_COLLECTIONS } from './constants';
@@ -103,7 +105,9 @@ export async function createStorage(options: {
             })
             return result
         } catch (e) {
-            error = e
+            if (e instanceof Error) {
+                error = e
+            }
         } finally {
             if (process.env.REACT_APP_LOG_STORAGE === 'true') {
                 console.log(`Result`, error ?? result)
@@ -121,6 +125,11 @@ export async function createStorage(options: {
         serverStorageManager: storageManager,
         serverModules: {
             // auth: new AuthStorage({ storageManager }),
+            discord: new DiscordStorage({ storageManager }),
+            discordRetroSync: new RetroSyncStorage({
+                storageManager,
+                operationExecuter: operationExecuter('discordRetroSync'),
+            }),
             activityFollows: new ActivityFollowsStorage({
                 storageManager,
                 operationExecuter: operationExecuter('activityFollows'),
@@ -190,7 +199,9 @@ function createStorageMiddleware(options: {
                     result = await next.process({ operation })
                     return result
                 } catch (e) {
-                    error = e
+                    if (e instanceof Error) {
+                        error = e
+                    }
                 } finally {
                     console.log(`Result`, error ?? result)
                     console.groupEnd()

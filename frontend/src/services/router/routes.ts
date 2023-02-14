@@ -1,78 +1,149 @@
-import { RouteMap, RouteName } from '../../routes'
+import { RouteMap, RouteName, RoutePart, SimpleRoutePart } from '../../routes'
 
 const RoutesExternal = require('routes')
+
+interface RoutePartGroup {
+    parts: SimpleRoutePart[]
+    optional: boolean
+}
 
 export default class Routes {
     private router: any = new RoutesExternal()
 
     constructor(
         private options: { routes: RouteMap; isAuthenticated: () => boolean },
-    ) {
-        const byRoute: {
-            [path: string]: {
-                route?: string
-                authDependentRoutes?: { true?: string; false?: string }
-            }
-        } = {}
-        const resolver = (path: string) => {
-            return () => {
-                const routeEntry = byRoute[path]
-                if (routeEntry.authDependentRoutes) {
-                    const isAuthenticated = options.isAuthenticated()
-                    return routeEntry.authDependentRoutes[
-                        isAuthenticated ? 'true' : 'false'
-                    ]
-                } else {
-                    return routeEntry.route
-                }
-            }
-        }
-
-        for (const [name, route] of Object.entries(options.routes)) {
-            let routeEntry = byRoute[route.path]
-            if (!routeEntry) {
-                this.router.addRoute(route.path, resolver(route.path))
-                routeEntry = byRoute[route.path] = {}
-            }
-            if (typeof route.ifAuth !== 'undefined') {
-                routeEntry.authDependentRoutes =
-                    routeEntry.authDependentRoutes || {}
-                routeEntry.authDependentRoutes[
-                    route.ifAuth ? 'true' : 'false'
-                ] = name
-            } else {
-                routeEntry.route = name
-            }
-        }
-    }
+    ) {}
 
     getUrl(
-        route: RouteName,
-        params: { [key: string]: string } = {},
+        routeName: RouteName,
+        routeParams: { [key: string]: string } = {},
         options?: {},
     ): string {
-        const routeConfig = this.options.routes[route]
-        if (!routeConfig) {
-            throw new Error(`No such route ${route}`)
+        const route = this.options.routes[routeName]
+        if (!route.path.length) {
+            return '/'
         }
-
-        let url = routeConfig.path
-        for (const [key, value] of Object.entries(params)) {
-            url = url.replace(`:${key}`, value)
+        const groups = getRoutePartGroups(route.path)
+        const urlParts: string[] = ['']
+        for (const group of groups) {
+            const groupParts: string[] = []
+            let undefinedPlaceholderFound: string | undefined
+            for (const part of group.parts) {
+                if ('placeholder' in part) {
+                    const value = routeParams[part.placeholder]
+                    if (value) {
+                        groupParts.push(value)
+                    } else {
+                        undefinedPlaceholderFound = part.placeholder
+                    }
+                } else if ('literal' in part) {
+                    groupParts.push(part.literal)
+                }
+            }
+            if (undefinedPlaceholderFound) {
+                if (!group.optional) {
+                    throw new Error(
+                        `Tried to reverse URL '${routeName}', but couldn't find needed parameter '${undefinedPlaceholderFound}'`,
+                    )
+                }
+            } else {
+                urlParts.push(...groupParts)
+            }
         }
-
-        return url
+        return urlParts.join('/')
     }
 
     matchUrl(
         url: string,
     ): { route: RouteName; params: { [key: string]: string } } | null {
-        const urlObject = new URL(url)
-
-        const match = this.router.match(urlObject.pathname)
-        if (!match) {
-            return null
+        url = url.split('?')[0]
+        const urlParts = url.split('/').slice(1)
+        if (urlParts.length === 1 && !urlParts[0].length) {
+            urlParts.splice(0)
         }
-        return { route: match.fn(), params: match.params }
+
+        const isAuthenticated = this.options.isAuthenticated()
+        for (const [routeName, route] of Object.entries(
+            this.options.routes,
+        ).reverse()) {
+            const partGroups = getRoutePartGroups(route.path)
+            // console.log(urlParts)
+            // console.log(require('util').inspect(partGroups, { colors: true, depth: 4 }))
+            // console.log('-----')
+
+            if ('ifAuth' in route && isAuthenticated !== route.ifAuth) {
+                continue
+            }
+
+            let urlPartIndex = 0
+            const params: { [key: string]: string } = {}
+            let match = true
+            for (const partGroup of partGroups) {
+                for (const routePart of partGroup.parts) {
+                    if (urlPartIndex >= urlParts.length) {
+                        if (!partGroup.optional) {
+                            match = false
+                        }
+                        break
+                    }
+                    const urlPart = urlParts[urlPartIndex++]
+                    if ('literal' in routePart) {
+                        if (urlPart !== routePart.literal) {
+                            match = false
+                            break
+                        }
+                    } else if ('placeholder' in routePart) {
+                        params[routePart.placeholder] = urlPart
+                    }
+                }
+            }
+            if (match) {
+                return { route: routeName as RouteName, params }
+            }
+        }
+        return null
     }
+}
+
+export function getReactRoutePattern(routeParts: RoutePart[]): string {
+    if (!routeParts.length) {
+        return '/'
+    }
+
+    const groups = getRoutePartGroups(routeParts)
+    const patternParts: string[] = ['']
+    for (const group of groups) {
+        for (const part of group.parts) {
+            const suffix = group.optional ? '?' : ''
+            if ('literal' in part) {
+                const prefix = group.optional ? ':' : ''
+                patternParts.push(`${prefix}${part.literal}${suffix}`)
+            } else if ('placeholder' in part) {
+                patternParts.push(`:${part.placeholder}${suffix}`)
+            }
+        }
+    }
+    return patternParts.join('/')
+}
+
+function getRoutePartGroups(parts: RoutePart[], optional = false) {
+    const groups: RoutePartGroup[] = []
+    let activeGroup: RoutePartGroup = { optional, parts: [] }
+    const closeGroup = () => {
+        if (activeGroup.parts.length) {
+            groups.push(activeGroup)
+            activeGroup = { optional, parts: [] }
+        }
+    }
+    for (const part of parts) {
+        if ('optional' in part) {
+            closeGroup()
+            groups.push(...getRoutePartGroups(part.optional, true))
+        } else {
+            activeGroup.parts.push(part)
+        }
+    }
+    closeGroup()
+
+    return groups
 }

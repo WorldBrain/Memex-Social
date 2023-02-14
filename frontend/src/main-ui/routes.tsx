@@ -1,3 +1,4 @@
+import queryString from 'query-string'
 import * as history from 'history'
 import React from 'react'
 import { Router, Route, Switch } from 'react-router'
@@ -14,6 +15,8 @@ import CollectionDetailsPage from '../features/content-sharing/ui/pages/collecti
 import AnnotationDetailsPage from '../features/content-sharing/ui/pages/annotation-details'
 import PageDetailsPage from '../features/content-sharing/ui/pages/page-details'
 import HomeFeedPage from '../features/activity-streams/ui/pages/home-feed'
+import { getReactRoutePattern } from '../services/router/routes'
+import { ContentSharingQueryParams } from '../features/content-sharing/types'
 
 interface Props {
     history: history.History
@@ -42,7 +45,7 @@ export default class Routes extends React.Component<Props> {
                 <Switch>
                     <Route
                         exact
-                        path={ROUTES.landingPage.path}
+                        path={getReactRoutePattern(ROUTES.landingPage.path)}
                         render={() => {
                             if (this.props.services.auth.getCurrentUser()) {
                                 return (
@@ -62,7 +65,7 @@ export default class Routes extends React.Component<Props> {
                     />
                     <Route
                         exact
-                        path={ROUTES.homeFeed.path}
+                        path={getReactRoutePattern(ROUTES.homeFeed.path)}
                         render={() => {
                             return (
                                 <HomeFeedPage
@@ -74,20 +77,27 @@ export default class Routes extends React.Component<Props> {
                     />
                     <Route
                         exact
-                        path={ROUTES.collectionDetails.path}
+                        path={getReactRoutePattern(
+                            ROUTES.collectionDetails.path,
+                        )}
                         render={(route) => {
+                            const query = queryString.parse(
+                                route.location.search,
+                            ) as ContentSharingQueryParams
                             return (
                                 <CollectionDetailsPage
                                     listID={route.match.params.id}
+                                    entryID={route.match.params.entryId}
                                     services={this.props.services}
                                     storage={serverModules}
+                                    query={query}
                                 />
                             )
                         }}
                     />
                     <Route
                         exact
-                        path={ROUTES.pageDetails.path}
+                        path={getReactRoutePattern(ROUTES.pageDetails.path)}
                         render={(route) => {
                             return (
                                 <PageDetailsPage
@@ -101,7 +111,9 @@ export default class Routes extends React.Component<Props> {
                     />
                     <Route
                         exact
-                        path={ROUTES.annotationDetails.path}
+                        path={getReactRoutePattern(
+                            ROUTES.annotationDetails.path,
+                        )}
                         render={(route) => {
                             return (
                                 <AnnotationDetailsPage

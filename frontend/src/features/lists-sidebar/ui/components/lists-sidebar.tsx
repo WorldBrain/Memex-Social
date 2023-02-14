@@ -29,7 +29,7 @@ const FeedArea = styled(Margin)`
 
 const FeedLink = styled(RouteLink)`
     align-items: center;
-    color: ${(props) => props.theme.colors.primary};
+    color: ${(props) => props.theme.colors.prime1};
     display: flex;
     justify-content: flex-start;
     grid-auto-flow: column;
@@ -46,7 +46,7 @@ const Container = styled.div<{
     min-height: fill-available;
     height: 100%;
     font-family: ${(props) => props.theme.fonts.primary};
-    background: ${(props) => props.theme.colors.grey};
+    background: ${(props) => props.theme.colors.greyScale2};
     padding: 10px;
     width: 250px;
     overflow-y: hidden;
@@ -91,7 +91,6 @@ const SectionTitle = styled.div<{
     font-size: 14px;
     font-weight: 600;
     padding: 5px 0px 5px 5px;
-    color: ${(props) => props.theme.colors.darkerBlue};
     margin-top: 15px;
     letter-spacing: 0.5px;
     display: grid;
@@ -113,7 +112,7 @@ const ListNameLink = styled(RouteLink)`
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
-    color: ${(props) => props.theme.colors.normalText};
+    color: ${(props) => props.theme.colors.white};
     border-radius: 5px;
     font-weight: 400;
     height: 40px;
@@ -122,7 +121,7 @@ const ListNameLink = styled(RouteLink)`
     display: flex;
 
     &:hover {
-        background: ${(props) => props.theme.colors.backgroundColorDarker};
+        background: ${(props) => props.theme.colors.greyScale1};
     }
 `
 
@@ -166,12 +165,11 @@ const NoCollectionsMessage = styled.div`
     }
 
     &: hover {
-        background-color: ${(props) =>
-            props.theme.colors.backgroundColorDarker};
+        background-color: ${(props) => props.theme.colors.greyScale1};
     }
 `
+
 const SectionCircle = styled.div`
-    background: ${(props) => props.theme.colors.backgroundHighlight};
     border-radius: 100px;
     height: 24px;
     width: 24px;
@@ -181,23 +179,22 @@ const SectionCircle = styled.div`
 `
 
 const InfoText = styled.div`
-    color: ${(props) => props.theme.colors.lighterText};
     font-size: 14px;
     font-weight: 300;
     font-family: 'Inter', sans-serif;
 `
 
 const Link = styled.span`
-    color: ${(props) => props.theme.colors.purple};
+    color: ${(props) => props.theme.colors.prime1};
     padding-left: 3px;
 `
 
 const TopArea = styled.div`
-    border-bottom: 1px solid ${(props) => props.theme.colors.lightgrey};
+    border-bottom: 1px solid ${(props) => props.theme.colors.greyScale5};
     padding: 0 0 20px 0px;
 `
 const MenuItemText = styled.div`
-    color: ${(props) => props.theme.colors.normalText};
+    color: ${(props) => props.theme.colors.white};
     padding: 0 15px;
     height: 50px;
     font-size: 14px;
@@ -210,14 +207,14 @@ const MenuItemText = styled.div`
     cursor: pointer;
 
     &:hover {
-        background: ${(props) => props.theme.colors.backgroundColorDarker};
+        background: ${(props) => props.theme.colors.greyScale1};
     }
 `
 const EmptyDot = styled.div`
     height: 16px;
     width: 16px;
     border-radius: 50px;
-    border: 1px solid ${(props) => props.theme.colors.lighterText};
+    border: 1px solid ${(props) => props.theme.colors.greyScale5};
 `
 
 const MenuItemBox = styled.div`
@@ -269,7 +266,7 @@ export default class ListsSidebar extends PureComponent<Props> {
                         <Icon
                             icon={theme.icons.heartEmpty}
                             heightAndWidth="14px"
-                            color="purple"
+                            color="prime1"
                             hoverOff
                         />
                     </SectionCircle>

@@ -32,161 +32,161 @@ objects:
           creator: { $ref: users.default }
           createdWhen: 1594225289914
           updatedWhen: 1594225289914
-          fullTitle: "WorldBrain's Memex"
+          entryTitle: "WorldBrain's Memex"
           normalizedUrl: getmemex.com
           originalUrl: 'https://getmemex.com'
         - sharedList: { $ref: sharedLists.default }
           creator: { $ref: users.default }
-          createdWhen: 1594225289914
-          updatedWhen: 1594225289914
-          fullTitle: "WorldBrain's Memex PDF Support"
+          createdWhen: 1594225279914
+          updatedWhen: 1594225279914
+          entryTitle: "WorldBrain's Memex PDF Support"
           normalizedUrl: memex.cloud/ct/test-fingerprint-1.pdf
           originalUrl: 'https://memex.cloud/ct/test-fingerprint-1.pdf'
         - sharedList: { $ref: sharedLists.default }
           creator: { $ref: users.default }
-          createdWhen: 1594225289914
-          updatedWhen: 1594225289914
-          fullTitle: "WorldBrain's Memex Local PDF Support"
+          createdWhen: 1594225269914
+          updatedWhen: 1594225269914
+          entryTitle: "WorldBrain's Memex Local PDF Support"
           normalizedUrl: memex.cloud/ct/test-fingerprint-2.pdf
           originalUrl: 'https://memex.cloud/ct/test-fingerprint-2.pdf'
         - sharedList: { $ref: sharedLists.default }
           creator: { $ref: users.default }
-          createdWhen: 1594225289914
-          updatedWhen: 1594225289914
-          fullTitle: Page with notes with a title that is very very very very very very very very very very very long
+          createdWhen: 1594225259914
+          updatedWhen: 1594225259914
+          entryTitle: Page with notes with a title that is very very very very very very very very very very very long
           normalizedUrl: notion.so/#1
           originalUrl: 'https://notion.so'
         - sharedList: { $ref: sharedLists.default }
           creator: { $ref: users.default }
-          createdWhen: 1594225289914
-          updatedWhen: 1594225289914
-          fullTitle: Notion long ass title with lots of characters so that you can see if the line properly cuts off enough so its really cutting off
+          createdWhen: 1594225249914
+          updatedWhen: 1594225249914
+          entryTitle: Notion long ass title with lots of characters so that you can see if the line properly cuts off enough so its really cutting off
           normalizedUrl: notion.so/long-rul-with-lots-of-characters-so-that-you-can-see-if-the-line-properly-cuts-off-enough-so-its-really-cutting-off
           originalUrl: 'https://notion.so'
         - sharedList: { $ref: sharedLists.default }
           creator: { $ref: users.default }
-          createdWhen: 1594225289914
-          updatedWhen: 1594225289914
-          fullTitle: Notion
-          normalizedUrl: notion.so/#2
-          originalUrl: 'https://notion.so'
+          createdWhen: 1594225239914
+          updatedWhen: 1594225239914
+          entryTitle: 'The Simplest Math Problem No One Can Solve - Collatz Conjecture'
+          normalizedUrl: youtube.com/watch?v=094y1Z2wpJg
+          originalUrl: 'https://www.youtube.com/watch?v=094y1Z2wpJg'
         - sharedList: { $ref: sharedLists.default }
           creator: { $ref: users.default }
-          createdWhen: 1594225289914
-          updatedWhen: 1594225289914
-          fullTitle: Notion
+          createdWhen: 1594225229914
+          updatedWhen: 1594225229914
+          entryTitle: Notion
           normalizedUrl: notion.so/#3
           originalUrl: 'https://notion.so'
         - sharedList: { $ref: sharedLists.default }
           creator: { $ref: users.default }
-          createdWhen: 1594225289914
-          updatedWhen: 1594225289914
-          fullTitle: Notion
+          createdWhen: 1594225139914
+          updatedWhen: 1594225139914
+          entryTitle: Notion
           normalizedUrl: notion.so/#4
           originalUrl: 'https://notion.so'
         - sharedList: { $ref: sharedLists.default }
           creator: { $ref: users.default }
-          createdWhen: 1594225289914
-          updatedWhen: 1594225289914
-          fullTitle: Notion
+          createdWhen: 1594225039914
+          updatedWhen: 1594225039914
+          entryTitle: Notion
           normalizedUrl: notion.so/#5
           originalUrl: 'https://notion.so'
         - sharedList: { $ref: sharedLists.default }
           creator: { $ref: users.default }
-          createdWhen: 1594225289914
-          updatedWhen: 1594225289914
-          fullTitle: Notion
+          createdWhen: 1594224939914
+          updatedWhen: 1594224939914
+          entryTitle: Notion
           normalizedUrl: notion.so/#6
           originalUrl: 'https://notion.so'
         - sharedList: { $ref: sharedLists.default }
           creator: { $ref: users.default }
-          createdWhen: 1594225289914
-          updatedWhen: 1594225289914
-          fullTitle: Notion
+          createdWhen: 1594224839914
+          updatedWhen: 1594224839914
+          entryTitle: Notion
           normalizedUrl: notion.so/#7
           originalUrl: 'https://notion.so'
         - sharedList: { $ref: sharedLists.default }
           creator: { $ref: users.default }
-          createdWhen: 1594225289914
-          updatedWhen: 1594225289914
-          fullTitle: Notion
+          createdWhen: 1594224739914
+          updatedWhen: 1594224739914
+          entryTitle: Notion
           normalizedUrl: notion.so/#8
           originalUrl: 'https://notion.so'
         - sharedList: { $ref: sharedLists.default }
           creator: { $ref: users.default }
-          createdWhen: 1594225289914
-          updatedWhen: 1594225289914
-          fullTitle: Notion
+          createdWhen: 1594224639914
+          updatedWhen: 1594224639914
+          entryTitle: Notion
           normalizedUrl: notion.so/#9
           originalUrl: 'https://notion.so'
         - sharedList: { $ref: sharedLists.default }
           creator: { $ref: users.default }
-          createdWhen: 1594225289914
-          updatedWhen: 1594225289914
-          fullTitle: Notion
+          createdWhen: 1594224539914
+          updatedWhen: 1594224539914
+          entryTitle: Notion
           normalizedUrl: notion.so/#10
           originalUrl: 'https://notion.so'
         - sharedList: { $ref: sharedLists.default }
           creator: { $ref: users.default }
-          createdWhen: 1594225289914
-          updatedWhen: 1594225289914
-          fullTitle: Notion
+          createdWhen: 1594224439914
+          updatedWhen: 1594224439914
+          entryTitle: Notion
           normalizedUrl: notion.so/#11
           originalUrl: 'https://notion.so'
         - sharedList: { $ref: sharedLists.default }
           creator: { $ref: users.default }
-          createdWhen: 1594225289914
-          updatedWhen: 1594225289914
-          fullTitle: Notion
+          createdWhen: 1594224339914
+          updatedWhen: 1594224339914
+          entryTitle: Notion
           normalizedUrl: notion.so/#12
           originalUrl: 'https://notion.so'
         - sharedList: { $ref: sharedLists.default }
           creator: { $ref: users.default }
-          createdWhen: 1594225289914
-          updatedWhen: 1594225289914
-          fullTitle: Notion
+          createdWhen: 1594224239914
+          updatedWhen: 1594224239914
+          entryTitle: Notion
           normalizedUrl: notion.so/#13
           originalUrl: 'https://notion.so'
         - sharedList: { $ref: sharedLists.default }
           creator: { $ref: users.default }
-          createdWhen: 1594225289914
-          updatedWhen: 1594225289914
-          fullTitle: Notion
+          createdWhen: 1594224139914
+          updatedWhen: 1594224139914
+          entryTitle: Notion
           normalizedUrl: notion.so/#14
           originalUrl: 'https://notion.so'
         - sharedList: { $ref: sharedLists.default }
           creator: { $ref: users.default }
-          createdWhen: 1594225289914
-          updatedWhen: 1594225289914
-          fullTitle: Notion
+          createdWhen: 1594224039914
+          updatedWhen: 1594224039914
+          entryTitle: Notion
           normalizedUrl: notion.so/#15
           originalUrl: 'https://notion.so'
         - sharedList: { $ref: sharedLists.default }
           creator: { $ref: users.default }
-          createdWhen: 1594225289914
-          updatedWhen: 1594225289914
-          fullTitle: Notion
+          createdWhen: 1594223939914
+          updatedWhen: 1594223939914
+          entryTitle: Notion
           normalizedUrl: notion.so/#16
           originalUrl: 'https://notion.so'
         - sharedList: { $ref: sharedLists.default }
           creator: { $ref: users.default }
-          createdWhen: 1594225289914
-          updatedWhen: 1594225289914
-          fullTitle: Notion long ass title with lots of characters so that you can see if the line properly cuts off
+          createdWhen: 1594223839914
+          updatedWhen: 1594223839914
+          entryTitle: Notion long ass title with lots of characters so that you can see if the line properly cuts off
           normalizedUrl: notion.so/#17
           originalUrl: 'https://notion.so'
         - sharedList: { $ref: sharedLists.short-description-list }
           creator: { $ref: users.default }
-          createdWhen: 1594225289914
-          updatedWhen: 1594225289914
-          fullTitle: RoamResearch
+          createdWhen: 1594223739914
+          updatedWhen: 1594223739914
+          entryTitle: RoamResearch
           normalizedUrl: roamresearch.com
           originalUrl: 'https://notion.so'
         - sharedList: { $ref: sharedLists.no-description-list }
           creator: { $ref: users.default }
-          createdWhen: 1594225289914
-          updatedWhen: 1594225289914
-          fullTitle: Page with notes with a title that is very very very very very very very very very very very long
+          createdWhen: 1594223639914
+          updatedWhen: 1594223639914
+          entryTitle: Page with notes with a title that is very very very very very very very very very very very long
           normalizedUrl: notion.so
           originalUrl: 'https://notion.so'
     sharedContentLocators:

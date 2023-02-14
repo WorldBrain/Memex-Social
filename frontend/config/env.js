@@ -62,13 +62,16 @@ const REACT_APP = /^REACT_APP_/i
 
 function getClientEnvironment(publicUrl) {
     const raw = Object.keys(process.env)
-        .filter((key) => REACT_APP.test(key))
+        .filter((key) => REACT_APP.test(key) || key === 'MEMEX_EXTENSION_ID')
         .reduce(
             (env, key) => {
                 env[key] = process.env[key]
                 return env
             },
             {
+                MEMEX_EXTENSION_ID: 'abkfbakhjpmblaafnpgjppbmioombali',
+                // staging Oliver: 'ielfhekmfbpebfogdeipegfeooelelge',
+                // prod extensionID: 'abkfbakhjpmblaafnpgjppbmioombali',
                 // Useful for determining whether we’re running in production mode.
                 // Most importantly, it switches React into the correct mode.
                 NODE_ENV: process.env.NODE_ENV || 'development',

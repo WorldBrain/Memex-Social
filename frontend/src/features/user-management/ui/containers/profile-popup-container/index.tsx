@@ -14,6 +14,7 @@ import ProfilePopup from '../../components/profile-popup'
 const Container = styled.div`
     position: relative;
     display: inline-block;
+    cursor: default;
 `
 
 export type ProfilePopupProps = ProfilePopupContainerDependencies
@@ -63,7 +64,7 @@ export default class ProfilePopupContainer extends UIElement<
                 onMouseLeave={() => this.handleMouseLeave()}
             >
                 {this.props.children}
-                {this.state.isDisplayed && this.renderPopup()}
+                {/* {this.state.isDisplayed && this.renderPopup()} */}
             </Container>
         )
     }

@@ -1,5 +1,5 @@
 import * as history from 'history'
-import React from 'react'
+import React, { useState } from 'react'
 import ReactDOM from 'react-dom'
 import styled, { ThemeProvider } from 'styled-components'
 import { theme } from '../main-ui/styles/theme'
@@ -8,6 +8,7 @@ import Routes from '../services/router/routes'
 import ROUTES, { RouteName } from '../routes'
 import { Scenario } from '../services/scenarios/types'
 import { MetaScreenSize } from '../setup/types'
+import { stringifyScenarioIdentifier } from '../services/scenarios'
 
 export type MetaScenarios = Array<MetaScenario>
 
@@ -25,6 +26,18 @@ export interface MetaScenario {
         [name: string]: (element: Element) => void
     }
 }
+
+const MainContainer = styled.div`
+    background: white;
+`
+
+const ActionBar = styled.div`
+    display: flex;
+`
+
+const ScreenSizeToggle = styled.div`
+    cursor: pointer;
+`
 
 const ScenarioTitle = styled.a`
     margin: 100px 0 0 30px;
@@ -57,6 +70,18 @@ const ProgramContainer = styled.div<{ size: MetaScreenSize }>`
     height: ${({ size }) => PROGRAM_CONTAINER_SIZES[size].height};
 `
 
+const ClickToLoad = styled.div`
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    cursor: pointer;
+`
+
 interface MetaUIOptions {
     history: history.History
     scenarios: MetaScenarios
@@ -71,6 +96,11 @@ export default async function runMetaUi(options: MetaUIOptions) {
 }
 
 function MetaUI({ options }: { options: MetaUIOptions }) {
+    const [shownScenarios, setShownScenarios] = useState<{
+        [scenarioIdentifier: string]: boolean
+    }>({})
+    const [screenSize, setScreenSize] = useState(options.screenSize)
+
     const routes = new Routes({
         routes: ROUTES,
         isAuthenticated: () => false,
@@ -87,6 +117,10 @@ function MetaUI({ options }: { options: MetaUIOptions }) {
             `?scenario=${options.metaScenario.pageName}.${options.metaScenario.scenarioName}`
         if (options.stepName) {
             url = `${url}.${options.stepName}`
+        }
+        const { query } = options.metaScenario.scenario.startRoute
+        for (const [key, value] of Object.entries(query ?? {})) {
+            url += `&${key}=${encodeURIComponent(value)}`
         }
         return url
     }
@@ -110,52 +144,99 @@ function MetaUI({ options }: { options: MetaUIOptions }) {
     }
 
     return (
-        <ThemeProvider theme={theme}>
-            {options.scenarios.map((metaScenario, scenarioIndex) => (
-                <React.Fragment
-                    key={`${metaScenario.pageName}.${metaScenario.scenarioName}`}
-                >
-                    <ScenarioTitle
-                        href={getScenarioUrl({ metaScenario })}
-                        target="_blank"
+        <MainContainer>
+            <ThemeProvider theme={theme}>
+                <Margin bottom="largest">
+                    <ActionBar>
+                        <ScreenSizeToggle
+                            onClick={() => {
+                                setScreenSize(
+                                    screenSize === 'small' ? 'large' : 'small',
+                                )
+                            }}
+                        >
+                            Screen size: {screenSize}
+                        </ScreenSizeToggle>
+                    </ActionBar>
+                </Margin>
+                {options.scenarios.map((metaScenario, scenarioIndex) => (
+                    <React.Fragment
+                        key={`${metaScenario.pageName}.${metaScenario.scenarioName}`}
                     >
-                        {metaScenario.scenario.description}
-                    </ScenarioTitle>
-                    (<a href={getScenarioMetaUrl({ metaScenario })}>meta</a>)
-                    <StepsContainer key={scenarioIndex}>
-                        {iterateSteps(metaScenario.scenario).map(
-                            (step, stepIndex) => (
-                                <StepContainer key={stepIndex}>
-                                    <Margin bottom="small">
-                                        <StepTitle
-                                            href={getScenarioUrl({
-                                                metaScenario,
-                                                stepName: step.name,
-                                            })}
-                                            target="_blank"
-                                        >
-                                            {step.description || step.name}
-                                        </StepTitle>
-                                    </Margin>
-                                    <ProgramContainer
-                                        size={options.screenSize}
-                                        ref={(element) => {
-                                            if (!element) {
-                                                throw new Error(
-                                                    `React didn't give an element for program container`,
-                                                )
-                                            }
-                                            metaScenario.stepPrograms[
-                                                step.name
-                                            ](element)
-                                        }}
-                                    />
-                                </StepContainer>
-                            ),
-                        )}
-                    </StepsContainer>
-                </React.Fragment>
-            ))}
-        </ThemeProvider>
+                        <ScenarioTitle
+                            href={getScenarioUrl({ metaScenario })}
+                            target="_blank"
+                        >
+                            {metaScenario.scenario.description}
+                        </ScenarioTitle>
+                        (<a href={getScenarioMetaUrl({ metaScenario })}>meta</a>
+                        )
+                        <StepsContainer key={scenarioIndex}>
+                            {iterateSteps(metaScenario.scenario).map(
+                                (step, stepIndex) => {
+                                    const scenarioIdentifier = stringifyScenarioIdentifier(
+                                        {
+                                            pageName: metaScenario.pageName,
+                                            scenarioName:
+                                                metaScenario.scenarioName,
+                                            stepName: step.name,
+                                        },
+                                    )
+                                    const isShown =
+                                        options.scenarios.length === 1 ||
+                                        shownScenarios[scenarioIdentifier]
+                                    return (
+                                        <StepContainer key={stepIndex}>
+                                            <Margin bottom="small">
+                                                <StepTitle
+                                                    href={getScenarioUrl({
+                                                        metaScenario,
+                                                        stepName: step.name,
+                                                    })}
+                                                    target="_blank"
+                                                >
+                                                    {step.description ||
+                                                        step.name}
+                                                </StepTitle>
+                                            </Margin>
+                                            {isShown && (
+                                                <ProgramContainer
+                                                    size={screenSize}
+                                                    ref={(element) => {
+                                                        if (!element) {
+                                                            return
+                                                        }
+                                                        metaScenario.stepPrograms[
+                                                            step.name
+                                                        ](element)
+                                                    }}
+                                                />
+                                            )}
+                                            {!isShown && (
+                                                <ProgramContainer
+                                                    size={screenSize}
+                                                >
+                                                    <ClickToLoad
+                                                        onClick={() => {
+                                                            setShownScenarios({
+                                                                ...shownScenarios,
+                                                                [scenarioIdentifier]: true,
+                                                            })
+                                                        }}
+                                                    >
+                                                        Click to load scenario
+                                                        step
+                                                    </ClickToLoad>
+                                                </ProgramContainer>
+                                            )}
+                                        </StepContainer>
+                                    )
+                                },
+                            )}
+                        </StepsContainer>
+                    </React.Fragment>
+                ))}
+            </ThemeProvider>
+        </MainContainer>
     )
 }

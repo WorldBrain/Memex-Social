@@ -129,11 +129,35 @@ export const SCENARIOS: ScenarioMap<Targets> = {
             }),
         ],
     })),
+    'list-entry-range': scenario<Targets>(({ step }) => ({
+        fixture: 'default-lists-with-user',
+        startRoute: {
+            route: 'collectionDetails',
+            params: { id: 'default-list' },
+            query: {
+                fromListEntry: '1594225279914',
+                toListEntry: '1594225289914',
+            },
+        },
+        steps: [],
+    })),
     annotations: scenario<Targets>(({ step, callModification }) => ({
         fixture: 'annotated-list-with-user',
         startRoute: {
             route: 'collectionDetails',
             params: { id: 'default-list' },
+        },
+        steps: [],
+    })),
+    'annotation-entry-range': scenario<Targets>(({ step }) => ({
+        fixture: 'annotated-list-with-user',
+        startRoute: {
+            route: 'collectionDetails',
+            params: { id: 'default-list', entryId: 'entry-1' },
+            query: {
+                fromAnnotEntry: '1594225279914',
+                toAnnotEntry: '1594225279914',
+            },
         },
         steps: [],
     })),
@@ -775,6 +799,28 @@ export const SCENARIOS: ScenarioMap<Targets> = {
             ],
         }),
     ),
+    'reply-range': scenario<Targets>(({ step, callModification }) => ({
+        authenticated: true,
+        fixture: 'annotation-coversation-with-user',
+        startRoute: {
+            route: 'collectionDetails',
+            params: { id: 'default-list', entryId: 'entry-1' },
+            query: {
+                annotationId: 'default-annotation',
+                fromReply: '1594225289914',
+                toReply: '1594225289914',
+            },
+        },
+        steps: [],
+    })),
+    'page-link': scenario<Targets>(({ step }) => ({
+        fixture: 'page-link-with-user',
+        startRoute: {
+            route: 'collectionDetails',
+            params: { id: 'page-link', entryId: 'entry-id' },
+        },
+        steps: [],
+    })),
     'large-data-set': scenario<Targets>(({ step }) => ({
         excludeFromMetaUI: true,
         fixture: {
@@ -1311,6 +1357,14 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                 ],
             }),
         ],
+    })),
+    'discord-list': scenario<Targets>(({ step, callModification }) => ({
+        fixture: 'discord-list-with-user',
+        startRoute: {
+            route: 'collectionDetails',
+            params: { id: 'default-discord-list' },
+        },
+        steps: [],
     })),
     'permission-key-accepted': scenario<Targets>(
         ({ step, callModification }) => ({

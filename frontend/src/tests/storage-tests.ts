@@ -84,10 +84,15 @@ async function createMemoryTestDevice(
         history: null!,
         uiMountPoint: null!,
         localStorage: null!,
+        youtubeOptions: {} as any,
     })
     storageHooksChangeWatcher.setUp({
         fetch,
         services,
+        getFunctionsConfig: () => ({
+            twitter: { api_key: 'test', api_key_secret: 'test' },
+            content_sharing: { cloudflare_worker_credentials: 'test' },
+        }),
         captureException: async (error) => undefined, // TODO: maybe implement this
         serverStorageManager: storage.serverStorageManager,
         getCurrentUserReference: async () =>
@@ -179,6 +184,7 @@ async function createFirebaseTestDevice(
         uiMountPoint: null!,
         localStorage: null!,
         clipboard: mockClipboardAPI,
+        youtubeOptions: {} as any,
     })
     if (userId) {
         await services.auth.loginWithEmailPassword({

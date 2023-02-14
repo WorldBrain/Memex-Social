@@ -1,5 +1,5 @@
 import { History } from 'history'
-import firebaseModule from 'firebase'
+import firebaseModule from 'firebase/compat'
 import { firebaseService } from '@worldbrain/memex-common/lib/firebase-backend/services/client'
 import FirebaseFunctionsActivityStreamsService from '@worldbrain/memex-common/lib/activity-streams/services/firebase-functions/client'
 import MemoryStreamsService from '@worldbrain/memex-common/lib/activity-streams/services/memory'
@@ -34,6 +34,10 @@ import { BrowserLocalStorageService } from './local-storage/browser'
 import { ListKeysService } from '../features/content-sharing/service'
 import { ProgramQueryParams } from '../setup/types'
 import ClipboardService from './clipboard'
+import type { YoutubeServiceOptions } from '@worldbrain/memex-common/lib/services/youtube/types'
+import { YoutubeService } from '@worldbrain/memex-common/lib/services/youtube'
+import { MemexExtensionService } from './memex-extension'
+import { AnalyticsService } from './analytics'
 
 export function createServices(options: {
     backend: BackendType
@@ -46,6 +50,7 @@ export function createServices(options: {
     logLogicEvents?: boolean
     fixtureFetcher?: FixtureFetcher
     clipboard: Pick<Clipboard, 'writeText'>
+    youtubeOptions: YoutubeServiceOptions
 }): Services {
     const firebase = options.firebase ?? firebaseModule
     const logicRegistry = new LogicRegistryService({
@@ -57,6 +62,7 @@ export function createServices(options: {
             clientHeight: 800,
         },
     })
+    const analytics = new AnalyticsService()
 
     let auth: AuthService
     if (
@@ -66,6 +72,7 @@ export function createServices(options: {
         auth = new FirebaseAuthService(firebase, {
             storage: options.storage,
             localStorage: options.localStorage,
+            analyticsService: analytics,
         })
         if (process.env.NODE_ENV === 'development') {
             if (options.backend === 'firebase-emulator') {
@@ -154,11 +161,9 @@ export function createServices(options: {
     const contentSharingBackend =
         options.backend === 'memory'
             ? new ContentSharingBackend({
+                  services: { pushMessaging: undefined }, // TODO: Set up push messaging service for meta UI
                   storageManager: options.storage.serverStorageManager,
-                  contentSharing: options.storage.serverModules.contentSharing,
-                  activityFollows:
-                      options.storage.serverModules.activityFollows,
-                  userMessages,
+                  storageModules: options.storage.serverModules,
                   getCurrentUserId: async () =>
                       auth.getCurrentUserReference()?.id ?? null,
               })
@@ -179,6 +184,7 @@ export function createServices(options: {
         fixtures,
         localStorage,
         userMessages,
+        memexExtension: new MemexExtensionService(),
         scenarios: new ScenarioService({
             services: { fixtures: fixtures, logicRegistry, auth },
             modifyCalls: (getModifications) => {
@@ -211,6 +217,8 @@ export function createServices(options: {
             auth,
         }),
         webMonetization,
+        youtube: new YoutubeService(options.youtubeOptions),
+        analytics,
     }
 
     return services

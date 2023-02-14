@@ -7,7 +7,7 @@ const StyledInput = styled.input<{
     error?: boolean
 }>`
     font-family: ${(props) => props.theme.fonts.primary};
-    background: ${(props) => props.theme.colors.grey};
+    background: ${(props) => props.theme.colors.greyScale2};
     border: 0;
     min-height: 30px;
     padding: 10px;
@@ -22,7 +22,7 @@ export const StyledInputLabel = styled.div`
     font-family: ${(props) => props.theme.fonts.primary};
     font-size: ${(props) => props.theme.fontSizes.text};
     line-height: ${(props) => props.theme.lineHeights.text};
-    color: ${(props) => props.theme.colors.primary};
+    color: ${(props) => props.theme.colors.prime1};
 `
 
 export const ErrorMessage = styled.div`

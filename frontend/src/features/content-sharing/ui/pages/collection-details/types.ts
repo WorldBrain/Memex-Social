@@ -11,7 +11,9 @@ import {
     SharedListEntry,
     SharedList,
     SharedListRoleID,
+    SharedListEntryReference,
 } from '@worldbrain/memex-common/lib/content-sharing/types'
+import type { DiscordList } from '@worldbrain/memex-common/lib/discord/types'
 import { UITaskState } from '../../../../../main-ui/types'
 import {
     UserReference,
@@ -29,10 +31,12 @@ import type {
 } from '../../../../ext-detection/ui/logic'
 import { SharedListRole } from '@worldbrain/memex-common/lib/web-interface/types/storex-generated/content-sharing'
 import { ProcessSharedListKeyResult } from '@worldbrain/memex-common/lib/content-sharing/service/types'
-import React from 'react'
+import { SearchType } from '@worldbrain/memex-common/lib/common-ui/components/types'
+import { ContentSharingQueryParams } from '../../../types'
 
 export interface CollectionDetailsDependencies {
     listID: string
+    entryID?: string
     services: UIElementServices<
         | 'auth'
         | 'overlay'
@@ -47,15 +51,20 @@ export interface CollectionDetailsDependencies {
         | 'localStorage'
         | 'clipboard'
         | 'userMessages'
+        | 'youtube'
+        | 'memexExtension'
     >
     storage: Pick<
         StorageModules,
         | 'contentSharing'
         | 'contentConversations'
         | 'users'
+        | 'discord'
+        | 'discordRetroSync'
         | 'activityStreams'
         | 'activityFollows'
     >
+    query: ContentSharingQueryParams
 }
 
 export type CollectionDetailsState = AnnotationConversationsState &
@@ -63,21 +72,25 @@ export type CollectionDetailsState = AnnotationConversationsState &
     ExtDetectionState & {
         listLoadState: UITaskState
         followLoadState: UITaskState
-
+        hoverState: boolean
         permissionKeyState: UITaskState
         permissionKeyResult?: ProcessSharedListKeyResult
         showPermissionKeyIssue?: boolean
         requestingAuth?: boolean
+        copiedLink?: boolean
+        renderEmbedModal?: boolean
+        isEmbedShareModalCopyTextShown: string
 
         listRolesLoadState: UITaskState
         listRoleID?: SharedListRoleID
         listRoles?: Array<SharedListRole & { user: UserReference }>
+        listKeyPresent?: boolean
         listRoleLimit: number | null // how many collaborators to show in the subtitle
         showMoreCollaborators: boolean
         isListOwner?: boolean
         scrollTop?: number
         scrolledComponent?: JSX.Element
-        users: { [id: string]: Pick<User, 'displayName'> }
+        users: { [id: string]: Pick<User, 'displayName' | 'platform'> }
 
         annotationEntriesLoadState: UITaskState
         annotationLoadStates: { [normalizedPageUrl: string]: UITaskState }
@@ -85,17 +98,36 @@ export type CollectionDetailsState = AnnotationConversationsState &
             creatorReference?: UserReference
             creator?: Pick<User, 'displayName'> | null
             list: SharedList
-            listEntries: Array<SharedListEntry & { creator: UserReference }>
+            discordList: DiscordList | null
+            isDiscordSyncing?: boolean
+            listEntries: Array<
+                SharedListEntry & {
+                    reference: SharedListEntryReference
+                    id?: number
+                } & {
+                    creator: UserReference
+                    hoverState?: boolean
+                    id?: string
+                }
+            >
             listDescriptionState: 'fits' | 'collapsed' | 'expanded'
             listDescriptionTruncated: string
         }
         isCollectionFollowed: boolean
         allAnnotationExpanded: boolean
         isListShareModalShown: boolean
-        pageAnnotationsExpanded: { [normalizedPageUrl: string]: true }
+        pageAnnotationsExpanded: { [normalizedPageUrl: string]: boolean }
         annotationEntryData?: GetAnnotationListEntriesResult
         annotations: GetAnnotationsResult
+        searchType: SearchType
     }
+
+export interface PageEventArgs {
+    pageId: string
+    day: number
+}
+
+export type ResultHoverState = 'main-content' | 'footer' | null
 
 export type CollectionDetailsEvent = UIEvent<
     AnnotationConversationEvent &
@@ -109,12 +141,18 @@ export type CollectionDetailsEvent = UIEvent<
             toggleListShareModal: {}
             loadListData: { listID: string }
             processPermissionKey: {}
+            acceptInvitation: {}
             closePermissionOverlay: {}
             pageBreakpointHit: { entryIndex: number }
             clickFollowBtn: { pageToOpenPostFollow?: string }
             toggleMoreCollaborators: {}
             hideMoreCollaborators: {}
             updateScrollState: { previousScrollTop: number }
+            setPageHover: (PageEventArgs & { hover: ResultHoverState }) | any
+            setSearchType: SearchType
+            copiedLinkButton: null
+            toggleEmbedModal: null
+            toggleEmbedShareModalCopyText: { embedOrLink: string }
         }
 >
 

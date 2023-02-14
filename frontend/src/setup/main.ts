@@ -1,6 +1,6 @@
 import createBrowserHistory from 'history/createBrowserHistory'
 import debounce from 'lodash/debounce'
-import firebase from 'firebase'
+import firebase from 'firebase/compat'
 import { StorageHooksChangeWatcher } from '@worldbrain/memex-common/lib/storage/hooks'
 import { getUiMountpoint, getDefaultUiRunner } from '../main-ui'
 import { createServices } from '../services'
@@ -9,6 +9,7 @@ import { createStorage } from '../storage'
 import { getReplayOptionsFromQueryParams } from '../services/scenarios'
 import { MemoryLocalStorage } from '../utils/web-storage'
 import { RouteName } from '../routes'
+import { createYoutubeServiceOptions } from '@worldbrain/memex-common/lib/services/youtube/library'
 
 export async function mainProgram(
     options: MainProgramOptions,
@@ -55,6 +56,7 @@ export async function mainProgram(
             options.backend.indexOf('memory') === 0
                 ? new MemoryLocalStorage()
                 : localStorage,
+        youtubeOptions: options.youtubeOptions ?? createYoutubeServiceOptions(),
     })
 
     if (!options.domUnavailable) {
@@ -75,6 +77,10 @@ export async function mainProgram(
         storageHooksChangeWatcher.setUp({
             fetch,
             services,
+            getFunctionsConfig: () => ({
+                twitter: { api_key: 'test', api_key_secret: 'test' },
+                content_sharing: { cloudflare_worker_credentials: 'test' },
+            }),
             captureException: async (error) => undefined, // TODO: maybe implement this
             serverStorageManager: storage.serverStorageManager,
             getCurrentUserReference: async () =>
@@ -85,10 +91,16 @@ export async function mainProgram(
         const scenario = services.scenarios.findScenario(
             options.queryParams.scenario,
         )
-        const startUrlPath = services.router.getUrl(
+        let startUrlPath = services.router.getUrl(
             scenario.startRoute.route as RouteName,
             scenario.startRoute.params,
         )
+        if (scenario.startRoute.query) {
+            startUrlPath += '?'
+            startUrlPath += Object.entries(scenario.startRoute.query)
+                .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
+                .join('&')
+        }
         history.replace(startUrlPath)
     }
     if (scenarioIdentifier) {

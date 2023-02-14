@@ -1,28 +1,17 @@
 import {
-    SharedAnnotationReference,
-    SharedPageInfo,
     SharedAnnotation,
-    SharedListReference,
+    SharedAnnotationReference,
     SharedListEntryReference,
-    SharedListEntry,
+    SharedListReference,
 } from '@worldbrain/memex-common/lib/content-sharing/types'
-import {
-    ConversationReplyReference,
-    ConversationReply,
-} from '@worldbrain/memex-common/lib/content-conversations/types'
 import {
     UserReference,
     User,
 } from '@worldbrain/memex-common/lib/web-interface/types/users'
 import { UIEvent } from '../../../../../main-ui/classes/logic'
 import { UIElementServices } from '../../../../../services/types'
-import {
-    AnnotationConversationEvent,
-    AnnotationConversationsState,
-} from '../../../../content-conversations/ui/types'
 import { StorageModules } from '../../../../../storage/types'
 import { UITaskState } from '../../../../../main-ui/types'
-import { OrderedMap } from '../../../../../utils/ordered-map'
 import {
     ListsSidebarState,
     ListsSidebarEvent,
@@ -44,6 +33,7 @@ export interface HomeFeedDependencies {
         | 'localStorage'
         | 'documentTitle'
         | 'userMessages'
+        | 'memexExtension'
     >
     storage: Pick<
         StorageModules,
@@ -59,21 +49,16 @@ export interface HomeFeedDependencies {
 export type HomeFeedState = {
     loadState: UITaskState
     needsAuth?: boolean
-    activityItems: OrderedMap<ActivityItem>
-    replies: ActivityData['replies']
-    pageInfo: ActivityData['pageInfo']
-    annotations: ActivityData['annotations']
+    activityItems: ActivityItem[]
     users: { [userId: string]: Pick<User, 'displayName'> | null }
     lastSeenTimestamp?: number | null
-    moreRepliesLoadStates: { [groupId: string]: UITaskState }
     shouldShowNewLine: boolean
-} & AnnotationConversationsState &
-    ListsSidebarState &
-    ExtDetectionState
+    loadingIncludingUIFinished: boolean
+} & (ListsSidebarState & ExtDetectionState)
 
 export type HomeFeedEvent = UIEvent<
-    AnnotationConversationEvent &
-        ListsSidebarEvent &
+    // AnnotationConversationEvent &
+    ListsSidebarEvent &
         ExtDetectionEvent & {
             clickPageResult: {
                 urlToOpen: string
@@ -81,93 +66,49 @@ export type HomeFeedEvent = UIEvent<
                 isFeed: boolean
             }
             waypointHit: null
-            loadMoreReplies: {
-                groupId: string
-                listReference: SharedListReference | null
-                annotationReference: SharedAnnotationReference
-            }
-            toggleListEntryActivityAnnotations: {
-                groupId: string
-                listReference: SharedListReference
-                listEntryReference: SharedListEntryReference
-            }
             getLastSeenLinePosition: null
+            loadingIncludingUIFinished: boolean
         }
 >
 
-export type ActivityItem = PageActivityItem | ListActivityItem
+export type ActivityItem =
+    | PageActivityItem
+    | ListActivityItem
+    | AnnotationActivityItem
 
 interface TopLevelActivityItem {
     groupId: string
     notifiedWhen: number
+    activities: Array<{ notifiedWhen: number }>
 }
 
 export interface ListActivityItem extends TopLevelActivityItem {
     type: 'list-item'
     reason: 'pages-added-to-list'
-    listName: string
-    listReference: SharedListReference
-    entries: OrderedMap<ListEntryActivityItem & { creator: UserReference }>
+    list: { title: string; reference: SharedListReference }
 }
-
-export type ListEntryActivityItem = {
-    type: 'list-entry-item'
-    reference: SharedListEntryReference
-    creator: UserReference
-    activityTimestamp: number
-    annotationEntriesLoadState: UITaskState
-    hasAnnotations?: boolean
-    areAnnotationsShown?: boolean
-    annotationsLoadState: UITaskState
-    annotations: OrderedMap<AnnotationActivityItem>
-} & Pick<SharedListEntry, 'entryTitle' | 'originalUrl' | 'normalizedUrl'>
 
 export interface PageActivityItem extends TopLevelActivityItem {
     type: 'page-item'
-    reason: 'new-replies' | 'new-annotations'
-    list?: { title: string; reference: SharedListReference }
+    reason: 'new-annotations'
+    pageTitle?: string
+    list?: {
+        title: string
+        reference: SharedListReference
+        entry: SharedListEntryReference
+    }
     normalizedPageUrl: string
     creatorReference: UserReference
-    listReference: SharedListReference | null
-    annotations: OrderedMap<AnnotationActivityItem>
 }
 
-export interface AnnotationActivityItem {
+export type AnnotationActivityItem = Omit<
+    PageActivityItem,
+    'type' | 'reason'
+> & {
     type: 'annotation-item'
-    reference: SharedAnnotationReference
-    hasEarlierReplies: boolean
-    replies: Array<{
-        reference: ConversationReplyReference
-    }>
-}
-
-export interface ActivityData {
-    pageInfo: {
-        [normalizedPageUrl: string]: Pick<
-            SharedPageInfo,
-            'fullTitle' | 'originalUrl' | 'createdWhen'
-        > & { creator?: UserReference }
-    }
-    // pageItems: { [normalizedPageUrl: string]: PageActivityItem }
-    annotations: {
-        [annotationId: string]: Pick<
-            SharedAnnotation,
-            'body' | 'comment' | 'normalizedPageUrl' | 'updatedWhen'
-        > & { linkId: string; creatorReference: UserReference }
-    }
-    annotationItems: { [groupId: string]: AnnotationActivityItem }
-    replies: {
-        [groupId: string]: {
-            [replyId: string]: {
-                reference: ConversationReplyReference
-                previousReplyReference: ConversationReplyReference | null
-                creatorReference: UserReference
-                reply: Pick<
-                    ConversationReply,
-                    'content' | 'createdWhen' | 'normalizedPageUrl'
-                >
-            }
-        }
-    }
-    users: { [id: string]: Pick<User, 'displayName'> }
+    reason: 'new-replies'
+    annotation: { reference: SharedAnnotationReference } & Pick<
+        SharedAnnotation,
+        'body' | 'comment'
+    >
 }
