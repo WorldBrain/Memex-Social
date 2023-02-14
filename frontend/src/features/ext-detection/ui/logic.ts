@@ -129,10 +129,16 @@ export const extDetectionEventHandlers = (
             }
             if (doesMemexExtDetectionElExist()) {
                 console.log('exists')
-                await dependencies.services?.memexExtension.openLink({
-                    originalPageUrl: event.urlToOpen,
-                    sharedListId: event.sharedListReference?.id as string,
-                })
+                const openLink = await dependencies.services?.memexExtension.openLink(
+                    {
+                        originalPageUrl: event.urlToOpen,
+                        sharedListId: event.sharedListReference?.id as string,
+                    },
+                )
+
+                if (!openLink) {
+                    window.open(event.urlToOpen)
+                }
             }
             // This means it's a local PDF page
         },
