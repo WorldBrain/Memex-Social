@@ -6,6 +6,9 @@ import AuthHeader from '../../features/user-management/ui/containers/auth-header
 import { StorageModules } from '../../storage/types'
 import { Margin } from 'styled-components-spacing'
 import { PrimaryAction } from '@worldbrain/memex-common/lib/common-ui/components/PrimaryAction'
+import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
+import { PopoutBox } from '@worldbrain/memex-common/lib/common-ui/components/popout-box'
+import LoadingIndicator from '@worldbrain/memex-common/lib/common-ui/components/loading-indicator'
 // import RouteLink from '../components/route-link'
 // import UnseenActivityIndicator from '../../features/activity-streams/ui/containers/unseen-activity-indicator'
 // import ListsSidebar, {
@@ -49,6 +52,8 @@ export default function DefaultPageLayout(props: {
 }) {
     const { viewportBreakpoint: viewportWidth } = props
     const renderSubtitle = props.renderSubtitle ?? ((props) => props.children)
+    const [showChatBox, setShowChatBox] = React.useState(false)
+    const chatBoxRef = React.useRef<HTMLDivElement>(null)
 
     // const [isAuthenticated, setAuthenticated] = useState(
     //     !!props.services.auth.getCurrentUser(),
@@ -264,9 +269,82 @@ export default function DefaultPageLayout(props: {
                     {props.children}
                 </PageResultsArea>
             </MainColumn>
+            <SupportChatBox>
+                <PrimaryAction
+                    onClick={() => {
+                        setShowChatBox(true)
+                    }}
+                    type="tertiary"
+                    iconColor="prime1"
+                    icon="chatWithUs"
+                    innerRef={chatBoxRef}
+                    size="medium"
+                    label="Support Chat"
+                />
+            </SupportChatBox>
+            {showChatBox && (
+                <PopoutBox
+                    targetElementRef={chatBoxRef.current ?? undefined}
+                    closeComponent={() => setShowChatBox(false)}
+                    placement="top"
+                    offsetX={20}
+                >
+                    <ChatBox>
+                        <LoadingIndicator size={30} />
+                        <ChatFrame
+                            src={
+                                'https://go.crisp.chat/chat/embed/?website_id=05013744-c145-49c2-9c84-bfb682316599'
+                            }
+                            height={600}
+                            width={500}
+                        />
+                    </ChatBox>
+                    <ChatFrame
+                        src={
+                            'https://go.crisp.chat/chat/embed/?website_id=05013744-c145-49c2-9c84-bfb682316599'
+                        }
+                        height={600}
+                        width={500}
+                    />
+                </PopoutBox>
+            )}
         </MainContainer>
     )
 }
+
+const ChatBox = styled.div`
+    position: relative;
+    height: 600px;
+    width: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+`
+const ChatFrame = styled.iframe`
+    border: none;
+    border-radius: 12px;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+`
+
+const SupportChatBox = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    grid-gap: 10px;
+    color: ${(props) => props.theme.colors.white};
+    position: fixed;
+    bottom: 20px;
+    right: 30px;
+    z-index: 100;
+    cursor: pointer;
+
+    & * {
+        cursor: pointer;
+    }
+`
 
 const MainContainer = styled.div<{
     viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
