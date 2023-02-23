@@ -78,6 +78,10 @@ export type CollectionDetailsState = AnnotationConversationsState &
         showPermissionKeyIssue?: boolean
         requestingAuth?: boolean
         copiedLink?: boolean
+        summarizeArticleLoadState: {
+            [normalizedPageUrl: string]: UITaskState | undefined
+        }
+        articleSummary: { [normalizedPageUrl: string]: string }
         renderEmbedModal?: boolean
         isEmbedShareModalCopyTextShown: string
 
@@ -151,6 +155,8 @@ export type CollectionDetailsEvent = UIEvent<
             setPageHover: (PageEventArgs & { hover: ResultHoverState }) | any
             setSearchType: SearchType
             copiedLinkButton: null
+            summarizeArticle: { entry: any }
+            hideSummary: { entry: any }
             toggleEmbedModal: null
             toggleEmbedShareModalCopyText: { embedOrLink: string }
         }

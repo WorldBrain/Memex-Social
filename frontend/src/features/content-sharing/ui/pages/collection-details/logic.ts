@@ -182,6 +182,8 @@ export default class CollectionDetailsLogic extends UILogic<
             showMoreCollaborators: false,
             listRoleLimit: 3,
             listKeyPresent: this.dependencies.services.listKeys.hasCurrentKey(),
+            summarizeArticleLoadState: {},
+            articleSummary: {},
             users: {},
             scrollTop: 0,
             annotationEntriesLoadState: 'pristine',
@@ -335,6 +337,41 @@ export default class CollectionDetailsLogic extends UILogic<
                 copiedLink: { $set: false },
             })
         }, 2000)
+    }
+    summarizeArticle: EventHandler<'summarizeArticle'> = (incoming) => {
+        this.emitMutation({
+            summarizeArticleLoadState: {
+                [incoming.event.entry.normalizedUrl]: { $set: 'running' },
+            },
+        })
+
+        setTimeout(() => {
+            this.emitMutation({
+                articleSummary: {
+                    [incoming.event.entry.normalizedUrl]: {
+                        $set: `The article debunks the narrative that Jimmy Carter's liberal big-government policies resulted in runaway inflation and that Ronald Reagan defeated inflation, produced economic growth with deregulation and tax cuts, and won the Cold War by forcing the USSR to bankrupt itself. Instead, it highlights that Carter was the one who appointed Paul Volcker as the Fed Chair, who was responsible for tackling inflation and deregulated more industries than Reagan. Reagan did not increase defense spending as much as believed and didn't deregulate much.`,
+                    },
+                },
+                summarizeArticleLoadState: {
+                    [incoming.event.entry.normalizedUrl]: { $set: 'success' },
+                },
+            })
+        }, 10)
+
+        // const fetchSummary = 'error'
+
+        // if (fetchSummary === 'error') {
+        //     this.emitMutation({
+        //         summarizeArticleLoadState: { $set: 'error' },
+        //     })
+        // }
+    }
+    hideSummary: EventHandler<'hideSummary'> = (incoming) => {
+        this.emitMutation({
+            summarizeArticleLoadState: {
+                [incoming.event.entry.normalizedUrl]: { $set: undefined },
+            },
+        })
     }
 
     acceptInvitation: EventHandler<'acceptInvitation'> = async (incoming) => {

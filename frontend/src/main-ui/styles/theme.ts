@@ -128,6 +128,7 @@ export const theme: Theme = THEME({
         strikethroughIcon: require('../../assets/img/strikethroughIcon.svg'),
         fullPageReading: require('../../assets/img/bulletListIcon.svg'),
         sideBySide: require('../../assets/img/strikethroughIcon.svg'),
+        openAI: require('../../assets/img/openAI.svg'),
 
         // doubleArrow: require('../../assets/img/doubleArrow.svg'),,
         // import tagFull from '../../assets/img/tag_full.svg'
