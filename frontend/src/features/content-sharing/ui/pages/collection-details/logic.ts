@@ -338,33 +338,53 @@ export default class CollectionDetailsLogic extends UILogic<
             })
         }, 2000)
     }
-    summarizeArticle: EventHandler<'summarizeArticle'> = (incoming) => {
+
+    isExcludedDomain(url: string) {
+        if (url.startsWith('youtube.com/watch') || url.endsWith('.pdf')) {
+            return true
+        }
+    }
+
+    summarizeArticle: EventHandler<'summarizeArticle'> = async (incoming) => {
         this.emitMutation({
             summarizeArticleLoadState: {
                 [incoming.event.entry.normalizedUrl]: { $set: 'running' },
             },
         })
 
-        setTimeout(() => {
+        const response = await this.dependencies.services.summarization.summarize(
+            incoming.event.entry.originalUrl,
+        )
+        if (response.status === 'success') {
+            // this.emitMutation({
+            //     articleSummary: {
+            //         [incoming.event.entry.normalizedUrl]: {
+            //             $set: response.choices
+            //         },
+            //     },
+            //     summarizeArticleLoadState: {
+            //         [incoming.event.entry.normalizedUrl]: { $set: 'success' },
+            //     },
+            // })
+            console.log(response.choices)
+        } else if (response.status === 'prompt-too-long') {
             this.emitMutation({
-                articleSummary: {
-                    [incoming.event.entry.normalizedUrl]: {
-                        $set: `The article debunks the narrative that Jimmy Carter's liberal big-government policies resulted in runaway inflation and that Ronald Reagan defeated inflation, produced economic growth with deregulation and tax cuts, and won the Cold War by forcing the USSR to bankrupt itself. Instead, it highlights that Carter was the one who appointed Paul Volcker as the Fed Chair, who was responsible for tackling inflation and deregulated more industries than Reagan. Reagan did not increase defense spending as much as believed and didn't deregulate much.`,
-                    },
-                },
                 summarizeArticleLoadState: {
-                    [incoming.event.entry.normalizedUrl]: { $set: 'success' },
+                    [incoming.event.entry.normalizedUrl]: { $set: 'error' },
                 },
             })
-        }, 10)
+        } else {
+            this.emitMutation({
+                summarizeArticleLoadState: {
+                    [incoming.event.entry.normalizedUrl]: { $set: 'error' },
+                },
+            })
+        }
 
-        // const fetchSummary = 'error'
-
-        // if (fetchSummary === 'error') {
-        //     this.emitMutation({
-        //         summarizeArticleLoadState: { $set: 'error' },
-        //     })
-        // }
+        let error
+        if (this.isExcludedDomain(incoming.event.entry.normalizedUrl)) {
+            error = true
+        }
     }
     hideSummary: EventHandler<'hideSummary'> = (incoming) => {
         this.emitMutation({

@@ -53,6 +53,7 @@ export interface CollectionDetailsDependencies {
         | 'userMessages'
         | 'youtube'
         | 'memexExtension'
+        | 'summarization'
     >
     storage: Pick<
         StorageModules,

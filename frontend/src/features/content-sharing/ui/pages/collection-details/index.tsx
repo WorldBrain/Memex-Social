@@ -319,19 +319,36 @@ export default class CollectionDetailsPage extends UIElement<
                     },
                     {
                         key: 'generate-summary-btn',
-                        image: 'feed',
+                        image:
+                            this.state.summarizeArticleLoadState[
+                                entry.normalizedUrl
+                            ] === 'success' ||
+                            this.state.summarizeArticleLoadState[
+                                entry.normalizedUrl
+                            ] === 'error'
+                                ? 'compress'
+                                : 'feed',
                         imageColor: 'prime1',
+                        isDisabled: entry.normalizedUrl.startsWith(
+                            'https://www.youtube.com/watch?',
+                        ),
                         ButtonText:
                             this.state.summarizeArticleLoadState[
                                 entry.normalizedUrl
-                            ] === 'success'
+                            ] === 'success' ||
+                            this.state.summarizeArticleLoadState[
+                                entry.normalizedUrl
+                            ] === 'error'
                                 ? 'Hide Summary'
                                 : 'Summarize',
                         onClick: () => {
                             if (
                                 this.state.summarizeArticleLoadState[
                                     entry.normalizedUrl
-                                ] === 'success'
+                                ] === 'success' ||
+                                this.state.summarizeArticleLoadState[
+                                    entry.normalizedUrl
+                                ] === 'error'
                             ) {
                                 this.processEvent('hideSummary', {
                                     entry: entry,
@@ -359,19 +376,36 @@ export default class CollectionDetailsPage extends UIElement<
             return [
                 {
                     key: 'generate-summary-btn',
-                    image: 'feed',
+                    image:
+                        this.state.summarizeArticleLoadState[
+                            entry.normalizedUrl
+                        ] === 'success' ||
+                        this.state.summarizeArticleLoadState[
+                            entry.normalizedUrl
+                        ] === 'error'
+                            ? 'compress'
+                            : 'feed',
                     imageColor: 'prime1',
+                    isDisabled: entry.normalizedUrl.startsWith(
+                        'https://www.youtube.com/watch?',
+                    ),
                     ButtonText:
                         this.state.summarizeArticleLoadState[
                             entry.normalizedUrl
-                        ] === 'success'
+                        ] === 'success' ||
+                        this.state.summarizeArticleLoadState[
+                            entry.normalizedUrl
+                        ] === 'error'
                             ? 'Hide Summary'
                             : 'Summarize',
                     onClick: () => {
                         if (
                             this.state.summarizeArticleLoadState[
                                 entry.normalizedUrl
-                            ] === 'success'
+                            ] === 'success' ||
+                            this.state.summarizeArticleLoadState[
+                                entry.normalizedUrl
+                            ] === 'error'
                         ) {
                             this.processEvent('hideSummary', {
                                 entry: entry,
@@ -1717,11 +1751,20 @@ export default class CollectionDetailsPage extends UIElement<
                                                           entry.normalizedUrl
                                                       ] === 'error' && (
                                                           <ErrorContainer>
+                                                              <Icon
+                                                                  icon="warning"
+                                                                  color="warning"
+                                                                  heightAndWidth="22px"
+                                                                  hoverOff
+                                                              />
                                                               Page could not be
                                                               summarised. This
                                                               may be because it
                                                               is behind a
-                                                              paywall.
+                                                              paywall. <br />{' '}
+                                                              Youtube videos and
+                                                              PDFs are not
+                                                              supported yet.
                                                           </ErrorContainer>
                                                       )}
                                                   </SummarySection>
@@ -1809,9 +1852,13 @@ function isInRange(timestamp: number, range: TimestampRange | undefined) {
 
 const ErrorContainer = styled.div`
     display: flex;
-    background: ${(props) => props.theme.colors.warning};
-    color: ${(props) => props.theme.colors.white};
+    padding: 15px;
+    margin: 0 10px;
+    grid-gap: 10px;
+    color: ${(props) => props.theme.colors.greyScale6};
     font-size: 16px;
+    width: 100%;
+    align-items: flex-start;
 `
 
 const SummaryContainer = styled.div`
