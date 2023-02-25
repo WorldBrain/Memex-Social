@@ -182,6 +182,8 @@ export default class CollectionDetailsLogic extends UILogic<
             showMoreCollaborators: false,
             listRoleLimit: 3,
             listKeyPresent: this.dependencies.services.listKeys.hasCurrentKey(),
+            summarizeArticleLoadState: {},
+            articleSummary: {},
             users: {},
             scrollTop: 0,
             annotationEntriesLoadState: 'pristine',
@@ -335,6 +337,68 @@ export default class CollectionDetailsLogic extends UILogic<
                 copiedLink: { $set: false },
             })
         }, 2000)
+    }
+
+    isExcludedDomain(url: string) {
+        if (
+            url.startsWith('htts://www.youtube.com/watch') ||
+            url.endsWith('.pdf')
+        ) {
+            return true
+        }
+    }
+
+    summarizeArticle: EventHandler<'summarizeArticle'> = async (incoming) => {
+        this.emitMutation({
+            summarizeArticleLoadState: {
+                [incoming.event.entry.normalizedUrl]: { $set: 'running' },
+            },
+        })
+
+        const response = await this.dependencies.services.summarization.summarize(
+            incoming.event.entry.originalUrl,
+        )
+        if (response.status === 'success') {
+            let summaryText = response.choices[0].text
+            if (summaryText.startsWith(':')) {
+                summaryText = summaryText.slice(2)
+            }
+
+            this.emitMutation({
+                articleSummary: {
+                    [incoming.event.entry.normalizedUrl]: {
+                        $set: summaryText,
+                    },
+                },
+                summarizeArticleLoadState: {
+                    [incoming.event.entry.normalizedUrl]: { $set: 'success' },
+                },
+            })
+        } else if (response.status === 'prompt-too-long') {
+            this.emitMutation({
+                summarizeArticleLoadState: {
+                    [incoming.event.entry.normalizedUrl]: { $set: 'error' },
+                },
+            })
+        } else {
+            this.emitMutation({
+                summarizeArticleLoadState: {
+                    [incoming.event.entry.normalizedUrl]: { $set: 'error' },
+                },
+            })
+        }
+
+        let error
+        if (this.isExcludedDomain(incoming.event.entry.originalUrl)) {
+            error = true
+        }
+    }
+    hideSummary: EventHandler<'hideSummary'> = (incoming) => {
+        this.emitMutation({
+            summarizeArticleLoadState: {
+                [incoming.event.entry.normalizedUrl]: { $set: undefined },
+            },
+        })
     }
 
     acceptInvitation: EventHandler<'acceptInvitation'> = async (incoming) => {

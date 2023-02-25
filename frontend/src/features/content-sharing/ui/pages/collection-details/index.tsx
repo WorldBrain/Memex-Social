@@ -318,6 +318,49 @@ export default class CollectionDetailsPage extends UIElement<
                         },
                     },
                     {
+                        key: 'generate-summary-btn',
+                        image:
+                            this.state.summarizeArticleLoadState[
+                                entry.normalizedUrl
+                            ] === 'success' ||
+                            this.state.summarizeArticleLoadState[
+                                entry.normalizedUrl
+                            ] === 'error'
+                                ? 'compress'
+                                : 'feed',
+                        imageColor: 'prime1',
+                        isDisabled: entry.normalizedUrl.startsWith(
+                            'https://www.youtube.com/watch?',
+                        ),
+                        ButtonText:
+                            this.state.summarizeArticleLoadState[
+                                entry.normalizedUrl
+                            ] === 'success' ||
+                            this.state.summarizeArticleLoadState[
+                                entry.normalizedUrl
+                            ] === 'error'
+                                ? 'Hide Summary'
+                                : 'Summarize',
+                        onClick: () => {
+                            if (
+                                this.state.summarizeArticleLoadState[
+                                    entry.normalizedUrl
+                                ] === 'success' ||
+                                this.state.summarizeArticleLoadState[
+                                    entry.normalizedUrl
+                                ] === 'error'
+                            ) {
+                                this.processEvent('hideSummary', {
+                                    entry: entry,
+                                })
+                            } else {
+                                this.processEvent('summarizeArticle', {
+                                    entry: entry,
+                                })
+                            }
+                        },
+                    },
+                    {
                         key: 'expand-notes-btn',
                         image: count > 0 ? 'commentFull' : 'commentAdd',
                         ButtonText: count > 0 ? count : '',
@@ -331,6 +374,49 @@ export default class CollectionDetailsPage extends UIElement<
             }
 
             return [
+                {
+                    key: 'generate-summary-btn',
+                    image:
+                        this.state.summarizeArticleLoadState[
+                            entry.normalizedUrl
+                        ] === 'success' ||
+                        this.state.summarizeArticleLoadState[
+                            entry.normalizedUrl
+                        ] === 'error'
+                            ? 'compress'
+                            : 'feed',
+                    imageColor: 'prime1',
+                    isDisabled: entry.normalizedUrl.startsWith(
+                        'https://www.youtube.com/watch?',
+                    ),
+                    ButtonText:
+                        this.state.summarizeArticleLoadState[
+                            entry.normalizedUrl
+                        ] === 'success' ||
+                        this.state.summarizeArticleLoadState[
+                            entry.normalizedUrl
+                        ] === 'error'
+                            ? 'Hide Summary'
+                            : 'Summarize',
+                    onClick: () => {
+                        if (
+                            this.state.summarizeArticleLoadState[
+                                entry.normalizedUrl
+                            ] === 'success' ||
+                            this.state.summarizeArticleLoadState[
+                                entry.normalizedUrl
+                            ] === 'error'
+                        ) {
+                            this.processEvent('hideSummary', {
+                                entry: entry,
+                            })
+                        } else {
+                            this.processEvent('summarizeArticle', {
+                                entry: entry,
+                            })
+                        }
+                    },
+                },
                 {
                     key: 'expand-notes-btn',
                     image: count > 0 ? 'commentFull' : 'commentAdd',
@@ -1613,6 +1699,88 @@ export default class CollectionDetailsPage extends UIElement<
                                                           : undefined
                                                   }
                                               />
+                                              {this.state
+                                                  .summarizeArticleLoadState[
+                                                  entry.normalizedUrl
+                                              ] ? (
+                                                  <SummarySection>
+                                                      {this.state
+                                                          .summarizeArticleLoadState[
+                                                          entry.normalizedUrl
+                                                      ] === 'running' && (
+                                                          <LoadingBox>
+                                                              <LoadingIndicator
+                                                                  size={24}
+                                                              />
+                                                          </LoadingBox>
+                                                      )}
+                                                      {this.state
+                                                          .summarizeArticleLoadState[
+                                                          entry.normalizedUrl
+                                                      ] === 'success' && (
+                                                          <SummaryContainer>
+                                                              <SummaryText>
+                                                                  {this.state
+                                                                      .articleSummary[
+                                                                      entry
+                                                                          .normalizedUrl
+                                                                  ] ??
+                                                                      undefined}
+                                                              </SummaryText>
+                                                              <SummaryFooter>
+                                                                  <RightSideButtons>
+                                                                      <BetaButton>
+                                                                          <BetaButtonInner>
+                                                                              BETA
+                                                                          </BetaButtonInner>
+                                                                      </BetaButton>
+                                                                      <PrimaryAction
+                                                                          type="tertiary"
+                                                                          size="small"
+                                                                          onClick={() => {
+                                                                              window.open(
+                                                                                  'https://memex.garden/chatsupport',
+                                                                                  '_blank',
+                                                                              )
+                                                                          }}
+                                                                          label="Report Bug"
+                                                                      />
+                                                                  </RightSideButtons>
+                                                                  <PoweredBy>
+                                                                      Powered by
+                                                                      <Icon
+                                                                          icon="openAI"
+                                                                          height="18px"
+                                                                          hoverOff
+                                                                          width="70px"
+                                                                      />
+                                                                  </PoweredBy>
+                                                              </SummaryFooter>
+                                                          </SummaryContainer>
+                                                      )}
+                                                      {this.state
+                                                          .summarizeArticleLoadState[
+                                                          entry.normalizedUrl
+                                                      ] === 'error' && (
+                                                          <ErrorContainer>
+                                                              <Icon
+                                                                  icon="warning"
+                                                                  color="warning"
+                                                                  heightAndWidth="22px"
+                                                                  hoverOff
+                                                              />
+                                                              Page could not be
+                                                              summarised. This
+                                                              may be because it
+                                                              is behind a
+                                                              paywall. <br />{' '}
+                                                              Youtube videos and
+                                                              PDFs are not
+                                                              supported yet.
+                                                          </ErrorContainer>
+                                                      )}
+                                                  </SummarySection>
+                                              ) : undefined}
                                               <ItemBoxBottom
                                                   creationInfo={{
                                                       creator: this.state.users[
@@ -1693,6 +1861,105 @@ function isInRange(timestamp: number, range: TimestampRange | undefined) {
     }
     return range.fromTimestamp <= timestamp && range.toTimestamp >= timestamp
 }
+
+const RightSideButtons = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    grid-gap: 10px;
+`
+
+const BetaButton = styled.div`
+    display: flex;
+    background: linear-gradient(
+        90deg,
+        #d9d9d9 0%,
+        #2e73f8 0.01%,
+        #0a4bca 78.86%,
+        #0041be 100%
+    );
+    border-radius: 50px;
+    height: 24px;
+    width: 50px;
+    align-items: center;
+    justify-content: center;
+`
+
+const BetaButtonInner = styled.div`
+    display: flex;
+    background: ${(props) => props.theme.colors.greyScale1};
+    color: #0a4bca;
+    font-size: 12px;
+    letter-spacing: 1px;
+    height: 20px;
+    width: 46px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50px;
+`
+
+const ErrorContainer = styled.div`
+    display: flex;
+    padding: 15px;
+    margin: 0 10px;
+    grid-gap: 10px;
+    color: ${(props) => props.theme.colors.greyScale6};
+    font-size: 16px;
+    width: 100%;
+    align-items: flex-start;
+`
+
+const SummaryContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    justify-content: space-between;
+    grid-gap: 10px;
+    align-items: flex-start;
+`
+
+const SummaryFooter = styled.div`
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    grid-gap: 10px;
+    padding: 10px 20px 10px 20px;
+`
+
+const PoweredBy = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    grid-gap: 5px;
+    color: ${(props) => props.theme.colors.greyScale4};
+    font-size: 12px;
+    height: 26px;
+`
+
+const SummarySection = styled.div`
+    display: flex;
+    width: 100%;
+    min-height: 60px;
+    justify-content: center;
+    align-items: center;
+    border-top: 1px solid ${(props) => props.theme.colors.greyScale2};
+`
+
+const SummaryText = styled.div`
+    padding: 20px 20px 0px 20px;
+    color: ${(props) => props.theme.colors.greyScale7};
+    font-size: 16px;
+    line-height: 24px;
+`
+
+const LoadingBox = styled.div`
+    display: flex;
+    width: 100%;
+    height: 60px;
+    justify-content: center;
+    align-items: center;
+`
 
 const PrimaryActionContainer = styled.div`
     display: flex;
