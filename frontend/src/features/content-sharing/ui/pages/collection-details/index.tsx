@@ -1728,12 +1728,24 @@ export default class CollectionDetailsPage extends UIElement<
                                                                       undefined}
                                                               </SummaryText>
                                                               <SummaryFooter>
-                                                                  <PrimaryAction
-                                                                      type="tertiary"
-                                                                      size="small"
-                                                                      onClick={() => {}}
-                                                                      label="Report Bug"
-                                                                  />
+                                                                  <RightSideButtons>
+                                                                      <BetaButton>
+                                                                          <BetaButtonInner>
+                                                                              BETA
+                                                                          </BetaButtonInner>
+                                                                      </BetaButton>
+                                                                      <PrimaryAction
+                                                                          type="tertiary"
+                                                                          size="small"
+                                                                          onClick={() => {
+                                                                              window.open(
+                                                                                  'https://memex.garden/chatsupport',
+                                                                                  '_blank',
+                                                                              )
+                                                                          }}
+                                                                          label="Report Bug"
+                                                                      />
+                                                                  </RightSideButtons>
                                                                   <PoweredBy>
                                                                       Powered by
                                                                       <Icon
@@ -1850,6 +1862,42 @@ function isInRange(timestamp: number, range: TimestampRange | undefined) {
     return range.fromTimestamp <= timestamp && range.toTimestamp >= timestamp
 }
 
+const RightSideButtons = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    grid-gap: 10px;
+`
+
+const BetaButton = styled.div`
+    display: flex;
+    background: linear-gradient(
+        90deg,
+        #d9d9d9 0%,
+        #2e73f8 0.01%,
+        #0a4bca 78.86%,
+        #0041be 100%
+    );
+    border-radius: 50px;
+    height: 24px;
+    width: 50px;
+    align-items: center;
+    justify-content: center;
+`
+
+const BetaButtonInner = styled.div`
+    display: flex;
+    background: ${(props) => props.theme.colors.greyScale1};
+    color: #0a4bca;
+    font-size: 12px;
+    letter-spacing: 1px;
+    height: 20px;
+    width: 46px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50px;
+`
+
 const ErrorContainer = styled.div`
     display: flex;
     padding: 15px;
@@ -1874,9 +1922,9 @@ const SummaryFooter = styled.div`
     width: 100%;
     display: flex;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: space-between;
     grid-gap: 10px;
-    padding: 0 20px 10px 0px;
+    padding: 10px 20px 10px 20px;
 `
 
 const PoweredBy = styled.div`

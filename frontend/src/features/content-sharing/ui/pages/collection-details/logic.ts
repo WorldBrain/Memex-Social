@@ -340,7 +340,10 @@ export default class CollectionDetailsLogic extends UILogic<
     }
 
     isExcludedDomain(url: string) {
-        if (url.startsWith('youtube.com/watch') || url.endsWith('.pdf')) {
+        if (
+            url.startsWith('htts://www.youtube.com/watch') ||
+            url.endsWith('.pdf')
+        ) {
             return true
         }
     }
@@ -356,17 +359,17 @@ export default class CollectionDetailsLogic extends UILogic<
             incoming.event.entry.originalUrl,
         )
         if (response.status === 'success') {
-            // this.emitMutation({
-            //     articleSummary: {
-            //         [incoming.event.entry.normalizedUrl]: {
-            //             $set: response.choices
-            //         },
-            //     },
-            //     summarizeArticleLoadState: {
-            //         [incoming.event.entry.normalizedUrl]: { $set: 'success' },
-            //     },
-            // })
-            console.log(response.choices)
+            this.emitMutation({
+                articleSummary: {
+                    [incoming.event.entry.normalizedUrl]: {
+                        $set: response.choices[0].text,
+                    },
+                },
+                summarizeArticleLoadState: {
+                    [incoming.event.entry.normalizedUrl]: { $set: 'success' },
+                },
+            })
+            console.log(response.choices[0].text)
         } else if (response.status === 'prompt-too-long') {
             this.emitMutation({
                 summarizeArticleLoadState: {
@@ -382,7 +385,7 @@ export default class CollectionDetailsLogic extends UILogic<
         }
 
         let error
-        if (this.isExcludedDomain(incoming.event.entry.normalizedUrl)) {
+        if (this.isExcludedDomain(incoming.event.entry.originalUrl)) {
             error = true
         }
     }
