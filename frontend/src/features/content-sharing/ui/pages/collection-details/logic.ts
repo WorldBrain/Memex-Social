@@ -359,17 +359,21 @@ export default class CollectionDetailsLogic extends UILogic<
             incoming.event.entry.originalUrl,
         )
         if (response.status === 'success') {
+            let summaryText = response.choices[0].text
+            if (summaryText.startsWith(':')) {
+                summaryText = summaryText.slice(2)
+            }
+
             this.emitMutation({
                 articleSummary: {
                     [incoming.event.entry.normalizedUrl]: {
-                        $set: response.choices[0].text,
+                        $set: summaryText,
                     },
                 },
                 summarizeArticleLoadState: {
                     [incoming.event.entry.normalizedUrl]: { $set: 'success' },
                 },
             })
-            console.log(response.choices[0].text)
         } else if (response.status === 'prompt-too-long') {
             this.emitMutation({
                 summarizeArticleLoadState: {
