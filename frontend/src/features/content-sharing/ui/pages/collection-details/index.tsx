@@ -884,6 +884,28 @@ export default class CollectionDetailsPage extends UIElement<
         ) : null
     }
 
+    private renderSearchBox() {
+        return (
+            <SearchBar>
+                <TextField
+                    icon={'searchIcon'}
+                    placeholder="Search"
+                    value={this.state.searchQuery}
+                    onChange={(event) => {
+                        this.processEvent('loadSearchResults', {
+                            query: (event.target as HTMLInputElement).value,
+                            sharedListIds: this.props.listID,
+                        })
+                    }}
+                    onKeyDown={(event) => {}}
+                    background={'greyScale1'}
+                    height="34px"
+                    width="200px"
+                />
+            </SearchBar>
+        )
+    }
+
     private renderAbovePagesBox() {
         const {
             annotationEntryData,
@@ -1475,9 +1497,8 @@ export default class CollectionDetailsPage extends UIElement<
                     renderDescription={this.renderDescription()}
                     isPageView={this.props.entryID}
                 >
-                    {data.listEntries.length > 0 &&
-                        !isPageView &&
-                        this.renderAbovePagesBox()}
+                    {this.renderSearchBox()}
+                    {!isPageView && this.renderAbovePagesBox()}
                     {state.annotationEntriesLoadState === 'error' && (
                         <Margin bottom={'large'}>
                             <ErrorWithAction errorType="internal-error">
@@ -1693,6 +1714,10 @@ function isInRange(timestamp: number, range: TimestampRange | undefined) {
     }
     return range.fromTimestamp <= timestamp && range.toTimestamp >= timestamp
 }
+
+const SearchBar = styled.div`
+    margin-bottom: 10px;
+`
 
 const PrimaryActionContainer = styled.div`
     display: flex;

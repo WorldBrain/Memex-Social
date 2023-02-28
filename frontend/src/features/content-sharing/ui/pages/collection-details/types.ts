@@ -53,6 +53,7 @@ export interface CollectionDetailsDependencies {
         | 'userMessages'
         | 'youtube'
         | 'memexExtension'
+        | 'fullTextSearch'
     >
     storage: Pick<
         StorageModules,
@@ -91,6 +92,7 @@ export type CollectionDetailsState = AnnotationConversationsState &
         scrollTop?: number
         scrolledComponent?: JSX.Element
         users: { [id: string]: Pick<User, 'displayName' | 'platform'> }
+        searchQuery: string
 
         annotationEntriesLoadState: UITaskState
         annotationLoadStates: { [normalizedPageUrl: string]: UITaskState }
@@ -98,20 +100,20 @@ export type CollectionDetailsState = AnnotationConversationsState &
             creatorReference?: UserReference
             creator?: Pick<User, 'displayName'> | null
             list: SharedList
-            discordList: DiscordList | null
+            discordList: DiscordList | undefined | null
             isDiscordSyncing?: boolean
             listEntries: Array<
                 SharedListEntry & {
-                    reference: SharedListEntryReference
-                    id?: number
+                    reference?: SharedListEntryReference
+                    id?: number | string
                 } & {
                     creator: UserReference
                     hoverState?: boolean
-                    id?: string
+                    id?: string | number
                 }
             >
-            listDescriptionState: 'fits' | 'collapsed' | 'expanded'
-            listDescriptionTruncated: string
+            listDescriptionState: 'fits' | 'collapsed' | 'expanded' | undefined
+            listDescriptionTruncated: string | undefined
         }
         isCollectionFollowed: boolean
         allAnnotationExpanded: boolean
@@ -153,6 +155,8 @@ export type CollectionDetailsEvent = UIEvent<
             copiedLinkButton: null
             toggleEmbedModal: null
             toggleEmbedShareModalCopyText: { embedOrLink: string }
+            loadSearchResults: { query: string; sharedListIds: string }
+            updateSearchQuery: { query: string; sharedListIds: string }
         }
 >
 

@@ -195,6 +195,7 @@ export default class CollectionDetailsLogic extends UILogic<
             hoverState: false,
             renderEmbedModal: false,
             isEmbedShareModalCopyTextShown: '',
+            searchQuery: '',
             ...extDetectionInitialState(),
             ...listsSidebarInitialState(),
             ...annotationConversationInitialState(),
@@ -442,6 +443,58 @@ export default class CollectionDetailsLogic extends UILogic<
         await this._users.loadUsers(usersToLoad)
     }
 
+    updateSearchQuery: EventHandler<'updateSearchQuery'> = (incoming) => {
+        this.emitMutation({
+            searchQuery: { $set: incoming.event.query },
+        })
+    }
+
+    loadSearchResults: EventHandler<'loadSearchResults'> = async (incoming) => {
+        this.emitMutation({
+            searchQuery: { $set: incoming.event.query },
+        })
+
+        const result = await this.dependencies.services.fullTextSearch.searchListEntries(
+            {
+                query: incoming.event.query,
+                sharedListIds: [incoming.event.sharedListIds],
+            },
+        )
+
+        if (result) {
+            // this._creatorReference = result.sharedListEntries.creator
+            const userIds = [
+                ...new Set(
+                    result.sharedListEntries.map((entry: any) => entry.creator),
+                ),
+            ]
+            await this._users.loadUsers(
+                userIds.map(
+                    (id): UserReference => ({
+                        type: 'user-reference',
+                        id,
+                    }),
+                ),
+            )
+
+            this.emitMutation({
+                listData: {
+                    listEntries: { $set: result.sharedListEntries },
+                },
+                // newPageReplies: {
+                //     $set: fromPairs(
+                //         result.entries.map((entry) => [
+                //             entry.normalizedUrl,
+                //             getInitialNewReplyState(),
+                //         ]),
+                //     ),
+                // },
+            })
+        } else {
+            this.emitMutation({ listData: { $set: undefined } })
+        }
+    }
+
     loadListData: EventHandler<'loadListData'> = async (incoming) => {
         const {
             contentSharing,
@@ -532,7 +585,7 @@ export default class CollectionDetailsLogic extends UILogic<
                     const listDescriptionFits =
                         listDescription.length < LIST_DESCRIPTION_CHAR_LIMIT
 
-                    let discordList: DiscordList | null = null
+                    let discordList: DiscordList | null | undefined = null
                     let isDiscordSyncing = false
 
                     if (result.sharedList.platform === 'discord') {
