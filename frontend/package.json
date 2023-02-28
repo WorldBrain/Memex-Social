@@ -135,6 +135,7 @@
     "typedarray-to-buffer": "^3.1.5",
     "typeface-inter": "^3.18.1",
     "typeface-poppins": "^0.0.72",
+    "typesense": "1.5.2",
     "ui-logic-core": "^0.2.2",
     "ui-logic-react": "^0.1.6",
     "url-loader": "2.3.0",

@@ -4578,6 +4578,13 @@ axios@^0.20.0:
   dependencies:
     follow-redirects "^1.10.0"
 
+axios@^0.26.0:
+  version "0.26.1"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-0.26.1.tgz#1ede41c51fcf51bbbd6fd43669caaa4f0495aaa9"
+  integrity sha512-fPwcX4EvnSHuInCMItEhAGnaSEXRBjtzh9fOtsE6E1G6p7vl7edEeZe11QHf18+6+9gR5PbKV/sGKNaD8YaMeA==
+  dependencies:
+    follow-redirects "^1.14.8"
+
 axobject-query@^2.0.2:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/axobject-query/-/axobject-query-2.2.0.tgz#943d47e10c0b704aa42275e20edf3722648989be"
@@ -8902,6 +8909,11 @@ follow-redirects@^1.10.0:
   resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.13.0.tgz#b42e8d93a2a7eea5ed88633676d6597bc8e384db"
   integrity sha512-aq6gF1BEKje4a9i9+5jimNFIpq4Q1WiwBToeRK5NvZBd/TRsmW8BsJfOEGkr76TbOyPVD3OVDN910EcUNtRYEA==
 
+follow-redirects@^1.14.8:
+  version "1.15.2"
+  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.15.2.tgz#b460864144ba63f2681096f274c4e57026da2c13"
+  integrity sha512-VQLG33o04KaQ8uYi2tVNbdrWp1QWxNNea+nmIB4EVM28v0hmP17z7aG1+wAkNzVq4KeXTq3221ye5qTJP91JwA==
+
 font-awesome@^4.7.0:
   version "4.7.0"
   resolved "https://registry.yarnpkg.com/font-awesome/-/font-awesome-4.7.0.tgz#8fa8cf0411a1a31afd07b06d2902bb9fc815a133"
@@ -12340,6 +12352,11 @@ loglevel@^1.6.6:
   version "1.6.8"
   resolved "https://registry.yarnpkg.com/loglevel/-/loglevel-1.6.8.tgz#8a25fb75d092230ecd4457270d80b54e28011171"
   integrity sha512-bsU7+gc9AJ2SqpzxwU3+1fedl8zAntbtC5XYlt3s2j1hJcn2PsXSmgN8TaLG/J1/2mod4+cE/3vNL70/c1RNCA==
+
+loglevel@^1.8.0:
+  version "1.8.1"
+  resolved "https://registry.yarnpkg.com/loglevel/-/loglevel-1.8.1.tgz#5c621f83d5b48c54ae93b6156353f555963377b4"
+  integrity sha512-tCRIJM51SHjAayKwC+QAg8hT8vg6z7GSgLJKGvzuPb1Wc+hLzqtuVLxp6/HzSPOozuK+8ErAhy7U/sVzw8Dgfg==
 
 loglevelnext@^1.0.1:
   version "1.0.5"
@@ -18411,6 +18428,14 @@ typescript@^4.6.3:
   version "4.8.4"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.8.4.tgz#c464abca159669597be5f96b8943500b238e60e6"
   integrity sha512-QCh+85mCy+h0IGff8r5XWzOVSbBO+KfeYrMQh7NJ58QujwcE22u+NUSmUxqF+un70P9GXKxa2HCNiTTMJknyjQ==
+
+typesense@1.5.2:
+  version "1.5.2"
+  resolved "https://registry.yarnpkg.com/typesense/-/typesense-1.5.2.tgz#32107f86273224c5238184c5418b7789dc092add"
+  integrity sha512-ysARFw+4z3AdSViOACqf7K9TXoP2wAXd5p5uSGTdXW14UYjcEzpV/S/EhMoiC6YdZyrnbDdNsxgWbf+AWJ9Udw==
+  dependencies:
+    axios "^0.26.0"
+    loglevel "^1.8.0"
 
 typeson-registry@^1.0.0-alpha.20:
   version "1.0.0-alpha.26"
