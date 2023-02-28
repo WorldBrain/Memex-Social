@@ -13,7 +13,7 @@ export class FullTextSearchService {
                 ? 'https://cloudflare-memex-staging.memex.workers.dev'
                 : 'https://cloudfare-memex.memex.workers.dev'
         const response = await fetch(
-            `${base}${SHARED_LIST_ENTRY_SEARCH_ROUTE}}`,
+            `${base}${SHARED_LIST_ENTRY_SEARCH_ROUTE}`,
             {
                 method: 'POST',
                 headers: {

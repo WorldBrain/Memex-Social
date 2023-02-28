@@ -38,6 +38,7 @@ import type { YoutubeServiceOptions } from '@worldbrain/memex-common/lib/service
 import { YoutubeService } from '@worldbrain/memex-common/lib/services/youtube'
 import { MemexExtensionService } from './memex-extension'
 import { AnalyticsService } from './analytics'
+import { FullTextSearchService } from './full-text-search'
 
 export function createServices(options: {
     backend: BackendType
@@ -219,6 +220,7 @@ export function createServices(options: {
         webMonetization,
         youtube: new YoutubeService(options.youtubeOptions),
         analytics,
+        fullTextSearch: new FullTextSearchService(),
     }
 
     return services
