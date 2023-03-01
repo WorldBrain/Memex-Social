@@ -57,6 +57,7 @@ import { PopoutBox } from '@worldbrain/memex-common/lib/common-ui/components/pop
 import { AnnotationsInPageProps } from '@worldbrain/memex-common/lib/content-conversations/ui/components/annotations-in-page'
 import TextField from '@worldbrain/memex-common/lib/common-ui/components/text-field'
 import TextArea from '@worldbrain/memex-common/lib/common-ui/components/text-area'
+import DateTimePicker from 'react-datepicker'
 
 const commentImage = require('../../../../../assets/img/comment.svg')
 const commentEmptyImage = require('../../../../../assets/img/comment-empty.svg')
@@ -80,6 +81,7 @@ export default class CollectionDetailsPage extends UIElement<
 
     showMoreCollaboratorsRef = React.createRef<HTMLElement>()
     embedButtonRef = React.createRef<HTMLDivElement>()
+    dateFilterButtonRef = React.createRef<HTMLDivElement>()
 
     itemRanges: {
         [Key in 'listEntry' | 'annotEntry' | 'reply']:
@@ -895,14 +897,84 @@ export default class CollectionDetailsPage extends UIElement<
                         this.processEvent('loadSearchResults', {
                             query: (event.target as HTMLInputElement).value,
                             sharedListIds: this.props.listID,
+                            startDateFilterValue: this.state
+                                .startDateFilterValue,
+                            endDateFilterValue: this.state.endDateFilterValue,
                         })
                     }}
                     onKeyDown={(event) => {}}
                     background={'greyScale1'}
                     height="34px"
-                    width="200px"
+                    width="220px"
                 />
+                <TooltipBox
+                    placement="bottom"
+                    tooltipText='Use natural language, like "2 weeks ago"'
+                >
+                    <TextField
+                        icon={'calendar'}
+                        placeholder="from when?"
+                        value={this.state.startDateFilterValue}
+                        onChange={(event) => {
+                            this.processEvent('loadSearchResults', {
+                                query: this.state.searchQuery,
+                                sharedListIds: this.props.listID,
+                                startDateFilterValue: (event.target as HTMLInputElement)
+                                    .value,
+                                endDateFilterValue: this.state
+                                    .endDateFilterValue,
+                            })
+                        }}
+                        onKeyDown={(event) => {}}
+                        background={'greyScale1'}
+                        height="34px"
+                        width="180px"
+                    />
+                </TooltipBox>
+                <TooltipBox
+                    placement="bottom"
+                    tooltipText='Use natural language, like "2 weeks ago"'
+                >
+                    <TextField
+                        icon={'calendar'}
+                        placeholder="to when?"
+                        value={this.state.endDateFilterValue}
+                        onChange={(event) => {
+                            this.processEvent('loadSearchResults', {
+                                query: this.state.searchQuery,
+                                sharedListIds: this.props.listID,
+                                startDateFilterValue: this.state
+                                    .startDateFilterValue,
+                                endDateFilterValue: (event.target as HTMLInputElement)
+                                    .value,
+                            })
+                        }}
+                        onKeyDown={(event) => {}}
+                        background={'greyScale1'}
+                        height="34px"
+                        width="180px"
+                    />
+                </TooltipBox>
             </SearchBar>
+        )
+    }
+
+    private renderDatePicker = () => {
+        if (!this.state.dateFilterVisible) {
+            return
+        }
+
+        return (
+            <PopoutBox
+                targetElementRef={this.dateFilterButtonRef.current ?? undefined}
+                placement={'bottom-start'}
+                offsetX={10}
+                closeComponent={() =>
+                    this.processEvent('toggleDateFilters', null)
+                }
+            >
+                <DateTimePicker onChange={() => {}} />
+            </PopoutBox>
         )
     }
 
@@ -1717,6 +1789,11 @@ function isInRange(timestamp: number, range: TimestampRange | undefined) {
 
 const SearchBar = styled.div`
     margin-bottom: 10px;
+    display: flex;
+    grid-gap: 10px;
+    justify-content: flex-start;
+    width: fit-content;
+    z-index: 40;
 `
 
 const PrimaryActionContainer = styled.div`

@@ -93,6 +93,9 @@ export type CollectionDetailsState = AnnotationConversationsState &
         scrolledComponent?: JSX.Element
         users: { [id: string]: Pick<User, 'displayName' | 'platform'> }
         searchQuery: string
+        dateFilterVisible: boolean
+        endDateFilterValue: string
+        startDateFilterValue: string
 
         annotationEntriesLoadState: UITaskState
         annotationLoadStates: { [normalizedPageUrl: string]: UITaskState }
@@ -144,6 +147,7 @@ export type CollectionDetailsEvent = UIEvent<
             loadListData: { listID: string }
             processPermissionKey: {}
             acceptInvitation: {}
+            toggleDateFilters: null
             closePermissionOverlay: {}
             pageBreakpointHit: { entryIndex: number }
             clickFollowBtn: { pageToOpenPostFollow?: string }
@@ -155,7 +159,12 @@ export type CollectionDetailsEvent = UIEvent<
             copiedLinkButton: null
             toggleEmbedModal: null
             toggleEmbedShareModalCopyText: { embedOrLink: string }
-            loadSearchResults: { query: string; sharedListIds: string }
+            loadSearchResults: {
+                query: string
+                sharedListIds: string
+                endDateFilterValue: string
+                startDateFilterValue: string
+            }
             updateSearchQuery: { query: string; sharedListIds: string }
         }
 >

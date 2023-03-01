@@ -48,6 +48,7 @@ import {
 import { UserReference } from '../../../../user-management/types'
 import { makeStorageReference } from '@worldbrain/memex-common/lib/storage/references'
 import type { DiscordList } from '@worldbrain/memex-common/lib/discord/types'
+import * as chrono from 'chrono-node'
 const truncate = require('truncate')
 
 const LIST_DESCRIPTION_CHAR_LIMIT = 400
@@ -196,6 +197,9 @@ export default class CollectionDetailsLogic extends UILogic<
             renderEmbedModal: false,
             isEmbedShareModalCopyTextShown: '',
             searchQuery: '',
+            dateFilterVisible: false,
+            startDateFilterValue: '',
+            endDateFilterValue: '',
             ...extDetectionInitialState(),
             ...listsSidebarInitialState(),
             ...annotationConversationInitialState(),
@@ -449,15 +453,42 @@ export default class CollectionDetailsLogic extends UILogic<
         })
     }
 
+    toggleDateFilters: EventHandler<'toggleDateFilters'> = (incoming) => {
+        this.emitMutation({
+            dateFilterVisible: {
+                $set: !incoming.previousState.dateFilterVisible,
+            },
+        })
+    }
+
     loadSearchResults: EventHandler<'loadSearchResults'> = async (incoming) => {
+        const startNlpDate =
+            chrono?.parseDate(incoming.event.startDateFilterValue) ?? undefined
+        const endNlpDate =
+            chrono?.parseDate(incoming.event.endDateFilterValue) ?? undefined
+
+        const startDateFilterValue = parseInt(
+            startNlpDate?.getTime().toString().slice(0, -3).concat('000'),
+        )
+        const endDateFilterValue = parseInt(
+            endNlpDate?.getTime().toString().slice(0, -3).concat('000'),
+        )
+
+        console.log('startDateFilterValue', startDateFilterValue)
+        console.log('endDateFilterValue', endDateFilterValue)
+
         this.emitMutation({
             searchQuery: { $set: incoming.event.query },
+            startDateFilterValue: { $set: incoming.event.startDateFilterValue },
+            endDateFilterValue: { $set: incoming.event.endDateFilterValue },
         })
 
-        const result = await this.dependencies.services.fullTextSearch.searchListEntries(
+        let result = await this.dependencies.services.fullTextSearch.searchListEntries(
             {
                 query: incoming.event.query,
                 sharedListIds: [incoming.event.sharedListIds],
+                fromTimestamp: startDateFilterValue,
+                toTimestamp: endDateFilterValue,
             },
         )
 
@@ -468,6 +499,11 @@ export default class CollectionDetailsLogic extends UILogic<
                     result.sharedListEntries.map((entry: any) => entry.creator),
                 ),
             ]
+
+            result.sharedListEntries.sort((a: any, b: any) => {
+                return b.createdWhen - a.createdWhen
+            })
+
             await this._users.loadUsers(
                 userIds.map(
                     (id): UserReference => ({
