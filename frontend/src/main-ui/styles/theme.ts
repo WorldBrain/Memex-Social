@@ -86,6 +86,7 @@ export const theme: Theme = THEME({
         shareEmpty: require('../../assets/img/shareEmpty.svg'),
         shield: require('../../assets/img/shield.svg'),
         sidebarIcon: require('../../assets/img/sidebarOn.svg'),
+        slack: require('../../assets/img/slack.svg'),
         smileFace: require('../../assets/img/smileFace.svg'),
         sort: require('../../assets/img/sort.svg'),
         spotifyLogo: require('../../assets/img/spotify-logo.svg'),

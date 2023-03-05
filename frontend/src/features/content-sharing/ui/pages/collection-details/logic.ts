@@ -48,6 +48,7 @@ import {
 import { UserReference } from '../../../../user-management/types'
 import { makeStorageReference } from '@worldbrain/memex-common/lib/storage/references'
 import type { DiscordList } from '@worldbrain/memex-common/lib/discord/types'
+import type { SlackList } from '@worldbrain/memex-common/lib/slack/types'
 const truncate = require('truncate')
 
 const LIST_DESCRIPTION_CHAR_LIMIT = 400
@@ -509,7 +510,9 @@ export default class CollectionDetailsLogic extends UILogic<
     loadListData: EventHandler<'loadListData'> = async (incoming) => {
         const {
             contentSharing,
+            slack,
             discord,
+            slackRetroSync,
             discordRetroSync,
         } = this.dependencies.storage
         const listReference = makeStorageReference<SharedListReference>(
@@ -597,7 +600,8 @@ export default class CollectionDetailsLogic extends UILogic<
                         listDescription.length < LIST_DESCRIPTION_CHAR_LIMIT
 
                     let discordList: DiscordList | null = null
-                    let isDiscordSyncing = false
+                    let slackList: SlackList | null = null
+                    let isChatIntegrationSyncing = false
 
                     if (result.sharedList.platform === 'discord') {
                         discordList = await discord.findDiscordListForSharedList(
@@ -608,16 +612,29 @@ export default class CollectionDetailsLogic extends UILogic<
                                 mutation: { listData: { $set: undefined } },
                             }
                         }
-                        isDiscordSyncing = !!(await discordRetroSync.getSyncEntryByChannel(
+                        isChatIntegrationSyncing = !!(await discordRetroSync.getSyncEntryByChannel(
                             { channelId: discordList.channelId },
+                        ))
+                    } else if (result.sharedList.platform === 'slack') {
+                        slackList = await slack.findSlackListForSharedList(
+                            result.sharedList.reference,
+                        )
+                        if (!slackList) {
+                            return {
+                                mutation: { listData: { $set: undefined } },
+                            }
+                        }
+                        isChatIntegrationSyncing = !!(await slackRetroSync.getSyncEntryByChannel(
+                            { channelId: slackList.channelId },
                         ))
                     }
 
                     this.emitMutation({
                         listData: {
                             $set: {
+                                slackList,
                                 discordList,
-                                isDiscordSyncing,
+                                isChatIntegrationSyncing,
                                 creatorReference: result.creator,
                                 creator: await this._users.loadUser(
                                     result.creator,

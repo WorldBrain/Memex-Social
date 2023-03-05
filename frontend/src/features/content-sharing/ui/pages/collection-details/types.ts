@@ -33,6 +33,7 @@ import { SharedListRole } from '@worldbrain/memex-common/lib/web-interface/types
 import { ProcessSharedListKeyResult } from '@worldbrain/memex-common/lib/content-sharing/service/types'
 import { SearchType } from '@worldbrain/memex-common/lib/common-ui/components/types'
 import { ContentSharingQueryParams } from '../../../types'
+import type { SlackList } from '@worldbrain/memex-common/lib/slack/types'
 
 export interface CollectionDetailsDependencies {
     listID: string
@@ -60,6 +61,8 @@ export interface CollectionDetailsDependencies {
         | 'contentSharing'
         | 'contentConversations'
         | 'users'
+        | 'slack'
+        | 'slackRetroSync'
         | 'discord'
         | 'discordRetroSync'
         | 'activityStreams'
@@ -104,7 +107,8 @@ export type CollectionDetailsState = AnnotationConversationsState &
             creator?: Pick<User, 'displayName'> | null
             list: SharedList
             discordList: DiscordList | null
-            isDiscordSyncing?: boolean
+            slackList: SlackList | null
+            isChatIntegrationSyncing?: boolean
             listEntries: Array<
                 SharedListEntry & {
                     reference: SharedListEntryReference

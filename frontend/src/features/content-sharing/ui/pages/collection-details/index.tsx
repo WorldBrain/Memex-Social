@@ -687,16 +687,22 @@ export default class CollectionDetailsPage extends UIElement<
             )
         }
 
-        if (listData!.discordList == null) {
-            return title
+        if (listData!.discordList != null || listData!.slackList != null) {
+            const icon = listData!.discordList != null ? 'discord' : 'slack'
+            return (
+                <ChatChannelName>
+                    <Icon
+                        height="35px"
+                        icon={icon}
+                        color="secondary"
+                        hoverOff
+                    />
+                    #{title}
+                </ChatChannelName>
+            )
         }
 
-        return (
-            <DiscordChannelName>
-                <Icon height="35px" icon="discord" color="secondary" hoverOff />
-                #{title}
-            </DiscordChannelName>
-        )
+        return title
     }
 
     renderSubtitle() {
@@ -766,14 +772,18 @@ export default class CollectionDetailsPage extends UIElement<
             )
         })
 
-        // Case: Discord List
-
-        if (data?.discordList != null && !isPageView) {
+        // Case: Discord/Slack List
+        if (
+            (data?.discordList != null || data?.slackList != null) &&
+            !isPageView
+        ) {
+            const serverName =
+                data.discordList != null
+                    ? data.discordList.guildName
+                    : data.slackList?.workspaceName
             return (
                 <SubtitleContainer viewportBreakpoint={this.viewportBreakpoint}>
-                    <DiscordGuildName>
-                        {data.discordList.guildName}
-                    </DiscordGuildName>
+                    <ChatServerName>{serverName}</ChatServerName>
                 </SubtitleContainer>
             )
         }
@@ -1571,18 +1581,19 @@ export default class CollectionDetailsPage extends UIElement<
                             </ErrorWithAction>
                         </Margin>
                     )}
-                    {state.listData.discordList != null &&
-                        state.listData?.isDiscordSyncing && (
-                            <DiscordSyncNotif>
+                    {(state.listData?.discordList != null ||
+                        state.listData?.slackList != null) &&
+                        state.listData?.isChatIntegrationSyncing && (
+                            <ChatSyncNotif>
                                 <Icon
                                     filePath="redo"
                                     heightAndWidth="18px"
                                     hoverOff
                                     color="prime1"
                                 />{' '}
-                                This discord channel is still being synced. It
-                                may take a while for everything to show up.
-                            </DiscordSyncNotif>
+                                This channel is still being synced. It may take
+                                a while for everything to show up.
+                            </ChatSyncNotif>
                         )}
                     <ResultsList
                         isIframe={this.isIframe()}
@@ -2007,7 +2018,7 @@ const EmbedSectionContainer = styled.div`
     }
 `
 
-const DiscordSyncNotif = styled.div`
+const ChatSyncNotif = styled.div`
     border: 1px solid ${(props) => props.theme.colors.greyScale3};
     padding: 10px 20px;
     border-radius: 8px;
@@ -2378,7 +2389,7 @@ const SubtitleContainer = styled.div<{
         `}
 `
 
-const DiscordChannelName = styled.span`
+const ChatChannelName = styled.span`
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -2391,7 +2402,7 @@ const DiscordChannelName = styled.span`
     font-size: 34px;
     font-weight: 900;
 `
-const DiscordGuildName = styled.span`
+const ChatServerName = styled.span`
     color: ${(props) => props.theme.colors.greyScale6};
     font-weight: 600;
 `

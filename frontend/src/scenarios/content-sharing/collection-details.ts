@@ -1366,6 +1366,14 @@ export const SCENARIOS: ScenarioMap<Targets> = {
         },
         steps: [],
     })),
+    'slack-list': scenario<Targets>(({ step, callModification }) => ({
+        fixture: 'slack-list-with-user',
+        startRoute: {
+            route: 'collectionDetails',
+            params: { id: 'default-slack-list' },
+        },
+        steps: [],
+    })),
     'permission-key-accepted': scenario<Targets>(
         ({ step, callModification }) => ({
             fixture: 'annotated-list-with-user-and-follows',

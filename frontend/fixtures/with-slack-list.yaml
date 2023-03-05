@@ -1,18 +1,18 @@
 objects:
     sharedLists:
         - $store: default
-          id: default-discord-list
+          id: default-slack-list
           creator: { $ref: users.default }
           createdWhen: 1594225289914
           updatedWhen: 1594225289914
-          title: 'Test Discord Channel'
-          platform: 'discord'
-    discordLists:
+          title: 'Test Slack Channel'
+          platform: 'slack'
+    slackLists:
         - sharedList: { $ref: sharedLists.default }
-          guildId: '1234'
-          guildName: 'Test Discord Guild'
+          workspaceId: '1234'
+          workspaceName: 'Test Slack Workspace'
           channelId: '1234'
-          channelName: 'Test Discord Channel'
+          channelName: 'Test Slack Channel'
           enabled: true
     sharedListEntries:
         - sharedList: { $ref: sharedLists.default }
@@ -44,7 +44,7 @@ objects:
           updatedWhen: 1594225289914
           normalizedPageUrl: 'getmemex.com'
           comment: |
-              Original Discord Message ([Jump there](https://discord.com/channels/1027/1028/1029)):
+              Original Slack Message ([Jump there](https://slack.com/channels/1027/1028/1029)):
               "test message: https://getmemex.com"
         - $store: annotation-2
           id: second-annotation
@@ -53,7 +53,7 @@ objects:
           updatedWhen: 1594225289914
           normalizedPageUrl: 'notion.so'
           comment: |
-              Original Discord Message ([Jump there](https://discord.com/channels/1027/1028/1030)):
+              Original Slack Message ([Jump there](https://slack.com/channels/1027/1028/1030)):
               "another test message: https://notion.so"
         - $store: annotation-3
           id: third-annotation
@@ -62,7 +62,7 @@ objects:
           updatedWhen: 1594225289914
           normalizedPageUrl: 'apples.so'
           comment: |
-              Original Discord Message ([Jump there](https://discord.com/channels/1027/1028/1031)):
+              Original Slack Message ([Jump there](https://slack.com/channels/1027/1028/1031)):
               "yet another test message: https://apples.so"
     sharedAnnotationListEntries:
         - creator: { $ref: users.default }
