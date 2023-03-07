@@ -429,7 +429,7 @@ export default class HomeFeedPage extends UIElement<
                                 <UpdateCounter>
                                     {activityItem.activities.length}{' '}
                                 </UpdateCounter>
-                                new{' '}
+                                new annotation for page{' '}
                                 {pluralize(
                                     activityItem.activities.length,
                                     'annotation',
@@ -463,7 +463,6 @@ export default class HomeFeedPage extends UIElement<
                                     </SpaceTitle>
                                 </SpaceTitleContainer>
                             )}
-                            added to
                         </UpdateItemTitle>
                     </UpdateItemTitleArea>
                     {activityItem.list && (
@@ -534,7 +533,7 @@ export default class HomeFeedPage extends UIElement<
                                     'reply',
                                     'replies',
                                 )}{' '}
-                                in{' '}
+                                for annotation in{' '}
                             </UpdateItemTitleContainer>
                             {activityItem.list && (
                                 <SpaceTitleContainer>
@@ -566,7 +565,6 @@ export default class HomeFeedPage extends UIElement<
                                     </SpaceTitle>
                                 </SpaceTitleContainer>
                             )}
-                            added to
                         </UpdateItemTitle>
                     </UpdateItemTitleArea>
                     {activityItem.list && (
@@ -881,7 +879,6 @@ const UpdateItemReferencedContentContainer = styled.div`
     border: 1px solid ${(props) => props.theme.colors.greyScale2};
     margin-top: 15px;
     align-items: flex-start;
-    margin-left: 45px;
 `
 
 const AnnotationBox = styled.div`
@@ -1002,14 +999,8 @@ const UpdateItemTitle = styled.div<{
     grid-gap: 6px;
     white-space: nowrap;
     flex: 1;
-
-    ${(props) =>
-        (props.viewportBreakpoint === 'small' ||
-            props.viewportBreakpoint === 'mobile') &&
-        css`
-            flex-direction: column;
-            align-items: flex-start;
-        `}
+    flex-direction: column;
+    align-items: flex-start;
 `
 
 const UpdateItemTitleContainer = styled.div`
