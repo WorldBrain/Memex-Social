@@ -27,6 +27,14 @@ export default class AuthDialogLogic extends UILogic<
     emitAuthResult?: (result: AuthResult) => void
     action?: 'login' | 'register'
 
+    isIframe = () => {
+        try {
+            return window.self !== window.top
+        } catch (e) {
+            return true
+        }
+    }
+
     constructor(private dependencies: AuthDialogDependencies) {
         super()
 
@@ -34,27 +42,90 @@ export default class AuthDialogLogic extends UILogic<
         auth.events.on('authRequested', (event) => {
             this.emitAuthResult = event.emitResult
 
-            if (isMemexInstalled()) {
-                this.emitMutation({
-                    mode: {
-                        $set:
-                            event.reason === 'login-requested'
-                                ? 'login'
-                                : 'register',
-                    },
-                    header: { $set: event.header ?? undefined },
-                })
-            } else {
-                this.emitMutation({
-                    mode: {
-                        $set:
-                            event.reason === 'login-requested'
-                                ? 'register'
-                                : 'login',
-                    },
-                    header: { $set: event.header ?? undefined },
-                })
-            }
+            setTimeout(() => {
+                let memexInstalled = isMemexInstalled()
+                if (memexInstalled) {
+                    if (this.isIframe()) {
+                        this.emitMutation({
+                            mode: {
+                                $set: 'hidden',
+                            },
+                            saveState: { $set: 'running' },
+                            header: { $set: event.header ?? undefined },
+                        })
+                        auth.events.on('changed', () => {
+                            if (auth.getCurrentUserReference()) {
+                                this._result({ status: 'authenticated' })
+                            }
+                        })
+                        setTimeout(() => {
+                            if (auth.getCurrentUserReference() == null) {
+                                this.emitMutation({
+                                    mode: {
+                                        $set:
+                                            event.reason === 'login-requested'
+                                                ? 'login'
+                                                : 'register',
+                                    },
+                                    header: { $set: event.header ?? undefined },
+                                })
+                            }
+                        }, 5000)
+                    } else {
+                        this.emitMutation({
+                            mode: {
+                                $set:
+                                    event.reason === 'login-requested'
+                                        ? 'login'
+                                        : 'register',
+                            },
+                            header: { $set: event.header ?? undefined },
+                        })
+                    }
+                } else {
+                    if (this.isIframe()) {
+                        this.emitMutation({
+                            mode: {
+                                $set: 'hidden',
+                            },
+                            saveState: { $set: 'running' },
+                            header: { $set: event.header ?? undefined },
+                        })
+                        auth.events.on('changed', () => {
+                            if (auth.getCurrentUserReference()) {
+                                this._result({ status: 'authenticated' })
+                            }
+                        })
+                        setTimeout(() => {
+                            console.log(
+                                'auth.getCurrentUserReference()',
+                                auth.getCurrentUserReference(),
+                            )
+                            if (auth.getCurrentUserReference() == null) {
+                                this.emitMutation({
+                                    mode: {
+                                        $set:
+                                            event.reason === 'login-requested'
+                                                ? 'login'
+                                                : 'register',
+                                    },
+                                    header: { $set: event.header ?? undefined },
+                                })
+                            }
+                        }, 5000)
+                    } else {
+                        this.emitMutation({
+                            mode: {
+                                $set:
+                                    event.reason === 'login-requested'
+                                        ? 'login'
+                                        : 'register',
+                            },
+                            header: { $set: event.header ?? undefined },
+                        })
+                    }
+                }
+            }, 1500)
         })
 
         auth.events.on('changed', () => {

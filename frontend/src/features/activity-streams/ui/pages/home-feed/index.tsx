@@ -57,7 +57,8 @@ const FeedContainer = styled.div<{
     padding-bottom: 200px;
 
     ${(props) =>
-        props.viewportBreakpoint === 'small' &&
+        (props.viewportBreakpoint === 'small' ||
+            props.viewportBreakpoint === 'mobile') &&
         css`
             padding: 0 10px 200px 10px;
         `}
@@ -65,7 +66,7 @@ const FeedContainer = styled.div<{
     ${(props) =>
         props.isIframe &&
         css`
-            padding: 0 15px 100px 15px;
+            padding: 0 0px 100px 0px;
         `}
 `
 
@@ -129,7 +130,7 @@ const AnnotationEntriesLoadingContainer = styled.div`
 
 const LastSeenLineContainer = styled.div<{ shouldShowNewLine: boolean }>`
     margin: ${(props) =>
-        !props.shouldShowNewLine ? '20px 0 0px 0' : '100px 0 0px 0'};
+        !props.shouldShowNewLine ? '0px 0 0px 0' : '100px 0 0px 0'};
 `
 
 const StyledLastSeenLine = styled.div`
@@ -416,20 +417,25 @@ export default class HomeFeedPage extends UIElement<
                     <UpdateItemTitleArea>
                         <Icon
                             filePath="reply"
-                            heightAndWidth={'30px'}
+                            heightAndWidth={'22px'}
                             hoverOff
                             color={'prime1'}
                         />
-                        <UpdateCounter>
-                            {activityItem.activities.length}{' '}
-                        </UpdateCounter>
-                        <UpdateItemTitle>
-                            new{' '}
-                            {pluralize(
-                                activityItem.activities.length,
-                                'annotation',
-                            )}{' '}
-                            in{' '}
+
+                        <UpdateItemTitle
+                            viewportBreakpoint={this.viewportBreakpoint}
+                        >
+                            <UpdateItemTitleContainer>
+                                <UpdateCounter>
+                                    {activityItem.activities.length}{' '}
+                                </UpdateCounter>
+                                new{' '}
+                                {pluralize(
+                                    activityItem.activities.length,
+                                    'annotation',
+                                )}{' '}
+                                in{' '}
+                            </UpdateItemTitleContainer>
                             {activityItem.list && (
                                 <SpaceTitleContainer>
                                     {' '}
@@ -446,6 +452,11 @@ export default class HomeFeedPage extends UIElement<
                                                 'AnnotEntry',
                                                 activityItem,
                                             )}
+                                            target={
+                                                this.isIframe()
+                                                    ? '_blank'
+                                                    : undefined
+                                            }
                                         >
                                             {activityItem.list?.title}
                                         </RouteLink>
@@ -467,6 +478,7 @@ export default class HomeFeedPage extends UIElement<
                                 'AnnotEntry',
                                 activityItem,
                             )}
+                            target={this.isIframe() ? '_blank' : undefined}
                         >
                             <PrimaryAction
                                 label="View"
@@ -505,20 +517,25 @@ export default class HomeFeedPage extends UIElement<
                     <UpdateItemTitleArea>
                         <Icon
                             filePath="reply"
-                            heightAndWidth={'30px'}
+                            heightAndWidth={'22px'}
                             hoverOff
                             color={'prime1'}
                         />
-                        <UpdateCounter>
-                            {activityItem.activities.length}{' '}
-                        </UpdateCounter>
-                        <UpdateItemTitle>
-                            {pluralize(
-                                activityItem.activities.length,
-                                'reply',
-                                'replies',
-                            )}{' '}
-                            in{' '}
+
+                        <UpdateItemTitle
+                            viewportBreakpoint={this.viewportBreakpoint}
+                        >
+                            <UpdateItemTitleContainer>
+                                <UpdateCounter>
+                                    {activityItem.activities.length}{' '}
+                                </UpdateCounter>
+                                {pluralize(
+                                    activityItem.activities.length,
+                                    'reply',
+                                    'replies',
+                                )}{' '}
+                                in{' '}
+                            </UpdateItemTitleContainer>
                             {activityItem.list && (
                                 <SpaceTitleContainer>
                                     {' '}
@@ -538,6 +555,11 @@ export default class HomeFeedPage extends UIElement<
                                                     activityItem,
                                                 ),
                                             }}
+                                            target={
+                                                this.isIframe()
+                                                    ? '_blank'
+                                                    : undefined
+                                            }
                                         >
                                             {activityItem.list?.title}
                                         </RouteLink>
@@ -559,6 +581,7 @@ export default class HomeFeedPage extends UIElement<
                                 'ListEntry',
                                 activityItem,
                             )}
+                            target={this.isIframe() ? '_blank' : undefined}
                         >
                             <PrimaryAction
                                 label="View"
@@ -620,16 +643,21 @@ export default class HomeFeedPage extends UIElement<
                     <UpdateItemTitleArea>
                         <Icon
                             filePath="heartEmpty"
-                            heightAndWidth={'30px'}
+                            heightAndWidth={'22px'}
                             hoverOff
                             color={'prime1'}
                         />
-                        <UpdateCounter>
-                            {listItem.activities.length}{' '}
-                        </UpdateCounter>
-                        <UpdateItemTitle>
-                            {pluralize(listItem.activities.length, 'page')}{' '}
-                            added in{' '}
+
+                        <UpdateItemTitle
+                            viewportBreakpoint={this.viewportBreakpoint}
+                        >
+                            <UpdateItemTitleContainer>
+                                <UpdateCounter>
+                                    {listItem.activities.length}{' '}
+                                </UpdateCounter>
+                                {pluralize(listItem.activities.length, 'page')}{' '}
+                                added in{' '}
+                            </UpdateItemTitleContainer>
                             <SpaceTitleContainer>
                                 {' '}
                                 <SpaceTitle>
@@ -644,6 +672,11 @@ export default class HomeFeedPage extends UIElement<
                                             'ListEntry',
                                             listItem,
                                         )}
+                                        target={
+                                            this.isIframe()
+                                                ? '_blank'
+                                                : undefined
+                                        }
                                     >
                                         {listItem.list.title}
                                     </RouteLink>
@@ -656,6 +689,7 @@ export default class HomeFeedPage extends UIElement<
                         route="collectionDetails"
                         params={{ id: listItem.list.reference.id.toString() }}
                         query={getRangeQueryParams('ListEntry', listItem)}
+                        target={this.isIframe() ? '_blank' : undefined}
                     >
                         <PrimaryAction
                             label="View"
@@ -935,7 +969,7 @@ const UpdateItemTopBar = styled.div`
     align-items: center;
     justify-content: space-between;
     width: fill-available;
-    grid-gap: 50px;
+    grid-gap: 20px;
 `
 
 const UpdateItemTitleArea = styled.div`
@@ -945,29 +979,44 @@ const UpdateItemTitleArea = styled.div`
     width: fill-available;
 `
 
-const UpdateCounter = styled.div`
+const UpdateCounter = styled.span`
     display: flex;
     align-items: center;
     border-radius: 30px;
-    background: ${(props) => props.theme.colors.prime1};
     align-items: center;
+    color: ${(props) => props.theme.colors.white};
     justify-content: center;
-    padding: 2px 15px;
+    padding: 2px 0px;
     font-weight: 500;
     font-size: 14px;
-    min-width: 40px;
 `
 
-const UpdateItemTitle = styled.div`
+const UpdateItemTitle = styled.div<{
+    viewportBreakpoint: ViewportBreakpoint
+}>`
     display: flex;
     align-items: center;
     color: ${(props) => props.theme.colors.greyScale5};
     font-size: 14px;
-    width: 100px;
     flex-direction: row;
     grid-gap: 6px;
     white-space: nowrap;
     flex: 1;
+
+    ${(props) =>
+        (props.viewportBreakpoint === 'small' ||
+            props.viewportBreakpoint === 'mobile') &&
+        css`
+            flex-direction: column;
+            align-items: flex-start;
+        `}
+`
+
+const UpdateItemTitleContainer = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    grid-gap: 5px;
 `
 
 const SpaceTitle = styled.span`

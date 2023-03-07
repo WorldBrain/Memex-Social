@@ -269,19 +269,21 @@ export default function DefaultPageLayout(props: {
                     {props.children}
                 </PageResultsArea>
             </MainColumn>
-            <SupportChatBox>
-                <PrimaryAction
-                    onClick={() => {
-                        setShowChatBox(true)
-                    }}
-                    type="tertiary"
-                    iconColor="prime1"
-                    icon="chatWithUs"
-                    innerRef={chatBoxRef}
-                    size="medium"
-                    label="Support Chat"
-                />
-            </SupportChatBox>
+            {!isIframe() && (
+                <SupportChatBox>
+                    <PrimaryAction
+                        onClick={() => {
+                            setShowChatBox(true)
+                        }}
+                        type="tertiary"
+                        iconColor="prime1"
+                        icon="chatWithUs"
+                        innerRef={chatBoxRef}
+                        size="medium"
+                        label="Support Chat"
+                    />
+                </SupportChatBox>
+            )}
             {showChatBox && (
                 <PopoutBox
                     targetElementRef={chatBoxRef.current ?? undefined}
