@@ -1000,7 +1000,7 @@ export default class CollectionDetailsPage extends UIElement<
                     toExclude={['notes']}
                 />
                 <ActionItems>
-                    {(this.isListContributor || isListOwner) && (
+                    {/* {(this.isListContributor || isListOwner) && (
                         <AddPageBtn
                             onClick={() =>
                                 this.processEvent('toggleInstallExtModal', {})
@@ -1008,7 +1008,7 @@ export default class CollectionDetailsPage extends UIElement<
                         >
                             <Icon icon="plus" height="22px" color="prime1" />
                         </AddPageBtn>
-                    )}
+                    )} */}
                     {annotationEntryData &&
                         Object.keys(annotationEntryData).length > 0 && (
                             <ToggleAllAnnotations
