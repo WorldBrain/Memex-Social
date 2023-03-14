@@ -505,6 +505,7 @@ export default class CollectionDetailsPage extends UIElement<
 
         return (
             <AnnotationsInPage
+                originalUrl={entry.originalUrl}
                 contextLocation={'webUI'}
                 variant={'dark-mode'}
                 getYoutubePlayer={() =>
