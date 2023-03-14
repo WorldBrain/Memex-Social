@@ -1,6 +1,6 @@
 import moment from 'moment'
 import React from 'react'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { UIElement } from '../../../../../main-ui/classes'
 import Logic, { AnnotationDetailsState } from './logic'
 import { AnnotationDetailsEvent, AnnotationDetailsDependencies } from './types'
@@ -9,7 +9,10 @@ import DefaultPageLayout from '../../../../../common-ui/layouts/default-page-lay
 import LoadingIndicator from '../../../../../common-ui/components/loading-indicator'
 import ErrorWithAction from '../../../../../common-ui/components/error-with-action'
 import Markdown from '../../../../../common-ui/components/markdown'
+import { PrimaryAction } from '@worldbrain/memex-common/lib/common-ui/components/PrimaryAction'
+import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
 const logoImage = require('../../../../../assets/img/memex-logo.svg')
+const iconImage = require('../../../../../assets/img/memex-icon.svg')
 
 export default class AnnotationDetailsPage extends UIElement<
     AnnotationDetailsDependencies,
@@ -18,6 +21,14 @@ export default class AnnotationDetailsPage extends UIElement<
 > {
     constructor(props: AnnotationDetailsDependencies) {
         super(props, { logic: new Logic(props) })
+    }
+
+    isIframe = () => {
+        try {
+            return window.self !== window.top
+        } catch (e) {
+            return true
+        }
     }
 
     getBreakPoints() {
@@ -36,6 +47,29 @@ export default class AnnotationDetailsPage extends UIElement<
         }
 
         return 'normal'
+    }
+
+    getAnnotationText = (annotationBody: string) => {
+        const tempDivElement = document.createElement('div')
+        tempDivElement.innerHTML = annotationBody ?? ''
+        const text =
+            tempDivElement.textContent || tempDivElement.innerText || ''
+
+        const textArray = text
+            .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, ' ')
+            .split(' ')
+
+        let firstWords
+        let lastWords
+        if (textArray.length < 7) {
+            firstWords = textArray.slice(0, 2).join(' ')
+            lastWords = textArray.slice(-3).join(' ')
+        } else {
+            firstWords = textArray.slice(0, 3).join(' ')
+            lastWords = textArray.slice(-4).join(' ')
+        }
+
+        return `${firstWords},${lastWords}`
     }
 
     render() {
@@ -99,43 +133,54 @@ export default class AnnotationDetailsPage extends UIElement<
                         creator ? ` by ${creator.displayName}` : ''
                     }`}
                 />
-                <AnnotationPage>
-                    <IntroArea>
-                        <LogoLinkArea href={'https://getmemex.com'}>
-                            <MemexLogo />
-                        </LogoLinkArea>
-                        <IntroText>
-                            Someone wants to share this note with you
-                        </IntroText>
-                    </IntroArea>
+                <AnnotationPage isIframe={this.isIframe()}>
+                    {!this.isIframe() && (
+                        <IntroArea>
+                            <LogoLinkArea
+                                href={'https://memex.garden'}
+                                target={'_blank'}
+                            >
+                                <MemexLogo />
+                            </LogoLinkArea>
+                        </IntroArea>
+                    )}
                     <AnnotationContainer>
-                        <AnnotationContentBox>
+                        {this.isIframe() && (
+                            <IntroArea isIframe>
+                                <LogoLinkArea
+                                    href={'https://memex.garden'}
+                                    target={'_blank'}
+                                >
+                                    <MemexLogo isIframe />
+                                </LogoLinkArea>
+                            </IntroArea>
+                        )}
+                        <AnnotationTopBox>
                             {annotation.body && (
-                                <AnnotationBody>
-                                    {annotation.body}
-                                </AnnotationBody>
+                                <HighlightBox>
+                                    <HighlightBar />
+                                    <HighlightContainer>
+                                        <MarkdownBox isHighlight>
+                                            {annotation.body}
+                                        </MarkdownBox>
+                                    </HighlightContainer>
+                                </HighlightBox>
                             )}
                             {annotation.comment && (
-                                <AnnotationComment>
-                                    <Markdown>{annotation.comment}</Markdown>
+                                <AnnotationComment
+                                    hasHighlight={!!annotation.body}
+                                >
+                                    <Markdown
+                                    // contextLocation={props.contextLocation}
+                                    // getYoutubePlayer={
+                                    //     props.getYoutubePlayer
+                                    // }
+                                    >
+                                        {annotation.comment}
+                                    </Markdown>
                                 </AnnotationComment>
                             )}
-                            <AnnotationAuthorBox>
-                                <AnnotationAuthorName>
-                                    {state.creatorLoadState === 'success' && (
-                                        <div>
-                                            {creator && creator.displayName}
-                                            {!creator && ''}
-                                        </div>
-                                    )}
-                                </AnnotationAuthorName>
-                                <AnnotationAuthorUploadDate>
-                                    {moment(annotation.createdWhen).format(
-                                        'LLL',
-                                    )}
-                                </AnnotationAuthorUploadDate>
-                            </AnnotationAuthorBox>
-                        </AnnotationContentBox>
+                        </AnnotationTopBox>
                         <AnnotationFooter>
                             {state.pageInfoLoadState === 'error' && (
                                 <AnnotationFooterError>
@@ -165,12 +210,24 @@ export default class AnnotationDetailsPage extends UIElement<
                                                 </AnnotationPageUrl>
                                             </AnnotationFooterLeft>
                                             <AnnotationFooterRight>
-                                                <GoToAnnotationButton
-                                                    href={pageInfo.originalUrl}
+                                                <OpenButton
                                                     target="_blank"
+                                                    href={
+                                                        pageInfo.originalUrl +
+                                                        '#:~:text=' +
+                                                        this.getAnnotationText(
+                                                            annotation.body ??
+                                                                '',
+                                                        )
+                                                    }
                                                 >
-                                                    Go to Page
-                                                </GoToAnnotationButton>
+                                                    Open Link
+                                                    <Icon
+                                                        icon="arrowRight"
+                                                        heightAndWidth="22px"
+                                                        hoverOff
+                                                    />
+                                                </OpenButton>
                                             </AnnotationFooterRight>
                                         </>
                                     )}
@@ -185,44 +242,79 @@ export default class AnnotationDetailsPage extends UIElement<
     }
 }
 
-const IntroArea = styled.div`
+const AnnotationTopBox = styled.div`
+    display: flex;
+    flex-direction: column;
+    padding: 15px 15px 5px 15px;
+`
+
+const IntroArea = styled.div<{ isIframe?: boolean }>`
     display: flex;
     justify-content: center;
     margin: 10px 15px 10px 15px;
     flex-direction: column;
     align-items: center;
     width: 100%;
-`
-const IntroText = styled.div`
-    display: flex;
-    justify-content: center;
-    text-align: center;
-    margin: 15px 0 0 0;
-    font-weight: bold;
-    line-height: 26px;
-    white-space: normal;
-    padding: 0 5px;
-    box-decoration-break: clone;
-    font-size: 16px;
-    color: ${(props) => props.theme.colors.prime1};
+    position: relative;
+
+    ${(props) =>
+        props.isIframe &&
+        css`
+            align-items: flex-end;
+            margin: 0px;
+        `};
 `
 
-const LogoLinkArea = styled.a``
+const LogoLinkArea = styled.a`
+    position: relative;
+    cursor: pointer;
+    z-index: 1;
+`
 
-const MemexLogo = styled.div`
-    height: 24px;
+const MemexLogo = styled.div<{ isIframe?: boolean }>`
+    height: 30px;
     background-position: center;
     background-size: contain;
-    width: 100px;
+    width: 130px;
     border: none;
     cursor: pointer;
     margin-right: 20px;
     background-repeat: no-repeat;
     background-image: url(${logoImage});
     display: flex;
+
+    ${(props) =>
+        props.isIframe &&
+        css`
+            width: 22px;
+            position: absolute;
+            right: 15px;
+            top: 10px;
+            margin-right: 0px;
+            background-image: url(${iconImage});
+        `};
 `
 
-const AnnotationPage = styled.div`
+const OpenButton = styled.a<{}>`
+    padding: 5px 5px 5px 15px;
+    text-decoration: none;
+    display: flex;
+    grid-gap: 5px;
+    align-items: center;
+    border-radius: 6px;
+
+    ${(props) =>
+        css`
+            color: ${(props) => props.theme.colors.white};
+            background: ${(props) => props.theme.colors.greyScale2};
+
+            &:hover {
+                background: ${(props) => props.theme.colors.greyScale3};
+            }
+        `};
+`
+
+const AnnotationPage = styled.div<{ isIframe: boolean }>`
     display: flex;
     align-items: center;
     height: fit-content;
@@ -234,19 +326,25 @@ const AnnotationPage = styled.div`
     & div {
         font-family: ${(props) => props.theme.fonts.primary};
     }
+
+    ${(props) =>
+        props.isIframe &&
+        css`
+            padding: 0;
+        `};
 `
 
-const AnnotationContainer = styled.div`
-    width: 90%;
-    max-width: 550px;
-    margin-bottom: 25vh;
+// const AnnotationContainer = styled.div`
+//     width: 90%;
+//     max-width: 550px;
+//     margin-bottom: 25vh;
 
-    background: #ffffff;
-    border: 1.72269px solid rgba(0, 0, 0, 0.1);
-    box-sizing: border-box;
-    box-shadow: 0px 3.72px 27px rgba(0, 0, 0, 0.1);
-    border-radius: 8.61345px;
-`
+//     background: #ffffff;
+//     border: 1.72269px solid rgba(0, 0, 0, 0.1);
+//     box-sizing: border-box;
+//     box-shadow: 0px 3.72px 27px rgba(0, 0, 0, 0.1);
+//     border-radius: 8.61345px;
+// `
 const AnnotationContentBox = styled.div`
     padding: 15px 15px 10px 15px;
 `
@@ -262,41 +360,35 @@ const AnnotationBody = styled.span`
     font-size: 16px;
     color: ${(props) => props.theme.colors.prime1};
 `
-const AnnotationComment = styled.div`
-    font-family: ${(props) => props.theme.fonts.primary};
-    font-weight: normal;
-    line-height: 26px;
-    margin-top: 5px;
-    white-space: normal;
-    padding: 0 5px;
-    box-decoration-break: clone;
-    font-size: 16px;
-    color: ${(props) => props.theme.colors.prime1};
-`
-const AnnotationAuthorBox = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    font-family: ${(props) => props.theme.fonts.primary};
-    padding: 0 5px;
-    margin-top: 15px;
-`
-const AnnotationAuthorName = styled.div`
-    color: ${(props) => props.theme.colors.prime1};
-    font-size: 12px;
-    font-weight: bold;
-    height: 24px;
-    padding-right: 10px;
+const AnnotationComment = styled.div<{
+    hasHighlight: boolean
+}>`
+    font-size: 14px;
+    color: ${(props) => props.theme.colors.white};
+    padding: 15px 20px;
+
+    ${(props) =>
+        props.hasHighlight &&
+        css`
+            padding: 0px 20px 15px 20px;
+        `}
+
+    & *:first-child {
+        margin-top: 0;
+    }
+
+    & *:last-child {
+        margin-bottom: 0;
+    }
+
+    & * {
+        word-break: break-word;
+    }
 `
 
-const AnnotationAuthorUploadDate = styled.div`
-    color: ${(props) => props.theme.colors.prime1};
-    font-size: 12px;
-    font-weight: normal;
-`
 const AnnotationFooter = styled.div`
     border-top: 1px solid ${(props) => props.theme.colors.greyScale3};
-    padding: 15px;
+    padding: 15px 15px 15px 30px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -316,12 +408,17 @@ const AnnotationFooterLeft = styled.div`
     flex: 1;
     width: 50%;
     padding-right: 20px;
+    grid-gap: 5px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
 `
 const AnnotationFooterError = styled.div``
 
 const AnnotationPageTitle = styled.div`
     font-family: ${(props) => props.theme.fonts.primary};
-    color: ${(props) => props.theme.colors.black};
+    color: ${(props) => props.theme.colors.white};
     font-weight: 600;
     font-size: 14px;
     white-space: nowrap;
@@ -333,9 +430,9 @@ const AnnotationPageTitle = styled.div`
 
 const AnnotationPageUrl = styled.div`
     font-family: ${(props) => props.theme.fonts.primary};
-    color: ${(props) => props.theme.colors.prime1};
+    color: ${(props) => props.theme.colors.greyScale5};
     width: 355px;
-    font-size: 12px;
+    font-size: 14px;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow-wrap: break-word;
@@ -371,4 +468,42 @@ const LoadingScreen = styled.div<{
     justify-content: center;
     height: 100vh;
     width: 100%;
+`
+
+const AnnotationContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: 500px;
+    border: 1px solid ${(props) => props.theme.colors.greyScale2};
+    border-radius: 8px;
+`
+
+const MarkdownBox = styled(Markdown)`
+    flex: 1;
+    margin-left: 20px;
+`
+
+const HighlightContainer = styled.div`
+    margin-left: 20px;
+`
+
+const HighlightBox = styled.div`
+    display: flex;
+    align-items: center;
+    padding: 15px 15px 15px 15px;
+    width: 100%;
+    position: relative;
+    height: fill-available;
+`
+
+const HighlightBar = styled.div`
+    background-color: ${(props) => props.theme.colors.prime1};
+    margin-right: 10px;
+    border-radius: 2px;
+    width: 4px;
+    top: 0px;
+    height: -webkit-fill-available;
+    position: absolute;
+    margin: 15px 0px;
 `
