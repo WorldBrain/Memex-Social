@@ -250,7 +250,7 @@ const AnnotationTopBox = styled.div<{ hasComment: boolean }>`
     ${(props) =>
         !props.hasComment &&
         css`
-            padding: 15px 15px 10px 15px;
+            padding: 15px 15px 15px 15px;
         `};
 `
 
