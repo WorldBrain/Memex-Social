@@ -155,7 +155,7 @@ export default class AnnotationDetailsPage extends UIElement<
                                 </LogoLinkArea>
                             </IntroArea>
                         )}
-                        <AnnotationTopBox>
+                        <AnnotationTopBox hasComment={!!annotation.comment}>
                             {annotation.body && (
                                 <HighlightBox>
                                     <HighlightBar />
@@ -189,7 +189,7 @@ export default class AnnotationDetailsPage extends UIElement<
                             )}
                             {state.pageInfoLoadState === 'running' && (
                                 <LoadingIndicatorBox>
-                                    <LoadingIndicator />
+                                    <LoadingIndicator size={30} />
                                 </LoadingIndicatorBox>
                             )}
                             {state.pageInfoLoadState === 'success' && (
@@ -242,10 +242,16 @@ export default class AnnotationDetailsPage extends UIElement<
     }
 }
 
-const AnnotationTopBox = styled.div`
+const AnnotationTopBox = styled.div<{ hasComment: boolean }>`
     display: flex;
     flex-direction: column;
     padding: 15px 15px 5px 15px;
+
+    ${(props) =>
+        !props.hasComment &&
+        css`
+            padding: 15px 15px 10px 15px;
+        `};
 `
 
 const IntroArea = styled.div<{ isIframe?: boolean }>`
@@ -333,33 +339,6 @@ const AnnotationPage = styled.div<{ isIframe: boolean }>`
             padding: 0;
         `};
 `
-
-// const AnnotationContainer = styled.div`
-//     width: 90%;
-//     max-width: 550px;
-//     margin-bottom: 25vh;
-
-//     background: #ffffff;
-//     border: 1.72269px solid rgba(0, 0, 0, 0.1);
-//     box-sizing: border-box;
-//     box-shadow: 0px 3.72px 27px rgba(0, 0, 0, 0.1);
-//     border-radius: 8.61345px;
-// `
-const AnnotationContentBox = styled.div`
-    padding: 15px 15px 10px 15px;
-`
-
-const AnnotationBody = styled.span`
-    font-family: ${(props) => props.theme.fonts.primary};
-    font-weight: normal;
-    line-height: 26px;
-    background-color: #d4e8ff;
-    white-space: normal;
-    padding: 0 5px;
-    box-decoration-break: clone;
-    font-size: 16px;
-    color: ${(props) => props.theme.colors.prime1};
-`
 const AnnotationComment = styled.div<{
     hasHighlight: boolean
 }>`
@@ -440,21 +419,6 @@ const AnnotationPageUrl = styled.div`
     width: 100%;
 `
 
-const GoToAnnotationButton = styled.a`
-    border-radius: 5px;
-    background-color: ${(props) => props.theme.colors.prime1};
-    color: ${(props) => props.theme.colors.white};
-    height: 36px;
-    padding: 8px 16px;
-    width: fit-content;
-    white-space: nowrap;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 14px;
-    font-weight: bold;
-    text-decoration: none;
-`
 const OutroArea = styled.div`
     display: flex;
     justify-content: center;
