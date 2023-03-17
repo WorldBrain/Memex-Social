@@ -682,6 +682,13 @@ const StyledHeaderContainer = styled.div<{
             padding: 0px 20px;
             margin-top: 0px;
         `}
+    ${(props) =>
+        props.isIframe &&
+        props.viewportWidth === 'mobile' &&
+        css`
+            padding: 0px 5px;
+            margin-top: 0px;
+        `}
 
     flex-direction: ${(props) =>
         props.viewportWidth === 'mobile' ? 'column' : 'row'};
