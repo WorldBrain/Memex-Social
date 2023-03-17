@@ -693,8 +693,15 @@ export default class CollectionDetailsPage extends UIElement<
         }
 
         return (
-            <DiscordChannelName>
-                <Icon height="35px" icon="discord" color="secondary" hoverOff />
+            <DiscordChannelName viewportBreakpoint={this.viewportBreakpoint}>
+                <Icon
+                    height={
+                        this.viewportBreakpoint === 'mobile' ? '24px' : '35px'
+                    }
+                    icon="discord"
+                    color="secondary"
+                    hoverOff
+                />
                 #{title}
             </DiscordChannelName>
         )
@@ -2379,7 +2386,9 @@ const SubtitleContainer = styled.div<{
         `}
 `
 
-const DiscordChannelName = styled.span`
+const DiscordChannelName = styled.span<{
+    viewportBreakpoint: ViewportBreakpoint
+}>`
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -2391,6 +2400,11 @@ const DiscordChannelName = styled.span`
     -webkit-text-fill-color: transparent;
     font-size: 34px;
     font-weight: 900;
+    ${(props) =>
+        props.viewportBreakpoint === 'mobile' &&
+        css`
+            font-size: 22px;
+        `}
 `
 const DiscordGuildName = styled.span`
     color: ${(props) => props.theme.colors.greyScale6};
