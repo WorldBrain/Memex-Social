@@ -128,7 +128,10 @@ export async function createStorage(options: {
         serverModules: {
             // auth: new AuthStorage({ storageManager }),
             slack: new SlackStorage({ storageManager }),
-            slackRetroSync: new SlackRetroSyncStorage({ storageManager }),
+            slackRetroSync: new SlackRetroSyncStorage({
+                storageManager,
+                operationExecuter: operationExecuter('slackRetroSync'),
+            }),
             discord: new DiscordStorage({ storageManager }),
             discordRetroSync: new DiscordRetroSyncStorage({
                 storageManager,
