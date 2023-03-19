@@ -1,0 +1,1 @@
+extends: [with-slack-user, with-slack-list]
