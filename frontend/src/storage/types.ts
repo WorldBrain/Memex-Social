@@ -6,7 +6,7 @@ import ContentSharingStorage from '../features/content-sharing/storage'
 import ActivityFollowsStorage from '../features/activity-follows/storage'
 import ContentConversationStorage from '../features/content-conversations/storage'
 import PersonalCloudStorage from '@worldbrain/memex-common/lib/personal-cloud/storage'
-import { RetroSyncStorage } from '@worldbrain/memex-common/lib/discord/queue'
+import { DiscordRetroSyncStorage } from '@worldbrain/memex-common/lib/discord/queue'
 
 export interface Storage {
     serverStorageManager: StorageManager
@@ -16,7 +16,7 @@ export interface Storage {
 export interface StorageModules {
     users: UserStorage
     discord: DiscordStorage
-    discordRetroSync: RetroSyncStorage
+    discordRetroSync: DiscordRetroSyncStorage
     contentSharing: ContentSharingStorage
     activityFollows: ActivityFollowsStorage
     contentConversations: ContentConversationStorage

@@ -440,6 +440,14 @@ module.exports = function (webpackEnv) {
                                         { helpers: true },
                                     ],
                                 ],
+                                plugins: [
+                                    [
+                                        require.resolve(
+                                            '@babel/plugin-proposal-export-namespace-from',
+                                        ),
+                                        {},
+                                    ],
+                                ],
                                 cacheDirectory: true,
                                 // See #6846 for context on why cacheCompression is disabled
                                 cacheCompression: false,
