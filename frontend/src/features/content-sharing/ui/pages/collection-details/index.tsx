@@ -2405,10 +2405,7 @@ const ChatChannelName = styled.span<{
     align-items: center;
     grid-gap: 10px;
     letter-spacing: 1px;
-    background-clip: text;
-    background: linear-gradient(269.15deg, #6ae394 -34.22%, #ffffff 149.84%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: ${(props) => props.theme.colors.prime2};
     font-size: 34px;
     font-weight: 900;
     ${(props) =>
