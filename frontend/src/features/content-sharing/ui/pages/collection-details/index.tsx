@@ -689,15 +689,8 @@ export default class CollectionDetailsPage extends UIElement<
         }
 
         if (listData!.discordList != null || listData!.slackList != null) {
-            const icon = listData!.discordList != null ? 'discord' : 'slack'
             return (
                 <ChatChannelName viewportBreakpoint={this.viewportBreakpoint}>
-                    <Icon
-                        height="35px"
-                        icon={icon}
-                        color="secondary"
-                        hoverOff
-                    />
                     #{title}
                 </ChatChannelName>
             )
@@ -782,7 +775,7 @@ export default class CollectionDetailsPage extends UIElement<
                 data.discordList != null
                     ? data.discordList.guildName
                     : data.slackList?.workspaceName
-            const iconName = data.discordList != null ? 'discord' : 'slach'
+            const iconName = data.discordList != null ? 'discord' : 'slack'
             return (
                 <SubtitleContainer viewportBreakpoint={this.viewportBreakpoint}>
                     <ChatServerName>
@@ -790,11 +783,12 @@ export default class CollectionDetailsPage extends UIElement<
                             height={
                                 this.viewportBreakpoint === 'mobile'
                                     ? '20px'
-                                    : '24px'
+                                    : '22px'
                             }
                             icon={iconName}
                             color="secondary"
                             hoverOff
+                            originalImage
                         />
                         {serverName}
                     </ChatServerName>
