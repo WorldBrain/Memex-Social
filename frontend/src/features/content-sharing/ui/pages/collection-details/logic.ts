@@ -528,6 +528,7 @@ export default class CollectionDetailsLogic extends UILogic<
                     result.sharedListEntries.map((entry: any) => entry.creator),
                 ),
             ]
+            console.log(userIds)
 
             result.sharedListEntries.sort((a: any, b: any) => {
                 return b.createdWhen - a.createdWhen
@@ -544,7 +545,18 @@ export default class CollectionDetailsLogic extends UILogic<
 
             this.emitMutation({
                 listData: {
-                    listEntries: { $set: result.sharedListEntries },
+                    listEntries: {
+                        $set: result.sharedListEntries.map(
+                            (entry): CollectionDetailsListEntry => ({
+                                ...entry,
+                                creator: {
+                                    type: 'user-reference',
+                                    id: entry.creator,
+                                },
+                                updatedWhen: entry.createdWhen,
+                            }),
+                        ),
+                    },
                 },
                 // newPageReplies: {
                 //     $set: fromPairs(
@@ -949,6 +961,17 @@ export default class CollectionDetailsLogic extends UILogic<
             this.withMutation(incoming.previousState, mutation)
                 .annotationEntryData!,
             newListEntries.map((entry) => entry.normalizedUrl),
+        )
+        const usersToLoad = new Set<string | number>(
+            newListEntries.map((entry) => entry.creator.id),
+        )
+        this._users.loadUsers(
+            [...usersToLoad].map(
+                (id): UserReference => ({
+                    type: 'user-reference',
+                    id,
+                }),
+            ),
         )
     }
 
