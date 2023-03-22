@@ -18,7 +18,6 @@ import {
     SharedListReference,
 } from '@worldbrain/memex-common/lib/content-sharing/types'
 import { User } from '@worldbrain/memex-common/lib/web-interface/types/users'
-import { PAGE_SIZE } from './constants'
 import DocumentTitle from '../../../../../main-ui/components/document-title'
 import DefaultPageLayout from '../../../../../common-ui/layouts/default-page-layout'
 import ProfilePopupContainer from '../../../../user-management/ui/containers/profile-popup-container'
@@ -1422,14 +1421,6 @@ export default class CollectionDetailsPage extends UIElement<
         }
 
         return (
-            <CollectionDescriptionText
-                viewportBreakpoint={this.viewportBreakpoint}
-            >
-                {data?.listDescriptionState === 'collapsed'
-                    ? data?.listDescriptionTruncated
-                    : data?.list.description}
-            </CollectionDescriptionText>
-
             // <CollectionDescriptionBox
             //     viewportBreakpoint={this.viewportBreakpoint}
             // >
@@ -1476,6 +1467,13 @@ export default class CollectionDetailsPage extends UIElement<
             //             : data?.list.description}
             //     </CollectionDescriptionText>
             // </CollectionDescriptionBox>
+            <CollectionDescriptionText
+                viewportBreakpoint={this.viewportBreakpoint}
+            >
+                {data?.listDescriptionState === 'collapsed'
+                    ? data?.listDescriptionTruncated
+                    : data?.list.description}
+            </CollectionDescriptionText>
         )
     }
 
@@ -1729,11 +1727,10 @@ export default class CollectionDetailsPage extends UIElement<
                                                   )}
                                               </>
                                           )}
-                                          {state.allAnnotationExpanded &&
-                                              state.annotationEntriesLoadState ===
-                                                  'success' &&
-                                              entryIndex > 0 &&
-                                              entryIndex % PAGE_SIZE === 0 && (
+                                          {entryIndex > 0 &&
+                                              (entryIndex + 1) %
+                                                  data.pageSize ===
+                                                  0 && (
                                                   <Waypoint
                                                       onEnter={() => {
                                                           this.processEvent(

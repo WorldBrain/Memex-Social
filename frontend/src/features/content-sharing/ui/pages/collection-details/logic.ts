@@ -15,6 +15,7 @@ import {
     CollectionDetailsDependencies,
     CollectionDetailsSignal,
     CollectionDetailsState,
+    CollectionDetailsListEntry,
 } from './types'
 import {
     UILogic,
@@ -49,6 +50,10 @@ import { UserReference } from '../../../../user-management/types'
 import { makeStorageReference } from '@worldbrain/memex-common/lib/storage/references'
 import type { DiscordList } from '@worldbrain/memex-common/lib/discord/types'
 import * as chrono from 'chrono-node'
+import {
+    SharedListEntrySearchRequest,
+    SHARED_LIST_ENTRY_SEARCH_PAGE_SIZE,
+} from '@worldbrain/memex-common/lib/content-sharing/search'
 const truncate = require('truncate')
 
 const LIST_DESCRIPTION_CHAR_LIMIT = 400
@@ -65,9 +70,14 @@ export default class CollectionDetailsLogic extends UILogic<
     conversationThreadPromises: {
         [normalizePageUrl: string]: Promise<void>
     } = {}
-    latestPageSeenIndex = 0
     _users: UserProfileCache
     _creatorReference: UserReference | null = null
+
+    // Without search, we're expanding the mainListEntries as we paginate
+    mainListEntries: CollectionDetailsListEntry[] = []
+    mainLatestEntryIndex = 0
+    // If there's an active search query, the 1-based page is stored in this request
+    latestSearchRequest?: SharedListEntrySearchRequest
 
     constructor(private dependencies: CollectionDetailsDependencies) {
         super()
@@ -462,6 +472,18 @@ export default class CollectionDetailsLogic extends UILogic<
     }
 
     loadSearchResults: EventHandler<'loadSearchResults'> = async (incoming) => {
+        if (!incoming.event.query?.length) {
+            delete this.latestSearchRequest
+            this.emitMutation({
+                searchQuery: { $set: '' },
+                listData: {
+                    pageSize: { $set: PAGE_SIZE },
+                    listEntries: { $set: this.mainListEntries },
+                },
+            })
+            return
+        }
+
         const startNlpDate =
             chrono?.parseDate(incoming.event.startDateFilterValue) ?? undefined
         const endNlpDate =
@@ -474,22 +496,29 @@ export default class CollectionDetailsLogic extends UILogic<
             endNlpDate?.getTime().toString().slice(0, -3).concat('000'),
         )
 
-        console.log('startDateFilterValue', startDateFilterValue)
-        console.log('endDateFilterValue', endDateFilterValue)
-
+        this.latestSearchRequest = {
+            query: incoming.event.query,
+            sharedListIds: [incoming.event.sharedListIds],
+            fromTimestamp: startDateFilterValue,
+            toTimestamp: endDateFilterValue,
+            page: 1,
+            pageSize: 6,
+        }
         this.emitMutation({
             searchQuery: { $set: incoming.event.query },
             startDateFilterValue: { $set: incoming.event.startDateFilterValue },
             endDateFilterValue: { $set: incoming.event.endDateFilterValue },
+            listData: {
+                pageSize: {
+                    $set: incoming.event.query.length
+                        ? this.latestSearchRequest.pageSize!
+                        : PAGE_SIZE,
+                },
+            },
         })
 
         let result = await this.dependencies.services.fullTextSearch.searchListEntries(
-            {
-                query: incoming.event.query,
-                sharedListIds: [incoming.event.sharedListIds],
-                fromTimestamp: startDateFilterValue,
-                toTimestamp: endDateFilterValue,
-            },
+            this.latestSearchRequest,
         )
 
         if (result) {
@@ -561,6 +590,7 @@ export default class CollectionDetailsLogic extends UILogic<
                                   id: this.dependencies.entryID,
                               }
                             : undefined,
+                        maxEntryCount: PAGE_SIZE,
                     },
                 )
 
@@ -638,9 +668,12 @@ export default class CollectionDetailsLogic extends UILogic<
                         ))
                     }
 
+                    this.mainListEntries.push(...result.entries)
                     this.emitMutation({
                         listData: {
                             $set: {
+                                reference: listReference,
+                                pageSize: PAGE_SIZE,
                                 discordList,
                                 isDiscordSyncing,
                                 creatorReference: result.creator,
@@ -856,27 +889,66 @@ export default class CollectionDetailsLogic extends UILogic<
             latestPageSeenIndex,
             normalizedPageUrls,
         } = this.getFirstPagesWithoutLoadedAnnotations(incoming.previousState)
-        this.latestPageSeenIndex = latestPageSeenIndex
+        this.mainLatestEntryIndex = latestPageSeenIndex
         this.loadPageAnnotations(
             incoming.previousState.annotationEntryData!,
             normalizedPageUrls,
-            // incoming.previousState.listData!.listEntries.map(entry => entry.normalizedUrl)
         )
     }
 
-    pageBreakpointHit: EventHandler<'pageBreakpointHit'> = (incoming) => {
-        if (incoming.event.entryIndex < this.latestPageSeenIndex) {
+    pageBreakpointHit: EventHandler<'pageBreakpointHit'> = async (incoming) => {
+        const { listData } = incoming.previousState
+        if (!listData) {
             return
         }
+        let newListEntries: CollectionDetailsListEntry[] = []
+        if (!this.latestSearchRequest) {
+            if (incoming.event.entryIndex < this.mainLatestEntryIndex) {
+                return
+            }
 
-        const {
-            latestPageSeenIndex,
-            normalizedPageUrls,
-        } = this.getFirstPagesWithoutLoadedAnnotations(incoming.previousState)
-        this.latestPageSeenIndex = latestPageSeenIndex
+            this.mainLatestEntryIndex = incoming.event.entryIndex
+            const listEntries = await this.dependencies.storage.contentSharing.getListEntriesByList(
+                {
+                    listReference: listData.reference,
+                    from:
+                        listData.listEntries[listData.listEntries.length - 1]
+                            .updatedWhen,
+                    limit: PAGE_SIZE,
+                },
+            )
+            newListEntries = listEntries.map((entry) => ({
+                ...entry,
+                id: entry.reference.id,
+            }))
+            this.mainListEntries.push(...newListEntries)
+        } else {
+            const page =
+                Math.floor(
+                    (incoming.event.entryIndex + 1) /
+                        incoming.previousState.listData!.pageSize,
+                ) + 1
+            if (page <= (this.latestSearchRequest.page ?? 0)) {
+                return
+            }
+            this.latestSearchRequest.page = page
+            const response = await this.dependencies.services.fullTextSearch.searchListEntries(
+                this.latestSearchRequest,
+            )
+            newListEntries = response.sharedListEntries
+        }
+        const mutation = {
+            listData: {
+                listEntries: {
+                    $push: newListEntries,
+                },
+            },
+        }
+        this.emitMutation(mutation)
         this.loadPageAnnotations(
-            incoming.previousState.annotationEntryData!,
-            normalizedPageUrls,
+            this.withMutation(incoming.previousState, mutation)
+                .annotationEntryData!,
+            newListEntries.map((entry) => entry.normalizedUrl),
         )
     }
 
@@ -983,7 +1055,7 @@ export default class CollectionDetailsLogic extends UILogic<
             entryIndex,
             { normalizedUrl },
         ] of state
-            .listData!.listEntries.slice(this.latestPageSeenIndex)
+            .listData!.listEntries.slice(this.mainLatestEntryIndex)
             .entries()) {
             if (normalizedPageUrls.length >= PAGE_SIZE) {
                 break
