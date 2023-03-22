@@ -5,7 +5,7 @@ import {
 } from '@worldbrain/memex-common/lib/web-interface/types/users'
 
 export default class UserProfileCache {
-    users: { [id: string]: Promise<User | null> } = {}
+    users: { [id: string | number]: Promise<User | null> } = {}
 
     constructor(
         private dependencies: {

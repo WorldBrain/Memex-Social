@@ -18,7 +18,6 @@ import {
     SharedListReference,
 } from '@worldbrain/memex-common/lib/content-sharing/types'
 import { User } from '@worldbrain/memex-common/lib/web-interface/types/users'
-import { PAGE_SIZE } from './constants'
 import DocumentTitle from '../../../../../main-ui/components/document-title'
 import DefaultPageLayout from '../../../../../common-ui/layouts/default-page-layout'
 import ProfilePopupContainer from '../../../../user-management/ui/containers/profile-popup-container'
@@ -57,6 +56,7 @@ import { PopoutBox } from '@worldbrain/memex-common/lib/common-ui/components/pop
 import { AnnotationsInPageProps } from '@worldbrain/memex-common/lib/content-conversations/ui/components/annotations-in-page'
 import TextField from '@worldbrain/memex-common/lib/common-ui/components/text-field'
 import TextArea from '@worldbrain/memex-common/lib/common-ui/components/text-area'
+import DateTimePicker from 'react-datepicker'
 
 const commentImage = require('../../../../../assets/img/comment.svg')
 const commentEmptyImage = require('../../../../../assets/img/comment-empty.svg')
@@ -80,6 +80,7 @@ export default class CollectionDetailsPage extends UIElement<
 
     showMoreCollaboratorsRef = React.createRef<HTMLElement>()
     embedButtonRef = React.createRef<HTMLDivElement>()
+    dateFilterButtonRef = React.createRef<HTMLDivElement>()
 
     itemRanges: {
         [Key in 'listEntry' | 'annotEntry' | 'reply']:
@@ -988,6 +989,98 @@ export default class CollectionDetailsPage extends UIElement<
         ) : null
     }
 
+    private renderSearchBox() {
+        return (
+            <SearchBar>
+                <TextField
+                    icon={'searchIcon'}
+                    placeholder="Search"
+                    value={this.state.searchQuery}
+                    onChange={(event) => {
+                        this.processEvent('loadSearchResults', {
+                            query: (event.target as HTMLInputElement).value,
+                            sharedListIds: this.props.listID,
+                            startDateFilterValue: this.state
+                                .startDateFilterValue,
+                            endDateFilterValue: this.state.endDateFilterValue,
+                        })
+                    }}
+                    onKeyDown={(event) => {}}
+                    background={'greyScale1'}
+                    height="34px"
+                    width="220px"
+                />
+                <TooltipBox
+                    placement="bottom"
+                    tooltipText='Use natural language, like "2 weeks ago"'
+                >
+                    <TextField
+                        icon={'calendar'}
+                        placeholder="from when?"
+                        value={this.state.startDateFilterValue}
+                        onChange={(event) => {
+                            this.processEvent('loadSearchResults', {
+                                query: this.state.searchQuery,
+                                sharedListIds: this.props.listID,
+                                startDateFilterValue: (event.target as HTMLInputElement)
+                                    .value,
+                                endDateFilterValue: this.state
+                                    .endDateFilterValue,
+                            })
+                        }}
+                        onKeyDown={(event) => {}}
+                        background={'greyScale1'}
+                        height="34px"
+                        width="180px"
+                    />
+                </TooltipBox>
+                <TooltipBox
+                    placement="bottom"
+                    tooltipText='Use natural language, like "2 weeks ago"'
+                >
+                    <TextField
+                        icon={'calendar'}
+                        placeholder="to when?"
+                        value={this.state.endDateFilterValue}
+                        onChange={(event) => {
+                            this.processEvent('loadSearchResults', {
+                                query: this.state.searchQuery,
+                                sharedListIds: this.props.listID,
+                                startDateFilterValue: this.state
+                                    .startDateFilterValue,
+                                endDateFilterValue: (event.target as HTMLInputElement)
+                                    .value,
+                            })
+                        }}
+                        onKeyDown={(event) => {}}
+                        background={'greyScale1'}
+                        height="34px"
+                        width="180px"
+                    />
+                </TooltipBox>
+            </SearchBar>
+        )
+    }
+
+    private renderDatePicker = () => {
+        if (!this.state.dateFilterVisible) {
+            return
+        }
+
+        return (
+            <PopoutBox
+                targetElementRef={this.dateFilterButtonRef.current ?? undefined}
+                placement={'bottom-start'}
+                offsetX={10}
+                closeComponent={() =>
+                    this.processEvent('toggleDateFilters', null)
+                }
+            >
+                <DateTimePicker onChange={() => {}} />
+            </PopoutBox>
+        )
+    }
+
     private renderAbovePagesBox() {
         const {
             annotationEntryData,
@@ -1432,14 +1525,6 @@ export default class CollectionDetailsPage extends UIElement<
         }
 
         return (
-            <CollectionDescriptionText
-                viewportBreakpoint={this.viewportBreakpoint}
-            >
-                {data?.listDescriptionState === 'collapsed'
-                    ? data?.listDescriptionTruncated
-                    : data?.list.description}
-            </CollectionDescriptionText>
-
             // <CollectionDescriptionBox
             //     viewportBreakpoint={this.viewportBreakpoint}
             // >
@@ -1486,6 +1571,13 @@ export default class CollectionDetailsPage extends UIElement<
             //             : data?.list.description}
             //     </CollectionDescriptionText>
             // </CollectionDescriptionBox>
+            <CollectionDescriptionText
+                viewportBreakpoint={this.viewportBreakpoint}
+            >
+                {data?.listDescriptionState === 'collapsed'
+                    ? data?.listDescriptionTruncated
+                    : data?.list.description}
+            </CollectionDescriptionText>
         )
     }
 
@@ -1579,9 +1671,8 @@ export default class CollectionDetailsPage extends UIElement<
                     renderDescription={this.renderDescription()}
                     isPageView={this.props.entryID}
                 >
-                    {data.listEntries.length > 0 &&
-                        !isPageView &&
-                        this.renderAbovePagesBox()}
+                    {this.renderSearchBox()}
+                    {!isPageView && this.renderAbovePagesBox()}
                     {state.annotationEntriesLoadState === 'error' && (
                         <Margin bottom={'large'}>
                             <ErrorWithAction errorType="internal-error">
@@ -1823,11 +1914,10 @@ export default class CollectionDetailsPage extends UIElement<
                                                   )}
                                               </>
                                           )}
-                                          {state.allAnnotationExpanded &&
-                                              state.annotationEntriesLoadState ===
-                                                  'success' &&
-                                              entryIndex > 0 &&
-                                              entryIndex % PAGE_SIZE === 0 && (
+                                          {entryIndex > 0 &&
+                                              (entryIndex + 1) %
+                                                  data.pageSize ===
+                                                  0 && (
                                                   <Waypoint
                                                       onEnter={() => {
                                                           this.processEvent(
@@ -1978,6 +2068,15 @@ const LoadingBox = styled.div`
     height: 60px;
     justify-content: center;
     align-items: center;
+`
+
+const SearchBar = styled.div`
+    margin-bottom: 10px;
+    display: flex;
+    grid-gap: 10px;
+    justify-content: flex-start;
+    width: fit-content;
+    z-index: 40;
 `
 
 const PrimaryActionContainer = styled.div`

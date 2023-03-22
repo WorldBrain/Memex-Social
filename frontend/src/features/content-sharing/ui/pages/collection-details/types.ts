@@ -12,6 +12,7 @@ import {
     SharedList,
     SharedListRoleID,
     SharedListEntryReference,
+    SharedListReference,
 } from '@worldbrain/memex-common/lib/content-sharing/types'
 import type { DiscordList } from '@worldbrain/memex-common/lib/discord/types'
 import { UITaskState } from '../../../../../main-ui/types'
@@ -55,6 +56,7 @@ export interface CollectionDetailsDependencies {
         | 'youtube'
         | 'memexExtension'
         | 'summarization'
+        | 'fullTextSearch'
     >
     storage: Pick<
         StorageModules,
@@ -99,28 +101,25 @@ export type CollectionDetailsState = AnnotationConversationsState &
         scrollTop?: number
         scrolledComponent?: JSX.Element
         users: { [id: string]: Pick<User, 'displayName' | 'platform'> }
+        searchQuery: string
+        dateFilterVisible: boolean
+        endDateFilterValue: string
+        startDateFilterValue: string
 
         annotationEntriesLoadState: UITaskState
         annotationLoadStates: { [normalizedPageUrl: string]: UITaskState }
         listData?: {
+            reference: SharedListReference
+            pageSize: number
             creatorReference?: UserReference
             creator?: Pick<User, 'displayName'> | null
             list: SharedList
-            discordList: DiscordList | null
+            discordList: DiscordList | undefined | null
             slackList: SlackList | null
             isChatIntegrationSyncing?: boolean
-            listEntries: Array<
-                SharedListEntry & {
-                    reference: SharedListEntryReference
-                    id?: number
-                } & {
-                    creator: UserReference
-                    hoverState?: boolean
-                    id?: string
-                }
-            >
-            listDescriptionState: 'fits' | 'collapsed' | 'expanded'
-            listDescriptionTruncated: string
+            listEntries: Array<CollectionDetailsListEntry>
+            listDescriptionState: 'fits' | 'collapsed' | 'expanded' | undefined
+            listDescriptionTruncated: string | undefined
         }
         isCollectionFollowed: boolean
         allAnnotationExpanded: boolean
@@ -151,6 +150,7 @@ export type CollectionDetailsEvent = UIEvent<
             loadListData: { listID: string }
             processPermissionKey: {}
             acceptInvitation: {}
+            toggleDateFilters: null
             closePermissionOverlay: {}
             pageBreakpointHit: { entryIndex: number }
             clickFollowBtn: { pageToOpenPostFollow?: string }
@@ -164,8 +164,21 @@ export type CollectionDetailsEvent = UIEvent<
             hideSummary: { entry: any }
             toggleEmbedModal: null
             toggleEmbedShareModalCopyText: { embedOrLink: string }
+            loadSearchResults: {
+                query: string
+                sharedListIds: string
+                endDateFilterValue: string
+                startDateFilterValue: string
+            }
+            updateSearchQuery: { query: string; sharedListIds: string }
         }
 >
+export type CollectionDetailsListEntry = SharedListEntry & {
+    id?: number | string
+    reference?: SharedListEntryReference
+    creator: UserReference
+    hoverState?: boolean
+}
 
 export type CollectionDetailsSignal = UISignal<
     | { type: 'loading-started' }
