@@ -57,6 +57,7 @@ import { AnnotationsInPageProps } from '@worldbrain/memex-common/lib/content-con
 import TextField from '@worldbrain/memex-common/lib/common-ui/components/text-field'
 import TextArea from '@worldbrain/memex-common/lib/common-ui/components/text-area'
 import DateTimePicker from 'react-datepicker'
+import debounce from 'lodash/debounce'
 
 const commentImage = require('../../../../../assets/img/comment.svg')
 const commentEmptyImage = require('../../../../../assets/img/comment-empty.svg')
@@ -1017,8 +1018,8 @@ export default class CollectionDetailsPage extends UIElement<
                     <TextField
                         icon={'calendar'}
                         placeholder="from when?"
-                        value={this.state.startDateFilterValue}
-                        onChange={(event) => {
+                        // value={this.state.startDateFilterValue}
+                        onChange={debounce((event) => {
                             this.processEvent('loadSearchResults', {
                                 query: this.state.searchQuery,
                                 sharedListIds: this.props.listID,
@@ -1027,7 +1028,7 @@ export default class CollectionDetailsPage extends UIElement<
                                 endDateFilterValue: this.state
                                     .endDateFilterValue,
                             })
-                        }}
+                        }, 200)}
                         onKeyDown={(event) => {}}
                         background={'greyScale1'}
                         height="34px"
@@ -1041,8 +1042,8 @@ export default class CollectionDetailsPage extends UIElement<
                     <TextField
                         icon={'calendar'}
                         placeholder="to when?"
-                        value={this.state.endDateFilterValue}
-                        onChange={(event) => {
+                        // value={this.state.endDateFilterValue}
+                        onChange={debounce((event) => {
                             this.processEvent('loadSearchResults', {
                                 query: this.state.searchQuery,
                                 sharedListIds: this.props.listID,
@@ -1051,7 +1052,7 @@ export default class CollectionDetailsPage extends UIElement<
                                 endDateFilterValue: (event.target as HTMLInputElement)
                                     .value,
                             })
-                        }}
+                        }, 200)}
                         onKeyDown={(event) => {}}
                         background={'greyScale1'}
                         height="34px"
@@ -1698,241 +1699,252 @@ export default class CollectionDetailsPage extends UIElement<
                         isIframe={this.isIframe()}
                         viewportWidth={this.viewportBreakpoint}
                     >
-                        {resultsFilteredByType?.length
-                            ? resultsFilteredByType?.map(
-                                  ([entryIndex, entry]) => (
-                                      <Margin
-                                          bottom="small"
-                                          key={entry.normalizedUrl}
-                                      >
-                                          <ItemBox
-                                              highlight={isInRange(
-                                                  entry.createdWhen,
-                                                  this.itemRanges.listEntry,
-                                              )}
-                                              onMouseEnter={(
-                                                  event: React.MouseEventHandler,
-                                              ) =>
-                                                  this.processEvent(
-                                                      'setPageHover',
-                                                      { entryIndex },
-                                                  )
-                                              }
-                                              onMouseOver={(
-                                                  event: React.MouseEventHandler,
-                                              ) => {
-                                                  !this.state.listData
-                                                      ?.listEntries[entryIndex]
-                                                      .hoverState &&
-                                                      this.processEvent(
-                                                          'setPageHover',
-                                                          {
-                                                              entryIndex,
-                                                          },
-                                                      )
-                                              }}
-                                              onMouseLeave={(
-                                                  event: React.MouseEventHandler,
-                                              ) =>
-                                                  this.processEvent(
-                                                      'setPageHover',
-                                                      { entryIndex },
-                                                  )
-                                              }
-                                              hoverState={
-                                                  this.state.listData
-                                                      ?.listEntries[entryIndex]
-                                                      .hoverState
-                                              }
-                                              onRef={(event) => {
-                                                  this.onListEntryRef({
-                                                      ...event,
-                                                      entry,
-                                                  })
-                                              }}
-                                          >
-                                              <BlockContent
-                                                  // pageLink ={'https://memex.social/' + this.props.listID + '/' + entry.reference.id}
-                                                  youtubeService={
-                                                      this.props.services
-                                                          .youtube
-                                                  }
-                                                  type={
-                                                      isPagePdf({
-                                                          url:
-                                                              entry.normalizedUrl,
-                                                      })
-                                                          ? 'pdf'
-                                                          : 'page'
-                                                  }
-                                                  normalizedUrl={
-                                                      entry.normalizedUrl
-                                                  }
-                                                  originalUrl={
-                                                      entry.originalUrl
-                                                  }
-                                                  fullTitle={
-                                                      entry && entry.entryTitle
-                                                  }
-                                                  onClick={(e) => {
-                                                      this.processEvent(
-                                                          'clickPageResult',
-                                                          {
-                                                              urlToOpen:
-                                                                  entry.originalUrl,
-                                                              preventOpening: () =>
-                                                                  e.preventDefault(),
-                                                              isFollowedSpace:
-                                                                  this.state
-                                                                      .isCollectionFollowed ||
-                                                                  this.state
-                                                                      .isListOwner,
-                                                              notifAlreadyShown: this
-                                                                  .state
-                                                                  .notifAlreadyShown,
-                                                              sharedListReference: this
-                                                                  .sharedListReference,
-                                                          },
-                                                      )
-                                                      e.preventDefault()
-                                                      e.stopPropagation()
-                                                  }}
-                                                  viewportBreakpoint={
-                                                      this.viewportBreakpoint
-                                                  }
-                                                  mainContentHover={
-                                                      this.state.listData
-                                                          ?.listEntries[
-                                                          entryIndex
-                                                      ].hoverState
-                                                          ? 'main-content'
-                                                          : undefined
-                                                  }
-                                              />
-                                              {this.state
-                                                  .summarizeArticleLoadState[
-                                                  entry.normalizedUrl
-                                              ] ? (
-                                                  <SummarySection>
-                                                      {this.state
-                                                          .summarizeArticleLoadState[
-                                                          entry.normalizedUrl
-                                                      ] === 'running' && (
-                                                          <LoadingBox>
-                                                              <LoadingIndicator
-                                                                  size={24}
-                                                              />
-                                                          </LoadingBox>
-                                                      )}
-                                                      {this.state
-                                                          .summarizeArticleLoadState[
-                                                          entry.normalizedUrl
-                                                      ] === 'success' && (
-                                                          <SummaryContainer>
-                                                              <SummaryText>
-                                                                  {this.state
-                                                                      .articleSummary[
-                                                                      entry
-                                                                          .normalizedUrl
-                                                                  ] ??
-                                                                      undefined}
-                                                              </SummaryText>
-                                                              <SummaryFooter>
-                                                                  <RightSideButtons>
-                                                                      <BetaButton>
-                                                                          <BetaButtonInner>
-                                                                              BETA
-                                                                          </BetaButtonInner>
-                                                                      </BetaButton>
-                                                                      <PrimaryAction
-                                                                          type="tertiary"
-                                                                          size="small"
-                                                                          onClick={() => {
-                                                                              window.open(
-                                                                                  'https://memex.garden/chatsupport',
-                                                                                  '_blank',
-                                                                              )
-                                                                          }}
-                                                                          label="Report Bug"
-                                                                      />
-                                                                  </RightSideButtons>
-                                                                  <PoweredBy>
-                                                                      Powered by
-                                                                      <Icon
-                                                                          icon="openAI"
-                                                                          height="18px"
-                                                                          hoverOff
-                                                                          width="70px"
-                                                                      />
-                                                                  </PoweredBy>
-                                                              </SummaryFooter>
-                                                          </SummaryContainer>
-                                                      )}
-                                                      {this.state
-                                                          .summarizeArticleLoadState[
-                                                          entry.normalizedUrl
-                                                      ] === 'error' && (
-                                                          <ErrorContainer>
-                                                              <Icon
-                                                                  icon="warning"
-                                                                  color="warning"
-                                                                  heightAndWidth="22px"
-                                                                  hoverOff
-                                                              />
-                                                              Page could not be
-                                                              summarised. This
-                                                              may be because it
-                                                              is behind a
-                                                              paywall. <br />{' '}
-                                                              Youtube videos and
-                                                              PDFs are not
-                                                              supported yet.
-                                                          </ErrorContainer>
-                                                      )}
-                                                  </SummarySection>
-                                              ) : undefined}
-                                              <ItemBoxBottom
-                                                  creationInfo={{
-                                                      creator: this.state.users[
-                                                          entry.creator.id
-                                                      ],
-                                                      createdWhen:
-                                                          entry.createdWhen,
-                                                  }}
-                                                  actions={this.getPageEntryActions(
-                                                      entry,
-                                                      entryIndex,
-                                                  )}
-                                              />
-                                          </ItemBox>
-                                          {state.pageAnnotationsExpanded[
-                                              entry.normalizedUrl
-                                          ] && (
-                                              <>
-                                                  {this.renderPageAnnotations(
-                                                      entry,
-                                                  )}
-                                              </>
-                                          )}
-                                          {entryIndex > 0 &&
-                                              (entryIndex + 1) %
-                                                  data.pageSize ===
-                                                  0 && (
-                                                  <Waypoint
-                                                      onEnter={() => {
-                                                          this.processEvent(
-                                                              'pageBreakpointHit',
-                                                              {
-                                                                  entryIndex,
-                                                              },
-                                                          )
-                                                      }}
-                                                  />
-                                              )}
-                                      </Margin>
-                                  ),
-                              )
-                            : this.renderNoResults()}
+                        {this.state.resultLoadingState === 'running' ? (
+                            <LoadingBox>
+                                <LoadingIndicator size={34} />
+                            </LoadingBox>
+                        ) : resultsFilteredByType?.length ? (
+                            resultsFilteredByType?.map(
+                                ([entryIndex, entry]) => (
+                                    <Margin
+                                        bottom="small"
+                                        key={entry.normalizedUrl}
+                                    >
+                                        <ItemBox
+                                            highlight={isInRange(
+                                                entry.createdWhen,
+                                                this.itemRanges.listEntry,
+                                            )}
+                                            onMouseEnter={(
+                                                event: React.MouseEventHandler,
+                                            ) =>
+                                                this.processEvent(
+                                                    'setPageHover',
+                                                    { entryIndex },
+                                                )
+                                            }
+                                            onMouseOver={(
+                                                event: React.MouseEventHandler,
+                                            ) => {
+                                                !this.state.listData
+                                                    ?.listEntries[entryIndex]
+                                                    .hoverState &&
+                                                    this.processEvent(
+                                                        'setPageHover',
+                                                        {
+                                                            entryIndex,
+                                                        },
+                                                    )
+                                            }}
+                                            onMouseLeave={(
+                                                event: React.MouseEventHandler,
+                                            ) =>
+                                                this.processEvent(
+                                                    'setPageHover',
+                                                    { entryIndex },
+                                                )
+                                            }
+                                            hoverState={
+                                                this.state.listData
+                                                    ?.listEntries[entryIndex]
+                                                    .hoverState
+                                            }
+                                            onRef={(event) => {
+                                                this.onListEntryRef({
+                                                    ...event,
+                                                    entry,
+                                                })
+                                            }}
+                                        >
+                                            <BlockContent
+                                                // pageLink ={'https://memex.social/' + this.props.listID + '/' + entry.reference.id}
+                                                youtubeService={
+                                                    this.props.services.youtube
+                                                }
+                                                type={
+                                                    isPagePdf({
+                                                        url:
+                                                            entry.normalizedUrl,
+                                                    })
+                                                        ? 'pdf'
+                                                        : 'page'
+                                                }
+                                                normalizedUrl={
+                                                    entry.normalizedUrl
+                                                }
+                                                originalUrl={entry.originalUrl}
+                                                fullTitle={
+                                                    entry && entry.entryTitle
+                                                }
+                                                onClick={(e) => {
+                                                    this.processEvent(
+                                                        'clickPageResult',
+                                                        {
+                                                            urlToOpen:
+                                                                entry.originalUrl,
+                                                            preventOpening: () =>
+                                                                e.preventDefault(),
+                                                            isFollowedSpace:
+                                                                this.state
+                                                                    .isCollectionFollowed ||
+                                                                this.state
+                                                                    .isListOwner,
+                                                            notifAlreadyShown: this
+                                                                .state
+                                                                .notifAlreadyShown,
+                                                            sharedListReference: this
+                                                                .sharedListReference,
+                                                        },
+                                                    )
+                                                    e.preventDefault()
+                                                    e.stopPropagation()
+                                                }}
+                                                viewportBreakpoint={
+                                                    this.viewportBreakpoint
+                                                }
+                                                mainContentHover={
+                                                    this.state.listData
+                                                        ?.listEntries[
+                                                        entryIndex
+                                                    ].hoverState
+                                                        ? 'main-content'
+                                                        : undefined
+                                                }
+                                            />
+                                            {this.state
+                                                .summarizeArticleLoadState[
+                                                entry.normalizedUrl
+                                            ] ? (
+                                                <SummarySection>
+                                                    {this.state
+                                                        .summarizeArticleLoadState[
+                                                        entry.normalizedUrl
+                                                    ] === 'running' && (
+                                                        <LoadingBox>
+                                                            <LoadingIndicator
+                                                                size={24}
+                                                            />
+                                                        </LoadingBox>
+                                                    )}
+                                                    {this.state
+                                                        .summarizeArticleLoadState[
+                                                        entry.normalizedUrl
+                                                    ] === 'success' && (
+                                                        <SummaryContainer>
+                                                            <SummaryText>
+                                                                {this.state
+                                                                    .articleSummary[
+                                                                    entry
+                                                                        .normalizedUrl
+                                                                ] ?? undefined}
+                                                            </SummaryText>
+                                                            <SummaryFooter>
+                                                                <RightSideButtons>
+                                                                    <BetaButton>
+                                                                        <BetaButtonInner>
+                                                                            BETA
+                                                                        </BetaButtonInner>
+                                                                    </BetaButton>
+                                                                    <PrimaryAction
+                                                                        type="tertiary"
+                                                                        size="small"
+                                                                        onClick={() => {
+                                                                            window.open(
+                                                                                'https://memex.garden/chatsupport',
+                                                                                '_blank',
+                                                                            )
+                                                                        }}
+                                                                        label="Report Bug"
+                                                                    />
+                                                                </RightSideButtons>
+                                                                <PoweredBy>
+                                                                    Powered by
+                                                                    <Icon
+                                                                        icon="openAI"
+                                                                        height="18px"
+                                                                        hoverOff
+                                                                        width="70px"
+                                                                    />
+                                                                </PoweredBy>
+                                                            </SummaryFooter>
+                                                        </SummaryContainer>
+                                                    )}
+                                                    {this.state
+                                                        .summarizeArticleLoadState[
+                                                        entry.normalizedUrl
+                                                    ] === 'error' && (
+                                                        <ErrorContainer>
+                                                            <Icon
+                                                                icon="warning"
+                                                                color="warning"
+                                                                heightAndWidth="22px"
+                                                                hoverOff
+                                                            />
+                                                            Page could not be
+                                                            summarised. This may
+                                                            be because it is
+                                                            behind a paywall.{' '}
+                                                            <br /> Youtube
+                                                            videos and PDFs are
+                                                            not supported yet.
+                                                        </ErrorContainer>
+                                                    )}
+                                                </SummarySection>
+                                            ) : undefined}
+                                            <ItemBoxBottom
+                                                creationInfo={{
+                                                    creator: this.state.users[
+                                                        entry.creator.id
+                                                    ],
+                                                    createdWhen:
+                                                        entry.createdWhen,
+                                                }}
+                                                actions={this.getPageEntryActions(
+                                                    entry,
+                                                    entryIndex,
+                                                )}
+                                            />
+                                        </ItemBox>
+                                        {state.pageAnnotationsExpanded[
+                                            entry.normalizedUrl
+                                        ] && (
+                                            <>
+                                                {this.renderPageAnnotations(
+                                                    entry,
+                                                )}
+                                            </>
+                                        )}
+                                        {entryIndex > 0 &&
+                                            (entryIndex + 1) % data.pageSize ===
+                                                0 && (
+                                                <Waypoint
+                                                    onEnter={() => {
+                                                        this.processEvent(
+                                                            'pageBreakpointHit',
+                                                            {
+                                                                entryIndex,
+                                                            },
+                                                        )
+                                                        this.processEvent(
+                                                            'pageBreakpointHit',
+                                                            {
+                                                                entryIndex,
+                                                            },
+                                                        )
+                                                    }}
+                                                />
+                                            )}
+                                    </Margin>
+                                ),
+                            )
+                        ) : (
+                            this.renderNoResults()
+                        )}
+                        {this.state.paginateLoading === 'running' && (
+                            <LoadingBox>
+                                <LoadingIndicator size={34} />
+                            </LoadingBox>
+                        )}
                     </ResultsList>
                 </DefaultPageLayout>
                 {this.state.isListShareModalShown && (
@@ -2065,7 +2077,7 @@ const SummaryText = styled.div`
 const LoadingBox = styled.div`
     display: flex;
     width: 100%;
-    height: 60px;
+    height: 150px;
     justify-content: center;
     align-items: center;
 `

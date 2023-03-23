@@ -105,6 +105,8 @@ export type CollectionDetailsState = AnnotationConversationsState &
         dateFilterVisible: boolean
         endDateFilterValue: string
         startDateFilterValue: string
+        resultLoadingState: UITaskState
+        paginateLoading: UITaskState
 
         annotationEntriesLoadState: UITaskState
         annotationLoadStates: { [normalizedPageUrl: string]: UITaskState }

@@ -53,6 +53,7 @@ import type { SlackList } from '@worldbrain/memex-common/lib/slack/types'
 import * as chrono from 'chrono-node'
 import {
     SharedListEntrySearchRequest,
+    SharedListEntrySearchResult,
     SHARED_LIST_ENTRY_SEARCH_PAGE_SIZE,
 } from '@worldbrain/memex-common/lib/content-sharing/search'
 const truncate = require('truncate')
@@ -213,6 +214,8 @@ export default class CollectionDetailsLogic extends UILogic<
             dateFilterVisible: false,
             startDateFilterValue: '',
             endDateFilterValue: '',
+            resultLoadingState: 'pristine',
+            paginateLoading: 'pristine',
             ...extDetectionInitialState(),
             ...listsSidebarInitialState(),
             ...annotationConversationInitialState(),
@@ -537,22 +540,31 @@ export default class CollectionDetailsLogic extends UILogic<
     }
 
     loadSearchResults: EventHandler<'loadSearchResults'> = async (incoming) => {
-        if (!incoming.event.query?.length) {
+        this.emitMutation({
+            resultLoadingState: { $set: 'running' },
+        })
+        const startNlpDate =
+            chrono?.parseDate(incoming.event.startDateFilterValue) ?? undefined
+        const endNlpDate =
+            chrono?.parseDate(incoming.event.endDateFilterValue) ?? undefined
+
+        if (!incoming.event.query?.length && !startNlpDate && !endNlpDate) {
+            console.log('no query')
             delete this.latestSearchRequest
             this.emitMutation({
                 searchQuery: { $set: '' },
                 listData: {
                     pageSize: { $set: PAGE_SIZE },
-                    listEntries: { $set: this.mainListEntries },
+                    listEntries: {
+                        $set: this.mainListEntries.sort(
+                            (entryA, entryB) =>
+                                entryA.createdWhen - entryB.createdWhen,
+                        ),
+                    },
                 },
             })
             return
         }
-
-        const startNlpDate =
-            chrono?.parseDate(incoming.event.startDateFilterValue) ?? undefined
-        const endNlpDate =
-            chrono?.parseDate(incoming.event.endDateFilterValue) ?? undefined
 
         const startDateFilterValue = parseInt(
             startNlpDate?.getTime().toString().slice(0, -3).concat('000'),
@@ -571,8 +583,11 @@ export default class CollectionDetailsLogic extends UILogic<
         }
         this.emitMutation({
             searchQuery: { $set: incoming.event.query },
-            startDateFilterValue: { $set: incoming.event.startDateFilterValue },
+            startDateFilterValue: {
+                $set: incoming.event.startDateFilterValue,
+            },
             endDateFilterValue: { $set: incoming.event.endDateFilterValue },
+            resultLoadingState: { $set: 'success' },
             listData: {
                 pageSize: {
                     $set: incoming.event.query.length
@@ -593,8 +608,6 @@ export default class CollectionDetailsLogic extends UILogic<
                     result.sharedListEntries.map((entry: any) => entry.creator),
                 ),
             ]
-            console.log(userIds)
-
             result.sharedListEntries.sort((a: any, b: any) => {
                 return b.createdWhen - a.createdWhen
             })
@@ -990,6 +1003,9 @@ export default class CollectionDetailsLogic extends UILogic<
     }
 
     pageBreakpointHit: EventHandler<'pageBreakpointHit'> = async (incoming) => {
+        this.emitMutation({
+            paginateLoading: { $set: 'running' },
+        })
         const { listData } = incoming.previousState
         if (!listData) {
             return
@@ -1016,6 +1032,7 @@ export default class CollectionDetailsLogic extends UILogic<
             }))
             this.mainListEntries.push(...newListEntries)
         } else {
+            let newListEntries: SharedListEntrySearchResult[] = []
             const page =
                 Math.floor(
                     (incoming.event.entryIndex + 1) /
@@ -1037,6 +1054,9 @@ export default class CollectionDetailsLogic extends UILogic<
                 },
             },
         }
+        this.emitMutation({
+            paginateLoading: { $set: 'success' },
+        })
         this.emitMutation(mutation)
         this.loadPageAnnotations(
             this.withMutation(incoming.previousState, mutation)

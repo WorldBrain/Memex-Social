@@ -3,8 +3,6 @@ import { THEME } from '@worldbrain/memex-common/lib/common-ui/styles/theme'
 
 export const theme: Theme = THEME({
     icons: {
-        slack: 'bla.png',
-        openAI: 'bla.png',
         addPeople: require('../../assets/img/addPeople.svg'),
         warning: require('../../assets/img/alertRound.svg'),
         arrowLeft: require('../../assets/img/arrowLeft.svg'),
