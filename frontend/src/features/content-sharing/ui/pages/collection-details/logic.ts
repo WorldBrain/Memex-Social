@@ -563,6 +563,9 @@ export default class CollectionDetailsLogic extends UILogic<
                     },
                 },
             })
+            this.emitMutation({
+                resultLoadingState: { $set: 'success' },
+            })
             return
         }
 
