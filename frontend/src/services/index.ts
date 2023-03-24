@@ -38,6 +38,7 @@ import type { YoutubeServiceOptions } from '@worldbrain/memex-common/lib/service
 import { YoutubeService } from '@worldbrain/memex-common/lib/services/youtube'
 import { MemexExtensionService } from './memex-extension'
 import { AnalyticsService } from './analytics'
+import { FullTextSearchService } from './full-text-search'
 import { SummarizationService } from './summarization'
 
 export function createServices(options: {
@@ -221,6 +222,7 @@ export function createServices(options: {
         youtube: new YoutubeService(options.youtubeOptions),
         analytics,
         summarization: new SummarizationService(),
+        fullTextSearch: new FullTextSearchService(),
     }
 
     return services
