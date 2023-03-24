@@ -46,10 +46,8 @@ export default class AuthDialog extends UIElement<
     private checkPasswordMatch(value: string) {
         if (this.state.password === value) {
             this.processEvent('passwordMatch', { value: true })
-            console.log('true')
         } else {
             this.processEvent('passwordMatch', { value: false })
-            console.log('false')
         }
     }
 

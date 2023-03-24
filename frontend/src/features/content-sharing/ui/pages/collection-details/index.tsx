@@ -290,6 +290,71 @@ export default class CollectionDetailsPage extends UIElement<
 
         const currentBaseURL = new URL(window.location.href).origin
 
+        const copyButton: ItemBoxBottomAction = {
+            key: 'copy-link-btn',
+            image: this.state.copiedLink ? 'check' : 'link',
+            imageColor: this.state.copiedLink ? 'prime1' : 'greyScale5',
+            ButtonText: this.state.copiedLink ? 'Copied' : 'Copy Link',
+            onClick: () => {
+                navigator.clipboard.writeText(
+                    currentBaseURL +
+                        '/c/' +
+                        this.props.listID +
+                        '/p/' +
+                        entry.reference?.id,
+                )
+                this.processEvent('copiedLinkButton', null)
+            },
+        }
+
+        const commentButton: ItemBoxBottomAction = {
+            key: 'expand-notes-btn',
+            image: count > 0 ? 'commentFull' : 'commentAdd',
+            ButtonText: count > 0 ? count : '',
+            imageColor: 'prime1',
+            onClick: () =>
+                this.processEvent('togglePageAnnotations', {
+                    normalizedUrl: entry.normalizedUrl,
+                }),
+        }
+
+        const summaryButton: ItemBoxBottomAction = {
+            key: 'generate-summary-btn',
+            image:
+                this.state.summarizeArticleLoadState[entry.normalizedUrl] ===
+                    'success' ||
+                this.state.summarizeArticleLoadState[entry.normalizedUrl] ===
+                    'error'
+                    ? 'compress'
+                    : 'feed',
+            imageColor: 'prime1',
+            ButtonText:
+                this.state.summarizeArticleLoadState[entry.normalizedUrl] ===
+                    'success' ||
+                this.state.summarizeArticleLoadState[entry.normalizedUrl] ===
+                    'error'
+                    ? 'Hide Summary'
+                    : 'Summarize',
+            onClick: () => {
+                if (
+                    this.state.summarizeArticleLoadState[
+                        entry.normalizedUrl
+                    ] === 'success' ||
+                    this.state.summarizeArticleLoadState[
+                        entry.normalizedUrl
+                    ] === 'error'
+                ) {
+                    this.processEvent('hideSummary', {
+                        entry: entry,
+                    })
+                } else {
+                    this.processEvent('summarizeArticle', {
+                        entry: entry,
+                    })
+                }
+            },
+        }
+
         if (
             state.annotationEntriesLoadState === 'success' &&
             toggleAnnotationsIcon !== null
@@ -298,178 +363,190 @@ export default class CollectionDetailsPage extends UIElement<
                 this.state.listData?.listEntries[entryIndex].hoverState &&
                 !this.isIframe()
             ) {
-                return [
-                    {
-                        key: 'copy-link-btn',
-                        image: this.state.copiedLink ? 'check' : 'link',
-                        imageColor: this.state.copiedLink
-                            ? 'prime1'
-                            : 'greyScale5',
-                        ButtonText: this.state.copiedLink
-                            ? 'Copied'
-                            : 'Copy Link',
-                        onClick: () => {
-                            navigator.clipboard.writeText(
-                                currentBaseURL +
-                                    '/c/' +
-                                    this.props.listID +
-                                    '/p/' +
-                                    entry.reference?.id,
-                            )
-                            this.processEvent('copiedLinkButton', null)
-                        },
-                    },
-                    {
-                        key: 'generate-summary-btn',
-                        image:
-                            this.state.summarizeArticleLoadState[
-                                entry.normalizedUrl
-                            ] === 'success' ||
-                            this.state.summarizeArticleLoadState[
-                                entry.normalizedUrl
-                            ] === 'error'
-                                ? 'compress'
-                                : 'feed',
-                        imageColor: 'prime1',
-                        isDisabled: entry.normalizedUrl.startsWith(
-                            'https://www.youtube.com/watch?',
-                        ),
-                        ButtonText:
-                            this.state.summarizeArticleLoadState[
-                                entry.normalizedUrl
-                            ] === 'success' ||
-                            this.state.summarizeArticleLoadState[
-                                entry.normalizedUrl
-                            ] === 'error'
-                                ? 'Hide Summary'
-                                : 'Summarize',
-                        onClick: () => {
-                            if (
-                                this.state.summarizeArticleLoadState[
-                                    entry.normalizedUrl
-                                ] === 'success' ||
-                                this.state.summarizeArticleLoadState[
-                                    entry.normalizedUrl
-                                ] === 'error'
-                            ) {
-                                this.processEvent('hideSummary', {
-                                    entry: entry,
-                                })
-                            } else {
-                                this.processEvent('summarizeArticle', {
-                                    entry: entry,
-                                })
-                            }
-                        },
-                    },
-                    {
-                        key: 'expand-notes-btn',
-                        image: count > 0 ? 'commentFull' : 'commentAdd',
-                        ButtonText: count > 0 ? count : '',
-                        imageColor: 'prime1',
-                        onClick: () =>
-                            this.processEvent('togglePageAnnotations', {
-                                normalizedUrl: entry.normalizedUrl,
-                            }),
-                    },
-                ]
+                return [copyButton, summaryButton, commentButton]
             }
 
-            return [
-                {
-                    key: 'generate-summary-btn',
-                    image:
-                        this.state.summarizeArticleLoadState[
-                            entry.normalizedUrl
-                        ] === 'success' ||
-                        this.state.summarizeArticleLoadState[
-                            entry.normalizedUrl
-                        ] === 'error'
-                            ? 'compress'
-                            : 'feed',
-                    imageColor: 'prime1',
-                    isDisabled: entry.normalizedUrl.startsWith(
-                        'https://www.youtube.com/watch?',
-                    ),
-                    ButtonText:
-                        this.state.summarizeArticleLoadState[
-                            entry.normalizedUrl
-                        ] === 'success' ||
-                        this.state.summarizeArticleLoadState[
-                            entry.normalizedUrl
-                        ] === 'error'
-                            ? 'Hide Summary'
-                            : 'Summarize',
-                    onClick: () => {
-                        if (
-                            this.state.summarizeArticleLoadState[
-                                entry.normalizedUrl
-                            ] === 'success' ||
-                            this.state.summarizeArticleLoadState[
-                                entry.normalizedUrl
-                            ] === 'error'
-                        ) {
-                            this.processEvent('hideSummary', {
-                                entry: entry,
-                            })
-                        } else {
-                            this.processEvent('summarizeArticle', {
-                                entry: entry,
-                            })
-                        }
-                    },
-                },
-                {
-                    key: 'expand-notes-btn',
-                    image: count > 0 ? 'commentFull' : 'commentAdd',
-                    ButtonText: count > 0 ? count : '',
-                    imageColor: 'prime1',
-                    onClick: () =>
-                        this.processEvent('togglePageAnnotations', {
-                            normalizedUrl: entry.normalizedUrl,
-                        }),
-                },
-                // {
-                //     node: (
-                //         <CommentIconBox
-                //             onClick={() =>
-                //                 this.processEvent('togglePageAnnotations', {
-                //                     normalizedUrl: entry.normalizedUrl,
-                //                 })
-                //             }
-                //         >
-                //             {count > 0 && <Counter>{count}</Counter>}
-                //             <Icon
-                //                 icon={toggleAnnotationsIcon}
-                //                 heightAndWidth={'16px'}
-                //                 hoverOff
-                //             />
-                //         </CommentIconBox>
-                //     ),
-                // },
-            ]
-        } else if (
-            this.state.listData?.listEntries[entryIndex].hoverState &&
-            !this.isIframe()
-        ) {
-            return [
-                {
-                    key: 'expand-notes-btn',
-                    image: 'link',
-                    imageColor: 'greyScale5',
-                    ButtonText: 'Copy Link',
-                    onClick: () => {
-                        navigator.clipboard.writeText(
-                            currentBaseURL +
-                                '/c/' +
-                                this.props.listID +
-                                '/p/' +
-                                entry.reference?.id,
-                        )
-                    },
-                },
-            ]
+            return [summaryButton, commentButton]
+        } else if (toggleAnnotationsIcon === null) {
+            if (
+                this.state.listData?.listEntries[entryIndex].hoverState &&
+                !this.isIframe()
+            ) {
+                return [copyButton, summaryButton]
+            }
+
+            return [summaryButton]
         }
+        //     // if (
+        //     //     this.state.listData?.listEntries[entryIndex].hoverState &&
+        //     //     !this.isIframe()
+        //     // ) {
+        //     //     return [
+        //     //         {
+        //     //             key: 'copy-link-btn',
+        //     //             image: this.state.copiedLink ? 'check' : 'link',
+        //     //             imageColor: this.state.copiedLink
+        //     //                 ? 'prime1'
+        //     //                 : 'greyScale5',
+        //     //             ButtonText: this.state.copiedLink
+        //     //                 ? 'Copied'
+        //     //                 : 'Copy Link',
+        //     //             onClick: () => {
+        //     //                 navigator.clipboard.writeText(
+        //     //                     currentBaseURL +
+        //     //                         '/c/' +
+        //     //                         this.props.listID +
+        //     //                         '/p/' +
+        //     //                         entry.reference?.id,
+        //     //                 )
+        //     //                 this.processEvent('copiedLinkButton', null)
+        //     //             },
+        //     //         },
+        //     //         {
+        //     //             key: 'generate-summary-btn',
+        //     //             image:
+        //     //                 this.state.summarizeArticleLoadState[
+        //     //                     entry.normalizedUrl
+        //     //                 ] === 'success' ||
+        //     //                 this.state.summarizeArticleLoadState[
+        //     //                     entry.normalizedUrl
+        //     //                 ] === 'error'
+        //     //                     ? 'compress'
+        //     //                     : 'feed',
+        //     //             imageColor: 'prime1',
+        //     //             ButtonText:
+        //     //                 this.state.summarizeArticleLoadState[
+        //     //                     entry.normalizedUrl
+        //     //                 ] === 'success' ||
+        //     //                 this.state.summarizeArticleLoadState[
+        //     //                     entry.normalizedUrl
+        //     //                 ] === 'error'
+        //     //                     ? 'Hide Summary'
+        //     //                     : 'Summarize',
+        //     //             onClick: () => {
+        //     //                 if (
+        //     //                     this.state.summarizeArticleLoadState[
+        //     //                         entry.normalizedUrl
+        //     //                     ] === 'success' ||
+        //     //                     this.state.summarizeArticleLoadState[
+        //     //                         entry.normalizedUrl
+        //     //                     ] === 'error'
+        //     //                 ) {
+        //     //                     this.processEvent('hideSummary', {
+        //     //                         entry: entry,
+        //     //                     })
+        //     //                 } else {
+        //     //                     this.processEvent('summarizeArticle', {
+        //     //                         entry: entry,
+        //     //                     })
+        //     //                 }
+        //     //             },
+        //     //         },
+        //     //         {
+        //     //             key: 'expand-notes-btn',
+        //     //             image: count > 0 ? 'commentFull' : 'commentAdd',
+        //     //             ButtonText: count > 0 ? count : '',
+        //     //             imageColor: 'prime1',
+        //     //             onClick: () =>
+        //     //                 this.processEvent('togglePageAnnotations', {
+        //     //                     normalizedUrl: entry.normalizedUrl,
+        //     //                 }),
+        //     //         },
+        //     //     ]
+        //     // }
+
+        //     return [
+        //         {
+        //             key: 'generate-summary-btn',
+        //             image:
+        //                 this.state.summarizeArticleLoadState[
+        //                     entry.normalizedUrl
+        //                 ] === 'success' ||
+        //                 this.state.summarizeArticleLoadState[
+        //                     entry.normalizedUrl
+        //                 ] === 'error'
+        //                     ? 'compress'
+        //                     : 'feed',
+        //             imageColor: 'prime1',
+        //             ButtonText:
+        //                 this.state.summarizeArticleLoadState[
+        //                     entry.normalizedUrl
+        //                 ] === 'success' ||
+        //                 this.state.summarizeArticleLoadState[
+        //                     entry.normalizedUrl
+        //                 ] === 'error'
+        //                     ? 'Hide Summary'
+        //                     : 'Summarize',
+        //             onClick: () => {
+        //                 if (
+        //                     this.state.summarizeArticleLoadState[
+        //                         entry.normalizedUrl
+        //                     ] === 'success' ||
+        //                     this.state.summarizeArticleLoadState[
+        //                         entry.normalizedUrl
+        //                     ] === 'error'
+        //                 ) {
+        //                     this.processEvent('hideSummary', {
+        //                         entry: entry,
+        //                     })
+        //                 } else {
+        //                     this.processEvent('summarizeArticle', {
+        //                         entry: entry,
+        //                     })
+        //                 }
+        //             },
+        //         },
+        //         {
+        //             key: 'expand-notes-btn',
+        //             image: count > 0 ? 'commentFull' : 'commentAdd',
+        //             ButtonText: count > 0 ? count : '',
+        //             imageColor: 'prime1',
+        //             onClick: () =>
+        //                 this.processEvent('togglePageAnnotations', {
+        //                     normalizedUrl: entry.normalizedUrl,
+        //                 }),
+        //         },
+        //         // {
+        //         //     node: (
+        //         //         <CommentIconBox
+        //         //             onClick={() =>
+        //         //                 this.processEvent('togglePageAnnotations', {
+        //         //                     normalizedUrl: entry.normalizedUrl,
+        //         //                 })
+        //         //             }
+        //         //         >
+        //         //             {count > 0 && <Counter>{count}</Counter>}
+        //         //             <Icon
+        //         //                 icon={toggleAnnotationsIcon}
+        //         //                 heightAndWidth={'16px'}
+        //         //                 hoverOff
+        //         //             />
+        //         //         </CommentIconBox>
+        //         //     ),
+        //         // },
+        //     ]
+        // } else if (
+        //     this.state.listData?.listEntries[entryIndex].hoverState &&
+        //     !this.isIframe()
+        // ) {
+        //     return [
+        //         {
+        //             key: 'expand-notes-btn',
+        //             image: 'link',
+        //             imageColor: 'greyScale5',
+        //             ButtonText: 'Copy Link',
+        //             onClick: () => {
+        //                 navigator.clipboard.writeText(
+        //                     currentBaseURL +
+        //                         '/c/' +
+        //                         this.props.listID +
+        //                         '/p/' +
+        //                         entry.reference?.id,
+        //                 )
+        //             },
+        //         },
+        //     ]
+        // }
     }
 
     renderFollowBtn = (pageToOpenPostFollow?: string) => () => {
@@ -2072,6 +2149,7 @@ const SummaryText = styled.div`
     color: ${(props) => props.theme.colors.greyScale7};
     font-size: 16px;
     line-height: 24px;
+    white-space: break-spaces;
 `
 
 const LoadingBox = styled.div`
