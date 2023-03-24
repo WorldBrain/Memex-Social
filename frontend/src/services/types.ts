@@ -12,7 +12,7 @@ import type WebMonetizationService from '../features/web-monetization/service'
 import type { LocalStorageService } from './local-storage/types'
 import type { MemexExtensionService } from './memex-extension'
 import type { AnalyticsService } from './analytics'
-import { SummarizationService } from './summarization'
+import { SummarizationService } from '@worldbrain/memex-common/lib/summarization'
 import type { FullTextSearchService } from './full-text-search'
 
 type UIServices = 'logicRegistry' | 'device'

@@ -374,35 +374,27 @@ export default class CollectionDetailsLogic extends UILogic<
             },
         })
 
-        const response = await this.dependencies.services.summarization.summarize(
+        let isPageSummaryEmpty = true
+        for await (const result of this.dependencies.services.summarization.queryAI(
             incoming.event.entry.originalUrl,
-        )
-        if (response.status === 'success') {
-            let summaryText = response.choices[0].text
-            if (summaryText.startsWith(':')) {
-                summaryText = summaryText.slice(2)
+        )) {
+            const token = result?.t
+
+            let newToken = token
+            if (isPageSummaryEmpty) {
+                newToken = newToken.trimStart() // Remove the first two characters
             }
 
+            isPageSummaryEmpty = false
+
             this.emitMutation({
-                articleSummary: {
-                    [incoming.event.entry.normalizedUrl]: {
-                        $set: summaryText,
-                    },
-                },
                 summarizeArticleLoadState: {
                     [incoming.event.entry.normalizedUrl]: { $set: 'success' },
                 },
-            })
-        } else if (response.status === 'prompt-too-long') {
-            this.emitMutation({
-                summarizeArticleLoadState: {
-                    [incoming.event.entry.normalizedUrl]: { $set: 'error' },
-                },
-            })
-        } else {
-            this.emitMutation({
-                summarizeArticleLoadState: {
-                    [incoming.event.entry.normalizedUrl]: { $set: 'error' },
+                articleSummary: {
+                    [incoming.event.entry.normalizedUrl]: {
+                        $apply: (prev) => (prev ? prev : '') + newToken,
+                    },
                 },
             })
         }
@@ -549,7 +541,6 @@ export default class CollectionDetailsLogic extends UILogic<
             chrono?.parseDate(incoming.event.endDateFilterValue) ?? undefined
 
         if (!incoming.event.query?.length && !startNlpDate && !endNlpDate) {
-            console.log('no query')
             delete this.latestSearchRequest
             this.emitMutation({
                 searchQuery: { $set: '' },

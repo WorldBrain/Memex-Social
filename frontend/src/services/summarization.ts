@@ -16,6 +16,7 @@ export class SummarizationService {
                 originalUrl,
             }),
         })
+
         return (await response.json()) as
             | { status: 'success'; choices: Array<{ text: string }> }
             | { status: 'prompt-too-long' }

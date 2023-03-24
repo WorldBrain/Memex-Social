@@ -39,7 +39,7 @@ import { YoutubeService } from '@worldbrain/memex-common/lib/services/youtube'
 import { MemexExtensionService } from './memex-extension'
 import { AnalyticsService } from './analytics'
 import { FullTextSearchService } from './full-text-search'
-import { SummarizationService } from './summarization'
+import { SummarizationService } from '@worldbrain/memex-common/lib/summarization'
 
 export function createServices(options: {
     backend: BackendType

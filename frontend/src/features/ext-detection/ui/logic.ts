@@ -128,7 +128,6 @@ export const extDetectionEventHandlers = (
                 }
             }
             if (doesMemexExtDetectionElExist()) {
-                console.log('exists')
                 const openLink = await dependencies.services?.memexExtension.openLink(
                     {
                         originalPageUrl: event.urlToOpen,
