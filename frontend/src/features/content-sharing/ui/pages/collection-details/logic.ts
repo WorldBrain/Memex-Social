@@ -998,13 +998,13 @@ export default class CollectionDetailsLogic extends UILogic<
     }
 
     pageBreakpointHit: EventHandler<'pageBreakpointHit'> = async (incoming) => {
-        this.emitMutation({
-            paginateLoading: { $set: 'running' },
-        })
         const { listData } = incoming.previousState
         if (!listData) {
             return
         }
+        this.emitMutation({
+            paginateLoading: { $set: 'running' },
+        })
         let newListEntries: CollectionDetailsListEntry[] = []
         if (!this.latestSearchRequest) {
             if (incoming.event.entryIndex < this.mainLatestEntryIndex) {
