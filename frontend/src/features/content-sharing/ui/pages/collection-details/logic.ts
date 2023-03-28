@@ -1010,8 +1010,8 @@ export default class CollectionDetailsLogic extends UILogic<
             if (incoming.event.entryIndex < this.mainLatestEntryIndex) {
                 return
             }
-
             this.mainLatestEntryIndex = incoming.event.entryIndex
+
             const listEntries = await this.dependencies.storage.contentSharing.getListEntriesByList(
                 {
                     listReference: listData.reference,
@@ -1044,16 +1044,14 @@ export default class CollectionDetailsLogic extends UILogic<
                 creator: { type: 'user-reference' as const, id: entry.creator },
             }))
         }
-        const mutation = {
+        const mutation: UIMutation<CollectionDetailsState> = {
+            paginateLoading: { $set: 'success' },
             listData: {
                 listEntries: {
                     $push: newListEntries,
                 },
             },
         }
-        this.emitMutation({
-            paginateLoading: { $set: 'success' },
-        })
         this.emitMutation(mutation)
         this.loadPageAnnotations(
             this.withMutation(incoming.previousState, mutation)

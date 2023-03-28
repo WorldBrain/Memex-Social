@@ -2002,12 +2002,6 @@ export default class CollectionDetailsPage extends UIElement<
                                                                 entryIndex,
                                                             },
                                                         )
-                                                        this.processEvent(
-                                                            'pageBreakpointHit',
-                                                            {
-                                                                entryIndex,
-                                                            },
-                                                        )
                                                     }}
                                                 />
                                             )}
