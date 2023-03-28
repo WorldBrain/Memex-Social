@@ -605,6 +605,7 @@ export default class CollectionDetailsLogic extends UILogic<
                     result.sharedListEntries.map((entry: any) => entry.creator),
                 ),
             ]
+
             result.sharedListEntries.sort((a: any, b: any) => {
                 return b.createdWhen - a.createdWhen
             })
@@ -1000,20 +1001,20 @@ export default class CollectionDetailsLogic extends UILogic<
     }
 
     pageBreakpointHit: EventHandler<'pageBreakpointHit'> = async (incoming) => {
-        this.emitMutation({
-            paginateLoading: { $set: 'running' },
-        })
         const { listData } = incoming.previousState
         if (!listData) {
             return
         }
+        this.emitMutation({
+            paginateLoading: { $set: 'running' },
+        })
         let newListEntries: CollectionDetailsListEntry[] = []
         if (!this.latestSearchRequest) {
             if (incoming.event.entryIndex < this.mainLatestEntryIndex) {
                 return
             }
-
             this.mainLatestEntryIndex = incoming.event.entryIndex
+
             const listEntries = await this.dependencies.storage.contentSharing.getListEntriesByList(
                 {
                     listReference: listData.reference,
@@ -1029,7 +1030,6 @@ export default class CollectionDetailsLogic extends UILogic<
             }))
             this.mainListEntries.push(...newListEntries)
         } else {
-            let newListEntries: SharedListEntrySearchResult[] = []
             const page =
                 Math.floor(
                     (incoming.event.entryIndex + 1) /
@@ -1042,18 +1042,19 @@ export default class CollectionDetailsLogic extends UILogic<
             const response = await this.dependencies.services.fullTextSearch.searchListEntries(
                 this.latestSearchRequest,
             )
-            newListEntries = response.sharedListEntries
+            newListEntries = response.sharedListEntries.map((entry) => ({
+                ...entry,
+                creator: { type: 'user-reference' as const, id: entry.creator },
+            }))
         }
-        const mutation = {
+        const mutation: UIMutation<CollectionDetailsState> = {
+            paginateLoading: { $set: 'success' },
             listData: {
                 listEntries: {
                     $push: newListEntries,
                 },
             },
         }
-        this.emitMutation({
-            paginateLoading: { $set: 'success' },
-        })
         this.emitMutation(mutation)
         this.loadPageAnnotations(
             this.withMutation(incoming.previousState, mutation)
