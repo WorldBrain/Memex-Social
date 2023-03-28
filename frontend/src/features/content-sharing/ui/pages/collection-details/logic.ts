@@ -602,6 +602,7 @@ export default class CollectionDetailsLogic extends UILogic<
                     result.sharedListEntries.map((entry: any) => entry.creator),
                 ),
             ]
+
             result.sharedListEntries.sort((a: any, b: any) => {
                 return b.createdWhen - a.createdWhen
             })
@@ -1026,7 +1027,6 @@ export default class CollectionDetailsLogic extends UILogic<
             }))
             this.mainListEntries.push(...newListEntries)
         } else {
-            let newListEntries: SharedListEntrySearchResult[] = []
             const page =
                 Math.floor(
                     (incoming.event.entryIndex + 1) /
@@ -1039,7 +1039,10 @@ export default class CollectionDetailsLogic extends UILogic<
             const response = await this.dependencies.services.fullTextSearch.searchListEntries(
                 this.latestSearchRequest,
             )
-            newListEntries = response.sharedListEntries
+            newListEntries = response.sharedListEntries.map((entry) => ({
+                ...entry,
+                creator: { type: 'user-reference' as const, id: entry.creator },
+            }))
         }
         const mutation = {
             listData: {
