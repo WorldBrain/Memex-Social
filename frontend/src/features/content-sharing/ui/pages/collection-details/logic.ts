@@ -528,7 +528,6 @@ export default class CollectionDetailsLogic extends UILogic<
                     result.sharedListEntries.map((entry: any) => entry.creator),
                 ),
             ]
-            console.log(userIds)
 
             result.sharedListEntries.sort((a: any, b: any) => {
                 return b.createdWhen - a.createdWhen
@@ -947,7 +946,10 @@ export default class CollectionDetailsLogic extends UILogic<
             const response = await this.dependencies.services.fullTextSearch.searchListEntries(
                 this.latestSearchRequest,
             )
-            newListEntries = response.sharedListEntries
+            newListEntries = response.sharedListEntries.map((entry) => ({
+                ...entry,
+                creator: { type: 'user-reference' as const, id: entry.creator },
+            }))
         }
         const mutation = {
             listData: {
