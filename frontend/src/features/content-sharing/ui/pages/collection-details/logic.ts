@@ -379,6 +379,8 @@ export default class CollectionDetailsLogic extends UILogic<
             incoming.event.entry.originalUrl,
             undefined,
             undefined,
+            undefined,
+            true,
             true,
         )) {
             const token = result?.t
