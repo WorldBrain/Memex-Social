@@ -291,10 +291,6 @@ export default class CollectionDetailsLogic extends UILogic<
                         )?.roleID) ??
                     undefined
 
-                // const {
-                //     result,
-                // } = await this.dependencies.services.listKeys.processCurrentKey()
-
                 if (isAuthenticated && isContributor) {
                     this.emitMutation({
                         permissionKeyResult: { $set: 'success' },
@@ -305,19 +301,6 @@ export default class CollectionDetailsLogic extends UILogic<
                         requestingAuth: { $set: true },
                     })
                 }
-
-                // this.emitMutation({ requestingAuth: { $set: true } })
-
-                // const {
-                //     result: secondKeyResult,
-                // } = await this.dependencies.services.listKeys.processCurrentKey()
-                // return {
-                //     mutation: {
-                //         permissionKeyResult: { $set: secondKeyResult },
-                //         permissionKeyState: { $set: 'success' },
-                //         requestingAuth: { $set: false }
-                //     },
-                // }
             },
         )
     }
@@ -501,14 +484,23 @@ export default class CollectionDetailsLogic extends UILogic<
                     { listReference },
                 )
                 usersToLoad = listRoles.map((role) => role.user)
+                let roleID: SharedListRoleID | undefined = undefined
+                if (
+                    this._creatorReference &&
+                    userReference?.id === this._creatorReference?.id
+                ) {
+                    roleID = SharedListRoleID.Owner
+                } else {
+                    roleID =
+                        (userReference &&
+                            listRoles.find(
+                                (role) => role.user.id === userReference.id,
+                            )?.roleID) ??
+                        undefined
+                }
                 this.emitMutation({
                     listRoleID: {
-                        $set:
-                            (userReference &&
-                                listRoles.find(
-                                    (role) => role.user.id === userReference.id,
-                                )?.roleID) ??
-                            undefined,
+                        $set: roleID,
                     },
                     listRoles: { $set: listRoles },
                 })
