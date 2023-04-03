@@ -549,7 +549,7 @@ export default class CollectionDetailsLogic extends UILogic<
                     listEntries: {
                         $set: this.mainListEntries.sort(
                             (entryA, entryB) =>
-                                entryA.createdWhen - entryB.createdWhen,
+                                entryB.createdWhen - entryA.createdWhen,
                         ),
                     },
                 },
