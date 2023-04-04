@@ -9,6 +9,8 @@ export async function runReaderUi(options: {
     services: Services
     storage: Storage
     uiMountPoint: Element
+    collectionId: string
+    entryId: string
 }) {
     const sharedState: ReaderSharedState = {}
 

@@ -83,5 +83,11 @@ export async function readerProgram(
         })
     }
 
-    runReaderUi({ storage, services, uiMountPoint })
+    runReaderUi({
+        storage,
+        services,
+        uiMountPoint,
+        collectionId: options.collectionId,
+        entryId: options.entryId,
+    })
 }
