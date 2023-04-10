@@ -1,6 +1,7 @@
 export type RouteName =
     | 'landingPage'
     | 'userHome'
+    | 'pageView'
     | 'collectionDetails'
     | 'pageDetails'
     | 'annotationDetails'
@@ -20,14 +21,16 @@ const ROUTES: RouteMap = {
     },
     userHome: { path: [], ifAuth: true },
     homeFeed: { path: [{ literal: 'feed' }] },
-    collectionDetails: {
+    pageView: {
         path: [
             { literal: 'c' },
             { placeholder: 'id' },
-            {
-                optional: [{ literal: 'p' }, { placeholder: 'entryId' }],
-            },
+            { literal: 'p' },
+            { placeholder: 'entryId' },
         ],
+    },
+    collectionDetails: {
+        path: [{ literal: 'c' }, { placeholder: 'id' }],
     },
     pageDetails: { path: [{ literal: 'p' }, { placeholder: 'id' }] },
     annotationDetails: { path: [{ literal: 'a' }, { placeholder: 'id' }] },

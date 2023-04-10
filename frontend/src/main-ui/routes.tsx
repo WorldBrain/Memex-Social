@@ -17,6 +17,7 @@ import PageDetailsPage from '../features/content-sharing/ui/pages/page-details'
 import HomeFeedPage from '../features/activity-streams/ui/pages/home-feed'
 import { getReactRoutePattern } from '../services/router/routes'
 import { ContentSharingQueryParams } from '../features/content-sharing/types'
+import { ReaderPageView } from '../features/reader/ui'
 
 interface Props {
     history: history.History
@@ -71,6 +72,20 @@ export default class Routes extends React.Component<Props> {
                                 <HomeFeedPage
                                     services={this.props.services}
                                     storage={serverModules}
+                                />
+                            )
+                        }}
+                    />
+                    <Route
+                        exact
+                        path={getReactRoutePattern(ROUTES.pageView.path)}
+                        render={(route) => {
+                            return (
+                                <ReaderPageView
+                                    storage={this.props.storage}
+                                    services={this.props.services}
+                                    listID={route.match.params.id}
+                                    entryID={route.match.params.entryId}
                                 />
                             )
                         }}
