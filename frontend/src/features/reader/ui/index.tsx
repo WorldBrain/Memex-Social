@@ -1,29 +1,33 @@
 import React from 'react'
 import styled from 'styled-components'
-import { ReaderPageViewProps, ReaderPageViewState } from './types'
+import { UIElement } from '../../../main-ui/classes'
+import {
+    ReaderPageViewDependencies,
+    ReaderPageViewEvent,
+    ReaderPageViewState,
+} from './types'
 import { Toolbar } from './components/Toolbar'
 import { setupIframeComms } from '../utils/iframe'
 import { getWebsiteHTML } from '../utils/api'
 import { injectHtml } from '../utils/utils'
 import { Sidebar } from './components/Sidebar'
 
-export class ReaderPageView extends React.Component<
-    ReaderPageViewProps,
-    ReaderPageViewState
+export class ReaderPageView extends UIElement<
+    ReaderPageViewDependencies,
+    ReaderPageViewState,
+    ReaderPageViewEvent
 > {
-    state: ReaderPageViewState = {
-        injected: false,
-    }
     cleanupIframeComms?: () => void
 
     onInjectedContentRef = async (ref: HTMLDivElement) => {
         if (!ref) {
+            this.cleanupIframeComms?.()
             return
         }
 
         const response = await getWebsiteHTML()
 
-        if (response && !this.state.injected) {
+        if (response && !this.cleanupIframeComms) {
             const { url, html } = response
             injectHtml(html, url, ref)
             this.cleanupIframeComms = setupIframeComms({
@@ -31,8 +35,6 @@ export class ReaderPageView extends React.Component<
                     console.log(message)
                 },
             }).cleanup
-
-            this.setState({ injected: true })
         }
     }
 
