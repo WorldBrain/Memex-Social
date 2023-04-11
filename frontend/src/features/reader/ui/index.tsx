@@ -2,7 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import { ReaderPageViewProps, ReaderPageViewState } from './types'
 import { Toolbar } from './components/Toolbar'
-import { attachToWindow } from '../utils/injectScripts'
+import { setupIframeComms } from '../utils/iframe'
 import { getWebsiteHTML } from '../utils/api'
 import { injectHtml } from '../utils/utils'
 import { Sidebar } from './components/Sidebar'
@@ -14,6 +14,7 @@ export class ReaderPageView extends React.Component<
     state: ReaderPageViewState = {
         injected: false,
     }
+    cleanupIframeComms?: () => void
 
     onInjectedContentRef = async (ref: HTMLDivElement) => {
         if (!ref) {
@@ -25,7 +26,11 @@ export class ReaderPageView extends React.Component<
         if (response && !this.state.injected) {
             const { url, html } = response
             injectHtml(html, url, ref)
-            attachToWindow()
+            this.cleanupIframeComms = setupIframeComms({
+                sendMessageFromIframe(message) {
+                    console.log(message)
+                },
+            }).cleanup
 
             this.setState({ injected: true })
         }
