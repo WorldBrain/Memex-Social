@@ -54,6 +54,7 @@
         "react-html-parser": "^2.0.2",
         "react-onclickoutside": "^6.12.2",
         "react-popper": "^2.3.0",
+        "react-rnd": "^10.4.1",
         "styled-components": "^5.1.1",
         "typeface-inter": "^3.18.1",
         "ui-logic-core": "^0.2.2",

@@ -129,6 +129,7 @@ export class ReaderPageViewLogic extends UILogic<
             annotationEntriesLoadState: 'pristine',
             annotationLoadStates: {},
             annotations: {},
+            sidebarWidth: 400,
             ...annotationConversationInitialState(),
         }
     }
@@ -207,6 +208,14 @@ export class ReaderPageViewLogic extends UILogic<
             }
         } else {
             this.cleanupIframeComms?.()
+        }
+    }
+    setSidebarWidth: EventHandler<'setSidebarWidth'> = async (incoming) => {
+        const { width } = incoming.event
+        if (width) {
+            this.emitMutation({
+                sidebarWidth: { $set: width },
+            })
         }
     }
 

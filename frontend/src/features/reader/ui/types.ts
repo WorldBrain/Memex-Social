@@ -51,7 +51,9 @@ export type ReaderPageViewState = AnnotationConversationsState & {
     annotationLoadStates: { [normalizedPageUrl: string]: UITaskState }
     annotationEntryData?: GetAnnotationListEntriesResult
     annotations: GetAnnotationsResult
+    sidebarWidth: number
 }
 export type ReaderPageViewEvent = UIEvent<AnnotationConversationEvent> & {
     setReaderContainerRef: { ref: HTMLDivElement | null }
+    setSidebarWidth: { width: number }
 }
