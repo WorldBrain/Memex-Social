@@ -38,6 +38,7 @@ export const injectHtml = (
     const iframe = document.createElement('iframe')
     iframe.width = '100%'
     iframe.height = '100%'
+    iframe.style.border = 'none'
 
     container.appendChild(iframe)
 

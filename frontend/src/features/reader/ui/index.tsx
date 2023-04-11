@@ -108,7 +108,7 @@ const InjectedContent = styled.div`
     background-color: #000;
     left: 0;
     bottom: 0;
-    border: none;
+    border: 0px solid;
 `
 
 const Toolbar = styled.div`
@@ -117,13 +117,15 @@ const Toolbar = styled.div`
     left: 0;
     height: 60px;
     width: fill-available;
-    background: red;
+    background: ${(props) => props.theme.colors.greyScale1};
+    border-bottom: 1px solid ${(props) => props.theme.colors.greyScale3};
 `
 const Sidebar = styled(Rnd)`
     top: 0;
     right: 0;
     height: fill-available;
-    background: yellow;
+    background: ${(props) => props.theme.colors.greyScale1};
+    border-left: 1px solid ${(props) => props.theme.colors.greyScale3};
 `
 
 const ContainerStyled = styled.div<{ width: number }>`
@@ -133,8 +135,8 @@ const ContainerStyled = styled.div<{ width: number }>`
     top: 0px;
     right: 0px;
     width: ${(props) => props.width}px;
-    background: ${(props) => props.theme.colors.black};
-    border-left: 1px solid ${(props) => props.theme.colors.greyScale2};
+    /* background: ${(props) => props.theme.colors.black};
+    border-left: 1px solid ${(props) => props.theme.colors.greyScale2}; */
     font-family: 'Satoshi', sans-serif;
     font-feature-settings: 'pnum' on, 'lnum' on, 'case' on, 'ss03' on, 'ss04' on,
         'liga' off;
