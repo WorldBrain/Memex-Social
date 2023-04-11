@@ -26,6 +26,9 @@ import {
 } from '../../content-conversations/ui/logic'
 import { getInitialAnnotationConversationStates } from '../../content-conversations/ui/utils'
 import UserProfileCache from '../../user-management/utils/user-profile-cache'
+import { setupIframeComms } from '../utils/iframe'
+import { getWebsiteHTML } from '../utils/api'
+import { injectHtml } from '../utils/utils'
 import {
     ReaderPageViewDependencies,
     ReaderPageViewEvent,
@@ -42,16 +45,19 @@ export class ReaderPageViewLogic extends UILogic<
     ReaderPageViewState,
     ReaderPageViewEvent
 > {
-    _users: UserProfileCache
+    users: UserProfileCache
     pageAnnotationPromises: { [normalizedPageUrl: string]: Promise<void> } = {}
     conversationThreadPromises: {
         [normalizePageUrl: string]: Promise<void>
     } = {}
 
+    readerContainerRef?: HTMLDivElement
+    cleanupIframeComms?: () => void
+
     constructor(private dependencies: ReaderPageViewDependencies) {
         super()
 
-        this._users = new UserProfileCache({
+        this.users = new UserProfileCache({
             ...dependencies,
             onUsersLoad: (users) => {
                 this.emitMutation({ users: { $merge: users } })
@@ -80,7 +86,7 @@ export class ReaderPageViewLogic extends UILogic<
                         }
                     },
                     loadUserByReference: (reference) =>
-                        this._users.loadUser(reference),
+                        this.users.loadUser(reference),
                     onNewAnnotationCreate: (_, annotation, sharedListEntry) => {
                         this.emitMutation({
                             annotations: {
@@ -150,16 +156,35 @@ export class ReaderPageViewLogic extends UILogic<
                             : undefined,
                     },
                 )
-                const normalizedPageUrl = result.entries[0].normalizedUrl
-                const entriesByList = await contentSharing.getAnnotationListEntriesForListsOnPage(
+                const listEntry = result.entries[0]
+                const normalizedPageUrl = listEntry.normalizedUrl
+                const annotationEntriesByList = await contentSharing.getAnnotationListEntriesForListsOnPage(
                     {
                         listReferences: [listReference],
                         normalizedPageUrl,
                     },
                 )
-                const entries = entriesByList[listReference.id] ?? []
+                const entries = annotationEntriesByList[listReference.id] ?? []
                 if (!entries.length) {
                     return
+                }
+
+                this.emitMutation({
+                    listData: {
+                        $set: {
+                            reference: listReference,
+                            creatorReference: result.creator,
+                            creator: await this.users.loadUser(result.creator),
+                            list: result.sharedList,
+                            entry: listEntry,
+                        },
+                    },
+                })
+                if (this.readerContainerRef) {
+                    this.initializeReader(
+                        this.readerContainerRef,
+                        listEntry.originalUrl,
+                    )
                 }
 
                 await this.loadPageAnnotations(
@@ -168,6 +193,36 @@ export class ReaderPageViewLogic extends UILogic<
                 )
             },
         )
+    }
+
+    setReaderContainerRef: EventHandler<'setReaderContainerRef'> = async (
+        incoming,
+    ) => {
+        const { ref } = incoming.event
+        if (ref) {
+            this.readerContainerRef = ref
+            const { entry } = incoming.previousState.listData ?? {}
+            if (entry) {
+                this.initializeReader(ref, entry.originalUrl)
+            }
+        } else {
+            this.cleanupIframeComms?.()
+        }
+    }
+
+    async initializeReader(ref: HTMLDivElement, originalUrl: string) {
+        const response = await getWebsiteHTML(originalUrl)
+        if (!response || this.cleanupIframeComms) {
+            return
+        }
+
+        const { url, html } = response
+        injectHtml(html, url, ref)
+        this.cleanupIframeComms = setupIframeComms({
+            sendMessageFromIframe(message) {
+                console.log(message)
+            },
+        }).cleanup
     }
 
     async loadPageAnnotations(
@@ -310,7 +365,7 @@ export class ReaderPageViewLogic extends UILogic<
                         this.conversationThreadPromises[normalizedPageUrl],
                 ),
             ])
-            await this._users.loadUsers(
+            await this.users.loadUsers(
                 [...usersToLoad].map(
                     (id): UserReference => ({
                         type: 'user-reference',

@@ -15,6 +15,7 @@ import {
     AnnotationConversationEvent,
     AnnotationConversationsState,
 } from '../../content-conversations/ui/types'
+import { CollectionDetailsListEntry } from '../../content-sharing/ui/pages/collection-details/types'
 import { UserReference } from '../../user-management/types'
 
 export interface ReaderPageViewDependencies {
@@ -44,10 +45,13 @@ export type ReaderPageViewState = AnnotationConversationsState & {
         creatorReference?: UserReference
         creator?: Pick<User, 'displayName'> | null
         list: SharedList
+        entry: CollectionDetailsListEntry
     }
     annotationEntriesLoadState: UITaskState
     annotationLoadStates: { [normalizedPageUrl: string]: UITaskState }
     annotationEntryData?: GetAnnotationListEntriesResult
     annotations: GetAnnotationsResult
 }
-export type ReaderPageViewEvent = UIEvent<AnnotationConversationEvent>
+export type ReaderPageViewEvent = UIEvent<AnnotationConversationEvent> & {
+    setReaderContainerRef: { ref: HTMLDivElement | null }
+}
