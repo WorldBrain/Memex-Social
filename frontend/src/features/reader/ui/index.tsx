@@ -74,6 +74,7 @@ export class ReaderPageView extends UIElement<
 
         return (
             <AnnotationsInPage
+                hideThreadBar={true}
                 originalUrl={entry.originalUrl}
                 contextLocation={'webUI'}
                 variant={'dark-mode'}
@@ -305,7 +306,6 @@ const InjectedContent = styled.div`
     max-width: 100%;
     width: fill-available;
     height: fill-available;
-    background-color: #000;
     left: 0;
     bottom: 0;
     border: 0px solid;
@@ -320,15 +320,16 @@ const TopBar = styled.div`
     align-items: center;
     padding: 0 20px;
     width: fill-available;
-    background: ${(props) => props.theme.colors.greyScale1};
+    background: ${(props) => props.theme.colors.black};
     border-bottom: 1px solid ${(props) => props.theme.colors.greyScale3};
 `
 const Sidebar = styled(Rnd)`
     top: 0;
     right: 0;
     height: fill-available;
-    background: ${(props) => props.theme.colors.greyScale1};
+    background: ${(props) => props.theme.colors.black};
     border-left: 1px solid ${(props) => props.theme.colors.greyScale3};
+    overflow: scroll;
 `
 
 const ContainerStyled = styled.div<{ width: number }>`
