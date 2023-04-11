@@ -1,10 +1,11 @@
 import React from 'react'
+import styled from 'styled-components'
 import { ReaderPageViewProps, ReaderPageViewState } from './types'
-import Sidemenu from './components/Sidemenu/Sidemenu'
-import Toolbar from './components/Toolbar/Toolbar'
-import messaging from '../utils'
-import InjectedContent from './components/InjectedContent/InjectedContent'
+import { Toolbar } from './components/Toolbar'
 import { attachToWindow } from '../utils/injectScripts'
+import { getWebsiteHTML } from '../utils/api'
+import { injectHtml } from '../utils/utils'
+import { Sidebar } from './components/Sidebar'
 
 export class ReaderPageView extends React.Component<
     ReaderPageViewProps,
@@ -14,12 +15,16 @@ export class ReaderPageView extends React.Component<
         injected: false,
     }
 
-    async componentDidMount() {
-        const response = await messaging.getWebsiteHTML()
+    onInjectedContentRef = async (ref: HTMLDivElement) => {
+        if (!ref) {
+            return
+        }
+
+        const response = await getWebsiteHTML()
 
         if (response && !this.state.injected) {
-            const { archiveUrl, url, html } = response
-            messaging.injectHtml(html, url, archiveUrl)
+            const { url, html } = response
+            injectHtml(html, url, ref)
             attachToWindow()
 
             this.setState({ injected: true })
@@ -30,9 +35,20 @@ export class ReaderPageView extends React.Component<
         return (
             <div>
                 <Toolbar />
-                <Sidemenu />
-                <InjectedContent />
+                <Sidebar />
+                <InjectedContent ref={this.onInjectedContentRef} />
             </div>
         )
     }
 }
+
+const InjectedContent = styled.div`
+    max-width: 100%;
+    width: calc(100% - 300px);
+    height: calc(100% - 80px);
+    position: fixed;
+    background-color: #000;
+    top: 80px;
+    left: 0;
+    bottom: 0;
+`

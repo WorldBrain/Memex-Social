@@ -1,4 +1,13 @@
+import React from 'react'
 import styled from 'styled-components'
+
+export function Toolbar() {
+    return (
+        <ToolbarWrapper>
+            <p>Example text</p>
+        </ToolbarWrapper>
+    )
+}
 
 export const ToolbarWrapper = styled.div`
     height: 80px;

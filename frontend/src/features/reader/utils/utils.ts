@@ -28,16 +28,18 @@ const convertRelativeUrlsToAbsolute = (html: string, url: string): string => {
     return modifiedHtml
 }
 
-export const injectHtml = (html: string, url: string) => {
+export const injectHtml = (
+    html: string,
+    url: string,
+    container: HTMLDivElement,
+) => {
     const htmlWithFixedPaths = convertRelativeUrlsToAbsolute(html, url)
 
     const iframe = document.createElement('iframe')
     iframe.width = '100%'
     iframe.height = '100%'
 
-    const container = document.getElementById('web-reader-root')
-    console.log(container)
-    container?.appendChild(iframe)
+    container.appendChild(iframe)
 
     const blob = new Blob([htmlWithFixedPaths], { type: 'text/html' })
     const blobUrl = URL.createObjectURL(blob)

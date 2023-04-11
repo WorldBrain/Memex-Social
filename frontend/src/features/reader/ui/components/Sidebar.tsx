@@ -1,6 +1,11 @@
+import React from 'react'
 import styled from 'styled-components'
 
-export const SidemenuWrapper = styled.div`
+export function Sidebar() {
+    return <Container />
+}
+
+export const Container = styled.div`
     height: 100%;
     width: 300px;
     position: fixed;
