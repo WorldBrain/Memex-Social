@@ -2,10 +2,14 @@ const convertRelativeUrlsToAbsolute = (html: string, url: string): string => {
     const parser = new DOMParser()
     const doc = parser.parseFromString(html, 'text/html')
 
+    const script = doc.createElement('script')
+    script.src = `${window.location.origin}/reader-injection.js`
+    doc.head.appendChild(script)
+
     const srcElements = doc.querySelectorAll('[src]')
     srcElements.forEach((element: Element) => {
         const src = element.getAttribute('src')
-        if (src) {
+        if (src && src !== '/reader-injection.js') {
             element.setAttribute('src', new URL(src, url).toString())
         }
     })

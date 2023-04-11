@@ -12,6 +12,10 @@ import { AnalyticsService } from '../analytics'
 
 const enableMessageLogging = false
 
+function debugLog(...args: any[]) {
+    // console.log(...args)
+}
+
 async function canMessageExtension(extensionID: string) {
     //@ts-ignore next-line
     const base = chrome || browser
@@ -36,7 +40,7 @@ async function canMessageExtension(extensionID: string) {
         //@ts-ignore next-line
         base.runtime.sendMessage(extensionID, null)
     } catch (error) {
-        console.log('Another extension is listening for the webpage.')
+        debugLog('Another extension is listening for the webpage.')
         return false
     }
     const response = await sendMessageToExtension(
@@ -46,7 +50,7 @@ async function canMessageExtension(extensionID: string) {
     )
 
     if (response && response.message.length) {
-        console.log('Extension is ready.')
+        debugLog('Extension is ready.')
         return true
     }
 }
@@ -85,19 +89,19 @@ export async function awaitExtensionReady(extensionID: string) {
     const longTriesInterval = 2000
 
     await new Promise<void>((resolve) => {
-        console.log(
+        debugLog(
             'Extension was not ready or installed after initial wait period. Starting polling.',
         )
         //in this case, the extension is not installed currently
         //so we poll in case it is installed later - which we want to encourage
         const longTimer = setInterval(async () => {
             if (await canMessageExtension(extensionID)) {
-                console.log('Extension is ready.')
+                debugLog('Extension is ready.')
                 extensionIsReady = true
                 clearInterval(longTimer)
                 resolve()
             }
-            console.log('Trying to message extension...')
+            debugLog('Trying to message extension...')
         }, longTriesInterval)
     })
 }
@@ -113,7 +117,7 @@ export function sendMessageToExtension(
         const packedMessage = packMessage(message, payload)
         logPackedMessage(packedMessage, 'Sending', enableMessageLogging)
 
-        console.log('Sending message to extension.')
+        debugLog('Sending message to extension.')
 
         //@ts-ignore next-line
         base.runtime.sendMessage(
@@ -182,7 +186,7 @@ async function bothNotLoggedInHandler(
     extensionID: string,
     analyticsService: AnalyticsService,
 ) {
-    console.log(
+    debugLog(
         'Neither app nor extension are logged in. Starting polling until either one logs in.',
     )
     const interval = 4000
@@ -194,7 +198,7 @@ async function bothNotLoggedInHandler(
                     tryAgain()
                 } else {
                     resolve()
-                    console.log(
+                    debugLog(
                         'Successfully synced with extension after trying multiple times.',
                     )
                 }
@@ -278,7 +282,7 @@ export async function syncWithExtension(
                 analyticsService,
             )
         } else {
-            console.log(
+            debugLog(
                 'Successfully synced with extension immediately after it was ready.',
             )
         }

@@ -196,6 +196,10 @@ export class ReaderPageViewLogic extends UILogic<
         )
     }
 
+    cleanup: EventHandler<'cleanup'> = async () => {
+        this.cleanupIframeComms?.()
+    }
+
     setReaderContainerRef: EventHandler<'setReaderContainerRef'> = async (
         incoming,
     ) => {
@@ -226,12 +230,12 @@ export class ReaderPageViewLogic extends UILogic<
         }
 
         const { url, html } = response
-        injectHtml(html, url, ref)
         this.cleanupIframeComms = setupIframeComms({
             sendMessageFromIframe(message) {
-                console.log(message)
+                console.log('got message from iframe', message)
             },
         }).cleanup
+        injectHtml(html, url, ref)
     }
 
     async loadPageAnnotations(
