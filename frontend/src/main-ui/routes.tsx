@@ -82,7 +82,7 @@ export default class Routes extends React.Component<Props> {
                         render={(route) => {
                             return (
                                 <ReaderPageView
-                                    storage={this.props.storage}
+                                    storage={this.props.storage.serverModules}
                                     services={this.props.services}
                                     listID={route.match.params.id}
                                     entryID={route.match.params.entryId}
