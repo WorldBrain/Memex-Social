@@ -12,27 +12,12 @@ const App = () => {
     useEffect(() => {
         const callback = async () => {
             // if you want to test with a different website - just pass in a url to getWebsiteHTML
-            const response = await messaging.getWebsiteHTML()
-
-            if (response && !injected) {
-                const { archiveUrl, url, html } = response
-                messaging.injectHtml(html, url, archiveUrl)
-                attachToWindow()
-
-                setInjected(true)
-            }
         }
 
         callback()
     }, [])
 
-    return (
-        <div>
-            <Toolbar />
-            <Sidemenu />
-            <InjectedContent />
-        </div>
-    )
+    return <div></div>
 }
 
 export default App

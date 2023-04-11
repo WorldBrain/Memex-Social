@@ -36,6 +36,7 @@ export const injectHtml = (html: string, url: string) => {
     iframe.height = '100%'
 
     const container = document.getElementById('web-reader-root')
+    console.log(container)
     container?.appendChild(iframe)
 
     const blob = new Blob([htmlWithFixedPaths], { type: 'text/html' })

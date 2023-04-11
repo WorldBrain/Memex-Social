@@ -7,3 +7,6 @@ export interface ReaderPageViewProps {
     listID: string
     entryID: string
 }
+export interface ReaderPageViewState {
+    injected: boolean
+}
