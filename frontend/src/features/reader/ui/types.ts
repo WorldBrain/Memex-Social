@@ -42,10 +42,12 @@ export type ReaderPageViewState = AnnotationConversationsState & {
     listLoadState: UITaskState
     listData?: {
         reference: SharedListReference
-        creatorReference?: UserReference
+        creatorReference: UserReference
         creator?: Pick<User, 'displayName'> | null
         list: SharedList
         entry: CollectionDetailsListEntry
+        title: string
+        url: string
     }
     annotationEntriesLoadState: UITaskState
     annotationLoadStates: { [normalizedPageUrl: string]: UITaskState }

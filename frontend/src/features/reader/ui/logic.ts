@@ -145,6 +145,15 @@ export class ReaderPageViewLogic extends UILogic<
             this,
             'listLoadState',
             async () => {
+                const isStaging =
+                    process.env.REACT_APP_FIREBASE_PROJECT_ID?.includes(
+                        'staging',
+                    ) || process.env.NODE_ENV === 'development'
+
+                const baseUrl = isStaging
+                    ? 'https://staging.memex.social/c/'
+                    : 'https://memex.social/c/'
+
                 const result = await contentSharing.retrieveList(
                     listReference,
                     {
@@ -157,8 +166,23 @@ export class ReaderPageViewLogic extends UILogic<
                             : undefined,
                     },
                 )
+
                 const listEntry = result.entries[0]
                 const normalizedPageUrl = listEntry.normalizedUrl
+                this.emitMutation({
+                    listData: {
+                        $set: {
+                            reference: listReference,
+                            creatorReference: result.creator,
+                            creator: await this.users.loadUser(result.creator),
+                            list: result.sharedList,
+                            entry: listEntry,
+                            title: result.sharedList.title,
+                            url: baseUrl + result.sharedList.reference.id,
+                        },
+                    },
+                })
+
                 const annotationEntriesByList = await contentSharing.getAnnotationListEntriesForListsOnPage(
                     {
                         listReferences: [listReference],
@@ -170,17 +194,6 @@ export class ReaderPageViewLogic extends UILogic<
                     return
                 }
 
-                this.emitMutation({
-                    listData: {
-                        $set: {
-                            reference: listReference,
-                            creatorReference: result.creator,
-                            creator: await this.users.loadUser(result.creator),
-                            list: result.sharedList,
-                            entry: listEntry,
-                        },
-                    },
-                })
                 if (this.readerContainerRef) {
                     this.initializeReader(
                         this.readerContainerRef,
