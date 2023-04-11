@@ -130,6 +130,7 @@ export class ReaderPageViewLogic extends UILogic<
             annotationLoadStates: {},
             annotations: {},
             sidebarWidth: 400,
+            isYoutubeVideo: false,
             ...annotationConversationInitialState(),
         }
     }
@@ -169,6 +170,13 @@ export class ReaderPageViewLogic extends UILogic<
 
                 const listEntry = result.entries[0]
                 const normalizedPageUrl = listEntry.normalizedUrl
+
+                if (normalizedPageUrl.startsWith('https://www.youtube.com/')) {
+                    this.emitMutation({
+                        isYoutubeVideo: { $set: true },
+                    })
+                }
+
                 this.emitMutation({
                     listData: {
                         $set: {

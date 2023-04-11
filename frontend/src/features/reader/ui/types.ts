@@ -54,6 +54,7 @@ export type ReaderPageViewState = AnnotationConversationsState & {
     annotationEntryData?: GetAnnotationListEntriesResult
     annotations: GetAnnotationsResult
     sidebarWidth: number
+    isYoutubeVideo: boolean
 }
 export type ReaderPageViewEvent = UIEvent<AnnotationConversationEvent> & {
     setReaderContainerRef: { ref: HTMLDivElement | null }

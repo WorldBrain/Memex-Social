@@ -1,5 +1,5 @@
 import React from 'react'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { UIElement } from '../../../main-ui/classes'
 import {
     ReaderPageViewDependencies,
@@ -20,7 +20,9 @@ import {
 } from '@worldbrain/memex-common/lib/content-sharing/types'
 import { UserReference } from '../../user-management/types'
 import AnnotationsInPage from '@worldbrain/memex-common/lib/content-conversations/ui/components/annotations-in-page'
+import AuthHeader from '../../user-management/ui/containers/auth-header'
 
+const TopBarHeight = 60
 export class ReaderPageView extends UIElement<
     ReaderPageViewDependencies,
     ReaderPageViewState,
@@ -185,6 +187,39 @@ export class ReaderPageView extends UIElement<
         )
     }
 
+    // renderYoutubePlayer = () => {
+    //     // const { youtubeService } = props
+    //     const url = this.state.listData!.url
+
+    //     const getYoutubeId = () => {
+    //         let regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/
+    //         let match = url.match(regExp)
+
+    //         if (match && match[2].length == 11) {
+    //             return match[2]
+    //         } else {
+    //             return 'error'
+    //         }
+    //     }
+
+    //     const playerId = getBlockContentYoutubePlayerId(url)
+
+    //     return (
+    //         <YoutubeIframe
+    //             id={playerId}
+    //             ref={(ref) => {
+    //                 if (ref) {
+    //                     youtubeService!.createYoutubePlayer(playerId, {
+    //                         width: 'fill-available', // yes, these are meant to be strings
+    //                         height: 'fill-available',
+    //                         videoId: getYoutubeId(),
+    //                     })
+    //                 }
+    //             }}
+    //         />
+    //     )
+    // }
+
     render() {
         const style = {
             position: 'relative',
@@ -209,16 +244,25 @@ export class ReaderPageView extends UIElement<
                             padding="5px 10px 5px 5px"
                         />
                     </TopBar>
-                    <InjectedContent
-                        ref={(ref) =>
-                            this.processEvent('setReaderContainerRef', { ref })
-                        }
-                    />
+                    {this.state.isYoutubeVideo ? (
+                        <YoutubeVideoContainer>
+                            {/* {this.renderYoutubePlayer()} */}
+                        </YoutubeVideoContainer>
+                    ) : (
+                        <InjectedContent
+                            ref={(ref) =>
+                                this.processEvent('setReaderContainerRef', {
+                                    ref,
+                                })
+                            }
+                        />
+                    )}
                 </LeftSide>
                 <ContainerStyled
                     width={this.state.sidebarWidth}
                     id={'annotationSidebarContainer'}
                 >
+                    <SidebarTopBar></SidebarTopBar>
                     <Sidebar
                         ref={this.SidebarContainer}
                         style={style}
@@ -270,6 +314,10 @@ export class ReaderPageView extends UIElement<
 
 type TimestampRange = { fromTimestamp: number; toTimestamp: number }
 
+export function getBlockContentYoutubePlayerId(normalizedPageUrl: string) {
+    return `block_content_youtube_player_${normalizedPageUrl}`
+}
+
 function parseRange(
     fromString: string | undefined,
     toString: string | undefined,
@@ -292,14 +340,23 @@ function isInRange(timestamp: number, range: TimestampRange | undefined) {
     return range.fromTimestamp <= timestamp && range.toTimestamp >= timestamp
 }
 
+const YoutubeIframe = styled.div<{}>`
+    border-radius: 8px;
+    min-height: 150px;
+    width: fill-available;
+`
+
 const MainContainer = styled.div`
     display: flex;
+    height: fill-available;
+    overflow: hidden;
 `
 
 const LeftSide = styled.div`
     display: flex;
     flex-direction: column;
     width: fill-available;
+    height: fill-available;
 `
 
 const InjectedContent = styled.div`
@@ -309,13 +366,21 @@ const InjectedContent = styled.div`
     left: 0;
     bottom: 0;
     border: 0px solid;
+    flex: 1;
+`
+
+const YoutubeVideoContainer = styled.div``
+
+const SidebarTopBar = styled.div`
+    height: ${TopBarHeight}px;
+    border-bottom: 1px solid ${(props) => props.theme.colors.greyScale3};
 `
 
 const TopBar = styled.div`
     position: sticky;
     top: 0;
     left: 0;
-    height: 60px;
+    height: ${TopBarHeight}px;
     display: flex;
     align-items: center;
     padding: 0 20px;
@@ -328,19 +393,20 @@ const Sidebar = styled(Rnd)`
     right: 0;
     height: fill-available;
     background: ${(props) => props.theme.colors.black};
-    border-left: 1px solid ${(props) => props.theme.colors.greyScale3};
     overflow: scroll;
+    flex: 1;
 `
 
 const ContainerStyled = styled.div<{ width: number }>`
-    height: 100vh;
+    height: fill-available;
+    display: flex;
+    flex-direction: column;
     overflow-x: visible;
     position: relative;
     top: 0px;
     right: 0px;
     width: ${(props) => props.width}px;
-    /* background: ${(props) => props.theme.colors.black};
-    border-left: 1px solid ${(props) => props.theme.colors.greyScale2}; */
+    border-left: 1px solid ${(props) => props.theme.colors.greyScale3};
     font-family: 'Satoshi', sans-serif;
     font-feature-settings: 'pnum' on, 'lnum' on, 'case' on, 'ss03' on, 'ss04' on,
         'liga' off;
