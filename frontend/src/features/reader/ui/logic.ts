@@ -194,6 +194,12 @@ export class ReaderPageViewLogic extends UILogic<
                     return
                 }
 
+                this.emitMutation({
+                    annotationEntryData: {
+                        $set: { [listEntry.normalizedUrl]: entries },
+                    },
+                })
+
                 if (this.readerContainerRef) {
                     this.initializeReader(
                         this.readerContainerRef,

@@ -72,8 +72,6 @@ export class ReaderPageView extends UIElement<
         //     entry.normalizedUrl,
         // )
 
-        console.log(state.annotationEntryData)
-
         return (
             <AnnotationsInPage
                 originalUrl={entry.originalUrl}
@@ -132,7 +130,7 @@ export class ReaderPageView extends UIElement<
                 onToggleReplies={(event) =>
                     this.processEvent('toggleAnnotationReplies', {
                         ...event,
-                        sharedListReference: this.state.listData?.reference,
+                        sharedListReference: this.state.listData!.reference,
                     })
                 }
                 newPageReplyEventHandlers={{
@@ -149,7 +147,7 @@ export class ReaderPageView extends UIElement<
                             normalizedPageUrl: entry.normalizedUrl,
                             pageCreatorReference: entry.creator,
                             pageReplyId: entry.normalizedUrl,
-                            sharedListReference: this.state.listData?.reference,
+                            sharedListReference: this.state.listData!.reference,
                         }),
                     onNewReplyEdit: ({ content }) =>
                         this.processEvent('editNewReplyToPage', {
@@ -161,23 +159,23 @@ export class ReaderPageView extends UIElement<
                     onNewReplyInitiate: (annotationReference) => () =>
                         this.processEvent('initiateNewReplyToAnnotation', {
                             annotationReference,
-                            sharedListReference: this.state.listData?.reference,
+                            sharedListReference: this.state.listData!.reference,
                         }),
                     onNewReplyCancel: (annotationReference) => () =>
                         this.processEvent('cancelNewReplyToAnnotation', {
                             annotationReference,
-                            sharedListReference: this.state.listData?.reference,
+                            sharedListReference: this.state.listData!.reference,
                         }),
                     onNewReplyConfirm: (annotationReference) => () =>
                         this.processEvent('confirmNewReplyToAnnotation', {
                             annotationReference,
-                            sharedListReference: this.state.listData?.reference,
+                            sharedListReference: this.state.listData!.reference,
                         }),
                     onNewReplyEdit: (annotationReference) => ({ content }) =>
                         this.processEvent('editNewReplyToAnnotation', {
                             annotationReference,
                             content,
-                            sharedListReference: this.state.listData?.reference,
+                            sharedListReference: this.state.listData!.reference,
                         }),
                 }}
                 // onAnnotationBoxRootRef={this.onAnnotEntryRef}
