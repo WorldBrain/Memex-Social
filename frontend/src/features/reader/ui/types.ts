@@ -63,4 +63,8 @@ export type ReaderPageViewEvent = UIEvent<AnnotationConversationEvent> & {
     setSidebarWidth: { width: number }
     reportUrl: { url: string }
     closeInstallTooltip: null
+    installMemexClick: {
+        sharedListReference: SharedListReference
+        urlToOpen: string
+    }
 }

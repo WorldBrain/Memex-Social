@@ -67,6 +67,7 @@ export const injectHtml = (
 
     // Add event listeners for load and error events
     iframe.addEventListener('load', () => {
+        container.appendChild(loadingDiv)
         console.log('Iframe loaded successfully')
         // Remove the loadingDiv and append the iframe
         container.removeChild(loadingDiv)

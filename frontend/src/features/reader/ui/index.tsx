@@ -244,10 +244,12 @@ export class ReaderPageView extends UIElement<
                         <PrimaryAction
                             label="Install Extension"
                             onClick={() =>
-                                window.open(
-                                    'https://chrome.google.com/webstore/detail/memex/abkfbakhjpmblaafnpgjppbmioombali?hl=en',
-                                    '_blank',
-                                )
+                                this.processEvent('installMemexClick', {
+                                    urlToOpen: this.state.listData!.entry
+                                        .originalUrl,
+                                    sharedListReference: this.state.listData!
+                                        .reference,
+                                })
                             }
                             type="secondary"
                             size="medium"

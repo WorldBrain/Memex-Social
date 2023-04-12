@@ -243,6 +243,17 @@ export class ReaderPageViewLogic extends UILogic<
             this.cleanupIframeComms?.()
         }
     }
+    installMemexClick: EventHandler<'installMemexClick'> = async (incoming) => {
+        await trySendingURLToOpenToExtension(
+            incoming.event.urlToOpen,
+            incoming.event.sharedListReference,
+        )
+
+        window.open(
+            'https://chrome.google.com/webstore/detail/memex/abkfbakhjpmblaafnpgjppbmioombali?hl=en',
+            '_blank',
+        )
+    }
     setSidebarWidth: EventHandler<'setSidebarWidth'> = async (incoming) => {
         const { width } = incoming.event
         if (width) {
@@ -480,4 +491,18 @@ export class ReaderPageViewLogic extends UILogic<
             throw e
         }
     }
+}
+
+const trySendingURLToOpenToExtension = async (
+    url: string,
+    sharedListReference: SharedListReference,
+) => {
+    let payload = JSON.stringify({
+        type: 'pageToOpen',
+        originalPageUrl: url,
+        sharedListId: sharedListReference?.id as string,
+    })
+    console.log('sending message to extension', payload.toString())
+
+    localStorage.setItem('urlAndSpaceToOpen', payload.toString())
 }
