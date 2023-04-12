@@ -28,6 +28,14 @@ export default class PageLinkCreationPage extends UIElement<
     }
 
     private renderMainContent() {
+        if (this.state.linkCreationState === 'error') {
+            return (
+                <ErrorBox>
+                    An error was encountered when attempting to create your page
+                    link
+                </ErrorBox>
+            )
+        }
         if (this.state.needsAuth) {
             return <ErrorBox>You need to log in to create a page link</ErrorBox>
         }
