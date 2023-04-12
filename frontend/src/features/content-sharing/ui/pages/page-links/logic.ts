@@ -49,14 +49,14 @@ export default class PageLinkCreationLogic extends UILogic<
         await executeUITask(this, 'linkCreationState', async () => {
             const {
                 remoteListId,
-                remotePageInfoId,
+                remoteListEntryId,
             } = await services.pageLinks.createPageLink({
                 fullPageUrl,
             })
 
             services.router.goTo('pageView', {
                 id: remoteListId.toString(),
-                entryId: remotePageInfoId.toString(),
+                entryId: remoteListEntryId.toString(),
             })
         })
     }

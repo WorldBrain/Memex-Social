@@ -20,8 +20,8 @@ export default class PageLinkService implements PageLinkServiceInterface {
         })
         const {
             remoteListId,
-            remotePageInfoId,
+            remoteListEntryId,
         } = extractIdsFromSinglePageShareUrl(link)
-        return { remoteListId, remotePageInfoId }
+        return { remoteListId, remoteListEntryId }
     }
 }

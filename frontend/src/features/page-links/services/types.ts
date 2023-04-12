@@ -5,6 +5,6 @@ export interface PageLinkServiceInterface {
         fullPageUrl: string
     }) => Promise<{
         remoteListId: AutoPk
-        remotePageInfoId: AutoPk
+        remoteListEntryId: AutoPk
     }>
 }
