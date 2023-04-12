@@ -21,6 +21,7 @@ import {
 import { UserReference } from '../../user-management/types'
 import AnnotationsInPage from '@worldbrain/memex-common/lib/content-conversations/ui/components/annotations-in-page'
 import AuthHeader from '../../user-management/ui/containers/auth-header'
+import { PopoutBox } from '@worldbrain/memex-common/lib/common-ui/components/popout-box'
 
 const TopBarHeight = 60
 const memexLogo = require('../../../assets/img/memex-logo-beta.svg')
@@ -47,6 +48,7 @@ export class ReaderPageView extends UIElement<
     //         | undefined
     // }
     private SidebarContainer = React.createRef<HTMLElement>()
+    private reportButtonRef = React.createRef<HTMLDivElement>()
 
     // get isListContributor(): boolean {
     //     return (
@@ -221,6 +223,41 @@ export class ReaderPageView extends UIElement<
     //     )
     // }
 
+    renderInstallTooltip = () => {
+        if (this.state.showInstallTooltip) {
+            return (
+                <PopoutBox
+                    targetElementRef={this.reportButtonRef.current}
+                    placement="bottom"
+                    closeComponent={() =>
+                        this.processEvent('closeInstallTooltip', null)
+                    }
+                    offsetX={10}
+                >
+                    <TooltipBox>
+                        <Title>Page does not render correctly?</Title>
+                        <Description>
+                            Try installing the Memex browser extension to view,
+                            annotate and reply on the live page.
+                            <br /> And it's just 2 clicks away.
+                        </Description>
+                        <PrimaryAction
+                            label="Install Extension"
+                            onClick={() =>
+                                window.open(
+                                    'https://chrome.google.com/webstore/detail/memex/abkfbakhjpmblaafnpgjppbmioombali?hl=en',
+                                    '_blank',
+                                )
+                            }
+                            type="secondary"
+                            size="medium"
+                        />
+                    </TooltipBox>
+                </PopoutBox>
+            )
+        }
+    }
+
     render() {
         const style = {
             position: 'relative',
@@ -257,6 +294,7 @@ export class ReaderPageView extends UIElement<
                             </BreadCrumbBox>
                         </LeftSideTopBar>
                         <RightSideTopBar>
+                            {this.renderInstallTooltip()}
                             <PrimaryAction
                                 icon={
                                     this.state.reportURLSuccess
@@ -266,6 +304,7 @@ export class ReaderPageView extends UIElement<
                                 type="tertiary"
                                 label={'Report URL'}
                                 size="medium"
+                                innerRef={this.reportButtonRef}
                                 onClick={() =>
                                     this.processEvent('reportUrl', {
                                         url: this.state.listData!.entry
@@ -385,6 +424,31 @@ function isInRange(timestamp: number, range: TimestampRange | undefined) {
     return range.fromTimestamp <= timestamp && range.toTimestamp >= timestamp
 }
 
+const TooltipBox = styled.div`
+    display: flex;
+    flex-direction: column;
+    grid-gap: 10px;
+    padding: 20px;
+    width: 350px;
+    align-items: center;
+`
+
+const Title = styled.div`
+    display: flex;
+    color: ${(props) => props.theme.colors.white};
+    font-size: 16px;
+    font-weight: 600;
+`
+
+const Description = styled.div`
+    display: flex;
+    color: ${(props) => props.theme.colors.greyScale5};
+    font-size: 14px;
+    font-weight: 300;
+    margin-bottom: 5px;
+    text-align: center;
+`
+
 const LeftSideTopBar = styled.div`
     display: flex;
     align-items: center;
@@ -453,6 +517,7 @@ const TopBar = styled.div`
     background: ${(props) => props.theme.colors.black};
     border-bottom: 1px solid ${(props) => props.theme.colors.greyScale3};
     justify-content: space-between;
+    z-index: 10;
 `
 const Sidebar = styled(Rnd)`
     top: 0;

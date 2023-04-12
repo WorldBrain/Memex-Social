@@ -132,6 +132,7 @@ export class ReaderPageViewLogic extends UILogic<
             sidebarWidth: 400,
             isYoutubeVideo: false,
             reportURLSuccess: false,
+            showInstallTooltip: false,
             ...annotationConversationInitialState(),
         }
     }
@@ -265,6 +266,7 @@ export class ReaderPageViewLogic extends UILogic<
 
         this.emitMutation({
             reportURLSuccess: { $set: true },
+            showInstallTooltip: { $set: true },
         })
 
         const date = new Date(Date.now())
@@ -301,6 +303,13 @@ export class ReaderPageViewLogic extends UILogic<
                 })
             }, 2000)
         }
+    }
+    closeInstallTooltip: EventHandler<'closeInstallTooltip'> = async (
+        incoming,
+    ) => {
+        this.emitMutation({
+            showInstallTooltip: { $set: false },
+        })
     }
 
     async initializeReader(ref: HTMLDivElement, originalUrl: string) {
