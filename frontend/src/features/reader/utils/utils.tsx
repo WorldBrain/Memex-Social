@@ -1,3 +1,10 @@
+import React from 'react'
+import ReactDOM from 'react-dom'
+import LoadingIndicator from '@worldbrain/memex-common/lib/common-ui/components/loading-indicator'
+import { ThemeProvider } from 'styled-components'
+import { theme } from '../../../../src/main-ui/styles/theme'
+import styled from 'styled-components'
+
 const convertRelativeUrlsToAbsolute = (html: string, url: string): string => {
     const parser = new DOMParser()
     const doc = parser.parseFromString(html, 'text/html')
@@ -44,9 +51,37 @@ export const injectHtml = (
     iframe.height = '100%'
     iframe.style.border = 'none'
 
+    // Create a div for the loading indicator
+    const loadingDiv = document.createElement('div')
+    container.appendChild(loadingDiv)
+
+    // Render the LoadingIndicator component to the loadingDiv
+    ReactDOM.render(
+        <ThemeProvider theme={theme}>
+            <LoadingBox>
+                <LoadingIndicator size={34} />
+            </LoadingBox>
+        </ThemeProvider>,
+        loadingDiv,
+    )
+
+    // Add event listeners for load and error events
+    iframe.addEventListener('load', () => {
+        console.log('Iframe loaded successfully')
+        // Remove the loadingDiv and append the iframe
+        container.removeChild(loadingDiv)
+    })
     container.appendChild(iframe)
 
     const blob = new Blob([htmlWithFixedPaths], { type: 'text/html' })
     const blobUrl = URL.createObjectURL(blob)
     iframe.src = blobUrl
 }
+
+const LoadingBox = styled.div`
+    display: flex;
+    align-items: center;
+    height: 600px;
+    width: fill-available;
+    justify-content: center;
+`
