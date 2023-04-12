@@ -177,6 +177,8 @@ export class ReaderPageViewLogic extends UILogic<
                     })
                 }
 
+                console.log('result', result)
+
                 this.emitMutation({
                     listData: {
                         $set: {

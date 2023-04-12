@@ -23,6 +23,7 @@ import AnnotationsInPage from '@worldbrain/memex-common/lib/content-conversation
 import AuthHeader from '../../user-management/ui/containers/auth-header'
 
 const TopBarHeight = 60
+const memexLogo = require('../../../assets/img/memex-logo-beta.svg')
 export class ReaderPageView extends UIElement<
     ReaderPageViewDependencies,
     ReaderPageViewState,
@@ -233,13 +234,38 @@ export class ReaderPageView extends UIElement<
             <MainContainer>
                 <LeftSide>
                     <TopBar>
-                        {/* <Logo /> */}
+                        <LeftSideTopBar>
+                            <Logo src={memexLogo} />
+                            <BreadCrumbBox>
+                                {this.state.listData &&
+                                    this.state.listData?.list.type !==
+                                        'page-link' && (
+                                        <PrimaryAction
+                                            icon="arrowLeft"
+                                            type="tertiary"
+                                            size="medium"
+                                            label={this.state.listData?.title}
+                                            onClick={() =>
+                                                window.open(
+                                                    this.state.listData?.url,
+                                                    '_self',
+                                                )
+                                            }
+                                            padding="5px 10px 5px 5px"
+                                        />
+                                    )}
+                            </BreadCrumbBox>
+                        </LeftSideTopBar>
                         <PrimaryAction
-                            icon="arrowLeft"
-                            type="tertiary"
-                            label={this.state.listData?.title}
+                            icon="plus"
+                            type="primary"
+                            label={'New'}
+                            size="medium"
                             onClick={() =>
-                                window.open(this.state.listData?.url, '_self')
+                                window.open(
+                                    'https://memex.garden/discuss',
+                                    '_blank',
+                                )
                             }
                             padding="5px 10px 5px 5px"
                         />
@@ -340,6 +366,17 @@ function isInRange(timestamp: number, range: TimestampRange | undefined) {
     return range.fromTimestamp <= timestamp && range.toTimestamp >= timestamp
 }
 
+const LeftSideTopBar = styled.div`
+    display: flex;
+    align-items: center;
+    grid-gap: 10px;
+`
+
+const Logo = styled.img`
+    height: 24px;
+    width: 150px;
+`
+
 const YoutubeIframe = styled.div<{}>`
     border-radius: 8px;
     min-height: 150px;
@@ -369,6 +406,10 @@ const InjectedContent = styled.div`
     flex: 1;
 `
 
+const BreadCrumbBox = styled.div`
+    display: flex;
+`
+
 const YoutubeVideoContainer = styled.div``
 
 const SidebarTopBar = styled.div`
@@ -387,6 +428,7 @@ const TopBar = styled.div`
     width: fill-available;
     background: ${(props) => props.theme.colors.black};
     border-bottom: 1px solid ${(props) => props.theme.colors.greyScale3};
+    justify-content: space-between;
 `
 const Sidebar = styled(Rnd)`
     top: 0;
