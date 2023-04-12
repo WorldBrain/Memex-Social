@@ -11,6 +11,7 @@ import ROUTES from '../routes'
 import UserHome from './pages/user-home'
 import NotFound from './pages/not-found'
 import LandingPage from './pages/landing-page'
+import PageLinkCreationPage from '../features/content-sharing/ui/pages/page-links'
 import CollectionDetailsPage from '../features/content-sharing/ui/pages/collection-details'
 import AnnotationDetailsPage from '../features/content-sharing/ui/pages/annotation-details'
 import PageDetailsPage from '../features/content-sharing/ui/pages/page-details'
@@ -72,6 +73,23 @@ export default class Routes extends React.Component<Props> {
                                 <HomeFeedPage
                                     services={this.props.services}
                                     storage={serverModules}
+                                />
+                            )
+                        }}
+                    />
+                    <Route
+                        exact
+                        path={getReactRoutePattern(
+                            ROUTES.pageLinkCreation.path,
+                        )}
+                        render={(route) => {
+                            return (
+                                <PageLinkCreationPage
+                                    services={this.props.services}
+                                    storage={this.props.storage.serverModules}
+                                    fullPageUrl={decodeURIComponent(
+                                        route.match.params.url,
+                                    )}
                                 />
                             )
                         }}
