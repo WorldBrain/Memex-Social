@@ -131,6 +131,7 @@ export class ReaderPageViewLogic extends UILogic<
             annotations: {},
             sidebarWidth: 400,
             isYoutubeVideo: false,
+            reportURLSuccess: false,
             ...annotationConversationInitialState(),
         }
     }
@@ -176,8 +177,6 @@ export class ReaderPageViewLogic extends UILogic<
                         isYoutubeVideo: { $set: true },
                     })
                 }
-
-                console.log('result', result)
 
                 this.emitMutation({
                     listData: {
@@ -249,6 +248,58 @@ export class ReaderPageViewLogic extends UILogic<
             this.emitMutation({
                 sidebarWidth: { $set: width },
             })
+        }
+    }
+    reportUrl: EventHandler<'reportUrl'> = async (incoming) => {
+        const { url } = incoming.event
+
+        console.log('url', url)
+
+        const isStaging =
+            process.env.REACT_APP_FIREBASE_PROJECT_ID?.includes('staging') ||
+            process.env.NODE_ENV === 'development'
+
+        const baseUrl = isStaging
+            ? 'https://cloudflare-memex-staging.memex.workers.dev'
+            : 'https://cloudfare-memex.memex.workers.dev'
+
+        this.emitMutation({
+            reportURLSuccess: { $set: true },
+        })
+
+        const date = new Date(Date.now())
+        const formattedDate = `${
+            (date.getDate() < 10 ? '0' : '') + date.getDate()
+        }.${
+            (date.getMonth() + 1 < 10 ? '0' : '') + (date.getMonth() + 1)
+        }.${date.getFullYear().toString().slice(-2)} ${
+            (date.getHours() < 10 ? '0' : '') + date.getHours()
+        }:${(date.getMinutes() < 10 ? '0' : '') + date.getMinutes()}:${
+            (date.getSeconds() < 10 ? '0' : '') + date.getSeconds()
+        }`
+
+        const dateFormatted = formattedDate.toString()
+
+        try {
+            await fetch(baseUrl + '/report-url', {
+                method: 'POST',
+                body: JSON.stringify({
+                    url,
+                    date: dateFormatted,
+                }),
+                headers: { 'Content-Type': 'application/json' },
+            })
+            setTimeout(() => {
+                this.emitMutation({
+                    reportURLSuccess: { $set: false },
+                })
+            }, 2000)
+        } catch (e) {
+            setTimeout(() => {
+                this.emitMutation({
+                    reportURLSuccess: { $set: false },
+                })
+            }, 2000)
         }
     }
 

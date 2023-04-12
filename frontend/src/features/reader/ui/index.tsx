@@ -256,19 +256,38 @@ export class ReaderPageView extends UIElement<
                                     )}
                             </BreadCrumbBox>
                         </LeftSideTopBar>
-                        <PrimaryAction
-                            icon="plus"
-                            type="primary"
-                            label={'New'}
-                            size="medium"
-                            onClick={() =>
-                                window.open(
-                                    'https://memex.garden/discuss',
-                                    '_blank',
-                                )
-                            }
-                            padding="5px 10px 5px 5px"
-                        />
+                        <RightSideTopBar>
+                            <PrimaryAction
+                                icon={
+                                    this.state.reportURLSuccess
+                                        ? 'check'
+                                        : 'warning'
+                                }
+                                type="tertiary"
+                                label={'Report URL'}
+                                size="medium"
+                                onClick={() =>
+                                    this.processEvent('reportUrl', {
+                                        url: this.state.listData!.entry
+                                            .originalUrl,
+                                    })
+                                }
+                                padding="5px 10px 5px 5px"
+                            />
+                            <PrimaryAction
+                                icon="plus"
+                                type="primary"
+                                label={'New'}
+                                size="medium"
+                                onClick={() =>
+                                    window.open(
+                                        'https://memex.garden/discuss',
+                                        '_blank',
+                                    )
+                                }
+                                padding="5px 10px 5px 5px"
+                            />
+                        </RightSideTopBar>
                     </TopBar>
                     {this.state.isYoutubeVideo ? (
                         <YoutubeVideoContainer>
@@ -367,6 +386,11 @@ function isInRange(timestamp: number, range: TimestampRange | undefined) {
 }
 
 const LeftSideTopBar = styled.div`
+    display: flex;
+    align-items: center;
+    grid-gap: 10px;
+`
+const RightSideTopBar = styled.div`
     display: flex;
     align-items: center;
     grid-gap: 10px;
