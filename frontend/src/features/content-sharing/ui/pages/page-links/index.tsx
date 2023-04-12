@@ -42,8 +42,8 @@ export default class PageLinkCreationPage extends UIElement<
 
         return (
             <MainContainer>
-                <MainText>Going to create page link for:</MainText>
-                <MainText>{this.props.fullPageUrl}</MainText>
+                <MainText>Preparing conversation space for</MainText>
+                <SubText>{this.props.fullPageUrl}</SubText>
                 <LoadingIndicator />
             </MainContainer>
         )
@@ -65,8 +65,15 @@ export default class PageLinkCreationPage extends UIElement<
 const MainContainer = styled.div`
     display: flex;
     flex-direction: column;
+    grid-gap: 10px;
+    align-items: center;
+    justify-content: center;
 `
 
 const MainText = styled.div`
-    color: white;
+    color: ${(props) => props.theme.colors.white};
+`
+const SubText = styled.div`
+    color: ${(props) => props.theme.colors.greyScale5};
+    margin-bottom: 40px;
 `
