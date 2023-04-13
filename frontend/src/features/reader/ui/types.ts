@@ -24,15 +24,7 @@ export interface ReaderPageViewDependencies {
     >
     storage: Pick<
         StorageModules,
-        | 'contentSharing'
-        | 'contentConversations'
-        | 'users'
-        | 'slack'
-        | 'slackRetroSync'
-        | 'discord'
-        | 'discordRetroSync'
-        | 'activityStreams'
-        | 'activityFollows'
+        'contentSharing' | 'contentConversations' | 'users'
     >
     listID: string
     entryID: string

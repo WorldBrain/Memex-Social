@@ -227,7 +227,7 @@ export class ReaderPageView extends UIElement<
         if (this.state.showInstallTooltip) {
             return (
                 <PopoutBox
-                    targetElementRef={this.reportButtonRef.current}
+                    targetElementRef={this.reportButtonRef.current ?? undefined}
                     placement="bottom"
                     closeComponent={() =>
                         this.processEvent('closeInstallTooltip', null)
