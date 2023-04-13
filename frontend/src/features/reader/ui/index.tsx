@@ -22,9 +22,11 @@ import { UserReference } from '../../user-management/types'
 import AnnotationsInPage from '@worldbrain/memex-common/lib/content-conversations/ui/components/annotations-in-page'
 import AuthHeader from '../../user-management/ui/containers/auth-header'
 import { PopoutBox } from '@worldbrain/memex-common/lib/common-ui/components/popout-box'
+import { getSinglePageShareUrl } from '@worldbrain/memex-common/lib/content-sharing/utils'
 
 const TopBarHeight = 60
 const memexLogo = require('../../../assets/img/memex-logo-beta.svg')
+
 export class ReaderPageView extends UIElement<
     ReaderPageViewDependencies,
     ReaderPageViewState,
@@ -56,6 +58,27 @@ export class ReaderPageView extends UIElement<
     //         !!this.state.listRoleID
     //     )
     // }
+
+    private get pageLinks(): { reader: string; collab: string | null } | null {
+        const pageLinkIds = {
+            remoteListEntryId: this.props.entryID,
+            remoteListId: this.props.listID,
+        }
+
+        if (this.state.collaborationKeyState !== 'success') {
+            return null // Still loading
+        }
+
+        return {
+            reader: getSinglePageShareUrl(pageLinkIds),
+            collab: this.state.collaborationKey
+                ? getSinglePageShareUrl({
+                      ...pageLinkIds,
+                      collaborationKey: this.state.collaborationKey,
+                  })
+                : null,
+        }
+    }
 
     getAnnotation(
         annotationEntry: SharedAnnotationListEntry & {

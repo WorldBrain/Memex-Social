@@ -6,6 +6,7 @@ import { GetAnnotationListEntriesElement } from '@worldbrain/memex-common/lib/co
 import {
     SharedAnnotationReference,
     SharedListReference,
+    SharedListRoleID,
 } from '@worldbrain/memex-common/lib/content-sharing/types'
 import { makeStorageReference } from '@worldbrain/memex-common/lib/storage/references'
 import { UserReference } from '@worldbrain/memex-common/lib/web-interface/types/users'
@@ -130,6 +131,8 @@ export class ReaderPageViewLogic extends UILogic<
             annotationLoadStates: {},
             annotations: {},
             sidebarWidth: 400,
+            collaborationKey: null,
+            collaborationKeyState: 'pristine',
             isYoutubeVideo: false,
             reportURLSuccess: false,
             showInstallTooltip: false,
@@ -139,12 +142,57 @@ export class ReaderPageViewLogic extends UILogic<
 
     init: EventHandler<'init'> = async () => {
         const { contentSharing } = this.dependencies.storage
+        const { auth } = this.dependencies.services
         const listReference = makeStorageReference<SharedListReference>(
             'shared-list-reference',
             this.dependencies.listID,
         )
 
-        await executeUITask<ReaderPageViewState>(
+        const loadCollabKeyPromise = executeUITask<ReaderPageViewState>(
+            this,
+            'collaborationKeyState',
+            async () => {
+                await auth.waitForAuth()
+                const userReference = auth.getCurrentUserReference()
+                if (!userReference) {
+                    return
+                }
+
+                // Ensure the current user has a role in this list elevated enough to share collaboration keys
+                const listRoles = await contentSharing.getUserListRoles({
+                    userReference,
+                })
+                const currentListRole = listRoles.find(
+                    (role) =>
+                        role.sharedList.id.toString() ===
+                        this.dependencies.listID,
+                )
+                if (
+                    !currentListRole ||
+                    currentListRole.roleID <= SharedListRoleID.SuggestOnly
+                ) {
+                    return
+                }
+
+                const collaborationKeys = await contentSharing.getListKeys({
+                    listReference,
+                })
+                const collaborationKey = collaborationKeys.find(
+                    (key) => key.roleID === SharedListRoleID.ReadWrite,
+                )
+                if (!collaborationKey) {
+                    return
+                }
+
+                this.emitMutation({
+                    collaborationKey: {
+                        $set: collaborationKey.reference.id.toString(),
+                    },
+                })
+            },
+        )
+
+        const loadListPromise = executeUITask<ReaderPageViewState>(
             this,
             'listLoadState',
             async () => {
@@ -223,6 +271,8 @@ export class ReaderPageViewLogic extends UILogic<
                 )
             },
         )
+
+        await Promise.all([loadListPromise, loadCollabKeyPromise])
     }
 
     cleanup: EventHandler<'cleanup'> = async () => {

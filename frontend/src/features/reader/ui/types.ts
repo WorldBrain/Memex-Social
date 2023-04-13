@@ -29,6 +29,7 @@ export interface ReaderPageViewDependencies {
     listID: string
     entryID: string
 }
+
 export type ReaderPageViewState = AnnotationConversationsState & {
     users: { [id: string]: Pick<User, 'displayName' | 'platform'> }
     listLoadState: UITaskState
@@ -49,7 +50,10 @@ export type ReaderPageViewState = AnnotationConversationsState & {
     isYoutubeVideo: boolean
     reportURLSuccess: boolean
     showInstallTooltip: boolean
+    collaborationKey: string | null
+    collaborationKeyState: UITaskState
 }
+
 export type ReaderPageViewEvent = UIEvent<AnnotationConversationEvent> & {
     setReaderContainerRef: { ref: HTMLDivElement | null }
     setSidebarWidth: { width: number }
