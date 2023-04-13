@@ -61,13 +61,17 @@ export type ReaderPageViewState = AnnotationConversationsState & {
     collaborationKeyLoadState: UITaskState
     joinListState: UITaskState
     joinListResult: ProcessSharedListKeyResult | null
+    showShareMenu: boolean
+    linkCopiedToClipBoard: boolean
 }
 
 export type ReaderPageViewEvent = UIEvent<AnnotationConversationEvent> & {
     setReaderContainerRef: { ref: HTMLDivElement | null }
     setSidebarWidth: { width: number }
     reportUrl: { url: string }
+    copyLink: { url: string }
     closeInstallTooltip: null
+    showSharePageMenu: null
     installMemexClick: {
         sharedListReference: SharedListReference
         urlToOpen: string

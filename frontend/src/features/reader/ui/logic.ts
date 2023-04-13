@@ -138,6 +138,8 @@ export class ReaderPageViewLogic extends UILogic<
             isYoutubeVideo: false,
             reportURLSuccess: false,
             showInstallTooltip: false,
+            showShareMenu: false,
+            linkCopiedToClipBoard: false,
             ...annotationConversationInitialState(),
         }
     }
@@ -186,6 +188,7 @@ export class ReaderPageViewLogic extends UILogic<
                 const listRoles = await contentSharing.getUserListRoles({
                     userReference,
                 })
+
                 const currentListRole = listRoles.find(
                     (role) =>
                         role.sharedList.id.toString() ===
@@ -201,6 +204,7 @@ export class ReaderPageViewLogic extends UILogic<
                 const collaborationKeys = await contentSharing.getListKeys({
                     listReference,
                 })
+
                 const collaborationKey = collaborationKeys.find(
                     (key) => key.roleID === SharedListRoleID.ReadWrite,
                 )
@@ -343,8 +347,6 @@ export class ReaderPageViewLogic extends UILogic<
     reportUrl: EventHandler<'reportUrl'> = async (incoming) => {
         const { url } = incoming.event
 
-        console.log('url', url)
-
         const isStaging =
             process.env.REACT_APP_FIREBASE_PROJECT_ID?.includes('staging') ||
             process.env.NODE_ENV === 'development'
@@ -399,6 +401,25 @@ export class ReaderPageViewLogic extends UILogic<
         this.emitMutation({
             showInstallTooltip: { $set: false },
         })
+    }
+    showSharePageMenu: EventHandler<'showSharePageMenu'> = async (incoming) => {
+        this.emitMutation({
+            showShareMenu: { $set: !incoming.previousState.showShareMenu },
+        })
+    }
+    copyLink: EventHandler<'copyLink'> = async (incoming) => {
+        this.emitMutation({
+            linkCopiedToClipBoard: { $set: true },
+        })
+
+        // add incoming.url to clipboard
+        navigator.clipboard.writeText(incoming.event.url)
+
+        setTimeout(() => {
+            this.emitMutation({
+                linkCopiedToClipBoard: { $set: false },
+            })
+        }, 2000)
     }
 
     async initializeReader(ref: HTMLDivElement, originalUrl: string) {

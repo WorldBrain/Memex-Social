@@ -51,6 +51,7 @@ export class ReaderPageView extends UIElement<
     // }
     private SidebarContainer = React.createRef<HTMLElement>()
     private reportButtonRef = React.createRef<HTMLDivElement>()
+    private sharePageButton = React.createRef<HTMLDivElement>()
 
     // get isListContributor(): boolean {
     //     return (
@@ -282,6 +283,81 @@ export class ReaderPageView extends UIElement<
             )
         }
     }
+    renderShareTooltip = () => {
+        if (this.state.showShareMenu) {
+            return (
+                <PopoutBox
+                    targetElementRef={this.sharePageButton.current ?? undefined}
+                    placement="bottom"
+                    closeComponent={() =>
+                        this.processEvent('showSharePageMenu', null)
+                    }
+                    offsetX={10}
+                >
+                    <TooltipBox>
+                        {this.state.linkCopiedToClipBoard ? (
+                            <>
+                                <Icon
+                                    filePath="checkRound"
+                                    heightAndWidth="30px"
+                                    hoverOff
+                                />
+                                <Title>Copied to Clipboard</Title>
+                            </>
+                        ) : (
+                            <>
+                                <Title>Invite Links</Title>
+                                <LinksContainer>
+                                    <LinkTitle>Read & Reply</LinkTitle>
+                                    <LinkBox>
+                                        <LinkField>
+                                            {window.location.href}
+                                        </LinkField>
+                                        <PrimaryAction
+                                            type="secondary"
+                                            size="small"
+                                            icon={'copy'}
+                                            label={'copy'}
+                                            padding={'4px 10px 4px 5px'}
+                                            onClick={() =>
+                                                this.processEvent('copyLink', {
+                                                    url: window.location.href,
+                                                })
+                                            }
+                                        />
+                                    </LinkBox>
+                                    <LinkTitle>Annotate & Reply</LinkTitle>
+                                    <LinkBox>
+                                        <LinkField>
+                                            {window.location.href +
+                                                '/' +
+                                                this.state.collaborationKey}
+                                        </LinkField>
+                                        <PrimaryAction
+                                            type="secondary"
+                                            size="small"
+                                            icon={'copy'}
+                                            label={'copy'}
+                                            padding={'4px 10px 4px 5px'}
+                                            onClick={() =>
+                                                this.processEvent('copyLink', {
+                                                    url:
+                                                        window.location.href +
+                                                        '/' +
+                                                        this.state
+                                                            .collaborationKey,
+                                                })
+                                            }
+                                        />
+                                    </LinkBox>
+                                </LinksContainer>
+                            </>
+                        )}
+                    </TooltipBox>
+                </PopoutBox>
+            )
+        }
+    }
 
     render() {
         const style = {
@@ -320,6 +396,7 @@ export class ReaderPageView extends UIElement<
                         </LeftSideTopBar>
                         <RightSideTopBar>
                             {this.renderInstallTooltip()}
+                            {this.renderShareTooltip()}
                             <PrimaryAction
                                 icon={
                                     this.state.reportURLSuccess
@@ -335,6 +412,17 @@ export class ReaderPageView extends UIElement<
                                         url: this.state.listData!.entry
                                             .originalUrl,
                                     })
+                                }
+                                padding="5px 10px 5px 5px"
+                            />
+                            <PrimaryAction
+                                icon={'invite'}
+                                type="tertiary"
+                                label={'Share Page'}
+                                size="medium"
+                                innerRef={this.sharePageButton}
+                                onClick={() =>
+                                    this.processEvent('showSharePageMenu', null)
                                 }
                                 padding="5px 10px 5px 5px"
                             />
@@ -453,6 +541,41 @@ function isInRange(timestamp: number, range: TimestampRange | undefined) {
     }
     return range.fromTimestamp <= timestamp && range.toTimestamp >= timestamp
 }
+
+const LinksContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: fill-available;
+`
+
+const LinkTitle = styled.div`
+    display: flex;
+    color: ${(props) => props.theme.colors.greyScale5};
+    font-size: 14px;
+    font-weight: 300;
+    margin-bottom: 5px;
+    margin-top: 15px;
+    text-align: center;
+`
+
+const LinkBox = styled.div`
+    display: flex;
+    grid-gap: 5px;
+    width: -webkit-fill-available;
+`
+
+const LinkField = styled.div`
+    display: flex;
+    background: ${(props) => props.theme.colors.greyScale2};
+    color: ${(props) => props.theme.colors.greyScale4};
+    border-radius: 5px;
+    align-items: center;
+    overflow: scroll;
+    text-overflow: ellipsis;
+    padding: 0 10px;
+    font-size: 12px;
+`
 
 const TooltipBox = styled.div`
     display: flex;
