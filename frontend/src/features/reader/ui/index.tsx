@@ -371,7 +371,12 @@ export class ReaderPageView extends UIElement<
                     width={this.state.sidebarWidth}
                     id={'annotationSidebarContainer'}
                 >
-                    <SidebarTopBar></SidebarTopBar>
+                    <SidebarTopBar>
+                        <AuthHeader
+                            services={this.props.services}
+                            storage={this.props.storage}
+                        />
+                    </SidebarTopBar>
                     <Sidebar
                         ref={this.SidebarContainer}
                         style={style}

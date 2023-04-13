@@ -21,7 +21,13 @@ import { UserReference } from '../../user-management/types'
 
 export interface ReaderPageViewDependencies {
     services: UIElementServices<
-        'auth' | 'contentConversations' | 'userMessages' | 'listKeys' | 'router'
+        | 'auth'
+        | 'contentConversations'
+        | 'userMessages'
+        | 'listKeys'
+        | 'router'
+        | 'overlay'
+        | 'userManagement'
     >
     storage: Pick<
         StorageModules,
