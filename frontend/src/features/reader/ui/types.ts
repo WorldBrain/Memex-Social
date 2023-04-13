@@ -1,3 +1,4 @@
+import type { ProcessSharedListKeyResult } from '@worldbrain/memex-common/lib/content-sharing/service/types'
 import {
     GetAnnotationListEntriesResult,
     GetAnnotationsResult,
@@ -20,7 +21,7 @@ import { UserReference } from '../../user-management/types'
 
 export interface ReaderPageViewDependencies {
     services: UIElementServices<
-        'auth' | 'contentConversations' | 'userMessages'
+        'auth' | 'contentConversations' | 'userMessages' | 'listKeys' | 'router'
     >
     storage: Pick<
         StorageModules,
@@ -51,7 +52,9 @@ export type ReaderPageViewState = AnnotationConversationsState & {
     reportURLSuccess: boolean
     showInstallTooltip: boolean
     collaborationKey: string | null
-    collaborationKeyState: UITaskState
+    collaborationKeyLoadState: UITaskState
+    joinListState: UITaskState
+    joinListResult: ProcessSharedListKeyResult | null
 }
 
 export type ReaderPageViewEvent = UIEvent<AnnotationConversationEvent> & {

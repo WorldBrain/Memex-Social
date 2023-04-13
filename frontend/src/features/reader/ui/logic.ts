@@ -132,7 +132,9 @@ export class ReaderPageViewLogic extends UILogic<
             annotations: {},
             sidebarWidth: 400,
             collaborationKey: null,
-            collaborationKeyState: 'pristine',
+            collaborationKeyLoadState: 'pristine',
+            joinListState: 'pristine',
+            joinListResult: null,
             isYoutubeVideo: false,
             reportURLSuccess: false,
             showInstallTooltip: false,
@@ -142,19 +144,41 @@ export class ReaderPageViewLogic extends UILogic<
 
     init: EventHandler<'init'> = async () => {
         const { contentSharing } = this.dependencies.storage
-        const { auth } = this.dependencies.services
+        const { auth, router, listKeys } = this.dependencies.services
         const listReference = makeStorageReference<SharedListReference>(
             'shared-list-reference',
             this.dependencies.listID,
         )
 
+        const joinListPromise = executeUITask<ReaderPageViewState>(
+            this,
+            'joinListState',
+            async () => {
+                const keyString = router.getQueryParam('key')
+                if (!keyString?.length) {
+                    return
+                }
+
+                await auth.waitForAuth()
+                const { result } = await listKeys.processCurrentKey()
+                this.emitMutation({ joinListResult: { $set: result } })
+            },
+        )
+
         const loadCollabKeyPromise = executeUITask<ReaderPageViewState>(
             this,
-            'collaborationKeyState',
+            'collaborationKeyLoadState',
             async () => {
                 await auth.waitForAuth()
                 const userReference = auth.getCurrentUserReference()
                 if (!userReference) {
+                    return
+                }
+
+                // Shortcut: Use the key from the URL param if it's present
+                const keyString = router.getQueryParam('key')
+                if (keyString?.length) {
+                    this.emitMutation({ collaborationKey: { $set: keyString } })
                     return
                 }
 
@@ -272,7 +296,11 @@ export class ReaderPageViewLogic extends UILogic<
             },
         )
 
-        await Promise.all([loadListPromise, loadCollabKeyPromise])
+        await Promise.all([
+            loadListPromise,
+            loadCollabKeyPromise,
+            joinListPromise,
+        ])
     }
 
     cleanup: EventHandler<'cleanup'> = async () => {

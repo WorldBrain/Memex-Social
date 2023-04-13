@@ -65,7 +65,7 @@ export class ReaderPageView extends UIElement<
             remoteListId: this.props.listID,
         }
 
-        if (this.state.collaborationKeyState !== 'success') {
+        if (this.state.collaborationKeyLoadState !== 'success') {
             return null // Still loading
         }
 
