@@ -23,6 +23,7 @@ import AnnotationsInPage from '@worldbrain/memex-common/lib/content-conversation
 import AuthHeader from '../../user-management/ui/containers/auth-header'
 import { PopoutBox } from '@worldbrain/memex-common/lib/common-ui/components/popout-box'
 import { getSinglePageShareUrl } from '@worldbrain/memex-common/lib/content-sharing/utils'
+import LoadingIndicator from '@worldbrain/memex-common/lib/common-ui/components/loading-indicator'
 
 const TopBarHeight = 60
 const memexLogo = require('../../../assets/img/memex-logo-beta.svg')
@@ -284,6 +285,8 @@ export class ReaderPageView extends UIElement<
         }
     }
     renderShareTooltip = () => {
+        const links = this.pageLinks
+
         if (this.state.showShareMenu) {
             return (
                 <PopoutBox
@@ -307,50 +310,58 @@ export class ReaderPageView extends UIElement<
                         ) : (
                             <>
                                 <Title>Invite Links</Title>
-                                <LinksContainer>
-                                    <LinkTitle>Read & Reply</LinkTitle>
-                                    <LinkBox>
-                                        <LinkField>
-                                            {window.location.href}
-                                        </LinkField>
-                                        <PrimaryAction
-                                            type="secondary"
-                                            size="small"
-                                            icon={'copy'}
-                                            label={'copy'}
-                                            padding={'4px 10px 4px 5px'}
-                                            onClick={() =>
-                                                this.processEvent('copyLink', {
-                                                    url: window.location.href,
-                                                })
-                                            }
-                                        />
-                                    </LinkBox>
-                                    <LinkTitle>Annotate & Reply</LinkTitle>
-                                    <LinkBox>
-                                        <LinkField>
-                                            {window.location.href +
-                                                '/' +
-                                                this.state.collaborationKey}
-                                        </LinkField>
-                                        <PrimaryAction
-                                            type="secondary"
-                                            size="small"
-                                            icon={'copy'}
-                                            label={'copy'}
-                                            padding={'4px 10px 4px 5px'}
-                                            onClick={() =>
-                                                this.processEvent('copyLink', {
-                                                    url:
-                                                        window.location.href +
-                                                        '/' +
-                                                        this.state
-                                                            .collaborationKey,
-                                                })
-                                            }
-                                        />
-                                    </LinkBox>
-                                </LinksContainer>
+                                {links?.collab != null &&
+                                this.state.collaborationKeyLoadState ===
+                                    'success' ? (
+                                    <LinksContainer>
+                                        <LinkTitle>Read & Reply</LinkTitle>
+                                        <LinkBox>
+                                            <LinkField>
+                                                {links!.reader}
+                                            </LinkField>
+                                            <PrimaryAction
+                                                type="secondary"
+                                                size="small"
+                                                icon={'copy'}
+                                                label={'copy'}
+                                                padding={'4px 10px 4px 5px'}
+                                                onClick={() =>
+                                                    this.processEvent(
+                                                        'copyLink',
+                                                        {
+                                                            url: links!.reader,
+                                                        },
+                                                    )
+                                                }
+                                            />
+                                        </LinkBox>
+                                        <LinkTitle>Annotate & Reply</LinkTitle>
+                                        <LinkBox>
+                                            <LinkField>
+                                                {links!.collab}
+                                            </LinkField>
+                                            <PrimaryAction
+                                                type="secondary"
+                                                size="small"
+                                                icon={'copy'}
+                                                label={'copy'}
+                                                padding={'4px 10px 4px 5px'}
+                                                onClick={() =>
+                                                    this.processEvent(
+                                                        'copyLink',
+                                                        {
+                                                            url: links!.collab,
+                                                        },
+                                                    )
+                                                }
+                                            />
+                                        </LinkBox>
+                                    </LinksContainer>
+                                ) : (
+                                    <LoadingBox>
+                                        <LoadingIndicator size={20} />
+                                    </LoadingBox>
+                                )}
                             </>
                         )}
                     </TooltipBox>
@@ -415,17 +426,23 @@ export class ReaderPageView extends UIElement<
                                 }
                                 padding="5px 10px 5px 5px"
                             />
-                            <PrimaryAction
-                                icon={'invite'}
-                                type="tertiary"
-                                label={'Share Page'}
-                                size="medium"
-                                innerRef={this.sharePageButton}
-                                onClick={() =>
-                                    this.processEvent('showSharePageMenu', null)
-                                }
-                                padding="5px 10px 5px 5px"
-                            />
+                            {this.state.collaborationKeyLoadState ===
+                                'success' && (
+                                <PrimaryAction
+                                    icon={'invite'}
+                                    type="tertiary"
+                                    label={'Share Page'}
+                                    size="medium"
+                                    innerRef={this.sharePageButton}
+                                    onClick={() =>
+                                        this.processEvent(
+                                            'showSharePageMenu',
+                                            null,
+                                        )
+                                    }
+                                    padding="5px 10px 5px 5px"
+                                />
+                            )}
                             <PrimaryAction
                                 icon="plus"
                                 type="primary"
@@ -542,6 +559,14 @@ function isInRange(timestamp: number, range: TimestampRange | undefined) {
     return range.fromTimestamp <= timestamp && range.toTimestamp >= timestamp
 }
 
+const LoadingBox = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50px;
+    width: 100%;
+`
+
 const LinksContainer = styled.div`
     display: flex;
     flex-direction: column;
@@ -575,6 +600,7 @@ const LinkField = styled.div`
     text-overflow: ellipsis;
     padding: 0 10px;
     font-size: 12px;
+    white-space: nowrap;
 `
 
 const TooltipBox = styled.div`
@@ -656,6 +682,10 @@ const YoutubeVideoContainer = styled.div``
 const SidebarTopBar = styled.div`
     height: ${TopBarHeight}px;
     border-bottom: 1px solid ${(props) => props.theme.colors.greyScale3};
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    justify-content: flex-end;
 `
 
 const TopBar = styled.div`

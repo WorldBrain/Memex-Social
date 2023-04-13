@@ -69,7 +69,7 @@ export type ReaderPageViewEvent = UIEvent<AnnotationConversationEvent> & {
     setReaderContainerRef: { ref: HTMLDivElement | null }
     setSidebarWidth: { width: number }
     reportUrl: { url: string }
-    copyLink: { url: string }
+    copyLink: { url: string | null }
     closeInstallTooltip: null
     showSharePageMenu: null
     installMemexClick: {

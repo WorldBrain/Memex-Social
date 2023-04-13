@@ -67,8 +67,9 @@ const MenuContainerInner = styled.div`
 const LoadingBox = styled.div`
     display: flex;
     position: relative;
-    right: 10px;
-    top: 10px;
+    right: 24px;
+    height: 100%;
+    align-items: center;
 `
 
 export default class AuthHeader extends UIElement<

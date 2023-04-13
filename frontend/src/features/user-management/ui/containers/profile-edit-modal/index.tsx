@@ -225,7 +225,7 @@ export default class ProfileEditModal extends UIElement<
                         />
                     </Margin>
                 ))}
-                <Margin top="largest" bottom="small">
+                {/* <Margin top="largest" bottom="small">
                     <SectionHeader>Web Monetization Settings</SectionHeader>
                 </Margin>
                 <InfoText>
@@ -253,7 +253,7 @@ export default class ProfileEditModal extends UIElement<
                         )
                     }
                     placeholder={'Add your payment pointer'}
-                />
+                /> */}
 
                 <Margin top="largest" bottom={'medium'}>
                     <SectionHeader theme={theme}>

@@ -413,7 +413,9 @@ export class ReaderPageViewLogic extends UILogic<
         })
 
         // add incoming.url to clipboard
-        navigator.clipboard.writeText(incoming.event.url)
+        if (incoming.event.url != null) {
+            navigator.clipboard.writeText(incoming.event.url)
+        }
 
         setTimeout(() => {
             this.emitMutation({
