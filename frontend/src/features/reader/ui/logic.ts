@@ -196,8 +196,9 @@ export class ReaderPageViewLogic extends UILogic<
                 )
                 if (
                     !currentListRole ||
-                    currentListRole.roleID <= SharedListRoleID.SuggestOnly
+                    currentListRole.roleID < SharedListRoleID.Owner
                 ) {
+                    // Only the list owner can share the collaboration link key
                     return
                 }
 
