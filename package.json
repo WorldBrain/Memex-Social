@@ -34,6 +34,7 @@
         "@tiptap/html": "^2.0.0-beta.209",
         "@tiptap/starter-kit": "^2.0.0-beta.209",
         "@types/react-datepicker": "^4.10.0",
+        "approx-string-match": "^2.0.0",
         "chrono-node": "^2.5.0",
         "detect-browser": "^5.3.0",
         "discord.js": "^14.7.1",

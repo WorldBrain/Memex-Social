@@ -1548,6 +1548,11 @@ ansi-styles@^4.1.0:
   dependencies:
     color-convert "^2.0.1"
 
+approx-string-match@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/approx-string-match/-/approx-string-match-2.0.0.tgz#c7d11c5a893e76e60a2d080d91ee3bb0ec4e18fa"
+  integrity sha512-03v8MsWnZYV4Svv82EYWoVw1RIKAJ/zubmhG1FYvhJwOsBnLPxx6CPHF2dXN/yW8uwHK+653j52IwiNluJR97w==
+
 aproba@^1.0.3, aproba@^1.1.1:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/aproba/-/aproba-1.2.0.tgz#6802e6264efd18c790a1b0d517f0f2627bf2c94a"
