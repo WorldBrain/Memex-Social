@@ -6,18 +6,11 @@ import {
     ReaderPageViewEvent,
     ReaderPageViewState,
 } from './types'
-import { setupIframeComms } from '../utils/iframe'
-import { getWebsiteHTML } from '../utils/api'
-import { injectHtml } from '../utils/utils'
 import { Rnd } from 'react-rnd'
 import { ReaderPageViewLogic } from './logic'
 import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
 import { PrimaryAction } from '@worldbrain/memex-common/lib/common-ui/components/PrimaryAction'
-import {
-    SharedAnnotationListEntry,
-    SharedAnnotationReference,
-    SharedListEntry,
-} from '@worldbrain/memex-common/lib/content-sharing/types'
+import { SharedListEntry } from '@worldbrain/memex-common/lib/content-sharing/types'
 import { UserReference } from '../../user-management/types'
 import AnnotationsInPage from '@worldbrain/memex-common/lib/content-conversations/ui/components/annotations-in-page'
 import AuthHeader from '../../user-management/ui/containers/auth-header'
@@ -43,6 +36,7 @@ export class ReaderPageView extends UIElement<
         //     annotEntry: parseRange(query.fromAnnotEntry, query.toAnnotEntry),
         //     reply: parseRange(query.fromReply, query.toReply),
         // }
+        ;(window as any)['_state'] = () => ({ ...this.state })
     }
 
     // itemRanges: {
@@ -50,7 +44,7 @@ export class ReaderPageView extends UIElement<
     //         | TimestampRange
     //         | undefined
     // }
-    private SidebarContainer = React.createRef<HTMLElement>()
+    private sidebarContainer = React.createRef<HTMLElement>()
     private reportButtonRef = React.createRef<HTMLDivElement>()
     private sharePageButton = React.createRef<HTMLDivElement>()
 
@@ -82,20 +76,9 @@ export class ReaderPageView extends UIElement<
         }
     }
 
-    getAnnotation(
-        annotationEntry: SharedAnnotationListEntry & {
-            sharedAnnotation: SharedAnnotationReference
-        },
+    private renderPageAnnotations(
+        entry: SharedListEntry & { creator: UserReference },
     ) {
-        const { state } = this
-        const annotationID = this.props.storage.contentSharing.getSharedAnnotationLinkID(
-            annotationEntry.sharedAnnotation,
-        )
-        const annotation = state.annotations[annotationID]
-        return annotation ?? null
-    }
-
-    renderPageAnnotations(entry: SharedListEntry & { creator: UserReference }) {
         const { state } = this
 
         // const youtubeElementId = getBlockContentYoutubePlayerId(
@@ -123,10 +106,11 @@ export class ReaderPageView extends UIElement<
                     state.annotationEntryData &&
                     state.annotationEntryData[entry.normalizedUrl] &&
                     state.annotationEntryData &&
-                    state.annotationEntryData[
-                        entry.normalizedUrl
-                    ].map((annotationEntry) =>
-                        this.getAnnotation(annotationEntry),
+                    state.annotationEntryData[entry.normalizedUrl].map(
+                        (annotationEntry) =>
+                            this.state.annotations[
+                                annotationEntry.sharedAnnotation.id.toString()
+                            ] ?? null,
                     )
                 }
                 annotationConversations={this.state.conversations}
@@ -248,7 +232,7 @@ export class ReaderPageView extends UIElement<
     //     )
     // }
 
-    renderInstallTooltip = () => {
+    private renderInstallTooltip = () => {
         if (this.state.showInstallTooltip) {
             return (
                 <PopoutBox
@@ -284,7 +268,8 @@ export class ReaderPageView extends UIElement<
             )
         }
     }
-    renderShareTooltip = () => {
+
+    private renderShareTooltip = () => {
         const links = this.pageLinks
 
         if (this.state.showShareMenu) {
@@ -483,7 +468,7 @@ export class ReaderPageView extends UIElement<
                         />
                     </SidebarTopBar>
                     <Sidebar
-                        ref={this.SidebarContainer}
+                        ref={this.sidebarContainer}
                         style={style}
                         default={{
                             x: 0,

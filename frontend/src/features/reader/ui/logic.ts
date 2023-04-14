@@ -10,6 +10,7 @@ import {
 } from '@worldbrain/memex-common/lib/content-sharing/types'
 import { makeStorageReference } from '@worldbrain/memex-common/lib/storage/references'
 import { UserReference } from '@worldbrain/memex-common/lib/web-interface/types/users'
+import { HighlightRenderer } from '@worldbrain/memex-common/lib/in-page-ui/highlighting/renderer'
 import { mapValues } from 'lodash'
 import chunk from 'lodash/chunk'
 import flatten from 'lodash/flatten'
@@ -29,12 +30,13 @@ import { getInitialAnnotationConversationStates } from '../../content-conversati
 import UserProfileCache from '../../user-management/utils/user-profile-cache'
 import { setupIframeComms } from '../utils/iframe'
 import { getWebsiteHTML } from '../utils/api'
-import { injectHtml } from '../utils/utils'
+import { injectHtmlToIFrame, setupIframeHandlers } from '../utils/utils'
 import {
     ReaderPageViewDependencies,
     ReaderPageViewEvent,
     ReaderPageViewState,
 } from './types'
+import type { RenderableAnnotation } from '@worldbrain/memex-common/lib/in-page-ui/highlighting/types'
 
 type EventHandler<EventName extends keyof ReaderPageViewEvent> = UIEventHandler<
     ReaderPageViewState,
@@ -52,8 +54,9 @@ export class ReaderPageViewLogic extends UILogic<
         [normalizePageUrl: string]: Promise<void>
     } = {}
 
-    readerContainerRef?: HTMLDivElement
-    cleanupIframeComms?: () => void
+    private readerContainerRef?: HTMLDivElement
+    private cleanupIframeComms?: () => void
+    private highlightRenderer!: HighlightRenderer
 
     constructor(private dependencies: ReaderPageViewDependencies) {
         super()
@@ -312,20 +315,21 @@ export class ReaderPageViewLogic extends UILogic<
         this.cleanupIframeComms?.()
     }
 
-    setReaderContainerRef: EventHandler<'setReaderContainerRef'> = async (
-        incoming,
-    ) => {
-        const { ref } = incoming.event
-        if (ref) {
-            this.readerContainerRef = ref
-            const { entry } = incoming.previousState.listData ?? {}
+    setReaderContainerRef: EventHandler<'setReaderContainerRef'> = async ({
+        event,
+        previousState,
+    }) => {
+        if (event.ref) {
+            this.readerContainerRef = event.ref
+            const { entry } = previousState.listData ?? {}
             if (entry) {
-                this.initializeReader(ref, entry.originalUrl)
+                await this.initializeReader(event.ref, entry.originalUrl)
             }
         } else {
             this.cleanupIframeComms?.()
         }
     }
+
     installMemexClick: EventHandler<'installMemexClick'> = async (incoming) => {
         await trySendingURLToOpenToExtension(
             incoming.event.urlToOpen,
@@ -426,8 +430,12 @@ export class ReaderPageViewLogic extends UILogic<
     }
 
     async initializeReader(ref: HTMLDivElement, originalUrl: string) {
+        if (this.cleanupIframeComms != null || this.highlightRenderer != null) {
+            return // Already initialized
+        }
+
         const response = await getWebsiteHTML(originalUrl)
-        if (!response || this.cleanupIframeComms) {
+        if (!response) {
             return
         }
 
@@ -437,7 +445,16 @@ export class ReaderPageViewLogic extends UILogic<
                 console.log('got message from iframe', message)
             },
         }).cleanup
-        injectHtml(html, url, ref)
+        const iframe = await injectHtmlToIFrame(html, url, ref)
+
+        // TODO: fill out deps for wanted features here
+        this.highlightRenderer = new HighlightRenderer({
+            getDocument: () => iframe.contentDocument,
+            scheduleAnnotationCreation: (annotationData) => ({
+                annotationId: 'TODO',
+                createPromise: Promise.resolve(),
+            }),
+        })
     }
 
     async loadPageAnnotations(
@@ -505,8 +522,28 @@ export class ReaderPageViewLogic extends UILogic<
                             newAnnotations[annotationId] = annotation
                         }
                     }
+
+                    const toRender: RenderableAnnotation[] = []
                     for (const newAnnotation of Object.values(newAnnotations)) {
                         usersToLoad.add(newAnnotation.creator.id)
+                        if (!newAnnotation.selector) {
+                            continue
+                        }
+                        try {
+                            const deserializedSelector = JSON.parse(
+                                newAnnotation.selector,
+                            )
+                            toRender.push({
+                                id: newAnnotation.reference.id,
+                                selector: deserializedSelector,
+                            })
+                        } catch (err) {
+                            // TODO: capture error
+                            console.warn(
+                                'Could not parse selector for annotation: ',
+                                newAnnotation,
+                            )
+                        }
                     }
 
                     const mutation = {
@@ -519,6 +556,15 @@ export class ReaderPageViewLogic extends UILogic<
                         ),
                     }
                     this.emitMutation(mutation as any)
+
+                    await this.highlightRenderer?.renderHighlights(
+                        toRender,
+                        async (args) =>
+                            console.log(
+                                'TODO: do something on highlight click:',
+                                args,
+                            ),
+                    )
                 } catch (e) {
                     this.emitMutation({
                         annotationLoadStates: {

@@ -39,44 +39,76 @@ const convertRelativeUrlsToAbsolute = (html: string, url: string): string => {
     return modifiedHtml
 }
 
-export const injectHtml = (
+export const injectHtmlToIFrame = (
     html: string,
     url: string,
     container: HTMLDivElement,
-) => {
-    const htmlWithFixedPaths = convertRelativeUrlsToAbsolute(html, url)
+): Promise<HTMLIFrameElement> =>
+    new Promise((resolve, reject) => {
+        const htmlWithFixedPaths = convertRelativeUrlsToAbsolute(html, url)
 
-    const iframe = document.createElement('iframe')
-    iframe.width = '100%'
-    iframe.height = '100%'
-    iframe.style.border = 'none'
+        const iframe = document.createElement('iframe')
+        iframe.width = '100%'
+        iframe.height = '100%'
+        iframe.style.border = 'none'
+        iframe.id = 'memex-reader-iframe'
 
-    // Create a div for the loading indicator
-    const loadingDiv = document.createElement('div')
-    container.appendChild(loadingDiv)
-
-    // Render the LoadingIndicator component to the loadingDiv
-    ReactDOM.render(
-        <ThemeProvider theme={theme}>
-            <LoadingBox>
-                <LoadingIndicator size={34} />
-            </LoadingBox>
-        </ThemeProvider>,
-        loadingDiv,
-    )
-
-    // Add event listeners for load and error events
-    iframe.addEventListener('load', () => {
+        // Create a div for the loading indicator
+        const loadingDiv = document.createElement('div')
         container.appendChild(loadingDiv)
-        console.log('Iframe loaded successfully')
-        // Remove the loadingDiv and append the iframe
-        container.removeChild(loadingDiv)
-    })
-    container.appendChild(iframe)
 
-    const blob = new Blob([htmlWithFixedPaths], { type: 'text/html' })
-    const blobUrl = URL.createObjectURL(blob)
-    iframe.src = blobUrl
+        // Render the LoadingIndicator component to the loadingDiv
+        ReactDOM.render(
+            <ThemeProvider theme={theme}>
+                <LoadingBox>
+                    <LoadingIndicator size={34} />
+                </LoadingBox>
+            </ThemeProvider>,
+            loadingDiv,
+        )
+        // Add event listeners for load and error events
+        iframe.addEventListener('load', () => {
+            container.appendChild(loadingDiv)
+            console.log('Iframe loaded successfully')
+            // Remove the loadingDiv and append the iframe
+            container.removeChild(loadingDiv)
+            resolve(iframe)
+        })
+
+        iframe.addEventListener('error', (err) => reject(err.error))
+
+        container.appendChild(iframe)
+
+        const blob = new Blob([htmlWithFixedPaths], { type: 'text/html' })
+        const blobUrl = URL.createObjectURL(blob)
+        iframe.src = blobUrl
+    })
+
+export interface RemoteReaderInterface {
+    say: (msg: string) => void
+}
+
+export function setupIframeHandlers(
+    iframe: HTMLIFrameElement,
+    bindHandlers: (getDocument: () => Document) => RemoteReaderInterface,
+) {
+    const iframeWindow = iframe.contentWindow as Window & {
+        injected?: RemoteReaderInterface
+    }
+    if (!iframeWindow) {
+        throw new Error(
+            'Could not set up iframe handlers - contentWindow not present',
+        )
+    }
+    const boundHandlers = bindHandlers(() => iframeWindow.document)
+    iframeWindow.injected = boundHandlers
+
+    return {
+        handlers: boundHandlers,
+        cleanup: () => {
+            delete iframeWindow.injected
+        },
+    }
 }
 
 const LoadingBox = styled.div`
