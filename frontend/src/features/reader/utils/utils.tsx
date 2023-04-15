@@ -21,6 +21,18 @@ const convertRelativeUrlsToAbsolute = (html: string, url: string): string => {
         }
     })
 
+    // TODO: This code is fragile. There must be a better way to get these styles to the iframe
+    //  The <style> tag is in the parent document because of webpack's css-loader.
+    const parentDocStyleEls = document.head.querySelectorAll<HTMLElement>(
+        'style[type="text/css"]',
+    )
+    const highlightStyleEl = Array.from(parentDocStyleEls).find((el) =>
+        el.innerText.includes('memex-highlight'),
+    )
+    if (highlightStyleEl) {
+        doc.head.appendChild(highlightStyleEl)
+    }
+
     const hrefElements = doc.querySelectorAll('[href]')
     hrefElements.forEach((element: Element) => {
         if (element.tagName.toLowerCase() === 'a') {
