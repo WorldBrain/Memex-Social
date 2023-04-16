@@ -2,6 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import styled, { ThemeProvider, StyleSheetManager } from 'styled-components'
 import Tooltip from '@worldbrain/memex-common/lib/in-page-ui/tooltip/container'
+import { conditionallyTriggerTooltip } from '@worldbrain/memex-common/lib/in-page-ui/tooltip/utils'
 import LoadingIndicator from '@worldbrain/memex-common/lib/common-ui/components/loading-indicator'
 import { theme } from '../../../../src/main-ui/styles/theme'
 
@@ -84,38 +85,49 @@ export const injectHtmlToIFrame = (
         iframe.onload = () => {
             // Attach a shadow DOM root inside the iframe's document body
             const shadowRootContainer = document.createElement('div')
+            shadowRootContainer.id = 'memex-tooltip-container' // NOTE: this needs to be here else tooltip won't auto-hide on click away
             iframe.contentDocument?.body.appendChild(shadowRootContainer)
             const shadowRoot = shadowRootContainer?.attachShadow({
                 mode: 'open',
             })
+            let showTooltipCb = () => {}
 
             if (shadowRoot) {
                 // Create a div for the React rendering of the tooltip component (inside the shadow DOM)
                 const reactContainer = document.createElement('div')
                 shadowRoot.appendChild(reactContainer)
+
+                // TODO: Properly hook this up to the rest of the app
                 ReactDOM.render(
                     <StyleSheetManager target={shadowRoot as any}>
                         <ThemeProvider theme={theme}>
                             <Tooltip
+                                getWindow={() => iframe.contentWindow!}
                                 askAI={async (text) =>
                                     console.log('TOOLTIP: ask AI:', text)
                                 }
-                                createHighlight={async (shouldShare) =>
+                                createHighlight={async (text, shouldShare) =>
                                     console.log(
                                         'TOOLTIP: create highlight:',
+                                        text,
                                         shouldShare,
                                     )
                                 }
                                 createAnnotation={async (
+                                    text,
                                     shouldShare,
                                     showSpacePicker,
                                 ) =>
                                     console.log(
                                         'TOOLTIP: create annotation:',
+                                        text,
                                         shouldShare,
                                         showSpacePicker,
                                     )
                                 }
+                                onTooltipInit={(showTooltip) => {
+                                    showTooltipCb = showTooltip
+                                }}
                             />
                         </ThemeProvider>
                     </StyleSheetManager>,
@@ -123,10 +135,31 @@ export const injectHtmlToIFrame = (
                 )
             }
 
+            const showTooltipListener = async (event: MouseEvent) => {
+                await conditionallyTriggerTooltip({
+                    getWindow: () => iframe.contentWindow!,
+                    triggerTooltip: showTooltipCb,
+                })
+            }
+
+            iframe.contentDocument?.body.addEventListener(
+                'mouseup',
+                showTooltipListener,
+            )
+
+            // TODO: Return this somewhere
+            const cleanupShowTooltipListener = () => {
+                iframe.contentDocument?.body.removeEventListener(
+                    'mouseup',
+                    showTooltipListener,
+                )
+            }
+
             container.appendChild(loadingDiv)
             console.log('Iframe loaded successfully')
             // Remove the loadingDiv and append the iframe
             container.removeChild(loadingDiv)
+
             resolve(iframe)
         }
 
