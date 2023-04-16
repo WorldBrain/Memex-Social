@@ -1,9 +1,9 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
+import styled, { ThemeProvider, StyleSheetManager } from 'styled-components'
+import Tooltip from '@worldbrain/memex-common/lib/in-page-ui/tooltip/container'
 import LoadingIndicator from '@worldbrain/memex-common/lib/common-ui/components/loading-indicator'
-import { ThemeProvider } from 'styled-components'
 import { theme } from '../../../../src/main-ui/styles/theme'
-import styled from 'styled-components'
 
 const convertRelativeUrlsToAbsolute = (html: string, url: string): string => {
     const parser = new DOMParser()
@@ -78,16 +78,57 @@ export const injectHtmlToIFrame = (
             </ThemeProvider>,
             loadingDiv,
         )
-        // Add event listeners for load and error events
-        iframe.addEventListener('load', () => {
+
+        iframe.onerror = (err) => reject(err)
+
+        iframe.onload = () => {
+            // Attach a shadow DOM root inside the iframe's document body
+            const shadowRootContainer = document.createElement('div')
+            iframe.contentDocument?.body.appendChild(shadowRootContainer)
+            const shadowRoot = shadowRootContainer?.attachShadow({
+                mode: 'open',
+            })
+
+            if (shadowRoot) {
+                // Create a div for the React rendering of the tooltip component (inside the shadow DOM)
+                const reactContainer = document.createElement('div')
+                shadowRoot.appendChild(reactContainer)
+                ReactDOM.render(
+                    <StyleSheetManager target={shadowRoot as any}>
+                        <ThemeProvider theme={theme}>
+                            <Tooltip
+                                askAI={async (text) =>
+                                    console.log('TOOLTIP: ask AI:', text)
+                                }
+                                createHighlight={async (shouldShare) =>
+                                    console.log(
+                                        'TOOLTIP: create highlight:',
+                                        shouldShare,
+                                    )
+                                }
+                                createAnnotation={async (
+                                    shouldShare,
+                                    showSpacePicker,
+                                ) =>
+                                    console.log(
+                                        'TOOLTIP: create annotation:',
+                                        shouldShare,
+                                        showSpacePicker,
+                                    )
+                                }
+                            />
+                        </ThemeProvider>
+                    </StyleSheetManager>,
+                    reactContainer,
+                )
+            }
+
             container.appendChild(loadingDiv)
             console.log('Iframe loaded successfully')
             // Remove the loadingDiv and append the iframe
             container.removeChild(loadingDiv)
             resolve(iframe)
-        })
-
-        iframe.addEventListener('error', (err) => reject(err.error))
+        }
 
         container.appendChild(iframe)
 
