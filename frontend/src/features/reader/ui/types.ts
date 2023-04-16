@@ -63,6 +63,7 @@ export type ReaderPageViewState = AnnotationConversationsState & {
     joinListResult: ProcessSharedListKeyResult | null
     showShareMenu: boolean
     linkCopiedToClipBoard: boolean
+    iframeLoadState: UITaskState
 }
 
 export type ReaderPageViewEvent = UIEvent<AnnotationConversationEvent> & {

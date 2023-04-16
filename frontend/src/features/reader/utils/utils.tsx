@@ -1,9 +1,8 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import styled, { ThemeProvider, StyleSheetManager } from 'styled-components'
+import { ThemeProvider, StyleSheetManager } from 'styled-components'
 import Tooltip from '@worldbrain/memex-common/lib/in-page-ui/tooltip/container'
 import { conditionallyTriggerTooltip } from '@worldbrain/memex-common/lib/in-page-ui/tooltip/utils'
-import LoadingIndicator from '@worldbrain/memex-common/lib/common-ui/components/loading-indicator'
 import { theme } from '../../../../src/main-ui/styles/theme'
 
 const convertRelativeUrlsToAbsolute = (html: string, url: string): string => {
@@ -69,16 +68,6 @@ export const injectHtmlToIFrame = (
         // Create a div for the loading indicator
         const loadingDiv = document.createElement('div')
         container.appendChild(loadingDiv)
-
-        // Render the LoadingIndicator component to the loadingDiv
-        ReactDOM.render(
-            <ThemeProvider theme={theme}>
-                <LoadingBox>
-                    <LoadingIndicator size={34} />
-                </LoadingBox>
-            </ThemeProvider>,
-            loadingDiv,
-        )
 
         iframe.onerror = (err) => reject(err)
 
@@ -196,11 +185,3 @@ export function setupIframeHandlers(
         },
     }
 }
-
-const LoadingBox = styled.div`
-    display: flex;
-    align-items: center;
-    height: 600px;
-    width: fill-available;
-    justify-content: center;
-`

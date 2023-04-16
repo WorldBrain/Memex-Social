@@ -54,6 +54,7 @@ export class ReaderPageViewLogic extends UILogic<
         [normalizePageUrl: string]: Promise<void>
     } = {}
 
+    private isReaderInitialized = false
     private readerContainerRef?: HTMLDivElement
     private cleanupIframeComms?: () => void
     private highlightRenderer!: HighlightRenderer
@@ -128,6 +129,7 @@ export class ReaderPageViewLogic extends UILogic<
 
     getInitialState(): ReaderPageViewState {
         return {
+            iframeLoadState: 'pristine',
             listLoadState: 'pristine',
             users: {},
             annotationEntriesLoadState: 'pristine',
@@ -290,17 +292,19 @@ export class ReaderPageViewLogic extends UILogic<
                     },
                 })
 
-                if (this.readerContainerRef) {
-                    this.initializeReader(
-                        this.readerContainerRef,
-                        listEntry.originalUrl,
-                    )
-                }
+                const initReaderPromise = this.readerContainerRef
+                    ? this.initializeReader(
+                          this.readerContainerRef,
+                          listEntry.originalUrl,
+                      )
+                    : Promise.resolve()
 
-                await this.loadPageAnnotations(
-                    { [normalizedPageUrl]: entries },
-                    [normalizedPageUrl],
-                )
+                await Promise.all([
+                    this.loadPageAnnotations({ [normalizedPageUrl]: entries }, [
+                        normalizedPageUrl,
+                    ]),
+                    initReaderPromise,
+                ])
             },
         )
 
@@ -430,31 +434,39 @@ export class ReaderPageViewLogic extends UILogic<
     }
 
     async initializeReader(ref: HTMLDivElement, originalUrl: string) {
-        if (this.cleanupIframeComms != null || this.highlightRenderer != null) {
-            return // Already initialized
-        }
-
-        const response = await getWebsiteHTML(originalUrl)
-        if (!response) {
+        if (!this.isReaderInitialized) {
+            this.isReaderInitialized = true
+        } else {
             return
         }
 
-        const { url, html } = response
-        this.cleanupIframeComms = setupIframeComms({
-            sendMessageFromIframe(message) {
-                console.log('got message from iframe', message)
-            },
-        }).cleanup
-        const iframe = await injectHtmlToIFrame(html, url, ref)
+        await executeUITask<ReaderPageViewState>(
+            this,
+            'iframeLoadState',
+            async () => {
+                const response = await getWebsiteHTML(originalUrl)
+                if (!response) {
+                    throw new Error('Could not get HTML for page ')
+                }
 
-        // TODO: fill out deps for wanted features here
-        this.highlightRenderer = new HighlightRenderer({
-            getDocument: () => iframe.contentDocument,
-            scheduleAnnotationCreation: (annotationData) => ({
-                annotationId: 'TODO',
-                createPromise: Promise.resolve(),
-            }),
-        })
+                const { url, html } = response
+                this.cleanupIframeComms = setupIframeComms({
+                    sendMessageFromIframe(message) {
+                        console.log('got message from iframe', message)
+                    },
+                }).cleanup
+                const iframe = await injectHtmlToIFrame(html, url, ref)
+
+                // TODO: fill out deps for wanted features here
+                this.highlightRenderer = new HighlightRenderer({
+                    getDocument: () => iframe.contentDocument,
+                    scheduleAnnotationCreation: (annotationData) => ({
+                        annotationId: 'TODO',
+                        createPromise: Promise.resolve(),
+                    }),
+                })
+            },
+        )
     }
 
     async loadPageAnnotations(

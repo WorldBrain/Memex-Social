@@ -454,7 +454,20 @@ export class ReaderPageView extends UIElement<
                                     ref,
                                 })
                             }
-                        />
+                        >
+                            {this.state.iframeLoadState === 'error' ? (
+                                <div>
+                                    The reader didn't load properly. Please try
+                                    refreshing the page.
+                                </div>
+                            ) : (
+                                this.state.iframeLoadState !== 'success' && (
+                                    <LoadingBox>
+                                        <LoadingIndicator size={34} />
+                                    </LoadingBox>
+                                )
+                            )}
+                        </InjectedContent>
                     )}
                 </LeftSide>
                 <ContainerStyled
