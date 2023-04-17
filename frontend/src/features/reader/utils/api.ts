@@ -5,24 +5,13 @@ const ARCHIVE_PROXY_URL = isStaging
     ? 'https://cloudflare-memex-staging.memex.workers.dev'
     : 'https://cloudfare-memex.memex.workers.dev'
 
-export const getWebsiteHTML = async (url: string) => {
-    try {
-        if (url) {
-            const response = await fetch(
-                `${ARCHIVE_PROXY_URL}/webarchive?url=${encodeURIComponent(
-                    url,
-                )}`,
-            )
-            const html = await response.text()
+export const getWebsiteHTML = async (
+    url: string,
+): Promise<{ url: string; html: string }> => {
+    const response = await fetch(
+        `${ARCHIVE_PROXY_URL}/webarchive?url=${encodeURIComponent(url)}`,
+    )
+    const html = await response.text()
 
-            return {
-                url,
-                html,
-            }
-        }
-    } catch (e) {
-        console.error(e)
-    }
-
-    return null
+    return { url, html }
 }

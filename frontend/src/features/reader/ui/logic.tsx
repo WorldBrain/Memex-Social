@@ -1,3 +1,9 @@
+import React from 'react'
+import ReactDOM from 'react-dom'
+import { ThemeProvider, StyleSheetManager } from 'styled-components'
+import Tooltip from '@worldbrain/memex-common/lib/in-page-ui/tooltip/container'
+import { conditionallyTriggerTooltip } from '@worldbrain/memex-common/lib/in-page-ui/tooltip/utils'
+import { theme } from '../../../../src/main-ui/styles/theme'
 import {
     GetAnnotationsResult,
     GetAnnotationListEntriesResult,
@@ -28,9 +34,8 @@ import {
 } from '../../content-conversations/ui/logic'
 import { getInitialAnnotationConversationStates } from '../../content-conversations/ui/utils'
 import UserProfileCache from '../../user-management/utils/user-profile-cache'
-import { setupIframeComms } from '../utils/iframe'
 import { getWebsiteHTML } from '../utils/api'
-import { injectHtmlToIFrame, setupIframeHandlers } from '../utils/utils'
+import { createIframeForHtml, waitForIframeLoad } from '../utils/utils'
 import {
     ReaderPageViewDependencies,
     ReaderPageViewEvent,
@@ -55,9 +60,8 @@ export class ReaderPageViewLogic extends UILogic<
     } = {}
 
     private isReaderInitialized = false
-    private readerContainerRef?: HTMLDivElement
-    private cleanupIframeComms?: () => void
     private highlightRenderer!: HighlightRenderer
+    private cleanupIframeTooltipShowListener?: () => void
 
     constructor(private dependencies: ReaderPageViewDependencies) {
         super()
@@ -292,19 +296,10 @@ export class ReaderPageViewLogic extends UILogic<
                     },
                 })
 
-                const initReaderPromise = this.readerContainerRef
-                    ? this.initializeReader(
-                          this.readerContainerRef,
-                          listEntry.originalUrl,
-                      )
-                    : Promise.resolve()
-
-                await Promise.all([
-                    this.loadPageAnnotations({ [normalizedPageUrl]: entries }, [
-                        normalizedPageUrl,
-                    ]),
-                    initReaderPromise,
-                ])
+                await this.loadPageAnnotations(
+                    { [normalizedPageUrl]: entries },
+                    [normalizedPageUrl],
+                )
             },
         )
 
@@ -316,7 +311,7 @@ export class ReaderPageViewLogic extends UILogic<
     }
 
     cleanup: EventHandler<'cleanup'> = async () => {
-        this.cleanupIframeComms?.()
+        this.cleanupIframeTooltipShowListener?.()
     }
 
     setReaderContainerRef: EventHandler<'setReaderContainerRef'> = async ({
@@ -324,13 +319,120 @@ export class ReaderPageViewLogic extends UILogic<
         previousState,
     }) => {
         if (event.ref) {
-            this.readerContainerRef = event.ref
             const { entry } = previousState.listData ?? {}
             if (entry) {
                 await this.initializeReader(event.ref, entry.originalUrl)
             }
+        }
+    }
+
+    private async initializeReader(ref: HTMLDivElement, originalUrl: string) {
+        if (!this.isReaderInitialized) {
+            this.isReaderInitialized = true
         } else {
-            this.cleanupIframeComms?.()
+            return
+        }
+
+        let iframe: HTMLIFrameElement | null = null
+        await executeUITask<ReaderPageViewState>(
+            this,
+            'iframeLoadState',
+            async () => {
+                const { html, url } = await getWebsiteHTML(originalUrl)
+
+                const _iframe = createIframeForHtml(html, url, ref)
+                await waitForIframeLoad(_iframe)
+                iframe = _iframe
+            },
+        )
+
+        if (!iframe) {
+            return
+        }
+
+        // TODO: fill out deps for wanted features here
+        this.highlightRenderer = new HighlightRenderer({
+            getDocument: () => iframe!.contentDocument,
+            scheduleAnnotationCreation: (annotationData) => ({
+                annotationId: 'TODO',
+                createPromise: Promise.resolve(),
+            }),
+        })
+        this.renderTooltipInShadowDOM(iframe)
+    }
+
+    private renderTooltipInShadowDOM(iframe: HTMLIFrameElement): void {
+        const shadowRootContainer = document.createElement('div')
+        shadowRootContainer.id = 'memex-tooltip-container' // NOTE: this needs to be here else tooltip won't auto-hide on click away (see <ClickAway> comp)
+        iframe.contentDocument?.body.appendChild(shadowRootContainer)
+        const shadowRoot = shadowRootContainer?.attachShadow({ mode: 'open' })
+        let showTooltipCb = () => {}
+
+        if (!shadowRoot) {
+            throw new Error('Shadow DOM could not be attached to iframe')
+        }
+
+        // Create a div for the React rendering of the tooltip component (inside the shadow DOM)
+        const reactContainer = document.createElement('div')
+        shadowRoot.appendChild(reactContainer)
+
+        // TODO: Properly hook this up to the rest of the app
+        ReactDOM.render(
+            <StyleSheetManager target={shadowRoot as any}>
+                <ThemeProvider theme={theme}>
+                    <Tooltip
+                        getWindow={() => iframe.contentWindow!}
+                        askAI={async (text) =>
+                            console.log('TOOLTIP: ask AI:', text)
+                        }
+                        createHighlight={async (text, shouldShare) =>
+                            console.log(
+                                'TOOLTIP: create highlight:',
+                                text,
+                                shouldShare,
+                            )
+                        }
+                        createAnnotation={async (
+                            text,
+                            shouldShare,
+                            showSpacePicker,
+                        ) =>
+                            console.log(
+                                'TOOLTIP: create annotation:',
+                                text,
+                                shouldShare,
+                                showSpacePicker,
+                            )
+                        }
+                        onTooltipInit={(showTooltip) => {
+                            showTooltipCb = showTooltip
+                        }}
+                    />
+                </ThemeProvider>
+            </StyleSheetManager>,
+            reactContainer,
+        )
+
+        const showTooltipListener = async (event: MouseEvent) => {
+            await conditionallyTriggerTooltip(
+                {
+                    getWindow: () => iframe.contentWindow!,
+                    triggerTooltip: showTooltipCb,
+                },
+                event,
+            )
+        }
+
+        iframe.contentDocument?.body.addEventListener(
+            'mouseup',
+            showTooltipListener,
+        )
+
+        this.cleanupIframeTooltipShowListener = () => {
+            iframe.contentDocument?.body.removeEventListener(
+                'mouseup',
+                showTooltipListener,
+            )
         }
     }
 
@@ -433,43 +535,7 @@ export class ReaderPageViewLogic extends UILogic<
         }, 2000)
     }
 
-    async initializeReader(ref: HTMLDivElement, originalUrl: string) {
-        if (!this.isReaderInitialized) {
-            this.isReaderInitialized = true
-        } else {
-            return
-        }
-
-        await executeUITask<ReaderPageViewState>(
-            this,
-            'iframeLoadState',
-            async () => {
-                const response = await getWebsiteHTML(originalUrl)
-                if (!response) {
-                    throw new Error('Could not get HTML for page ')
-                }
-
-                const { url, html } = response
-                this.cleanupIframeComms = setupIframeComms({
-                    sendMessageFromIframe(message) {
-                        console.log('got message from iframe', message)
-                    },
-                }).cleanup
-                const iframe = await injectHtmlToIFrame(html, url, ref)
-
-                // TODO: fill out deps for wanted features here
-                this.highlightRenderer = new HighlightRenderer({
-                    getDocument: () => iframe.contentDocument,
-                    scheduleAnnotationCreation: (annotationData) => ({
-                        annotationId: 'TODO',
-                        createPromise: Promise.resolve(),
-                    }),
-                })
-            },
-        )
-    }
-
-    async loadPageAnnotations(
+    private async loadPageAnnotations(
         annotationEntries: GetAnnotationListEntriesResult,
         normalizedPageUrls: string[],
     ) {
