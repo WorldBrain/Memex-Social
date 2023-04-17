@@ -513,9 +513,6 @@ export class ReaderPageViewLogic extends UILogic<
                 <ThemeProvider theme={theme}>
                     <Tooltip
                         getWindow={() => iframe.contentWindow!}
-                        askAI={async (text) =>
-                            console.log('TOOLTIP: ask AI:', text)
-                        }
                         createHighlight={async (text, shouldShare) =>
                             console.log(
                                 'TOOLTIP: create highlight:',
