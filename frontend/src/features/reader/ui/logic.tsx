@@ -340,7 +340,7 @@ export class ReaderPageViewLogic extends UILogic<
             async () => {
                 const { html, url } = await getWebsiteHTML(originalUrl)
 
-                const _iframe = createIframeForHtml(html, url, ref)
+                const _iframe = await createIframeForHtml(html, url, ref)
                 await waitForIframeLoad(_iframe)
                 iframe = _iframe
             },
