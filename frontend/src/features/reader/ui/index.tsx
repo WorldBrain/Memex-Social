@@ -295,7 +295,7 @@ export class ReaderPageView extends UIElement<
                         ) : (
                             <>
                                 <Title>Invite Links</Title>
-                                {links?.collab != null &&
+                                {links != null &&
                                 this.state.collaborationKeyLoadState ===
                                     'success' ? (
                                     <LinksContainer>
@@ -320,30 +320,39 @@ export class ReaderPageView extends UIElement<
                                                 }
                                             />
                                         </LinkBox>
-                                        <LinkTitle>Annotate & Reply</LinkTitle>
-                                        <LinkBox>
-                                            <LinkField>
-                                                {links!.collab}
-                                            </LinkField>
-                                            <PrimaryAction
-                                                type="secondary"
-                                                size="small"
-                                                icon={'copy'}
-                                                label={'copy'}
-                                                padding={'4px 10px 4px 5px'}
-                                                onClick={() =>
-                                                    this.processEvent(
-                                                        'copyLink',
-                                                        {
-                                                            url: links!.collab,
-                                                        },
-                                                    )
-                                                }
-                                            />
-                                        </LinkBox>
+                                        {links.collab != null && (
+                                            <>
+                                                <LinkTitle>
+                                                    Annotate & Reply
+                                                </LinkTitle>
+                                                <LinkBox>
+                                                    <LinkField>
+                                                        {links!.collab}
+                                                    </LinkField>
+                                                    <PrimaryAction
+                                                        type="secondary"
+                                                        size="small"
+                                                        icon={'copy'}
+                                                        label={'copy'}
+                                                        padding={
+                                                            '4px 10px 4px 5px'
+                                                        }
+                                                        onClick={() =>
+                                                            this.processEvent(
+                                                                'copyLink',
+                                                                {
+                                                                    url: links!
+                                                                        .collab,
+                                                                },
+                                                            )
+                                                        }
+                                                    />
+                                                </LinkBox>
+                                            </>
+                                        )}
                                     </LinksContainer>
                                 ) : (
-                                    <LoadingBox>
+                                    <LoadingBox height={'50px'}>
                                         <LoadingIndicator size={20} />
                                     </LoadingBox>
                                 )}
@@ -462,7 +471,7 @@ export class ReaderPageView extends UIElement<
                                 </div>
                             ) : (
                                 this.state.iframeLoadState !== 'success' && (
-                                    <LoadingBox>
+                                    <LoadingBox height={'400px'}>
                                         <LoadingIndicator size={34} />
                                     </LoadingBox>
                                 )
@@ -557,11 +566,11 @@ function isInRange(timestamp: number, range: TimestampRange | undefined) {
     return range.fromTimestamp <= timestamp && range.toTimestamp >= timestamp
 }
 
-const LoadingBox = styled.div`
+const LoadingBox = styled.div<{ height: string }>`
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 50px;
+    height: ${(props) => props.height};
     width: 100%;
 `
 
