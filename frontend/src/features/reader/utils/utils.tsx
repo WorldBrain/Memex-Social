@@ -14,16 +14,23 @@ const convertRelativeUrlsToAbsolute = (html: string, url: string): string => {
         doc.head.appendChild(highlightStyleEl)
     }
 
-    const hrefElements = doc.querySelectorAll('[href]')
-    hrefElements.forEach((element: Element) => {
+    const urlElements = doc.querySelectorAll('[href], img[src]')
+    urlElements.forEach((element: Element) => {
         if (element.tagName.toLowerCase() === 'a') {
             element.setAttribute('target', '_blank')
             element.setAttribute('rel', 'noopener noreferrer')
         }
-        const href = element.getAttribute('href')
-        if (href) {
-            element.setAttribute('href', new URL(href, url).toString())
+        const replaceURL = (attrName: string) => {
+            const attrValue = element.getAttribute(attrName)
+            if (attrValue) {
+                element.setAttribute(
+                    attrName,
+                    new URL(attrValue, url).toString(),
+                )
+            }
         }
+        replaceURL('href')
+        replaceURL('src')
     })
 
     const serializer = new XMLSerializer()
