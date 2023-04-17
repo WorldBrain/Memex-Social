@@ -1,11 +1,6 @@
-import * as history from 'history'
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { ThemeProvider } from 'styled-components'
-
-import { Services } from '../services/types'
-import { Storage } from '../storage/types'
-
 import Routes from './routes'
 import App from './containers/app'
 import { OverlayContainer } from './containers/overlay'
@@ -14,22 +9,17 @@ import { OverlayContainer } from './containers/overlay'
 import 'typeface-inter'
 import GlobalStyle from './styles/global'
 import { theme } from './styles/theme'
-import { UiRunner } from './types'
+import { UIRunner, UIRunnerOptions } from './types'
 
-async function runMainUi(options: {
-    services: Services
-    storage: Storage
-    history: history.History
-    mountPoint: Element
-}) {
+async function runMainUi(
+    options: {
+        mountPoint: Element
+    } & UIRunnerOptions,
+) {
     ReactDOM.render(renderMainUi(options), options.mountPoint)
 }
 
-export function renderMainUi(options: {
-    services: Services
-    storage: Storage
-    history: history.History
-}) {
+export function renderMainUi(options: UIRunnerOptions) {
     return (
         <React.Fragment>
             <GlobalStyle />
@@ -41,8 +31,9 @@ export function renderMainUi(options: {
                 >
                     <Routes
                         history={options.history}
-                        services={options.services}
                         storage={options.storage}
+                        services={options.services}
+                        generateServerId={options.generateServerId}
                     />
                 </App>
             </ThemeProvider>
@@ -65,6 +56,6 @@ export function getUiMountpoint(mountPoint?: Element): Element {
     return mountPoint
 }
 
-export function getDefaultUiRunner(config: { mountPoint: Element }): UiRunner {
+export function getDefaultUiRunner(config: { mountPoint: Element }): UIRunner {
     return (options) => runMainUi({ ...config, ...options })
 }

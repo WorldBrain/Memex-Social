@@ -3,7 +3,7 @@ import type { ScenarioReplayQueryParams } from '../services/scenarios/types'
 import type { Services } from '../services/types'
 import type { Storage } from '../storage/types'
 import type { BackendType } from '../types'
-import type { UiRunner } from '../main-ui/types'
+import type { UIRunner } from '../main-ui/types'
 import type { FixtureFetcher } from '../services/fixtures/types'
 import type { ContentSharingQueryParams } from '../features/content-sharing/types'
 import type { YoutubeServiceOptions } from '@worldbrain/memex-common/lib/services/youtube/types'
@@ -28,7 +28,7 @@ export interface MainProgramOptions {
     logLogicEvents?: boolean
     mountPoint?: Element
     domUnavailable?: boolean // when running tests, don't use DOM
-    uiRunner?: UiRunner
+    uiRunner?: UIRunner
     dontRunUi?: boolean
     fixtureFetcher?: FixtureFetcher
 }

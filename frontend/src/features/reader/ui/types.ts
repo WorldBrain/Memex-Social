@@ -1,23 +1,25 @@
 import type { ProcessSharedListKeyResult } from '@worldbrain/memex-common/lib/content-sharing/service/types'
-import {
+import type {
     GetAnnotationListEntriesResult,
     GetAnnotationsResult,
 } from '@worldbrain/memex-common/lib/content-sharing/storage/types'
-import {
+import type {
     SharedList,
     SharedListReference,
 } from '@worldbrain/memex-common/lib/content-sharing/types'
-import { UITaskState } from '@worldbrain/memex-common/lib/main-ui/types'
-import { User } from '@worldbrain/memex-common/lib/web-interface/types/users'
-import { UIEvent } from '../../../main-ui/classes/logic'
-import { UIElementServices } from '../../../services/types'
-import { StorageModules } from '../../../storage/types'
-import {
+import type { UITaskState } from '@worldbrain/memex-common/lib/main-ui/types'
+import type { User } from '@worldbrain/memex-common/lib/web-interface/types/users'
+import type { UIEvent } from '../../../main-ui/classes/logic'
+import type { UIElementServices } from '../../../services/types'
+import type { StorageModules } from '../../../storage/types'
+import type {
     AnnotationConversationEvent,
     AnnotationConversationsState,
 } from '../../content-conversations/ui/types'
-import { CollectionDetailsListEntry } from '../../content-sharing/ui/pages/collection-details/types'
-import { UserReference } from '../../user-management/types'
+import type { CollectionDetailsListEntry } from '../../content-sharing/ui/pages/collection-details/types'
+import type { UserReference } from '../../user-management/types'
+import type { GenerateServerID } from '@worldbrain/memex-common/lib/content-sharing/service/types'
+import type { URLNormalizer } from '@worldbrain/memex-common/lib/url-utils/normalize/types'
 
 export interface ReaderPageViewDependencies {
     services: UIElementServices<
@@ -35,6 +37,8 @@ export interface ReaderPageViewDependencies {
     >
     listID: string
     entryID: string
+    normalizeUrl: URLNormalizer
+    generateServerId: GenerateServerID
 }
 
 export type ReaderPageViewState = AnnotationConversationsState & {

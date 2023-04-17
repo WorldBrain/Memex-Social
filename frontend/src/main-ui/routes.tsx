@@ -19,12 +19,10 @@ import HomeFeedPage from '../features/activity-streams/ui/pages/home-feed'
 import { getReactRoutePattern } from '../services/router/routes'
 import { ContentSharingQueryParams } from '../features/content-sharing/types'
 import { ReaderPageView } from '../features/reader/ui'
+import { normalizeUrl } from '@worldbrain/memex-common/lib/url-utils/normalize'
+import type { UIRunnerOptions } from './types'
 
-interface Props {
-    history: history.History
-    services: Services
-    storage: Storage
-}
+interface Props extends UIRunnerOptions {}
 export default class Routes extends React.Component<Props> {
     private eventHandlers = new EventHandlers()
 
@@ -100,10 +98,14 @@ export default class Routes extends React.Component<Props> {
                         render={(route) => {
                             return (
                                 <ReaderPageView
-                                    storage={this.props.storage.serverModules}
+                                    normalizeUrl={normalizeUrl}
                                     services={this.props.services}
                                     listID={route.match.params.id}
                                     entryID={route.match.params.entryId}
+                                    storage={this.props.storage.serverModules}
+                                    generateServerId={
+                                        this.props.generateServerId
+                                    }
                                 />
                             )
                         }}
