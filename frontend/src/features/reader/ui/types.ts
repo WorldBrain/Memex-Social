@@ -70,6 +70,11 @@ export type ReaderPageViewState = AnnotationConversationsState & {
             loadState: UITaskState
         }
     }
+    annotationHoverStates: {
+        [annotationId: string]: {
+            isHovering: boolean
+        }
+    }
     annotationEntryData: GetAnnotationListEntriesResult
     annotations: GetAnnotationsResult
     sidebarWidth: number
@@ -100,6 +105,7 @@ export type ReaderPageViewEvent = UIEvent<AnnotationConversationEvent> & {
     confirmAnnotationCreate: null
     changeAnnotationCreateComment: { comment: string }
     setAnnotationEditing: { annotationId: AutoPk; isEditing: boolean }
+    setAnnotationHovering: { annotationId: AutoPk; isHovering: boolean }
     cancelAnnotationEdit: { annotationId: AutoPk }
     confirmAnnotationEdit: { annotationId: AutoPk }
     changeAnnotationEditComment: { annotationId: AutoPk; comment: string }

@@ -120,6 +120,13 @@ export class ReaderPageViewLogic extends UILogic<
                                     },
                                 },
                             },
+                            annotationHoverStates: {
+                                [annotation.linkId]: {
+                                    $set: {
+                                        isHovering: false,
+                                    },
+                                },
+                            },
                             annotations: {
                                 [annotation.linkId]: {
                                     $set: annotation,
@@ -167,6 +174,7 @@ export class ReaderPageViewLogic extends UILogic<
                 comment: '',
             },
             annotationEditStates: {},
+            annotationHoverStates: {},
             annotationLoadStates: {},
             annotationEntryData: {},
             annotations: {},
@@ -549,6 +557,13 @@ export class ReaderPageViewLogic extends UILogic<
                     },
                 },
             } as any,
+            annotationHoverStates: {
+                [annotationId]: {
+                    $set: {
+                        isHovering: false,
+                    },
+                },
+            } as any,
             annotations: {
                 [annotationId]: {
                     $set: {
@@ -874,6 +889,14 @@ export class ReaderPageViewLogic extends UILogic<
                                 },
                             }),
                         ) as any,
+                        annotationHoverStates: mapValues(
+                            newAnnotations,
+                            (newAnnotation) => ({
+                                $set: {
+                                    isHovering: false,
+                                },
+                            }),
+                        ),
                     })
 
                     await this.highlightRenderer?.renderHighlights(
@@ -994,6 +1017,17 @@ export class ReaderPageViewLogic extends UILogic<
         this.emitMutation({
             annotationEditStates: {
                 [event.annotationId]: { isEditing: { $set: event.isEditing } },
+            },
+        })
+    }
+    setAnnotationHovering: EventHandler<'setAnnotationHovering'> = ({
+        event,
+    }) => {
+        this.emitMutation({
+            annotationHoverStates: {
+                [event.annotationId]: {
+                    isHovering: { $set: event.isHovering },
+                },
             },
         })
     }

@@ -123,6 +123,9 @@ export class ReaderPageView extends UIElement<
                         isEditing: this.state.annotationEditStates[
                             annotationRef.id
                         ]?.isEditing,
+                        isHovering: this.state.annotationHoverStates[
+                            annotationRef.id
+                        ]?.isHovering,
                         comment:
                             this.state.annotationEditStates[annotationRef.id]
                                 ?.comment ?? '',
@@ -131,6 +134,12 @@ export class ReaderPageView extends UIElement<
                                 isEditing,
                                 annotationId: annotationRef.id,
                             }),
+                        setAnnotationHovering: (isHovering) => (event) => {
+                            this.processEvent('setAnnotationHovering', {
+                                isHovering,
+                                annotationId: annotationRef.id,
+                            })
+                        },
                         onCommentChange: (comment) =>
                             this.processEvent('changeAnnotationEditComment', {
                                 comment,
@@ -430,7 +439,9 @@ export class ReaderPageView extends UIElement<
         if (this.state.isYoutubeVideo) {
             return (
                 <YoutubeVideoContainer>
-                    {this.renderYoutubePlayer()}
+                    <YoutubeVideoBox>
+                        {this.renderYoutubePlayer()}
+                    </YoutubeVideoBox>
                 </YoutubeVideoContainer>
             )
         }
@@ -741,8 +752,11 @@ const Logo = styled.img`
 
 const YoutubeIframe = styled.div<{}>`
     border-radius: 8px;
-    min-height: 400px;
-    width: fill-available;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
 `
 
 const MainContainer = styled.div`
@@ -772,7 +786,22 @@ const BreadCrumbBox = styled.div`
     display: flex;
 `
 
-const YoutubeVideoContainer = styled.div``
+const YoutubeVideoContainer = styled.div`
+    display: flex;
+    width: 100%;
+    height: fill-available;
+    justify-content: center;
+    padding-top: 20px;
+`
+
+const YoutubeVideoBox = styled.div`
+    display: flex;
+    padding-bottom: 56.25%;
+    position: relative;
+    height: 0;
+    width: 90%;
+    max-width: 1000px;
+`
 
 const SidebarTopBar = styled.div`
     height: ${TopBarHeight}px;
