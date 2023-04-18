@@ -114,11 +114,6 @@ export class ReaderPageView extends UIElement<
                     originalUrl={entry.originalUrl}
                     contextLocation={'webUI'}
                     variant={'dark-mode'}
-                    // getYoutubePlayer={() =>
-                    //     this.props.services.youtube.getPlayerByElementId(
-                    //         youtubeElementId,
-                    //     )
-                    // }
                     // newPageReply={
                     //     this.isListContributor || state.isListOwner
                     //         ? state.newPageReplies[entry.normalizedUrl]
@@ -167,6 +162,11 @@ export class ReaderPageView extends UIElement<
                     //     storage: this.props.storage,
                     //     services: this.props.services,
                     // }}
+                    getYoutubePlayer={() =>
+                        this.props.services.youtube.getPlayerByElementId(
+                            getReaderYoutubePlayerId(entry.originalUrl),
+                        )
+                    }
                     onToggleReplies={(event) =>
                         this.processEvent('toggleAnnotationReplies', {
                             ...event,
@@ -232,38 +232,41 @@ export class ReaderPageView extends UIElement<
         }
     }
 
-    // renderYoutubePlayer = () => {
-    //     // const { youtubeService } = props
-    //     const url = this.state.listData!.url
+    renderYoutubePlayer = () => {
+        const { youtube } = this.props.services
+        const { originalUrl: url } = this.state.listData?.entry ?? {}
+        if (!url) {
+            return
+        }
 
-    //     const getYoutubeId = () => {
-    //         let regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/
-    //         let match = url.match(regExp)
+        const getYoutubeId = () => {
+            let regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/
+            let match = url.match(regExp)
 
-    //         if (match && match[2].length == 11) {
-    //             return match[2]
-    //         } else {
-    //             return 'error'
-    //         }
-    //     }
+            if (match && match[2].length == 11) {
+                return match[2]
+            } else {
+                return 'error'
+            }
+        }
 
-    //     const playerId = getBlockContentYoutubePlayerId(url)
+        const playerId = getReaderYoutubePlayerId(url)
 
-    //     return (
-    //         <YoutubeIframe
-    //             id={playerId}
-    //             ref={(ref) => {
-    //                 if (ref) {
-    //                     youtubeService!.createYoutubePlayer(playerId, {
-    //                         width: 'fill-available', // yes, these are meant to be strings
-    //                         height: 'fill-available',
-    //                         videoId: getYoutubeId(),
-    //                     })
-    //                 }
-    //             }}
-    //         />
-    //     )
-    // }
+        return (
+            <YoutubeIframe
+                id={playerId}
+                ref={(ref) => {
+                    if (ref) {
+                        youtube.createYoutubePlayer(playerId, {
+                            width: 'fill-available', // yes, these are meant to be strings
+                            height: 'fill-available',
+                            videoId: getYoutubeId(),
+                        })
+                    }
+                }}
+            />
+        )
+    }
 
     private renderInstallTooltip = () => {
         if (this.state.showInstallTooltip) {
@@ -401,7 +404,7 @@ export class ReaderPageView extends UIElement<
         if (this.state.isYoutubeVideo) {
             return (
                 <YoutubeVideoContainer>
-                    {/* {this.renderYoutubePlayer()} */}
+                    {this.renderYoutubePlayer()}
                 </YoutubeVideoContainer>
             )
         }
@@ -587,32 +590,8 @@ export class ReaderPageView extends UIElement<
     }
 }
 
-type TimestampRange = { fromTimestamp: number; toTimestamp: number }
-
-export function getBlockContentYoutubePlayerId(normalizedPageUrl: string) {
-    return `block_content_youtube_player_${normalizedPageUrl}`
-}
-
-function parseRange(
-    fromString: string | undefined,
-    toString: string | undefined,
-): TimestampRange | undefined {
-    if (!fromString || !toString) {
-        return undefined
-    }
-    const fromTimestamp = parseInt(fromString)
-    const toTimestamp = parseInt(toString)
-    return {
-        fromTimestamp: Math.min(fromTimestamp, toTimestamp),
-        toTimestamp: Math.max(fromTimestamp, toTimestamp),
-    }
-}
-
-function isInRange(timestamp: number, range: TimestampRange | undefined) {
-    if (!range) {
-        return false
-    }
-    return range.fromTimestamp <= timestamp && range.toTimestamp >= timestamp
+export function getReaderYoutubePlayerId(normalizedPageUrl: string) {
+    return `reader_youtube_player_${normalizedPageUrl}`
 }
 
 const EmptyMessageContainer = styled.div`
@@ -736,7 +715,7 @@ const Logo = styled.img`
 
 const YoutubeIframe = styled.div<{}>`
     border-radius: 8px;
-    min-height: 150px;
+    min-height: 400px;
     width: fill-available;
 `
 

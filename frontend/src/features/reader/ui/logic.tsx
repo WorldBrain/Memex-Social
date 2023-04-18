@@ -271,13 +271,10 @@ export class ReaderPageViewLogic extends UILogic<
                 const listEntry = result.entries[0]
                 const normalizedPageUrl = listEntry.normalizedUrl
 
-                if (normalizedPageUrl.startsWith('https://www.youtube.com/')) {
-                    this.emitMutation({
-                        isYoutubeVideo: { $set: true },
-                    })
-                }
-
                 this.emitMutation({
+                    isYoutubeVideo: {
+                        $set: normalizedPageUrl.startsWith('youtube.com/'),
+                    },
                     listData: {
                         $set: {
                             reference: listReference,
