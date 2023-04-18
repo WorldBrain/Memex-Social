@@ -20,6 +20,7 @@ import type { CollectionDetailsListEntry } from '../../content-sharing/ui/pages/
 import type { UserReference } from '../../user-management/types'
 import type { GenerateServerID } from '@worldbrain/memex-common/lib/content-sharing/service/types'
 import type { URLNormalizer } from '@worldbrain/memex-common/lib/url-utils/normalize/types'
+import type { AutoPk } from '@worldbrain/memex-common/lib/storage/types'
 
 export interface ReaderPageViewDependencies {
     services: UIElementServices<
@@ -67,11 +68,13 @@ export type ReaderPageViewState = AnnotationConversationsState & {
     joinListResult: ProcessSharedListKeyResult | null
     showShareMenu: boolean
     linkCopiedToClipBoard: boolean
+    activeAnnotationId: AutoPk | null
     iframeLoadState: UITaskState
 }
 
 export type ReaderPageViewEvent = UIEvent<AnnotationConversationEvent> & {
     setReaderContainerRef: { ref: HTMLDivElement | null }
+    setSidebarRef: { ref: HTMLElement | null }
     setSidebarWidth: { width: number }
     reportUrl: { url: string }
     copyLink: { url: string | null }

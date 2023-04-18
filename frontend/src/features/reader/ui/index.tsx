@@ -44,7 +44,6 @@ export class ReaderPageView extends UIElement<
     //         | TimestampRange
     //         | undefined
     // }
-    private sidebarContainer = React.createRef<HTMLElement>()
     private reportButtonRef = React.createRef<HTMLDivElement>()
     private sharePageButton = React.createRef<HTMLDivElement>()
 
@@ -114,12 +113,9 @@ export class ReaderPageView extends UIElement<
                     )
                 }
                 annotationConversations={this.state.conversations}
-                // shouldHighlightAnnotation={(annotation) =>
-                //     isInRange(
-                //         annotation.createdWhen,
-                //         this.itemRanges.annotEntry,
-                //     )
-                // }
+                shouldHighlightAnnotation={(annotation) =>
+                    this.state.activeAnnotationId === annotation.reference.id
+                }
                 // shouldHighlightReply={(_, replyData) =>
                 //     isInRange(
                 //         replyData.reply.createdWhen,
@@ -490,7 +486,11 @@ export class ReaderPageView extends UIElement<
                         />
                     </SidebarTopBar>
                     <Sidebar
-                        ref={this.sidebarContainer}
+                        ref={(ref: Rnd) =>
+                            this.processEvent('setSidebarRef', {
+                                ref: ref?.getSelfElement() ?? null,
+                            })
+                        }
                         style={style}
                         default={{
                             x: 0,

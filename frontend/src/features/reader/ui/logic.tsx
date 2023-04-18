@@ -45,6 +45,7 @@ import {
     ReaderPageViewState,
 } from './types'
 import type {
+    AnnotationClickHandler,
     RenderableAnnotation,
     SaveAndRenderHighlightDeps,
 } from '@worldbrain/memex-common/lib/in-page-ui/highlighting/types'
@@ -59,14 +60,16 @@ export class ReaderPageViewLogic extends UILogic<
     ReaderPageViewState,
     ReaderPageViewEvent
 > {
-    users: UserProfileCache
-    pageAnnotationPromises: { [normalizedPageUrl: string]: Promise<void> } = {}
-    conversationThreadPromises: {
+    private users: UserProfileCache
+    private isReaderInitialized = false
+    private sidebarRef: HTMLElement | null = null
+    private highlightRenderer!: HighlightRenderer
+    private pageAnnotationPromises: {
+        [normalizedPageUrl: string]: Promise<void>
+    } = {}
+    private conversationThreadPromises: {
         [normalizePageUrl: string]: Promise<void>
     } = {}
-
-    private isReaderInitialized = false
-    private highlightRenderer!: HighlightRenderer
     private cleanupIframeTooltipShowListener?: () => void
 
     constructor(private dependencies: ReaderPageViewDependencies) {
@@ -149,6 +152,7 @@ export class ReaderPageViewLogic extends UILogic<
             annotations: {},
             users: {},
             sidebarWidth: 400,
+            activeAnnotationId: null,
             collaborationKey: null,
             joinListResult: null,
             showShareMenu: false,
@@ -701,6 +705,12 @@ export class ReaderPageViewLogic extends UILogic<
         }, 2000)
     }
 
+    setSidebarRef: EventHandler<'setSidebarRef'> = ({ event }) => {
+        if (event.ref) {
+            this.sidebarRef = event.ref
+        }
+    }
+
     private async loadPageAnnotations(
         annotationEntries: GetAnnotationListEntriesResult,
         normalizedPageUrls: string[],
@@ -802,11 +812,7 @@ export class ReaderPageViewLogic extends UILogic<
 
                     await this.highlightRenderer?.renderHighlights(
                         toRender,
-                        async (args) =>
-                            console.log(
-                                'TODO: do something on highlight click:',
-                                args,
-                            ),
+                        this.handleHighlightClick,
                     )
                 } catch (e) {
                     this.emitMutation({
@@ -881,6 +887,24 @@ export class ReaderPageViewLogic extends UILogic<
         } catch (e) {
             throw e
         }
+    }
+
+    private handleHighlightClick: AnnotationClickHandler = async ({
+        annotationId,
+        openInEdit,
+    }) => {
+        if (!this.sidebarRef) {
+            console.warn('Clicked on highlight but sidebar ref not yet setup')
+            return
+        }
+
+        const sidebarAnnotEl = this.sidebarRef.querySelector('#' + annotationId)
+        if (!sidebarAnnotEl) {
+            return
+        }
+
+        this.emitMutation({ activeAnnotationId: { $set: annotationId } })
+        sidebarAnnotEl.scrollIntoView({ behavior: 'smooth', block: 'center' })
     }
 }
 

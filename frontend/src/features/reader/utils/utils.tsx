@@ -2,6 +2,19 @@ const convertRelativeUrlsToAbsolute = (html: string, url: string): string => {
     const parser = new DOMParser()
     const doc = parser.parseFromString(html, 'text/html')
 
+    // Create a <script> tag to inject our own script in there
+    const script = doc.createElement('script')
+    script.src = `${window.location.origin}/reader-injection.js`
+    doc.head.appendChild(script)
+
+    const srcElements = doc.querySelectorAll('[src]')
+    srcElements.forEach((element: Element) => {
+        const src = element.getAttribute('src')
+        if (src && src !== '/reader-injection.js') {
+            element.setAttribute('src', new URL(src, url).toString())
+        }
+    })
+
     // TODO: This code is fragile. There must be a better way to get these styles to the iframe
     //  The <style> tag is in the parent document because of webpack's css-loader.
     const parentDocStyleEls = document.head.querySelectorAll<HTMLElement>(
