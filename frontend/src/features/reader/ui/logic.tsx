@@ -32,7 +32,10 @@ import {
     intializeNewPageReplies,
     setupConversationLogicDeps,
 } from '../../content-conversations/ui/logic'
-import { getInitialAnnotationConversationStates } from '../../content-conversations/ui/utils'
+import {
+    getInitialAnnotationConversationState,
+    getInitialAnnotationConversationStates,
+} from '../../content-conversations/ui/utils'
 import UserProfileCache from '../../user-management/utils/user-profile-cache'
 import { getWebsiteHTML } from '../utils/api'
 import { createIframeForHtml, waitForIframeLoad } from '../utils/utils'
@@ -41,7 +44,10 @@ import {
     ReaderPageViewEvent,
     ReaderPageViewState,
 } from './types'
-import type { RenderableAnnotation } from '@worldbrain/memex-common/lib/in-page-ui/highlighting/types'
+import type {
+    RenderableAnnotation,
+    SaveAndRenderHighlightDeps,
+} from '@worldbrain/memex-common/lib/in-page-ui/highlighting/types'
 
 type EventHandler<EventName extends keyof ReaderPageViewEvent> = UIEventHandler<
     ReaderPageViewState,
@@ -133,21 +139,22 @@ export class ReaderPageViewLogic extends UILogic<
 
     getInitialState(): ReaderPageViewState {
         return {
-            iframeLoadState: 'pristine',
-            listLoadState: 'pristine',
-            users: {},
             annotationEntriesLoadState: 'pristine',
+            collaborationKeyLoadState: 'pristine',
+            iframeLoadState: 'pristine',
+            joinListState: 'pristine',
+            listLoadState: 'pristine',
             annotationLoadStates: {},
+            annotationEntryData: {},
             annotations: {},
+            users: {},
             sidebarWidth: 400,
             collaborationKey: null,
-            collaborationKeyLoadState: 'pristine',
-            joinListState: 'pristine',
             joinListResult: null,
+            showShareMenu: false,
             isYoutubeVideo: false,
             reportURLSuccess: false,
             showInstallTooltip: false,
-            showShareMenu: false,
             linkCopiedToClipBoard: false,
             ...annotationConversationInitialState(),
         }
@@ -419,6 +426,14 @@ export class ReaderPageViewLogic extends UILogic<
                             ],
                         },
                     } as any,
+                    conversations: {
+                        [annotationId]: {
+                            $set: {
+                                ...getInitialAnnotationConversationState(),
+                                hasThreadLoadLoadState: 'success',
+                            },
+                        },
+                    } as any,
                 })
 
                 // Schedule DB entry creation
@@ -477,6 +492,7 @@ export class ReaderPageViewLogic extends UILogic<
                                             ...previousState[dummyEntryIdx],
                                             reference: ref,
                                         }
+                                        return previousState
                                     },
                                 },
                             } as any,
@@ -489,10 +505,13 @@ export class ReaderPageViewLogic extends UILogic<
                 }
             },
         })
-        this.renderTooltipInShadowDOM(iframe)
+        this.renderTooltipInShadowDOM(iframe, originalUrl)
     }
 
-    private renderTooltipInShadowDOM(iframe: HTMLIFrameElement): void {
+    private renderTooltipInShadowDOM(
+        iframe: HTMLIFrameElement,
+        originalUrl: string,
+    ): void {
         const shadowRootContainer = document.createElement('div')
         shadowRootContainer.id = 'memex-tooltip-container' // NOTE: this needs to be here else tooltip won't auto-hide on click away (see <ClickAway> comp)
         iframe.contentDocument?.body.appendChild(shadowRootContainer)
@@ -507,31 +526,50 @@ export class ReaderPageViewLogic extends UILogic<
         const reactContainer = document.createElement('div')
         shadowRoot.appendChild(reactContainer)
 
+        const getRenderHighlightParams = (args: {
+            selection: Selection
+            shouldShare?: boolean
+        }): SaveAndRenderHighlightDeps => {
+            const currentUser =
+                this.dependencies.services.auth.getCurrentUserReference() ??
+                undefined
+            if (!currentUser) {
+                throw new Error('No user logged in')
+            }
+
+            return {
+                currentUser,
+                shouldShare: args.shouldShare,
+                getSelection: () => args.selection,
+                getFullPageUrl: async () => originalUrl,
+                onClick: async (args) =>
+                    console.log('TODO: Annotation click handler', args),
+            }
+        }
+
         // TODO: Properly hook this up to the rest of the app
         ReactDOM.render(
             <StyleSheetManager target={shadowRoot as any}>
                 <ThemeProvider theme={theme}>
                     <Tooltip
+                        hideAddToSpaceBtn
                         getWindow={() => iframe.contentWindow!}
-                        createHighlight={async (text, shouldShare) =>
-                            console.log(
-                                'TOOLTIP: create highlight:',
-                                text,
-                                shouldShare,
+                        createHighlight={async (selection, shouldShare) => {
+                            await this.highlightRenderer.saveAndRenderHighlight(
+                                getRenderHighlightParams({
+                                    selection,
+                                    shouldShare,
+                                }),
                             )
-                        }
-                        createAnnotation={async (
-                            text,
-                            shouldShare,
-                            showSpacePicker,
-                        ) =>
-                            console.log(
-                                'TOOLTIP: create annotation:',
-                                text,
-                                shouldShare,
-                                showSpacePicker,
+                        }}
+                        createAnnotation={async (selection, shouldShare) => {
+                            await this.highlightRenderer.saveAndRenderHighlight(
+                                getRenderHighlightParams({
+                                    selection,
+                                    shouldShare,
+                                }),
                             )
-                        }
+                        }}
                         onTooltipInit={(showTooltip) => {
                             showTooltipCb = showTooltip
                         }}

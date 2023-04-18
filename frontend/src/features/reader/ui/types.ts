@@ -55,7 +55,7 @@ export type ReaderPageViewState = AnnotationConversationsState & {
     }
     annotationEntriesLoadState: UITaskState
     annotationLoadStates: { [normalizedPageUrl: string]: UITaskState }
-    annotationEntryData?: GetAnnotationListEntriesResult
+    annotationEntryData: GetAnnotationListEntriesResult
     annotations: GetAnnotationsResult
     sidebarWidth: number
     isYoutubeVideo: boolean
