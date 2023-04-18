@@ -906,6 +906,21 @@ export class ReaderPageViewLogic extends UILogic<
         this.emitMutation({ activeAnnotationId: { $set: annotationId } })
         sidebarAnnotEl.scrollIntoView({ behavior: 'smooth', block: 'center' })
     }
+
+    clickAnnotationInSidebar: EventHandler<'clickAnnotationInSidebar'> = async ({
+        event,
+        previousState,
+    }) => {
+        this.emitMutation({ activeAnnotationId: { $set: event.annotationId } })
+        const annotationData = previousState.annotations[event.annotationId]
+
+        if (this.highlightRenderer && annotationData?.selector) {
+            await this.highlightRenderer.highlightAndScroll({
+                id: event.annotationId,
+                selector: JSON.parse(annotationData.selector),
+            })
+        }
+    }
 }
 
 const trySendingURLToOpenToExtension = async (

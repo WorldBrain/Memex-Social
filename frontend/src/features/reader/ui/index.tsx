@@ -100,6 +100,10 @@ export class ReaderPageView extends UIElement<
                 //         ? state.newPageReplies[entry.normalizedUrl]
                 //         : undefined
                 // }
+                onAnnotationClick={(annotation) => (event) =>
+                    this.processEvent('clickAnnotationInSidebar', {
+                        annotationId: annotation.reference.id,
+                    })}
                 loadState={state.annotationLoadStates[entry.normalizedUrl]}
                 annotations={
                     state.annotationEntryData &&

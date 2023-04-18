@@ -76,6 +76,7 @@ export type ReaderPageViewEvent = UIEvent<AnnotationConversationEvent> & {
     setReaderContainerRef: { ref: HTMLDivElement | null }
     setSidebarRef: { ref: HTMLElement | null }
     setSidebarWidth: { width: number }
+    clickAnnotationInSidebar: { annotationId: AutoPk }
     reportUrl: { url: string }
     copyLink: { url: string | null }
     closeInstallTooltip: null
