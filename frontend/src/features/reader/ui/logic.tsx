@@ -42,6 +42,7 @@ import {
     ReaderPageViewState,
 } from './types'
 import type { RenderableAnnotation } from '@worldbrain/memex-common/lib/in-page-ui/highlighting/types'
+import { MemexTheme } from '@worldbrain/memex-common/lib/common-ui/styles/types'
 
 type EventHandler<EventName extends keyof ReaderPageViewEvent> = UIEventHandler<
     ReaderPageViewState,
@@ -507,10 +508,20 @@ export class ReaderPageViewLogic extends UILogic<
         const reactContainer = document.createElement('div')
         shadowRoot.appendChild(reactContainer)
 
+        const fixedTheme: MemexTheme = {
+            ...theme,
+            icons: Object.fromEntries(
+                Object.entries(theme.icons).map(([key, value]) => [
+                    key,
+                    window.origin + value,
+                ]),
+            ) as MemexTheme['icons'],
+        }
+
         // TODO: Properly hook this up to the rest of the app
         ReactDOM.render(
             <StyleSheetManager target={shadowRoot as any}>
-                <ThemeProvider theme={theme}>
+                <ThemeProvider theme={fixedTheme}>
                     <Tooltip
                         getWindow={() => iframe.contentWindow!}
                         askAI={async (text) =>

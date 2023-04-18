@@ -93,9 +93,6 @@ const convertRelativeUrlsToAbsolute = async (
         if (!imgElement.srcset) {
             continue
         }
-        if (imgElement.srcset.includes('power')) {
-            console.log(imgElement.srcset)
-        }
         element.srcset = imgElement.srcset
             .split(',')
             .map((setEntry) => {
