@@ -87,10 +87,6 @@ export class ReaderPageView extends UIElement<
 
         const loadState = state.annotationLoadStates[entry.normalizedUrl]
 
-        console.log('load', loadState)
-
-        console.log('length', state.annotationEntryData)
-
         if (
             loadState &&
             loadState === 'success' &&

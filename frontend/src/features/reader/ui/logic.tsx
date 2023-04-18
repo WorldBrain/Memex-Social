@@ -614,6 +614,7 @@ export class ReaderPageViewLogic extends UILogic<
                         onTooltipInit={(showTooltip) => {
                             showTooltipCb = showTooltip
                         }}
+                        context={'reader'}
                     />
                 </ThemeProvider>
             </StyleSheetManager>,
