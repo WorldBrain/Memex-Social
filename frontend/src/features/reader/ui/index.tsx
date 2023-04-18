@@ -90,11 +90,6 @@ export class ReaderPageView extends UIElement<
                 originalUrl={entry.originalUrl}
                 contextLocation={'webUI'}
                 variant={'dark-mode'}
-                // getYoutubePlayer={() =>
-                //     this.props.services.youtube.getPlayerByElementId(
-                //         youtubeElementId,
-                //     )
-                // }
                 // newPageReply={
                 //     this.isListContributor || state.isListOwner
                 //         ? state.newPageReplies[entry.normalizedUrl]
@@ -105,6 +100,11 @@ export class ReaderPageView extends UIElement<
                         annotationId: annotation.reference.id,
                     })}
                 loadState={state.annotationLoadStates[entry.normalizedUrl]}
+                getYoutubePlayer={() =>
+                    this.props.services.youtube.getPlayerByElementId(
+                        getReaderYoutubePlayerId(entry.originalUrl),
+                    )
+                }
                 annotations={
                     state.annotationEntryData &&
                     state.annotationEntryData[entry.normalizedUrl] &&
