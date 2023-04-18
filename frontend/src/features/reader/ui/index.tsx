@@ -403,6 +403,8 @@ export class ReaderPageView extends UIElement<
             top: '0px',
             zIndex: 3,
             height: 'fill-available',
+            display: 'flex',
+            flexDirection: 'column',
         } as const
 
         return (
@@ -491,12 +493,6 @@ export class ReaderPageView extends UIElement<
                     width={this.state.sidebarWidth}
                     id={'annotationSidebarContainer'}
                 >
-                    <SidebarTopBar>
-                        <AuthHeader
-                            services={this.props.services}
-                            storage={this.props.storage}
-                        />
-                    </SidebarTopBar>
                     <Sidebar
                         ref={(ref: Rnd) =>
                             this.processEvent('setSidebarRef', {
@@ -539,10 +535,18 @@ export class ReaderPageView extends UIElement<
                             })
                         }}
                     >
-                        {this.state.listData &&
-                            this.renderPageAnnotations(
-                                this.state.listData.entry,
-                            )}
+                        <SidebarTopBar>
+                            <AuthHeader
+                                services={this.props.services}
+                                storage={this.props.storage}
+                            />
+                        </SidebarTopBar>
+                        <SidebarAnnotationContainer>
+                            {this.state.listData &&
+                                this.renderPageAnnotations(
+                                    this.state.listData.entry,
+                                )}
+                        </SidebarAnnotationContainer>
                     </Sidebar>
                 </ContainerStyled>
             </MainContainer>
@@ -601,6 +605,18 @@ const LinkTitle = styled.div`
     margin-bottom: 5px;
     margin-top: 15px;
     text-align: center;
+`
+
+const SidebarAnnotationContainer = styled.div`
+    overflow: scroll;
+    &::-webkit-scrollbar {
+        display: none;
+    }
+    min-height: 300px;
+    flex: 1;
+    scrollbar-width: none;
+    display: flex;
+    flex-direction: column;
 `
 
 const LinkBox = styled.div`
@@ -731,8 +747,14 @@ const Sidebar = styled(Rnd)`
     right: 0;
     height: fill-available;
     background: ${(props) => props.theme.colors.black};
-    overflow: scroll;
     flex: 1;
+    display: flex;
+    flex-direction: column;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+    scrollbar-width: none;
 `
 
 const ContainerStyled = styled.div<{ width: number }>`
