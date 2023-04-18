@@ -332,12 +332,20 @@ export class ReaderPageViewLogic extends UILogic<
         if (event.ref) {
             const { entry } = previousState.listData ?? {}
             if (entry) {
-                await this.initializeReader(event.ref, entry.originalUrl)
+                await this.initializeReader(
+                    event.ref,
+                    entry.originalUrl,
+                    previousState,
+                )
             }
         }
     }
 
-    private async initializeReader(ref: HTMLDivElement, originalUrl: string) {
+    private async initializeReader(
+        ref: HTMLDivElement,
+        originalUrl: string,
+        { collaborationKey }: ReaderPageViewState,
+    ) {
         if (!this.isReaderInitialized) {
             this.isReaderInitialized = true
         } else {
@@ -361,6 +369,16 @@ export class ReaderPageViewLogic extends UILogic<
             return
         }
 
+        this.setupIframeHighlighter(iframe, originalUrl)
+        if (collaborationKey != null) {
+            this.setupIframeTooltip(iframe, originalUrl)
+        }
+    }
+
+    private setupIframeHighlighter(
+        iframe: HTMLIFrameElement,
+        originalUrl: string,
+    ): void {
         this.highlightRenderer = new HighlightRenderer({
             getDocument: () => iframe!.contentDocument,
             scheduleAnnotationCreation: (annotationData) => {
@@ -370,9 +388,7 @@ export class ReaderPageViewLogic extends UILogic<
                     generateServerId,
                     normalizeUrl,
                 } = this.dependencies
-                const normalizedPageUrl = normalizeUrl(
-                    annotationData.fullPageUrl,
-                )
+                const normalizedPageUrl = normalizeUrl(originalUrl)
                 const creator = services.auth.getCurrentUserReference()
                 if (!creator) {
                     throw new Error('No user logged in')
@@ -509,10 +525,9 @@ export class ReaderPageViewLogic extends UILogic<
                 }
             },
         })
-        this.renderTooltipInShadowDOM(iframe, originalUrl)
     }
 
-    private renderTooltipInShadowDOM(
+    private setupIframeTooltip(
         iframe: HTMLIFrameElement,
         originalUrl: string,
     ): void {

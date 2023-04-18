@@ -364,6 +364,38 @@ export class ReaderPageView extends UIElement<
         }
     }
 
+    private renderMainContent() {
+        if (this.state.isYoutubeVideo) {
+            return (
+                <YoutubeVideoContainer>
+                    {/* {this.renderYoutubePlayer()} */}
+                </YoutubeVideoContainer>
+            )
+        }
+        return (
+            <InjectedContent
+                ref={(ref) =>
+                    this.processEvent('setReaderContainerRef', {
+                        ref,
+                    })
+                }
+            >
+                {this.state.iframeLoadState === 'error' ? (
+                    <div>
+                        The reader didn't load properly. Please try refreshing
+                        the page.
+                    </div>
+                ) : (
+                    this.state.iframeLoadState !== 'success' && (
+                        <LoadingBox height={'400px'}>
+                            <LoadingIndicator size={34} />
+                        </LoadingBox>
+                    )
+                )}
+            </InjectedContent>
+        )
+    }
+
     render() {
         const style = {
             position: 'relative',
@@ -452,32 +484,8 @@ export class ReaderPageView extends UIElement<
                             />
                         </RightSideTopBar>
                     </TopBar>
-                    {this.state.isYoutubeVideo ? (
-                        <YoutubeVideoContainer>
-                            {/* {this.renderYoutubePlayer()} */}
-                        </YoutubeVideoContainer>
-                    ) : (
-                        <InjectedContent
-                            ref={(ref) =>
-                                this.processEvent('setReaderContainerRef', {
-                                    ref,
-                                })
-                            }
-                        >
-                            {this.state.iframeLoadState === 'error' ? (
-                                <div>
-                                    The reader didn't load properly. Please try
-                                    refreshing the page.
-                                </div>
-                            ) : (
-                                this.state.iframeLoadState !== 'success' && (
-                                    <LoadingBox height={'400px'}>
-                                        <LoadingIndicator size={34} />
-                                    </LoadingBox>
-                                )
-                            )}
-                        </InjectedContent>
-                    )}
+                    {this.state.collaborationKeyLoadState === 'success' &&
+                        this.renderMainContent()}
                 </LeftSide>
                 <ContainerStyled
                     width={this.state.sidebarWidth}
