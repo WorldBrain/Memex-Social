@@ -31,6 +31,7 @@ export interface ReaderPageViewDependencies {
         | 'router'
         | 'overlay'
         | 'userManagement'
+        | 'youtube'
     >
     storage: Pick<
         StorageModules,
