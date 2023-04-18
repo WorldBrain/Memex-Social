@@ -119,9 +119,35 @@ export class ReaderPageView extends UIElement<
                     //         ? state.newPageReplies[entry.normalizedUrl]
                     //         : undefined
                     // }
+                    getAnnotationEditProps={(annotationRef) => ({
+                        isEditing: this.state.annotationEditStates[
+                            annotationRef.id
+                        ]?.isEditing,
+                        comment:
+                            this.state.annotationEditStates[annotationRef.id]
+                                ?.comment ?? '',
+                        setAnnotationEditing: (isEditing) => (event) =>
+                            this.processEvent('setAnnotationEditing', {
+                                isEditing,
+                                annotationId: annotationRef.id,
+                            }),
+                        onCommentChange: (comment) =>
+                            this.processEvent('changeAnnotationEditComment', {
+                                comment,
+                                annotationId: annotationRef.id,
+                            }),
+                        onEditConfirm: () => () =>
+                            this.processEvent('confirmAnnotationEdit', {
+                                annotationId: annotationRef.id,
+                            }),
+                        onEditCancel: () =>
+                            this.processEvent('cancelAnnotationEdit', {
+                                annotationId: annotationRef.id,
+                            }),
+                    })}
                     onAnnotationClick={(annotation) => (event) =>
                         this.processEvent('clickAnnotationInSidebar', {
-                            annotationId: annotation.reference.id,
+                            annotationId: annotation.id,
                         })}
                     loadState={state.annotationLoadStates[entry.normalizedUrl]}
                     annotations={

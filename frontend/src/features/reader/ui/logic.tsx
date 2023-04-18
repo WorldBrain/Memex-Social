@@ -108,6 +108,14 @@ export class ReaderPageViewLogic extends UILogic<
                         this.users.loadUser(reference),
                     onNewAnnotationCreate: (_, annotation, sharedListEntry) => {
                         this.emitMutation({
+                            annotationEditStates: {
+                                [annotation.linkId]: {
+                                    $set: {
+                                        isEditing: false,
+                                        comment: annotation.comment ?? '',
+                                    },
+                                },
+                            },
                             annotations: {
                                 [annotation.linkId]: {
                                     $set: annotation,
@@ -148,6 +156,7 @@ export class ReaderPageViewLogic extends UILogic<
             iframeLoadState: 'pristine',
             joinListState: 'pristine',
             listLoadState: 'pristine',
+            annotationEditStates: {},
             annotationLoadStates: {},
             annotationEntryData: {},
             annotations: {},
@@ -392,7 +401,7 @@ export class ReaderPageViewLogic extends UILogic<
     ): void {
         this.highlightRenderer = new HighlightRenderer({
             getDocument: () => iframe!.contentDocument,
-            scheduleAnnotationCreation: (annotationData) => {
+            scheduleAnnotationCreation: (annotationData, openInEditMode) => {
                 const {
                     services,
                     storage,
@@ -416,6 +425,14 @@ export class ReaderPageViewLogic extends UILogic<
 
                 // Update UI state (TODO: Why are the types messed up enough that I need to `as any` here?)
                 this.emitMutation({
+                    annotationEditStates: {
+                        [annotationId]: {
+                            $set: {
+                                isEditing: !!openInEditMode,
+                                comment: annotationData.comment ?? '',
+                            },
+                        },
+                    },
                     annotations: {
                         [annotationId]: {
                             $set: {
@@ -559,6 +576,7 @@ export class ReaderPageViewLogic extends UILogic<
         const getRenderHighlightParams = (args: {
             selection: Selection
             shouldShare?: boolean
+            openInEditMode?: boolean
         }): SaveAndRenderHighlightDeps => {
             const currentUser =
                 this.dependencies.services.auth.getCurrentUserReference() ??
@@ -570,10 +588,10 @@ export class ReaderPageViewLogic extends UILogic<
             return {
                 currentUser,
                 shouldShare: args.shouldShare,
+                openInEditMode: args.openInEditMode,
+                onClick: this.handleHighlightClick,
                 getSelection: () => args.selection,
                 getFullPageUrl: async () => originalUrl,
-                onClick: async (args) =>
-                    console.log('TODO: Annotation click handler', args),
             }
         }
         const fixedTheme: MemexTheme = {
@@ -585,7 +603,6 @@ export class ReaderPageViewLogic extends UILogic<
                 window.origin + value
         }
 
-        // TODO: Properly hook this up to the rest of the app
         ReactDOM.render(
             <StyleSheetManager target={shadowRoot as any}>
                 <ThemeProvider theme={fixedTheme}>
@@ -605,6 +622,7 @@ export class ReaderPageViewLogic extends UILogic<
                                 getRenderHighlightParams({
                                     selection,
                                     shouldShare,
+                                    openInEditMode: true,
                                 }),
                             )
                         }}
@@ -843,6 +861,15 @@ export class ReaderPageViewLogic extends UILogic<
                             newAnnotations,
                             (newAnnotation) => ({ $set: newAnnotation }),
                         ),
+                        annotationEditStates: mapValues(
+                            newAnnotations,
+                            (newAnnotation) => ({
+                                $set: {
+                                    isEditing: false,
+                                    comment: newAnnotation.comment ?? '',
+                                },
+                            }),
+                        ),
                     })
 
                     await this.highlightRenderer?.renderHighlights(
@@ -955,6 +982,67 @@ export class ReaderPageViewLogic extends UILogic<
                 selector: JSON.parse(annotationData.selector),
             })
         }
+    }
+
+    setAnnotationEditing: EventHandler<'setAnnotationEditing'> = ({
+        event,
+    }) => {
+        this.emitMutation({
+            annotationEditStates: {
+                [event.annotationId]: { isEditing: { $set: event.isEditing } },
+            },
+        })
+    }
+
+    changeAnnotationEditComment: EventHandler<'changeAnnotationEditComment'> = ({
+        event,
+    }) => {
+        this.emitMutation({
+            annotationEditStates: {
+                [event.annotationId]: { comment: { $set: event.comment } },
+            },
+        })
+    }
+
+    cancelAnnotationEdit: EventHandler<'cancelAnnotationEdit'> = ({
+        event,
+    }) => {
+        this.emitMutation({
+            annotationEditStates: {
+                [event.annotationId]: { isEditing: { $set: false } },
+            },
+        })
+    }
+
+    confirmAnnotationEdit: EventHandler<'confirmAnnotationEdit'> = async ({
+        event,
+        previousState,
+    }) => {
+        const editState = previousState.annotationEditStates[event.annotationId]
+        if (!editState) {
+            throw new Error(
+                'Attempted annotation edit for non-existent annotation',
+            )
+        }
+
+        this.emitMutation({
+            annotations: {
+                [event.annotationId]: { comment: { $set: editState.comment } },
+            },
+            annotationEditStates: {
+                [event.annotationId]: { isEditing: { $set: false } },
+            },
+        })
+
+        // TODO: Also update personal cloud entries to trigger sync updates
+
+        await this.dependencies.storage.contentSharing.updateAnnotationComment({
+            updatedComment: editState.comment,
+            sharedAnnotationReference: {
+                type: 'shared-annotation-reference',
+                id: event.annotationId,
+            },
+        })
     }
 }
 

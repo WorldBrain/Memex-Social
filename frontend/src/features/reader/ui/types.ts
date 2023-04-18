@@ -57,6 +57,12 @@ export type ReaderPageViewState = AnnotationConversationsState & {
     }
     annotationEntriesLoadState: UITaskState
     annotationLoadStates: { [normalizedPageUrl: string]: UITaskState }
+    annotationEditStates: {
+        [annotationId: string]: {
+            comment: string
+            isEditing: boolean
+        }
+    }
     annotationEntryData: GetAnnotationListEntriesResult
     annotations: GetAnnotationsResult
     sidebarWidth: number
@@ -82,6 +88,10 @@ export type ReaderPageViewEvent = UIEvent<AnnotationConversationEvent> & {
     copyLink: { url: string | null }
     closeInstallTooltip: null
     showSharePageMenu: null
+    setAnnotationEditing: { annotationId: AutoPk; isEditing: boolean }
+    cancelAnnotationEdit: { annotationId: AutoPk }
+    confirmAnnotationEdit: { annotationId: AutoPk }
+    changeAnnotationEditComment: { annotationId: AutoPk; comment: string }
     installMemexClick: {
         sharedListReference: SharedListReference
         urlToOpen: string
