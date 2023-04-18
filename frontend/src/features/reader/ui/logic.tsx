@@ -510,12 +510,11 @@ export class ReaderPageViewLogic extends UILogic<
 
         const fixedTheme: MemexTheme = {
             ...theme,
-            icons: Object.fromEntries(
-                Object.entries(theme.icons).map(([key, value]) => [
-                    key,
-                    window.origin + value,
-                ]),
-            ) as MemexTheme['icons'],
+            icons: { ...theme.icons },
+        }
+        for (const [key, value] of Object.entries(fixedTheme.icons)) {
+            fixedTheme.icons[key as keyof MemexTheme['icons']] =
+                window.origin + value
         }
 
         // TODO: Properly hook this up to the rest of the app
