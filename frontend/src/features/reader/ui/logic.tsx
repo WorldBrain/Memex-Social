@@ -49,6 +49,7 @@ import type {
     RenderableAnnotation,
     SaveAndRenderHighlightDeps,
 } from '@worldbrain/memex-common/lib/in-page-ui/highlighting/types'
+import { MemexTheme } from '@worldbrain/memex-common/lib/common-ui/styles/types'
 
 type EventHandler<EventName extends keyof ReaderPageViewEvent> = UIEventHandler<
     ReaderPageViewState,
@@ -359,7 +360,7 @@ export class ReaderPageViewLogic extends UILogic<
             async () => {
                 const { html, url } = await getWebsiteHTML(originalUrl)
 
-                const _iframe = createIframeForHtml(html, url, ref)
+                const _iframe = await createIframeForHtml(html, url, ref)
                 await waitForIframeLoad(_iframe)
                 iframe = _iframe
             },
@@ -565,11 +566,19 @@ export class ReaderPageViewLogic extends UILogic<
                     console.log('TODO: Annotation click handler', args),
             }
         }
+        const fixedTheme: MemexTheme = {
+            ...theme,
+            icons: { ...theme.icons },
+        }
+        for (const [key, value] of Object.entries(fixedTheme.icons)) {
+            fixedTheme.icons[key as keyof MemexTheme['icons']] =
+                window.origin + value
+        }
 
         // TODO: Properly hook this up to the rest of the app
         ReactDOM.render(
             <StyleSheetManager target={shadowRoot as any}>
-                <ThemeProvider theme={theme}>
+                <ThemeProvider theme={fixedTheme}>
                     <Tooltip
                         hideAddToSpaceBtn
                         getWindow={() => iframe.contentWindow!}
