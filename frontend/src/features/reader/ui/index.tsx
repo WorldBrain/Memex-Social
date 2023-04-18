@@ -620,6 +620,11 @@ const LinkField = styled.div`
     padding: 0 10px;
     font-size: 12px;
     white-space: nowrap;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+    scrollbar-width: none;
 `
 
 const TooltipBox = styled.div`
