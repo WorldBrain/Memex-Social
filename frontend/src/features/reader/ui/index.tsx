@@ -17,6 +17,7 @@ import AuthHeader from '../../user-management/ui/containers/auth-header'
 import { PopoutBox } from '@worldbrain/memex-common/lib/common-ui/components/popout-box'
 import { getSinglePageShareUrl } from '@worldbrain/memex-common/lib/content-sharing/utils'
 import LoadingIndicator from '@worldbrain/memex-common/lib/common-ui/components/loading-indicator'
+import IconBox from '@worldbrain/memex-common/lib/common-ui/components/icon-box'
 
 const TopBarHeight = 60
 const memexLogo = require('../../../assets/img/memex-logo-beta.svg')
@@ -84,119 +85,155 @@ export class ReaderPageView extends UIElement<
         //     entry.normalizedUrl,
         // )
 
-        return (
-            <AnnotationsInPage
-                hideThreadBar={true}
-                originalUrl={entry.originalUrl}
-                contextLocation={'webUI'}
-                variant={'dark-mode'}
-                // getYoutubePlayer={() =>
-                //     this.props.services.youtube.getPlayerByElementId(
-                //         youtubeElementId,
-                //     )
-                // }
-                // newPageReply={
-                //     this.isListContributor || state.isListOwner
-                //         ? state.newPageReplies[entry.normalizedUrl]
-                //         : undefined
-                // }
-                onAnnotationClick={(annotation) => (event) =>
-                    this.processEvent('clickAnnotationInSidebar', {
-                        annotationId: annotation.reference.id,
-                    })}
-                loadState={state.annotationLoadStates[entry.normalizedUrl]}
-                annotations={
-                    state.annotationEntryData &&
-                    state.annotationEntryData[entry.normalizedUrl] &&
-                    state.annotationEntryData &&
-                    state.annotationEntryData[entry.normalizedUrl].map(
-                        (annotationEntry) =>
-                            this.state.annotations[
-                                annotationEntry.sharedAnnotation.id.toString()
-                            ] ?? null,
-                    )
-                }
-                annotationConversations={this.state.conversations}
-                shouldHighlightAnnotation={(annotation) =>
-                    this.state.activeAnnotationId === annotation.reference.id
-                }
-                // shouldHighlightReply={(_, replyData) =>
-                //     isInRange(
-                //         replyData.reply.createdWhen,
-                //         this.itemRanges.reply,
-                //     )
-                // }
-                getAnnotationCreator={(annotationReference) => {
-                    const creatorRef = this.state.annotations[
-                        annotationReference.id.toString()
-                    ]?.creator
-                    return creatorRef && this.state.users[creatorRef.id]
-                }}
-                getAnnotationCreatorRef={(annotationReference) => {
-                    const creatorRef = this.state.annotations[
-                        annotationReference.id.toString()
-                    ]?.creator
-                    return creatorRef
-                }}
-                // profilePopupProps={{
-                //     storage: this.props.storage,
-                //     services: this.props.services,
-                // }}
-                onToggleReplies={(event) =>
-                    this.processEvent('toggleAnnotationReplies', {
-                        ...event,
-                        sharedListReference: this.state.listData!.reference,
-                    })
-                }
-                newPageReplyEventHandlers={{
-                    onNewReplyInitiate: () =>
-                        this.processEvent('initiateNewReplyToPage', {
-                            pageReplyId: entry.normalizedUrl,
-                        }),
-                    onNewReplyCancel: () =>
-                        this.processEvent('cancelNewReplyToPage', {
-                            pageReplyId: entry.normalizedUrl,
-                        }),
-                    onNewReplyConfirm: () =>
-                        this.processEvent('confirmNewReplyToPage', {
-                            normalizedPageUrl: entry.normalizedUrl,
-                            pageCreatorReference: entry.creator,
-                            pageReplyId: entry.normalizedUrl,
+        const loadState = state.annotationLoadStates[entry.normalizedUrl]
+
+        console.log('load', loadState)
+
+        console.log('length', state.annotationEntryData)
+
+        if (
+            loadState &&
+            loadState === 'success' &&
+            Object.keys(state.annotationEntryData).length === 0
+        ) {
+            return (
+                <EmptyMessageContainer>
+                    <IconBox heightAndWidth="40px">
+                        <Icon
+                            filePath={'commentAdd'}
+                            heightAndWidth="20px"
+                            color="prime1"
+                            hoverOff
+                        />
+                    </IconBox>
+                    <InfoText>
+                        Add a note or highlight sections of the page
+                    </InfoText>
+                </EmptyMessageContainer>
+            )
+        } else {
+            return (
+                <AnnotationsInPage
+                    hideThreadBar={true}
+                    originalUrl={entry.originalUrl}
+                    contextLocation={'webUI'}
+                    variant={'dark-mode'}
+                    // getYoutubePlayer={() =>
+                    //     this.props.services.youtube.getPlayerByElementId(
+                    //         youtubeElementId,
+                    //     )
+                    // }
+                    // newPageReply={
+                    //     this.isListContributor || state.isListOwner
+                    //         ? state.newPageReplies[entry.normalizedUrl]
+                    //         : undefined
+                    // }
+                    onAnnotationClick={(annotation) => (event) =>
+                        this.processEvent('clickAnnotationInSidebar', {
+                            annotationId: annotation.reference.id,
+                        })}
+                    loadState={state.annotationLoadStates[entry.normalizedUrl]}
+                    annotations={
+                        state.annotationEntryData &&
+                        state.annotationEntryData[entry.normalizedUrl] &&
+                        state.annotationEntryData &&
+                        state.annotationEntryData[entry.normalizedUrl].map(
+                            (annotationEntry) =>
+                                this.state.annotations[
+                                    annotationEntry.sharedAnnotation.id.toString()
+                                ] ?? null,
+                        )
+                    }
+                    annotationConversations={this.state.conversations}
+                    shouldHighlightAnnotation={(annotation) =>
+                        this.state.activeAnnotationId ===
+                        annotation.reference.id
+                    }
+                    // shouldHighlightReply={(_, replyData) =>
+                    //     isInRange(
+                    //         replyData.reply.createdWhen,
+                    //         this.itemRanges.reply,
+                    //     )
+                    // }
+                    getAnnotationCreator={(annotationReference) => {
+                        const creatorRef = this.state.annotations[
+                            annotationReference.id.toString()
+                        ]?.creator
+                        return creatorRef && this.state.users[creatorRef.id]
+                    }}
+                    getAnnotationCreatorRef={(annotationReference) => {
+                        const creatorRef = this.state.annotations[
+                            annotationReference.id.toString()
+                        ]?.creator
+                        return creatorRef
+                    }}
+                    // profilePopupProps={{
+                    //     storage: this.props.storage,
+                    //     services: this.props.services,
+                    // }}
+                    onToggleReplies={(event) =>
+                        this.processEvent('toggleAnnotationReplies', {
+                            ...event,
                             sharedListReference: this.state.listData!.reference,
-                        }),
-                    onNewReplyEdit: ({ content }) =>
-                        this.processEvent('editNewReplyToPage', {
-                            pageReplyId: entry.normalizedUrl,
+                        })
+                    }
+                    newPageReplyEventHandlers={{
+                        onNewReplyInitiate: () =>
+                            this.processEvent('initiateNewReplyToPage', {
+                                pageReplyId: entry.normalizedUrl,
+                            }),
+                        onNewReplyCancel: () =>
+                            this.processEvent('cancelNewReplyToPage', {
+                                pageReplyId: entry.normalizedUrl,
+                            }),
+                        onNewReplyConfirm: () =>
+                            this.processEvent('confirmNewReplyToPage', {
+                                normalizedPageUrl: entry.normalizedUrl,
+                                pageCreatorReference: entry.creator,
+                                pageReplyId: entry.normalizedUrl,
+                                sharedListReference: this.state.listData!
+                                    .reference,
+                            }),
+                        onNewReplyEdit: ({ content }) =>
+                            this.processEvent('editNewReplyToPage', {
+                                pageReplyId: entry.normalizedUrl,
+                                content,
+                            }),
+                    }}
+                    newAnnotationReplyEventHandlers={{
+                        onNewReplyInitiate: (annotationReference) => () =>
+                            this.processEvent('initiateNewReplyToAnnotation', {
+                                annotationReference,
+                                sharedListReference: this.state.listData!
+                                    .reference,
+                            }),
+                        onNewReplyCancel: (annotationReference) => () =>
+                            this.processEvent('cancelNewReplyToAnnotation', {
+                                annotationReference,
+                                sharedListReference: this.state.listData!
+                                    .reference,
+                            }),
+                        onNewReplyConfirm: (annotationReference) => () =>
+                            this.processEvent('confirmNewReplyToAnnotation', {
+                                annotationReference,
+                                sharedListReference: this.state.listData!
+                                    .reference,
+                            }),
+                        onNewReplyEdit: (annotationReference) => ({
                             content,
-                        }),
-                }}
-                newAnnotationReplyEventHandlers={{
-                    onNewReplyInitiate: (annotationReference) => () =>
-                        this.processEvent('initiateNewReplyToAnnotation', {
-                            annotationReference,
-                            sharedListReference: this.state.listData!.reference,
-                        }),
-                    onNewReplyCancel: (annotationReference) => () =>
-                        this.processEvent('cancelNewReplyToAnnotation', {
-                            annotationReference,
-                            sharedListReference: this.state.listData!.reference,
-                        }),
-                    onNewReplyConfirm: (annotationReference) => () =>
-                        this.processEvent('confirmNewReplyToAnnotation', {
-                            annotationReference,
-                            sharedListReference: this.state.listData!.reference,
-                        }),
-                    onNewReplyEdit: (annotationReference) => ({ content }) =>
-                        this.processEvent('editNewReplyToAnnotation', {
-                            annotationReference,
-                            content,
-                            sharedListReference: this.state.listData!.reference,
-                        }),
-                }}
-                // onAnnotationBoxRootRef={this.onAnnotEntryRef}
-                // onReplyRootRef={this.onReplyRef}
-            />
-        )
+                        }) =>
+                            this.processEvent('editNewReplyToAnnotation', {
+                                annotationReference,
+                                content,
+                                sharedListReference: this.state.listData!
+                                    .reference,
+                            }),
+                    }}
+                    // onAnnotationBoxRootRef={this.onAnnotEntryRef}
+                    // onReplyRootRef={this.onReplyRef}
+                />
+            )
+        }
     }
 
     // renderYoutubePlayer = () => {
@@ -581,6 +618,23 @@ function isInRange(timestamp: number, range: TimestampRange | undefined) {
     }
     return range.fromTimestamp <= timestamp && range.toTimestamp >= timestamp
 }
+
+const EmptyMessageContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    padding: 40px 5px;
+    grid-gap: 10px;
+    justify-content: center;
+    align-items: center;
+    width: fill-available;
+`
+
+const InfoText = styled.div`
+    color: ${(props) => props.theme.colors.greyScale5};
+    font-size: 14px;
+    font-weight: 400;
+    text-align: center;
+`
 
 const LoadingBox = styled.div<{ height: string }>`
     display: flex;

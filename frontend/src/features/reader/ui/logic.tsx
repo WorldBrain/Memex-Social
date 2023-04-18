@@ -297,8 +297,21 @@ export class ReaderPageViewLogic extends UILogic<
                         normalizedPageUrl,
                     },
                 )
+
+                this.emitMutation({
+                    annotationLoadStates: {
+                        [normalizedPageUrl]: { $set: 'running' },
+                    },
+                })
+
                 const entries = annotationEntriesByList[listReference.id] ?? []
                 if (!entries.length) {
+                    this.emitMutation({
+                        annotationLoadStates: {
+                            [normalizedPageUrl]: { $set: 'success' },
+                        },
+                    })
+
                     return
                 }
 
