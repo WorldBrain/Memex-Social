@@ -44,6 +44,7 @@ export interface ReaderPageViewDependencies {
 }
 
 export type ReaderPageViewState = AnnotationConversationsState & {
+    originalUrl: string | null
     users: { [id: string]: Pick<User, 'displayName' | 'platform'> }
     listLoadState: UITaskState
     listData?: {
@@ -57,10 +58,16 @@ export type ReaderPageViewState = AnnotationConversationsState & {
     }
     annotationEntriesLoadState: UITaskState
     annotationLoadStates: { [normalizedPageUrl: string]: UITaskState }
+    annotationCreateState: {
+        comment: string
+        isCreating: boolean
+        loadState: UITaskState
+    }
     annotationEditStates: {
         [annotationId: string]: {
             comment: string
             isEditing: boolean
+            loadState: UITaskState
         }
     }
     annotationEntryData: GetAnnotationListEntriesResult
@@ -88,6 +95,10 @@ export type ReaderPageViewEvent = UIEvent<AnnotationConversationEvent> & {
     copyLink: { url: string | null }
     closeInstallTooltip: null
     showSharePageMenu: null
+    setAnnotationCreating: { isCreating: boolean }
+    cancelAnnotationCreate: null
+    confirmAnnotationCreate: null
+    changeAnnotationCreateComment: { comment: string }
     setAnnotationEditing: { annotationId: AutoPk; isEditing: boolean }
     cancelAnnotationEdit: { annotationId: AutoPk }
     confirmAnnotationEdit: { annotationId: AutoPk }

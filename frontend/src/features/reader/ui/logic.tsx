@@ -16,7 +16,10 @@ import {
 } from '@worldbrain/memex-common/lib/content-sharing/types'
 import { makeStorageReference } from '@worldbrain/memex-common/lib/storage/references'
 import { UserReference } from '@worldbrain/memex-common/lib/web-interface/types/users'
-import { HighlightRenderer } from '@worldbrain/memex-common/lib/in-page-ui/highlighting/renderer'
+import {
+    HighlightRenderer,
+    Dependencies as HighlightRendererDeps,
+} from '@worldbrain/memex-common/lib/in-page-ui/highlighting/renderer'
 import { mapValues } from 'lodash'
 import chunk from 'lodash/chunk'
 import flatten from 'lodash/flatten'
@@ -112,6 +115,7 @@ export class ReaderPageViewLogic extends UILogic<
                                 [annotation.linkId]: {
                                     $set: {
                                         isEditing: false,
+                                        loadState: 'pristine',
                                         comment: annotation.comment ?? '',
                                     },
                                 },
@@ -151,11 +155,17 @@ export class ReaderPageViewLogic extends UILogic<
 
     getInitialState(): ReaderPageViewState {
         return {
+            originalUrl: null,
             annotationEntriesLoadState: 'pristine',
             collaborationKeyLoadState: 'pristine',
             iframeLoadState: 'pristine',
             joinListState: 'pristine',
             listLoadState: 'pristine',
+            annotationCreateState: {
+                loadState: 'pristine',
+                isCreating: false,
+                comment: '',
+            },
             annotationEditStates: {},
             annotationLoadStates: {},
             annotationEntryData: {},
@@ -281,6 +291,7 @@ export class ReaderPageViewLogic extends UILogic<
                 const normalizedPageUrl = listEntry.normalizedUrl
 
                 this.emitMutation({
+                    originalUrl: { $set: listEntry.originalUrl },
                     isYoutubeVideo: {
                         $set: normalizedPageUrl.startsWith('youtube.com/'),
                     },
@@ -389,170 +400,13 @@ export class ReaderPageViewLogic extends UILogic<
             return
         }
 
-        this.setupIframeHighlighter(iframe, originalUrl)
+        this.highlightRenderer = new HighlightRenderer({
+            getDocument: () => iframe!.contentDocument,
+            scheduleAnnotationCreation: this.scheduleAnnotationCreation,
+        })
         if (collaborationKey != null) {
             this.setupIframeTooltip(iframe, originalUrl)
         }
-    }
-
-    private setupIframeHighlighter(
-        iframe: HTMLIFrameElement,
-        originalUrl: string,
-    ): void {
-        this.highlightRenderer = new HighlightRenderer({
-            getDocument: () => iframe!.contentDocument,
-            scheduleAnnotationCreation: (annotationData, openInEditMode) => {
-                const {
-                    services,
-                    storage,
-                    generateServerId,
-                    normalizeUrl,
-                } = this.dependencies
-                const normalizedPageUrl = normalizeUrl(originalUrl)
-                const creator = services.auth.getCurrentUserReference()
-                if (!creator) {
-                    throw new Error('No user logged in')
-                }
-                const annotationId = generateServerId('sharedAnnotation')
-                const annotationRef: SharedAnnotationReference = {
-                    type: 'shared-annotation-reference',
-                    id: annotationId,
-                }
-                const listRef: SharedListReference = {
-                    type: 'shared-list-reference',
-                    id: this.dependencies.listID,
-                }
-
-                // Update UI state (TODO: Why are the types messed up enough that I need to `as any` here?)
-                this.emitMutation({
-                    annotationEditStates: {
-                        [annotationId]: {
-                            $set: {
-                                isEditing: !!openInEditMode,
-                                comment: annotationData.comment ?? '',
-                            },
-                        },
-                    },
-                    annotations: {
-                        [annotationId]: {
-                            $set: {
-                                creator,
-                                normalizedPageUrl,
-                                linkId: annotationId,
-                                reference: annotationRef,
-                                body: annotationData.body,
-                                comment: annotationData.comment,
-                                updatedWhen: annotationData.createdWhen,
-                                createdWhen: annotationData.createdWhen,
-                                uploadedWhen: annotationData.createdWhen,
-                                selector: JSON.stringify(
-                                    annotationData.selector,
-                                ),
-                            },
-                        },
-                    } as any,
-                    annotationEntryData: {
-                        [normalizedPageUrl]: {
-                            $apply: (
-                                previousState?: GetAnnotationListEntriesElement[],
-                            ) => [
-                                ...(previousState ?? []),
-                                {
-                                    creator,
-                                    normalizedPageUrl,
-                                    sharedList: listRef,
-                                    sharedAnnotation: annotationRef,
-                                    updatedWhen: annotationData.createdWhen,
-                                    createdWhen: annotationData.createdWhen,
-                                    uploadedWhen: annotationData.createdWhen,
-                                    reference: {
-                                        type:
-                                            'shared-annotation-list-entry-reference',
-                                        id: annotationId, // This will get overwritten with the actual list entry ID once write is done
-                                    },
-                                },
-                            ],
-                        },
-                    } as any,
-                    conversations: {
-                        [annotationId]: {
-                            $set: {
-                                ...getInitialAnnotationConversationState(),
-                                hasThreadLoadLoadState: 'success',
-                            },
-                        },
-                    } as any,
-                })
-
-                // Schedule DB entry creation
-                const createPromise = storage.contentSharing
-                    .createAnnotations({
-                        creator,
-                        annotationsByPage: {
-                            [normalizedPageUrl]: [
-                                {
-                                    id: annotationId,
-                                    body: annotationData.body,
-                                    comment: annotationData.comment,
-                                    selector: JSON.stringify(
-                                        annotationData.selector,
-                                    ),
-                                    createdWhen: annotationData.createdWhen,
-                                    localId: annotationId.toString(),
-                                },
-                            ],
-                        },
-                        listReferences: [
-                            {
-                                type: 'shared-list-reference',
-                                id: this.dependencies.listID,
-                            },
-                        ],
-                    })
-                    .then(({ sharedAnnotationListEntryReferences }) => {
-                        const ref =
-                            sharedAnnotationListEntryReferences[
-                                annotationId.toString()
-                            ]?.[0]
-                        if (!ref) {
-                            return
-                        }
-                        // Update newly created annotationEntryData entry with ID
-                        this.emitMutation({
-                            annotationEntryData: {
-                                [normalizedPageUrl]: {
-                                    $apply: (
-                                        previousState?: GetAnnotationListEntriesElement[],
-                                    ) => {
-                                        const dummyEntryIdx = previousState?.findIndex(
-                                            (el) =>
-                                                el.reference.id ===
-                                                annotationId,
-                                        )
-                                        if (
-                                            !previousState ||
-                                            !dummyEntryIdx ||
-                                            dummyEntryIdx === -1
-                                        ) {
-                                            return previousState
-                                        }
-                                        previousState[dummyEntryIdx] = {
-                                            ...previousState[dummyEntryIdx],
-                                            reference: ref,
-                                        }
-                                        return previousState
-                                    },
-                                },
-                            } as any,
-                        })
-                    })
-
-                return {
-                    annotationId,
-                    createPromise,
-                }
-            },
-        })
     }
 
     private setupIframeTooltip(
@@ -656,6 +510,155 @@ export class ReaderPageViewLogic extends UILogic<
                 'mouseup',
                 showTooltipListener,
             )
+        }
+    }
+
+    private scheduleAnnotationCreation: HighlightRendererDeps['scheduleAnnotationCreation'] = (
+        annotationData,
+        openInEditMode,
+    ) => {
+        const {
+            services,
+            storage,
+            generateServerId,
+            normalizeUrl,
+        } = this.dependencies
+        const normalizedPageUrl = normalizeUrl(annotationData.fullPageUrl)
+        const creator = services.auth.getCurrentUserReference()
+        if (!creator) {
+            throw new Error('No user logged in')
+        }
+        const annotationId = generateServerId('sharedAnnotation')
+        const annotationRef: SharedAnnotationReference = {
+            type: 'shared-annotation-reference',
+            id: annotationId,
+        }
+        const listRef: SharedListReference = {
+            type: 'shared-list-reference',
+            id: this.dependencies.listID,
+        }
+
+        // Update UI state (TODO: Why are the types messed up enough that I need to `as any` here?)
+        this.emitMutation({
+            annotationEditStates: {
+                [annotationId]: {
+                    $set: {
+                        isEditing: !!openInEditMode,
+                        comment: annotationData.comment ?? '',
+                        loadState: 'pristine',
+                    },
+                },
+            } as any,
+            annotations: {
+                [annotationId]: {
+                    $set: {
+                        creator,
+                        normalizedPageUrl,
+                        linkId: annotationId,
+                        reference: annotationRef,
+                        body: annotationData.body,
+                        comment: annotationData.comment,
+                        updatedWhen: annotationData.createdWhen,
+                        createdWhen: annotationData.createdWhen,
+                        uploadedWhen: annotationData.createdWhen,
+                        selector: JSON.stringify(annotationData.selector),
+                    },
+                },
+            } as any,
+            annotationEntryData: {
+                [normalizedPageUrl]: {
+                    $apply: (
+                        previousState?: GetAnnotationListEntriesElement[],
+                    ) => [
+                        ...(previousState ?? []),
+                        {
+                            creator,
+                            normalizedPageUrl,
+                            sharedList: listRef,
+                            sharedAnnotation: annotationRef,
+                            updatedWhen: annotationData.createdWhen,
+                            createdWhen: annotationData.createdWhen,
+                            uploadedWhen: annotationData.createdWhen,
+                            reference: {
+                                type: 'shared-annotation-list-entry-reference',
+                                id: annotationId, // This will get overwritten with the actual list entry ID once write is done
+                            },
+                        },
+                    ],
+                },
+            } as any,
+            conversations: {
+                [annotationId]: {
+                    $set: {
+                        ...getInitialAnnotationConversationState(),
+                        hasThreadLoadLoadState: 'success',
+                    },
+                },
+            } as any,
+        })
+
+        // Schedule DB entry creation
+        const createPromise = storage.contentSharing
+            .createAnnotations({
+                creator,
+                annotationsByPage: {
+                    [normalizedPageUrl]: [
+                        {
+                            id: annotationId,
+                            body: annotationData.body,
+                            comment: annotationData.comment,
+                            selector: JSON.stringify(annotationData.selector),
+                            createdWhen: annotationData.createdWhen,
+                            localId: annotationId.toString(),
+                        },
+                    ],
+                },
+                listReferences: [
+                    {
+                        type: 'shared-list-reference',
+                        id: this.dependencies.listID,
+                    },
+                ],
+            })
+            .then(({ sharedAnnotationListEntryReferences }) => {
+                const ref =
+                    sharedAnnotationListEntryReferences[
+                        annotationId.toString()
+                    ]?.[0]
+                if (!ref) {
+                    return
+                }
+                // Update newly created annotationEntryData entry with ID
+                this.emitMutation({
+                    annotationEntryData: {
+                        [normalizedPageUrl]: {
+                            $apply: (
+                                previousState?: GetAnnotationListEntriesElement[],
+                            ) => {
+                                const dummyEntryIdx = previousState?.findIndex(
+                                    (el) => el.reference.id === annotationId,
+                                )
+                                if (
+                                    !previousState ||
+                                    !dummyEntryIdx ||
+                                    dummyEntryIdx === -1
+                                ) {
+                                    return previousState
+                                }
+                                previousState[dummyEntryIdx] = {
+                                    ...previousState[dummyEntryIdx],
+                                    reference: ref,
+                                }
+                                return previousState
+                            },
+                        },
+                    } as any,
+                })
+            })
+
+        return {
+            annotationId,
+            createPromise,
         }
     }
 
@@ -866,10 +869,11 @@ export class ReaderPageViewLogic extends UILogic<
                             (newAnnotation) => ({
                                 $set: {
                                     isEditing: false,
+                                    loadState: 'pristine',
                                     comment: newAnnotation.comment ?? '',
                                 },
                             }),
-                        ),
+                        ) as any,
                     })
 
                     await this.highlightRenderer?.renderHighlights(
@@ -1034,15 +1038,107 @@ export class ReaderPageViewLogic extends UILogic<
             },
         })
 
-        // TODO: Also update personal cloud entries to trigger sync updates
+        await executeUITask(
+            this,
+            (loadState) => ({
+                annotationEditStates: {
+                    [event.annotationId]: { loadState: { $set: loadState } },
+                },
+            }),
+            async () => {
+                // TODO: Also update personal cloud entries to trigger sync updates
 
-        await this.dependencies.storage.contentSharing.updateAnnotationComment({
-            updatedComment: editState.comment,
-            sharedAnnotationReference: {
-                type: 'shared-annotation-reference',
-                id: event.annotationId,
+                await this.dependencies.storage.contentSharing.updateAnnotationComment(
+                    {
+                        updatedComment: editState.comment,
+                        sharedAnnotationReference: {
+                            type: 'shared-annotation-reference',
+                            id: event.annotationId,
+                        },
+                    },
+                )
+            },
+        )
+    }
+
+    setAnnotationCreating: EventHandler<'setAnnotationCreating'> = ({
+        event,
+    }) => {
+        this.emitMutation({
+            annotationCreateState: {
+                isCreating: { $set: event.isCreating },
             },
         })
+    }
+
+    changeAnnotationCreateComment: EventHandler<'changeAnnotationCreateComment'> = ({
+        event,
+    }) => {
+        this.emitMutation({
+            annotationCreateState: { comment: { $set: event.comment } },
+        })
+    }
+
+    cancelAnnotationCreate: EventHandler<'cancelAnnotationCreate'> = ({
+        event,
+    }) => {
+        this.emitMutation({
+            annotationCreateState: {
+                isCreating: { $set: false },
+                comment: { $set: '' },
+            },
+        })
+    }
+
+    confirmAnnotationCreate: EventHandler<'confirmAnnotationCreate'> = async ({
+        event,
+        previousState,
+    }) => {
+        if (!previousState.originalUrl) {
+            throw new Error(
+                'Cannot create annotation before page URL is loaded',
+            )
+        }
+        if (!previousState.annotationCreateState.comment.trim().length) {
+            this.emitMutation({
+                annotationCreateState: {
+                    isCreating: { $set: false },
+                    comment: { $set: '' },
+                },
+            })
+            return
+        }
+        const creator =
+            this.dependencies.services.auth.getCurrentUserReference() ??
+            undefined
+        if (!creator) {
+            throw new Error('Cannot create annotation if not logged in')
+        }
+
+        const createdWhen = Date.now()
+        const { createPromise } = this.scheduleAnnotationCreation({
+            fullPageUrl: previousState.originalUrl!,
+            createdWhen,
+            updatedWhen: createdWhen,
+            comment: previousState.annotationCreateState.comment,
+            creator,
+        })
+        this.emitMutation({
+            annotationCreateState: {
+                isCreating: { $set: false },
+                comment: { $set: '' },
+            },
+        })
+
+        await executeUITask(
+            this,
+            (loadState) => ({
+                annotationCreateState: { loadState: { $set: loadState } },
+            }),
+            async () => {
+                await createPromise
+            },
+        )
     }
 }
 
