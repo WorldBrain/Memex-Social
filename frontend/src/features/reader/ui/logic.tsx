@@ -191,7 +191,7 @@ export class ReaderPageViewLogic extends UILogic<
             this,
             'collaborationKeyLoadState',
             async () => {
-                await auth.waitForAuth()
+                await auth.waitForAuthReady()
                 const userReference = auth.getCurrentUserReference()
                 if (!userReference) {
                     return
