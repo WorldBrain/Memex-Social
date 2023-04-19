@@ -1,6 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { ThemeProvider, StyleSheetManager } from 'styled-components'
+import createResolvable from '@josephg/resolvable'
 import Tooltip from '@worldbrain/memex-common/lib/in-page-ui/tooltip/container'
 import { conditionallyTriggerTooltip } from '@worldbrain/memex-common/lib/in-page-ui/tooltip/utils'
 import { theme } from '../../../../src/main-ui/styles/theme'
@@ -86,6 +87,7 @@ export class ReaderPageViewLogic extends UILogic<
         [normalizePageUrl: string]: Promise<void>
     } = {}
     private cleanupIframeTooltipShowListener?: () => void
+    private listCreator = createResolvable<UserReference>()
 
     constructor(private dependencies: ReaderPageViewDependencies) {
         super()
@@ -273,6 +275,7 @@ export class ReaderPageViewLogic extends UILogic<
                         },
                     },
                 })
+                this.listCreator.resolve(result.creator)
 
                 const annotationEntriesByList = await contentSharing.getAnnotationListEntriesForListsOnPage(
                     {
@@ -375,18 +378,23 @@ export class ReaderPageViewLogic extends UILogic<
                     userReference,
                 })
 
-                const currentListRole = listRoles.find(
+                let currentRoleID = listRoles.find(
                     (role) =>
                         role.sharedList.id.toString() ===
                         this.dependencies.listID,
-                )
+                )?.roleID
 
-                if (!currentListRole) {
+                if (!currentRoleID) {
+                    const creator = await this.listCreator
+                    if (creator.id === userReference.id) {
+                        currentRoleID = SharedListRoleID.Owner
+                    }
+                }
+                if (!currentRoleID) {
                     return
                 }
 
-                const isOwner =
-                    currentListRole.roleID === SharedListRoleID.Owner
+                const isOwner = currentRoleID === SharedListRoleID.Owner
                 this.emitMutation({
                     permissions: { $set: isOwner ? 'owner' : 'contributor' },
                 })
