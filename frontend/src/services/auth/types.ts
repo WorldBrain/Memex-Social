@@ -88,7 +88,12 @@ export type RegistrationResult =
     | RegistrationError
 export interface RegistrationError {
     status: 'error'
-    reason: 'invalid-email' | 'email-exists' | 'weak-password' | 'unknown'
+    reason:
+        | 'invalid-email'
+        | 'email-exists'
+        | 'weak-password'
+        | 'display-name-missing'
+        | 'unknown'
     internalReason?: string
 }
 
