@@ -651,8 +651,9 @@ const LoadingBox = styled.div<{ height: string }>`
     display: flex;
     justify-content: center;
     align-items: center;
-    height: ${(props) => props.height};
+    height: ${(props) => (props.height ? props.height : 'fill-available')};
     width: 100%;
+    flex: 1;
 `
 
 const LinksContainer = styled.div`

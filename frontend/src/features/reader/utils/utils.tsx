@@ -169,6 +169,10 @@ export const createIframeForHtml = async (
     iframe.width = '100%'
     iframe.height = '100%'
     iframe.style.border = 'none'
+    iframe.style.minHeight = '100px'
+    iframe.style.display = 'flex'
+    iframe.style.flex = '1'
+
     container.appendChild(iframe)
 
     const blob = new Blob([htmlWithFixedPaths], { type: 'text/html' })

@@ -60,6 +60,7 @@ import { createPersonalCloudStorageUtils } from '@worldbrain/memex-common/lib/co
 import { userChanges } from '../../../services/auth/utils'
 import type { PersonalAnnotation } from '@worldbrain/memex-common/lib/web-interface/types/storex-generated/personal-cloud'
 import type { AutoPk } from '../../../types'
+import { normalizeUrl } from '@worldbrain/memex-common/lib/url-utils/normalize'
 
 type EventHandler<EventName extends keyof ReaderPageViewEvent> = UIEventHandler<
     ReaderPageViewState,
@@ -73,6 +74,7 @@ export class ReaderPageViewLogic extends UILogic<
 > {
     private users: UserProfileCache
     private isReaderInitialized = false
+    private iframeLoaded = false
     private sidebarRef: HTMLElement | null = null
     private highlightRenderer!: HighlightRenderer
     /**
@@ -176,9 +178,9 @@ export class ReaderPageViewLogic extends UILogic<
     getInitialState(): ReaderPageViewState {
         return {
             originalUrl: null,
-            annotationEntriesLoadState: 'pristine',
+            annotationEntriesLoadState: 'running',
             permissionsLoadState: 'pristine',
-            iframeLoadState: 'pristine',
+            iframeLoadState: 'running',
             joinListState: 'pristine',
             listLoadState: 'pristine',
             annotationCreateState: {
@@ -259,6 +261,12 @@ export class ReaderPageViewLogic extends UILogic<
                 const normalizedPageUrl = listEntry.normalizedUrl
 
                 this.emitMutation({
+                    annotationLoadStates: {
+                        [normalizedPageUrl]: { $set: 'running' },
+                    },
+                })
+
+                this.emitMutation({
                     originalUrl: { $set: listEntry.originalUrl },
                     isYoutubeVideo: {
                         $set: normalizedPageUrl.startsWith('youtube.com/'),
@@ -284,12 +292,6 @@ export class ReaderPageViewLogic extends UILogic<
                     },
                 )
 
-                this.emitMutation({
-                    annotationLoadStates: {
-                        [normalizedPageUrl]: { $set: 'running' },
-                    },
-                })
-
                 const entries = annotationEntriesByList[listReference.id] ?? []
                 if (!entries.length) {
                     this.emitMutation({
@@ -307,11 +309,22 @@ export class ReaderPageViewLogic extends UILogic<
                     },
                 })
 
-                await this.loadPageAnnotations(
-                    { [normalizedPageUrl]: entries },
-                    [normalizedPageUrl],
-                    previousState,
-                )
+                const intervalId = setInterval(() => {
+                    if (this.iframeLoaded) {
+                        clearInterval(intervalId)
+                        this.loadPageAnnotations(
+                            { [normalizedPageUrl]: entries },
+                            [normalizedPageUrl],
+                            previousState,
+                        )
+                    }
+                }, 100)
+
+                // await this.loadPageAnnotations(
+                //     { [normalizedPageUrl]: entries },
+                //     [normalizedPageUrl],
+                //     previousState,
+                // )
             },
         )
 
@@ -466,6 +479,13 @@ export class ReaderPageViewLogic extends UILogic<
         if (!iframe) {
             return
         }
+        this.iframeLoaded = true
+
+        const normalizedPageUrl = normalizeUrl(originalUrl)
+
+        const entries = state.annotationEntryData?.[normalizedPageUrl]
+
+        // await this.loadPageAnnotations({ entries }, [normalizedPageUrl], state)
 
         this.highlightRenderer = new HighlightRenderer({
             getDocument: () => iframe!.contentDocument,
