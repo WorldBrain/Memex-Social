@@ -309,8 +309,10 @@ export class ReaderPageViewLogic extends UILogic<
                     },
                 })
 
+                const isYoutube = normalizedPageUrl.startsWith('youtube.com/')
+
                 const intervalId = setInterval(() => {
-                    if (this.iframeLoaded) {
+                    if (this.iframeLoaded && !isYoutube) {
                         clearInterval(intervalId)
                         this.loadPageAnnotations(
                             { [normalizedPageUrl]: entries },
@@ -320,11 +322,13 @@ export class ReaderPageViewLogic extends UILogic<
                     }
                 }, 100)
 
-                // await this.loadPageAnnotations(
-                //     { [normalizedPageUrl]: entries },
-                //     [normalizedPageUrl],
-                //     previousState,
-                // )
+                if (isYoutube) {
+                    this.loadPageAnnotations(
+                        { [normalizedPageUrl]: entries },
+                        [normalizedPageUrl],
+                        previousState,
+                    )
+                }
             },
         )
 
