@@ -103,6 +103,9 @@ export default class Routes extends React.Component<Props> {
                                     listID={route.match.params.id}
                                     entryID={route.match.params.entryId}
                                     storage={this.props.storage.serverModules}
+                                    storageManager={
+                                        this.props.storage.serverStorageManager
+                                    }
                                     generateServerId={
                                         this.props.generateServerId
                                     }

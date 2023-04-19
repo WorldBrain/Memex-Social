@@ -21,6 +21,7 @@ import type { UserReference } from '../../user-management/types'
 import type { GenerateServerID } from '@worldbrain/memex-common/lib/content-sharing/service/types'
 import type { URLNormalizer } from '@worldbrain/memex-common/lib/url-utils/normalize/types'
 import type { AutoPk } from '@worldbrain/memex-common/lib/storage/types'
+import type StorageManager from '@worldbrain/storex'
 
 export interface ReaderPageViewDependencies {
     services: UIElementServices<
@@ -37,6 +38,7 @@ export interface ReaderPageViewDependencies {
         StorageModules,
         'contentSharing' | 'contentConversations' | 'users'
     >
+    storageManager: StorageManager
     listID: string
     entryID: string
     normalizeUrl: URLNormalizer

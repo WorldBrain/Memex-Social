@@ -54,7 +54,11 @@ import type {
     SaveAndRenderHighlightDeps,
 } from '@worldbrain/memex-common/lib/in-page-ui/highlighting/types'
 import type { MemexTheme } from '@worldbrain/memex-common/lib/common-ui/styles/types'
+import type { UploadStorageUtils } from '@worldbrain/memex-common/lib/personal-cloud/backend/translation-layer/storage-utils'
+import { createPersonalCloudStorageUtils } from '@worldbrain/memex-common/lib/content-sharing/storage/utils'
 import { userChanges } from '../../../services/auth/utils'
+import type { PersonalAnnotation } from '@worldbrain/memex-common/lib/web-interface/types/storex-generated/personal-cloud'
+import type { AutoPk } from '../../../types'
 
 type EventHandler<EventName extends keyof ReaderPageViewEvent> = UIEventHandler<
     ReaderPageViewState,
@@ -70,6 +74,11 @@ export class ReaderPageViewLogic extends UILogic<
     private isReaderInitialized = false
     private sidebarRef: HTMLElement | null = null
     private highlightRenderer!: HighlightRenderer
+    /**
+     * This is only used as a way to create sync entries when we update annotation comments here.
+     * TODO: Possibly move this to a storage hook.
+     */
+    private personalCloudStorageUtils: UploadStorageUtils | null = null
     private pageAnnotationPromises: {
         [normalizedPageUrl: string]: Promise<void>
     } = {}
@@ -346,6 +355,13 @@ export class ReaderPageViewLogic extends UILogic<
                 if (!userReference) {
                     return
                 }
+
+                this.personalCloudStorageUtils = await createPersonalCloudStorageUtils(
+                    {
+                        userId: userReference.id,
+                        storageManager: this.dependencies.storageManager,
+                    },
+                )
 
                 // Shortcut: Use the key from the URL param if it's present
                 const keyString = router.getQueryParam('key')
@@ -1110,10 +1126,16 @@ export class ReaderPageViewLogic extends UILogic<
         event,
         previousState,
     }) => {
+        const annotation = previousState.annotations[event.annotationId]
         const editState = previousState.annotationEditStates[event.annotationId]
         if (!editState) {
             throw new Error(
                 'Attempted annotation edit for non-existent annotation',
+            )
+        }
+        if (!this.personalCloudStorageUtils) {
+            throw new Error(
+                'Attempted annotation edit without personal cloud storage utils being setup',
             )
         }
 
@@ -1134,7 +1156,10 @@ export class ReaderPageViewLogic extends UILogic<
                 },
             }),
             async () => {
-                // TODO: Also update personal cloud entries to trigger sync updates
+                // Skip storage ops early if no change
+                if (annotation.comment === editState.comment) {
+                    return
+                }
 
                 await this.dependencies.storage.contentSharing.updateAnnotationComment(
                     {
@@ -1143,6 +1168,21 @@ export class ReaderPageViewLogic extends UILogic<
                             type: 'shared-annotation-reference',
                             id: event.annotationId,
                         },
+                    },
+                )
+
+                // Update personal cloud DB to trigger sync changes
+                // TODO: Probably move this to a `onUpdate` storage hook (when supported) rather than manually doing here
+                const personalAnnotation = await this.personalCloudStorageUtils!.findOne<
+                    PersonalAnnotation & { id: AutoPk }
+                >('personalAnnotation', {
+                    localId: annotation.createdWhen.toString(),
+                })
+                await this.personalCloudStorageUtils!.updateById(
+                    'personalAnnotation',
+                    personalAnnotation.id,
+                    {
+                        comment: editState.comment,
                     },
                 )
             },
