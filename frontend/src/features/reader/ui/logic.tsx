@@ -28,6 +28,7 @@ import {
     UIEventHandler,
     executeUITask,
 } from '../../../main-ui/classes/logic'
+import type { UIMutation } from '@worldbrain/memex-common/lib/main-ui/classes/logic'
 import {
     annotationConversationEventHandlers,
     annotationConversationInitialState,
@@ -52,7 +53,8 @@ import type {
     RenderableAnnotation,
     SaveAndRenderHighlightDeps,
 } from '@worldbrain/memex-common/lib/in-page-ui/highlighting/types'
-import { MemexTheme } from '@worldbrain/memex-common/lib/common-ui/styles/types'
+import type { MemexTheme } from '@worldbrain/memex-common/lib/common-ui/styles/types'
+import { userChanges } from '../../../services/auth/utils'
 
 type EventHandler<EventName extends keyof ReaderPageViewEvent> = UIEventHandler<
     ReaderPageViewState,
@@ -164,7 +166,7 @@ export class ReaderPageViewLogic extends UILogic<
         return {
             originalUrl: null,
             annotationEntriesLoadState: 'pristine',
-            collaborationKeyLoadState: 'pristine',
+            permissionsLoadState: 'pristine',
             iframeLoadState: 'pristine',
             joinListState: 'pristine',
             listLoadState: 'pristine',
@@ -183,6 +185,7 @@ export class ReaderPageViewLogic extends UILogic<
             activeAnnotationId: null,
             collaborationKey: null,
             joinListResult: null,
+            permissions: null,
             showShareMenu: false,
             isYoutubeVideo: false,
             reportURLSuccess: false,
@@ -192,7 +195,7 @@ export class ReaderPageViewLogic extends UILogic<
         }
     }
 
-    init: EventHandler<'init'> = async () => {
+    init: EventHandler<'init'> = async ({ previousState }) => {
         const { contentSharing } = this.dependencies.storage
         const { auth, router, listKeys } = this.dependencies.services
         const listReference = makeStorageReference<SharedListReference>(
@@ -212,60 +215,6 @@ export class ReaderPageViewLogic extends UILogic<
                 await auth.waitForAuth()
                 const { result } = await listKeys.processCurrentKey()
                 this.emitMutation({ joinListResult: { $set: result } })
-            },
-        )
-
-        const loadCollabKeyPromise = executeUITask<ReaderPageViewState>(
-            this,
-            'collaborationKeyLoadState',
-            async () => {
-                await auth.waitForAuthReady()
-                const userReference = auth.getCurrentUserReference()
-                if (!userReference) {
-                    return
-                }
-
-                // Shortcut: Use the key from the URL param if it's present
-                const keyString = router.getQueryParam('key')
-                if (keyString?.length) {
-                    this.emitMutation({ collaborationKey: { $set: keyString } })
-                    return
-                }
-
-                // Ensure the current user has a role in this list elevated enough to share collaboration keys
-                const listRoles = await contentSharing.getUserListRoles({
-                    userReference,
-                })
-
-                const currentListRole = listRoles.find(
-                    (role) =>
-                        role.sharedList.id.toString() ===
-                        this.dependencies.listID,
-                )
-                if (
-                    !currentListRole ||
-                    currentListRole.roleID < SharedListRoleID.Owner
-                ) {
-                    // Only the list owner can share the collaboration link key
-                    return
-                }
-
-                const collaborationKeys = await contentSharing.getListKeys({
-                    listReference,
-                })
-
-                const collaborationKey = collaborationKeys.find(
-                    (key) => key.roleID === SharedListRoleID.ReadWrite,
-                )
-                if (!collaborationKey) {
-                    return
-                }
-
-                this.emitMutation({
-                    collaborationKey: {
-                        $set: collaborationKey.reference.id.toString(),
-                    },
-                })
             },
         )
 
@@ -349,19 +298,105 @@ export class ReaderPageViewLogic extends UILogic<
                 await this.loadPageAnnotations(
                     { [normalizedPageUrl]: entries },
                     [normalizedPageUrl],
+                    previousState,
                 )
             },
         )
 
         await Promise.all([
+            this.loadPermissions(),
             loadListPromise,
-            loadCollabKeyPromise,
             joinListPromise,
         ])
+
+        this.listenToUserChanges()
     }
 
     cleanup: EventHandler<'cleanup'> = async () => {
         this.cleanupIframeTooltipShowListener?.()
+    }
+
+    private async listenToUserChanges() {
+        for await (const user of userChanges(this.dependencies.services.auth)) {
+            if (user != null) {
+                this.isReaderInitialized = false // Flag reader for re-initialization on user change
+                await this.loadPermissions()
+            } else {
+                this.emitMutation({
+                    collaborationKey: { $set: null },
+                    permissions: { $set: null },
+                })
+            }
+        }
+    }
+
+    private async loadPermissions(): Promise<void> {
+        const { contentSharing } = this.dependencies.storage
+        const { auth, router } = this.dependencies.services
+        const listReference = makeStorageReference<SharedListReference>(
+            'shared-list-reference',
+            this.dependencies.listID,
+        )
+        await executeUITask<ReaderPageViewState>(
+            this,
+            'permissionsLoadState',
+            async () => {
+                await auth.waitForAuthReady()
+                const userReference = auth.getCurrentUserReference()
+                if (!userReference) {
+                    return
+                }
+
+                // Shortcut: Use the key from the URL param if it's present
+                const keyString = router.getQueryParam('key')
+                if (keyString?.length) {
+                    this.emitMutation({ collaborationKey: { $set: keyString } })
+                    return
+                }
+
+                // Ensure the current user has a role in this list elevated enough to share collaboration keys
+                const listRoles = await contentSharing.getUserListRoles({
+                    userReference,
+                })
+
+                const currentListRole = listRoles.find(
+                    (role) =>
+                        role.sharedList.id.toString() ===
+                        this.dependencies.listID,
+                )
+
+                if (!currentListRole) {
+                    return
+                }
+
+                const isOwner =
+                    currentListRole.roleID === SharedListRoleID.Owner
+                this.emitMutation({
+                    permissions: { $set: isOwner ? 'owner' : 'contributor' },
+                })
+
+                if (!isOwner) {
+                    return // Only the owner has permission to lookup the key
+                }
+
+                const collaborationKeys = await contentSharing.getListKeys({
+                    listReference,
+                })
+
+                const collaborationKey = collaborationKeys.find(
+                    (key) => key.roleID >= SharedListRoleID.ReadWrite,
+                )
+                if (!collaborationKey) {
+                    return
+                }
+
+                this.emitMutation({
+                    collaborationKey: {
+                        $set: collaborationKey.reference.id.toString(),
+                    },
+                })
+            },
+        )
     }
 
     setReaderContainerRef: EventHandler<'setReaderContainerRef'> = async ({
@@ -383,7 +418,7 @@ export class ReaderPageViewLogic extends UILogic<
     private async initializeReader(
         ref: HTMLDivElement,
         originalUrl: string,
-        { collaborationKey }: ReaderPageViewState,
+        state: ReaderPageViewState,
     ) {
         if (!this.isReaderInitialized) {
             this.isReaderInitialized = true
@@ -412,9 +447,10 @@ export class ReaderPageViewLogic extends UILogic<
             getDocument: () => iframe!.contentDocument,
             scheduleAnnotationCreation: this.scheduleAnnotationCreation,
         })
-        if (collaborationKey != null) {
+        if (state.permissions != null) {
             this.setupIframeTooltip(iframe, originalUrl)
         }
+        await this.renderHighlightsInState(state)
     }
 
     private setupIframeTooltip(
@@ -785,6 +821,7 @@ export class ReaderPageViewLogic extends UILogic<
     private async loadPageAnnotations(
         annotationEntries: GetAnnotationListEntriesResult,
         normalizedPageUrls: string[],
+        state: ReaderPageViewState,
     ) {
         const toFetch: Array<{
             normalizedPageUrl: string
@@ -854,24 +891,9 @@ export class ReaderPageViewLogic extends UILogic<
                         if (!newAnnotation.selector) {
                             continue
                         }
-                        try {
-                            const deserializedSelector = JSON.parse(
-                                newAnnotation.selector,
-                            )
-                            toRender.push({
-                                id: newAnnotation.reference.id,
-                                selector: deserializedSelector,
-                            })
-                        } catch (err) {
-                            // TODO: capture error
-                            console.warn(
-                                'Could not parse selector for annotation: ',
-                                newAnnotation,
-                            )
-                        }
                     }
 
-                    this.emitMutation({
+                    const mutation: UIMutation<ReaderPageViewState> = {
                         annotationLoadStates: {
                             [normalizedPageUrl]: { $set: 'success' },
                         },
@@ -897,12 +919,10 @@ export class ReaderPageViewLogic extends UILogic<
                                 },
                             }),
                         ),
-                    })
-
-                    await this.highlightRenderer?.renderHighlights(
-                        toRender,
-                        this.handleHighlightClick,
-                    )
+                    }
+                    const nextState = this.withMutation(state, mutation)
+                    this.emitMutation(mutation)
+                    await this.renderHighlightsInState(nextState)
                 } catch (e) {
                     this.emitMutation({
                         annotationLoadStates: {
@@ -975,6 +995,40 @@ export class ReaderPageViewLogic extends UILogic<
             return result
         } catch (e) {
             throw e
+        }
+    }
+
+    private async renderHighlightsInState({
+        annotations,
+    }: ReaderPageViewState): Promise<void> {
+        const toRender: RenderableAnnotation[] = []
+
+        for (const { reference, selector } of Object.values(annotations)) {
+            if (!selector) {
+                continue
+            }
+
+            try {
+                const deserializedSelector = JSON.parse(selector)
+                toRender.push({
+                    id: reference.id,
+                    selector: deserializedSelector,
+                })
+            } catch (err) {
+                // TODO: capture error
+                console.warn(
+                    'Could not parse selector for annotation: ',
+                    reference.id,
+                    selector,
+                )
+            }
+        }
+
+        if (toRender.length) {
+            await this.highlightRenderer.renderHighlights(
+                toRender,
+                this.handleHighlightClick,
+            )
         }
     }
 

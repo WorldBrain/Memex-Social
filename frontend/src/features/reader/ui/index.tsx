@@ -61,7 +61,7 @@ export class ReaderPageView extends UIElement<
             remoteListId: this.props.listID,
         }
 
-        if (this.state.collaborationKeyLoadState !== 'success') {
+        if (this.state.permissionsLoadState !== 'success') {
             return null // Still loading
         }
 
@@ -367,7 +367,7 @@ export class ReaderPageView extends UIElement<
                             <>
                                 <Title>Invite Links</Title>
                                 {links != null &&
-                                this.state.collaborationKeyLoadState ===
+                                this.state.permissionsLoadState ===
                                     'success' ? (
                                     <LinksContainer>
                                         <LinkTitle>Read & Reply</LinkTitle>
@@ -527,8 +527,7 @@ export class ReaderPageView extends UIElement<
                                 }
                                 padding="5px 10px 5px 5px"
                             />
-                            {this.state.collaborationKeyLoadState ===
-                                'success' && (
+                            {this.state.permissionsLoadState === 'success' && (
                                 <PrimaryAction
                                     icon={'invite'}
                                     type="tertiary"
@@ -559,7 +558,7 @@ export class ReaderPageView extends UIElement<
                             />
                         </RightSideTopBar>
                     </TopBar>
-                    {this.state.collaborationKeyLoadState === 'success' &&
+                    {this.state.permissionsLoadState === 'success' &&
                         this.renderMainContent()}
                 </LeftSide>
                 <ContainerStyled

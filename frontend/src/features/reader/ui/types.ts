@@ -78,11 +78,12 @@ export type ReaderPageViewState = AnnotationConversationsState & {
     annotationEntryData: GetAnnotationListEntriesResult
     annotations: GetAnnotationsResult
     sidebarWidth: number
+    collaborationKey: string | null
+    permissionsLoadState: UITaskState
+    permissions: 'owner' | 'contributor' | null
     isYoutubeVideo: boolean
     reportURLSuccess: boolean
     showInstallTooltip: boolean
-    collaborationKey: string | null
-    collaborationKeyLoadState: UITaskState
     joinListState: UITaskState
     joinListResult: ProcessSharedListKeyResult | null
     showShareMenu: boolean
