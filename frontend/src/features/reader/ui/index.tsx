@@ -20,7 +20,7 @@ import LoadingIndicator from '@worldbrain/memex-common/lib/common-ui/components/
 import IconBox from '@worldbrain/memex-common/lib/common-ui/components/icon-box'
 
 const TopBarHeight = 60
-const memexLogo = require('../../../assets/img/memex-logo-beta.svg')
+const memexLogo = require('../../../assets/img/memex-logo-very-beta.svg')
 
 export class ReaderPageView extends UIElement<
     ReaderPageViewDependencies,
