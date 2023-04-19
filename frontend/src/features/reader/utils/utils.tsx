@@ -7,11 +7,23 @@ const convertRelativeUrlsToAbsolute = async (
     const parser = new DOMParser()
     const doc = parser.parseFromString(html, 'text/html')
 
+    const base = doc.querySelector(
+        'html > base, head > base',
+    ) as HTMLBaseElement | null
+    if (base) {
+        url = new URL(base.href, url).toString()
+    }
+
     const srcElements = doc.querySelectorAll('[src]')
     srcElements.forEach((element: Element) => {
+        const tagName = element.tagName.toLowerCase()
         const src = element.getAttribute('src')
         if (src) {
+            // if (tagName === 'script') {
+            // element.setAttribute('src', '/bla.js')
+            // } else {
             element.setAttribute('src', new URL(src, url).toString())
+            // }
         }
     })
 
@@ -80,13 +92,25 @@ const convertRelativeUrlsToAbsolute = async (
 
     const hrefElements = doc.querySelectorAll('[href]')
     for (const element of hrefElements) {
-        if (element.tagName.toLowerCase() === 'a') {
+        const tagName = element.tagName.toLowerCase()
+        if (tagName === 'base') {
+            continue
+        }
+
+        const isLink = tagName === 'a'
+        if (isLink) {
             element.setAttribute('target', '_blank')
             element.setAttribute('rel', 'noopener noreferrer')
         }
         const href = element.getAttribute('href')
         if (href) {
-            element.setAttribute('href', new URL(href, url).toString())
+            let fixedUrl = new URL(href, url).toString()
+            if (!isLink) {
+                fixedUrl = `${ARCHIVE_PROXY_URL}/webarchive?url=${encodeURIComponent(
+                    fixedUrl,
+                )}`
+            }
+            element.setAttribute('href', fixedUrl)
         }
     }
 
@@ -96,11 +120,11 @@ const convertRelativeUrlsToAbsolute = async (
         if (!origSrc) {
             continue
         }
-        const absSrc = new URL(origSrc, url).toString()
-        const proxiedSrc = `${ARCHIVE_PROXY_URL}/webarchive?url=${encodeURIComponent(
-            absSrc,
+        const absUrl = new URL(origSrc, url).toString()
+        const proxiedUrl = `${ARCHIVE_PROXY_URL}/webarchive?url=${encodeURIComponent(
+            absUrl,
         )}`
-        element.setAttribute('src', proxiedSrc)
+        element.setAttribute('src', proxiedUrl)
 
         const imgElement = element as HTMLImageElement
         if (!imgElement.srcset) {
