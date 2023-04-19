@@ -207,6 +207,9 @@ export default class AuthDialogLogic extends UILogic<
         }
         await executeUITask<AuthDialogState>(this, 'saveState', async () => {
             const auth = this.dependencies.services.auth
+            const isReader =
+                window.location.href.includes('/c/') &&
+                !window.location.href.includes('/p/')
             this.action = previousState.mode as 'login' | 'register'
             const displayName = previousState.displayName.trim()
             if (previousState.mode === 'register') {
@@ -233,6 +236,9 @@ export default class AuthDialogLogic extends UILogic<
                         {},
                         { displayName },
                     )
+                    if (isReader) {
+                        await this.dependencies.services.listKeys.processCurrentKey()
+                    }
                     await this.dependencies.services.auth.refreshCurrentUser()
                     this._result({
                         status:
@@ -250,6 +256,9 @@ export default class AuthDialogLogic extends UILogic<
                     return
                 }
                 const currentUser = auth.getCurrentUser()
+                if (isReader) {
+                    await this.dependencies.services.listKeys.processCurrentKey()
+                }
                 if (currentUser?.displayName) {
                     this._result({ status: 'authenticated' })
                 } else {

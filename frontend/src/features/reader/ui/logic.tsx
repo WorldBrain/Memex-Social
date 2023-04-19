@@ -337,8 +337,6 @@ export class ReaderPageViewLogic extends UILogic<
             loadListPromise,
             joinListPromise,
         ])
-
-        this.listenToUserChanges()
     }
 
     cleanup: EventHandler<'cleanup'> = async () => {
@@ -346,10 +344,11 @@ export class ReaderPageViewLogic extends UILogic<
     }
 
     private async listenToUserChanges() {
+        console.log('listen')
         for await (const user of userChanges(this.dependencies.services.auth)) {
             if (user != null) {
                 this.isReaderInitialized = false // Flag reader for re-initialization on user change
-                await this.loadPermissions()
+                window.location.reload()
             } else {
                 this.emitMutation({
                     collaborationKey: { $set: null },
@@ -372,7 +371,9 @@ export class ReaderPageViewLogic extends UILogic<
             async () => {
                 await auth.waitForAuthReady()
                 const userReference = auth.getCurrentUserReference()
+
                 if (!userReference) {
+                    this.listenToUserChanges()
                     return
                 }
 
@@ -387,7 +388,9 @@ export class ReaderPageViewLogic extends UILogic<
                 const keyString = router.getQueryParam('key')
                 if (keyString?.length) {
                     this.emitMutation({ collaborationKey: { $set: keyString } })
-                    return
+                    this.emitMutation({
+                        permissions: { $set: 'contributor' },
+                    })
                 }
 
                 // Ensure the current user has a role in this list elevated enough to share collaboration keys
