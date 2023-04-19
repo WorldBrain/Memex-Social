@@ -188,6 +188,7 @@ export class ReaderPageViewLogic extends UILogic<
                 isCreating: false,
                 comment: '',
             },
+            currentUserReference: null,
             annotationEditStates: {},
             annotationHoverStates: {},
             annotationLoadStates: {},
@@ -371,6 +372,10 @@ export class ReaderPageViewLogic extends UILogic<
             async () => {
                 await auth.waitForAuthReady()
                 const userReference = auth.getCurrentUserReference()
+
+                this.emitMutation({
+                    currentUserReference: { $set: userReference },
+                })
 
                 if (!userReference) {
                     this.listenToUserChanges()

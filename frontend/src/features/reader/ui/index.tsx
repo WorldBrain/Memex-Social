@@ -126,6 +126,10 @@ export class ReaderPageView extends UIElement<
                         isHovering: this.state.annotationHoverStates[
                             annotationRef.id
                         ]?.isHovering,
+                        isOwner:
+                            this.state.annotations[annotationRef.id.toString()]
+                                ?.creator.id ===
+                            this.state.currentUserReference?.id,
                         comment:
                             this.state.annotationEditStates[annotationRef.id]
                                 ?.comment ?? '',
