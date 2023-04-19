@@ -18,6 +18,7 @@ import { PopoutBox } from '@worldbrain/memex-common/lib/common-ui/components/pop
 import { getSinglePageShareUrl } from '@worldbrain/memex-common/lib/content-sharing/utils'
 import LoadingIndicator from '@worldbrain/memex-common/lib/common-ui/components/loading-indicator'
 import IconBox from '@worldbrain/memex-common/lib/common-ui/components/icon-box'
+import { getReaderYoutubePlayerId } from '../utils/utils'
 
 const TopBarHeight = 60
 const memexLogo = require('../../../assets/img/memex-logo-very-beta.svg')
@@ -203,7 +204,7 @@ export class ReaderPageView extends UIElement<
                     // }}
                     getYoutubePlayer={() =>
                         this.props.services.youtube.getPlayerByElementId(
-                            getReaderYoutubePlayerId(entry.originalUrl),
+                            getReaderYoutubePlayerId(entry.normalizedUrl),
                         )
                     }
                     onToggleReplies={(event) =>
@@ -273,14 +274,15 @@ export class ReaderPageView extends UIElement<
 
     renderYoutubePlayer = () => {
         const { youtube } = this.props.services
-        const { originalUrl: url } = this.state.listData?.entry ?? {}
-        if (!url) {
+        const { entry } = this.state.listData ?? {}
+        if (!entry) {
             return
         }
+        const { originalUrl, normalizedUrl } = entry
 
         const getYoutubeId = () => {
             let regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/
-            let match = url.match(regExp)
+            let match = originalUrl.match(regExp)
 
             if (match && match[2].length == 11) {
                 return match[2]
@@ -289,21 +291,23 @@ export class ReaderPageView extends UIElement<
             }
         }
 
-        const playerId = getReaderYoutubePlayerId(url)
+        const playerId = getReaderYoutubePlayerId(normalizedUrl)
 
         return (
-            <YoutubeIframe
-                id={playerId}
-                ref={(ref) => {
-                    if (ref) {
-                        youtube.createYoutubePlayer(playerId, {
-                            width: 'fill-available', // yes, these are meant to be strings
-                            height: 'fill-available',
-                            videoId: getYoutubeId(),
-                        })
-                    }
-                }}
-            />
+            <div>
+                <YoutubeIframe
+                    id={playerId}
+                    ref={(ref) => {
+                        if (ref) {
+                            youtube.createYoutubePlayer(playerId, {
+                                width: 'fill-available', // yes, these are meant to be strings
+                                height: 'fill-available',
+                                videoId: getYoutubeId(),
+                            })
+                        }
+                    }}
+                />
+            </div>
         )
     }
 
@@ -446,6 +450,14 @@ export class ReaderPageView extends UIElement<
                     <YoutubeVideoBox>
                         {this.renderYoutubePlayer()}
                     </YoutubeVideoBox>
+                    <div
+                        style={{ color: 'white', cursor: 'pointer' }}
+                        onClick={() =>
+                            this.processEvent('createYoutubeNote', {})
+                        }
+                    >
+                        Add note
+                    </div>
                 </YoutubeVideoContainer>
             )
         }
@@ -641,10 +653,6 @@ export class ReaderPageView extends UIElement<
             </MainContainer>
         )
     }
-}
-
-export function getReaderYoutubePlayerId(normalizedPageUrl: string) {
-    return `reader_youtube_player_${normalizedPageUrl}`
 }
 
 const EmptyMessageContainer = styled.div`

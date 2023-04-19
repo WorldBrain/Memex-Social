@@ -180,3 +180,7 @@ export const createIframeForHtml = async (
     iframe.src = blobUrl
     return iframe
 }
+
+export function getReaderYoutubePlayerId(normalizedPageUrl: string) {
+    return `reader_youtube_player_${normalizedPageUrl}`
+}

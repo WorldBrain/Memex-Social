@@ -43,7 +43,11 @@ import {
 } from '../../content-conversations/ui/utils'
 import UserProfileCache from '../../user-management/utils/user-profile-cache'
 import { getWebsiteHTML } from '../utils/api'
-import { createIframeForHtml, waitForIframeLoad } from '../utils/utils'
+import {
+    createIframeForHtml,
+    getReaderYoutubePlayerId,
+    waitForIframeLoad,
+} from '../utils/utils'
 import {
     ReaderPageViewDependencies,
     ReaderPageViewEvent,
@@ -54,6 +58,10 @@ import type {
     RenderableAnnotation,
     SaveAndRenderHighlightDeps,
 } from '@worldbrain/memex-common/lib/in-page-ui/highlighting/types'
+import {
+    getAnnotationVideoLink,
+    getVideoLinkInfo,
+} from '@worldbrain/memex-common/lib/editor/utils'
 import type { MemexTheme } from '@worldbrain/memex-common/lib/common-ui/styles/types'
 import type { UploadStorageUtils } from '@worldbrain/memex-common/lib/personal-cloud/backend/translation-layer/storage-utils'
 import { createPersonalCloudStorageUtils } from '@worldbrain/memex-common/lib/content-sharing/storage/utils'
@@ -488,6 +496,7 @@ export class ReaderPageViewLogic extends UILogic<
             },
         )
 
+        console.log(!!iframe)
         if (!iframe) {
             return
         }
@@ -1080,7 +1089,7 @@ export class ReaderPageViewLogic extends UILogic<
             }
         }
 
-        if (toRender.length) {
+        if (this.highlightRenderer && toRender.length) {
             await this.highlightRenderer.renderHighlights(
                 toRender,
                 this.handleHighlightClick,
@@ -1306,6 +1315,34 @@ export class ReaderPageViewLogic extends UILogic<
             async () => {
                 await createPromise
             },
+        )
+    }
+
+    createYoutubeNote: EventHandler<'createYoutubeNote'> = async ({
+        previousState,
+    }) => {
+        const currentUser =
+            this.dependencies.services.auth.getCurrentUserReference() ??
+            undefined
+        if (!currentUser) {
+            throw new Error('No user logged in')
+        }
+
+        const entry = previousState.listData?.entry!
+        const youtubePlayer = this.dependencies.services.youtube.getPlayerByElementId(
+            getReaderYoutubePlayerId(entry.normalizedUrl),
+        )
+        const linkInfo = getVideoLinkInfo({ youtubePlayer: youtubePlayer })
+        this.scheduleAnnotationCreation(
+            {
+                createdWhen: Date.now(),
+                updatedWhen: Date.now(),
+                fullPageUrl: entry.originalUrl,
+                body: null!,
+                selector: null!,
+                comment: getAnnotationVideoLink(linkInfo) + ' ',
+            },
+            true,
         )
     }
 }

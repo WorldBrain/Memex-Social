@@ -117,4 +117,5 @@ export type ReaderPageViewEvent = UIEvent<AnnotationConversationEvent> & {
         sharedListReference: SharedListReference
         urlToOpen: string
     }
+    createYoutubeNote: {}
 }
