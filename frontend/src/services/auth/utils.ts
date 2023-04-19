@@ -1,4 +1,6 @@
-import { AuthService } from './types'
+import createResolvable from '@josephg/resolvable'
+import type { User } from '@worldbrain/memex-common/lib/web-interface/types/users'
+import type { AuthService } from './types'
 
 export function waitForAuth(
     auth: AuthService,
@@ -21,5 +23,21 @@ export function waitForAuth(
             auth.events.addListener('changed', handler)
         }),
         stopWaiting,
+    }
+}
+
+export async function* userChanges(
+    authService: Pick<AuthService, 'events'>,
+): AsyncIterableIterator<User | null> {
+    let resolvable = createResolvable<User | null>()
+    authService.events.on('changed', (user) => {
+        const oldResolvable = resolvable
+        resolvable = createResolvable()
+        oldResolvable.resolve(user)
+    })
+
+    while (true) {
+        const user = await resolvable
+        yield user
     }
 }

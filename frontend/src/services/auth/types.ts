@@ -45,7 +45,7 @@ export interface AuthService {
 }
 
 export interface AuthEvents {
-    changed(changedUser: Partial<User> | undefined): void
+    changed(changedUser: User | null): void
     authRequested(
         request: AuthRequest & { emitResult(result: AuthResult): void },
     ): void
