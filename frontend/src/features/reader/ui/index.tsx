@@ -446,19 +446,22 @@ export class ReaderPageView extends UIElement<
     private renderMainContent() {
         if (this.state.isYoutubeVideo) {
             return (
-                <YoutubeVideoContainer>
-                    <YoutubeVideoBox>
-                        {this.renderYoutubePlayer()}
-                    </YoutubeVideoBox>
-                    <div
-                        style={{ color: 'white', cursor: 'pointer' }}
-                        onClick={() =>
-                            this.processEvent('createYoutubeNote', {})
-                        }
-                    >
-                        Add note
-                    </div>
-                </YoutubeVideoContainer>
+                <YoutubeArea>
+                    <YoutubeVideoContainer>
+                        <PrimaryAction
+                            label="Add timestamped note"
+                            icon="clock"
+                            type="forth"
+                            size="medium"
+                            onClick={() =>
+                                this.processEvent('createYoutubeNote', {})
+                            }
+                        />
+                        <YoutubeVideoBox>
+                            {this.renderYoutubePlayer()}
+                        </YoutubeVideoBox>
+                    </YoutubeVideoContainer>
+                </YoutubeArea>
             )
         }
         return (
@@ -815,8 +818,21 @@ const YoutubeVideoContainer = styled.div`
     display: flex;
     width: 100%;
     height: fill-available;
+    justify-content: flex-start;
+    align-items: flex-start;
+    grid-gap: 10px;
+    flex-direction: column;
+    max-width: 1000px;
+    padding: 10px;
+`
+const YoutubeArea = styled.div`
+    display: flex;
+    width: 100%;
+    height: fill-available;
     justify-content: center;
-    padding-top: 20px;
+    padding-top: 00px;
+    grid-gap: 10px;
+    flex: 1;
 `
 
 const YoutubeVideoBox = styled.div`
@@ -824,7 +840,7 @@ const YoutubeVideoBox = styled.div`
     padding-bottom: 56.25%;
     position: relative;
     height: 0;
-    width: 90%;
+    width: 100%;
     max-width: 1000px;
 `
 
