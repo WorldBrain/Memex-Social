@@ -531,6 +531,19 @@ export class ReaderPageView extends UIElement<
                                 }
                                 padding="5px 10px 5px 5px"
                             />
+                            <PrimaryAction
+                                icon={'goTo'}
+                                type="tertiary"
+                                label={'Open Original'}
+                                size="medium"
+                                onClick={() =>
+                                    window.open(
+                                        this.state.listData!.entry.originalUrl,
+                                        '_blank',
+                                    )
+                                }
+                                padding="5px 10px 5px 5px"
+                            />
                             {this.state.permissionsLoadState === 'success' && (
                                 <PrimaryAction
                                     icon={'invite'}
