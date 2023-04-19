@@ -75,7 +75,7 @@ const convertRelativeUrlsToAbsolute = async (
         el.innerText.includes('memex-highlight'),
     )
     if (highlightStyleEl) {
-        doc.head.appendChild(highlightStyleEl)
+        doc.head.appendChild(highlightStyleEl.cloneNode(true))
     }
 
     const hrefElements = doc.querySelectorAll('[href]')
