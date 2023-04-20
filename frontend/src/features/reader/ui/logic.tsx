@@ -407,8 +407,9 @@ export class ReaderPageViewLogic extends UILogic<
                 }
 
                 // Ensure the current user has a role in this list elevated enough to share collaboration keys
-                const listRoles = await contentSharing.getUserListRoles({
+                const listRoles = await contentSharing.getUserListRolesForList({
                     userReference,
+                    listReference,
                 })
 
                 let currentRoleID = listRoles.find(
