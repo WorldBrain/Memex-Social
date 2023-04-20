@@ -35,7 +35,7 @@ const ROUTES: RouteMap = {
     },
     pageDetails: { path: [{ literal: 'p' }, { placeholder: 'id' }] },
     annotationDetails: { path: [{ literal: 'a' }, { placeholder: 'id' }] },
-    pageLinkCreation: { path: [{ literal: 'new' }, { placeholder: 'url' }] },
+    pageLinkCreation: { path: [{ literal: 'new' }] },
 }
 
 export default ROUTES

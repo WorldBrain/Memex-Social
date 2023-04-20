@@ -13,7 +13,7 @@ export interface PageLinkCreationPageDependencies {
         | 'activityStreams'
     >
     storage: Pick<StorageModules, 'users' | 'activityStreams'>
-    fullPageUrl: string
+    fullPageUrl: string | null
 }
 
 export type PageLinkCreationPageEvent = UIEvent<{}>

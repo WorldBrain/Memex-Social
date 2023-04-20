@@ -42,8 +42,12 @@ export default class PageLinkCreationPage extends UIElement<
 
         return (
             <MainContainer>
-                <MainText>Preparing conversation space for</MainText>
-                <SubText>{this.props.fullPageUrl}</SubText>
+                {this.state.loadState === 'success' && (
+                    <>
+                        <MainText>Preparing conversation space for</MainText>
+                        <SubText>{this.props.fullPageUrl}</SubText>
+                    </>
+                )}
                 <LoadingIndicator />
             </MainContainer>
         )

@@ -81,13 +81,14 @@ export default class Routes extends React.Component<Props> {
                             ROUTES.pageLinkCreation.path,
                         )}
                         render={(route) => {
+                            const queryParams = new URLSearchParams(
+                                route.location.search,
+                            )
                             return (
                                 <PageLinkCreationPage
                                     services={this.props.services}
                                     storage={this.props.storage.serverModules}
-                                    fullPageUrl={decodeURIComponent(
-                                        route.match.params.url,
-                                    )}
+                                    fullPageUrl={queryParams.get('url')}
                                 />
                             )
                         }}

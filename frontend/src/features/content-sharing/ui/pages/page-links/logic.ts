@@ -3,6 +3,7 @@ import {
     UILogic,
     UIEventHandler,
     executeUITask,
+    loadInitial,
 } from '../../../../../main-ui/classes/logic'
 import type {
     PageLinkCreationPageDependencies,
@@ -10,8 +11,9 @@ import type {
 } from './types'
 
 export interface PageLinkCreationState {
-    linkCreationState: UITaskState
     needsAuth: boolean
+    loadState: UITaskState
+    linkCreationState: UITaskState
 }
 
 type EventHandler<
@@ -27,18 +29,26 @@ export default class PageLinkCreationLogic extends UILogic<
     }
 
     getInitialState(): PageLinkCreationState {
-        return { needsAuth: false, linkCreationState: 'pristine' }
+        return {
+            needsAuth: false,
+            loadState: 'pristine',
+            linkCreationState: 'pristine',
+        }
     }
 
     init: EventHandler<'init'> = async () => {
-        const authEnforced = await this.dependencies.services.auth.enforceAuth({
-            reason: 'login-requested',
+        await loadInitial(this, async () => {
+            const authEnforced = await this.dependencies.services.auth.enforceAuth(
+                {
+                    reason: 'login-requested',
+                },
+            )
+            if (!authEnforced) {
+                this.emitMutation({ needsAuth: { $set: true } })
+                await this.dependencies.services.auth.waitForAuth()
+                this.emitMutation({ needsAuth: { $set: false } })
+            }
         })
-        if (!authEnforced) {
-            this.emitMutation({ needsAuth: { $set: true } })
-            await this.dependencies.services.auth.waitForAuth()
-            this.emitMutation({ needsAuth: { $set: false } })
-        }
 
         await this.createAndRouteToPageLink()
     }
@@ -47,6 +57,19 @@ export default class PageLinkCreationLogic extends UILogic<
         const { services, fullPageUrl } = this.dependencies
 
         await executeUITask(this, 'linkCreationState', async () => {
+            if (!fullPageUrl) {
+                throw new Error(
+                    `'url' query string parameter must be set to create a page link`,
+                )
+            }
+
+            // Validate input URL
+            try {
+                new URL(fullPageUrl)
+            } catch (err) {
+                throw new Error(`Given URL is not valid: ${fullPageUrl}`)
+            }
+
             const {
                 remoteListId,
                 remoteListEntryId,
