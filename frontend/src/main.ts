@@ -12,10 +12,8 @@ export async function setup(options: {
     queryParams: ProgramQueryParams
 }) {
     const runMetaProgram = options.queryParams.meta === 'true'
-    if (!(process.env.NODE_ENV === 'development' && runMetaProgram)) {
-        const setup = await mainProgram(options)
-        Object.assign(window, setup)
-    } else {
+
+    if (process.env.NODE_ENV === 'development' && runMetaProgram) {
         if (options.backend !== 'memory') {
             throw new Error(
                 `You tried to run the Meta UI without using the 'memory' backend. Killing myself to avert disaster, goodbye!`,
@@ -24,6 +22,9 @@ export async function setup(options: {
 
         const history = createBrowserHistory()
         metaProgram({ history, queryParams: options.queryParams })
+    } else {
+        const setup = await mainProgram(options)
+        Object.assign(window, setup)
     }
 
     serviceWorker.unregister()

@@ -27,6 +27,7 @@ const FRIENDLY_ERRORS: { [Key in AuthError['reason']]: string } = {
     'wrong-password': 'You entered a wrong password',
     'email-exists': `There's already an account with that e-mail address registered`,
     'weak-password': 'Please enter a stronger password',
+    'display-name-missing': 'Please enter a display name for your account',
     unknown: 'Sorry, something went wrong on our side. Please try again later',
 }
 
@@ -380,6 +381,8 @@ export default class AuthDialog extends UIElement<
                                                 this.state.password.length >
                                                     0 &&
                                                 this.state.passwordRepeat
+                                                    .length > 0 &&
+                                                this.state.displayName.trim()
                                                     .length > 0
                                             )
                                         }

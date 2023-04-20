@@ -10,6 +10,7 @@ import { getReplayOptionsFromQueryParams } from '../services/scenarios'
 import { MemoryLocalStorage } from '../utils/web-storage'
 import { RouteName } from '../routes'
 import { createYoutubeServiceOptions } from '@worldbrain/memex-common/lib/services/youtube/library'
+import type { GenerateServerID } from '@worldbrain/memex-common/lib/content-sharing/service/types'
 
 export async function mainProgram(
     options: MainProgramOptions,
@@ -58,6 +59,8 @@ export async function mainProgram(
                 : localStorage,
         youtubeOptions: options.youtubeOptions ?? createYoutubeServiceOptions(),
     })
+    const generateServerId: GenerateServerID = (collectionName) =>
+        firebase.firestore().collection(collectionName).doc().id
 
     if (!options.domUnavailable) {
         window.addEventListener(
@@ -125,7 +128,7 @@ export async function mainProgram(
             return
         }
         uiRunning = true
-        return uiRunner({ services, storage, history })
+        return uiRunner({ services, storage, history, generateServerId })
     }
     if (!options.dontRunUi) {
         await runUi()

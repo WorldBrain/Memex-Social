@@ -11,18 +11,18 @@ import ROUTES from '../routes'
 import UserHome from './pages/user-home'
 import NotFound from './pages/not-found'
 import LandingPage from './pages/landing-page'
+import PageLinkCreationPage from '../features/content-sharing/ui/pages/page-links'
 import CollectionDetailsPage from '../features/content-sharing/ui/pages/collection-details'
 import AnnotationDetailsPage from '../features/content-sharing/ui/pages/annotation-details'
 import PageDetailsPage from '../features/content-sharing/ui/pages/page-details'
 import HomeFeedPage from '../features/activity-streams/ui/pages/home-feed'
 import { getReactRoutePattern } from '../services/router/routes'
 import { ContentSharingQueryParams } from '../features/content-sharing/types'
+import { ReaderPageView } from '../features/reader/ui'
+import { normalizeUrl } from '@worldbrain/memex-common/lib/url-utils/normalize'
+import type { UIRunnerOptions } from './types'
 
-interface Props {
-    history: history.History
-    services: Services
-    storage: Storage
-}
+interface Props extends UIRunnerOptions {}
 export default class Routes extends React.Component<Props> {
     private eventHandlers = new EventHandlers()
 
@@ -71,6 +71,45 @@ export default class Routes extends React.Component<Props> {
                                 <HomeFeedPage
                                     services={this.props.services}
                                     storage={serverModules}
+                                />
+                            )
+                        }}
+                    />
+                    <Route
+                        exact
+                        path={getReactRoutePattern(
+                            ROUTES.pageLinkCreation.path,
+                        )}
+                        render={(route) => {
+                            const queryParams = new URLSearchParams(
+                                route.location.search,
+                            )
+                            return (
+                                <PageLinkCreationPage
+                                    services={this.props.services}
+                                    storage={this.props.storage.serverModules}
+                                    fullPageUrl={queryParams.get('url')}
+                                />
+                            )
+                        }}
+                    />
+                    <Route
+                        exact
+                        path={getReactRoutePattern(ROUTES.pageView.path)}
+                        render={(route) => {
+                            return (
+                                <ReaderPageView
+                                    normalizeUrl={normalizeUrl}
+                                    services={this.props.services}
+                                    listID={route.match.params.id}
+                                    entryID={route.match.params.entryId}
+                                    storage={this.props.storage.serverModules}
+                                    storageManager={
+                                        this.props.storage.serverStorageManager
+                                    }
+                                    generateServerId={
+                                        this.props.generateServerId
+                                    }
                                 />
                             )
                         }}

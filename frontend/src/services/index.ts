@@ -40,6 +40,8 @@ import { MemexExtensionService } from './memex-extension'
 import { AnalyticsService } from './analytics'
 import { FullTextSearchService } from './full-text-search'
 import { SummarizationService } from '@worldbrain/memex-common/lib/summarization'
+import { normalizeUrl } from '@worldbrain/memex-common/lib/url-utils/normalize'
+import PageLinkService from '../features/page-links/services'
 
 export function createServices(options: {
     backend: BackendType
@@ -168,6 +170,14 @@ export function createServices(options: {
                   storageModules: options.storage.serverModules,
                   getCurrentUserId: async () =>
                       auth.getCurrentUserReference()?.id ?? null,
+                  getConfig: () => ({ content_sharing: {} }),
+                  captureException: async (err) =>
+                      console.warn(
+                          'in-memory ContentSharingBackend: encountered error: ' +
+                              err.message,
+                      ),
+                  normalizeUrl,
+                  fetch,
               })
             : firebaseService<ContentSharingBackendInterface>(
                   'contentSharing',
@@ -223,6 +233,7 @@ export function createServices(options: {
         analytics,
         summarization: new SummarizationService(),
         fullTextSearch: new FullTextSearchService(),
+        pageLinks: new PageLinkService({ contentSharingBackend }),
     }
 
     return services

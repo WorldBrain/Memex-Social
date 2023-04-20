@@ -64,6 +64,7 @@ export type HomeFeedEvent = UIEvent<
                 urlToOpen: string
                 preventOpening: () => void
                 isFeed: boolean
+                pageLinkURL: string
             }
             waypointHit: null
             getLastSeenLinePosition: null

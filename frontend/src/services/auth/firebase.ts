@@ -1,6 +1,5 @@
 import { User } from '@worldbrain/memex-common/lib/web-interface/types/users'
 import firebase from 'firebase/compat'
-import { EventEmitter } from 'events'
 import { Storage } from '../../storage/types'
 import { AuthProvider } from '../../types/auth'
 import {
@@ -20,7 +19,6 @@ import { AnalyticsService } from '../analytics'
 const FIREBASE_AUTH_CACHE_KEY = 'firebase.wasAuthenticated'
 
 export default class FirebaseAuthService extends AuthServiceBase {
-    events = new EventEmitter()
     private _firebase: typeof firebase
     private _user: User | null = null
     private _initialized = false
@@ -214,7 +212,7 @@ export default class FirebaseAuthService extends AuthServiceBase {
             return
         }
 
-        this.events.emit('changed')
+        this.events.emit('changed', this._user)
     }
 
     async waitForAuthReady() {

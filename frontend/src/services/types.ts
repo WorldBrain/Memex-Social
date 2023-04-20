@@ -12,8 +12,9 @@ import type WebMonetizationService from '../features/web-monetization/service'
 import type { LocalStorageService } from './local-storage/types'
 import type { MemexExtensionService } from './memex-extension'
 import type { AnalyticsService } from './analytics'
-import { SummarizationService } from '@worldbrain/memex-common/lib/summarization'
+import type { SummarizationService } from '@worldbrain/memex-common/lib/summarization'
 import type { FullTextSearchService } from './full-text-search'
+import type { PageLinkServiceInterface } from '../features/page-links/services/types'
 
 type UIServices = 'logicRegistry' | 'device'
 export type UIElementServices<Wanted extends keyof Services = never> = Pick<
@@ -39,4 +40,5 @@ export type Services = SharedServices & {
     userManagement: UserManagementService
     webMonetization: WebMonetizationService
     summarization: SummarizationService
+    pageLinks: PageLinkServiceInterface
 }

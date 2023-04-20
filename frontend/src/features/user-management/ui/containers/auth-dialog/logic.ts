@@ -97,10 +97,6 @@ export default class AuthDialogLogic extends UILogic<
                             }
                         })
                         setTimeout(() => {
-                            console.log(
-                                'auth.getCurrentUserReference()',
-                                auth.getCurrentUserReference(),
-                            )
                             if (auth.getCurrentUserReference() == null) {
                                 this.emitMutation({
                                     mode: {
@@ -211,34 +207,39 @@ export default class AuthDialogLogic extends UILogic<
         }
         await executeUITask<AuthDialogState>(this, 'saveState', async () => {
             const auth = this.dependencies.services.auth
+            const isReader =
+                window.location.href.includes('/c/') &&
+                !window.location.href.includes('/p/')
             this.action = previousState.mode as 'login' | 'register'
+            const displayName = previousState.displayName.trim()
             if (previousState.mode === 'register') {
+                if (!displayName.length) {
+                    this.emitMutation({
+                        error: { $set: 'display-name-missing' },
+                    })
+                    return
+                }
                 const { result } = await auth.registerWithEmailPassword(
                     credentials,
                 )
                 if (result.status === 'error') {
                     this.emitMutation({ error: { $set: result.reason } })
                 } else {
-                    await executeUITask<AuthDialogState>(
-                        this,
-                        'saveState',
-                        async () => {
-                            const userReference = await this.dependencies.services.auth.getCurrentUserReference()
-                            if (!userReference) {
-                                throw new Error(
-                                    `Cannot set up profile without user being authenticated`,
-                                )
-                            }
-                            await this.dependencies.storage.users.updateUser(
-                                userReference,
-                                {},
-                                {
-                                    displayName: previousState.displayName,
-                                },
-                            )
-                            await this.dependencies.services.auth.refreshCurrentUser()
-                        },
+                    const userReference = this.dependencies.services.auth.getCurrentUserReference()
+                    if (!userReference) {
+                        throw new Error(
+                            `Cannot set up profile without user being authenticated`,
+                        )
+                    }
+                    await this.dependencies.storage.users.updateUser(
+                        userReference,
+                        {},
+                        { displayName },
                     )
+                    if (isReader) {
+                        await this.dependencies.services.listKeys.processCurrentKey()
+                    }
+                    await this.dependencies.services.auth.refreshCurrentUser()
                     this._result({
                         status:
                             this.action === 'register'
@@ -254,7 +255,11 @@ export default class AuthDialogLogic extends UILogic<
                     this.emitMutation({ error: { $set: result.reason } })
                     return
                 }
-                if ((await auth.getCurrentUser())?.displayName) {
+                const currentUser = auth.getCurrentUser()
+                if (isReader) {
+                    await this.dependencies.services.listKeys.processCurrentKey()
+                }
+                if (currentUser?.displayName) {
                     this._result({ status: 'authenticated' })
                 } else {
                     this.emitMutation({ mode: { $set: 'profile' } })

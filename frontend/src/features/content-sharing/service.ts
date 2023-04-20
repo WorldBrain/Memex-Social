@@ -65,7 +65,7 @@ export class ListKeysService extends AbstractListKeysService {
         const listId =
             routeMatch.params.id ?? this.dependencies.router.getSpaceId()
         if (!listId) {
-            return { result: 'not-supported-route' as any } // TODO: fix this
+            return { result: 'not-supported-route' }
         }
         const keyString = this.dependencies.router.getQueryParam('key')
         if (!keyString) {

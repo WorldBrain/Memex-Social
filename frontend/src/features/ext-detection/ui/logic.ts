@@ -28,6 +28,7 @@ export interface ExtDetectionEvent {
         isFeed?: boolean
         notifAlreadyShown?: boolean
         sharedListReference?: SharedListReference
+        pageLinkURL: string
     }
     clickFollowButtonForNotif: {
         spaceToFollow: string | undefined
@@ -86,6 +87,8 @@ export const extDetectionEventHandlers = (
 
             if (!doesMemexExtDetectionElExist()) {
                 event.preventOpening()
+                window.open(event.pageLinkURL, '_self')
+
                 if (event.notifAlreadyShown) {
                     if (isPagePdf({ url: event.urlToOpen })) {
                         event.preventOpening()
@@ -95,7 +98,7 @@ export const extDetectionEventHandlers = (
                         })
                         return
                     }
-                    window.open(event.urlToOpen)
+                    window.open(event.pageLinkURL, '_self')
                 } else {
                     if (isPagePdf({ url: event.urlToOpen })) {
                         event.preventOpening()
@@ -106,7 +109,7 @@ export const extDetectionEventHandlers = (
                         return
                     } else {
                         logic.emitMutation({
-                            isInstallExtModalShown: { $set: true },
+                            isInstallExtModalShown: { $set: false },
                             clickedPageUrl: { $set: event.urlToOpen },
                             notifAlreadyShown: { $set: true },
                         })
