@@ -2,19 +2,20 @@ import { ARCHIVE_PROXY_URL } from './api'
 
 const convertRelativeUrlsToAbsolute = async (
     html: string,
-    url: string,
+    originalUrl: string,
 ): Promise<string> => {
-    const parsedUrl = new URL(url)
-    const disableScripts = parsedUrl.hostname.endsWith('substack.com')
+    const parsedOriginalUrl = new URL(originalUrl)
+    const disableScripts = parsedOriginalUrl.hostname.endsWith('substack.com')
 
     const parser = new DOMParser()
     const iframeDoc = parser.parseFromString(html, 'text/html')
 
+    let baseUrl = originalUrl
     const base = iframeDoc.querySelector(
         'html > base, head > base',
     ) as HTMLBaseElement | null
     if (base) {
-        url = new URL(base.href, url).toString()
+        baseUrl = new URL(base.href, originalUrl).toString()
     }
 
     const srcElements = iframeDoc.querySelectorAll('[src]')
@@ -25,7 +26,7 @@ const convertRelativeUrlsToAbsolute = async (
             if (disableScripts && tagName === 'script') {
                 element.setAttribute('src', '/memex-script-disabled.js')
             } else {
-                element.setAttribute('src', new URL(src, url).toString())
+                element.setAttribute('src', new URL(src, baseUrl).toString())
             }
         }
     })
@@ -95,7 +96,7 @@ const convertRelativeUrlsToAbsolute = async (
         }
         const href = element.getAttribute('href')
         if (href) {
-            let fixedUrl = new URL(href, url).toString()
+            let fixedUrl = new URL(href, baseUrl).toString()
             if (!isLink) {
                 fixedUrl = `${ARCHIVE_PROXY_URL}/webarchive?url=${encodeURIComponent(
                     fixedUrl,
@@ -111,7 +112,7 @@ const convertRelativeUrlsToAbsolute = async (
         if (!origSrc) {
             continue
         }
-        const absUrl = new URL(origSrc, url).toString()
+        const absUrl = new URL(origSrc, baseUrl).toString()
         const proxiedUrl = `${ARCHIVE_PROXY_URL}/webarchive?url=${encodeURIComponent(
             absUrl,
         )}`
@@ -125,7 +126,7 @@ const convertRelativeUrlsToAbsolute = async (
             .split(',')
             .map((setEntry) => {
                 const entryParts = setEntry.split(' ')
-                const absUrl = new URL(entryParts[0], url).toString()
+                const absUrl = new URL(entryParts[0], baseUrl).toString()
                 const proxiedUrl = `${ARCHIVE_PROXY_URL}/webarchive?url=${encodeURIComponent(
                     absUrl,
                 )}`
