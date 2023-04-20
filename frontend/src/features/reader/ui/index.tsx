@@ -578,7 +578,7 @@ export class ReaderPageView extends UIElement<
                             <PrimaryAction
                                 icon="plus"
                                 type="primary"
-                                label={'New'}
+                                label={'New Page'}
                                 size="medium"
                                 onClick={() =>
                                     window.open(
