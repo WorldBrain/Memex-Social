@@ -4,6 +4,9 @@ const convertRelativeUrlsToAbsolute = async (
     html: string,
     url: string,
 ): Promise<string> => {
+    const parsedUrl = new URL(url)
+    const disableScripts = parsedUrl.hostname.endsWith('substack.com')
+
     const parser = new DOMParser()
     const iframeDoc = parser.parseFromString(html, 'text/html')
 
@@ -19,11 +22,11 @@ const convertRelativeUrlsToAbsolute = async (
         const tagName = element.tagName.toLowerCase()
         const src = element.getAttribute('src')
         if (src) {
-            // if (tagName === 'script') {
-            // element.setAttribute('src', '/bla.js')
-            // } else {
-            element.setAttribute('src', new URL(src, url).toString())
-            // }
+            if (disableScripts && tagName === 'script') {
+                element.setAttribute('src', '/memex-script-disabled.js')
+            } else {
+                element.setAttribute('src', new URL(src, url).toString())
+            }
         }
     })
 
