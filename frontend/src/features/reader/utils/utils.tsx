@@ -5,16 +5,16 @@ const convertRelativeUrlsToAbsolute = async (
     url: string,
 ): Promise<string> => {
     const parser = new DOMParser()
-    const doc = parser.parseFromString(html, 'text/html')
+    const iframeDoc = parser.parseFromString(html, 'text/html')
 
-    const base = doc.querySelector(
+    const base = iframeDoc.querySelector(
         'html > base, head > base',
     ) as HTMLBaseElement | null
     if (base) {
         url = new URL(base.href, url).toString()
     }
 
-    const srcElements = doc.querySelectorAll('[src]')
+    const srcElements = iframeDoc.querySelectorAll('[src]')
     srcElements.forEach((element: Element) => {
         const tagName = element.tagName.toLowerCase()
         const src = element.getAttribute('src')
@@ -28,9 +28,9 @@ const convertRelativeUrlsToAbsolute = async (
     })
 
     // Create a <script> tag to inject our own script in there
-    const script = doc.createElement('script')
+    const script = iframeDoc.createElement('script')
     script.src = `${window.location.origin}/reader-injection.js`
-    doc.head.appendChild(script)
+    iframeDoc.head.appendChild(script)
 
     // if ('serviceWorker' in navigator) {
     //     try {
@@ -78,19 +78,7 @@ const convertRelativeUrlsToAbsolute = async (
     // script.src = `${window.location.origin}/reader-injection.js`
     // doc.head.appendChild(script)
 
-    // TODO: This code is fragile. There must be a better way to get these styles to the iframe
-    //  The <style> tag is in the parent document because of webpack's css-loader.
-    const parentDocStyleEls = document.head.querySelectorAll<HTMLElement>(
-        'style[type="text/css"]',
-    )
-    const highlightStyleEl = Array.from(parentDocStyleEls).find((el) =>
-        el.innerText.includes('memex-highlight'),
-    )
-    if (highlightStyleEl) {
-        doc.head.appendChild(highlightStyleEl.cloneNode(true))
-    }
-
-    const hrefElements = doc.querySelectorAll('[href]')
+    const hrefElements = iframeDoc.querySelectorAll('[href]')
     for (const element of hrefElements) {
         const tagName = element.tagName.toLowerCase()
         if (tagName === 'base') {
@@ -114,7 +102,7 @@ const convertRelativeUrlsToAbsolute = async (
         }
     }
 
-    const imgElements = doc.querySelectorAll('img')
+    const imgElements = iframeDoc.querySelectorAll('img')
     for (const element of imgElements) {
         const origSrc = element.getAttribute('src')
         if (!origSrc) {
@@ -143,10 +131,47 @@ const convertRelativeUrlsToAbsolute = async (
             .join(', ')
     }
 
+    injectIframeHighlightsCSS(document, iframeDoc)
+
     const serializer = new XMLSerializer()
-    const modifiedHtml = serializer.serializeToString(doc)
+    const modifiedHtml = serializer.serializeToString(iframeDoc)
 
     return modifiedHtml
+}
+
+// TODO: This code is fragile. There must be a better way to get these styles to the iframe
+//  The <style>/<link> tag is in the parent document <head> because of webpack config
+function injectIframeHighlightsCSS(
+    parentDoc: Document,
+    iframeDoc: Document,
+): void {
+    if (process.env.NODE_ENV === 'development') {
+        // Covers development build with CSS inlined in a <style> tag
+        const parentDocStyleEls = parentDoc.head.querySelectorAll<HTMLStyleElement>(
+            'style[type="text/css"]',
+        )
+        const highlightStyleEl = Array.from(parentDocStyleEls).find((el) =>
+            el.innerText.includes('memex-highlight'),
+        )
+        if (highlightStyleEl) {
+            iframeDoc.head.appendChild(highlightStyleEl.cloneNode(true))
+        }
+    } else {
+        // Covers production build, with separate CSS file
+        const linkEls = parentDoc.head.querySelectorAll<HTMLLinkElement>(
+            'link[href$=".css"]',
+        )
+        const highlightLinkEl = Array.from(linkEls).find((el) =>
+            /main\..+\.chunk\.css$/.test(el.href),
+        )
+
+        if (highlightLinkEl) {
+            const iframeLinkElement = iframeDoc.createElement('link')
+            iframeLinkElement.rel = 'stylesheet'
+            iframeLinkElement.href = highlightLinkEl.href
+            iframeDoc.head.appendChild(iframeLinkElement)
+        }
+    }
 }
 
 export const waitForIframeLoad = (iframe: HTMLIFrameElement) =>
