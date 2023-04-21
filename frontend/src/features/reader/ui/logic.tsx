@@ -497,7 +497,6 @@ export class ReaderPageViewLogic extends UILogic<
             },
         )
 
-        console.log(!!iframe)
         if (!iframe) {
             return
         }
@@ -1251,9 +1250,18 @@ export class ReaderPageViewLogic extends UILogic<
 
     changeAnnotationCreateComment: EventHandler<'changeAnnotationCreateComment'> = ({
         event,
+        previousState,
     }) => {
         this.emitMutation({
-            annotationCreateState: { comment: { $set: event.comment } },
+            annotationCreateState: {
+                comment: { $set: event.comment },
+                isCreating: {
+                    $set:
+                        event.comment.trim().length > 0
+                            ? true
+                            : previousState.annotationCreateState.isCreating,
+                },
+            },
         })
     }
 
@@ -1263,7 +1271,6 @@ export class ReaderPageViewLogic extends UILogic<
         this.emitMutation({
             annotationCreateState: {
                 isCreating: { $set: false },
-                comment: { $set: '' },
             },
         })
     }
@@ -1277,7 +1284,8 @@ export class ReaderPageViewLogic extends UILogic<
                 'Cannot create annotation before page URL is loaded',
             )
         }
-        if (!previousState.annotationCreateState.comment.trim().length) {
+        const comment = previousState.annotationCreateState.comment.trim()
+        if (!comment.length) {
             this.emitMutation({
                 annotationCreateState: {
                     isCreating: { $set: false },
@@ -1296,9 +1304,9 @@ export class ReaderPageViewLogic extends UILogic<
         const createdWhen = Date.now()
         const { createPromise } = this.scheduleAnnotationCreation({
             fullPageUrl: previousState.originalUrl!,
-            createdWhen,
             updatedWhen: createdWhen,
-            comment: previousState.annotationCreateState.comment,
+            createdWhen,
+            comment,
             creator,
         })
         this.emitMutation({

@@ -13,6 +13,7 @@ import { PrimaryAction } from '@worldbrain/memex-common/lib/common-ui/components
 import { SharedListEntry } from '@worldbrain/memex-common/lib/content-sharing/types'
 import { UserReference } from '../../user-management/types'
 import AnnotationsInPage from '@worldbrain/memex-common/lib/content-conversations/ui/components/annotations-in-page'
+import AnnotationCreate from '@worldbrain/memex-common/lib/content-conversations/ui/components/annotation-create'
 import AuthHeader from '../../user-management/ui/containers/auth-header'
 import { PopoutBox } from '@worldbrain/memex-common/lib/common-ui/components/popout-box'
 import { getSinglePageShareUrl } from '@worldbrain/memex-common/lib/content-sharing/utils'
@@ -578,7 +579,7 @@ export class ReaderPageView extends UIElement<
                             <PrimaryAction
                                 icon="plus"
                                 type="primary"
-                                label={'New'}
+                                label={'New Page'}
                                 size="medium"
                                 onClick={() =>
                                     window.open(
@@ -646,6 +647,38 @@ export class ReaderPageView extends UIElement<
                             />
                         </SidebarTopBar>
                         <SidebarAnnotationContainer>
+                            {this.state.permissions != null && (
+                                <AnnotationCreateContainer>
+                                    <AnnotationCreate
+                                        comment={
+                                            this.state.annotationCreateState
+                                                .comment
+                                        }
+                                        isCreating={
+                                            this.state.annotationCreateState
+                                                .isCreating
+                                        }
+                                        onCancel={() =>
+                                            this.processEvent(
+                                                'cancelAnnotationCreate',
+                                                null,
+                                            )
+                                        }
+                                        onConfirm={() =>
+                                            this.processEvent(
+                                                'confirmAnnotationCreate',
+                                                null,
+                                            )
+                                        }
+                                        onChange={(comment) =>
+                                            this.processEvent(
+                                                'changeAnnotationCreateComment',
+                                                { comment },
+                                            )
+                                        }
+                                    />
+                                </AnnotationCreateContainer>
+                            )}
                             {this.state.listData &&
                                 this.renderPageAnnotations(
                                     this.state.listData.entry,
@@ -657,6 +690,11 @@ export class ReaderPageView extends UIElement<
         )
     }
 }
+
+const AnnotationCreateContainer = styled.div`
+    display: flex;
+    padding: 10px;
+`
 
 const EmptyMessageContainer = styled.div`
     display: flex;
@@ -803,11 +841,10 @@ const LeftSide = styled.div`
 const InjectedContent = styled.div`
     max-width: 100%;
     width: fill-available;
-    height: fill-available;
+    height: calc(100vh - ${TopBarHeight}px);
     left: 0;
     bottom: 0;
     border: 0px solid;
-    flex: 1;
 `
 
 const BreadCrumbBox = styled.div`
