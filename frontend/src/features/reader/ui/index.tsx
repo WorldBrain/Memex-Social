@@ -648,33 +648,36 @@ export class ReaderPageView extends UIElement<
                         </SidebarTopBar>
                         <SidebarAnnotationContainer>
                             {this.state.permissions != null && (
-                                <AnnotationCreate
-                                    comment={
-                                        this.state.annotationCreateState.comment
-                                    }
-                                    isCreating={
-                                        this.state.annotationCreateState
-                                            .isCreating
-                                    }
-                                    onCancel={() =>
-                                        this.processEvent(
-                                            'cancelAnnotationCreate',
-                                            null,
-                                        )
-                                    }
-                                    onConfirm={() =>
-                                        this.processEvent(
-                                            'confirmAnnotationCreate',
-                                            null,
-                                        )
-                                    }
-                                    onChange={(comment) =>
-                                        this.processEvent(
-                                            'changeAnnotationCreateComment',
-                                            { comment },
-                                        )
-                                    }
-                                />
+                                <AnnotationCreateContainer>
+                                    <AnnotationCreate
+                                        comment={
+                                            this.state.annotationCreateState
+                                                .comment
+                                        }
+                                        isCreating={
+                                            this.state.annotationCreateState
+                                                .isCreating
+                                        }
+                                        onCancel={() =>
+                                            this.processEvent(
+                                                'cancelAnnotationCreate',
+                                                null,
+                                            )
+                                        }
+                                        onConfirm={() =>
+                                            this.processEvent(
+                                                'confirmAnnotationCreate',
+                                                null,
+                                            )
+                                        }
+                                        onChange={(comment) =>
+                                            this.processEvent(
+                                                'changeAnnotationCreateComment',
+                                                { comment },
+                                            )
+                                        }
+                                    />
+                                </AnnotationCreateContainer>
                             )}
                             {this.state.listData &&
                                 this.renderPageAnnotations(
@@ -687,6 +690,11 @@ export class ReaderPageView extends UIElement<
         )
     }
 }
+
+const AnnotationCreateContainer = styled.div`
+    display: flex;
+    padding: 10px;
+`
 
 const EmptyMessageContainer = styled.div`
     display: flex;
@@ -833,11 +841,10 @@ const LeftSide = styled.div`
 const InjectedContent = styled.div`
     max-width: 100%;
     width: fill-available;
-    height: fill-available;
+    height: calc(100vh - ${TopBarHeight}px);
     left: 0;
     bottom: 0;
     border: 0px solid;
-    flex: 1;
 `
 
 const BreadCrumbBox = styled.div`
