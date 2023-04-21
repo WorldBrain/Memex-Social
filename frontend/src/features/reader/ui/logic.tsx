@@ -292,6 +292,11 @@ export class ReaderPageViewLogic extends UILogic<
                         },
                     },
                 })
+
+                document.title = result.entries[0].entryTitle
+                    ? result.entries[0].entryTitle
+                    : ''
+
                 this.listCreator.resolve(result.creator)
 
                 const annotationEntriesByList = await contentSharing.getAnnotationListEntriesForListsOnPage(
