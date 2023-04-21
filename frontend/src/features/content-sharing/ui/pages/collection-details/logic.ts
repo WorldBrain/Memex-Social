@@ -360,6 +360,11 @@ export default class CollectionDetailsLogic extends UILogic<
         let isPageSummaryEmpty = true
         for await (const result of this.dependencies.services.summarization.queryAI(
             incoming.event.entry.originalUrl,
+            undefined,
+            undefined,
+            undefined,
+            true,
+            true,
         )) {
             const token = result?.t
 
