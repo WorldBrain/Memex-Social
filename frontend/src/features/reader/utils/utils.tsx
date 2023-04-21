@@ -19,17 +19,25 @@ const convertRelativeUrlsToAbsolute = async (
     }
 
     const srcElements = iframeDoc.querySelectorAll('[src]')
-    srcElements.forEach((element: Element) => {
+    for (const element of srcElements) {
         const tagName = element.tagName.toLowerCase()
+        if (tagName === 'img') {
+            continue
+        }
+
         const src = element.getAttribute('src')
         if (src) {
             if (disableScripts && tagName === 'script') {
                 element.setAttribute('src', '/memex-script-disabled.js')
             } else {
-                element.setAttribute('src', new URL(src, baseUrl).toString())
+                const absUrl = new URL(src, baseUrl).toString()
+                const proxiedUrl = `${ARCHIVE_PROXY_URL}/webarchive?url=${encodeURIComponent(
+                    absUrl,
+                )}`
+                element.setAttribute('src', proxiedUrl)
             }
         }
-    })
+    }
 
     // Create a <script> tag to inject our own script in there
     const script = iframeDoc.createElement('script')
