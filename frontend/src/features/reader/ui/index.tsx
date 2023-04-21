@@ -13,6 +13,7 @@ import { PrimaryAction } from '@worldbrain/memex-common/lib/common-ui/components
 import { SharedListEntry } from '@worldbrain/memex-common/lib/content-sharing/types'
 import { UserReference } from '../../user-management/types'
 import AnnotationsInPage from '@worldbrain/memex-common/lib/content-conversations/ui/components/annotations-in-page'
+import AnnotationCreate from '@worldbrain/memex-common/lib/content-conversations/ui/components/annotation-create'
 import AuthHeader from '../../user-management/ui/containers/auth-header'
 import { PopoutBox } from '@worldbrain/memex-common/lib/common-ui/components/popout-box'
 import { getSinglePageShareUrl } from '@worldbrain/memex-common/lib/content-sharing/utils'
@@ -646,6 +647,35 @@ export class ReaderPageView extends UIElement<
                             />
                         </SidebarTopBar>
                         <SidebarAnnotationContainer>
+                            {this.state.permissions != null && (
+                                <AnnotationCreate
+                                    comment={
+                                        this.state.annotationCreateState.comment
+                                    }
+                                    isCreating={
+                                        this.state.annotationCreateState
+                                            .isCreating
+                                    }
+                                    onCancel={() =>
+                                        this.processEvent(
+                                            'cancelAnnotationCreate',
+                                            null,
+                                        )
+                                    }
+                                    onConfirm={() =>
+                                        this.processEvent(
+                                            'confirmAnnotationCreate',
+                                            null,
+                                        )
+                                    }
+                                    onChange={(comment) =>
+                                        this.processEvent(
+                                            'changeAnnotationCreateComment',
+                                            { comment },
+                                        )
+                                    }
+                                />
+                            )}
                             {this.state.listData &&
                                 this.renderPageAnnotations(
                                     this.state.listData.entry,
