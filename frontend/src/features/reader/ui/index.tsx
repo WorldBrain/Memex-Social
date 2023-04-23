@@ -623,12 +623,6 @@ export class ReaderPageView extends UIElement<
                 ] === 'success'
         }
 
-        if (loadState) {
-            console.log(loadState)
-            console.log(this.state.annotations)
-            console.log(this.state.annotations.length)
-        }
-
         const screenSmall =
             this.viewportBreakpoint === 'mobile' ||
             this.viewportBreakpoint === 'small'
