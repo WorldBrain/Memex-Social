@@ -213,6 +213,8 @@ export class ReaderPageViewLogic extends UILogic<
             reportURLSuccess: false,
             showInstallTooltip: false,
             linkCopiedToClipBoard: false,
+            showOptionsMenu: false,
+            showSidebar: true,
             ...annotationConversationInitialState(),
         }
     }
@@ -358,7 +360,6 @@ export class ReaderPageViewLogic extends UILogic<
     }
 
     private async listenToUserChanges() {
-        console.log('listen')
         for await (const user of userChanges(this.dependencies.services.auth)) {
             if (user != null) {
                 this.isReaderInitialized = false // Flag reader for re-initialization on user change
@@ -802,6 +803,24 @@ export class ReaderPageViewLogic extends UILogic<
             })
         }
     }
+    toggleOptionsMenu: EventHandler<'toggleOptionsMenu'> = async (incoming) => {
+        this.emitMutation({
+            showOptionsMenu: { $set: !incoming.previousState.showOptionsMenu },
+        })
+    }
+    toggleSidebar: EventHandler<'toggleSidebar'> = async (incoming) => {
+        if (incoming.event != null) {
+            this.emitMutation({
+                showSidebar: { $set: incoming.event },
+            })
+            return
+        } else {
+            this.emitMutation({
+                showSidebar: { $set: !incoming.previousState.showSidebar },
+            })
+        }
+    }
+
     reportUrl: EventHandler<'reportUrl'> = async (incoming) => {
         const { url } = incoming.event
 
@@ -1111,6 +1130,10 @@ export class ReaderPageViewLogic extends UILogic<
             return
         }
 
+        this.emitMutation({
+            showSidebar: { $set: true },
+        })
+
         const sidebarAnnotEl = this.sidebarRef.querySelector('#' + annotationId)
         if (!sidebarAnnotEl) {
             return
@@ -1124,6 +1147,10 @@ export class ReaderPageViewLogic extends UILogic<
         event,
         previousState,
     }) => {
+        this.emitMutation({
+            showSidebar: { $set: false },
+        })
+
         this.emitMutation({ activeAnnotationId: { $set: event.annotationId } })
         const annotationData = previousState.annotations[event.annotationId]
 

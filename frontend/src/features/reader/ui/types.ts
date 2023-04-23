@@ -93,6 +93,8 @@ export type ReaderPageViewState = AnnotationConversationsState & {
     linkCopiedToClipBoard: boolean
     activeAnnotationId: AutoPk | null
     iframeLoadState: UITaskState
+    showOptionsMenu: boolean
+    showSidebar: boolean
 }
 
 export type ReaderPageViewEvent = UIEvent<AnnotationConversationEvent> & {
@@ -117,5 +119,7 @@ export type ReaderPageViewEvent = UIEvent<AnnotationConversationEvent> & {
         sharedListReference: SharedListReference
         urlToOpen: string
     }
+    toggleOptionsMenu: null
+    toggleSidebar: boolean | null
     createYoutubeNote: {}
 }
