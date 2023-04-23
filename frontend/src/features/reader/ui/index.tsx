@@ -623,6 +623,8 @@ export class ReaderPageView extends UIElement<
                 ] === 'success'
         }
 
+        const annotationCounter = Object.keys(this.state.annotations).length
+
         const screenSmall =
             this.viewportBreakpoint === 'mobile' ||
             this.viewportBreakpoint === 'small'
@@ -703,21 +705,23 @@ export class ReaderPageView extends UIElement<
                                                         icon="commentAdd"
                                                         heightAndWidth="24px"
                                                     />
-                                                    <AnnotationCounter
-                                                        onClick={() =>
-                                                            this.processEvent(
-                                                                'toggleSidebar',
-                                                                null,
-                                                            )
-                                                        }
-                                                    >
-                                                        {
-                                                            Object.keys(
-                                                                this.state
-                                                                    .annotations,
-                                                            ).length
-                                                        }
-                                                    </AnnotationCounter>
+                                                    {annotationCounter > 0 && (
+                                                        <AnnotationCounter
+                                                            onClick={() =>
+                                                                this.processEvent(
+                                                                    'toggleSidebar',
+                                                                    null,
+                                                                )
+                                                            }
+                                                        >
+                                                            {
+                                                                Object.keys(
+                                                                    this.state
+                                                                        .annotations,
+                                                                ).length
+                                                            }
+                                                        </AnnotationCounter>
+                                                    )}
                                                 </SidebarButtonBox>
                                             ) : (
                                                 <LoadingBox width={'30px'}>
