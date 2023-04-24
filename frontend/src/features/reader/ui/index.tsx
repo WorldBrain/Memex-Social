@@ -629,6 +629,8 @@ export class ReaderPageView extends UIElement<
             this.viewportBreakpoint === 'mobile' ||
             this.viewportBreakpoint === 'small'
 
+        console.log(this.viewportBreakpoint)
+
         return (
             <MainContainer>
                 <LeftSide>
@@ -640,7 +642,7 @@ export class ReaderPageView extends UIElement<
                                     this.state.listData?.list.type !==
                                         'page-link' && (
                                         <>
-                                            {screenSmall ? (
+                                            {/* {screenSmall ? (
                                                 <Icon
                                                     icon="arrowLeft"
                                                     heightAndWidth="24px"
@@ -652,7 +654,8 @@ export class ReaderPageView extends UIElement<
                                                         )
                                                     }
                                                 />
-                                            ) : (
+                                            ) : ( */}
+                                            <BreadCrumbButton>
                                                 <PrimaryAction
                                                     icon="arrowLeft"
                                                     type="tertiary"
@@ -670,7 +673,7 @@ export class ReaderPageView extends UIElement<
                                                     }
                                                     padding="5px 10px 5px 5px"
                                                 />
-                                            )}
+                                            </BreadCrumbButton>
                                         </>
                                     )}
                             </BreadCrumbBox>
@@ -828,7 +831,7 @@ export class ReaderPageView extends UIElement<
                             x: 0,
                             y: 0,
                             width: screenSmall ? 'fill-available' : '400px',
-                            height: 'fill-available',
+                            height: '100px',
                         }}
                         resizeHandleWrapperClass={'sidebarResizeHandle'}
                         className="sidebar-draggable"
@@ -921,6 +924,17 @@ export class ReaderPageView extends UIElement<
         )
     }
 }
+
+const BreadCrumbButton = styled.div`
+    & > div {
+        & > span {
+            text-overflow: ellipsis;
+            overflow: hidden;
+            max-width: 120px;
+            display: block;
+        }
+    }
+`
 
 const SidebarButtonBox = styled.div`
     position: relative;
