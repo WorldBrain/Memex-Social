@@ -416,7 +416,7 @@ export default class HomeFeedPage extends UIElement<
                 <UpdateItemTopBar>
                     <UpdateItemTitleArea>
                         <Icon
-                            filePath="reply"
+                            filePath="commentAdd"
                             heightAndWidth={'22px'}
                             hoverOff
                             color={'prime1'}
