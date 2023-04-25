@@ -290,6 +290,7 @@ export default class CollectionDetailsPage extends UIElement<
 
         const currentBaseURL = new URL(window.location.href).origin
 
+        console.log('entry2', entry)
         const copyButton: ItemBoxBottomAction = {
             key: 'copy-link-btn',
             image: this.state.copiedLink ? 'check' : 'link',

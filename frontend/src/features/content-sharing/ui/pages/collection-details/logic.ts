@@ -624,6 +624,10 @@ export default class CollectionDetailsLogic extends UILogic<
                                     id: entry.creator,
                                 },
                                 updatedWhen: entry.createdWhen,
+                                reference: {
+                                    id: entry.id,
+                                    type: 'shared-list-entry-reference',
+                                },
                             }),
                         ),
                     },
