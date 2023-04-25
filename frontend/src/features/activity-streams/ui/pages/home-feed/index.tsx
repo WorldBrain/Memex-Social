@@ -452,11 +452,7 @@ export default class HomeFeedPage extends UIElement<
                                                 'AnnotEntry',
                                                 activityItem,
                                             )}
-                                            target={
-                                                this.isIframe()
-                                                    ? '_blank'
-                                                    : undefined
-                                            }
+                                            target={'_blank'}
                                         >
                                             {activityItem.list?.title}
                                         </RouteLink>
@@ -477,7 +473,7 @@ export default class HomeFeedPage extends UIElement<
                                 'AnnotEntry',
                                 activityItem,
                             )}
-                            target={this.isIframe() ? '_blank' : undefined}
+                            target={'_blank'}
                         >
                             <PrimaryAction
                                 label="View"
