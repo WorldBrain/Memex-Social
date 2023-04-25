@@ -34,14 +34,21 @@ export class ReaderPageView extends UIElement<
 > {
     constructor(props: ReaderPageViewDependencies) {
         super(props, { logic: new ReaderPageViewLogic({ ...props }) })
-        // const { query } = props
-
-        // this.itemRanges = {
-        //     listEntry: parseRange(query.fromListEntry, query.toListEntry),
-        //     annotEntry: parseRange(query.fromAnnotEntry, query.toAnnotEntry),
-        //     reply: parseRange(query.fromReply, query.toReply),
-        // }
         ;(window as any)['_state'] = () => ({ ...this.state })
+
+        const { query } = props
+
+        this.itemRanges = {
+            listEntry: parseRange(query.fromListEntry, query.toListEntry),
+            annotEntry: parseRange(query.fromAnnotEntry, query.toAnnotEntry),
+            reply: parseRange(query.fromReply, query.toReply),
+        }
+    }
+
+    itemRanges: {
+        [Key in 'listEntry' | 'annotEntry' | 'reply']:
+            | TimestampRange
+            | undefined
     }
 
     get viewportBreakpoint(): ViewportBreakpoint {
@@ -146,6 +153,20 @@ export class ReaderPageView extends UIElement<
                     //         ? state.newPageReplies[entry.normalizedUrl]
                     //         : undefined
                     // }
+                    shouldHighlightAnnotation={(annotation) =>
+                        isInRange(
+                            annotation.createdWhen,
+                            this.itemRanges.annotEntry,
+                        ) ||
+                        this.state.activeAnnotationId ===
+                            annotation.reference.id
+                    }
+                    shouldHighlightReply={(_, replyData) =>
+                        isInRange(
+                            replyData.reply.createdWhen,
+                            this.itemRanges.reply,
+                        )
+                    }
                     getAnnotationEditProps={(annotationRef) => ({
                         isEditing: this.state.annotationEditStates[
                             annotationRef.id
@@ -202,10 +223,6 @@ export class ReaderPageView extends UIElement<
                         )
                     }
                     annotationConversations={this.state.conversations}
-                    shouldHighlightAnnotation={(annotation) =>
-                        this.state.activeAnnotationId ===
-                        annotation.reference.id
-                    }
                     // shouldHighlightReply={(_, replyData) =>
                     //     isInRange(
                     //         replyData.reply.createdWhen,
@@ -923,6 +940,30 @@ export class ReaderPageView extends UIElement<
             </MainContainer>
         )
     }
+}
+
+type TimestampRange = { fromTimestamp: number; toTimestamp: number }
+
+function parseRange(
+    fromString: string | undefined,
+    toString: string | undefined,
+): TimestampRange | undefined {
+    if (!fromString || !toString) {
+        return undefined
+    }
+    const fromTimestamp = parseInt(fromString)
+    const toTimestamp = parseInt(toString)
+    return {
+        fromTimestamp: Math.min(fromTimestamp, toTimestamp),
+        toTimestamp: Math.max(fromTimestamp, toTimestamp),
+    }
+}
+
+function isInRange(timestamp: number, range: TimestampRange | undefined) {
+    if (!range) {
+        return false
+    }
+    return range.fromTimestamp <= timestamp && range.toTimestamp >= timestamp
 }
 
 const BreadCrumbButton = styled.div`

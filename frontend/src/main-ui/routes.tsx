@@ -97,8 +97,12 @@ export default class Routes extends React.Component<Props> {
                         exact
                         path={getReactRoutePattern(ROUTES.pageView.path)}
                         render={(route) => {
+                            const query = queryString.parse(
+                                route.location.search,
+                            ) as ContentSharingQueryParams
                             return (
                                 <ReaderPageView
+                                    query={query}
                                     normalizeUrl={normalizeUrl}
                                     services={this.props.services}
                                     listID={route.match.params.id}
