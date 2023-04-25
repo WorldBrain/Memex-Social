@@ -257,9 +257,8 @@ export class ReaderPageView extends UIElement<
                             highlight?.scrollIntoView({
                                 behavior: 'smooth',
                                 block: 'start',
-                                inline: 'nearest',
                             })
-                        }, 300)
+                        }, 50)
                     }}
                     newPageReplyEventHandlers={{
                         onNewReplyInitiate: () =>
