@@ -34,13 +34,6 @@ export class ReaderPageView extends UIElement<
 > {
     constructor(props: ReaderPageViewDependencies) {
         super(props, { logic: new ReaderPageViewLogic({ ...props }) })
-        // const { query } = props
-
-        // this.itemRanges = {
-        //     listEntry: parseRange(query.fromListEntry, query.toListEntry),
-        //     annotEntry: parseRange(query.fromAnnotEntry, query.toAnnotEntry),
-        //     reply: parseRange(query.fromReply, query.toReply),
-        // }
         ;(window as any)['_state'] = () => ({ ...this.state })
 
         const { query } = props
@@ -164,7 +157,9 @@ export class ReaderPageView extends UIElement<
                         isInRange(
                             annotation.createdWhen,
                             this.itemRanges.annotEntry,
-                        )
+                        ) ||
+                        this.state.activeAnnotationId ===
+                            annotation.reference.id
                     }
                     shouldHighlightReply={(_, replyData) =>
                         isInRange(
@@ -228,10 +223,6 @@ export class ReaderPageView extends UIElement<
                         )
                     }
                     annotationConversations={this.state.conversations}
-                    shouldHighlightAnnotation={(annotation) =>
-                        this.state.activeAnnotationId ===
-                        annotation.reference.id
-                    }
                     // shouldHighlightReply={(_, replyData) =>
                     //     isInRange(
                     //         replyData.reply.createdWhen,

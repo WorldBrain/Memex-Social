@@ -443,7 +443,7 @@ export default class HomeFeedPage extends UIElement<
                                         {' '}
                                         <RouteLink
                                             services={this.props.services}
-                                            route="collectionDetails"
+                                            route="pageView"
                                             params={{
                                                 id: activityItem.list.reference.id.toString(),
                                                 entryId: activityItem.list.entry.id.toString(),
@@ -468,7 +468,7 @@ export default class HomeFeedPage extends UIElement<
                     {activityItem.list && (
                         <RouteLink
                             services={this.props.services}
-                            route="collectionDetails"
+                            route="pageView"
                             params={{
                                 id: activityItem.list.reference.id.toString(),
                                 entryId: activityItem.list.entry.id.toString(),
