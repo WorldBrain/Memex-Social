@@ -22,6 +22,7 @@ import type { GenerateServerID } from '@worldbrain/memex-common/lib/content-shar
 import type { URLNormalizer } from '@worldbrain/memex-common/lib/url-utils/normalize/types'
 import type { AutoPk } from '@worldbrain/memex-common/lib/storage/types'
 import type StorageManager from '@worldbrain/storex'
+import { ContentSharingQueryParams } from '../../content-sharing/types'
 
 export interface ReaderPageViewDependencies {
     services: UIElementServices<
@@ -43,6 +44,7 @@ export interface ReaderPageViewDependencies {
     entryID: string
     normalizeUrl: URLNormalizer
     generateServerId: GenerateServerID
+    query: ContentSharingQueryParams
 }
 
 export type ReaderPageViewState = AnnotationConversationsState & {
