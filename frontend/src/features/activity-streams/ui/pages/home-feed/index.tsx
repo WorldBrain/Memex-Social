@@ -429,7 +429,7 @@ export default class HomeFeedPage extends UIElement<
                                 <UpdateCounter>
                                     {activityItem.activities.length}{' '}
                                 </UpdateCounter>
-                                new annotation for page{' '}
+                                new{' '}
                                 {pluralize(
                                     activityItem.activities.length,
                                     'annotation',
@@ -598,7 +598,7 @@ export default class HomeFeedPage extends UIElement<
                             <HighlightBox>
                                 <HighlightVerticalBar></HighlightVerticalBar>
                                 <Highlight>
-                                    <Markdown>
+                                    <Markdown isHighlight>
                                         {activityItem.annotation.body}
                                     </Markdown>
                                 </Highlight>
