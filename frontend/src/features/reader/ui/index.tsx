@@ -223,12 +223,6 @@ export class ReaderPageView extends UIElement<
                         )
                     }
                     annotationConversations={this.state.conversations}
-                    // shouldHighlightReply={(_, replyData) =>
-                    //     isInRange(
-                    //         replyData.reply.createdWhen,
-                    //         this.itemRanges.reply,
-                    //     )
-                    // }
                     getAnnotationCreator={(annotationReference) => {
                         const creatorRef = this.state.annotations[
                             annotationReference.id.toString()
@@ -250,12 +244,23 @@ export class ReaderPageView extends UIElement<
                             getReaderYoutubePlayerId(entry.normalizedUrl),
                         )
                     }
-                    onToggleReplies={(event) =>
+                    onToggleReplies={(event) => {
                         this.processEvent('toggleAnnotationReplies', {
                             ...event,
                             sharedListReference: this.state.listData!.reference,
                         })
-                    }
+                        setTimeout(() => {
+                            const highlight = document.getElementById(
+                                event.annotationReference.id.toString(),
+                            )
+
+                            highlight?.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'start',
+                                inline: 'nearest',
+                            })
+                        }, 300)
+                    }}
                     newPageReplyEventHandlers={{
                         onNewReplyInitiate: () =>
                             this.processEvent('initiateNewReplyToPage', {
@@ -645,8 +650,6 @@ export class ReaderPageView extends UIElement<
         const screenSmall =
             this.viewportBreakpoint === 'mobile' ||
             this.viewportBreakpoint === 'small'
-
-        console.log(this.viewportBreakpoint)
 
         return (
             <MainContainer>

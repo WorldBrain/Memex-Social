@@ -538,7 +538,7 @@ export default class HomeFeedPage extends UIElement<
                                         {' '}
                                         <RouteLink
                                             services={this.props.services}
-                                            route="collectionDetails"
+                                            route="pageView"
                                             params={{
                                                 id: activityItem.list.reference.id.toString(),
                                                 entryId: activityItem.list.entry.id.toString(),
@@ -550,11 +550,7 @@ export default class HomeFeedPage extends UIElement<
                                                     activityItem,
                                                 ),
                                             }}
-                                            target={
-                                                this.isIframe()
-                                                    ? '_blank'
-                                                    : undefined
-                                            }
+                                            target={'_blank'}
                                         >
                                             {activityItem.list?.title}
                                         </RouteLink>
@@ -566,16 +562,16 @@ export default class HomeFeedPage extends UIElement<
                     {activityItem.list && (
                         <RouteLink
                             services={this.props.services}
-                            route="collectionDetails"
+                            route="pageView"
                             params={{
                                 id: activityItem.list.reference.id.toString(),
                                 entryId: activityItem.list.entry.id.toString(),
                             }}
-                            query={getRangeQueryParams(
-                                'ListEntry',
-                                activityItem,
-                            )}
-                            target={this.isIframe() ? '_blank' : undefined}
+                            query={{
+                                annotationId: activityItem.annotation.reference.id.toString(),
+                                ...getRangeQueryParams('Reply', activityItem),
+                            }}
+                            target={'_blank'}
                         >
                             <PrimaryAction
                                 label="View"
@@ -862,6 +858,7 @@ function getRangeQueryParams(
 ) {
     const lastActivitiy =
         activityItem.activities[activityItem.activities.length - 1]
+
     return {
         [`from${type}`]: activityItem.activities[0].notifiedWhen.toString(),
         [`to${type}`]: lastActivitiy.notifiedWhen.toString(),
