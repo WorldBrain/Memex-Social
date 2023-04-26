@@ -929,6 +929,14 @@ export class ReaderPageView extends UIElement<
                                                 { comment },
                                             )
                                         }
+                                        getYoutubePlayer={() =>
+                                            this.props.services.youtube.getPlayerByElementId(
+                                                getReaderYoutubePlayerId(
+                                                    this.state.listData!.entry
+                                                        .normalizedUrl,
+                                                ),
+                                            )
+                                        }
                                     />
                                 </AnnotationCreateContainer>
                             )}
