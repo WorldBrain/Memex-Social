@@ -363,7 +363,9 @@ export class ReaderPageViewLogic extends UILogic<
         for await (const user of userChanges(this.dependencies.services.auth)) {
             if (user != null) {
                 this.isReaderInitialized = false // Flag reader for re-initialization on user change
-                window.location.reload()
+                setTimeout(() => {
+                    window.location.reload()
+                }, 500)
             } else {
                 this.emitMutation({
                     collaborationKey: { $set: null },
