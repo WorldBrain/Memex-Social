@@ -8,6 +8,7 @@ import { theme } from '../../../../src/main-ui/styles/theme'
 import {
     GetAnnotationsResult,
     GetAnnotationListEntriesResult,
+    SharedCollectionType,
 } from '@worldbrain/memex-common/lib/content-sharing/storage/types'
 import { GetAnnotationListEntriesElement } from '@worldbrain/memex-common/lib/content-sharing/storage/types'
 import {
@@ -237,7 +238,9 @@ export class ReaderPageViewLogic extends UILogic<
                 }
 
                 await auth.waitForAuth()
-                const { result } = await listKeys.processCurrentKey()
+                const { result } = await listKeys.processCurrentKey({
+                    type: SharedCollectionType.PageLink,
+                })
                 this.emitMutation({ joinListResult: { $set: result } })
             },
         )
