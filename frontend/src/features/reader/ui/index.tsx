@@ -415,36 +415,41 @@ export class ReaderPageView extends UIElement<
                             services={this.props.services}
                             storage={this.props.storage}
                         />
-                        <PrimaryAction
-                            icon={
-                                this.state.reportURLSuccess
-                                    ? 'check'
-                                    : 'warning'
-                            }
-                            type="tertiary"
-                            label={'Report URL'}
-                            size="medium"
-                            innerRef={this.reportButtonRef}
-                            onClick={() =>
-                                this.processEvent('reportUrl', {
-                                    url: this.state.listData!.entry.originalUrl,
-                                })
-                            }
-                            padding="5px 10px 5px 5px"
-                        />
-                        <PrimaryAction
-                            icon={'goTo'}
-                            type="tertiary"
-                            label={'Open Original'}
-                            size="medium"
-                            onClick={() =>
-                                window.open(
-                                    this.state.listData!.entry.originalUrl,
-                                    '_blank',
-                                )
-                            }
-                            padding="5px 10px 5px 5px"
-                        />
+                        {this.state.listLoadState === 'success' && (
+                            <PrimaryAction
+                                icon={
+                                    this.state.reportURLSuccess
+                                        ? 'check'
+                                        : 'warning'
+                                }
+                                type="tertiary"
+                                label={'Report URL'}
+                                size="medium"
+                                innerRef={this.reportButtonRef}
+                                onClick={() =>
+                                    this.processEvent('reportUrl', {
+                                        url: this.state.listData!.entry
+                                            .originalUrl,
+                                    })
+                                }
+                                padding="5px 10px 5px 5px"
+                            />
+                        )}
+                        {this.state.listLoadState === 'success' && (
+                            <PrimaryAction
+                                icon={'goTo'}
+                                type="tertiary"
+                                label={'Open Original'}
+                                size="medium"
+                                onClick={() =>
+                                    window.open(
+                                        this.state.listData!.entry.originalUrl,
+                                        '_blank',
+                                    )
+                                }
+                                padding="5px 10px 5px 5px"
+                            />
+                        )}
                         {this.state.permissionsLoadState === 'success' && (
                             <PrimaryAction
                                 icon={'invite'}
@@ -759,38 +764,42 @@ export class ReaderPageView extends UIElement<
                                 <>
                                     {this.renderInstallTooltip()}
                                     {this.renderShareTooltip()}
-                                    <PrimaryAction
-                                        icon={
-                                            this.state.reportURLSuccess
-                                                ? 'check'
-                                                : 'warning'
-                                        }
-                                        type="tertiary"
-                                        label={'Report URL'}
-                                        size="medium"
-                                        innerRef={this.reportButtonRef}
-                                        onClick={() =>
-                                            this.processEvent('reportUrl', {
-                                                url: this.state.listData!.entry
-                                                    .originalUrl,
-                                            })
-                                        }
-                                        padding="5px 10px 5px 5px"
-                                    />
-                                    <PrimaryAction
-                                        icon={'goTo'}
-                                        type="tertiary"
-                                        label={'Open Original'}
-                                        size="medium"
-                                        onClick={() =>
-                                            window.open(
-                                                this.state.listData!.entry
-                                                    .originalUrl,
-                                                '_blank',
-                                            )
-                                        }
-                                        padding="5px 10px 5px 5px"
-                                    />
+                                    {this.state.listLoadState === 'success' && (
+                                        <PrimaryAction
+                                            icon={
+                                                this.state.reportURLSuccess
+                                                    ? 'check'
+                                                    : 'warning'
+                                            }
+                                            type="tertiary"
+                                            label={'Report URL'}
+                                            size="medium"
+                                            innerRef={this.reportButtonRef}
+                                            onClick={() =>
+                                                this.processEvent('reportUrl', {
+                                                    url: this.state.listData!
+                                                        .entry.originalUrl,
+                                                })
+                                            }
+                                            padding="5px 10px 5px 5px"
+                                        />
+                                    )}
+                                    {this.state.listLoadState === 'success' && (
+                                        <PrimaryAction
+                                            icon={'goTo'}
+                                            type="tertiary"
+                                            label={'Open Original'}
+                                            size="medium"
+                                            onClick={() =>
+                                                window.open(
+                                                    this.state.listData!.entry
+                                                        .originalUrl,
+                                                    '_blank',
+                                                )
+                                            }
+                                            padding="5px 10px 5px 5px"
+                                        />
+                                    )}
                                     {this.state.permissionsLoadState ===
                                         'success' && (
                                         <PrimaryAction
