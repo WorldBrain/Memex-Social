@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "concurrently -n DS,FE -p name \"yarn dev-server\" \"yarn client\"",
-    "client": "cross-env BROWSER=none node scripts/start.js",
+    "client": "cross-env BROWSER=none node --openssl-legacy-provider scripts/start.js",
     "prepare": "true",
     "dev-server": "nodemon --watch ./dev-server --watch ./src/services/fixtures/utils.ts --exec 'ts-node --project dev-server/tsconfig.json' dev-server/src/main.ts",
     "generate-types": "ts-node --project scripts/tsconfig.json scripts/generate-types.ts",
@@ -51,6 +51,8 @@
     "@tiptap/react": "2.0.0-beta.108",
     "@typescript-eslint/eslint-plugin": "^2.10.0",
     "@typescript-eslint/parser": "^2.10.0",
+    "@webrecorder/archivewebpage": "github:webrecorder/archiveweb.page",
+    "@webrecorder/wabac": "^2.12.4",
     "@worldbrain/memex-common": "^0.0.1",
     "@worldbrain/memex-url-utils": "^0.1.1",
     "@worldbrain/storex": "^0.3.3",

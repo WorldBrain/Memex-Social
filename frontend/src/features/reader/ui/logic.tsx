@@ -489,15 +489,13 @@ export class ReaderPageViewLogic extends UILogic<
             this,
             'iframeLoadState',
             async () => {
-                const { html, url } = await getWebsiteHTML(originalUrl)
-
-                const _iframe = await createIframeForHtml(html, url, ref)
-                await waitForIframeLoad(_iframe)
-                iframe = _iframe
+                // const { html, url } = await getWebsiteHTML(originalUrl)
+                // const _iframe = await createIframeForHtml(html, url, ref)
+                // await waitForIframeLoad(_iframe)
+                // iframe = _iframe
             },
         )
 
-        console.log(!!iframe)
         if (!iframe) {
             return
         }

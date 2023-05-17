@@ -39,10 +39,23 @@ const convertRelativeUrlsToAbsolute = async (
         }
     }
 
-    // Create a <script> tag to inject our own script in there
-    const script = iframeDoc.createElement('script')
-    script.src = `${window.location.origin}/reader-injection.js`
-    iframeDoc.head.appendChild(script)
+    let insertScriptAfter = iframeDoc.querySelector('title') as HTMLElement
+    if (!insertScriptAfter) {
+        const head = iframeDoc.head
+        insertScriptAfter = head.firstChild as HTMLElement
+    }
+    const insertScript = (options: { path: string } | { content: string }) => {
+        const script = iframeDoc.createElement('script')
+        if ('path' in options) {
+            script.src = `${window.location.origin}${options.path}`
+        } else {
+            script.append(iframeDoc.createTextNode(options.content))
+        }
+        insertScriptAfter.insertAdjacentElement('afterend', script)
+    }
+    insertScript({ path: '/reader-injection.js' })
+    // insertScript({ path: '/wombat/wombat.js' })
+    // insertScript()
 
     // if ('serviceWorker' in navigator) {
     //     try {
