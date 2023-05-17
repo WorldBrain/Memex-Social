@@ -240,7 +240,7 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 ...data.TEST_LIST_ENTRIES[0],
                 fullTitle: data.TEST_LIST_ENTRIES[0].entryTitle,
             }
-            delete pageInfo.entryTitle
+            delete (pageInfo as any).entryTitle
             const originalPageReference = await contentSharing.createPageInfo({
                 pageInfo,
                 creatorReference: userReference,
@@ -277,7 +277,7 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 ...data.TEST_LIST_ENTRIES[0],
                 fullTitle: data.TEST_LIST_ENTRIES[0].entryTitle,
             }
-            delete pageInfo.entryTitle
+            delete (pageInfo as any).entryTitle
             const firstPageReference = await contentSharing.ensurePageInfo({
                 pageInfo,
                 creatorReference: userReference,
@@ -1836,10 +1836,8 @@ createMultiDeviceStorageTestSuite(
                 keyString,
                 listReference,
                 userReference: devices[1].services.auth.getCurrentUserReference()!,
-                contentSharing:
-                    superuserDevice.storage.serverModules.contentSharing,
-                activityFollows:
-                    devices[1].storage.serverModules.activityFollows,
+                storageModules: superuserDevice.storage.serverModules,
+                services: {},
                 storageManager: superuserDevice.storage.serverStorageManager,
             })
             expect(
@@ -1917,7 +1915,7 @@ async function _expectPermissionsError(
     try {
         await f()
     } catch (e) {
-        if (!isAccessRulesPermissionError(e)) {
+        if (!isAccessRulesPermissionError(e as any)) {
             throw e
         }
         triggeredPermissionError = true

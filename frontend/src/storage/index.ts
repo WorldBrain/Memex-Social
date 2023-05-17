@@ -1,4 +1,5 @@
-import firebase from 'firebase/compat'
+import 'firebase/compat/firestore'
+import firebase from 'firebase/compat/app'
 
 import StorageManager, { StorageBackend } from '@worldbrain/storex'
 import { DexieStorageBackend } from '@worldbrain/storex-backend-dexie'

@@ -1,5 +1,6 @@
 import { User } from '@worldbrain/memex-common/lib/web-interface/types/users'
-import firebase from 'firebase/compat'
+import 'firebase/compat/auth'
+import firebase from 'firebase/compat/app'
 import { Storage } from '../../storage/types'
 import { AuthProvider } from '../../types/auth'
 import {
