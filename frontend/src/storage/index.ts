@@ -1,4 +1,5 @@
 import 'firebase/compat/firestore'
+import 'firebase/compat/functions'
 import firebase from 'firebase/compat/app'
 
 import StorageManager, { StorageBackend } from '@worldbrain/storex'
@@ -108,6 +109,9 @@ export async function createStorage(options: {
             })
             return result
         } catch (e) {
+            if (process.env.REACT_APP_LOG_STORAGE !== 'true') {
+                throw e
+            }
             if (e instanceof Error) {
                 error = e
             }
@@ -194,16 +198,15 @@ function createStorageMiddleware(options: {
             process: async ({ next, operation }) => {
                 let result: any
                 let error: Error | undefined
-                console.groupCollapsed(
+
+                const logGroupArgs = [
                     'Storage operation',
                     operation[0],
                     operation[1],
-                )
+                ]
+                const request = JSON.parse(JSON.stringify(operation))
+                console.log(...logGroupArgs)
                 try {
-                    console.groupCollapsed('Trace')
-                    console.trace()
-                    console.groupEnd()
-                    console.log('Request', operation)
                     result = await next.process({ operation })
                     return result
                 } catch (e) {
@@ -211,6 +214,8 @@ function createStorageMiddleware(options: {
                         error = e
                     }
                 } finally {
+                    console.group(...logGroupArgs)
+                    console.log('Request', request)
                     console.log(`Result`, error ?? result)
                     console.groupEnd()
                 }
