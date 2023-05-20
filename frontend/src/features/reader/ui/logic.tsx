@@ -70,6 +70,7 @@ import { userChanges } from '../../../services/auth/utils'
 import type { PersonalAnnotation } from '@worldbrain/memex-common/lib/web-interface/types/storex-generated/personal-cloud'
 import type { AutoPk } from '../../../types'
 import { normalizeUrl } from '@worldbrain/memex-common/lib/url-utils/normalize'
+import { doesMemexExtDetectionElExist } from '@worldbrain/memex-common/lib/common-ui/utils/content-script'
 
 type EventHandler<EventName extends keyof ReaderPageViewEvent> = UIEventHandler<
     ReaderPageViewState,
@@ -273,6 +274,15 @@ export class ReaderPageViewLogic extends UILogic<
 
                 const listEntry = result.entries[0]
                 const normalizedPageUrl = listEntry.normalizedUrl
+
+                const isMemexInstalled = doesMemexExtDetectionElExist()
+
+                if (isMemexInstalled) {
+                    await this.dependencies.services?.memexExtension.openLink({
+                        originalPageUrl: listEntry.originalUrl,
+                        sharedListId: listReference?.id as string,
+                    })
+                }
 
                 this.emitMutation({
                     annotationLoadStates: {
