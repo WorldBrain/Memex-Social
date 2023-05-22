@@ -49,7 +49,7 @@
     "@tiptap/react": "2.0.0-beta.108",
     "@typescript-eslint/eslint-plugin": "^2.10.0",
     "@typescript-eslint/parser": "^2.10.0",
-    "@webrecorder/archivewebpage": "github:webrecorder/archiveweb.page",
+    "@webrecorder/archivewebpage": "^0.9.8",
     "@webrecorder/wabac": "^2.12.4",
     "@worldbrain/memex-common": "^0.0.1",
     "@worldbrain/memex-url-utils": "^0.1.1",

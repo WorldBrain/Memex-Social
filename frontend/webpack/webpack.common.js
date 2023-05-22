@@ -2,7 +2,11 @@ const path = require('path')
 
 module.exports = {
     mode: 'development',
-    entry: ['./src/index.tsx'],
+    entry: {
+        index: './src/index.tsx',
+        // sw: require.resolve('@webrecorder/archivewebpage/src/sw/main.js'),
+        sw: './src/features/reader/sw.js',
+    },
     module: {
         rules: require('./rules'),
     },
