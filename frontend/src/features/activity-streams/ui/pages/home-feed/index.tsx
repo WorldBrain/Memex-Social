@@ -416,7 +416,7 @@ export default class HomeFeedPage extends UIElement<
                 <UpdateItemTopBar>
                     <UpdateItemTitleArea>
                         <Icon
-                            filePath="reply"
+                            filePath="commentAdd"
                             heightAndWidth={'22px'}
                             hoverOff
                             color={'prime1'}
@@ -429,7 +429,7 @@ export default class HomeFeedPage extends UIElement<
                                 <UpdateCounter>
                                     {activityItem.activities.length}{' '}
                                 </UpdateCounter>
-                                new annotation for page{' '}
+                                new{' '}
                                 {pluralize(
                                     activityItem.activities.length,
                                     'annotation',
@@ -443,7 +443,7 @@ export default class HomeFeedPage extends UIElement<
                                         {' '}
                                         <RouteLink
                                             services={this.props.services}
-                                            route="collectionDetails"
+                                            route="pageView"
                                             params={{
                                                 id: activityItem.list.reference.id.toString(),
                                                 entryId: activityItem.list.entry.id.toString(),
@@ -452,11 +452,7 @@ export default class HomeFeedPage extends UIElement<
                                                 'AnnotEntry',
                                                 activityItem,
                                             )}
-                                            target={
-                                                this.isIframe()
-                                                    ? '_blank'
-                                                    : undefined
-                                            }
+                                            target={'_blank'}
                                         >
                                             {activityItem.list?.title}
                                         </RouteLink>
@@ -468,7 +464,7 @@ export default class HomeFeedPage extends UIElement<
                     {activityItem.list && (
                         <RouteLink
                             services={this.props.services}
-                            route="collectionDetails"
+                            route="pageView"
                             params={{
                                 id: activityItem.list.reference.id.toString(),
                                 entryId: activityItem.list.entry.id.toString(),
@@ -477,7 +473,7 @@ export default class HomeFeedPage extends UIElement<
                                 'AnnotEntry',
                                 activityItem,
                             )}
-                            target={this.isIframe() ? '_blank' : undefined}
+                            target={'_blank'}
                         >
                             <PrimaryAction
                                 label="View"
@@ -542,7 +538,7 @@ export default class HomeFeedPage extends UIElement<
                                         {' '}
                                         <RouteLink
                                             services={this.props.services}
-                                            route="collectionDetails"
+                                            route="pageView"
                                             params={{
                                                 id: activityItem.list.reference.id.toString(),
                                                 entryId: activityItem.list.entry.id.toString(),
@@ -554,11 +550,7 @@ export default class HomeFeedPage extends UIElement<
                                                     activityItem,
                                                 ),
                                             }}
-                                            target={
-                                                this.isIframe()
-                                                    ? '_blank'
-                                                    : undefined
-                                            }
+                                            target={'_blank'}
                                         >
                                             {activityItem.list?.title}
                                         </RouteLink>
@@ -570,16 +562,16 @@ export default class HomeFeedPage extends UIElement<
                     {activityItem.list && (
                         <RouteLink
                             services={this.props.services}
-                            route="collectionDetails"
+                            route="pageView"
                             params={{
                                 id: activityItem.list.reference.id.toString(),
                                 entryId: activityItem.list.entry.id.toString(),
                             }}
-                            query={getRangeQueryParams(
-                                'ListEntry',
-                                activityItem,
-                            )}
-                            target={this.isIframe() ? '_blank' : undefined}
+                            query={{
+                                annotationId: activityItem.annotation.reference.id.toString(),
+                                ...getRangeQueryParams('Reply', activityItem),
+                            }}
+                            target={'_blank'}
                         >
                             <PrimaryAction
                                 label="View"
@@ -598,7 +590,7 @@ export default class HomeFeedPage extends UIElement<
                             <HighlightBox>
                                 <HighlightVerticalBar></HighlightVerticalBar>
                                 <Highlight>
-                                    <Markdown>
+                                    <Markdown isHighlight>
                                         {activityItem.annotation.body}
                                     </Markdown>
                                 </Highlight>
@@ -866,6 +858,7 @@ function getRangeQueryParams(
 ) {
     const lastActivitiy =
         activityItem.activities[activityItem.activities.length - 1]
+
     return {
         [`from${type}`]: activityItem.activities[0].notifiedWhen.toString(),
         [`to${type}`]: lastActivitiy.notifiedWhen.toString(),

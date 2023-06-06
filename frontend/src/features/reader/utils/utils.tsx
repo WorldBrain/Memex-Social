@@ -104,7 +104,12 @@ const convertRelativeUrlsToAbsolute = async (
         }
         const href = element.getAttribute('href')
         if (href) {
-            let fixedUrl = new URL(href, baseUrl).toString()
+            let fixedUrl = ''
+            try {
+                fixedUrl = new URL(href, baseUrl).toString()
+            } catch (e) {
+                continue
+            }
             if (!isLink) {
                 fixedUrl = `${ARCHIVE_PROXY_URL}/webarchive?url=${encodeURIComponent(
                     fixedUrl,

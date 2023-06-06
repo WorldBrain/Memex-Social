@@ -22,6 +22,7 @@ import type { GenerateServerID } from '@worldbrain/memex-common/lib/content-shar
 import type { URLNormalizer } from '@worldbrain/memex-common/lib/url-utils/normalize/types'
 import type { AutoPk } from '@worldbrain/memex-common/lib/storage/types'
 import type StorageManager from '@worldbrain/storex'
+import { ContentSharingQueryParams } from '../../content-sharing/types'
 
 export interface ReaderPageViewDependencies {
     services: UIElementServices<
@@ -33,6 +34,7 @@ export interface ReaderPageViewDependencies {
         | 'overlay'
         | 'userManagement'
         | 'youtube'
+        | 'memexExtension'
     >
     storage: Pick<
         StorageModules,
@@ -43,6 +45,7 @@ export interface ReaderPageViewDependencies {
     entryID: string
     normalizeUrl: URLNormalizer
     generateServerId: GenerateServerID
+    query: ContentSharingQueryParams
 }
 
 export type ReaderPageViewState = AnnotationConversationsState & {
@@ -93,6 +96,8 @@ export type ReaderPageViewState = AnnotationConversationsState & {
     linkCopiedToClipBoard: boolean
     activeAnnotationId: AutoPk | null
     iframeLoadState: UITaskState
+    showOptionsMenu: boolean
+    showSidebar: boolean
 }
 
 export type ReaderPageViewEvent = UIEvent<AnnotationConversationEvent> & {
@@ -117,5 +122,7 @@ export type ReaderPageViewEvent = UIEvent<AnnotationConversationEvent> & {
         sharedListReference: SharedListReference
         urlToOpen: string
     }
+    toggleOptionsMenu: null
+    toggleSidebar: boolean | null
     createYoutubeNote: {}
 }

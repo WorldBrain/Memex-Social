@@ -127,6 +127,7 @@ export const theme: Theme = THEME({
         timestampIcon: require('../../assets/img/timeStampIcon.svg'),
         numberedListIcon: require('../../assets/img/numberedListIcon.svg'),
         bulletListIcon: require('../../assets/img/bulletListIcon.svg'),
+        bulletPoint: require('../../assets/img/bulletListIcon.svg'),
         strikethroughIcon: require('../../assets/img/strikethroughIcon.svg'),
         fullPageReading: require('../../assets/img/bulletListIcon.svg'),
         sideBySide: require('../../assets/img/strikethroughIcon.svg'),

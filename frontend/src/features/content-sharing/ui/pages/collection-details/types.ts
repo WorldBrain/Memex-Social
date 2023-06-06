@@ -177,7 +177,7 @@ export type CollectionDetailsEvent = UIEvent<
 >
 export type CollectionDetailsListEntry = SharedListEntry & {
     id?: number | string
-    reference?: SharedListEntryReference
+    reference?: SharedListEntryReference | any
     creator: UserReference
     hoverState?: boolean
 }

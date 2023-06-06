@@ -21,7 +21,7 @@ export interface Props {
     route: keyof RouteMap
     params: { [key: string]: string }
     children: React.ReactNode
-    query?: { [key: string]: string }
+    query?: { [key: string]: string } | any
     className?: string
     title?: string
     target?: string

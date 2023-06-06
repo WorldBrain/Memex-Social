@@ -17,9 +17,9 @@ function debugLog(...args: any[]) {
 }
 
 async function canMessageExtension(extensionID: string) {
-    //@ts-ignore next-line
+    /* @ts-ignore */
     const base = chrome || browser
-    //@ts-ignore next-line
+    /* @ts-ignore */
     if (
         !base ||
         !base.runtime ||

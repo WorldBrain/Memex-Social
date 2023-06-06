@@ -803,7 +803,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
         authenticated: true,
         fixture: 'annotation-coversation-with-user',
         startRoute: {
-            route: 'collectionDetails',
+            route: 'pageView',
             params: { id: 'default-list', entryId: 'entry-1' },
             query: {
                 annotationId: 'default-annotation',

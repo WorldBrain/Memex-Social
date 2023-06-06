@@ -8,6 +8,7 @@ import { theme } from '../../../../src/main-ui/styles/theme'
 import {
     GetAnnotationsResult,
     GetAnnotationListEntriesResult,
+    SharedCollectionType,
 } from '@worldbrain/memex-common/lib/content-sharing/storage/types'
 import { GetAnnotationListEntriesElement } from '@worldbrain/memex-common/lib/content-sharing/storage/types'
 import {
@@ -69,6 +70,7 @@ import { userChanges } from '../../../services/auth/utils'
 import type { PersonalAnnotation } from '@worldbrain/memex-common/lib/web-interface/types/storex-generated/personal-cloud'
 import type { AutoPk } from '../../../types'
 import { normalizeUrl } from '@worldbrain/memex-common/lib/url-utils/normalize'
+import { doesMemexExtDetectionElExist } from '@worldbrain/memex-common/lib/common-ui/utils/content-script'
 
 type EventHandler<EventName extends keyof ReaderPageViewEvent> = UIEventHandler<
     ReaderPageViewState,
@@ -213,6 +215,8 @@ export class ReaderPageViewLogic extends UILogic<
             reportURLSuccess: false,
             showInstallTooltip: false,
             linkCopiedToClipBoard: false,
+            showOptionsMenu: false,
+            showSidebar: true,
             ...annotationConversationInitialState(),
         }
     }
@@ -235,7 +239,9 @@ export class ReaderPageViewLogic extends UILogic<
                 }
 
                 await auth.waitForAuth()
-                const { result } = await listKeys.processCurrentKey()
+                const { result } = await listKeys.processCurrentKey({
+                    type: SharedCollectionType.PageLink,
+                })
                 this.emitMutation({ joinListResult: { $set: result } })
             },
         )
@@ -269,6 +275,15 @@ export class ReaderPageViewLogic extends UILogic<
                 const listEntry = result.entries[0]
                 const normalizedPageUrl = listEntry.normalizedUrl
 
+                const isMemexInstalled = doesMemexExtDetectionElExist()
+
+                if (isMemexInstalled) {
+                    await this.dependencies.services?.memexExtension.openLink({
+                        originalPageUrl: listEntry.originalUrl,
+                        sharedListId: listReference?.id as string,
+                    })
+                }
+
                 this.emitMutation({
                     annotationLoadStates: {
                         [normalizedPageUrl]: { $set: 'running' },
@@ -292,6 +307,11 @@ export class ReaderPageViewLogic extends UILogic<
                         },
                     },
                 })
+
+                document.title = result.entries[0].entryTitle
+                    ? result.entries[0].entryTitle
+                    : ''
+
                 this.listCreator.resolve(result.creator)
 
                 const annotationEntriesByList = await contentSharing.getAnnotationListEntriesForListsOnPage(
@@ -353,18 +373,27 @@ export class ReaderPageViewLogic extends UILogic<
     }
 
     private async listenToUserChanges() {
-        console.log('listen')
-        for await (const user of userChanges(this.dependencies.services.auth)) {
-            if (user != null) {
-                this.isReaderInitialized = false // Flag reader for re-initialization on user change
-                window.location.reload()
-            } else {
-                this.emitMutation({
-                    collaborationKey: { $set: null },
-                    permissions: { $set: null },
-                })
+        setTimeout(async () => {
+            const userReference = this.dependencies.services.auth.getCurrentUserReference()
+
+            if (!userReference) {
+                for await (const user of await userChanges(
+                    this.dependencies.services.auth,
+                )) {
+                    if (user != null) {
+                        this.isReaderInitialized = false // Flag reader for re-initialization on user change
+                        setTimeout(() => {
+                            window.location.reload()
+                        }, 1500)
+                    } else {
+                        this.emitMutation({
+                            collaborationKey: { $set: null },
+                            permissions: { $set: null },
+                        })
+                    }
+                }
             }
-        }
+        }, 1000)
     }
 
     private async loadPermissions(): Promise<void> {
@@ -497,7 +526,6 @@ export class ReaderPageViewLogic extends UILogic<
             },
         )
 
-        console.log(!!iframe)
         if (!iframe) {
             return
         }
@@ -798,6 +826,24 @@ export class ReaderPageViewLogic extends UILogic<
             })
         }
     }
+    toggleOptionsMenu: EventHandler<'toggleOptionsMenu'> = async (incoming) => {
+        this.emitMutation({
+            showOptionsMenu: { $set: !incoming.previousState.showOptionsMenu },
+        })
+    }
+    toggleSidebar: EventHandler<'toggleSidebar'> = async (incoming) => {
+        if (incoming.event != null) {
+            this.emitMutation({
+                showSidebar: { $set: incoming.event },
+            })
+            return
+        } else {
+            this.emitMutation({
+                showSidebar: { $set: !incoming.previousState.showSidebar },
+            })
+        }
+    }
+
     reportUrl: EventHandler<'reportUrl'> = async (incoming) => {
         const { url } = incoming.event
 
@@ -1107,6 +1153,10 @@ export class ReaderPageViewLogic extends UILogic<
             return
         }
 
+        this.emitMutation({
+            showSidebar: { $set: true },
+        })
+
         const sidebarAnnotEl = this.sidebarRef.querySelector('#' + annotationId)
         if (!sidebarAnnotEl) {
             return
@@ -1120,6 +1170,10 @@ export class ReaderPageViewLogic extends UILogic<
         event,
         previousState,
     }) => {
+        this.emitMutation({
+            showSidebar: { $set: false },
+        })
+
         this.emitMutation({ activeAnnotationId: { $set: event.annotationId } })
         const annotationData = previousState.annotations[event.annotationId]
 
@@ -1251,9 +1305,18 @@ export class ReaderPageViewLogic extends UILogic<
 
     changeAnnotationCreateComment: EventHandler<'changeAnnotationCreateComment'> = ({
         event,
+        previousState,
     }) => {
         this.emitMutation({
-            annotationCreateState: { comment: { $set: event.comment } },
+            annotationCreateState: {
+                comment: { $set: event.comment },
+                isCreating: {
+                    $set:
+                        event.comment.trim().length > 0
+                            ? true
+                            : previousState.annotationCreateState.isCreating,
+                },
+            },
         })
     }
 
@@ -1263,7 +1326,6 @@ export class ReaderPageViewLogic extends UILogic<
         this.emitMutation({
             annotationCreateState: {
                 isCreating: { $set: false },
-                comment: { $set: '' },
             },
         })
     }
@@ -1277,7 +1339,8 @@ export class ReaderPageViewLogic extends UILogic<
                 'Cannot create annotation before page URL is loaded',
             )
         }
-        if (!previousState.annotationCreateState.comment.trim().length) {
+        const comment = previousState.annotationCreateState.comment.trim()
+        if (!comment.length) {
             this.emitMutation({
                 annotationCreateState: {
                     isCreating: { $set: false },
@@ -1296,9 +1359,9 @@ export class ReaderPageViewLogic extends UILogic<
         const createdWhen = Date.now()
         const { createPromise } = this.scheduleAnnotationCreation({
             fullPageUrl: previousState.originalUrl!,
-            createdWhen,
             updatedWhen: createdWhen,
-            comment: previousState.annotationCreateState.comment,
+            createdWhen,
+            comment,
             creator,
         })
         this.emitMutation({

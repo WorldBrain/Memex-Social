@@ -58,9 +58,9 @@ export class ListKeysService extends AbstractListKeysService {
         return !!keyString
     }
 
-    processCurrentKey: ListKeysServiceInterface['processCurrentKey'] = async (): Promise<{
-        result: ProcessSharedListKeyResult
-    }> => {
+    processCurrentKey: ListKeysServiceInterface['processCurrentKey'] = async ({
+        type,
+    } = {}) => {
         const routeMatch = this.dependencies.router.matchCurrentUrl()
         const listId =
             routeMatch.params.id ?? this.dependencies.router.getSpaceId()
@@ -78,6 +78,7 @@ export class ListKeysService extends AbstractListKeysService {
         const { success } = await this.backend.processListKey({
             listId: listId,
             keyString,
+            type,
         })
 
         return { result: success ? 'success' : 'denied' }
