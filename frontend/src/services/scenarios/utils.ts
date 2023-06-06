@@ -1,11 +1,11 @@
-import { UIEvent, UISignal } from '../../main-ui/classes/logic'
-import { Scenario, ScenarioStep } from './types'
-import {
+import type { UIEvent, UISignal } from '../../main-ui/classes/logic'
+import type { Scenario, ScenarioStep } from './types'
+import type {
     GetCallModifications,
     CallModification,
 } from '../../utils/call-modifier'
-import { Services } from '../types'
-import { Storage } from '../../storage/types'
+import type { Services } from '../types'
+import type { Storage } from '../../storage/types'
 
 export function scenario<
     Targets extends {
