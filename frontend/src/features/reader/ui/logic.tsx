@@ -545,6 +545,7 @@ export class ReaderPageViewLogic extends UILogic<
         // await this.loadPageAnnotations({ entries }, [normalizedPageUrl], state)
 
         this.highlightRenderer = new HighlightRenderer({
+            getWindow: () => iframe!.contentWindow,
             getDocument: () => iframe!.contentDocument,
             scheduleAnnotationCreation: this.scheduleAnnotationCreation,
         })
