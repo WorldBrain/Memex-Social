@@ -66,7 +66,13 @@ export function createServices(options: {
             clientHeight: 800,
         },
     })
-    const analytics = new AnalyticsService()
+    const analytics = new AnalyticsService(async (event) => {
+        if (options.backend !== 'memory') {
+            await firebase.functions().httpsCallable('analytics-trackEvent')(
+                event,
+            )
+        }
+    })
 
     let auth: AuthService
     if (
