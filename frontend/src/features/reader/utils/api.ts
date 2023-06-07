@@ -5,13 +5,28 @@ export const ARCHIVE_PROXY_URL = isStaging
     ? 'https://cloudflare-memex-staging.memex.workers.dev'
     : 'https://cloudfare-memex.memex.workers.dev'
 
-export const getWebsiteHTML = async (
-    url: string,
-): Promise<{ url: string; html: string }> => {
-    const response = await fetch(
-        `${ARCHIVE_PROXY_URL}/webarchive?url=${encodeURIComponent(url)}`,
+async function fetchAndHandleErrors(url: string): Promise<Response> {
+    const response = await fetch(url)
+    if (!response.ok) {
+        throw new Error(
+            `Page fetch failed with HTTP code ${response.status}: ${response.statusText}`,
+        )
+    }
+    return response
+}
+
+export const getWebsiteHTML = async (originalUrl: string): Promise<string> => {
+    const response = await fetchAndHandleErrors(
+        `${ARCHIVE_PROXY_URL}/webarchive?url=${encodeURIComponent(
+            originalUrl,
+        )}`,
     )
     const html = await response.text()
+    return html
+}
 
-    return { url, html }
+export const getRemotePDFBlob = async (originalUrl: string): Promise<Blob> => {
+    const response = await fetchAndHandleErrors(originalUrl)
+    const blob = await response.blob()
+    return blob
 }

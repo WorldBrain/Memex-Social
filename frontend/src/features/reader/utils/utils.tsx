@@ -1,6 +1,6 @@
 import { ARCHIVE_PROXY_URL } from './api'
 
-const convertRelativeUrlsToAbsolute = async (
+export const convertRelativeUrlsToAbsolute = async (
     html: string,
     originalUrl: string,
 ): Promise<string> => {
@@ -197,27 +197,28 @@ export const waitForIframeLoad = (iframe: HTMLIFrameElement) =>
         iframe.onload = () => resolve()
     })
 
-export const createIframeForHtml = async (
-    html: string,
-    originalUrl: string,
-    container: HTMLElement,
-): Promise<HTMLIFrameElement> => {
-    const htmlWithFixedPaths = await convertRelativeUrlsToAbsolute(
-        html,
-        originalUrl,
-    )
-
-    const iframe = document.createElement('iframe')
+function createIframe(doc = document): HTMLIFrameElement {
+    const iframe = doc.createElement('iframe')
     iframe.width = '100%'
     iframe.height = '100%'
     iframe.style.border = 'none'
     iframe.style.minHeight = '100px'
     iframe.style.display = 'flex'
     iframe.style.flex = '1'
+    return iframe
+}
 
-    container.appendChild(iframe)
+export const createIframeForHtml = async (
+    html: string,
+): Promise<HTMLIFrameElement> => {
+    const blob = new Blob([html], { type: 'text/html' })
+    return createIframeForBlob(blob)
+}
 
-    const blob = new Blob([htmlWithFixedPaths], { type: 'text/html' })
+export const createIframeForBlob = async (
+    blob: Blob,
+): Promise<HTMLIFrameElement> => {
+    const iframe = createIframe()
     const blobUrl = URL.createObjectURL(blob)
     iframe.src = blobUrl
     return iframe

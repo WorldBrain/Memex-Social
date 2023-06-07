@@ -43,12 +43,8 @@ import {
     getInitialAnnotationConversationStates,
 } from '../../content-conversations/ui/utils'
 import UserProfileCache from '../../user-management/utils/user-profile-cache'
-import { getWebsiteHTML } from '../utils/api'
-import {
-    createIframeForHtml,
-    getReaderYoutubePlayerId,
-    waitForIframeLoad,
-} from '../utils/utils'
+import { getRemotePDFBlob, getWebsiteHTML } from '../utils/api'
+import * as utils from '../utils/utils'
 import {
     ReaderPageViewDependencies,
     ReaderPageViewEvent,
@@ -77,6 +73,10 @@ type EventHandler<EventName extends keyof ReaderPageViewEvent> = UIEventHandler<
     ReaderPageViewEvent,
     EventName
 >
+
+// TODO: Improve
+const isPageUrlToPdf = (fullPageUrl: string): boolean =>
+    fullPageUrl.endsWith('.pdf')
 
 export class ReaderPageViewLogic extends UILogic<
     ReaderPageViewState,
@@ -503,7 +503,7 @@ export class ReaderPageViewLogic extends UILogic<
     }
 
     private async initializeReader(
-        ref: HTMLDivElement,
+        containerEl: HTMLDivElement,
         originalUrl: string,
         state: ReaderPageViewState,
     ) {
@@ -518,11 +518,19 @@ export class ReaderPageViewLogic extends UILogic<
             this,
             'iframeLoadState',
             async () => {
-                const { html, url } = await getWebsiteHTML(originalUrl)
-
-                const _iframe = await createIframeForHtml(html, url, ref)
-                await waitForIframeLoad(_iframe)
-                iframe = _iframe
+                if (isPageUrlToPdf(originalUrl)) {
+                    const pdfBlob = await getRemotePDFBlob(originalUrl)
+                    iframe = await utils.createIframeForBlob(pdfBlob)
+                } else {
+                    const html = await getWebsiteHTML(originalUrl)
+                    const fixedHtml = await utils.convertRelativeUrlsToAbsolute(
+                        html,
+                        originalUrl,
+                    )
+                    iframe = await utils.createIframeForHtml(fixedHtml)
+                }
+                containerEl.appendChild(iframe)
+                await utils.waitForIframeLoad(iframe)
             },
         )
 
@@ -1394,7 +1402,7 @@ export class ReaderPageViewLogic extends UILogic<
 
         const entry = previousState.listData?.entry!
         const youtubePlayer = this.dependencies.services.youtube.getPlayerByElementId(
-            getReaderYoutubePlayerId(entry.normalizedUrl),
+            utils.getReaderYoutubePlayerId(entry.normalizedUrl),
         )
         const linkInfo = getVideoLinkInfo({ youtubePlayer: youtubePlayer })
         this.scheduleAnnotationCreation(
