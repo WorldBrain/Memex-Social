@@ -224,6 +224,16 @@ export const createIframeForBlob = async (
     return iframe
 }
 
+export const createIframeForRemotePDF = (
+    originalUrl: string,
+): HTMLIFrameElement => {
+    const iframe = createIframe()
+    iframe.src = `${
+        window.location.origin
+    }/pdfjs/viewer.html?file=${encodeURIComponent(originalUrl)}`
+    return iframe
+}
+
 export function getReaderYoutubePlayerId(normalizedPageUrl: string) {
     return `reader_youtube_player_${normalizedPageUrl}`
 }

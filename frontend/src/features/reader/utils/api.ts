@@ -15,7 +15,9 @@ async function fetchAndHandleErrors(url: string): Promise<Response> {
     return response
 }
 
-export const getWebsiteHTML = async (originalUrl: string): Promise<string> => {
+export const fetchWebsiteHTML = async (
+    originalUrl: string,
+): Promise<string> => {
     const response = await fetchAndHandleErrors(
         `${ARCHIVE_PROXY_URL}/webarchive?url=${encodeURIComponent(
             originalUrl,
@@ -23,10 +25,4 @@ export const getWebsiteHTML = async (originalUrl: string): Promise<string> => {
     )
     const html = await response.text()
     return html
-}
-
-export const getRemotePDFBlob = async (originalUrl: string): Promise<Blob> => {
-    const response = await fetchAndHandleErrors(originalUrl)
-    const blob = await response.blob()
-    return blob
 }

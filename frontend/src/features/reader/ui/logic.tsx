@@ -43,7 +43,7 @@ import {
     getInitialAnnotationConversationStates,
 } from '../../content-conversations/ui/utils'
 import UserProfileCache from '../../user-management/utils/user-profile-cache'
-import { getRemotePDFBlob, getWebsiteHTML } from '../utils/api'
+import { fetchWebsiteHTML } from '../utils/api'
 import * as utils from '../utils/utils'
 import {
     ReaderPageViewDependencies,
@@ -377,7 +377,7 @@ export class ReaderPageViewLogic extends UILogic<
             const userReference = this.dependencies.services.auth.getCurrentUserReference()
 
             if (!userReference) {
-                for await (const user of await userChanges(
+                for await (const user of userChanges(
                     this.dependencies.services.auth,
                 )) {
                     if (user != null) {
@@ -519,10 +519,9 @@ export class ReaderPageViewLogic extends UILogic<
             'iframeLoadState',
             async () => {
                 if (isPageUrlToPdf(originalUrl)) {
-                    const pdfBlob = await getRemotePDFBlob(originalUrl)
-                    iframe = await utils.createIframeForBlob(pdfBlob)
+                    iframe = utils.createIframeForRemotePDF(originalUrl)
                 } else {
-                    const html = await getWebsiteHTML(originalUrl)
+                    const html = await fetchWebsiteHTML(originalUrl)
                     const fixedHtml = await utils.convertRelativeUrlsToAbsolute(
                         html,
                         originalUrl,
@@ -587,6 +586,7 @@ export class ReaderPageViewLogic extends UILogic<
 
             return {
                 currentUser,
+                isPdf: isPageUrlToPdf(originalUrl),
                 shouldShare: args.shouldShare,
                 openInEditMode: args.openInEditMode,
                 onClick: this.handleHighlightClick,
