@@ -10,6 +10,9 @@ import 'typeface-inter'
 import GlobalStyle from './styles/global'
 import { theme } from './styles/theme'
 import { UIRunner, UIRunnerOptions } from './types'
+import { monkeyPatchGlobals } from '../utils/monkey-patch'
+
+monkeyPatchGlobals()
 
 async function runMainUi(
     options: {
