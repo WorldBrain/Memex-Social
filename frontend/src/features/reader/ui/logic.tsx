@@ -67,16 +67,13 @@ import type { PersonalAnnotation } from '@worldbrain/memex-common/lib/web-interf
 import type { AutoPk } from '../../../types'
 import { normalizeUrl } from '@worldbrain/memex-common/lib/url-utils/normalize'
 import { doesMemexExtDetectionElExist } from '@worldbrain/memex-common/lib/common-ui/utils/content-script'
+import { doesUrlPointToPdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
 
 type EventHandler<EventName extends keyof ReaderPageViewEvent> = UIEventHandler<
     ReaderPageViewState,
     ReaderPageViewEvent,
     EventName
 >
-
-// TODO: Improve
-const isPageUrlToPdf = (fullPageUrl: string): boolean =>
-    fullPageUrl.endsWith('.pdf')
 
 export class ReaderPageViewLogic extends UILogic<
     ReaderPageViewState,
@@ -518,7 +515,7 @@ export class ReaderPageViewLogic extends UILogic<
             this,
             'iframeLoadState',
             async () => {
-                if (isPageUrlToPdf(originalUrl)) {
+                if (doesUrlPointToPdf(originalUrl)) {
                     iframe = utils.createIframeForRemotePDF(originalUrl)
                 } else {
                     const html = await fetchWebsiteHTML(originalUrl)
@@ -587,7 +584,7 @@ export class ReaderPageViewLogic extends UILogic<
 
             return {
                 currentUser,
-                isPdf: isPageUrlToPdf(originalUrl),
+                isPdf: doesUrlPointToPdf(originalUrl),
                 shouldShare: args.shouldShare,
                 openInEditMode: args.openInEditMode,
                 onClick: this.handleHighlightClick,

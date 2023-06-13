@@ -33,8 +33,7 @@ import { mergeTaskStates } from '../../../../../main-ui/classes/logic'
 import { UserReference } from '../../../../user-management/types'
 import ListShareModal from '@worldbrain/memex-common/lib/content-sharing/ui/list-share-modal'
 // import type { Props as ListsSidebarProps } from '../../../../lists-sidebar/ui/components/lists-sidebar'
-import { isPagePdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
-import MissingPdfOverlay from '../../../../ext-detection/ui/components/missing-pdf-overlay'
+import { isMemexPageAPdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
 import Markdown from '@worldbrain/memex-common/lib/common-ui/components/markdown'
 import BlockContent, {
     getBlockContentYoutubePlayerId,
@@ -1849,7 +1848,7 @@ export default class CollectionDetailsPage extends UIElement<
                                                     this.props.services.youtube
                                                 }
                                                 type={
-                                                    isPagePdf({
+                                                    isMemexPageAPdf({
                                                         url:
                                                             entry.normalizedUrl,
                                                     })
