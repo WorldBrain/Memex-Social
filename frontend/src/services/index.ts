@@ -1,4 +1,5 @@
 import { History } from 'history'
+import type nodeFetch from 'node-fetch'
 import firebaseModule from 'firebase/compat/app'
 import { firebaseService } from '@worldbrain/memex-common/lib/firebase-backend/services/client'
 import FirebaseFunctionsActivityStreamsService from '@worldbrain/memex-common/lib/activity-streams/services/firebase-functions/client'
@@ -42,9 +43,11 @@ import { FullTextSearchService } from './full-text-search'
 import { SummarizationService } from '@worldbrain/memex-common/lib/summarization'
 import { normalizeUrl } from '@worldbrain/memex-common/lib/url-utils/normalize'
 import PageLinkService from '../features/page-links/services'
+import type { ExtractedPDFData } from '@worldbrain/memex-common/lib/page-indexing/types'
 
 export function createServices(options: {
     backend: BackendType
+    fetch: typeof nodeFetch | typeof window.fetch
     storage: Storage
     history: History
     queryParams: ProgramQueryParams
@@ -55,6 +58,7 @@ export function createServices(options: {
     fixtureFetcher?: FixtureFetcher
     clipboard: Pick<Clipboard, 'writeText'>
     youtubeOptions: YoutubeServiceOptions
+    fetchPDFData?: (fullPageUrl: string) => Promise<ExtractedPDFData>
 }): Services {
     const firebase = options.firebase ?? firebaseModule
     const logicRegistry = new LogicRegistryService({
@@ -176,8 +180,9 @@ export function createServices(options: {
                           'in-memory ContentSharingBackend: encountered error: ' +
                               err.message,
                       ),
+                  fetch: options.fetch as any,
+                  fetchPDFData: options.fetchPDFData!,
                   normalizeUrl,
-                  fetch,
               })
             : firebaseService<ContentSharingBackendInterface>(
                   'contentSharing',
