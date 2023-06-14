@@ -426,8 +426,8 @@ export class ReaderPageViewLogic extends UILogic<
                 // Shortcut: Use the key from the URL param if it's present
                 const keyString = router.getQueryParam('key')
                 if (keyString?.length) {
-                    this.emitMutation({ collaborationKey: { $set: keyString } })
                     this.emitMutation({
+                        collaborationKey: { $set: keyString },
                         permissions: { $set: 'contributor' },
                     })
                 }
@@ -596,7 +596,13 @@ export class ReaderPageViewLogic extends UILogic<
             ...theme,
             icons: { ...theme.icons },
         }
+
+        // Image blob URLs need to have the origin prefixed
         for (const [key, value] of Object.entries(fixedTheme.icons)) {
+            // Let data URLs be - they don't need origin prefixing
+            if (value.startsWith('data:')) {
+                continue
+            }
             fixedTheme.icons[key as keyof MemexTheme['icons']] =
                 window.origin + value
         }
