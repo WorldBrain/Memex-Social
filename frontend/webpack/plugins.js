@@ -47,7 +47,7 @@ module.exports = [
             },
             {
                 from: 'node_modules/pdfjs-dist/web/images/*',
-                to: 'pdfjs/images/[name].[ext]',
+                to: 'pdfjs/images/[name][ext]',
             },
 
             { from: 'node_modules/pdfjs-dist/build/pdf.js', to: 'build/' },
