@@ -1,3 +1,5 @@
+import { CLOUDFLARE_WORKER_URLS } from '@worldbrain/memex-common/lib/content-sharing/storage/constants'
+import { PDF_PROXY_ROUTE } from '@worldbrain/memex-common/lib/cloudflare-worker/constants'
 import { ARCHIVE_PROXY_URL } from './api'
 
 export const convertRelativeUrlsToAbsolute = async (
@@ -228,9 +230,19 @@ export const createIframeForRemotePDF = (
     originalUrl: string,
 ): HTMLIFrameElement => {
     const iframe = createIframe()
+    const workerUrl =
+        process.env.NODE_ENV === 'production'
+            ? CLOUDFLARE_WORKER_URLS.production
+            : CLOUDFLARE_WORKER_URLS.staging
+
+    // We have a proxy set up on our CF worker to forward PDF files through, to avoid CORS issues
+    const pdfProxyUrl = `${workerUrl}${PDF_PROXY_ROUTE}?url=${encodeURIComponent(
+        originalUrl,
+    )}`
+
     iframe.src = `${
         window.location.origin
-    }/pdfjs/viewer.html?file=${encodeURIComponent(originalUrl)}`
+    }/pdfjs/viewer.html?file=${encodeURIComponent(pdfProxyUrl)}`
     return iframe
 }
 
