@@ -1,9 +1,10 @@
-const isStaging =
-    process.env.REACT_APP_FIREBASE_PROJECT_ID?.includes('staging') ||
-    process.env.NODE_ENV === 'development'
-export const ARCHIVE_PROXY_URL = isStaging
-    ? 'https://cloudflare-memex-staging.memex.workers.dev'
-    : 'https://cloudfare-memex.memex.workers.dev'
+import { CLOUDFLARE_WORKER_URLS } from '@worldbrain/memex-common/lib/content-sharing/storage/constants'
+import { determineEnv } from '../../../utils/runtime-environment'
+
+export const ARCHIVE_PROXY_URL =
+    determineEnv() === 'production'
+        ? CLOUDFLARE_WORKER_URLS.production
+        : CLOUDFLARE_WORKER_URLS.staging
 
 async function fetchAndHandleErrors(url: string): Promise<Response> {
     const response = await fetch(url)

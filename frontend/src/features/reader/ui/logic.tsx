@@ -68,6 +68,8 @@ import type { AutoPk } from '../../../types'
 import { normalizeUrl } from '@worldbrain/memex-common/lib/url-utils/normalize'
 import { doesMemexExtDetectionElExist } from '@worldbrain/memex-common/lib/common-ui/utils/content-script'
 import { doesUrlPointToPdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
+import { determineEnv } from '../../../utils/runtime-environment'
+import { CLOUDFLARE_WORKER_URLS } from '@worldbrain/memex-common/lib/content-sharing/storage/constants'
 
 type EventHandler<EventName extends keyof ReaderPageViewEvent> = UIEventHandler<
     ReaderPageViewState,
@@ -247,14 +249,10 @@ export class ReaderPageViewLogic extends UILogic<
             this,
             'listLoadState',
             async () => {
-                const isStaging =
-                    process.env.REACT_APP_FIREBASE_PROJECT_ID?.includes(
-                        'staging',
-                    ) || process.env.NODE_ENV === 'development'
-
-                const baseUrl = isStaging
-                    ? 'https://staging.memex.social/c/'
-                    : 'https://memex.social/c/'
+                const baseUrl =
+                    determineEnv() === 'production'
+                        ? 'https://memex.social/c/'
+                        : 'https://staging.memex.social/c/'
 
                 const result = await contentSharing.retrieveList(
                     listReference,
@@ -859,13 +857,10 @@ export class ReaderPageViewLogic extends UILogic<
     reportUrl: EventHandler<'reportUrl'> = async (incoming) => {
         const { url } = incoming.event
 
-        const isStaging =
-            process.env.REACT_APP_FIREBASE_PROJECT_ID?.includes('staging') ||
-            process.env.NODE_ENV === 'development'
-
-        const baseUrl = isStaging
-            ? 'https://cloudflare-memex-staging.memex.workers.dev'
-            : 'https://cloudfare-memex.memex.workers.dev'
+        const baseUrl =
+            determineEnv() === 'production'
+                ? CLOUDFLARE_WORKER_URLS.production
+                : CLOUDFLARE_WORKER_URLS.staging
 
         this.emitMutation({
             reportURLSuccess: { $set: true },

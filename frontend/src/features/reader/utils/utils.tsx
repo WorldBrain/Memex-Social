@@ -1,6 +1,7 @@
 import { CLOUDFLARE_WORKER_URLS } from '@worldbrain/memex-common/lib/content-sharing/storage/constants'
 import { PDF_PROXY_ROUTE } from '@worldbrain/memex-common/lib/cloudflare-worker/constants'
 import { ARCHIVE_PROXY_URL } from './api'
+import { determineEnv } from '../../../utils/runtime-environment'
 
 export const convertRelativeUrlsToAbsolute = async (
     html: string,
@@ -231,7 +232,7 @@ export const createIframeForRemotePDF = (
 ): HTMLIFrameElement => {
     const iframe = createIframe()
     const workerUrl =
-        process.env.NODE_ENV === 'production'
+        determineEnv() === 'production'
             ? CLOUDFLARE_WORKER_URLS.production
             : CLOUDFLARE_WORKER_URLS.staging
 

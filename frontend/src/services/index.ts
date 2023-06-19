@@ -44,6 +44,8 @@ import { SummarizationService } from '@worldbrain/memex-common/lib/summarization
 import { normalizeUrl } from '@worldbrain/memex-common/lib/url-utils/normalize'
 import PageLinkService from '../features/page-links/services'
 import type { ExtractedPDFData } from '@worldbrain/memex-common/lib/page-indexing/types'
+import { determineEnv } from '../utils/runtime-environment'
+import { CLOUDFLARE_WORKER_URLS } from '@worldbrain/memex-common/lib/content-sharing/storage/constants'
 
 export function createServices(options: {
     backend: BackendType
@@ -236,7 +238,12 @@ export function createServices(options: {
         webMonetization,
         youtube: new YoutubeService(options.youtubeOptions),
         analytics,
-        summarization: new SummarizationService(),
+        summarization: new SummarizationService({
+            serviceURL:
+                determineEnv() === 'production'
+                    ? CLOUDFLARE_WORKER_URLS.production
+                    : CLOUDFLARE_WORKER_URLS.staging,
+        }),
         fullTextSearch: new FullTextSearchService(),
         pageLinks: new PageLinkService({ contentSharingBackend }),
     }
