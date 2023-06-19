@@ -508,13 +508,14 @@ export class ReaderPageViewLogic extends UILogic<
             return
         }
 
+        const isPdf = doesUrlPointToPdf(originalUrl)
         let iframe: HTMLIFrameElement | null = null
         await executeUITask<ReaderPageViewState>(
             this,
             'iframeLoadState',
             async () => {
-                if (doesUrlPointToPdf(originalUrl)) {
-                    iframe = utils.createIframeForRemotePDF(originalUrl)
+                if (isPdf) {
+                    iframe = utils.createIframeForPDFViewer()
                 } else {
                     const html = await fetchWebsiteHTML(originalUrl)
                     const fixedHtml = await utils.convertRelativeUrlsToAbsolute(
@@ -525,6 +526,19 @@ export class ReaderPageViewLogic extends UILogic<
                 }
                 containerEl.appendChild(iframe)
                 await utils.waitForIframeLoad(iframe)
+
+                if (isPdf) {
+                    // Get PDFViewer from now-loaded iframe
+                    const pdfJsViewer = (iframe.contentWindow as any)[
+                        'PDFViewerApplication'
+                    ]
+                    if (!pdfJsViewer) {
+                        throw new Error(
+                            'PDF.js viewer script did not load inside iframe',
+                        )
+                    }
+                    await utils.loadPDFInViewer(pdfJsViewer, originalUrl)
+                }
             },
         )
 
