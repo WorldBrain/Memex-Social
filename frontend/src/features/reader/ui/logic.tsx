@@ -65,11 +65,14 @@ import { createPersonalCloudStorageUtils } from '@worldbrain/memex-common/lib/co
 import { userChanges } from '../../../services/auth/utils'
 import type { PersonalAnnotation } from '@worldbrain/memex-common/lib/web-interface/types/storex-generated/personal-cloud'
 import type { AutoPk } from '../../../types'
-import { normalizeUrl } from '@worldbrain/memex-common/lib/url-utils/normalize'
 import { doesMemexExtDetectionElExist } from '@worldbrain/memex-common/lib/common-ui/utils/content-script'
-import { doesUrlPointToPdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
+import {
+    doesUrlPointToPdf,
+    isMemexPageAPdf,
+} from '@worldbrain/memex-common/lib/page-indexing/utils'
 import { determineEnv } from '../../../utils/runtime-environment'
 import { CLOUDFLARE_WORKER_URLS } from '@worldbrain/memex-common/lib/content-sharing/storage/constants'
+import { getListShareUrl } from '@worldbrain/memex-common/lib/content-sharing/utils'
 
 type EventHandler<EventName extends keyof ReaderPageViewEvent> = UIEventHandler<
     ReaderPageViewState,
@@ -186,7 +189,7 @@ export class ReaderPageViewLogic extends UILogic<
 
     getInitialState(): ReaderPageViewState {
         return {
-            originalUrl: null,
+            sourceUrl: null,
             annotationEntriesLoadState: 'running',
             permissionsLoadState: 'pristine',
             iframeLoadState: 'running',
@@ -249,11 +252,6 @@ export class ReaderPageViewLogic extends UILogic<
             this,
             'listLoadState',
             async () => {
-                const baseUrl =
-                    determineEnv() === 'production'
-                        ? 'https://memex.social/c/'
-                        : 'https://staging.memex.social/c/'
-
                 const result = await contentSharing.retrieveList(
                     listReference,
                     {
@@ -268,27 +266,27 @@ export class ReaderPageViewLogic extends UILogic<
                 )
 
                 const listEntry = result.entries[0]
-                const normalizedPageUrl = listEntry.normalizedUrl
+                const sourceUrl = listEntry.sourceUrl
+
+                document.title = listEntry.entryTitle ?? ''
 
                 const isMemexInstalled = doesMemexExtDetectionElExist()
-
                 if (isMemexInstalled) {
                     await this.dependencies.services?.memexExtension.openLink({
-                        originalPageUrl: listEntry.originalUrl,
+                        originalPageUrl: sourceUrl,
                         sharedListId: listReference?.id as string,
                     })
                 }
 
                 this.emitMutation({
                     annotationLoadStates: {
-                        [normalizedPageUrl]: { $set: 'running' },
+                        [listEntry.normalizedUrl]: { $set: 'running' },
                     },
-                })
-
-                this.emitMutation({
-                    originalUrl: { $set: listEntry.originalUrl },
+                    sourceUrl: { $set: sourceUrl },
                     isYoutubeVideo: {
-                        $set: normalizedPageUrl.startsWith('youtube.com/'),
+                        $set: listEntry.normalizedUrl.startsWith(
+                            'youtube.com/',
+                        ),
                     },
                     listData: {
                         $set: {
@@ -298,21 +296,19 @@ export class ReaderPageViewLogic extends UILogic<
                             list: result.sharedList,
                             entry: listEntry,
                             title: result.sharedList.title,
-                            url: baseUrl + result.sharedList.reference.id,
+                            url: getListShareUrl({
+                                remoteListId: result.sharedList.reference.id.toString(),
+                            }),
                         },
                     },
                 })
-
-                document.title = result.entries[0].entryTitle
-                    ? result.entries[0].entryTitle
-                    : ''
 
                 this.listCreator.resolve(result.creator)
 
                 const annotationEntriesByList = await contentSharing.getAnnotationListEntriesForListsOnPage(
                     {
                         listReferences: [listReference],
-                        normalizedPageUrl,
+                        normalizedPageUrl: listEntry.normalizedUrl,
                     },
                 )
 
@@ -320,10 +316,9 @@ export class ReaderPageViewLogic extends UILogic<
                 if (!entries.length) {
                     this.emitMutation({
                         annotationLoadStates: {
-                            [normalizedPageUrl]: { $set: 'success' },
+                            [listEntry.normalizedUrl]: { $set: 'success' },
                         },
                     })
-
                     return
                 }
 
@@ -333,14 +328,16 @@ export class ReaderPageViewLogic extends UILogic<
                     },
                 })
 
-                const isYoutube = normalizedPageUrl.startsWith('youtube.com/')
+                const isYoutube = listEntry.normalizedUrl.startsWith(
+                    'youtube.com/',
+                )
 
                 const intervalId = setInterval(() => {
                     if (this.iframeLoaded && !isYoutube) {
                         clearInterval(intervalId)
                         this.loadPageAnnotations(
-                            { [normalizedPageUrl]: entries },
-                            [normalizedPageUrl],
+                            { [listEntry.normalizedUrl]: entries },
+                            [listEntry.normalizedUrl],
                             previousState,
                         )
                     }
@@ -348,8 +345,8 @@ export class ReaderPageViewLogic extends UILogic<
 
                 if (isYoutube) {
                     this.loadPageAnnotations(
-                        { [normalizedPageUrl]: entries },
-                        [normalizedPageUrl],
+                        { [listEntry.normalizedUrl]: entries },
+                        [listEntry.normalizedUrl],
                         previousState,
                     )
                 }
@@ -486,20 +483,14 @@ export class ReaderPageViewLogic extends UILogic<
         previousState,
     }) => {
         if (event.ref) {
-            const { entry } = previousState.listData ?? {}
-            if (entry) {
-                await this.initializeReader(
-                    event.ref,
-                    entry.originalUrl,
-                    previousState,
-                )
+            if (previousState.sourceUrl) {
+                await this.initializeReader(event.ref, previousState)
             }
         }
     }
 
     private async initializeReader(
         containerEl: HTMLDivElement,
-        originalUrl: string,
         state: ReaderPageViewState,
     ) {
         if (!this.isReaderInitialized) {
@@ -508,7 +499,7 @@ export class ReaderPageViewLogic extends UILogic<
             return
         }
 
-        const isPdf = doesUrlPointToPdf(originalUrl)
+        const isPdf = doesUrlPointToPdf(state.sourceUrl!)
         let iframe: HTMLIFrameElement | null = null
         await executeUITask<ReaderPageViewState>(
             this,
@@ -517,10 +508,10 @@ export class ReaderPageViewLogic extends UILogic<
                 if (isPdf) {
                     iframe = utils.createIframeForPDFViewer()
                 } else {
-                    const html = await fetchWebsiteHTML(originalUrl)
+                    const html = await fetchWebsiteHTML(state.sourceUrl!)
                     const fixedHtml = await utils.convertRelativeUrlsToAbsolute(
                         html,
-                        originalUrl,
+                        state.sourceUrl!,
                     )
                     iframe = await utils.createIframeForHtml(fixedHtml)
                 }
@@ -537,7 +528,7 @@ export class ReaderPageViewLogic extends UILogic<
                             'PDF.js viewer script did not load inside iframe',
                         )
                     }
-                    await utils.loadPDFInViewer(pdfJsViewer, originalUrl)
+                    await utils.loadPDFInViewer(pdfJsViewer, state.sourceUrl!)
                 }
             },
         )
@@ -546,27 +537,19 @@ export class ReaderPageViewLogic extends UILogic<
             return
         }
         this.iframeLoaded = true
-
-        const normalizedPageUrl = normalizeUrl(originalUrl)
-
-        const entries = state.annotationEntryData?.[normalizedPageUrl]
-
-        // await this.loadPageAnnotations({ entries }, [normalizedPageUrl], state)
-
         this.highlightRenderer = new HighlightRenderer({
             getWindow: () => iframe!.contentWindow,
             getDocument: () => iframe!.contentDocument,
             scheduleAnnotationCreation: this.scheduleAnnotationCreation,
         })
         if (state.permissions != null) {
-            this.setupIframeTooltip(iframe, originalUrl)
+            this.setupIframeTooltip(iframe, state)
         }
-        await this.renderHighlightsInState(state)
     }
 
     private setupIframeTooltip(
         iframe: HTMLIFrameElement,
-        originalUrl: string,
+        state: ReaderPageViewState,
     ): void {
         const shadowRootContainer = document.createElement('div')
         shadowRootContainer.id = 'memex-tooltip-container' // NOTE: this needs to be here else tooltip won't auto-hide on click away (see <ClickAway> comp)
@@ -596,12 +579,12 @@ export class ReaderPageViewLogic extends UILogic<
 
             return {
                 currentUser,
-                isPdf: doesUrlPointToPdf(originalUrl),
+                isPdf: doesUrlPointToPdf(state.sourceUrl!),
                 shouldShare: args.shouldShare,
                 openInEditMode: args.openInEditMode,
                 onClick: this.handleHighlightClick,
                 getSelection: () => args.selection,
-                getFullPageUrl: async () => originalUrl,
+                getFullPageUrl: async () => state.listData?.entry.originalUrl!,
             }
         }
         const fixedTheme: MemexTheme = {
@@ -1355,7 +1338,7 @@ export class ReaderPageViewLogic extends UILogic<
         event,
         previousState,
     }) => {
-        if (!previousState.originalUrl) {
+        if (!previousState.listData) {
             throw new Error(
                 'Cannot create annotation before page URL is loaded',
             )
@@ -1379,7 +1362,7 @@ export class ReaderPageViewLogic extends UILogic<
 
         const createdWhen = Date.now()
         const { createPromise } = this.scheduleAnnotationCreation({
-            fullPageUrl: previousState.originalUrl!,
+            fullPageUrl: previousState.listData.entry.originalUrl,
             updatedWhen: createdWhen,
             createdWhen,
             comment,
@@ -1441,7 +1424,6 @@ const trySendingURLToOpenToExtension = async (
         originalPageUrl: url,
         sharedListId: sharedListReference?.id as string,
     })
-    console.log('sending message to extension', payload.toString())
 
     localStorage.setItem('urlAndSpaceToOpen', payload.toString())
 }
