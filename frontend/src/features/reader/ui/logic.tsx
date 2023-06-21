@@ -1175,10 +1175,9 @@ export class ReaderPageViewLogic extends UILogic<
         previousState,
     }) => {
         this.emitMutation({
+            activeAnnotationId: { $set: event.annotationId },
             showSidebar: { $set: false },
         })
-
-        this.emitMutation({ activeAnnotationId: { $set: event.annotationId } })
         const annotationData = previousState.annotations[event.annotationId]
 
         if (this.highlightRenderer && annotationData?.selector) {

@@ -60,7 +60,10 @@ export function createServices(options: {
     fixtureFetcher?: FixtureFetcher
     clipboard: Pick<Clipboard, 'writeText'>
     youtubeOptions: YoutubeServiceOptions
-    fetchPDFData?: (fullPageUrl: string) => Promise<ExtractedPDFData>
+    fetchPDFData?: (
+        fullPageUrl: string,
+        proxyUrl: string,
+    ) => Promise<ExtractedPDFData>
 }): Services {
     const firebase = options.firebase ?? firebaseModule
     const logicRegistry = new LogicRegistryService({
