@@ -276,12 +276,28 @@ export class ReaderPageViewLogic extends UILogic<
                 const normalizedPageUrl = listEntry.normalizedUrl
 
                 const isMemexInstalled = doesMemexExtDetectionElExist()
+                const shouldNotOpen = window.location.search.includes(
+                    '?noAutoOpen=true',
+                )
 
-                if (isMemexInstalled) {
+                if (isMemexInstalled && !shouldNotOpen) {
                     await this.dependencies.services?.memexExtension.openLink({
                         originalPageUrl: listEntry.originalUrl,
                         sharedListId: listReference?.id as string,
                     })
+                }
+
+                if (shouldNotOpen) {
+                    // Get the current URL without query strings
+                    var urlWithoutQuery =
+                        window.location.origin + window.location.pathname
+
+                    // Replace the current URL without query strings
+                    window.history.replaceState(
+                        {},
+                        document.title,
+                        urlWithoutQuery,
+                    )
                 }
 
                 this.emitMutation({

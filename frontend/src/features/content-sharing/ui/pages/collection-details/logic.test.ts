@@ -104,6 +104,7 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
                 listID: storage.serverModules.contentSharing.getSharedListLinkID(
                     listReference,
                 ),
+                query: {},
             })
             const container = new TestLogicContainer<
                 CollectionDetailsState,
@@ -225,6 +226,7 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
                 listID: storage.serverModules.contentSharing.getSharedListLinkID(
                     listReference,
                 ),
+                query: {},
             })
             const container = new TestLogicContainer<
                 CollectionDetailsState,
@@ -303,6 +305,7 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
                 storage: storage.serverModules,
                 services,
                 listID,
+                query: {},
             })
             const container = new TestLogicContainer<
                 CollectionDetailsState,
@@ -410,6 +413,7 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
                 storage: storage.serverModules,
                 services,
                 listID,
+                query: {},
             })
             const container = new TestLogicContainer<
                 CollectionDetailsState,
@@ -465,6 +469,7 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
                 storage: storage.serverModules,
                 services,
                 listID,
+                query: {},
             })
             const container = new TestLogicContainer<
                 CollectionDetailsState,
