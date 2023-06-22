@@ -289,15 +289,17 @@ export class ReaderPageViewLogic extends UILogic<
 
                 if (shouldNotOpen) {
                     // Get the current URL without query strings
-                    var urlWithoutQuery =
-                        window.location.origin + window.location.pathname
+                    // Get the current URL
+                    var currentURL = window.location.href
 
-                    // Replace the current URL without query strings
-                    window.history.replaceState(
-                        {},
-                        document.title,
-                        urlWithoutQuery,
-                    )
+                    // Remove the query string '?noAutoOpen=true'
+                    var updatedURL = currentURL.replace('?noAutoOpen=true', '')
+
+                    // Remove the '?' if it's the only query string
+                    updatedURL = updatedURL.replace(/\?$/, '')
+
+                    // Replace the current URL
+                    window.history.replaceState({}, document.title, updatedURL)
                 }
 
                 this.emitMutation({
