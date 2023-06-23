@@ -1,7 +1,7 @@
 import { UILogic } from 'ui-logic-core'
 import { UIEventHandler } from '../../../main-ui/classes/logic'
 import { doesMemexExtDetectionElExist } from '@worldbrain/memex-common/lib/common-ui/utils/content-script'
-import { isPagePdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
+import { isMemexPageAPdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
 import { Services } from '../../../services/types'
 import { SharedListReference } from '@worldbrain/memex-common/lib/content-sharing/types'
 
@@ -90,7 +90,7 @@ export const extDetectionEventHandlers = (
                 window.open(event.pageLinkURL, '_self')
 
                 if (event.notifAlreadyShown) {
-                    if (isPagePdf({ url: event.urlToOpen })) {
+                    if (isMemexPageAPdf({ url: event.urlToOpen })) {
                         event.preventOpening()
                         logic.emitMutation({
                             isMissingPDFModalShown: { $set: true },
@@ -100,7 +100,7 @@ export const extDetectionEventHandlers = (
                     }
                     window.open(event.pageLinkURL, '_self')
                 } else {
-                    if (isPagePdf({ url: event.urlToOpen })) {
+                    if (isMemexPageAPdf({ url: event.urlToOpen })) {
                         event.preventOpening()
                         logic.emitMutation({
                             isMissingPDFModalShown: { $set: true },

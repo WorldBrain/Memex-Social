@@ -27,7 +27,7 @@ import {
     extDetectionEventHandlers,
 } from '../../../../ext-detection/ui/logic'
 import UserProfileCache from '../../../../user-management/utils/user-profile-cache'
-import { isPagePdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
+import { isMemexPageAPdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
 
 type EventHandler<EventName extends keyof PageDetailsEvent> = UIEventHandler<
     PageDetailsState,
@@ -124,7 +124,7 @@ export default class PageDetailsLogic extends UILogic<
                 creatorReference = result?.creatorReference ?? null
                 pageInfo = result?.pageInfo ?? null
 
-                if (isPagePdf({ url: result.pageInfo.normalizedUrl })) {
+                if (isMemexPageAPdf({ url: result.pageInfo.normalizedUrl })) {
                     const {
                         locators,
                     } = await storage.contentSharing.getContentLocatorsByUrl({

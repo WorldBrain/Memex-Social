@@ -22,9 +22,6 @@
 [submodule "external/@worldbrain/memex-common"]
 	path = external/@worldbrain/memex-common
 	url = git@github.com:WorldBrain/memex-common.git
-[submodule "external/@worldbrain/memex-storage"]
-	path = external/@worldbrain/memex-storage
-	url = https://github.com/WorldBrain/memex-storage
 [submodule "external/@worldbrain/storex-sync"]
 	path = external/@worldbrain/storex-sync
 	url = https://github.com/WorldBrain/storex-sync

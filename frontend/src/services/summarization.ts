@@ -1,11 +1,12 @@
+import { CLOUDFLARE_WORKER_URLS } from '@worldbrain/memex-common/lib/content-sharing/storage/constants'
+import { determineEnv } from '../utils/runtime-environment'
+
 export class SummarizationService {
     async summarize(originalUrl: string) {
-        const isStaging = process.env.REACT_APP_FIREBASE_PROJECT_ID?.includes(
-            'staging',
-        )
-        const baseUrl = isStaging
-            ? 'https://cloudflare-memex-staging.memex.workers.dev'
-            : 'https://cloudfare-memex.memex.workers.dev'
+        const baseUrl =
+            determineEnv() === 'production'
+                ? CLOUDFLARE_WORKER_URLS.production
+                : CLOUDFLARE_WORKER_URLS.staging
         const url = `${baseUrl}/summarize`
         const response = await fetch(url, {
             method: 'POST',

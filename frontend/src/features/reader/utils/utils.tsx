@@ -1,6 +1,9 @@
+import { CLOUDFLARE_WORKER_URLS } from '@worldbrain/memex-common/lib/content-sharing/storage/constants'
+import { PDF_PROXY_ROUTE } from '@worldbrain/memex-common/lib/cloudflare-worker/constants'
 import { ARCHIVE_PROXY_URL } from './api'
+import { determineEnv } from '../../../utils/runtime-environment'
 
-const convertRelativeUrlsToAbsolute = async (
+export const convertRelativeUrlsToAbsolute = async (
     html: string,
     originalUrl: string,
 ): Promise<string> => {
@@ -197,32 +200,63 @@ export const waitForIframeLoad = (iframe: HTMLIFrameElement) =>
         iframe.onload = () => resolve()
     })
 
-export const createIframeForHtml = async (
-    html: string,
-    originalUrl: string,
-    container: HTMLElement,
-): Promise<HTMLIFrameElement> => {
-    const htmlWithFixedPaths = await convertRelativeUrlsToAbsolute(
-        html,
-        originalUrl,
-    )
-
-    const iframe = document.createElement('iframe')
+function createIframe(doc = document): HTMLIFrameElement {
+    const iframe = doc.createElement('iframe')
     iframe.width = '100%'
     iframe.height = '100%'
     iframe.style.border = 'none'
     iframe.style.minHeight = '100px'
     iframe.style.display = 'flex'
     iframe.style.flex = '1'
+    return iframe
+}
 
-    container.appendChild(iframe)
+export const createIframeForHtml = async (
+    html: string,
+): Promise<HTMLIFrameElement> => {
+    const blob = new Blob([html], { type: 'text/html' })
+    return createIframeForBlob(blob)
+}
 
-    const blob = new Blob([htmlWithFixedPaths], { type: 'text/html' })
+export const createIframeForBlob = async (
+    blob: Blob,
+): Promise<HTMLIFrameElement> => {
+    const iframe = createIframe()
     const blobUrl = URL.createObjectURL(blob)
     iframe.src = blobUrl
     return iframe
 }
 
+export const createIframeForPDFViewer = (): HTMLIFrameElement => {
+    const iframe = createIframe()
+    iframe.src = `${window.location.origin}/pdfjs/viewer.html`
+    return iframe
+}
+
 export function getReaderYoutubePlayerId(normalizedPageUrl: string) {
     return `reader_youtube_player_${normalizedPageUrl}`
+}
+
+export async function loadPDFInViewer(
+    pdfJsViewer: { open: (url: string) => Promise<void> },
+    pdfUrl: string,
+): Promise<void> {
+    await pdfJsViewer.open(pdfUrl).catch((err) => {
+        if (err.message !== 'Failed to fetch') {
+            throw err
+        }
+
+        // If it didn't work the first time, it's possibly a CORS issue, thus retry through our proxy
+        //  NOTE: PDF.js doesn't distinguish CORS errors from other PDF fetch issues, so this will have false positives
+        const workerUrl =
+            determineEnv() === 'production'
+                ? CLOUDFLARE_WORKER_URLS.production
+                : CLOUDFLARE_WORKER_URLS.staging
+
+        const pdfProxyUrl = `${workerUrl}${PDF_PROXY_ROUTE}?url=${encodeURIComponent(
+            pdfUrl,
+        )}`
+
+        return pdfJsViewer.open(pdfProxyUrl)
+    })
 }
