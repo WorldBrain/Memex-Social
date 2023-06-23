@@ -359,7 +359,7 @@ export default class CollectionDetailsLogic extends UILogic<
 
         let isPageSummaryEmpty = true
         for await (const result of this.dependencies.services.summarization.queryAI(
-            incoming.event.entry.originalUrl,
+            incoming.event.entry.sourceUrl,
             undefined,
             undefined,
             undefined,
@@ -385,11 +385,6 @@ export default class CollectionDetailsLogic extends UILogic<
                     },
                 },
             })
-        }
-
-        let error
-        if (this.isExcludedDomain(incoming.event.entry.originalUrl)) {
-            error = true
         }
     }
     hideSummary: EventHandler<'hideSummary'> = (incoming) => {

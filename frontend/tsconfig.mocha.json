@@ -26,7 +26,7 @@
             "memex-stemmer": ["external/memex-stemmer/ts"],
             "src/*": ["src/*"]
         },
-        "lib": ["es2017", "dom", "esnext.asynciterable"],
+        "lib": ["esnext", "dom", "esnext.asynciterable"],
         "types": ["mocha", "node", "webpack-env"]
     },
     "include": ["./src/**/*"],

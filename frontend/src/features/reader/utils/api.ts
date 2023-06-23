@@ -1,17 +1,29 @@
-const isStaging =
-    process.env.REACT_APP_FIREBASE_PROJECT_ID?.includes('staging') ||
-    process.env.NODE_ENV === 'development'
-export const ARCHIVE_PROXY_URL = isStaging
-    ? 'https://cloudflare-memex-staging.memex.workers.dev'
-    : 'https://cloudfare-memex.memex.workers.dev'
+import { CLOUDFLARE_WORKER_URLS } from '@worldbrain/memex-common/lib/content-sharing/storage/constants'
+import { determineEnv } from '../../../utils/runtime-environment'
 
-export const getWebsiteHTML = async (
-    url: string,
-): Promise<{ url: string; html: string }> => {
-    const response = await fetch(
-        `${ARCHIVE_PROXY_URL}/webarchive?url=${encodeURIComponent(url)}`,
+export const ARCHIVE_PROXY_URL =
+    determineEnv() === 'production'
+        ? CLOUDFLARE_WORKER_URLS.production
+        : CLOUDFLARE_WORKER_URLS.staging
+
+async function fetchAndHandleErrors(url: string): Promise<Response> {
+    const response = await fetch(url)
+    if (!response.ok) {
+        throw new Error(
+            `Page fetch failed with HTTP code ${response.status}: ${response.statusText}`,
+        )
+    }
+    return response
+}
+
+export const fetchWebsiteHTML = async (
+    originalUrl: string,
+): Promise<string> => {
+    const response = await fetchAndHandleErrors(
+        `${ARCHIVE_PROXY_URL}/webarchive?url=${encodeURIComponent(
+            originalUrl,
+        )}`,
     )
     const html = await response.text()
-
-    return { url, html }
+    return html
 }

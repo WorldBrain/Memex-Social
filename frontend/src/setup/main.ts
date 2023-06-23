@@ -50,12 +50,17 @@ export async function mainProgram(
     })
     const services = createServices({
         ...options,
+        fetch,
         queryParams: options.queryParams,
         history,
         storage,
         uiMountPoint,
         fixtureFetcher: options.fixtureFetcher,
         clipboard: options.clipboard ?? navigator.clipboard,
+        fetchPDFData:
+            options.backend === 'memory'
+                ? require('@worldbrain/memex-common/lib/page-indexing/fetch-page-data/fetch-pdf-data.node')
+                : undefined,
         localStorage:
             options.backend.indexOf('memory') === 0
                 ? new MemoryLocalStorage()

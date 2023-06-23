@@ -1,3 +1,4 @@
+import fetch from 'node-fetch'
 import * as firebase from '@firebase/testing'
 import { Storage } from '../storage/types'
 import { createStorage } from '../storage'
@@ -9,6 +10,7 @@ import { createServices } from '../services'
 import { Services } from '../services/types'
 import { ProgramQueryParams } from '../setup/types'
 import { mockClipboardAPI } from '../services/clipboard/mock'
+import fetchPDFData from '@worldbrain/memex-common/lib/page-indexing/fetch-page-data/fetch-pdf-data.node'
 
 export interface StorageTestDevice {
     storage: Storage
@@ -77,14 +79,16 @@ async function createMemoryTestDevice(
     const storage =
         testOptions.storage ?? (await createStorage({ backend: 'memory' }))
     const services = createServices({
-        backend: 'memory',
+        fetch,
         storage,
+        backend: 'memory',
         queryParams: testOptions.queryParams ?? {},
         clipboard: mockClipboardAPI,
         history: null!,
         uiMountPoint: null!,
         localStorage: null!,
         youtubeOptions: {} as any,
+        fetchPDFData,
     })
     storageHooksChangeWatcher.setUp({
         fetch,
@@ -176,15 +180,17 @@ async function createFirebaseTestDevice(
     }
 
     const services = createServices({
+        fetch,
+        storage,
         backend: 'memory',
         firebase: firebaseApp as any,
-        storage,
         queryParams: testOptions.queryParams ?? {},
         history: null!,
         uiMountPoint: null!,
         localStorage: null!,
         clipboard: mockClipboardAPI,
         youtubeOptions: {} as any,
+        fetchPDFData,
     })
     if (userId) {
         await services.auth.loginWithEmailPassword({

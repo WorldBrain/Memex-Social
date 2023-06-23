@@ -49,7 +49,12 @@ export interface ReaderPageViewDependencies {
 }
 
 export type ReaderPageViewState = AnnotationConversationsState & {
-    originalUrl: string | null
+    /**
+     * This contains the direct link to the web page or remote PDF to load in the reader iframe.
+     * That means for PDFs it's not meant to be the `memex.cloud/ct/` base locator URL! That can be
+     * found in `listData.entry`.
+     */
+    sourceUrl: string | null
     users: { [id: string]: Pick<User, 'displayName' | 'platform'> }
     listLoadState: UITaskState
     listData?: {
