@@ -7,8 +7,8 @@ module.exports = {
         rules: require('./rules'),
     },
     output: {
-        filename: '[name].js',
-        chunkFilename: '[name].chunk.js',
+        filename: '[name].[contenthash].js',
+        chunkFilename: '[name].[contenthash].chunk.js',
         path: path.resolve(__dirname, '../build'),
         publicPath: '/',
     },
