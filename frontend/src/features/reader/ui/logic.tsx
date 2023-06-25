@@ -80,10 +80,21 @@ type EventHandler<EventName extends keyof ReaderPageViewEvent> = UIEventHandler<
     EventName
 >
 
+// Send this upstream
+const emitAndApplyMutation = <S, E>(logic: UILogic<S, E>) => (
+    previousState: S,
+    mutation: UIMutation<S>,
+): S => {
+    const nextState = logic.withMutation(previousState, mutation)
+    logic.emitMutation(mutation)
+    return nextState
+}
+
 export class ReaderPageViewLogic extends UILogic<
     ReaderPageViewState,
     ReaderPageViewEvent
 > {
+    private emitAndApplyMutation = emitAndApplyMutation(this)
     private users: UserProfileCache
     private isReaderInitialized = false
     private iframeLoaded = false
@@ -231,7 +242,9 @@ export class ReaderPageViewLogic extends UILogic<
             this.dependencies.listID,
         )
 
-        const joinListPromise = executeUITask<ReaderPageViewState>(
+        let nextState = await this.loadPermissions(previousState)
+
+        await executeUITask<ReaderPageViewState>(
             this,
             'joinListState',
             async () => {
@@ -248,7 +261,7 @@ export class ReaderPageViewLogic extends UILogic<
             },
         )
 
-        const loadListPromise = executeUITask<ReaderPageViewState>(
+        await executeUITask<ReaderPageViewState>(
             this,
             'listLoadState',
             async () => {
@@ -271,30 +284,19 @@ export class ReaderPageViewLogic extends UILogic<
                 document.title = listEntry.entryTitle ?? ''
 
                 const isMemexInstalled = doesMemexExtDetectionElExist()
-                const shouldNotOpen = window.location.search.includes(
-                    '?noAutoOpen=true',
-                )
-
-                if (isMemexInstalled && !shouldNotOpen) {
+                const shouldNotOpenLink =
+                    router.getQueryParam('noAutoOpen') === 'true'
+                if (isMemexInstalled && !shouldNotOpenLink) {
                     await this.dependencies.services?.memexExtension.openLink({
                         originalPageUrl: sourceUrl,
                         sharedListId: listReference?.id as string,
+                        isCollaboratorLink: !!router.getQueryParam('key'),
+                        isOwnLink: nextState.permissions === 'owner',
                     })
                 }
 
-                if (shouldNotOpen) {
-                    // Get the current URL without query strings
-                    // Get the current URL
-                    var currentURL = window.location.href
-
-                    // Remove the query string '?noAutoOpen=true'
-                    var updatedURL = currentURL.replace('?noAutoOpen=true', '')
-
-                    // Remove the '?' if it's the only query string
-                    updatedURL = updatedURL.replace(/\?$/, '')
-
-                    // Replace the current URL
-                    window.history.replaceState({}, document.title, updatedURL)
+                if (shouldNotOpenLink) {
+                    router.delQueryParam('noAutoOpen')
                 }
 
                 this.emitMutation({
@@ -357,7 +359,7 @@ export class ReaderPageViewLogic extends UILogic<
                         this.loadPageAnnotations(
                             { [listEntry.normalizedUrl]: entries },
                             [listEntry.normalizedUrl],
-                            previousState,
+                            nextState,
                         )
                     }
                 }, 100)
@@ -366,17 +368,11 @@ export class ReaderPageViewLogic extends UILogic<
                     this.loadPageAnnotations(
                         { [listEntry.normalizedUrl]: entries },
                         [listEntry.normalizedUrl],
-                        previousState,
+                        nextState,
                     )
                 }
             },
         )
-
-        await Promise.all([
-            this.loadPermissions(),
-            loadListPromise,
-            joinListPromise,
-        ])
     }
 
     cleanup: EventHandler<'cleanup'> = async () => {
@@ -407,13 +403,16 @@ export class ReaderPageViewLogic extends UILogic<
         }, 1000)
     }
 
-    private async loadPermissions(): Promise<void> {
+    private async loadPermissions(
+        previousState: ReaderPageViewState,
+    ): Promise<ReaderPageViewState> {
         const { contentSharing } = this.dependencies.storage
         const { auth, router } = this.dependencies.services
         const listReference = makeStorageReference<SharedListReference>(
             'shared-list-reference',
             this.dependencies.listID,
         )
+        let nextState = previousState
         await executeUITask<ReaderPageViewState>(
             this,
             'permissionsLoadState',
@@ -421,7 +420,7 @@ export class ReaderPageViewLogic extends UILogic<
                 await auth.waitForAuthReady()
                 const userReference = auth.getCurrentUserReference()
 
-                this.emitMutation({
+                nextState = this.emitAndApplyMutation(nextState, {
                     currentUserReference: { $set: userReference },
                 })
 
@@ -440,7 +439,7 @@ export class ReaderPageViewLogic extends UILogic<
                 // Shortcut: Use the key from the URL param if it's present
                 const keyString = router.getQueryParam('key')
                 if (keyString?.length) {
-                    this.emitMutation({
+                    nextState = this.emitAndApplyMutation(nextState, {
                         collaborationKey: { $set: keyString },
                         permissions: { $set: 'contributor' },
                     })
@@ -469,7 +468,7 @@ export class ReaderPageViewLogic extends UILogic<
                 }
 
                 const isOwner = currentRoleID === SharedListRoleID.Owner
-                this.emitMutation({
+                nextState = this.emitAndApplyMutation(nextState, {
                     permissions: { $set: isOwner ? 'owner' : 'contributor' },
                 })
 
@@ -488,13 +487,14 @@ export class ReaderPageViewLogic extends UILogic<
                     return
                 }
 
-                this.emitMutation({
+                nextState = this.emitAndApplyMutation(nextState, {
                     collaborationKey: {
                         $set: collaborationKey.reference.id.toString(),
                     },
                 })
             },
         )
+        return nextState
     }
 
     setReaderContainerRef: EventHandler<'setReaderContainerRef'> = async ({
