@@ -81,6 +81,13 @@ export default class RouterService {
         return this.options.queryParams[key] ?? null
     }
 
+    delQueryParam(key: keyof ProgramQueryParams): void {
+        delete this.options.queryParams[key]
+        const nextUrl = new URL(window.location.search)
+        nextUrl.searchParams.delete(key)
+        window.history.replaceState({}, '', nextUrl.href)
+    }
+
     blockLeave(message: string) {
         if (this.blockLeaveMessage) {
             throw new Error(
