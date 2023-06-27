@@ -450,22 +450,9 @@ export class ReaderPageView extends UIElement<
                                 padding="5px 10px 5px 5px"
                             />
                         )}
-                        {this.state.permissionsLoadState === 'success' && (
-                            <PrimaryAction
-                                icon={'invite'}
-                                type="tertiary"
-                                label={'Share Page'}
-                                size="medium"
-                                innerRef={this.sharePageButton}
-                                onClick={() =>
-                                    this.processEvent('showSharePageMenu', null)
-                                }
-                                padding="5px 10px 5px 5px"
-                            />
-                        )}
                         <PrimaryAction
                             icon="plus"
-                            type="primary"
+                            type="tertiary"
                             label={'New Page'}
                             size="medium"
                             onClick={() =>
@@ -476,6 +463,19 @@ export class ReaderPageView extends UIElement<
                             }
                             padding="5px 10px 5px 5px"
                         />
+                        {this.state.permissionsLoadState === 'success' && (
+                            <PrimaryAction
+                                icon={'invite'}
+                                type="primary"
+                                label={'Invite People'}
+                                size="medium"
+                                innerRef={this.sharePageButton}
+                                onClick={() =>
+                                    this.processEvent('showSharePageMenu', null)
+                                }
+                                padding="5px 10px 5px 5px"
+                            />
+                        )}
                     </OptionsMenuBox>
                 </PopoutBox>
             )
@@ -497,16 +497,16 @@ export class ReaderPageView extends UIElement<
                 >
                     <TooltipBox>
                         {this.state.linkCopiedToClipBoard ? (
-                            <>
+                            <NotifBox>
                                 <Icon
                                     filePath="checkRound"
                                     heightAndWidth="30px"
                                     hoverOff
                                 />
                                 <Title>Copied to Clipboard</Title>
-                            </>
+                            </NotifBox>
                         ) : (
-                            <>
+                            <NotifBox>
                                 <Title>Invite Links</Title>
                                 {links != null &&
                                 this.state.permissionsLoadState ===
@@ -569,7 +569,7 @@ export class ReaderPageView extends UIElement<
                                         <LoadingIndicator size={20} />
                                     </LoadingBox>
                                 )}
-                            </>
+                            </NotifBox>
                         )}
                     </TooltipBox>
                 </PopoutBox>
@@ -800,12 +800,25 @@ export class ReaderPageView extends UIElement<
                                             padding="5px 10px 5px 5px"
                                         />
                                     )}
+                                    <PrimaryAction
+                                        icon="plus"
+                                        type="tertiary"
+                                        label={'New Page'}
+                                        size="medium"
+                                        onClick={() =>
+                                            window.open(
+                                                'https://memex.garden/discuss',
+                                                '_blank',
+                                            )
+                                        }
+                                        padding="5px 10px 5px 5px"
+                                    />
                                     {this.state.permissionsLoadState ===
                                         'success' && (
                                         <PrimaryAction
                                             icon={'invite'}
-                                            type="tertiary"
-                                            label={'Share Page'}
+                                            type="primary"
+                                            label={'Invite People'}
                                             size="medium"
                                             innerRef={this.sharePageButton}
                                             onClick={() =>
@@ -817,19 +830,6 @@ export class ReaderPageView extends UIElement<
                                             padding="5px 10px 5px 5px"
                                         />
                                     )}
-                                    <PrimaryAction
-                                        icon="plus"
-                                        type="primary"
-                                        label={'New Page'}
-                                        size="medium"
-                                        onClick={() =>
-                                            window.open(
-                                                'https://memex.garden/discuss',
-                                                '_blank',
-                                            )
-                                        }
-                                        padding="5px 10px 5px 5px"
-                                    />
                                 </>
                             )}
                         </RightSideTopBar>
@@ -1032,6 +1032,15 @@ const OptionsMenuBox = styled.div`
     }
 `
 
+const NotifBox = styled.div`
+    height: 170px;
+    display: flex;
+    width: fill-available;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+`
+
 const AnnotationCreateContainer = styled.div`
     display: flex;
     padding: 10px;
@@ -1130,6 +1139,7 @@ const Title = styled.div`
     color: ${(props) => props.theme.colors.white};
     font-size: 16px;
     font-weight: 600;
+    justify-content: flex-start;
 `
 
 const Description = styled.div`
