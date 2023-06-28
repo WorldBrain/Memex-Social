@@ -251,7 +251,6 @@ export class ReaderPageViewLogic extends UILogic<
                     return
                 }
 
-                await auth.waitForAuth()
                 const { result } = await listKeys.processCurrentKey({
                     type: SharedCollectionType.PageLink,
                 })
