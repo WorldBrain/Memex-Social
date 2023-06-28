@@ -509,6 +509,8 @@ export class ReaderPageViewLogic extends UILogic<
         containerEl: HTMLDivElement,
         state: ReaderPageViewState,
     ) {
+        const { router } = this.dependencies.services
+
         if (!this.isReaderInitialized) {
             this.isReaderInitialized = true
         } else {
@@ -558,7 +560,9 @@ export class ReaderPageViewLogic extends UILogic<
             getDocument: () => iframe!.contentDocument,
             scheduleAnnotationCreation: this.scheduleAnnotationCreation,
         })
-        if (state.permissions != null) {
+
+        const keyString = router.getQueryParam('key')
+        if (state.permissions != null || keyString != null) {
             this.setupIframeTooltip(iframe, state)
         }
     }
@@ -625,21 +629,35 @@ export class ReaderPageViewLogic extends UILogic<
                         hideAddToSpaceBtn
                         getWindow={() => iframe.contentWindow!}
                         createHighlight={async (selection, shouldShare) => {
-                            await this.highlightRenderer.saveAndRenderHighlight(
-                                getRenderHighlightParams({
-                                    selection,
-                                    shouldShare,
-                                }),
-                            )
+                            if (state.currentUserReference == null) {
+                                this.dependencies.services.auth.requestAuth({
+                                    reason: 'login-requested',
+                                })
+                                return
+                            } else {
+                                await this.highlightRenderer.saveAndRenderHighlight(
+                                    getRenderHighlightParams({
+                                        selection,
+                                        shouldShare,
+                                    }),
+                                )
+                            }
                         }}
                         createAnnotation={async (selection, shouldShare) => {
-                            await this.highlightRenderer.saveAndRenderHighlight(
-                                getRenderHighlightParams({
-                                    selection,
-                                    shouldShare,
-                                    openInEditMode: true,
-                                }),
-                            )
+                            if (state.currentUserReference == null) {
+                                this.dependencies.services.auth.requestAuth({
+                                    reason: 'login-requested',
+                                })
+                                return
+                            } else {
+                                await this.highlightRenderer.saveAndRenderHighlight(
+                                    getRenderHighlightParams({
+                                        selection,
+                                        shouldShare,
+                                        openInEditMode: true,
+                                    }),
+                                )
+                            }
                         }}
                         onTooltipInit={(showTooltip) => {
                             showTooltipCb = showTooltip
