@@ -268,6 +268,7 @@ export class ReaderPageViewLogic extends UILogic<
                 const shouldNotOpenLink =
                     router.getQueryParam('noAutoOpen') === 'true'
                 if (isMemexInstalled && !shouldNotOpenLink) {
+                    await auth.waitForAuthSync()
                     await this.dependencies.services?.memexExtension.openLink({
                         originalPageUrl: sourceUrl,
                         sharedListId: listReference?.id as string,
