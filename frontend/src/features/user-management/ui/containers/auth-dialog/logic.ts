@@ -121,7 +121,7 @@ export default class AuthDialogLogic extends UILogic<
                         })
                     }
                 }
-            }, 1500)
+            }, 100)
         })
 
         auth.events.on('changed', () => {

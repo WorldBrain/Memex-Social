@@ -27,6 +27,7 @@ import chunk from 'lodash/chunk'
 import flatten from 'lodash/flatten'
 import {
     UILogic,
+    UIEvent,
     UIEventHandler,
     executeUITask,
 } from '../../../main-ui/classes/logic'
@@ -66,10 +67,7 @@ import { userChanges } from '../../../services/auth/utils'
 import type { PersonalAnnotation } from '@worldbrain/memex-common/lib/web-interface/types/storex-generated/personal-cloud'
 import type { AutoPk } from '../../../types'
 import { doesMemexExtDetectionElExist } from '@worldbrain/memex-common/lib/common-ui/utils/content-script'
-import {
-    doesUrlPointToPdf,
-    isMemexPageAPdf,
-} from '@worldbrain/memex-common/lib/page-indexing/utils'
+import { doesUrlPointToPdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
 import { determineEnv } from '../../../utils/runtime-environment'
 import { CLOUDFLARE_WORKER_URLS } from '@worldbrain/memex-common/lib/content-sharing/storage/constants'
 import { getListShareUrl } from '@worldbrain/memex-common/lib/content-sharing/utils'
@@ -80,10 +78,21 @@ type EventHandler<EventName extends keyof ReaderPageViewEvent> = UIEventHandler<
     EventName
 >
 
+// Send this upstream
+const emitAndApplyMutation = <S,>(logic: UILogic<S, any>) => (
+    previousState: S,
+    mutation: UIMutation<S>,
+): S => {
+    const nextState = logic.withMutation(previousState, mutation)
+    logic.emitMutation(mutation)
+    return nextState
+}
+
 export class ReaderPageViewLogic extends UILogic<
     ReaderPageViewState,
     ReaderPageViewEvent
 > {
+    private emitAndApplyMutation = emitAndApplyMutation(this)
     private users: UserProfileCache
     private isReaderInitialized = false
     private iframeLoaded = false
@@ -231,24 +240,7 @@ export class ReaderPageViewLogic extends UILogic<
             this.dependencies.listID,
         )
 
-        const joinListPromise = executeUITask<ReaderPageViewState>(
-            this,
-            'joinListState',
-            async () => {
-                const keyString = router.getQueryParam('key')
-                if (!keyString?.length) {
-                    return
-                }
-
-                await auth.waitForAuth()
-                const { result } = await listKeys.processCurrentKey({
-                    type: SharedCollectionType.PageLink,
-                })
-                this.emitMutation({ joinListResult: { $set: result } })
-            },
-        )
-
-        const loadListPromise = executeUITask<ReaderPageViewState>(
+        await executeUITask<ReaderPageViewState>(
             this,
             'listLoadState',
             async () => {
@@ -264,6 +256,8 @@ export class ReaderPageViewLogic extends UILogic<
                             : undefined,
                     },
                 )
+                this.listCreator.resolve(result.creator)
+                let nextState = await this.loadPermissions(previousState)
 
                 const listEntry = result.entries[0]
                 const sourceUrl = listEntry.sourceUrl
@@ -271,30 +265,19 @@ export class ReaderPageViewLogic extends UILogic<
                 document.title = listEntry.entryTitle ?? ''
 
                 const isMemexInstalled = doesMemexExtDetectionElExist()
-                const shouldNotOpen = window.location.search.includes(
-                    '?noAutoOpen=true',
-                )
-
-                if (isMemexInstalled && !shouldNotOpen) {
+                const shouldNotOpenLink =
+                    router.getQueryParam('noAutoOpen') === 'true'
+                if (isMemexInstalled && !shouldNotOpenLink) {
                     await this.dependencies.services?.memexExtension.openLink({
                         originalPageUrl: sourceUrl,
                         sharedListId: listReference?.id as string,
+                        isCollaboratorLink: !!router.getQueryParam('key'),
+                        isOwnLink: nextState.permissions === 'owner',
                     })
                 }
 
-                if (shouldNotOpen) {
-                    // Get the current URL without query strings
-                    // Get the current URL
-                    var currentURL = window.location.href
-
-                    // Remove the query string '?noAutoOpen=true'
-                    var updatedURL = currentURL.replace('?noAutoOpen=true', '')
-
-                    // Remove the '?' if it's the only query string
-                    updatedURL = updatedURL.replace(/\?$/, '')
-
-                    // Replace the current URL
-                    window.history.replaceState({}, document.title, updatedURL)
+                if (shouldNotOpenLink) {
+                    router.delQueryParam('noAutoOpen')
                 }
 
                 this.emitMutation({
@@ -321,8 +304,6 @@ export class ReaderPageViewLogic extends UILogic<
                         },
                     },
                 })
-
-                this.listCreator.resolve(result.creator)
 
                 const annotationEntriesByList = await contentSharing.getAnnotationListEntriesForListsOnPage(
                     {
@@ -357,7 +338,7 @@ export class ReaderPageViewLogic extends UILogic<
                         this.loadPageAnnotations(
                             { [listEntry.normalizedUrl]: entries },
                             [listEntry.normalizedUrl],
-                            previousState,
+                            nextState,
                         )
                     }
                 }, 100)
@@ -366,17 +347,11 @@ export class ReaderPageViewLogic extends UILogic<
                     this.loadPageAnnotations(
                         { [listEntry.normalizedUrl]: entries },
                         [listEntry.normalizedUrl],
-                        previousState,
+                        nextState,
                     )
                 }
             },
         )
-
-        await Promise.all([
-            this.loadPermissions(),
-            loadListPromise,
-            joinListPromise,
-        ])
     }
 
     cleanup: EventHandler<'cleanup'> = async () => {
@@ -384,36 +359,37 @@ export class ReaderPageViewLogic extends UILogic<
     }
 
     private async listenToUserChanges() {
-        setTimeout(async () => {
-            const userReference = this.dependencies.services.auth.getCurrentUserReference()
+        const userReference = this.dependencies.services.auth.getCurrentUserReference()
 
-            if (!userReference) {
-                for await (const user of userChanges(
-                    this.dependencies.services.auth,
-                )) {
-                    if (user != null) {
-                        this.isReaderInitialized = false // Flag reader for re-initialization on user change
-                        setTimeout(() => {
-                            window.location.reload()
-                        }, 1500)
-                    } else {
-                        this.emitMutation({
-                            collaborationKey: { $set: null },
-                            permissions: { $set: null },
-                        })
-                    }
+        if (!userReference) {
+            for await (const user of userChanges(
+                this.dependencies.services.auth,
+            )) {
+                if (user != null) {
+                    this.isReaderInitialized = false // Flag reader for re-initialization on user change
+                    setTimeout(() => {
+                        window.location.reload()
+                    }, 1500)
+                } else {
+                    this.emitMutation({
+                        collaborationKey: { $set: null },
+                        permissions: { $set: null },
+                    })
                 }
             }
-        }, 1000)
+        }
     }
 
-    private async loadPermissions(): Promise<void> {
+    private async loadPermissions(
+        previousState: ReaderPageViewState,
+    ): Promise<ReaderPageViewState> {
         const { contentSharing } = this.dependencies.storage
-        const { auth, router } = this.dependencies.services
+        const { auth, router, listKeys } = this.dependencies.services
         const listReference = makeStorageReference<SharedListReference>(
             'shared-list-reference',
             this.dependencies.listID,
         )
+        let nextState = previousState
         await executeUITask<ReaderPageViewState>(
             this,
             'permissionsLoadState',
@@ -421,7 +397,7 @@ export class ReaderPageViewLogic extends UILogic<
                 await auth.waitForAuthReady()
                 const userReference = auth.getCurrentUserReference()
 
-                this.emitMutation({
+                nextState = this.emitAndApplyMutation(nextState, {
                     currentUserReference: { $set: userReference },
                 })
 
@@ -440,7 +416,7 @@ export class ReaderPageViewLogic extends UILogic<
                 // Shortcut: Use the key from the URL param if it's present
                 const keyString = router.getQueryParam('key')
                 if (keyString?.length) {
-                    this.emitMutation({
+                    nextState = this.emitAndApplyMutation(nextState, {
                         collaborationKey: { $set: keyString },
                         permissions: { $set: 'contributor' },
                     })
@@ -458,18 +434,40 @@ export class ReaderPageViewLogic extends UILogic<
                         this.dependencies.listID,
                 )?.roleID
 
-                if (!currentRoleID) {
-                    const creator = await this.listCreator
+                if (currentRoleID == null) {
+                    const creator = (await this.listCreator) ?? undefined
                     if (creator.id === userReference.id) {
                         currentRoleID = SharedListRoleID.Owner
                     }
                 }
-                if (!currentRoleID) {
+
+                if (currentRoleID == null) {
+                    if (keyString?.length) {
+                        await executeUITask<ReaderPageViewState>(
+                            this,
+                            'joinListState',
+                            async () => {
+                                const keyString = router.getQueryParam('key')
+                                if (!keyString?.length) {
+                                    return
+                                }
+
+                                const {
+                                    result,
+                                } = await listKeys.processCurrentKey({
+                                    type: SharedCollectionType.PageLink,
+                                })
+                                this.emitMutation({
+                                    joinListResult: { $set: result },
+                                })
+                            },
+                        )
+                    }
                     return
                 }
 
                 const isOwner = currentRoleID === SharedListRoleID.Owner
-                this.emitMutation({
+                nextState = this.emitAndApplyMutation(nextState, {
                     permissions: { $set: isOwner ? 'owner' : 'contributor' },
                 })
 
@@ -488,13 +486,14 @@ export class ReaderPageViewLogic extends UILogic<
                     return
                 }
 
-                this.emitMutation({
+                nextState = this.emitAndApplyMutation(nextState, {
                     collaborationKey: {
                         $set: collaborationKey.reference.id.toString(),
                     },
                 })
             },
         )
+        return nextState
     }
 
     setReaderContainerRef: EventHandler<'setReaderContainerRef'> = async ({
@@ -512,6 +511,8 @@ export class ReaderPageViewLogic extends UILogic<
         containerEl: HTMLDivElement,
         state: ReaderPageViewState,
     ) {
+        const { router } = this.dependencies.services
+
         if (!this.isReaderInitialized) {
             this.isReaderInitialized = true
         } else {
@@ -561,7 +562,9 @@ export class ReaderPageViewLogic extends UILogic<
             getDocument: () => iframe!.contentDocument,
             scheduleAnnotationCreation: this.scheduleAnnotationCreation,
         })
-        if (state.permissions != null) {
+
+        const keyString = router.getQueryParam('key')
+        if (state.permissions != null || keyString != null) {
             this.setupIframeTooltip(iframe, state)
         }
     }
@@ -628,21 +631,35 @@ export class ReaderPageViewLogic extends UILogic<
                         hideAddToSpaceBtn
                         getWindow={() => iframe.contentWindow!}
                         createHighlight={async (selection, shouldShare) => {
-                            await this.highlightRenderer.saveAndRenderHighlight(
-                                getRenderHighlightParams({
-                                    selection,
-                                    shouldShare,
-                                }),
-                            )
+                            if (state.currentUserReference == null) {
+                                this.dependencies.services.auth.requestAuth({
+                                    reason: 'login-requested',
+                                })
+                                return
+                            } else {
+                                await this.highlightRenderer.saveAndRenderHighlight(
+                                    getRenderHighlightParams({
+                                        selection,
+                                        shouldShare,
+                                    }),
+                                )
+                            }
                         }}
                         createAnnotation={async (selection, shouldShare) => {
-                            await this.highlightRenderer.saveAndRenderHighlight(
-                                getRenderHighlightParams({
-                                    selection,
-                                    shouldShare,
-                                    openInEditMode: true,
-                                }),
-                            )
+                            if (state.currentUserReference == null) {
+                                this.dependencies.services.auth.requestAuth({
+                                    reason: 'login-requested',
+                                })
+                                return
+                            } else {
+                                await this.highlightRenderer.saveAndRenderHighlight(
+                                    getRenderHighlightParams({
+                                        selection,
+                                        shouldShare,
+                                        openInEditMode: true,
+                                    }),
+                                )
+                            }
                         }}
                         onTooltipInit={(showTooltip) => {
                             showTooltipCb = showTooltip
