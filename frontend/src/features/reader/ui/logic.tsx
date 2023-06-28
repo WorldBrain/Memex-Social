@@ -240,24 +240,6 @@ export class ReaderPageViewLogic extends UILogic<
             this.dependencies.listID,
         )
 
-        let nextState = await this.loadPermissions(previousState)
-
-        await executeUITask<ReaderPageViewState>(
-            this,
-            'joinListState',
-            async () => {
-                const keyString = router.getQueryParam('key')
-                if (!keyString?.length) {
-                    return
-                }
-
-                const { result } = await listKeys.processCurrentKey({
-                    type: SharedCollectionType.PageLink,
-                })
-                this.emitMutation({ joinListResult: { $set: result } })
-            },
-        )
-
         await executeUITask<ReaderPageViewState>(
             this,
             'listLoadState',
@@ -274,6 +256,8 @@ export class ReaderPageViewLogic extends UILogic<
                             : undefined,
                     },
                 )
+                this.listCreator.resolve(result.creator)
+                let nextState = await this.loadPermissions(previousState)
 
                 const listEntry = result.entries[0]
                 const sourceUrl = listEntry.sourceUrl
@@ -320,8 +304,6 @@ export class ReaderPageViewLogic extends UILogic<
                         },
                     },
                 })
-
-                this.listCreator.resolve(result.creator)
 
                 const annotationEntriesByList = await contentSharing.getAnnotationListEntriesForListsOnPage(
                     {
@@ -377,34 +359,32 @@ export class ReaderPageViewLogic extends UILogic<
     }
 
     private async listenToUserChanges() {
-        setTimeout(async () => {
-            const userReference = this.dependencies.services.auth.getCurrentUserReference()
+        const userReference = this.dependencies.services.auth.getCurrentUserReference()
 
-            if (!userReference) {
-                for await (const user of userChanges(
-                    this.dependencies.services.auth,
-                )) {
-                    if (user != null) {
-                        this.isReaderInitialized = false // Flag reader for re-initialization on user change
-                        setTimeout(() => {
-                            window.location.reload()
-                        }, 1500)
-                    } else {
-                        this.emitMutation({
-                            collaborationKey: { $set: null },
-                            permissions: { $set: null },
-                        })
-                    }
+        if (!userReference) {
+            for await (const user of userChanges(
+                this.dependencies.services.auth,
+            )) {
+                if (user != null) {
+                    this.isReaderInitialized = false // Flag reader for re-initialization on user change
+                    setTimeout(() => {
+                        window.location.reload()
+                    }, 1500)
+                } else {
+                    this.emitMutation({
+                        collaborationKey: { $set: null },
+                        permissions: { $set: null },
+                    })
                 }
             }
-        }, 1000)
+        }
     }
 
     private async loadPermissions(
         previousState: ReaderPageViewState,
     ): Promise<ReaderPageViewState> {
         const { contentSharing } = this.dependencies.storage
-        const { auth, router } = this.dependencies.services
+        const { auth, router, listKeys } = this.dependencies.services
         const listReference = makeStorageReference<SharedListReference>(
             'shared-list-reference',
             this.dependencies.listID,
@@ -454,13 +434,35 @@ export class ReaderPageViewLogic extends UILogic<
                         this.dependencies.listID,
                 )?.roleID
 
-                if (!currentRoleID) {
-                    const creator = await this.listCreator
+                if (currentRoleID == null) {
+                    const creator = (await this.listCreator) ?? undefined
                     if (creator.id === userReference.id) {
                         currentRoleID = SharedListRoleID.Owner
                     }
                 }
-                if (!currentRoleID) {
+
+                if (currentRoleID == null) {
+                    if (keyString?.length) {
+                        await executeUITask<ReaderPageViewState>(
+                            this,
+                            'joinListState',
+                            async () => {
+                                const keyString = router.getQueryParam('key')
+                                if (!keyString?.length) {
+                                    return
+                                }
+
+                                const {
+                                    result,
+                                } = await listKeys.processCurrentKey({
+                                    type: SharedCollectionType.PageLink,
+                                })
+                                this.emitMutation({
+                                    joinListResult: { $set: result },
+                                })
+                            },
+                        )
+                    }
                     return
                 }
 
