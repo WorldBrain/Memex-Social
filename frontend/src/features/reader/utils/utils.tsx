@@ -241,22 +241,23 @@ export async function loadPDFInViewer(
     pdfJsViewer: { open: (url: string) => Promise<void> },
     pdfUrl: string,
 ): Promise<void> {
-    await pdfJsViewer.open(pdfUrl).catch((err) => {
-        if (err.message !== 'Failed to fetch') {
-            throw err
-        }
+    setTimeout(async () => {
+        await pdfJsViewer.open(pdfUrl).catch((err) => {
+            if (err.message !== 'Failed to fetch') {
+                throw err
+            }
+            // If it didn't work the first time, it's possibly a CORS issue, thus retry through our proxy
+            //  NOTE: PDF.js doesn't distinguish CORS errors from other PDF fetch issues, so this will have false positives
+            const workerUrl =
+                determineEnv() === 'production'
+                    ? CLOUDFLARE_WORKER_URLS.production
+                    : CLOUDFLARE_WORKER_URLS.staging
 
-        // If it didn't work the first time, it's possibly a CORS issue, thus retry through our proxy
-        //  NOTE: PDF.js doesn't distinguish CORS errors from other PDF fetch issues, so this will have false positives
-        const workerUrl =
-            determineEnv() === 'production'
-                ? CLOUDFLARE_WORKER_URLS.production
-                : CLOUDFLARE_WORKER_URLS.staging
+            const pdfProxyUrl = `${workerUrl}${PDF_PROXY_ROUTE}?url=${encodeURIComponent(
+                pdfUrl,
+            )}`
 
-        const pdfProxyUrl = `${workerUrl}${PDF_PROXY_ROUTE}?url=${encodeURIComponent(
-            pdfUrl,
-        )}`
-
-        return pdfJsViewer.open(pdfProxyUrl)
-    })
+            return pdfJsViewer.open(pdfProxyUrl)
+        })
+    }, 200)
 }
