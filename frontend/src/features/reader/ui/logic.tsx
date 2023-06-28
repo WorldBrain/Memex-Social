@@ -27,6 +27,7 @@ import chunk from 'lodash/chunk'
 import flatten from 'lodash/flatten'
 import {
     UILogic,
+    UIEvent,
     UIEventHandler,
     executeUITask,
 } from '../../../main-ui/classes/logic'
@@ -66,10 +67,7 @@ import { userChanges } from '../../../services/auth/utils'
 import type { PersonalAnnotation } from '@worldbrain/memex-common/lib/web-interface/types/storex-generated/personal-cloud'
 import type { AutoPk } from '../../../types'
 import { doesMemexExtDetectionElExist } from '@worldbrain/memex-common/lib/common-ui/utils/content-script'
-import {
-    doesUrlPointToPdf,
-    isMemexPageAPdf,
-} from '@worldbrain/memex-common/lib/page-indexing/utils'
+import { doesUrlPointToPdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
 import { determineEnv } from '../../../utils/runtime-environment'
 import { CLOUDFLARE_WORKER_URLS } from '@worldbrain/memex-common/lib/content-sharing/storage/constants'
 import { getListShareUrl } from '@worldbrain/memex-common/lib/content-sharing/utils'
@@ -81,7 +79,7 @@ type EventHandler<EventName extends keyof ReaderPageViewEvent> = UIEventHandler<
 >
 
 // Send this upstream
-const emitAndApplyMutation = <S, E>(logic: UILogic<S, E>) => (
+const emitAndApplyMutation = <S,>(logic: UILogic<S, any>) => (
     previousState: S,
     mutation: UIMutation<S>,
 ): S => {
