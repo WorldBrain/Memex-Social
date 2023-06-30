@@ -61,50 +61,59 @@ export async function awaitExtensionReady(extensionID: string) {
     const shortTriesInterval = 300
     let shortTriesLeft = 10
 
-    await new Promise<void>(async (resolve) => {
-        if (await canMessageExtension(extensionID)) {
-            resolve()
-            return
-        }
-
-        //first, we wait a fixed amount of short intervals
-        //this gives the extension enough time to start listening
-        const shortTimer = setInterval(async () => {
-            if (shortTriesLeft === 0) {
-                clearInterval(shortTimer)
+    try {
+        await new Promise<void>(async (resolve) => {
+            if (await canMessageExtension(extensionID)) {
                 resolve()
-            } else {
-                shortTriesLeft--
-                if (await canMessageExtension(extensionID)) {
-                    extensionIsReady = true
+                return
+            }
+
+            //first, we wait a fixed amount of short intervals
+            //this gives the extension enough time to start listening
+            const shortTimer = setInterval(async () => {
+                if (shortTriesLeft === 0) {
                     clearInterval(shortTimer)
                     resolve()
+                } else {
+                    shortTriesLeft--
+                    if (await canMessageExtension(extensionID)) {
+                        extensionIsReady = true
+                        clearInterval(shortTimer)
+                        resolve()
+                    }
                 }
-            }
-        }, shortTriesInterval)
-    })
+            }, shortTriesInterval)
+        })
+    } catch (error) {
+        console.log('error', error)
+    }
+
     if (extensionIsReady) {
         return true
     }
 
     const longTriesInterval = 2000
 
-    await new Promise<void>((resolve) => {
-        debugLog(
-            'Extension was not ready or installed after initial wait period. Starting polling.',
-        )
-        //in this case, the extension is not installed currently
-        //so we poll in case it is installed later - which we want to encourage
-        const longTimer = setInterval(async () => {
-            if (await canMessageExtension(extensionID)) {
-                debugLog('Extension is ready.')
-                extensionIsReady = true
-                clearInterval(longTimer)
-                resolve()
-            }
-            debugLog('Trying to message extension...')
-        }, longTriesInterval)
-    })
+    try {
+        await new Promise<void>((resolve) => {
+            debugLog(
+                'Extension was not ready or installed after initial wait period. Starting polling.',
+            )
+            //in this case, the extension is not installed currently
+            //so we poll in case it is installed later - which we want to encourage
+            const longTimer = setInterval(async () => {
+                if (await canMessageExtension(extensionID)) {
+                    debugLog('Extension is ready.')
+                    extensionIsReady = true
+                    clearInterval(longTimer)
+                    resolve()
+                }
+                debugLog('Trying to message extension...')
+            }, longTriesInterval)
+        })
+    } catch (error) {
+        console.log('error', error)
+    }
 }
 
 export function sendMessageToExtension(
@@ -275,7 +284,10 @@ export async function syncWithExtension(
 
     if (determineEnv() === 'production') {
         extensionID = process.env.MEMEX_EXTENSION_ID
-    } else if (determineEnv() === 'staging') {
+    } else if (
+        determineEnv() === 'staging' ||
+        navigator.userAgent.includes('Firefox')
+    ) {
         extensionID = null
     }
     if (!extensionID) {
