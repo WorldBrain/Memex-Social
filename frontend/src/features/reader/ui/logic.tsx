@@ -267,6 +267,10 @@ export class ReaderPageViewLogic extends UILogic<
                 const isMemexInstalled = doesMemexExtDetectionElExist()
                 const shouldNotOpenLink =
                     router.getQueryParam('noAutoOpen') === 'true'
+
+                if (shouldNotOpenLink) {
+                    router.delQueryParam('noAutoOpen')
+                }
                 if (isMemexInstalled && !shouldNotOpenLink) {
                     await auth.waitForAuthSync()
                     await auth.waitForAuthReady()
@@ -277,10 +281,6 @@ export class ReaderPageViewLogic extends UILogic<
                         isCollaboratorLink: !!router.getQueryParam('key'),
                         isOwnLink: nextState.permissions === 'owner',
                     })
-                }
-
-                if (shouldNotOpenLink) {
-                    router.delQueryParam('noAutoOpen')
                 }
 
                 this.emitMutation({
