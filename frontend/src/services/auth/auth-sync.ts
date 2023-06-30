@@ -9,6 +9,7 @@ import {
     validMessage,
 } from '@worldbrain/memex-common/lib/authentication/auth-sync'
 import { AnalyticsService } from '../analytics'
+import { determineEnv } from '../../utils/runtime-environment'
 
 const enableMessageLogging = false
 
@@ -270,7 +271,13 @@ export async function syncWithExtension(
     authService: FirebaseAuthService,
     analyticsService: AnalyticsService,
 ) {
-    const extensionID = process.env.MEMEX_EXTENSION_ID
+    let extensionID
+
+    if (determineEnv() === 'production') {
+        extensionID = process.env.MEMEX_EXTENSION_ID
+    } else if (determineEnv() === 'staging') {
+        extensionID = null
+    }
     if (!extensionID) {
         console.error('Could not find extension ID for auth sync')
     } else {
