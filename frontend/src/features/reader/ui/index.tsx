@@ -791,10 +791,9 @@ export class ReaderPageView extends UIElement<
                                             label={'Open Original'}
                                             size="medium"
                                             onClick={() =>
-                                                window.open(
-                                                    this.state.listData!.entry
-                                                        .originalUrl,
-                                                    '_blank',
+                                                this.processEvent(
+                                                    'openOriginalLink',
+                                                    null,
                                                 )
                                             }
                                             padding="5px 10px 5px 5px"

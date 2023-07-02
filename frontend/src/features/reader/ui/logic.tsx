@@ -980,17 +980,19 @@ export class ReaderPageViewLogic extends UILogic<
             showInstallTooltip: { $set: false },
         })
     }
-    openOriginalLink: EventHandler<'showSharePageMenu'> = async (incoming) => {
-        if (isMemexInstalled) {
+    openOriginalLink: EventHandler<'openOriginalLink'> = async (incoming) => {
+        if (this.isMemexInstalled) {
+            await this.dependencies.services?.memexExtension.openLink({
+                originalPageUrl: incoming.previousState.sourceUrl as string,
+                sharedListId: incoming.previousState.listData?.reference
+                    .id as string,
+                isCollaboratorLink:
+                    incoming.previousState.permissions === 'contributor',
+                isOwnLink: incoming.previousState.permissions === 'owner',
+            })
+        } else {
+            window.open(incoming.previousState.sourceUrl as string, '_blank')
         }
-        await this.dependencies.services?.memexExtension.openLink({
-            originalPageUrl: sourceUrl,
-            sharedListId: listReference?.id as string,
-            isCollaboratorLink:
-                !!router.getQueryParam('key') ??
-                nextState.permissions === 'contributor',
-            isOwnLink: nextState.permissions === 'owner',
-        })
     }
     showSharePageMenu: EventHandler<'showSharePageMenu'> = async (incoming) => {
         this.emitMutation({

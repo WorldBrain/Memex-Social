@@ -111,6 +111,7 @@ export type ReaderPageViewEvent = UIEvent<AnnotationConversationEvent> & {
     setSidebarWidth: { width: number }
     clickAnnotationInSidebar: { annotationId: AutoPk }
     reportUrl: { url: string }
+    openOriginalLink: null
     copyLink: { url: string | null }
     closeInstallTooltip: null
     showSharePageMenu: null
