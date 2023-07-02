@@ -71,6 +71,7 @@ import { doesUrlPointToPdf } from '@worldbrain/memex-common/lib/page-indexing/ut
 import { determineEnv } from '../../../utils/runtime-environment'
 import { CLOUDFLARE_WORKER_URLS } from '@worldbrain/memex-common/lib/content-sharing/storage/constants'
 import { getListShareUrl } from '@worldbrain/memex-common/lib/content-sharing/utils'
+import { isMemexInstalled } from '../../../utils/memex-installed'
 
 type EventHandler<EventName extends keyof ReaderPageViewEvent> = UIEventHandler<
     ReaderPageViewState,
@@ -96,6 +97,7 @@ export class ReaderPageViewLogic extends UILogic<
     private users: UserProfileCache
     private isReaderInitialized = false
     private iframeLoaded = false
+    private isMemexInstalled = false
     private sidebarRef: HTMLElement | null = null
     private highlightRenderer!: HighlightRenderer
     /**
@@ -257,32 +259,53 @@ export class ReaderPageViewLogic extends UILogic<
                     },
                 )
                 this.listCreator.resolve(result.creator)
-                let nextState = await this.loadPermissions(previousState)
-
+                // if nexstate.permissions === contributor && extension installed, reroute
+                // if no key and extension, reroute
                 const listEntry = result.entries[0]
                 const sourceUrl = listEntry.sourceUrl
-
                 document.title = listEntry.entryTitle ?? ''
 
+                this.emitMutation({
+                    annotationLoadStates: {
+                        [listEntry.normalizedUrl]: { $set: 'running' },
+                    },
+                })
+
                 const isMemexInstalled = doesMemexExtDetectionElExist()
+                this.isMemexInstalled = isMemexInstalled
                 const shouldNotOpenLink = window.location.href.includes(
                     'noAutoOpen=true',
                 )
 
-                if (isMemexInstalled) {
-                    if (!shouldNotOpenLink) {
-                        await auth.waitForAuthSync()
-                        await auth.waitForAuthReady()
+                if (!isMemexInstalled) {
+                    this.emitMutation({
+                        annotationLoadStates: {
+                            [listEntry.normalizedUrl]: { $set: 'running' },
+                        },
+                        sourceUrl: { $set: sourceUrl },
+                        isYoutubeVideo: {
+                            $set: listEntry.normalizedUrl.startsWith(
+                                'youtube.com/',
+                            ),
+                        },
+                    })
+                }
 
+                let nextState = await this.loadPermissions(previousState)
+                if (
+                    isMemexInstalled &&
+                    nextState.currentUserReference != null
+                ) {
+                    if (!shouldNotOpenLink) {
                         router.delQueryParam('noAutoOpen')
 
                         await this.dependencies.services?.memexExtension.openLink(
                             {
                                 originalPageUrl: sourceUrl,
                                 sharedListId: listReference?.id as string,
-                                isCollaboratorLink: !!router.getQueryParam(
-                                    'key',
-                                ),
+                                isCollaboratorLink:
+                                    !!router.getQueryParam('key') ??
+                                    nextState.permissions === 'contributor',
                                 isOwnLink: nextState.permissions === 'owner',
                             },
                         )
@@ -293,16 +316,18 @@ export class ReaderPageViewLogic extends UILogic<
                     router.delQueryParam('noAutoOpen')
                 }
 
+                if (isMemexInstalled) {
+                    this.emitMutation({
+                        sourceUrl: { $set: sourceUrl },
+                        isYoutubeVideo: {
+                            $set: listEntry.normalizedUrl.startsWith(
+                                'youtube.com/',
+                            ),
+                        },
+                    })
+                }
+
                 this.emitMutation({
-                    annotationLoadStates: {
-                        [listEntry.normalizedUrl]: { $set: 'running' },
-                    },
-                    sourceUrl: { $set: sourceUrl },
-                    isYoutubeVideo: {
-                        $set: listEntry.normalizedUrl.startsWith(
-                            'youtube.com/',
-                        ),
-                    },
                     listData: {
                         $set: {
                             reference: listReference,
@@ -953,6 +978,18 @@ export class ReaderPageViewLogic extends UILogic<
     ) => {
         this.emitMutation({
             showInstallTooltip: { $set: false },
+        })
+    }
+    openOriginalLink: EventHandler<'showSharePageMenu'> = async (incoming) => {
+        if (isMemexInstalled) {
+        }
+        await this.dependencies.services?.memexExtension.openLink({
+            originalPageUrl: sourceUrl,
+            sharedListId: listReference?.id as string,
+            isCollaboratorLink:
+                !!router.getQueryParam('key') ??
+                nextState.permissions === 'contributor',
+            isOwnLink: nextState.permissions === 'owner',
         })
     }
     showSharePageMenu: EventHandler<'showSharePageMenu'> = async (incoming) => {
