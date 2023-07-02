@@ -265,19 +265,28 @@ export class ReaderPageViewLogic extends UILogic<
                 document.title = listEntry.entryTitle ?? ''
 
                 const isMemexInstalled = doesMemexExtDetectionElExist()
-                const shouldNotOpenLink =
-                    router.getQueryParam('noAutoOpen') === 'true'
+                const shouldNotOpenLink = window.location.href.includes(
+                    'noAutoOpen=true',
+                )
 
-                if (isMemexInstalled && !shouldNotOpenLink) {
-                    await auth.waitForAuthSync()
-                    await auth.waitForAuthReady()
+                if (isMemexInstalled) {
+                    if (!shouldNotOpenLink) {
+                        await auth.waitForAuthSync()
+                        await auth.waitForAuthReady()
 
-                    await this.dependencies.services?.memexExtension.openLink({
-                        originalPageUrl: sourceUrl,
-                        sharedListId: listReference?.id as string,
-                        isCollaboratorLink: !!router.getQueryParam('key'),
-                        isOwnLink: nextState.permissions === 'owner',
-                    })
+                        router.delQueryParam('noAutoOpen')
+
+                        await this.dependencies.services?.memexExtension.openLink(
+                            {
+                                originalPageUrl: sourceUrl,
+                                sharedListId: listReference?.id as string,
+                                isCollaboratorLink: !!router.getQueryParam(
+                                    'key',
+                                ),
+                                isOwnLink: nextState.permissions === 'owner',
+                            },
+                        )
+                    }
                 }
 
                 if (shouldNotOpenLink) {

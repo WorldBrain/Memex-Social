@@ -77,10 +77,16 @@ export default class PageLinkCreationLogic extends UILogic<
                 fullPageUrl,
             })
 
-            services.router.goTo('pageView', {
-                id: remoteListId.toString(),
-                entryId: remoteListEntryId.toString(),
-            })
+            services.router.goTo(
+                'pageView',
+                {
+                    id: remoteListId.toString(),
+                    entryId: remoteListEntryId.toString(),
+                },
+                {
+                    query: { noAutoOpen: 'true' },
+                },
+            )
         })
     }
 }
