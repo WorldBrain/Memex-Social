@@ -644,7 +644,7 @@ export class ReaderPageViewLogic extends UILogic<
                 openInEditMode: args.openInEditMode,
                 onClick: this.handleHighlightClick,
                 getSelection: () => args.selection,
-                getFullPageUrl: async () => state.listData?.entry.originalUrl!,
+                getFullPageUrl: async () => state.sourceUrl!,
             }
         }
         const fixedTheme: MemexTheme = {
