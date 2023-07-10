@@ -28,7 +28,8 @@ export default class LandingPage extends UIElement<
         super(props, { logic: new Logic() })
     }
 
-    componentDidMount() {
+    async componentDidMount() {
+        await super.componentDidMount()
         this.props.services.router.goToExternalUrl('https://memex.garden/')
     }
 

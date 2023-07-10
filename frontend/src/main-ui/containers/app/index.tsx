@@ -22,7 +22,8 @@ const MainArea = styled.div`
 class App extends UIElement<Props> {
     private eventHandlers = new EventHandlers()
 
-    componentDidMount() {
+    async componentDidMount() {
+        await super.componentDidMount()
         this.eventHandlers.subscribeTo(
             this.props.services.auth.events,
             'changed',
@@ -30,7 +31,8 @@ class App extends UIElement<Props> {
         )
     }
 
-    componentWillUnmount() {
+    async componentWillUnmount() {
+        await super.componentWillUnmount()
         this.eventHandlers.unsubscribeAll()
     }
 

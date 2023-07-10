@@ -55,8 +55,8 @@ export class ReaderPageView extends UIElement<
         return getViewportBreakpoint(this.getViewportWidth())
     }
 
-    componentDidMount(): void {
-        super.componentDidMount()
+    async componentDidMount() {
+        await super.componentDidMount()
 
         const screenSmall =
             this.viewportBreakpoint === 'mobile' ||

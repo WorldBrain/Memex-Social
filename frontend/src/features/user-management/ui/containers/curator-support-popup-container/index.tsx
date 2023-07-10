@@ -35,8 +35,9 @@ export default class CuratorSupportPopupContainer extends UIElement<
         super(props, { logic: new CuratorSupportPopupContainerLogic(props) })
     }
 
-    componentDidMount(): void {
-        this.processEvent('initPopup', null)
+    async componentDidMount() {
+        await super.componentDidMount()
+        await this.processEvent('initPopup', null)
     }
 
     handleMouseEnter() {
