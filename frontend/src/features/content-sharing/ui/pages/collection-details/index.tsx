@@ -10,9 +10,9 @@ import {
     CollectionDetailsEvent,
     CollectionDetailsDependencies,
     CollectionDetailsState,
+    CollectionDetailsListEntry,
 } from './types'
 import {
-    SharedListEntry,
     SharedAnnotationListEntry,
     SharedAnnotationReference,
     SharedListReference,
@@ -38,9 +38,7 @@ import Markdown from '@worldbrain/memex-common/lib/common-ui/components/markdown
 import BlockContent, {
     getBlockContentYoutubePlayerId,
 } from '@worldbrain/memex-common/lib/common-ui/components/block-content'
-import ItemBox, {
-    ItemBoxProps,
-} from '@worldbrain/memex-common/lib/common-ui/components/item-box'
+import ItemBox from '@worldbrain/memex-common/lib/common-ui/components/item-box'
 import ItemBoxBottom, {
     ItemBoxBottomAction,
 } from '@worldbrain/memex-common/lib/common-ui/components/item-box-bottom'
@@ -105,7 +103,7 @@ export default class CollectionDetailsPage extends UIElement<
 
     onListEntryRef = (event: {
         element: HTMLElement
-        entry: SharedListEntry
+        entry: CollectionDetailsListEntry
     }) => {
         this.handleScrollableRef(
             event.entry.createdWhen,
@@ -250,7 +248,7 @@ export default class CollectionDetailsPage extends UIElement<
     }
 
     getPageEntryActions(
-        entry: SharedListEntry,
+        entry: CollectionDetailsListEntry,
         entryIndex: number,
     ): Array<ItemBoxBottomAction> | undefined {
         const { state } = this
@@ -574,7 +572,7 @@ export default class CollectionDetailsPage extends UIElement<
         )
     }
 
-    renderPageAnnotations(entry: SharedListEntry & { creator: UserReference }) {
+    renderPageAnnotations(entry: CollectionDetailsListEntry) {
         const { state } = this
 
         const youtubeElementId = getBlockContentYoutubePlayerId(
@@ -1561,24 +1559,24 @@ export default class CollectionDetailsPage extends UIElement<
         const entries = data ? [...data.listEntries.entries()] : undefined
 
         if (this.state.searchType === 'twitter') {
-            const newEntries = entries?.filter((entry) => {
-                return entry[1].normalizedUrl.startsWith('twitter.com')
+            const newEntries = entries?.filter(([, entry]) => {
+                return entry.normalizedUrl.startsWith('twitter.com')
             })
             return newEntries
         }
         if (this.state.searchType === 'videos') {
-            const newEntries = entries?.filter((entry) => {
+            const newEntries = entries?.filter(([, entry]) => {
                 return (
-                    entry[1].normalizedUrl.includes('youtube.com') ||
-                    entry[1].normalizedUrl.includes('vimeo.com')
+                    entry.normalizedUrl.includes('youtube.com') ||
+                    entry.normalizedUrl.includes('vimeo.com')
                 )
             })
             return newEntries
         }
         if (this.state.searchType === 'events') {
-            const newEntries = entries?.filter((entry) => {
+            const newEntries = entries?.filter(([, entry]) => {
                 return eventProviderUrls.some((url) =>
-                    entry[1].normalizedUrl.includes(url),
+                    entry.normalizedUrl.includes(url),
                 )
             })
 
@@ -1586,8 +1584,8 @@ export default class CollectionDetailsPage extends UIElement<
         }
 
         if (this.state.searchType === 'pdf') {
-            const newEntries = entries?.filter((entry) => {
-                return entry[1].normalizedUrl.endsWith('.pdf')
+            const newEntries = entries?.filter(([, entry]) => {
+                return entry.normalizedUrl.endsWith('.pdf')
             })
             return newEntries
         }
@@ -1858,7 +1856,7 @@ export default class CollectionDetailsPage extends UIElement<
                                                 normalizedUrl={
                                                     entry.normalizedUrl
                                                 }
-                                                originalUrl={entry.originalUrl}
+                                                originalUrl={entry.sourceUrl}
                                                 fullTitle={
                                                     entry && entry.entryTitle
                                                 }
@@ -1867,7 +1865,7 @@ export default class CollectionDetailsPage extends UIElement<
                                                         'clickPageResult',
                                                         {
                                                             urlToOpen:
-                                                                entry.originalUrl,
+                                                                entry.sourceUrl,
                                                             preventOpening: () =>
                                                                 e.preventDefault(),
                                                             isFollowedSpace:

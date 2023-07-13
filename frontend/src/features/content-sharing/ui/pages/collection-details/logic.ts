@@ -51,11 +51,7 @@ import { makeStorageReference } from '@worldbrain/memex-common/lib/storage/refer
 import type { DiscordList } from '@worldbrain/memex-common/lib/discord/types'
 import type { SlackList } from '@worldbrain/memex-common/lib/slack/types'
 import * as chrono from 'chrono-node'
-import {
-    SharedListEntrySearchRequest,
-    SharedListEntrySearchResult,
-    SHARED_LIST_ENTRY_SEARCH_PAGE_SIZE,
-} from '@worldbrain/memex-common/lib/content-sharing/search'
+import type { SharedListEntrySearchRequest } from '@worldbrain/memex-common/lib/content-sharing/search'
 const truncate = require('truncate')
 
 const LIST_DESCRIPTION_CHAR_LIMIT = 400
@@ -618,6 +614,7 @@ export default class CollectionDetailsLogic extends UILogic<
                                     type: 'user-reference',
                                     id: entry.creator,
                                 },
+                                sourceUrl: entry.originalUrl,
                                 updatedWhen: entry.createdWhen,
                                 reference: {
                                     id: entry.id,
@@ -1019,6 +1016,7 @@ export default class CollectionDetailsLogic extends UILogic<
             )
             newListEntries = listEntries.map((entry) => ({
                 ...entry,
+                sourceUrl: entry.originalUrl,
                 id: entry.reference.id,
             }))
             this.mainListEntries.push(...newListEntries)
@@ -1037,6 +1035,7 @@ export default class CollectionDetailsLogic extends UILogic<
             )
             newListEntries = response.sharedListEntries.map((entry) => ({
                 ...entry,
+                sourceUrl: entry.originalUrl,
                 creator: { type: 'user-reference' as const, id: entry.creator },
             }))
         }

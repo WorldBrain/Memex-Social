@@ -180,6 +180,7 @@ export type CollectionDetailsListEntry = SharedListEntry & {
     reference?: SharedListEntryReference | any
     creator: UserReference
     hoverState?: boolean
+    sourceUrl: string
 }
 
 export type CollectionDetailsSignal = UISignal<
