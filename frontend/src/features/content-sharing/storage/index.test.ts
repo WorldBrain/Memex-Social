@@ -259,6 +259,7 @@ createStorageTestSuite('Content sharing storage', ({ it }) => {
                 reference: originalPageReference,
                 pageInfo: {
                     ...pageInfo,
+                    sourceUrl: pageInfo.originalUrl,
                     createdWhen: expect.any(Number),
                     updatedWhen: expect.any(Number),
                 },

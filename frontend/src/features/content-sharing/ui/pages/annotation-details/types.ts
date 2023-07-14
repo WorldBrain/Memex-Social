@@ -1,6 +1,6 @@
-import { UIEvent, UISignal } from '../../../../../main-ui/classes/logic'
-import { UIElementServices } from '../../../../../services/types'
-import { StorageModules } from '../../../../../storage/types'
+import type { UIEvent, UISignal } from '../../../../../main-ui/classes/logic'
+import type { UIElementServices } from '../../../../../services/types'
+import type { StorageModules } from '../../../../../storage/types'
 
 export interface AnnotationDetailsDependencies {
     annotationID: string

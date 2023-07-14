@@ -121,6 +121,9 @@ export default class PageDetailsLogic extends UILogic<
                 const result = await storage.contentSharing.getPageInfo(
                     pageInfoReference,
                 )
+                if (!result) {
+                    throw new Error('Cannot find page data')
+                }
                 creatorReference = result?.creatorReference ?? null
                 pageInfo = result?.pageInfo ?? null
 

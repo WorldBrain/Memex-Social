@@ -206,7 +206,7 @@ export default class AnnotationDetailsPage extends UIElement<
                                                     {pageInfo.fullTitle}
                                                 </AnnotationPageTitle>
                                                 <AnnotationPageUrl>
-                                                    {pageInfo.originalUrl}
+                                                    {pageInfo.sourceUrl}
                                                 </AnnotationPageUrl>
                                             </AnnotationFooterLeft>
                                             <AnnotationFooterRight>

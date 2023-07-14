@@ -19,7 +19,7 @@ export interface AnnotationDetailsState {
     annotation?: SharedAnnotation | null
 
     pageInfoLoadState: UITaskState
-    pageInfo?: SharedPageInfo | null
+    pageInfo?: (SharedPageInfo & { sourceUrl: string }) | null
 
     creatorLoadState: UITaskState
     creator?: User | null

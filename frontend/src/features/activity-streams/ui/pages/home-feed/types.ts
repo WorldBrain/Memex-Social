@@ -1,18 +1,18 @@
-import {
+import type {
     SharedAnnotation,
     SharedAnnotationReference,
     SharedListEntryReference,
     SharedListReference,
 } from '@worldbrain/memex-common/lib/content-sharing/types'
-import {
+import type {
     UserReference,
     User,
 } from '@worldbrain/memex-common/lib/web-interface/types/users'
-import { UIEvent } from '../../../../../main-ui/classes/logic'
-import { UIElementServices } from '../../../../../services/types'
-import { StorageModules } from '../../../../../storage/types'
-import { UITaskState } from '../../../../../main-ui/types'
-import {
+import type { UIEvent } from '../../../../../main-ui/classes/logic'
+import type { UIElementServices } from '../../../../../services/types'
+import type { StorageModules } from '../../../../../storage/types'
+import type { UITaskState } from '../../../../../main-ui/types'
+import type {
     ListsSidebarState,
     ListsSidebarEvent,
 } from '../../../../lists-sidebar/ui/types'
@@ -60,12 +60,6 @@ export type HomeFeedEvent = UIEvent<
     // AnnotationConversationEvent &
     ListsSidebarEvent &
         ExtDetectionEvent & {
-            clickPageResult: {
-                urlToOpen: string
-                preventOpening: () => void
-                isFeed: boolean
-                pageLinkURL: string
-            }
             waypointHit: null
             getLastSeenLinePosition: null
             loadingIncludingUIFinished: boolean
