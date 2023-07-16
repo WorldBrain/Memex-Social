@@ -11,6 +11,7 @@ import ErrorWithAction from '../../../../../common-ui/components/error-with-acti
 import Markdown from '../../../../../common-ui/components/markdown'
 import { PrimaryAction } from '@worldbrain/memex-common/lib/common-ui/components/PrimaryAction'
 import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
+import IconBox from '@worldbrain/memex-common/lib/common-ui/components/icon-box'
 const logoImage = require('../../../../../assets/img/memex-logo.svg')
 const iconImage = require('../../../../../assets/img/memex-icon.svg')
 
@@ -93,11 +94,17 @@ export default class AnnotationDetailsPage extends UIElement<
                     services={this.props.services}
                     storage={this.props.storage}
                     viewportBreakpoint={viewportWidth}
-                    headerTitle={'Annotation'}
                 >
-                    <ErrorWithAction errorType="internal-error">
-                        Error loading note. <br /> Reload page to retry.
-                    </ErrorWithAction>
+                    <ErrorContent>
+                        <IconBox heightAndWidth="60px">
+                            <Icon icon="searchIcon" heightAndWidth="40px" />
+                        </IconBox>
+                        <Title>Error loading Annotation</Title>
+                        <SubTitle>
+                            Try reloading the page and if that is not working
+                            reach out to support@memex.garden
+                        </SubTitle>
+                    </ErrorContent>
                 </DefaultPageLayout>
             )
         }
@@ -109,18 +116,17 @@ export default class AnnotationDetailsPage extends UIElement<
                     services={this.props.services}
                     storage={this.props.storage}
                     viewportBreakpoint={viewportWidth}
-                    headerTitle={'Annotation'}
                 >
-                    <ErrorWithAction
-                        errorType="not-found"
-                        action={{
-                            label: 'Create your first collection',
-                            url: 'https://getmemex.com',
-                        }}
-                    >
-                        Could not find the not you were looking for. Maybe
-                        somebody shared it, but then removed it again?
-                    </ErrorWithAction>
+                    <ErrorContent>
+                        <IconBox heightAndWidth="60px">
+                            <Icon icon="searchIcon" heightAndWidth="40px" />
+                        </IconBox>
+                        <Title>Annotation not found (yet)</Title>
+                        <SubTitle>
+                            If recently shared, it may take a few secons to
+                            appear here ...or it has been removed again.
+                        </SubTitle>
+                    </ErrorContent>
                 </DefaultPageLayout>
             )
         }
@@ -241,6 +247,26 @@ export default class AnnotationDetailsPage extends UIElement<
         )
     }
 }
+
+const ErrorContent = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    grid-gap: 10px;
+    padding-top: 30px;
+`
+const Title = styled.div`
+    font-size: 18px;
+    color: ${(props) => props.theme.colors.greyScale7};
+    font-weight: bold;
+    margin-top: 20px;
+`
+
+const SubTitle = styled.div`
+    font-size: 16px;
+    color: ${(props) => props.theme.colors.greyScale6};
+`
 
 const AnnotationTopBox = styled.div<{ hasComment: boolean }>`
     display: flex;
