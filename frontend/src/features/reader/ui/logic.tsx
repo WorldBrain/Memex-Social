@@ -22,7 +22,7 @@ import {
     HighlightRenderer,
     Dependencies as HighlightRendererDeps,
 } from '@worldbrain/memex-common/lib/in-page-ui/highlighting/renderer'
-import { mapValues } from 'lodash'
+import mapValues from 'lodash/mapValues'
 import chunk from 'lodash/chunk'
 import flatten from 'lodash/flatten'
 import {
