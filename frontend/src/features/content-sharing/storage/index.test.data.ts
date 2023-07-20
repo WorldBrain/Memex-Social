@@ -107,7 +107,7 @@ export async function createTestListEntries(params: {
         listEntries: TEST_LIST_ENTRIES,
         userReference: params.userReference,
     })
-    await params.contentSharing.createLocatorsAndFingerprints({
+    await params.contentSharing.createLocatorsAndFingerprintsForList({
         creator: params.userReference,
         listReferences: [params.listReference],
         normalizedPageUrl: TEST_PDF_LIST_ENTRY.normalizedUrl,
