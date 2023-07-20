@@ -165,7 +165,7 @@ export function createServices(options: {
         options.backend === 'memory'
             ? new MemoryUserMessageService()
             : new FirebaseUserMessageService({
-                  firebase: firebase as any,
+                  firebase,
                   auth: {
                       getCurrentUserId: async () =>
                           services.auth.getCurrentUserReference()?.id ?? null,
