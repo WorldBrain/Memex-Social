@@ -219,7 +219,7 @@ export default class AnnotationDetailsPage extends UIElement<
                                                 <OpenButton
                                                     target="_blank"
                                                     href={
-                                                        pageInfo.originalUrl +
+                                                        pageInfo.sourceUrl +
                                                         '#:~:text=' +
                                                         this.getAnnotationText(
                                                             annotation.body ??
