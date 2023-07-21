@@ -132,6 +132,7 @@ export default class PageDetailsLogic extends UILogic<
                         locators,
                     } = await storage.contentSharing.getContentLocatorsByUrl({
                         normalizedUrl: pageInfo.normalizedUrl,
+                        creatorReference,
                     })
                     if (locators.length > 0) {
                         pageInfo.originalUrl = locators[0].originalUrl
