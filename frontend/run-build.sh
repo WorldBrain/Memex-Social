@@ -6,7 +6,7 @@ mv build/* ../firebase/public/
 
 # Derive bundle names (contain dynamic cache-busting hashes)
 bundle_names=''
-for bundle in ../firebase/public/*.js; do
+for bundle in ../firebase/public/*.{js,css}; do
     base_name=$(basename $bundle)
     bundle_names+="${base_name} "
 done
@@ -17,9 +17,9 @@ bundle_names=$(echo $bundle_names | sed 's/ *$//')
 # Write latest bundle names to .env.*, so functions can access them
 for env_file in ../firebase/functions/.env*; do
     # If var already there, replace, else append
-    if grep -q "WEB_UI_JS_BUNDLES=" $env_file; then
-        sed -i '' -e "s/WEB_UI_JS_BUNDLES=.*/WEB_UI_JS_BUNDLES=\"${bundle_names}\"/" $env_file
+    if grep -q "WEB_UI_BUNDLES=" $env_file; then
+        sed -i '' -e "s/WEB_UI_BUNDLES=.*/WEB_UI_BUNDLES=\"${bundle_names}\"/" $env_file
     else
-        echo "WEB_UI_JS_BUNDLES=\"${bundle_names}\"" >> $env_file
+        echo "WEB_UI_BUNDLES=\"${bundle_names}\"" >> $env_file
     fi
 done
