@@ -18,6 +18,10 @@ function debugLog(...args: any[]) {
 }
 
 async function canMessageExtension(extensionID: string) {
+    if (!navigator.userAgent.includes('Chrome')) {
+        return false
+    }
+
     /* @ts-ignore */
     const base = chrome || browser
     /* @ts-ignore */
