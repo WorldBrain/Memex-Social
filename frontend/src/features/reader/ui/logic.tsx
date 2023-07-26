@@ -228,6 +228,7 @@ export class ReaderPageViewLogic extends UILogic<
             linkCopiedToClipBoard: false,
             showOptionsMenu: false,
             showSidebar: true,
+            renderAnnotationInstructOverlay: false,
             ...annotationConversationInitialState(),
         }
     }
@@ -302,6 +303,9 @@ export class ReaderPageViewLogic extends UILogic<
                         $set: listEntry.normalizedUrl.startsWith(
                             'youtube.com/',
                         ),
+                    },
+                    renderAnnotationInstructOverlay: {
+                        $set: router.getQueryParam('key'),
                     },
                     listData: {
                         $set: {
@@ -705,6 +709,12 @@ export class ReaderPageViewLogic extends UILogic<
                 showTooltipListener,
             )
         }
+    }
+
+    private hideAnnotationInstruct: EventHandler<'hideAnnotationInstruct'> = async () => {
+        this.emitMutation({
+            renderAnnotationInstructOverlay: { $set: false },
+        })
     }
 
     private scheduleAnnotationCreation: HighlightRendererDeps['scheduleAnnotationCreation'] = (

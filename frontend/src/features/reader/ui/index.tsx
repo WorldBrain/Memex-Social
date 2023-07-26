@@ -22,6 +22,7 @@ import IconBox from '@worldbrain/memex-common/lib/common-ui/components/icon-box'
 import { getReaderYoutubePlayerId } from '../utils/utils'
 import { ViewportBreakpoint } from '@worldbrain/memex-common/lib/common-ui/styles/types'
 import { getViewportBreakpoint } from '@worldbrain/memex-common/lib/common-ui/styles/utils'
+import Overlay from '@worldbrain/memex-common/lib/main-ui/containers/overlay'
 
 const TopBarHeight = 60
 const memexLogo = require('../../../assets/img/memex-logo-beta.svg')
@@ -108,6 +109,35 @@ export class ReaderPageView extends UIElement<
                   })
                 : null,
         }
+    }
+
+    private renderOverlay() {
+        return (
+            <OverlayAnnotationInstructionContainer
+                onClick={() =>
+                    this.processEvent('hideAnnotationInstruct', null)
+                }
+            >
+                <OverlayAnnotationInstructionInnerBox>
+                    <IconBox heightAndWidth="50px">
+                        <Icon
+                            heightAndWidth="30px"
+                            icon="invite"
+                            color="prime1"
+                        />
+                    </IconBox>
+                    <Spacer height="5px" />
+                    <Title>
+                        You've been invited to collaborate on this document
+                    </Title>
+                    <Description>
+                        This means you can also add your own annotations.
+                        <br />
+                        Just select some text to get started.
+                    </Description>
+                </OverlayAnnotationInstructionInnerBox>
+            </OverlayAnnotationInstructionContainer>
+        )
     }
 
     private renderPageAnnotations(
@@ -657,6 +687,8 @@ export class ReaderPageView extends UIElement<
 
         return (
             <MainContainer>
+                {this.state.renderAnnotationInstructOverlay &&
+                    this.renderOverlay()}
                 <LeftSide>
                     <TopBar>
                         <LeftSideTopBar>
@@ -834,7 +866,7 @@ export class ReaderPageView extends UIElement<
                         </RightSideTopBar>
                     </TopBar>
                     {this.state.permissionsLoadState === 'success' ? (
-                        this.renderMainContent()
+                        <>{this.renderMainContent()}</>
                     ) : (
                         <LoadingBox height={'400px'}>
                             <LoadingIndicator size={34} />
@@ -985,6 +1017,33 @@ function isInRange(timestamp: number, range: TimestampRange | undefined) {
     }
     return range.fromTimestamp <= timestamp && range.toTimestamp >= timestamp
 }
+
+const OverlayAnnotationInstructionContainer = styled.div`
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backdrop-filter: blur(4px);
+    background-color: ${(props) => props.theme.colors.black}10;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+`
+const Spacer = styled.div<{ height?: string }>`
+    height: ${(props) => props.height && props.height};
+`
+
+const OverlayAnnotationInstructionInnerBox = styled.div`
+    background-color: ${(props) => props.theme.colors.greyScale1};
+    border: 1px solid ${(props) => props.theme.colors.greyScale3};
+    border-radius: 8px;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    grid-gap: 10px;
+    justify-content: center;
+    align-items: center;
+`
 
 const BreadCrumbButton = styled.div`
     & > div {
@@ -1179,6 +1238,7 @@ const MainContainer = styled.div`
     display: flex;
     height: fill-available;
     overflow: hidden;
+    position: relative;
 `
 
 const LeftSide = styled.div`
