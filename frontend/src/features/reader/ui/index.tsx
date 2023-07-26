@@ -486,10 +486,7 @@ export class ReaderPageView extends UIElement<
                             label={'New Page'}
                             size="medium"
                             onClick={() =>
-                                window.open(
-                                    'https://memex.garden/discuss',
-                                    '_blank',
-                                )
+                                window.open('https://memex.garden', '_blank')
                             }
                             padding="5px 10px 5px 5px"
                         />
@@ -838,7 +835,7 @@ export class ReaderPageView extends UIElement<
                                         size="medium"
                                         onClick={() =>
                                             window.open(
-                                                'https://memex.garden/discuss',
+                                                'https://memex.garden',
                                                 '_blank',
                                             )
                                         }

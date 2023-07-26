@@ -305,7 +305,7 @@ export class ReaderPageViewLogic extends UILogic<
                         ),
                     },
                     renderAnnotationInstructOverlay: {
-                        $set: router.getQueryParam('key'),
+                        $set: !!router.getQueryParam('key'),
                     },
                     listData: {
                         $set: {
