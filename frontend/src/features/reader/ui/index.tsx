@@ -1195,6 +1195,7 @@ const InjectedContent = styled.div`
     left: 0;
     bottom: 0;
     border: 0px solid;
+    background: white;
 `
 
 const BreadCrumbBox = styled.div`
