@@ -1488,7 +1488,7 @@ export default class CollectionDetailsPage extends UIElement<
                         <HeaderButtonRow>
                             {this.renderEmbedModal()}
                             {this.renderEmbedButton()}
-                            {this.renderWebMonetizationIcon()}
+                            {/* {this.renderWebMonetizationIcon()} */}
                             {this.renderFollowBtn()()}
                         </HeaderButtonRow>
                     )
