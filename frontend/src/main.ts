@@ -27,7 +27,7 @@ export async function setup(options: {
         Object.assign(window, setup)
     }
 
-    serviceWorker.unregister()
+    // serviceWorker.unregister()
 }
 
 export async function main(options: {
