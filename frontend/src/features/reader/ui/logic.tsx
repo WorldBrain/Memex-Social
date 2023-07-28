@@ -627,20 +627,20 @@ export class ReaderPageViewLogic extends UILogic<
             },
         )
 
-        // if (!iframe) {
-        //     return
-        // }
-        // this.iframeLoaded = true
-        // this.highlightRenderer = new HighlightRenderer({
-        //     getWindow: () => iframe!.contentWindow,
-        //     getDocument: () => iframe!.contentDocument,
-        //     scheduleAnnotationCreation: this.scheduleAnnotationCreation,
-        // })
+        if (!iframe) {
+            return
+        }
+        this.iframeLoaded = true
+        this.highlightRenderer = new HighlightRenderer({
+            getWindow: () => iframe!.contentWindow,
+            getDocument: () => iframe!.contentDocument,
+            scheduleAnnotationCreation: this.scheduleAnnotationCreation,
+        })
 
-        // const keyString = router.getQueryParam('key')
-        // if (state.permissions != null || keyString != null) {
-        //     this.setupIframeTooltip(iframe, state)
-        // }
+        const keyString = router.getQueryParam('key')
+        if (state.permissions != null || keyString != null) {
+            this.setupIframeTooltip(iframe, state)
+        }
     }
 
     private setupIframeTooltip(
