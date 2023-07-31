@@ -93,6 +93,7 @@ export type ReaderPageViewState = AnnotationConversationsState & {
     permissionsLoadState: UITaskState
     permissions: 'owner' | 'contributor' | null
     isYoutubeVideo: boolean
+    isTweet: boolean
     reportURLSuccess: boolean
     showInstallTooltip: boolean
     joinListState: UITaskState

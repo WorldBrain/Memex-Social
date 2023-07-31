@@ -223,6 +223,7 @@ export class ReaderPageViewLogic extends UILogic<
             permissions: null,
             showShareMenu: false,
             isYoutubeVideo: false,
+            isTweet: false,
             reportURLSuccess: false,
             showInstallTooltip: false,
             linkCopiedToClipBoard: false,
@@ -303,6 +304,12 @@ export class ReaderPageViewLogic extends UILogic<
                         $set: listEntry.normalizedUrl.startsWith(
                             'youtube.com/',
                         ),
+                    },
+                    isTweet: {
+                        $set:
+                            (listEntry.normalizedUrl.includes('twitter.com/') ||
+                                listEntry.normalizedUrl.includes('x.com/')) &&
+                            listEntry.normalizedUrl.includes('/status/'),
                     },
                     renderAnnotationInstructOverlay: {
                         $set: !!router.getQueryParam('key'),

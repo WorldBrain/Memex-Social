@@ -23,6 +23,7 @@ import { getReaderYoutubePlayerId } from '../utils/utils'
 import { ViewportBreakpoint } from '@worldbrain/memex-common/lib/common-ui/styles/types'
 import { getViewportBreakpoint } from '@worldbrain/memex-common/lib/common-ui/styles/utils'
 import Overlay from '@worldbrain/memex-common/lib/main-ui/containers/overlay'
+import Tweet from './components/TweetEmbed'
 
 const TopBarHeight = 60
 const memexLogo = require('../../../assets/img/memex-logo-beta.svg')
@@ -630,6 +631,9 @@ export class ReaderPageView extends UIElement<
                     </YoutubeVideoContainer>
                 </YoutubeArea>
             )
+        }
+        if (this.state.isTweet && this.state.sourceUrl) {
+            return <Tweet url={this.state.sourceUrl} />
         }
         return (
             <InjectedContent
