@@ -19,6 +19,7 @@ import { ViewportBreakpoint } from '../../../../../main-ui/styles/types'
 import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
 import IconBox from '@worldbrain/memex-common/lib/common-ui/components/icon-box'
 import TextField from '@worldbrain/memex-common/lib/common-ui/components/text-field'
+import { AuthProvider } from '../../../../../types/auth'
 
 const FRIENDLY_ERRORS: { [Key in AuthError['reason']]: string } = {
     'popup-blocked': 'Could not open a popup for you to log in',
@@ -437,28 +438,32 @@ export default class AuthDialog extends UIElement<
                             )}
                             {this.renderAuthError()}
                         </EmailPasswordLogin>
-                        {/* <SocialLogins>
-                <SocialLogin
-                  icon={"path to icon"}
-                  provider="facebook"
-                  onClick={onSocialLogin}
-                />
-                <SocialLogin
-                  icon={"path to icon"}
-                  provider="google"
-                  onClick={onSocialLogin}
-                />
-                <SocialLogin
-                  icon={"path to icon"}
-                  provider="github"
-                  onClick={onSocialLogin}
-                />
-                <SocialLogin
-                  icon={"path to icon"}
-                  provider="twitter"
-                  onClick={onSocialLogin}
-                />
-              </SocialLogins> */}
+                        <SocialLogins>
+                            <SocialLogin
+                                icon={'path to icon'}
+                                provider="google"
+                                onClick={() =>
+                                    this.processEvent('socialSignIn', {
+                                        provider: 'google',
+                                    })
+                                }
+                            />
+                            {/* <SocialLogin
+                                icon={'path to icon'}
+                                provider="google"
+                                onClick={null}
+                            />
+                            <SocialLogin
+                                icon={'path to icon'}
+                                provider="github"
+                                onClick={null}
+                            />
+                            <SocialLogin
+                                icon={'path to icon'}
+                                provider="twitter"
+                                onClick={null}
+                            /> */}
+                        </SocialLogins>
                     </AuthenticationMethods>
                 </AuthBox>
             </StyledAuthDialog>
@@ -499,25 +504,26 @@ export default class AuthDialog extends UIElement<
     }
 }
 
-// function SocialLogin(props: {
-//   icon: string;
-//   provider: AuthProvider;
-//   onClick(event: { provider: AuthProvider }): void;
-// }) {
-//   return (
-//     <Margin vertical="smallest">
-//       <SocialLoginButton
-//         onClick={() => props.onClick({ provider: props.provider })}
-//       >
-//         <SocialLoginIcon image={props.icon} />
-//         <SocialLoginLabel>
-//           Login with{" "}
-//           {props.provider.charAt(0).toUpperCase() + props.provider.slice(1)}
-//         </SocialLoginLabel>
-//       </SocialLoginButton>
-//     </Margin>
-//   );
-// }
+function SocialLogin(props: {
+    icon: string
+    provider: AuthProvider
+    onClick(event: { provider: AuthProvider }): void
+}) {
+    return (
+        <Margin vertical="smallest">
+            <SocialLoginButton
+                onClick={() => props.onClick({ provider: props.provider })}
+            >
+                <SocialLoginIcon image={props.icon} />
+                <SocialLoginLabel>
+                    Login with{' '}
+                    {props.provider.charAt(0).toUpperCase() +
+                        props.provider.slice(1)}
+                </SocialLoginLabel>
+            </SocialLoginButton>
+        </Margin>
+    )
+}
 
 const StyledAuthDialog = styled.div<{ viewportBreakpoint: ViewportBreakpoint }>`
     font-family: ${(props) => props.theme.fonts.primary};
@@ -612,21 +618,22 @@ const LoadingBox = styled.div`
     min-width: 600px;
 `
 
-// const SocialLogins = styled.div`
-//   display: flex;
-//   flex-direction: column;
-//   justify-content: center;
-//   align-items: center;
-// `;
-// const SocialLoginButton = styled.div`
-//   padding: 10px 30px;
-//   background: grey;
-//   font-size: 12px;
-//   width: 200px;
-//   cursor: pointer;
-// `;
-// const SocialLoginIcon = styled.div<{ image: string }>``;
-// const SocialLoginLabel = styled.div``;
+const SocialLogins = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+`
+
+const SocialLoginButton = styled.div`
+    padding: 10px 30px;
+    background: grey;
+    font-size: 12px;
+    width: 200px;
+    cursor: pointer;
+`
+const SocialLoginIcon = styled.div<{ image: string }>``
+const SocialLoginLabel = styled.div``
 
 const Footer = styled.div`
     text-align: center;
