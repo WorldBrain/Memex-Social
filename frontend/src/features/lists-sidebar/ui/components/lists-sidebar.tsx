@@ -317,7 +317,7 @@ export default class ListsSidebar extends PureComponent<Props> {
                                 }}
                             />
                         )}
-                        Activity Feed
+                        Notifications
                     </MenuItemText>
                 </FeedLink>
             </FeedArea>

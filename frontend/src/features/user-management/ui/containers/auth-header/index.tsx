@@ -38,8 +38,8 @@ const DisplayName = styled.div`
     display: block;
     align-items: center;
     grid-gap: 5px;
-    font-size: 14px;
-    font-weight: 300;
+    font-size: 15px;
+    font-weight: 400;
     cursor: pointer;
     font-family: ${(props) => props.theme.fonts.primary};
     color: ${(props) => props.theme.colors.greyScale5};
@@ -147,20 +147,15 @@ export default class AuthHeader extends UIElement<
 
         return (
             <>
-                <StyledAuthHeader
-                    ref={this.UserInfoButtonRef}
+                <PrimaryAction
+                    label={this.state.user.displayName}
                     onClick={() => this.processEvent('toggleMenu', null)}
-                >
-                    <UserInfo>
-                        <DisplayName>{this.state.user.displayName}</DisplayName>
-                        <Icon
-                            filePath="settings"
-                            heightAndWidth="18px"
-                            hoverOff
-                            color="prime1"
-                        />
-                    </UserInfo>
-                </StyledAuthHeader>
+                    icon={'settings'}
+                    type={'tertiary'}
+                    iconPosition="right"
+                    size="medium"
+                    innerRef={this.UserInfoButtonRef}
+                />
                 {this.renderAuthMenu()}
                 {this.state.showAccountSettings && (
                     <ProfileEditModal

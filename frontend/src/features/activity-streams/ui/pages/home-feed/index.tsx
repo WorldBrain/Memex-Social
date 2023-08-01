@@ -700,7 +700,7 @@ export default class HomeFeedPage extends UIElement<
             <>
                 <DocumentTitle
                     documentTitle={this.props.services.documentTitle}
-                    subTitle={`Collaboration Feed`}
+                    subTitle={`Notifications`}
                 />
                 <DefaultPageLayout
                     services={this.props.services}
@@ -767,7 +767,7 @@ export default class HomeFeedPage extends UIElement<
             <>
                 <DocumentTitle
                     documentTitle={this.props.services.documentTitle}
-                    subTitle={`Collaboration Feed`}
+                    subTitle={`Notification`}
                 />
                 {this.renderModals()}
                 <DefaultPageLayout
@@ -775,7 +775,7 @@ export default class HomeFeedPage extends UIElement<
                     storage={this.props.storage}
                     viewportBreakpoint={this.viewportBreakpoint}
                     hideActivityIndicator
-                    headerTitle="Activity Feed"
+                    headerTitle="Notifications"
                     headerSubtitle={this.renderHeaderSubTitle()}
                     context="feed"
                     // listsSidebarProps={{

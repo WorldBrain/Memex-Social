@@ -228,6 +228,7 @@ export class ReaderPageViewLogic extends UILogic<
             linkCopiedToClipBoard: false,
             showOptionsMenu: false,
             showSidebar: true,
+            renderAnnotationInstructOverlay: false,
             ...annotationConversationInitialState(),
         }
     }
@@ -302,6 +303,9 @@ export class ReaderPageViewLogic extends UILogic<
                         $set: listEntry.normalizedUrl.startsWith(
                             'youtube.com/',
                         ),
+                    },
+                    renderAnnotationInstructOverlay: {
+                        $set: !!router.getQueryParam('key'),
                     },
                     listData: {
                         $set: {
@@ -541,12 +545,73 @@ export class ReaderPageViewLogic extends UILogic<
                 if (isPdf) {
                     iframe = utils.createIframeForPDFViewer()
                 } else {
-                    const html = await fetchWebsiteHTML(state.sourceUrl!)
-                    const fixedHtml = await utils.convertRelativeUrlsToAbsolute(
-                        html,
-                        state.sourceUrl!,
+                    const url = state.sourceUrl
+                    iframe = utils.createReaderIframe()
+
+                    // const scope = window.location.pathname
+                    const scope = '/'
+
+                    // also add inject of custom.js as a script into each replayed page
+                    await navigator.serviceWorker.register(
+                        '/webrecorder-sw.js?injectScripts=/webrecorder-custom.js',
+                        { scope },
                     )
-                    iframe = await utils.createIframeForHtml(fixedHtml)
+
+                    const proxyPrefix =
+                        'https://wabac-cors-proxy.memex.workers.dev/proxy/'
+                    let initedResolve: (() => void) | null = null
+
+                    const inited = new Promise<void>(
+                        (resolve) => (initedResolve = resolve),
+                    )
+
+                    navigator.serviceWorker.addEventListener(
+                        'message',
+                        (event) => {
+                            if (event.data.msg_type === 'collAdded') {
+                                // the replay is ready to be loaded when this message is received
+                                initedResolve!()
+                            }
+                        },
+                    )
+
+                    const baseUrl = new URL(window.location as any)
+                    baseUrl.hash = ''
+
+                    const msg = {
+                        msg_type: 'addColl',
+                        name: 'liveproxy',
+                        type: 'live',
+                        file: { sourceUrl: `proxy:${proxyPrefix}` },
+                        skipExisting: false,
+                        extraConfig: {
+                            prefix: proxyPrefix,
+                            isLive: true,
+                            baseUrl: baseUrl.href,
+                            baseUrlHashReplay: true,
+                            noPostToGet: true,
+                        },
+                    }
+
+                    if (!navigator.serviceWorker.controller) {
+                        navigator.serviceWorker.addEventListener(
+                            'controllerchange',
+                            () => {
+                                navigator.serviceWorker.controller!.postMessage(
+                                    msg,
+                                )
+                            },
+                        )
+                    } else {
+                        navigator.serviceWorker.controller.postMessage(msg)
+                    }
+
+                    if (inited) {
+                        await inited
+                    }
+
+                    let iframeUrl = `/w/liveproxy/mp_/${url}`
+                    iframe.src = iframeUrl
                 }
                 containerEl.appendChild(iframe)
                 await utils.waitForIframeLoad(iframe)
@@ -705,6 +770,12 @@ export class ReaderPageViewLogic extends UILogic<
                 showTooltipListener,
             )
         }
+    }
+
+    private hideAnnotationInstruct: EventHandler<'hideAnnotationInstruct'> = async () => {
+        this.emitMutation({
+            renderAnnotationInstructOverlay: { $set: false },
+        })
     }
 
     private scheduleAnnotationCreation: HighlightRendererDeps['scheduleAnnotationCreation'] = (

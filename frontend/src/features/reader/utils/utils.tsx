@@ -200,7 +200,7 @@ export const waitForIframeLoad = (iframe: HTMLIFrameElement) =>
         iframe.onload = () => resolve()
     })
 
-function createIframe(doc = document): HTMLIFrameElement {
+export function createReaderIframe(doc = document): HTMLIFrameElement {
     const iframe = doc.createElement('iframe')
     iframe.width = '100%'
     iframe.height = '100%'
@@ -221,14 +221,14 @@ export const createIframeForHtml = async (
 export const createIframeForBlob = async (
     blob: Blob,
 ): Promise<HTMLIFrameElement> => {
-    const iframe = createIframe()
+    const iframe = createReaderIframe()
     const blobUrl = URL.createObjectURL(blob)
     iframe.src = blobUrl
     return iframe
 }
 
 export const createIframeForPDFViewer = (): HTMLIFrameElement => {
-    const iframe = createIframe()
+    const iframe = createReaderIframe()
     iframe.src = `${window.location.origin}/pdfjs/viewer.html`
     return iframe
 }

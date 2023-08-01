@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import styled, { css } from 'styled-components'
 import { ViewportBreakpoint } from '../../main-ui/styles/types'
 import { UIElementServices } from '../../services/types'
@@ -10,7 +10,8 @@ import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
 import { PopoutBox } from '@worldbrain/memex-common/lib/common-ui/components/popout-box'
 import LoadingIndicator from '@worldbrain/memex-common/lib/common-ui/components/loading-indicator'
 // import RouteLink from '../components/route-link'
-// import UnseenActivityIndicator from '../../features/activity-streams/ui/containers/unseen-activity-indicator'
+import UnseenActivityIndicator from '../../features/activity-streams/ui/containers/unseen-activity-indicator'
+import RouteLink from '../components/route-link'
 // import ListsSidebar, {
 //     Props as ListsSidebarProps,
 // } from '../../features/lists-sidebar/ui/components/lists-sidebar'
@@ -55,18 +56,18 @@ export default function DefaultPageLayout(props: {
     const [showChatBox, setShowChatBox] = React.useState(false)
     const chatBoxRef = React.useRef<HTMLDivElement>(null)
 
-    // const [isAuthenticated, setAuthenticated] = useState(
-    //     !!props.services.auth.getCurrentUser(),
-    // )
-    // useEffect(() => {
-    //     const handler = () => {
-    //         setAuthenticated(!!props.services.auth.getCurrentUser())
-    //     }
-    //     props.services.auth.events.addListener('changed', handler)
-    //     return () => {
-    //         props.services.auth.events.removeListener('changed', handler)
-    //     }
-    // })
+    const [isAuthenticated, setAuthenticated] = useState(
+        !!props.services.auth.getCurrentUser(),
+    )
+    useEffect(() => {
+        const handler = () => {
+            setAuthenticated(!!props.services.auth.getCurrentUser())
+        }
+        props.services.auth.events.addListener('changed', handler)
+        return () => {
+            props.services.auth.events.removeListener('changed', handler)
+        }
+    })
 
     const getHeaderHeight = () => {
         const headerHeight = document.getElementById('StyledHeader')
@@ -75,36 +76,35 @@ export default function DefaultPageLayout(props: {
         return headerHeight
     }
 
-    // const renderFeedArea = () => {
-    //     if (!isAuthenticated) {
-    //         return null
-    //     }
+    const renderFeedArea = () => {
+        if (!isAuthenticated) {
+            return null
+        }
 
-    //     return (
-    //         <FeedArea>
-    //             <FeedLink
-    //                 services={props.services}
-    //                 route="homeFeed"
-    //                 params={{}}
-    //             >
-    //                 {!props.hideActivityIndicator && (
-    //                     <Margin left="small">
-    //                         <UnseenActivityIndicator
-    //                             services={props.services}
-    //                             storage={props.storage}
-    //                             renderContent={(feedState) => {
-    //                                 if (feedState === 'has-unseen') {
-    //                                     return <UnseenActivityDot />
-    //                                 }
-    //                                 return null
-    //                             }}
-    //                         />
-    //                     </Margin>
-    //                 )}
-    //             </FeedLink>
-    //         </FeedArea>
-    //     )
-    // }
+        return (
+            <FeedArea right="large">
+                <PrimaryAction
+                    label="Notifications"
+                    icon="feed"
+                    size="medium"
+                    type="tertiary"
+                    onClick={() => props.services.router.goTo('homeFeed', {})}
+                />
+                <ActivityIndicatorBox>
+                    <UnseenActivityIndicator
+                        services={props.services}
+                        storage={props.storage}
+                        renderContent={(feedState) => {
+                            if (feedState === 'has-unseen') {
+                                return <UnseenActivityDot />
+                            }
+                            return null
+                        }}
+                    />
+                </ActivityIndicatorBox>
+            </FeedArea>
+        )
+    }
 
     // const renderListsSidebar = () => {
     //     if (props.listsSidebarProps == null) {
@@ -172,6 +172,7 @@ export default function DefaultPageLayout(props: {
                                 isIframe={isIframe() === true}
                                 viewportWidth={viewportWidth}
                             >
+                                {renderFeedArea()}
                                 <AuthHeader
                                     services={props.services}
                                     storage={props.storage}
@@ -464,23 +465,30 @@ const StyledHeader = styled.div<{
         `}
 `
 
-// const FeedArea = styled(Margin)`
-//     display: flex;
-//     align-items: center;
-// `
+const FeedArea = styled(Margin)`
+    display: flex;
+    align-items: center;
+    position: relative;
+`
 
-// const FeedLink = styled(RouteLink)`
-//     display: flex;
-//     align-items: center;
-//     color: ${(props) => props.theme.colors.prime1};
-// `
+const FeedLink = styled(RouteLink)`
+    display: flex;
+    align-items: center;
+    position: relative;
+    color: ${(props) => props.theme.colors.greyScale5};
+`
 
-// const UnseenActivityDot = styled.div`
-//     background: #5cd9a6;
-//     width: 14px;
-//     height: 14px;
-//     border-radius: 10px;
-// `
+const UnseenActivityDot = styled.div`
+    background: ${(props) => props.theme.colors.prime1};
+    width: 14px;
+    height: 14px;
+    border-radius: 10px;
+`
+const ActivityIndicatorBox = styled.div`
+    position: absolute;
+    right: -5px;
+    top: -0px;
+`
 
 const SpaceActionBar = styled.div`
     display: flex;

@@ -103,6 +103,7 @@ export type ReaderPageViewState = AnnotationConversationsState & {
     iframeLoadState: UITaskState
     showOptionsMenu: boolean
     showSidebar: boolean
+    renderAnnotationInstructOverlay: boolean
 }
 
 export type ReaderPageViewEvent = UIEvent<AnnotationConversationEvent> & {
@@ -131,4 +132,5 @@ export type ReaderPageViewEvent = UIEvent<AnnotationConversationEvent> & {
     toggleOptionsMenu: null
     toggleSidebar: boolean | null
     createYoutubeNote: {}
+    hideAnnotationInstruct: null
 }

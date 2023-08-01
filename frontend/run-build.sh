@@ -3,6 +3,7 @@ env-cmd -f $ENV_FILE webpack --config webpack/webpack.prod.js
 mkdir -p ../firebase/public
 rm -rf ../firebase/public/*
 mv build/* ../firebase/public/
+cp -r public/* ../firebase/public/
 
 # Derive bundle names (contain dynamic cache-busting hashes)
 bundle_names=''
