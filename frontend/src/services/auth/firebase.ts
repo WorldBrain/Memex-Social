@@ -90,6 +90,7 @@ export default class FirebaseAuthService extends AuthServiceBase {
         const firebaseProvider: any = ({
             facebook: new this._firebase.auth.FacebookAuthProvider(),
             google: new this._firebase.auth.GoogleAuthProvider(),
+            twitter: new this._firebase.auth.TwitterAuthProvider(),
         } as any)[provider]
 
         try {
@@ -103,6 +104,7 @@ export default class FirebaseAuthService extends AuthServiceBase {
             if (firebaseError.code === 'auth/popup-blocked') {
                 return { result: { status: 'error', reason: 'popup-blocked' } }
             }
+
             return {
                 result: {
                     status: 'error',
