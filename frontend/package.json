@@ -27,11 +27,11 @@
     "storybook": "start-storybook -p 9009 -s public",
     "build-storybook": "build-storybook -s public",
     "build:base": "REACT_APP_BACKEND=firebase bash run-build.sh",
-    "build:staging": "FIREBASE_PROJECT=worldbrain-staging ENV_FILE=.env.staging yarn build:base",
-    "build:production": "FIREBASE_PROJECT=worldbrain-1057 ENV_FILE=.env.production.local yarn build:base",
-    "deploy:base": "firebase -P $FIREBASE_PROJECT deploy --only hosting",
-    "deploy:staging": "yarn build:staging && FIREBASE_PROJECT=worldbrain-staging yarn deploy:base",
-    "deploy:production": "yarn build:production && FIREBASE_PROJECT=worldbrain-1057 yarn deploy:base"
+    "build:staging": "FIREBASE_PROJECT=staging ENV_FILE=.env.staging yarn build:base",
+    "build:production": "FIREBASE_PROJECT=production ENV_FILE=.env.production.local yarn build:base",
+    "deploy:base": "yarn firebase -P $FIREBASE_PROJECT deploy --only hosting",
+    "deploy:staging": "yarn build:staging && FIREBASE_PROJECT=staging yarn deploy:base",
+    "deploy:production": "yarn build:production && FIREBASE_PROJECT=production yarn deploy:base"
   },
   "proxy": "http://localhost:5030/",
   "browserslist": [
@@ -85,7 +85,7 @@
     "eslint-plugin-react-hooks": "^1.6.1",
     "file-loader": "4.3.0",
     "firebase": "^9.9.2",
-    "firebase-tools": "10.9.2",
+    "firebase-tools": "12.4.2",
     "font-awesome": "^4.7.0",
     "fs-extra": "^8.1.0",
     "getstream": "^7.0.0",

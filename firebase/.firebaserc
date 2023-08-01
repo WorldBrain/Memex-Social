@@ -1,5 +1,7 @@
 {
-  "projects": {
-    "default": "worldbrain-staging"
-  }
+    "projects": {
+        "default": "worldbrain-staging",
+        "production": "worldbrain-1057",
+        "staging": "worldbrain-staging"
+    }
 }
