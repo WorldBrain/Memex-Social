@@ -19,6 +19,8 @@ import { ViewportBreakpoint } from '../../../../../main-ui/styles/types'
 import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
 import IconBox from '@worldbrain/memex-common/lib/common-ui/components/icon-box'
 import TextField from '@worldbrain/memex-common/lib/common-ui/components/text-field'
+import { AuthProvider } from '../../../../../types/auth'
+import { theme } from '../../../../../main-ui/styles/theme'
 
 const FRIENDLY_ERRORS: { [Key in AuthError['reason']]: string } = {
     'popup-blocked': 'Could not open a popup for you to log in',
@@ -194,36 +196,38 @@ export default class AuthDialog extends UIElement<
                 <AuthBox top="medium">
                     <AuthenticationMethods>
                         <EmailPasswordLogin>
-                            {this.state.mode === 'register' && (
+                            {(this.state.mode === 'login' ||
+                                this.state.mode === 'register') && (
                                 <>
-                                    <TextField
-                                        icon={'smileFace'}
-                                        type={'text'}
-                                        placeholder={'Display Name'}
-                                        value={this.state.displayName}
-                                        onChange={(event) =>
-                                            this.processEvent(
-                                                'editDisplayName',
-                                                (event.target as HTMLInputElement)
-                                                    .value,
-                                            )
-                                        }
-                                        onKeyDown={this.handleEnter(() => {
-                                            if (
-                                                this.state.displayName.length >
-                                                0
-                                            ) {
+                                    <SocialLogins>
+                                        <SocialLogin
+                                            icon={'path to icon'}
+                                            provider="google"
+                                            onClick={() =>
                                                 this.processEvent(
-                                                    'emailPasswordConfirm',
-                                                    null,
+                                                    'socialSignIn',
+                                                    {
+                                                        provider: 'google',
+                                                    },
                                                 )
                                             }
-                                        })}
-                                    />
-                                    <InfoText>
-                                        Name shown on shared Spaces, page links
-                                        and annotations
-                                    </InfoText>
+                                            mode={state.mode}
+                                        />
+                                        <SocialLogin
+                                            icon={'path to icon'}
+                                            provider="twitter"
+                                            onClick={() =>
+                                                this.processEvent(
+                                                    'socialSignIn',
+                                                    {
+                                                        provider: 'twitter',
+                                                    },
+                                                )
+                                            }
+                                            mode={state.mode}
+                                        />
+                                    </SocialLogins>
+                                    <HorizontalLine />
                                 </>
                             )}
                             {this.state.mode !== 'ConfirmResetPassword' && (
@@ -244,6 +248,7 @@ export default class AuthDialog extends UIElement<
                                             null,
                                         )
                                     })}
+                                    width="100%"
                                 />
                             )}
                             {this.state.mode === 'login' && (
@@ -302,7 +307,7 @@ export default class AuthDialog extends UIElement<
                                         <TextField
                                             icon={'reload'}
                                             type={'password'}
-                                            placeholder="Password"
+                                            placeholder="Repeat Password"
                                             value={this.state.passwordRepeat}
                                             onChange={(e) => {
                                                 this.processEvent(
@@ -325,6 +330,41 @@ export default class AuthDialog extends UIElement<
                                             })}
                                         />
                                     </Margin>
+                                    {this.state.mode === 'register' && (
+                                        <>
+                                            <TextField
+                                                icon={'smileFace'}
+                                                type={'text'}
+                                                placeholder={'Display Name'}
+                                                value={this.state.displayName}
+                                                onChange={(event) =>
+                                                    this.processEvent(
+                                                        'editDisplayName',
+                                                        (event.target as HTMLInputElement)
+                                                            .value,
+                                                    )
+                                                }
+                                                onKeyDown={this.handleEnter(
+                                                    () => {
+                                                        if (
+                                                            this.state
+                                                                .displayName
+                                                                .length > 0
+                                                        ) {
+                                                            this.processEvent(
+                                                                'emailPasswordConfirm',
+                                                                null,
+                                                            )
+                                                        }
+                                                    },
+                                                )}
+                                            />
+                                            <InfoText>
+                                                Name shown on shared Spaces,
+                                                page links and annotations
+                                            </InfoText>
+                                        </>
+                                    )}
                                 </Margin>
                             )}
 
@@ -437,28 +477,6 @@ export default class AuthDialog extends UIElement<
                             )}
                             {this.renderAuthError()}
                         </EmailPasswordLogin>
-                        {/* <SocialLogins>
-                <SocialLogin
-                  icon={"path to icon"}
-                  provider="facebook"
-                  onClick={onSocialLogin}
-                />
-                <SocialLogin
-                  icon={"path to icon"}
-                  provider="google"
-                  onClick={onSocialLogin}
-                />
-                <SocialLogin
-                  icon={"path to icon"}
-                  provider="github"
-                  onClick={onSocialLogin}
-                />
-                <SocialLogin
-                  icon={"path to icon"}
-                  provider="twitter"
-                  onClick={onSocialLogin}
-                />
-              </SocialLogins> */}
                     </AuthenticationMethods>
                 </AuthBox>
             </StyledAuthDialog>
@@ -499,25 +517,40 @@ export default class AuthDialog extends UIElement<
     }
 }
 
-// function SocialLogin(props: {
-//   icon: string;
-//   provider: AuthProvider;
-//   onClick(event: { provider: AuthProvider }): void;
-// }) {
-//   return (
-//     <Margin vertical="smallest">
-//       <SocialLoginButton
-//         onClick={() => props.onClick({ provider: props.provider })}
-//       >
-//         <SocialLoginIcon image={props.icon} />
-//         <SocialLoginLabel>
-//           Login with{" "}
-//           {props.provider.charAt(0).toUpperCase() + props.provider.slice(1)}
-//         </SocialLoginLabel>
-//       </SocialLoginButton>
-//     </Margin>
-//   );
-// }
+function SocialLogin(props: {
+    icon: string
+    provider: AuthProvider
+    onClick(event: { provider: AuthProvider }): void
+    mode: string
+}) {
+    let modeName: string
+
+    if (props.mode === 'login') {
+        modeName = 'Login'
+    } else if (props.mode === 'register') {
+        modeName = 'Sign up'
+    }
+
+    let providerName: string
+
+    if (props.provider === 'google') {
+        providerName = 'Google'
+    } else {
+        providerName = 'Twitter'
+    }
+
+    return (
+        <PrimaryAction
+            onClick={() => props.onClick({ provider: props.provider })}
+            label={`${modeName} with ${providerName}`}
+            size="large"
+            backgroundColor={props.provider === 'twitter' ? 'twitter' : null}
+            type="secondary"
+            icon={props.provider === 'google' ? 'googleLogo' : 'twitterLogo'}
+            width="100%"
+        />
+    )
+}
 
 const StyledAuthDialog = styled.div<{ viewportBreakpoint: ViewportBreakpoint }>`
     font-family: ${(props) => props.theme.fonts.primary};
@@ -543,16 +576,9 @@ const Header = styled.div`
     margin-bottom: 10px;
 `
 const AuthenticationMethods = styled.div`
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  width: 100%;
-  }
-
-  & > div {
-      width: 100%;
-    max-width: 350px;
-  }
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
 `
 
 const InfoText = styled.div`
@@ -569,6 +595,7 @@ const EmailPasswordLogin = styled.div`
     flex-direction: column;
     justify-content: center;
     align-items: flex-end;
+    width: 300px;
 
     & > *,
     input {
@@ -604,7 +631,7 @@ const FormSubtitle = styled.div`
 const AuthBox = styled(Margin)`
     display: flex;
     justify-content: center;
-    width: 100%;
+    width: 500px;
 `
 
 const LoadingBox = styled.div`
@@ -612,21 +639,32 @@ const LoadingBox = styled.div`
     min-width: 600px;
 `
 
-// const SocialLogins = styled.div`
-//   display: flex;
-//   flex-direction: column;
-//   justify-content: center;
-//   align-items: center;
-// `;
-// const SocialLoginButton = styled.div`
-//   padding: 10px 30px;
-//   background: grey;
-//   font-size: 12px;
-//   width: 200px;
-//   cursor: pointer;
-// `;
-// const SocialLoginIcon = styled.div<{ image: string }>``;
-// const SocialLoginLabel = styled.div``;
+const SocialLogins = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    grid-gap: 10px;
+    border-bottom: 1px solid ${(props) => props.theme.colors.greyScale3};
+`
+
+const HorizontalLine = styled.div`
+    border-bottom: 1px solid ${(props) => props.theme.colors.greyScale3};
+    width: 50%;
+    margin: 20px 0px;
+    align-self: center;
+`
+
+const SocialLoginButton = styled.div`
+    padding: 10px 30px;
+    background: grey;
+    font-size: 12px;
+    width: 200px;
+    cursor: pointer;
+`
+const SocialLoginIcon = styled.div<{ image: string }>``
+const SocialLoginLabel = styled.div``
 
 const Footer = styled.div`
     text-align: center;
