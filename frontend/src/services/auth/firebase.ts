@@ -244,10 +244,15 @@ async function _ensureFirebaseUser(
     firebaseUser: firebase.User,
     userStorage: Storage['serverModules']['users'],
 ) {
-    // const provider = firebaseUser.providerId as AuthProvider
-    const user = await userStorage.ensureUser(
-        {},
-        { type: 'user-reference', id: firebaseUser.uid },
-    )
+    const userInfo: User = {
+        platform: firebaseUser.providerId,
+    }
+    if (firebaseUser.displayName) {
+        userInfo.displayName = firebaseUser.displayName
+    }
+    const user = await userStorage.ensureUser(userInfo, {
+        type: 'user-reference',
+        id: firebaseUser.uid,
+    })
     return user
 }
