@@ -1,10 +1,11 @@
 import React from 'react'
 import { UIElement } from '../../../../../main-ui/classes'
 import Logic from './logic'
-import {
+import type {
     AuthDialogEvent,
     AuthDialogDependencies,
     AuthDialogState,
+    AuthDialogMode,
 } from './types'
 import styled, { css } from 'styled-components'
 import Overlay from '../../../../../main-ui/containers/overlay'
@@ -19,8 +20,7 @@ import { ViewportBreakpoint } from '../../../../../main-ui/styles/types'
 import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
 import IconBox from '@worldbrain/memex-common/lib/common-ui/components/icon-box'
 import TextField from '@worldbrain/memex-common/lib/common-ui/components/text-field'
-import { AuthProvider } from '../../../../../types/auth'
-import { theme } from '../../../../../main-ui/styles/theme'
+import type { AuthProvider } from '../../../../../types/auth'
 
 const FRIENDLY_ERRORS: { [Key in AuthError['reason']]: string } = {
     'popup-blocked': 'Could not open a popup for you to log in',
@@ -521,7 +521,7 @@ function SocialLogin(props: {
     icon: string
     provider: AuthProvider
     onClick(event: { provider: AuthProvider }): void
-    mode: string
+    mode: AuthDialogMode
 }) {
     let modeName: string
 
@@ -529,6 +529,8 @@ function SocialLogin(props: {
         modeName = 'Login'
     } else if (props.mode === 'register') {
         modeName = 'Sign up'
+    } else {
+        return null
     }
 
     let providerName: string
@@ -544,7 +546,9 @@ function SocialLogin(props: {
             onClick={() => props.onClick({ provider: props.provider })}
             label={`${modeName} with ${providerName}`}
             size="large"
-            backgroundColor={props.provider === 'twitter' ? 'twitter' : null}
+            backgroundColor={
+                props.provider === 'twitter' ? 'twitter' : undefined
+            }
             type="secondary"
             icon={props.provider === 'google' ? 'googleLogo' : 'twitterLogo'}
             width="100%"
