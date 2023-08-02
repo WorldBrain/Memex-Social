@@ -590,6 +590,7 @@ export class ReaderPageViewLogic extends UILogic<
                             baseUrl: baseUrl.href,
                             baseUrlHashReplay: true,
                             noPostToGet: true,
+                            allowBody: true,
                         },
                     }
 

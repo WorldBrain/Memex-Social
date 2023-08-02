@@ -6161,8 +6161,9 @@
                     )
                 }
             },
-            4780: (t) => {
-                function e(t, e) {
+            4780: (t, e, r) => {
+                const i = r(7849)
+                function n(t, e) {
                     let r = ''
                     for (; e < t.length && "'" !== t[e] && '"' !== t[e]; e++)
                         r += t[e]
@@ -6173,12 +6174,12 @@
                     for (; e < t.length && t[e] !== i; e++) n += t[e]
                     return [r, n, e]
                 }
-                function r(t, e) {
+                function s(t, e) {
                     return (
                         '!' === t[e + 1] && '-' === t[e + 2] && '-' === t[e + 3]
                     )
                 }
-                function i(t, e) {
+                function o(t, e) {
                     return (
                         '!' === t[e + 1] &&
                         'E' === t[e + 2] &&
@@ -6189,7 +6190,7 @@
                         'Y' === t[e + 7]
                     )
                 }
-                function n(t, e) {
+                function a(t, e) {
                     return (
                         '!' === t[e + 1] &&
                         'E' === t[e + 2] &&
@@ -6201,7 +6202,7 @@
                         'T' === t[e + 8]
                     )
                 }
-                function s(t, e) {
+                function c(t, e) {
                     return (
                         '!' === t[e + 1] &&
                         'A' === t[e + 2] &&
@@ -6213,7 +6214,7 @@
                         'T' === t[e + 8]
                     )
                 }
-                function o(t, e) {
+                function l(t, e) {
                     return (
                         '!' === t[e + 1] &&
                         'N' === t[e + 2] &&
@@ -6226,71 +6227,64 @@
                         'N' === t[e + 9]
                     )
                 }
-                const a = '!?\\/[]$%{}^&*()<>|+'
-                function c(t) {
-                    for (let e = 0; e < a.length; e++) {
-                        const r = a[e]
-                        if (-1 !== t.indexOf(r))
-                            throw new Error(
-                                `Invalid character ${r} in entity name`,
-                            )
-                    }
-                    return t
+                function h(t) {
+                    if (i.isName(t)) return t
+                    throw new Error(`Invalid entity name ${t}`)
                 }
-                t.exports = function (t, a) {
-                    const l = {}
+                t.exports = function (t, e) {
+                    const r = {}
                     if (
-                        'O' !== t[a + 3] ||
-                        'C' !== t[a + 4] ||
-                        'T' !== t[a + 5] ||
-                        'Y' !== t[a + 6] ||
-                        'P' !== t[a + 7] ||
-                        'E' !== t[a + 8]
+                        'O' !== t[e + 3] ||
+                        'C' !== t[e + 4] ||
+                        'T' !== t[e + 5] ||
+                        'Y' !== t[e + 6] ||
+                        'P' !== t[e + 7] ||
+                        'E' !== t[e + 8]
                     )
                         throw new Error('Invalid Tag instead of DOCTYPE')
                     {
-                        a += 9
-                        let h = 1,
+                        e += 9
+                        let i = 1,
                             u = !1,
                             p = !1,
                             d = ''
-                        for (; a < t.length; a++)
-                            if ('<' !== t[a] || p)
-                                if ('>' === t[a]) {
+                        for (; e < t.length; e++)
+                            if ('<' !== t[e] || p)
+                                if ('>' === t[e]) {
                                     if (
                                         (p
-                                            ? '-' === t[a - 1] &&
-                                              '-' === t[a - 2] &&
-                                              ((p = !1), h--)
-                                            : h--,
-                                        0 === h)
+                                            ? '-' === t[e - 1] &&
+                                              '-' === t[e - 2] &&
+                                              ((p = !1), i--)
+                                            : i--,
+                                        0 === i)
                                     )
                                         break
-                                } else '[' === t[a] ? (u = !0) : (d += t[a])
+                                } else '[' === t[e] ? (u = !0) : (d += t[e])
                             else {
-                                if (u && i(t, a))
-                                    (a += 7),
-                                        ([entityName, val, a] = e(t, a + 1)),
+                                if (u && o(t, e))
+                                    (e += 7),
+                                        ([entityName, val, e] = n(t, e + 1)),
                                         -1 === val.indexOf('&') &&
-                                            (l[c(entityName)] = {
+                                            (r[h(entityName)] = {
                                                 regx: RegExp(
                                                     `&${entityName};`,
                                                     'g',
                                                 ),
                                                 val,
                                             })
-                                else if (u && n(t, a)) a += 8
-                                else if (u && s(t, a)) a += 8
-                                else if (u && o(t, a)) a += 9
+                                else if (u && a(t, e)) e += 8
+                                else if (u && c(t, e)) e += 8
+                                else if (u && l(t, e)) e += 9
                                 else {
-                                    if (!r) throw new Error('Invalid DOCTYPE')
+                                    if (!s) throw new Error('Invalid DOCTYPE')
                                     p = !0
                                 }
-                                h++, (d = '')
+                                i++, (d = '')
                             }
-                        if (0 !== h) throw new Error('Unclosed DOCTYPE')
+                        if (0 !== i) throw new Error('Unclosed DOCTYPE')
                     }
-                    return { entities: l, i: a }
+                    return { entities: r, i: e }
                 }
             },
             6745: (t, e) => {
@@ -17925,30 +17919,31 @@ and limitations under the License.
                         !0
                     )
                 }
-                makeResponse(t = !1) {
-                    let e = null
+                makeResponse(t = !1, e = !1) {
+                    let r = null
                     b(this.status) ||
-                        (e =
+                        (r =
                             this.buffer || !this.reader
                                 ? this.buffer
                                 : this.reader.getReadableStream())
-                    const r = new Response(e, {
+                    const i = new Response(r, {
                         status: this.status,
                         statusText: this.statusText,
                         headers: this.headers,
                     })
                     return (
-                        (r.date = this.date),
+                        (i.date = this.date),
                         t &&
-                            (r.headers.set(
+                            (i.headers.set(
                                 'Cross-Origin-Opener-Policy',
                                 'same-origin',
                             ),
-                            r.headers.set(
+                            i.headers.set(
                                 'Cross-Origin-Embedder-Policy',
                                 'require-corp',
                             )),
-                        r
+                        e && i.headers.set('content-disposition', 'inline'),
+                        i
                     )
                 }
             }
@@ -19432,7 +19427,6 @@ and limitations under the License.
                     allowAwaitOutsideFunction: null,
                     allowSuperOutsideMethod: null,
                     allowHashBang: !1,
-                    checkPrivateFields: !0,
                     locations: !1,
                     onToken: null,
                     onComment: null,
@@ -20689,31 +20683,27 @@ and limitations under the License.
                     return this.privateNameStack.push(t), t.declared
                 }),
                 (_e.exitClassBody = function () {
-                    var t = this.privateNameStack.pop(),
-                        e = t.declared,
-                        r = t.used
-                    if (this.options.checkPrivateFields)
-                        for (
-                            var i = this.privateNameStack.length,
-                                n =
-                                    0 === i
-                                        ? null
-                                        : this.privateNameStack[i - 1],
-                                s = 0;
-                            s < r.length;
-                            ++s
-                        ) {
-                            var o = r[s]
-                            re(e, o.name) ||
-                                (n
-                                    ? n.used.push(o)
-                                    : this.raiseRecoverable(
-                                          o.start,
-                                          "Private field '#" +
-                                              o.name +
-                                              "' must be declared in an enclosing class",
-                                      ))
-                        }
+                    for (
+                        var t = this.privateNameStack.pop(),
+                            e = t.declared,
+                            r = t.used,
+                            i = this.privateNameStack.length,
+                            n = 0 === i ? null : this.privateNameStack[i - 1],
+                            s = 0;
+                        s < r.length;
+                        ++s
+                    ) {
+                        var o = r[s]
+                        re(e, o.name) ||
+                            (n
+                                ? n.used.push(o)
+                                : this.raiseRecoverable(
+                                      o.start,
+                                      "Private field '#" +
+                                          o.name +
+                                          "' must be declared in an enclosing class",
+                                  ))
+                    }
                 }),
                 (_e.parseExportAllDeclaration = function (t, e) {
                     return (
@@ -21671,7 +21661,6 @@ and limitations under the License.
                         }
                     } else
                         (i || 0 === this.privateNameStack.length) &&
-                            this.options.checkPrivateFields &&
                             this.unexpected(),
                             (n = this.parsePrivateIdent()),
                             this.type !== qt._in && this.unexpected()
@@ -22666,17 +22655,16 @@ and limitations under the License.
                             : this.unexpected(),
                         this.next(),
                         this.finishNode(t, 'PrivateIdentifier'),
-                        this.options.checkPrivateFields &&
-                            (0 === this.privateNameStack.length
-                                ? this.raise(
-                                      t.start,
-                                      "Private field '#" +
-                                          t.name +
-                                          "' must be declared in an enclosing class",
-                                  )
-                                : this.privateNameStack[
-                                      this.privateNameStack.length - 1
-                                  ].used.push(t)),
+                        0 === this.privateNameStack.length
+                            ? this.raise(
+                                  t.start,
+                                  "Private field '#" +
+                                      t.name +
+                                      "' must be declared in an enclosing class",
+                              )
+                            : this.privateNameStack[
+                                  this.privateNameStack.length - 1
+                              ].used.push(t),
                         t
                     )
                 }),
@@ -24730,7 +24718,7 @@ and limitations under the License.
                 })
             we.acorn = {
                 Parser: we,
-                version: '8.10.0',
+                version: '8.9.0',
                 defaultOptions: he,
                 Position: ae,
                 SourceLocation: ce,
@@ -30041,12 +30029,13 @@ and limitations under the License.
                                 )
                     }
                     const o = t.headers.get('range')
-                    return (
-                        !o ||
-                            (200 !== n.status && 206 !== n.status) ||
-                            n.setRange(o),
-                        n.makeResponse(this.coHeaders)
-                    )
+                    !o ||
+                        (200 !== n.status && 206 !== n.status) ||
+                        n.setRange(o)
+                    const a =
+                        'iframe' === t.destination ||
+                        'document' === t.destination
+                    return n.makeResponse(this.coHeaders, a)
                 }
                 getCanonRedirect(t) {
                     let { url: e, timestamp: r, mod: i, referrer: n } = t
@@ -47345,7 +47334,7 @@ PERFORMANCE OF THIS SOFTWARE.
                         (this.isLive = void 0 === t.isLive || t.isLive),
                         (this.archivePrefix = t.archivePrefix || ''),
                         (this.cloneResponse = e),
-                        (this.allowBody = r),
+                        (this.allowBody = r || t.allowBody),
                         (this.hostProxy = t.hostProxy),
                         this.hostProxy instanceof Array)
                     ) {

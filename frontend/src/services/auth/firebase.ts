@@ -90,6 +90,7 @@ export default class FirebaseAuthService extends AuthServiceBase {
         const firebaseProvider: any = ({
             facebook: new this._firebase.auth.FacebookAuthProvider(),
             google: new this._firebase.auth.GoogleAuthProvider(),
+            twitter: new this._firebase.auth.TwitterAuthProvider(),
         } as any)[provider]
 
         try {
@@ -103,6 +104,7 @@ export default class FirebaseAuthService extends AuthServiceBase {
             if (firebaseError.code === 'auth/popup-blocked') {
                 return { result: { status: 'error', reason: 'popup-blocked' } }
             }
+
             return {
                 result: {
                     status: 'error',
@@ -242,10 +244,15 @@ async function _ensureFirebaseUser(
     firebaseUser: firebase.User,
     userStorage: Storage['serverModules']['users'],
 ) {
-    // const provider = firebaseUser.providerId as AuthProvider
-    const user = await userStorage.ensureUser(
-        {},
-        { type: 'user-reference', id: firebaseUser.uid },
-    )
+    const userInfo: User = {
+        platform: firebaseUser.providerId,
+    }
+    if (firebaseUser.displayName) {
+        userInfo.displayName = firebaseUser.displayName
+    }
+    const user = await userStorage.ensureUser(userInfo, {
+        type: 'user-reference',
+        id: firebaseUser.uid,
+    })
     return user
 }
