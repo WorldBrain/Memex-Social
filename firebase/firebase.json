@@ -43,7 +43,7 @@
         "rewrites": [
             {
                 "source": "/a/*",
-                "function": "socialPreviews-generateAnnotationSocialPreview",
+                "function": "generateAnnotationSocialPreview",
                 "region": "us-central1",
                 "pinTag": true
             },
