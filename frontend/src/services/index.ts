@@ -227,6 +227,7 @@ export function createServices(options: {
         }),
         activityStreams,
         userManagement,
+        contentSharing: { backend: contentSharingBackend },
         listKeys: new ListKeysService({
             isAuthenticated: () => !!auth.getCurrentUser(),
             storage: options.storage.serverModules,

@@ -43,7 +43,7 @@ export class ListKeysService extends AbstractListKeysService {
         return params.keyString ? `${link}?key=${params.keyString}` : link
     }
 
-    hasCurrentKey: ListKeysServiceInterface['hasCurrentKey'] = () => {
+    getCurrentKey: ListKeysServiceInterface['getCurrentKey'] = () => {
         const routeMatch = this.dependencies.router.matchCurrentUrl()
         if (
             !(
@@ -52,10 +52,13 @@ export class ListKeysService extends AbstractListKeysService {
                 routeMatch.route === 'userHome'
             )
         ) {
-            return false
+            return null
         }
-        const keyString = this.dependencies.router.getQueryParam('key')
-        return !!keyString
+        return this.dependencies.router.getQueryParam('key')
+    }
+
+    hasCurrentKey: ListKeysServiceInterface['hasCurrentKey'] = () => {
+        return !!this.getCurrentKey()
     }
 
     processCurrentKey: ListKeysServiceInterface['processCurrentKey'] = async ({

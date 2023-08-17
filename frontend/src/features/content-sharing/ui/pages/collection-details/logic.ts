@@ -184,9 +184,9 @@ export default class CollectionDetailsLogic extends UILogic<
     getInitialState(): CollectionDetailsState {
         return {
             listLoadState: 'pristine',
-            followLoadState: 'running',
+            followLoadState: 'pristine',
             permissionKeyState: 'running',
-            listRolesLoadState: 'running',
+            listRolesLoadState: 'pristine',
             copiedLink: false,
             showMoreCollaborators: false,
             listRoleLimit: 3,
@@ -235,7 +235,7 @@ export default class CollectionDetailsLogic extends UILogic<
         await Promise.all([
             this.processUIEvent('loadListData', {
                 ...incoming,
-                event: { listID: this.dependencies.listID },
+                event: { ...incoming.event, listID: this.dependencies.listID },
             }).then(() => {}),
             !incoming.event.isUpdate
                 ? this.processUIEvent('processPermissionKey', {
@@ -660,6 +660,15 @@ export default class CollectionDetailsLogic extends UILogic<
                     type: 'loading-started',
                 })
 
+                const keyString =
+                    !incoming.event.isUpdate &&
+                    this.dependencies.services.listKeys.getCurrentKey()
+                const response = await this.dependencies.services.contentSharing.backend.loadCollectionDetails(
+                    {
+                        listId: this.dependencies.listID,
+                        keyString: keyString || undefined,
+                    },
+                )
                 const result = await contentSharing.retrieveList(
                     listReference,
                     {

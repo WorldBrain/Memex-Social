@@ -43,6 +43,7 @@ export interface CollectionDetailsDependencies {
         | 'auth'
         | 'overlay'
         | 'listKeys'
+        | 'contentSharing'
         | 'contentConversations'
         | 'activityStreams'
         | 'router'
@@ -143,13 +144,13 @@ export type CollectionDetailsEvent = UIEvent<
     AnnotationConversationEvent &
         ListsSidebarEvent &
         ExtDetectionEvent & {
-            load: { isUpdate?: boolean; listID?: string }
+            load: { isUpdate: boolean; listID?: string }
             processCollectionSwitch: {}
             toggleDescriptionTruncation: {}
             togglePageAnnotations: { normalizedUrl: string }
             toggleAllAnnotations: {}
             toggleListShareModal: {}
-            loadListData: { listID: string }
+            loadListData: { isUpdate: boolean; listID: string }
             processPermissionKey: {}
             acceptInvitation: {}
             toggleDateFilters: null
