@@ -23,6 +23,7 @@ import { getReaderYoutubePlayerId } from '../utils/utils'
 import { ViewportBreakpoint } from '@worldbrain/memex-common/lib/common-ui/styles/types'
 import { getViewportBreakpoint } from '@worldbrain/memex-common/lib/common-ui/styles/utils'
 import Overlay from '@worldbrain/memex-common/lib/main-ui/containers/overlay'
+import { SharedAnnotationInPage } from '../../annotations/ui/components/types'
 
 const TopBarHeight = 60
 const memexLogo = require('../../../assets/img/memex-logo-beta.svg')
@@ -172,6 +173,48 @@ export class ReaderPageView extends UIElement<
                 </EmptyMessageContainer>
             )
         } else {
+            let annotationsList = []
+
+            if (
+                state.annotationEntryData &&
+                state.annotationEntryData[entry.normalizedUrl] &&
+                state.annotationEntryData &&
+                state.annotations !== null
+            ) {
+                state.annotationEntryData[entry.normalizedUrl].map(
+                    (annotationEntry) => {
+                        if (
+                            this.state.annotations[
+                                annotationEntry.sharedAnnotation.id.toString()
+                            ]
+                        ) {
+                            annotationsList.push(
+                                this.state.annotations[
+                                    annotationEntry.sharedAnnotation.id.toString()
+                                ],
+                            )
+                        }
+                    },
+                )
+            }
+
+            if (annotationsList.length > 0) {
+                let entries = Object.values(annotationsList)
+                // Sort the array based on the start value from the parsed selector strings
+                entries.sort((a, b) => {
+                    let parsedA = JSON.parse(a.selector)
+                    let parsedB = JSON.parse(b.selector)
+                    let startA = parsedA.descriptor.content.find(
+                        (item) => item.type === 'TextPositionSelector',
+                    ).start
+                    let startB = parsedB.descriptor.content.find(
+                        (item) => item.type === 'TextPositionSelector',
+                    ).start
+                    return startA - startB
+                })
+                annotationsList = entries
+            }
+
             return (
                 <AnnotationsInPage
                     hideThreadBar={true}
@@ -241,17 +284,7 @@ export class ReaderPageView extends UIElement<
                             annotationId: annotation.id,
                         })}
                     loadState={state.annotationLoadStates[entry.normalizedUrl]}
-                    annotations={
-                        state.annotationEntryData &&
-                        state.annotationEntryData[entry.normalizedUrl] &&
-                        state.annotationEntryData &&
-                        state.annotationEntryData[entry.normalizedUrl].map(
-                            (annotationEntry) =>
-                                this.state.annotations[
-                                    annotationEntry.sharedAnnotation.id.toString()
-                                ] ?? null,
-                        )
-                    }
+                    annotations={annotationsList ?? null}
                     annotationConversations={this.state.conversations}
                     getAnnotationCreator={(annotationReference) => {
                         const creatorRef = this.state.annotations[
