@@ -22,8 +22,10 @@ import IconBox from '@worldbrain/memex-common/lib/common-ui/components/icon-box'
 import { getReaderYoutubePlayerId } from '../utils/utils'
 import { ViewportBreakpoint } from '@worldbrain/memex-common/lib/common-ui/styles/types'
 import { getViewportBreakpoint } from '@worldbrain/memex-common/lib/common-ui/styles/utils'
-import Overlay from '@worldbrain/memex-common/lib/main-ui/containers/overlay'
-import { SharedAnnotationInPage } from '../../annotations/ui/components/types'
+import {
+    convertMemexURLintoTelegramURL,
+    getTelegramUserDisplayName,
+} from '@worldbrain/memex-common/lib/telegram/utils'
 
 const TopBarHeight = 60
 const memexLogo = require('../../../assets/img/memex-logo-beta.svg')
@@ -504,12 +506,19 @@ export class ReaderPageView extends UIElement<
                                 type="tertiary"
                                 label={'Open Original'}
                                 size="medium"
-                                onClick={() =>
-                                    window.open(
-                                        this.state.listData!.entry.originalUrl,
-                                        '_blank',
-                                    )
-                                }
+                                onClick={() => {
+                                    let fullPageURL = this.state.listData!.entry
+                                        .originalUrl
+                                    if (
+                                        fullPageURL.includes('web.telegram.org')
+                                    ) {
+                                        fullPageURL = convertMemexURLintoTelegramURL(
+                                            fullPageURL,
+                                        )
+                                    }
+
+                                    window.open(fullPageURL, '_blank')
+                                }}
                                 padding="5px 10px 5px 5px"
                             />
                         )}

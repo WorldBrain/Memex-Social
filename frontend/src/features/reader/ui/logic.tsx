@@ -71,6 +71,7 @@ import { doesUrlPointToPdf } from '@worldbrain/memex-common/lib/page-indexing/ut
 import { determineEnv } from '../../../utils/runtime-environment'
 import { CLOUDFLARE_WORKER_URLS } from '@worldbrain/memex-common/lib/content-sharing/storage/constants'
 import { getListShareUrl } from '@worldbrain/memex-common/lib/content-sharing/utils'
+import { convertMemexURLintoTelegramURL } from '@worldbrain/memex-common/lib/telegram/utils'
 
 type EventHandler<EventName extends keyof ReaderPageViewEvent> = UIEventHandler<
     ReaderPageViewState,
@@ -635,7 +636,7 @@ export class ReaderPageViewLogic extends UILogic<
         if (!iframe) {
             return
         }
-        this.iframeLoaded = true
+
         this.highlightRenderer = new HighlightRenderer({
             getWindow: () => iframe!.contentWindow,
             getDocument: () => iframe!.contentDocument,
@@ -1028,9 +1029,14 @@ export class ReaderPageViewLogic extends UILogic<
         })
     }
     openOriginalLink: EventHandler<'openOriginalLink'> = async (incoming) => {
+        let fullPageURL = incoming.previousState.sourceUrl
+        if (fullPageURL?.includes('web.telegram.org')) {
+            fullPageURL = convertMemexURLintoTelegramURL(fullPageURL)
+        }
+
         if (doesMemexExtDetectionElExist()) {
             await this.dependencies.services?.memexExtension.openLink({
-                originalPageUrl: incoming.previousState.sourceUrl as string,
+                originalPageUrl: fullPageURL as string,
                 sharedListId: incoming.previousState.listData?.reference
                     .id as string,
                 isCollaboratorLink:
@@ -1038,7 +1044,7 @@ export class ReaderPageViewLogic extends UILogic<
                 isOwnLink: incoming.previousState.permissions === 'owner',
             })
         } else {
-            window.open(incoming.previousState.sourceUrl as string, '_blank')
+            window.open(fullPageURL as string, '_blank')
         }
     }
     showSharePageMenu: EventHandler<'showSharePageMenu'> = async (incoming) => {
