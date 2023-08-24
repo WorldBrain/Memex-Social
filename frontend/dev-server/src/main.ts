@@ -20,6 +20,7 @@ export async function main() {
         ctx.body = await loadFixture(ctx.params.name, {
             fixtureFetcher: loadSingleFixture,
         })
+        ctx.set('Access-Control-Allow-Origin', '*')
     })
 
     io.attach(app)

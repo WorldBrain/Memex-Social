@@ -52,6 +52,8 @@ import type { DiscordList } from '@worldbrain/memex-common/lib/discord/types'
 import type { SlackList } from '@worldbrain/memex-common/lib/slack/types'
 import * as chrono from 'chrono-node'
 import type { SharedListEntrySearchRequest } from '@worldbrain/memex-common/lib/content-sharing/search'
+import { PreparedThread } from '@worldbrain/memex-common/lib/content-conversations/storage/types'
+import { AutoPk } from '@worldbrain/memex-common/lib/storage/types'
 const truncate = require('truncate')
 
 const LIST_DESCRIPTION_CHAR_LIMIT = 400
@@ -230,29 +232,58 @@ export default class CollectionDetailsLogic extends UILogic<
             this.dependencies.listID = incoming.event.listID
         }
 
+        const keyString =
+            !incoming.event.isUpdate &&
+            this.dependencies.services.listKeys.getCurrentKey()
+        const response = await this.dependencies.services.contentSharing.backend.loadCollectionDetails(
+            {
+                listId: this.dependencies.listID,
+                entryId: this.dependencies.entryID,
+                keyString: keyString || undefined,
+            },
+        )
+        if (response.status !== 'success') {
+            return
+        }
+        const { data } = response
+        const { retrievedList } = data
+        if (this.dependencies.entryID) {
+            const normalizedPageUrl = retrievedList.entries[0].normalizedUrl
+            this.emitMutation({
+                pageAnnotationsExpanded: {
+                    [normalizedPageUrl]: { $set: true },
+                },
+            })
+            await this.initializePageAnnotations(
+                // data.usersToLoad,
+                data.annotations!,
+                data.threads,
+            )
+        }
+
         // NOTE: Following promises are made to return void because
         // without this the IDE slows down a lot trying to infer types
-        await Promise.all([
-            this.processUIEvent('loadListData', {
-                ...incoming,
-                event: { ...incoming.event, listID: this.dependencies.listID },
-            }).then(() => {}),
-            !incoming.event.isUpdate
-                ? this.processUIEvent('processPermissionKey', {
-                      ...incoming,
-                      event: {},
-                  }).then(() => {})
-                : null,
-        ])
+        // await Promise.all([
+        //     this.processUIEvent('loadListData', {
+        //         ...incoming,
+        //         event: { ...incoming.event, listID: this.dependencies.listID },
+        //     }).then(() => {}),
+        //     !incoming.event.isUpdate
+        //         ? this.processUIEvent('processPermissionKey', {
+        //               ...incoming,
+        //               event: {},
+        //           }).then(() => {})
+        //         : null,
+        // ])
 
-        await Promise.all([
-            this.processUIEvent('initActivityFollows', {
-                ...incoming,
-                event: undefined,
-            }).then(() => {}),
-            this.loadFollowBtnState().then(() => {}),
-            this.loadListRoles(),
-        ])
+        // await Promise.all([
+        //     this.processUIEvent('initActivityFollows', {
+        //         ...incoming,
+        //         event: undefined,
+        //     }).then(() => {}),
+        //     this.loadFollowBtnState().then(() => {}),
+        //     this.loadListRoles(),
+        // ])
     }
 
     processPermissionKey: EventHandler<'processPermissionKey'> = async (
@@ -639,205 +670,196 @@ export default class CollectionDetailsLogic extends UILogic<
     }
 
     loadListData: EventHandler<'loadListData'> = async (incoming) => {
-        const {
-            contentSharing,
-            slack,
-            discord,
-            slackRetroSync,
-            discordRetroSync,
-        } = this.dependencies.storage
-        const listReference = makeStorageReference<SharedListReference>(
-            'shared-list-reference',
-            incoming.event.listID,
-        )
-        const {
-            success: listDataSuccess,
-        } = await executeUITask<CollectionDetailsState>(
-            this,
-            'listLoadState',
-            async () => {
-                this.emitSignal<CollectionDetailsSignal>({
-                    type: 'loading-started',
-                })
-
-                const keyString =
-                    !incoming.event.isUpdate &&
-                    this.dependencies.services.listKeys.getCurrentKey()
-                const response = await this.dependencies.services.contentSharing.backend.loadCollectionDetails(
-                    {
-                        listId: this.dependencies.listID,
-                        keyString: keyString || undefined,
-                    },
-                )
-                const result = await contentSharing.retrieveList(
-                    listReference,
-                    {
-                        fetchSingleEntry: this.dependencies.entryID
-                            ? {
-                                  type:
-                                      'shared-annotation-list-entry-reference',
-                                  id: this.dependencies.entryID,
-                              }
-                            : undefined,
-                        maxEntryCount: PAGE_SIZE,
-                    },
-                )
-
-                if (this.dependencies.entryID) {
-                    const normalizedPageUrl = result.entries[0].normalizedUrl
-                    const entriesByList = await contentSharing.getAnnotationListEntriesForListsOnPage(
-                        {
-                            listReferences: [listReference],
-                            normalizedPageUrl,
-                        },
-                    )
-                    const entries = entriesByList[listReference.id] ?? []
-                    if (!entries.length) {
-                        return
-                    }
-
-                    this.emitMutation({
-                        pageAnnotationsExpanded: {
-                            [normalizedPageUrl]: { $set: true },
-                        },
-                    })
-
-                    await this.loadPageAnnotations(
-                        { [normalizedPageUrl]: entries },
-                        [normalizedPageUrl],
-                    )
-                    if (this.dependencies.query.annotationId) {
-                        this.processUIEvent('toggleAnnotationReplies', {
-                            previousState: incoming.getState!(),
-                            event: {
-                                sharedListReference: listReference,
-                                annotationReference: {
-                                    type: 'shared-annotation-reference',
-                                    id: this.dependencies.query.annotationId,
-                                },
-                            },
-                        })
-                    }
-                }
-
-                if (result) {
-                    this._creatorReference = result.creator
-                    const userIds = [
-                        ...new Set(
-                            result.entries.map((entry) => entry.creator.id),
-                        ),
-                    ]
-                    await this._users.loadUsers(
-                        userIds.map(
-                            (id): UserReference => ({
-                                type: 'user-reference',
-                                id,
-                            }),
-                        ),
-                    )
-
-                    const listDescription = result.sharedList.description ?? ''
-                    const listDescriptionFits =
-                        listDescription.length < LIST_DESCRIPTION_CHAR_LIMIT
-
-                    let discordList: DiscordList | null = null
-                    let slackList: SlackList | null = null
-                    let isChatIntegrationSyncing = false
-
-                    if (result.sharedList.platform === 'discord') {
-                        discordList = await discord.findDiscordListForSharedList(
-                            result.sharedList.reference,
-                        )
-                        if (!discordList) {
-                            return {
-                                mutation: { listData: { $set: undefined } },
-                            }
-                        }
-                        isChatIntegrationSyncing = !!(await discordRetroSync.getSyncEntryByChannel(
-                            { channelId: discordList.channelId },
-                        ))
-                    } else if (result.sharedList.platform === 'slack') {
-                        slackList = await slack.findSlackListForSharedList(
-                            result.sharedList.reference,
-                        )
-                        if (!slackList) {
-                            return {
-                                mutation: { listData: { $set: undefined } },
-                            }
-                        }
-                        isChatIntegrationSyncing = !!(await slackRetroSync.getSyncEntryByChannel(
-                            { channelId: slackList.channelId },
-                        ))
-                    }
-
-                    this.mainListEntries.push(...result.entries)
-                    this.emitMutation({
-                        listData: {
-                            $set: {
-                                slackList,
-                                reference: listReference,
-                                pageSize: PAGE_SIZE,
-                                discordList,
-                                isChatIntegrationSyncing,
-                                creatorReference: result.creator,
-                                creator: await this._users.loadUser(
-                                    result.creator,
-                                ),
-                                list: result.sharedList,
-                                listEntries: result.entries,
-                                listDescriptionState: listDescriptionFits
-                                    ? 'fits'
-                                    : 'collapsed',
-                                listDescriptionTruncated: truncate(
-                                    listDescription,
-                                    LIST_DESCRIPTION_CHAR_LIMIT,
-                                ),
-                            },
-                        },
-                        isListOwner: {
-                            $set:
-                                result.creator.id ===
-                                this.dependencies.services.auth.getCurrentUserReference()
-                                    ?.id,
-                        },
-                        newPageReplies: {
-                            $set: fromPairs(
-                                result.entries.map((entry) => [
-                                    entry.normalizedUrl,
-                                    getInitialNewReplyState(),
-                                ]),
-                            ),
-                        },
-                    })
-                } else {
-                    this.emitMutation({ listData: { $set: undefined } })
-                }
-            },
-        )
-        this.emitSignal<CollectionDetailsSignal>({
-            type: 'loaded-list-data',
-            success: listDataSuccess,
-        })
-        const {
-            success: annotationEntriesSuccess,
-        } = await executeUITask<CollectionDetailsState>(
-            this,
-            'annotationEntriesLoadState',
-            async () => {
-                const entries = await contentSharing.getAnnotationListEntries({
-                    listReference,
-                })
-                return {
-                    mutation: {
-                        annotationEntryData: { $set: entries },
-                    },
-                }
-            },
-        )
-        this.emitSignal<CollectionDetailsSignal>({
-            type: 'loaded-annotation-entries',
-            success: annotationEntriesSuccess,
-        })
+        // const {
+        //     contentSharing,
+        //     slack,
+        //     discord,
+        //     slackRetroSync,
+        //     discordRetroSync,
+        // } = this.dependencies.storage
+        // const listReference = makeStorageReference<SharedListReference>(
+        //     'shared-list-reference',
+        //     incoming.event.listID,
+        // )
+        // const {
+        //     success: listDataSuccess,
+        // } = await executeUITask<CollectionDetailsState>(
+        //     this,
+        //     'listLoadState',
+        //     async () => {
+        //         this.emitSignal<CollectionDetailsSignal>({
+        //             type: 'loading-started',
+        //         })
+        //         const keyString =
+        //             !incoming.event.isUpdate &&
+        //             this.dependencies.services.listKeys.getCurrentKey()
+        //         const response = await this.dependencies.services.contentSharing.backend.loadCollectionDetails(
+        //             {
+        //                 listId: this.dependencies.listID,
+        //                 keyString: keyString || undefined,
+        //             },
+        //         )
+        //         const result = await contentSharing.retrieveList(
+        //             listReference,
+        //             {
+        //                 fetchSingleEntry: this.dependencies.entryID
+        //                     ? {
+        //                           type:
+        //                               'shared-annotation-list-entry-reference',
+        //                           id: this.dependencies.entryID,
+        //                       }
+        //                     : undefined,
+        //                 maxEntryCount: PAGE_SIZE,
+        //             },
+        //         )
+        //         if (this.dependencies.entryID) {
+        //             const normalizedPageUrl = result.entries[0].normalizedUrl
+        //             const entriesByList = await contentSharing.getAnnotationListEntriesForListsOnPage(
+        //                 {
+        //                     listReferences: [listReference],
+        //                     normalizedPageUrl,
+        //                 },
+        //             )
+        //             const entries = entriesByList[listReference.id] ?? []
+        //             if (!entries.length) {
+        //                 return
+        //             }
+        //             this.emitMutation({
+        //                 pageAnnotationsExpanded: {
+        //                     [normalizedPageUrl]: { $set: true },
+        //                 },
+        //             })
+        //             await this.loadPageAnnotations(
+        //                 { [normalizedPageUrl]: entries },
+        //                 [normalizedPageUrl],
+        //             )
+        //             if (this.dependencies.query.annotationId) {
+        //                 this.processUIEvent('toggleAnnotationReplies', {
+        //                     previousState: incoming.getState!(),
+        //                     event: {
+        //                         sharedListReference: listReference,
+        //                         annotationReference: {
+        //                             type: 'shared-annotation-reference',
+        //                             id: this.dependencies.query.annotationId,
+        //                         },
+        //                     },
+        //                 })
+        //             }
+        //         }
+        //         if (result) {
+        //             this._creatorReference = result.creator
+        //             const userIds = [
+        //                 ...new Set(
+        //                     result.entries.map((entry) => entry.creator.id),
+        //                 ),
+        //             ]
+        //             await this._users.loadUsers(
+        //                 userIds.map(
+        //                     (id): UserReference => ({
+        //                         type: 'user-reference',
+        //                         id,
+        //                     }),
+        //                 ),
+        //             )
+        //             const listDescription = result.sharedList.description ?? ''
+        //             const listDescriptionFits =
+        //                 listDescription.length < LIST_DESCRIPTION_CHAR_LIMIT
+        //             let discordList: DiscordList | null = null
+        //             let slackList: SlackList | null = null
+        //             let isChatIntegrationSyncing = false
+        //             if (result.sharedList.platform === 'discord') {
+        //                 discordList = await discord.findDiscordListForSharedList(
+        //                     result.sharedList.reference,
+        //                 )
+        //                 if (!discordList) {
+        //                     return {
+        //                         mutation: { listData: { $set: undefined } },
+        //                     }
+        //                 }
+        //                 isChatIntegrationSyncing = !!(await discordRetroSync.getSyncEntryByChannel(
+        //                     { channelId: discordList.channelId },
+        //                 ))
+        //             } else if (result.sharedList.platform === 'slack') {
+        //                 slackList = await slack.findSlackListForSharedList(
+        //                     result.sharedList.reference,
+        //                 )
+        //                 if (!slackList) {
+        //                     return {
+        //                         mutation: { listData: { $set: undefined } },
+        //                     }
+        //                 }
+        //                 isChatIntegrationSyncing = !!(await slackRetroSync.getSyncEntryByChannel(
+        //                     { channelId: slackList.channelId },
+        //                 ))
+        //             }
+        //             this.mainListEntries.push(...result.entries)
+        //             this.emitMutation({
+        //                 listData: {
+        //                     $set: {
+        //                         slackList,
+        //                         reference: listReference,
+        //                         pageSize: PAGE_SIZE,
+        //                         discordList,
+        //                         isChatIntegrationSyncing,
+        //                         creatorReference: result.creator,
+        //                         creator: await this._users.loadUser(
+        //                             result.creator,
+        //                         ),
+        //                         list: result.sharedList,
+        //                         listEntries: result.entries,
+        //                         listDescriptionState: listDescriptionFits
+        //                             ? 'fits'
+        //                             : 'collapsed',
+        //                         listDescriptionTruncated: truncate(
+        //                             listDescription,
+        //                             LIST_DESCRIPTION_CHAR_LIMIT,
+        //                         ),
+        //                     },
+        //                 },
+        //                 isListOwner: {
+        //                     $set:
+        //                         result.creator.id ===
+        //                         this.dependencies.services.auth.getCurrentUserReference()
+        //                             ?.id,
+        //                 },
+        //                 newPageReplies: {
+        //                     $set: fromPairs(
+        //                         result.entries.map((entry) => [
+        //                             entry.normalizedUrl,
+        //                             getInitialNewReplyState(),
+        //                         ]),
+        //                     ),
+        //                 },
+        //             })
+        //         } else {
+        //             this.emitMutation({ listData: { $set: undefined } })
+        //         }
+        //     },
+        // )
+        // this.emitSignal<CollectionDetailsSignal>({
+        //     type: 'loaded-list-data',
+        //     success: listDataSuccess,
+        // })
+        // const {
+        //     success: annotationEntriesSuccess,
+        // } = await executeUITask<CollectionDetailsState>(
+        //     this,
+        //     'annotationEntriesLoadState',
+        //     async () => {
+        //         const entries = await contentSharing.getAnnotationListEntries({
+        //             listReference,
+        //         })
+        //         return {
+        //             mutation: {
+        //                 annotationEntryData: { $set: entries },
+        //             },
+        //         }
+        //     },
+        // )
+        // this.emitSignal<CollectionDetailsSignal>({
+        //     type: 'loaded-annotation-entries',
+        //     success: annotationEntriesSuccess,
+        // })
     }
 
     private async loadFollowBtnState() {
@@ -925,78 +947,74 @@ export default class CollectionDetailsLogic extends UILogic<
     togglePageAnnotations: EventHandler<'togglePageAnnotations'> = (
         incoming,
     ) => {
-        const state = incoming.previousState
-        const shouldBeExpanded = !state.pageAnnotationsExpanded[
-            incoming.event.normalizedUrl
-        ]
-        const currentExpandedCount = Object.keys(state.pageAnnotationsExpanded)
-            .length
-        const nextExpandedCount =
-            currentExpandedCount + (shouldBeExpanded ? 1 : -1)
-        const allAnnotationExpanded =
-            nextExpandedCount === state.listData!.listEntries.length
-
-        const mutation: UIMutation<CollectionDetailsState> = {
-            pageAnnotationsExpanded: shouldBeExpanded
-                ? {
-                      [incoming.event.normalizedUrl]: {
-                          $set: true,
-                      },
-                  }
-                : {
-                      $unset: [incoming.event.normalizedUrl],
-                  },
-            allAnnotationExpanded: { $set: allAnnotationExpanded },
-        }
-        this.emitMutation(mutation)
-        if (shouldBeExpanded) {
-            this.loadPageAnnotations(state.annotationEntryData!, [
-                incoming.event.normalizedUrl,
-            ])
-        }
+        // const state = incoming.previousState
+        // const shouldBeExpanded = !state.pageAnnotationsExpanded[
+        //     incoming.event.normalizedUrl
+        // ]
+        // const currentExpandedCount = Object.keys(state.pageAnnotationsExpanded)
+        //     .length
+        // const nextExpandedCount =
+        //     currentExpandedCount + (shouldBeExpanded ? 1 : -1)
+        // const allAnnotationExpanded =
+        //     nextExpandedCount === state.listData!.listEntries.length
+        // const mutation: UIMutation<CollectionDetailsState> = {
+        //     pageAnnotationsExpanded: shouldBeExpanded
+        //         ? {
+        //               [incoming.event.normalizedUrl]: {
+        //                   $set: true,
+        //               },
+        //           }
+        //         : {
+        //               $unset: [incoming.event.normalizedUrl],
+        //           },
+        //     allAnnotationExpanded: { $set: allAnnotationExpanded },
+        // }
+        // this.emitMutation(mutation)
+        // if (shouldBeExpanded) {
+        //     this.loadPageAnnotations(state.annotationEntryData!, [
+        //         incoming.event.normalizedUrl,
+        //     ])
+        // }
     }
 
     toggleAllAnnotations: EventHandler<'toggleAllAnnotations'> = (incoming) => {
-        const shouldBeExpanded = !incoming.previousState.allAnnotationExpanded
-        const currentExpandedCount = Object.keys(
-            incoming.previousState.pageAnnotationsExpanded,
-        ).length
-
-        if (shouldBeExpanded) {
-            this.emitMutation({
-                allAnnotationExpanded: { $set: true },
-            })
-
-            incoming.previousState.listData!.listEntries.map((entry) => {
-                let hasAnnotations =
-                    incoming.previousState.annotationEntryData &&
-                    incoming.previousState.annotationEntryData[
-                        entry.normalizedUrl
-                    ]
-
-                if (hasAnnotations) {
-                    this.emitMutation({
-                        pageAnnotationsExpanded: {
-                            [entry.normalizedUrl]: { $set: true },
-                        },
-                    })
-                }
-            })
-        } else {
-            this.emitMutation({
-                allAnnotationExpanded: { $set: false },
-                pageAnnotationsExpanded: { $set: {} },
-            })
-        }
-        const {
-            latestPageSeenIndex,
-            normalizedPageUrls,
-        } = this.getFirstPagesWithoutLoadedAnnotations(incoming.previousState)
-        this.mainLatestEntryIndex = latestPageSeenIndex
-        this.loadPageAnnotations(
-            incoming.previousState.annotationEntryData!,
-            normalizedPageUrls,
-        )
+        // const shouldBeExpanded = !incoming.previousState.allAnnotationExpanded
+        // const currentExpandedCount = Object.keys(
+        //     incoming.previousState.pageAnnotationsExpanded,
+        // ).length
+        // if (shouldBeExpanded) {
+        //     this.emitMutation({
+        //         allAnnotationExpanded: { $set: true },
+        //     })
+        //     incoming.previousState.listData!.listEntries.map((entry) => {
+        //         let hasAnnotations =
+        //             incoming.previousState.annotationEntryData &&
+        //             incoming.previousState.annotationEntryData[
+        //                 entry.normalizedUrl
+        //             ]
+        //         if (hasAnnotations) {
+        //             this.emitMutation({
+        //                 pageAnnotationsExpanded: {
+        //                     [entry.normalizedUrl]: { $set: true },
+        //                 },
+        //             })
+        //         }
+        //     })
+        // } else {
+        //     this.emitMutation({
+        //         allAnnotationExpanded: { $set: false },
+        //         pageAnnotationsExpanded: { $set: {} },
+        //     })
+        // }
+        // const {
+        //     latestPageSeenIndex,
+        //     normalizedPageUrls,
+        // } = this.getFirstPagesWithoutLoadedAnnotations(incoming.previousState)
+        // this.mainLatestEntryIndex = latestPageSeenIndex
+        // this.loadPageAnnotations(
+        //     incoming.previousState.annotationEntryData!,
+        //     normalizedPageUrls,
+        // )
     }
 
     pageBreakpointHit: EventHandler<'pageBreakpointHit'> = async (incoming) => {
@@ -1198,165 +1216,166 @@ export default class CollectionDetailsLogic extends UILogic<
         annotationEntries: GetAnnotationListEntriesResult,
         normalizedPageUrls: string[],
     ) {
-        this.emitSignal<CollectionDetailsSignal>({
-            type: 'annotation-loading-started',
-        })
+        // this.emitSignal<CollectionDetailsSignal>({
+        //     type: 'annotation-loading-started',
+        // })
+        // const toFetch: Array<{
+        //     normalizedPageUrl: string
+        //     sharedAnnotation: SharedAnnotationReference
+        // }> = flatten(
+        //     normalizedPageUrls
+        //         .filter(
+        //             (normalizedPageUrl) =>
+        //                 !this.pageAnnotationPromises[normalizedPageUrl],
+        //         )
+        //         .map((normalizedPageUrl) =>
+        //             (annotationEntries[normalizedPageUrl] ?? []).map(
+        //                 (entry) => ({
+        //                     normalizedPageUrl,
+        //                     sharedAnnotation: entry.sharedAnnotation,
+        //                 }),
+        //             ),
+        //         ),
+        // )
+        // const promisesByPage: {
+        //     [normalizedUrl: string]: Promise<GetAnnotationsResult>[]
+        // } = {}
+        // const annotationChunks: Promise<GetAnnotationsResult>[] = []
+        // const { contentSharing } = this.dependencies.storage
+        // for (const entryChunk of chunk(toFetch, 10)) {
+        //     const pageUrlsInChuck = new Set(
+        //         entryChunk.map((entry) => entry.normalizedPageUrl),
+        //     )
+        //     const promise = contentSharing.getAnnotations({
+        //         references: entryChunk.map((entry) => entry.sharedAnnotation),
+        //     })
+        //     for (const normalizedPageUrl of pageUrlsInChuck) {
+        //         promisesByPage[normalizedPageUrl] =
+        //             promisesByPage[normalizedPageUrl] ?? []
+        //         promisesByPage[normalizedPageUrl].push(promise)
+        //     }
+        //     annotationChunks.push(promise)
+        // }
+        // const usersToLoad = new Set<UserReference['id']>()
+        // for (const normalizedPageUrl in promisesByPage) {
+        //     this.pageAnnotationPromises[normalizedPageUrl] = (async (
+        //         normalizedPageUrl: string,
+        //         pagePromises: Promise<GetAnnotationsResult>[],
+        //     ) => {
+        //         this.emitMutation({
+        //             annotationLoadStates: {
+        //                 [normalizedPageUrl]: { $set: 'running' },
+        //             },
+        //         })
+        //         try {
+        //             const annotationChunks = await Promise.all(pagePromises)
+        //             const newAnnotations: CollectionDetailsState['annotations'] = {}
+        //             for (const annotationChunk of annotationChunks) {
+        //                 for (const [annotationId, annotation] of Object.entries(
+        //                     annotationChunk,
+        //                 )) {
+        //                     newAnnotations[annotationId] = annotation
+        //                 }
+        //             }
+        //             for (const newAnnotation of Object.values(newAnnotations)) {
+        //                 usersToLoad.add(newAnnotation.creator.id)
+        //             }
+        //             const mutation = {
+        //                 annotationLoadStates: {
+        //                     [normalizedPageUrl]: { $set: 'success' },
+        //                 },
+        //                 annotations: mapValues(
+        //                     newAnnotations,
+        //                     (newAnnotation) => ({ $set: newAnnotation }),
+        //                 ),
+        //             }
+        //             this.emitMutation(mutation as any)
+        //         } catch (e) {
+        //             this.emitMutation({
+        //                 annotationLoadStates: {
+        //                     [normalizedPageUrl]: { $set: 'error' },
+        //                 },
+        //             })
+        //             console.error(e)
+        //         }
+        //     })(normalizedPageUrl, promisesByPage[normalizedPageUrl])
+        // }
+        // const annotationReferences = flatten(
+        //     Object.values(annotationEntries),
+        // ).map((entry) => entry.sharedAnnotation)
+        // this.emitMutation({
+        //     conversations: {
+        //         $merge: getInitialAnnotationConversationStates(
+        //             annotationReferences.map(({ id }) => ({
+        //                 linkId: id.toString(),
+        //             })),
+        //         ),
+        //     },
+        // })
+        // const conversationThreadPromise = detectAnnotationConversationThreads(
+        //     this as any,
+        //     {
+        //         getThreadsForAnnotations: (...args) =>
+        //             this.dependencies.storage.contentConversations.getThreadsForAnnotations(
+        //                 ...args,
+        //             ),
+        //         annotationReferences,
+        //         sharedListReference: {
+        //             type: 'shared-list-reference',
+        //             id: this.dependencies.listID,
+        //         },
+        //     },
+        // ).catch(console.error)
+        // intializeNewPageReplies(this as any, {
+        //     normalizedPageUrls: [...normalizedPageUrls].filter(
+        //         (normalizedPageUrl) =>
+        //             !this.conversationThreadPromises[normalizedPageUrl],
+        //     ),
+        // })
+        // for (const normalizedPageUrl of normalizedPageUrls) {
+        //     this.conversationThreadPromises[
+        //         normalizedPageUrl
+        //     ] = conversationThreadPromise
+        // }
+    }
 
-        const toFetch: Array<{
-            normalizedPageUrl: string
-            sharedAnnotation: SharedAnnotationReference
-        }> = flatten(
-            normalizedPageUrls
-                .filter(
-                    (normalizedPageUrl) =>
-                        !this.pageAnnotationPromises[normalizedPageUrl],
-                )
-                .map((normalizedPageUrl) =>
-                    (annotationEntries[normalizedPageUrl] ?? []).map(
-                        (entry) => ({
-                            normalizedPageUrl,
-                            sharedAnnotation: entry.sharedAnnotation,
-                        }),
-                    ),
+    async initializePageAnnotations(
+        // usersToLoad: AutoPk[],
+        annotations: GetAnnotationsResult,
+        threads?: PreparedThread[],
+    ) {
+        // await this._users.loadUsers(
+        //     usersToLoad.map(
+        //         (id): UserReference => ({
+        //             type: 'user-reference',
+        //             id,
+        //         }),
+        //     ),
+        // )
+        await detectAnnotationConversationThreads(this as any, {
+            threads,
+            getThreadsForAnnotations: (...args) =>
+                this.dependencies.storage.contentConversations.getThreadsForAnnotations(
+                    ...args,
                 ),
-        )
-
-        const promisesByPage: {
-            [normalizedUrl: string]: Promise<GetAnnotationsResult>[]
-        } = {}
-        const annotationChunks: Promise<GetAnnotationsResult>[] = []
-        const { contentSharing } = this.dependencies.storage
-        for (const entryChunk of chunk(toFetch, 10)) {
-            const pageUrlsInChuck = new Set(
-                entryChunk.map((entry) => entry.normalizedPageUrl),
-            )
-            const promise = contentSharing.getAnnotations({
-                references: entryChunk.map((entry) => entry.sharedAnnotation),
-            })
-            for (const normalizedPageUrl of pageUrlsInChuck) {
-                promisesByPage[normalizedPageUrl] =
-                    promisesByPage[normalizedPageUrl] ?? []
-                promisesByPage[normalizedPageUrl].push(promise)
-            }
-            annotationChunks.push(promise)
-        }
-
-        const usersToLoad = new Set<UserReference['id']>()
-        for (const normalizedPageUrl in promisesByPage) {
-            this.pageAnnotationPromises[normalizedPageUrl] = (async (
-                normalizedPageUrl: string,
-                pagePromises: Promise<GetAnnotationsResult>[],
-            ) => {
-                this.emitMutation({
-                    annotationLoadStates: {
-                        [normalizedPageUrl]: { $set: 'running' },
-                    },
-                })
-
-                try {
-                    const annotationChunks = await Promise.all(pagePromises)
-                    const newAnnotations: CollectionDetailsState['annotations'] = {}
-                    for (const annotationChunk of annotationChunks) {
-                        for (const [annotationId, annotation] of Object.entries(
-                            annotationChunk,
-                        )) {
-                            newAnnotations[annotationId] = annotation
-                        }
-                    }
-                    for (const newAnnotation of Object.values(newAnnotations)) {
-                        usersToLoad.add(newAnnotation.creator.id)
-                    }
-
-                    const mutation = {
-                        annotationLoadStates: {
-                            [normalizedPageUrl]: { $set: 'success' },
-                        },
-                        annotations: mapValues(
-                            newAnnotations,
-                            (newAnnotation) => ({ $set: newAnnotation }),
-                        ),
-                    }
-                    this.emitMutation(mutation as any)
-                } catch (e) {
-                    this.emitMutation({
-                        annotationLoadStates: {
-                            [normalizedPageUrl]: { $set: 'error' },
-                        },
-                    })
-                    console.error(e)
-                }
-            })(normalizedPageUrl, promisesByPage[normalizedPageUrl])
-        }
-
-        const annotationReferences = flatten(
-            Object.values(annotationEntries),
-        ).map((entry) => entry.sharedAnnotation)
-        this.emitMutation({
-            conversations: {
-                $merge: getInitialAnnotationConversationStates(
-                    annotationReferences.map(({ id }) => ({
-                        linkId: id.toString(),
-                    })),
-                ),
-            },
-        })
-        const conversationThreadPromise = detectAnnotationConversationThreads(
-            this as any,
-            {
-                getThreadsForAnnotations: (...args) =>
-                    this.dependencies.storage.contentConversations.getThreadsForAnnotations(
-                        ...args,
-                    ),
-                annotationReferences,
-                sharedListReference: {
-                    type: 'shared-list-reference',
-                    id: this.dependencies.listID,
-                },
-            },
-        ).catch(console.error)
-        intializeNewPageReplies(this as any, {
-            normalizedPageUrls: [...normalizedPageUrls].filter(
-                (normalizedPageUrl) =>
-                    !this.conversationThreadPromises[normalizedPageUrl],
+            annotationReferences: Object.values(annotations).map(
+                (annotation) => annotation.reference,
             ),
+            sharedListReference: {
+                type: 'shared-list-reference',
+                id: this.dependencies.listID,
+            },
         })
-
-        for (const normalizedPageUrl of normalizedPageUrls) {
-            this.conversationThreadPromises[
-                normalizedPageUrl
-            ] = conversationThreadPromise
-        }
-
-        try {
-            const result = await Promise.all([
-                ...normalizedPageUrls.map(
-                    (normalizedPageUrl) =>
-                        this.pageAnnotationPromises[normalizedPageUrl],
+        intializeNewPageReplies(this as any, {
+            normalizedPageUrls: [
+                ...Object.values(annotations).map(
+                    (annotation) => annotation.normalizedPageUrl,
                 ),
-                ...normalizedPageUrls.map(
-                    (normalizedPageUrl) =>
-                        this.conversationThreadPromises[normalizedPageUrl],
-                ),
-            ])
-            await this._users.loadUsers(
-                [...usersToLoad].map(
-                    (id): UserReference => ({
-                        type: 'user-reference',
-                        id,
-                    }),
-                ),
-            )
-            this.emitSignal<CollectionDetailsSignal>({
-                type: 'loaded-annotations',
-                success: true,
-            })
-            return result
-        } catch (e) {
-            this.emitSignal<CollectionDetailsSignal>({
-                type: 'loaded-annotations',
-                success: false,
-            })
-            throw e
-        }
+            ],
+            // .filter(
+            //     (normalizedPageUrl) =>
+            //         !this.conversationThreadPromises[normalizedPageUrl],
+            // ),
+        })
     }
 }
