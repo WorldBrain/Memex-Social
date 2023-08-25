@@ -42,6 +42,18 @@
         "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
         "rewrites": [
             {
+                "source": "/c/*/p/*",
+                "function": "generatePageSocialPreview",
+                "region": "us-central1",
+                "pinTag": true
+            },
+            {
+                "source": "/c/*",
+                "function": "generateListSocialPreview",
+                "region": "us-central1",
+                "pinTag": true
+            },
+            {
                 "source": "/a/*",
                 "function": "generateAnnotationSocialPreview",
                 "region": "us-central1",
