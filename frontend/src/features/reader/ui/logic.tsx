@@ -1049,6 +1049,18 @@ export class ReaderPageViewLogic extends UILogic<
     toggleSupportChat: EventHandler<'toggleSupportChat'> = async (incoming) => {
         this.emitMutation({
             showSupportChat: { $set: !incoming.previousState.showSupportChat },
+            preventInteractionsInIframe: {
+                $set: !incoming.previousState.preventInteractionsInIframe,
+            },
+        })
+    }
+    toggleClickBlocker: EventHandler<'toggleClickBlocker'> = async (
+        incoming,
+    ) => {
+        this.emitMutation({
+            preventInteractionsInIframe: {
+                $set: !incoming.previousState.preventInteractionsInIframe,
+            },
         })
     }
     copyLink: EventHandler<'copyLink'> = async (incoming) => {

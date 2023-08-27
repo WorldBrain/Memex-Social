@@ -674,26 +674,29 @@ export class ReaderPageView extends UIElement<
             )
         }
         return (
-            <InjectedContent
-                ref={(ref) =>
-                    this.processEvent('setReaderContainerRef', {
-                        ref,
-                    })
-                }
-            >
-                {this.state.iframeLoadState === 'error' ? (
-                    <div>
-                        The reader didn't load properly. Please try refreshing
-                        the page.
-                    </div>
-                ) : (
-                    this.state.iframeLoadState !== 'success' && (
-                        <LoadingBox height={'400px'}>
-                            <LoadingIndicator size={34} />
-                        </LoadingBox>
-                    )
-                )}
-            </InjectedContent>
+            <>
+                {this.state.preventInteractionsInIframe && <ClickBlocker />}
+                <InjectedContent
+                    ref={(ref) =>
+                        this.processEvent('setReaderContainerRef', {
+                            ref,
+                        })
+                    }
+                >
+                    {this.state.iframeLoadState === 'error' ? (
+                        <div>
+                            The reader didn't load properly. Please try
+                            refreshing the page.
+                        </div>
+                    ) : (
+                        this.state.iframeLoadState !== 'success' && (
+                            <LoadingBox height={'400px'}>
+                                <LoadingIndicator size={34} />
+                            </LoadingBox>
+                        )
+                    )}
+                </InjectedContent>
+            </>
         )
     }
 
@@ -905,7 +908,9 @@ export class ReaderPageView extends UIElement<
                         </RightSideTopBar>
                     </TopBar>
                     {this.state.permissionsLoadState === 'success' ? (
-                        <>{this.renderMainContent()}</>
+                        <MainContentContainer>
+                            {this.renderMainContent()}
+                        </MainContentContainer>
                     ) : (
                         <LoadingBox height={'400px'}>
                             <LoadingIndicator size={34} />
@@ -936,7 +941,7 @@ export class ReaderPageView extends UIElement<
                         resizeGrid={[1, 0]}
                         dragAxis={'none'}
                         minWidth={screenSmall ? 'fill-available' : '400px'}
-                        maxWidth={'1000px'}
+                        maxWidth={'600px'}
                         disableDragging={true}
                         enableResizing={{
                             top: false,
@@ -948,7 +953,10 @@ export class ReaderPageView extends UIElement<
                             bottomLeft: false,
                             topLeft: false,
                         }}
-                        onResizeStop={(
+                        onResizeStart={() =>
+                            this.processEvent('toggleClickBlocker', null)
+                        }
+                        onResize={(
                             e: any,
                             direction: any,
                             ref: any,
@@ -958,6 +966,15 @@ export class ReaderPageView extends UIElement<
                             this.processEvent('setSidebarWidth', {
                                 width: ref.style.width,
                             })
+                        }}
+                        onResizeStop={(
+                            e: any,
+                            direction: any,
+                            ref: any,
+                            delta: any,
+                            position: any,
+                        ) => {
+                            this.processEvent('toggleClickBlocker', null)
                         }}
                     >
                         <SidebarTopBar
@@ -1112,6 +1129,22 @@ function isInRange(timestamp: number, range: TimestampRange | undefined) {
     }
     return range.fromTimestamp <= timestamp && range.toTimestamp >= timestamp
 }
+
+const MainContentContainer = styled.div`
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex: 1;
+`
+
+const ClickBlocker = styled.div`
+    background: transparent;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+`
 
 const OverlayAnnotationInstructionContainer = styled.div`
     position: absolute;
