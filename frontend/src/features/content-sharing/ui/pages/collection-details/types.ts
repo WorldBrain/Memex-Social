@@ -92,7 +92,7 @@ export type CollectionDetailsState = AnnotationConversationsState &
         renderEmbedModal?: boolean
         isEmbedShareModalCopyTextShown: string
 
-        listRolesLoadState: UITaskState
+        // listRolesLoadState: UITaskState
         listRoleID?: SharedListRoleID
         listRoles?: Array<SharedListRole & { user: UserReference }>
         listKeyPresent?: boolean

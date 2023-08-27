@@ -564,8 +564,8 @@ export default class CollectionDetailsPage extends UIElement<
                 isContributor={this.isListContributor}
                 loadState={mergeTaskStates([
                     this.state.followLoadState,
-                    this.state.listRolesLoadState,
-                    this.state.permissionKeyState,
+                    // this.state.listRolesLoadState,
+                    // this.state.permissionKeyState,
                 ])}
                 viewPortWidth={this.viewportBreakpoint}
             />
@@ -788,20 +788,20 @@ export default class CollectionDetailsPage extends UIElement<
         const { state } = this
         const { listData: data } = state
         const users: Array<{ userReference: UserReference; user: User }> = []
-        if (
-            (state.listRolesLoadState === 'running' ||
-                state.listRolesLoadState === 'pristine') &&
-            !users.length
-        ) {
-            return (
-                <SubtitleContainer
-                    loading
-                    viewportBreakpoint={this.viewportBreakpoint}
-                >
-                    <LoadingIndicator size={16} />
-                </SubtitleContainer>
-            )
-        }
+        // if (
+        //     (state.listRolesLoadState === 'running' ||
+        //         state.listRolesLoadState === 'pristine') &&
+        //     !users.length
+        // ) {
+        //     return (
+        //         <SubtitleContainer
+        //             loading
+        //             viewportBreakpoint={this.viewportBreakpoint}
+        //         >
+        //             <LoadingIndicator size={16} />
+        //         </SubtitleContainer>
+        //     )
+        // }
 
         if (!data) {
             return (
@@ -912,7 +912,10 @@ export default class CollectionDetailsPage extends UIElement<
         // Case Space View
 
         if (!isPageView) {
-            if (state.listRolesLoadState === 'success' && users.length > 0) {
+            if (
+                // state.listRolesLoadState === 'success' &&
+                users.length > 0
+            ) {
                 const showListRoleLimit = () => {
                     if (this.viewportBreakpoint === 'small') {
                         return 2
@@ -1056,21 +1059,21 @@ export default class CollectionDetailsPage extends UIElement<
         // )
     }
 
-    renderPermissionKeyOverlay() {
-        return !this.state.requestingAuth ? (
-            <PermissionKeyOverlay
-                services={this.props.services}
-                viewportBreakpoint={this.viewportBreakpoint}
-                permissionKeyState={this.state.permissionKeyState}
-                permissionKeyResult={this.state.permissionKeyResult}
-                onCloseRequested={() =>
-                    this.processEvent('closePermissionOverlay', {})
-                }
-                isContributor={this.isListContributor}
-                isOwner={this.state.isListOwner}
-            />
-        ) : null
-    }
+    // renderPermissionKeyOverlay() {
+    //     return !this.state.requestingAuth ? (
+    //         <PermissionKeyOverlay
+    //             services={this.props.services}
+    //             viewportBreakpoint={this.viewportBreakpoint}
+    //             permissionKeyState={this.state.permissionKeyState}
+    //             permissionKeyResult={this.state.permissionKeyResult}
+    //             onCloseRequested={() =>
+    //                 this.processEvent('closePermissionOverlay', {})
+    //             }
+    //             isContributor={this.isListContributor}
+    //             isOwner={this.state.isListOwner}
+    //         />
+    //     ) : null
+    // }
 
     private renderSearchBox() {
         return (
@@ -1412,8 +1415,9 @@ export default class CollectionDetailsPage extends UIElement<
 
         if (
             // this.state.followLoadState === 'running' ||
-            this.state.listRolesLoadState === 'running' ||
-            this.state.permissionKeyState === 'running'
+            // this.state.listRolesLoadState === 'running' ||
+            // this.state.permissionKeyState === 'running'
+            false
         ) {
             return (
                 <LoadingBoxHeaderActionArea>
@@ -1457,7 +1461,7 @@ export default class CollectionDetailsPage extends UIElement<
 
             if (this.state.permissionKeyResult === 'success') {
                 if (
-                    this.state.permissionKeyState === 'success' &&
+                    // this.state.permissionKeyState === 'success' &&
                     this.isListContributor &&
                     !this.state.isListOwner
                 ) {
@@ -1750,7 +1754,7 @@ export default class CollectionDetailsPage extends UIElement<
                     webMonetizationIcon={this.renderWebMonetizationIcon()}
                     // listsSidebarProps={this.listsSidebarProps}
                     // isSidebarShown={this.listsSidebarProps.isShown}
-                    permissionKeyOverlay={this.renderPermissionKeyOverlay()}
+                    // permissionKeyOverlay={this.renderPermissionKeyOverlay()}
                     scrollTop={this.state.scrollTop}
                     breadCrumbs={this.renderBreadCrumbs()}
                     renderDescription={this.renderDescription()}

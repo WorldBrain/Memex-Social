@@ -42,10 +42,10 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                     modifier: 'block',
                 }),
             ],
-            waitForSignal: {
-                target: 'CollectionDetailsPage',
-                signal: { type: 'loading-started' },
-            },
+            // waitForSignal: {
+            //     target: 'CollectionDetailsPage',
+            //     signal: { type: 'loading-started' },
+            // },
         },
         steps: [
             step({
