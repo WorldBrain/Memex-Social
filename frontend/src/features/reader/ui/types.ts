@@ -104,6 +104,7 @@ export type ReaderPageViewState = AnnotationConversationsState & {
     showOptionsMenu: boolean
     showSidebar: boolean
     renderAnnotationInstructOverlay: boolean
+    showSupportChat: boolean
 }
 
 export type ReaderPageViewEvent = UIEvent<AnnotationConversationEvent> & {
@@ -114,6 +115,7 @@ export type ReaderPageViewEvent = UIEvent<AnnotationConversationEvent> & {
     reportUrl: { url: string }
     openOriginalLink: null
     copyLink: { url: string | null }
+    toggleSupportChat: null
     closeInstallTooltip: null
     showSharePageMenu: null
     setAnnotationCreating: { isCreating: boolean }

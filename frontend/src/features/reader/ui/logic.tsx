@@ -1046,6 +1046,11 @@ export class ReaderPageViewLogic extends UILogic<
             showShareMenu: { $set: !incoming.previousState.showShareMenu },
         })
     }
+    toggleSupportChat: EventHandler<'toggleSupportChat'> = async (incoming) => {
+        this.emitMutation({
+            showSupportChat: { $set: !incoming.previousState.showSupportChat },
+        })
+    }
     copyLink: EventHandler<'copyLink'> = async (incoming) => {
         this.emitMutation({
             linkCopiedToClipBoard: { $set: true },

@@ -29,6 +29,13 @@ const TopBarHeight = 60
 const memexLogo = require('../../../assets/img/memex-logo-beta.svg')
 const memexIcon = require('../../../assets/img/memex-icon.svg')
 
+const isIframe = () => {
+    try {
+        return window.self !== window.top
+    } catch (e) {
+        return true
+    }
+}
 export class ReaderPageView extends UIElement<
     ReaderPageViewDependencies,
     ReaderPageViewState,
@@ -83,6 +90,7 @@ export class ReaderPageView extends UIElement<
     private reportButtonRef = React.createRef<HTMLDivElement>()
     private sharePageButton = React.createRef<HTMLDivElement>()
     private optionsMenuButtonRef = React.createRef<HTMLDivElement>()
+    private chatBoxRef = React.createRef<HTMLDivElement>()
 
     // get isListContributor(): boolean {
     //     return (
@@ -459,6 +467,7 @@ export class ReaderPageView extends UIElement<
     }
 
     private renderOptionsMenu = () => {
+        console.log('sd', this.state.showSupportChat)
         if (this.state.showOptionsMenu) {
             return (
                 <PopoutBox
@@ -963,10 +972,66 @@ export class ReaderPageView extends UIElement<
                                     }
                                 />
                             ) : (
-                                <AuthHeader
-                                    services={this.props.services}
-                                    storage={this.props.storage}
-                                />
+                                <RightSideTopBar>
+                                    {this.state.showSupportChat && (
+                                        <PopoutBox
+                                            targetElementRef={
+                                                this.chatBoxRef.current ??
+                                                undefined
+                                            }
+                                            closeComponent={() =>
+                                                this.processEvent(
+                                                    'toggleSupportChat',
+                                                    null,
+                                                )
+                                            }
+                                            placement="bottom"
+                                            offsetX={20}
+                                        >
+                                            <ChatBox>
+                                                <LoadingIndicator size={30} />
+                                                <ChatFrame
+                                                    src={
+                                                        'https://go.crisp.chat/chat/embed/?website_id=05013744-c145-49c2-9c84-bfb682316599'
+                                                    }
+                                                    height={600}
+                                                    width={500}
+                                                />
+                                            </ChatBox>
+                                            <ChatFrame
+                                                src={
+                                                    'https://go.crisp.chat/chat/embed/?website_id=05013744-c145-49c2-9c84-bfb682316599'
+                                                }
+                                                height={600}
+                                                width={500}
+                                            />
+                                        </PopoutBox>
+                                    )}
+                                    {!isIframe() && (
+                                        <SupportChatBox>
+                                            <PrimaryAction
+                                                onClick={() => {
+                                                    this.processEvent(
+                                                        'toggleSupportChat',
+                                                        null,
+                                                    )
+                                                }}
+                                                type="tertiary"
+                                                iconColor="prime1"
+                                                icon="chatWithUs"
+                                                innerRef={
+                                                    this.chatBoxRef ?? undefined
+                                                }
+                                                size="medium"
+                                                label="Support Chat"
+                                            />
+                                        </SupportChatBox>
+                                    )}
+                                    <AuthHeader
+                                        services={this.props.services}
+                                        storage={this.props.storage}
+                                    />
+                                </RightSideTopBar>
                             )}
                         </SidebarTopBar>
                         <SidebarAnnotationContainer>
@@ -1118,6 +1183,37 @@ const OptionsMenuBox = styled.div`
             margin-top: 5px;
         }
     }
+`
+
+const SupportChatBox = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    grid-gap: 10px;
+    color: ${(props) => props.theme.colors.white};
+    z-index: 100;
+    cursor: pointer;
+
+    & * {
+        cursor: pointer;
+    }
+`
+
+const ChatBox = styled.div`
+    position: relative;
+    height: 600px;
+    width: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+`
+const ChatFrame = styled.iframe`
+    border: none;
+    border-radius: 12px;
+    position: absolute;
+    top: 0px;
+    left: 0px;
 `
 
 const NotifBox = styled.div`
