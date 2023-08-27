@@ -230,6 +230,7 @@ export class ReaderPageViewLogic extends UILogic<
             showSidebar: true,
             renderAnnotationInstructOverlay: false,
             showSupportChat: false,
+            preventInteractionsInIframe: false,
             ...annotationConversationInitialState(),
         }
     }
