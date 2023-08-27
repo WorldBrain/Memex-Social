@@ -643,6 +643,7 @@ export class ReaderPageViewLogic extends UILogic<
         })
 
         const keyString = router.getQueryParam('key')
+        console.log('keyString', keyString)
         if (state.permissions != null || keyString != null) {
             this.setupIframeTooltip(iframe, state)
         }
@@ -694,13 +695,19 @@ export class ReaderPageViewLogic extends UILogic<
         }
 
         // Image blob URLs need to have the origin prefixed
+        console.log('test')
         for (const [key, value] of Object.entries(fixedTheme.icons)) {
             // Let data URLs be - they don't need origin prefixing
-            if (value.startsWith('data:')) {
-                continue
+            console.log('value', value)
+            try {
+                if (value.startsWith('data:')) {
+                    continue
+                }
+                fixedTheme.icons[key as keyof MemexTheme['icons']] =
+                    window.origin + value
+            } catch (e) {
+                console.log(e)
             }
-            fixedTheme.icons[key as keyof MemexTheme['icons']] =
-                window.origin + value
         }
 
         ReactDOM.render(
