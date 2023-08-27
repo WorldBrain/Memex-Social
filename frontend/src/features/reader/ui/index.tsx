@@ -181,7 +181,7 @@ export class ReaderPageView extends UIElement<
                 </EmptyMessageContainer>
             )
         } else {
-            let annotationsList = []
+            let annotationsList: any = []
 
             if (
                 state.annotationEntryData &&
@@ -210,13 +210,13 @@ export class ReaderPageView extends UIElement<
                 let entries = Object.values(annotationsList)
                 // Sort the array based on the start value from the parsed selector strings
                 entries.sort((a, b) => {
-                    let parsedA = JSON.parse(a.selector)
-                    let parsedB = JSON.parse(b.selector)
+                    let parsedA = JSON.parse((a as any).selector)
+                    let parsedB = JSON.parse((b as any).selector)
                     let startA = parsedA.descriptor.content.find(
-                        (item) => item.type === 'TextPositionSelector',
+                        (item: any) => item.type === 'TextPositionSelector',
                     ).start
                     let startB = parsedB.descriptor.content.find(
-                        (item) => item.type === 'TextPositionSelector',
+                        (item: any) => item.type === 'TextPositionSelector',
                     ).start
                     return startA - startB
                 })
