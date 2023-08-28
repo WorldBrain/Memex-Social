@@ -229,6 +229,8 @@ export class ReaderPageViewLogic extends UILogic<
             showOptionsMenu: false,
             showSidebar: true,
             renderAnnotationInstructOverlay: false,
+            showSupportChat: false,
+            preventInteractionsInIframe: false,
             ...annotationConversationInitialState(),
         }
     }
@@ -696,11 +698,16 @@ export class ReaderPageViewLogic extends UILogic<
         // Image blob URLs need to have the origin prefixed
         for (const [key, value] of Object.entries(fixedTheme.icons)) {
             // Let data URLs be - they don't need origin prefixing
-            if (value.startsWith('data:')) {
-                continue
+
+            try {
+                if (value.startsWith('data:')) {
+                    continue
+                }
+                fixedTheme.icons[key as keyof MemexTheme['icons']] =
+                    window.origin + value
+            } catch (e) {
+                console.log(e)
             }
-            fixedTheme.icons[key as keyof MemexTheme['icons']] =
-                window.origin + value
         }
 
         ReactDOM.render(
@@ -1044,6 +1051,23 @@ export class ReaderPageViewLogic extends UILogic<
     showSharePageMenu: EventHandler<'showSharePageMenu'> = async (incoming) => {
         this.emitMutation({
             showShareMenu: { $set: !incoming.previousState.showShareMenu },
+        })
+    }
+    toggleSupportChat: EventHandler<'toggleSupportChat'> = async (incoming) => {
+        this.emitMutation({
+            showSupportChat: { $set: !incoming.previousState.showSupportChat },
+            preventInteractionsInIframe: {
+                $set: !incoming.previousState.preventInteractionsInIframe,
+            },
+        })
+    }
+    toggleClickBlocker: EventHandler<'toggleClickBlocker'> = async (
+        incoming,
+    ) => {
+        this.emitMutation({
+            preventInteractionsInIframe: {
+                $set: !incoming.previousState.preventInteractionsInIframe,
+            },
         })
     }
     copyLink: EventHandler<'copyLink'> = async (incoming) => {

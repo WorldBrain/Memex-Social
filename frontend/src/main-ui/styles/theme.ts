@@ -133,6 +133,7 @@ export const theme: Theme = THEME({
         sideBySide: require('../../assets/img/strikethroughIcon.svg'),
         openAI: require('../../assets/img/openAI.svg'),
         googleLogo: require('../../assets/img/googleLogo.svg'),
+        telegram: require('../../assets/img/googleLogo.svg'),
 
         // doubleArrow: require('../../assets/img/doubleArrow.svg'),,
         // import tagFull from '../../assets/img/tag_full.svg'

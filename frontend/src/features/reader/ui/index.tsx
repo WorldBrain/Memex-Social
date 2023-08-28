@@ -29,6 +29,13 @@ const TopBarHeight = 60
 const memexLogo = require('../../../assets/img/memex-logo-beta.svg')
 const memexIcon = require('../../../assets/img/memex-icon.svg')
 
+const isIframe = () => {
+    try {
+        return window.self !== window.top
+    } catch (e) {
+        return true
+    }
+}
 export class ReaderPageView extends UIElement<
     ReaderPageViewDependencies,
     ReaderPageViewState,
@@ -83,6 +90,7 @@ export class ReaderPageView extends UIElement<
     private reportButtonRef = React.createRef<HTMLDivElement>()
     private sharePageButton = React.createRef<HTMLDivElement>()
     private optionsMenuButtonRef = React.createRef<HTMLDivElement>()
+    private chatBoxRef = React.createRef<HTMLDivElement>()
 
     // get isListContributor(): boolean {
     //     return (
@@ -173,7 +181,7 @@ export class ReaderPageView extends UIElement<
                 </EmptyMessageContainer>
             )
         } else {
-            let annotationsList = []
+            let annotationsList: any = []
 
             if (
                 state.annotationEntryData &&
@@ -202,13 +210,13 @@ export class ReaderPageView extends UIElement<
                 let entries = Object.values(annotationsList)
                 // Sort the array based on the start value from the parsed selector strings
                 entries.sort((a, b) => {
-                    let parsedA = JSON.parse(a.selector)
-                    let parsedB = JSON.parse(b.selector)
+                    let parsedA = JSON.parse((a as any).selector)
+                    let parsedB = JSON.parse((b as any).selector)
                     let startA = parsedA.descriptor.content.find(
-                        (item) => item.type === 'TextPositionSelector',
+                        (item: any) => item.type === 'TextPositionSelector',
                     ).start
                     let startB = parsedB.descriptor.content.find(
-                        (item) => item.type === 'TextPositionSelector',
+                        (item: any) => item.type === 'TextPositionSelector',
                     ).start
                     return startA - startB
                 })
@@ -459,6 +467,7 @@ export class ReaderPageView extends UIElement<
     }
 
     private renderOptionsMenu = () => {
+        console.log('sd', this.state.showSupportChat)
         if (this.state.showOptionsMenu) {
             return (
                 <PopoutBox
@@ -665,26 +674,29 @@ export class ReaderPageView extends UIElement<
             )
         }
         return (
-            <InjectedContent
-                ref={(ref) =>
-                    this.processEvent('setReaderContainerRef', {
-                        ref,
-                    })
-                }
-            >
-                {this.state.iframeLoadState === 'error' ? (
-                    <div>
-                        The reader didn't load properly. Please try refreshing
-                        the page.
-                    </div>
-                ) : (
-                    this.state.iframeLoadState !== 'success' && (
-                        <LoadingBox height={'400px'}>
-                            <LoadingIndicator size={34} />
-                        </LoadingBox>
-                    )
-                )}
-            </InjectedContent>
+            <>
+                {this.state.preventInteractionsInIframe && <ClickBlocker />}
+                <InjectedContent
+                    ref={(ref) =>
+                        this.processEvent('setReaderContainerRef', {
+                            ref,
+                        })
+                    }
+                >
+                    {this.state.iframeLoadState === 'error' ? (
+                        <div>
+                            The reader didn't load properly. Please try
+                            refreshing the page.
+                        </div>
+                    ) : (
+                        this.state.iframeLoadState !== 'success' && (
+                            <LoadingBox height={'400px'}>
+                                <LoadingIndicator size={34} />
+                            </LoadingBox>
+                        )
+                    )}
+                </InjectedContent>
+            </>
         )
     }
 
@@ -896,7 +908,9 @@ export class ReaderPageView extends UIElement<
                         </RightSideTopBar>
                     </TopBar>
                     {this.state.permissionsLoadState === 'success' ? (
-                        <>{this.renderMainContent()}</>
+                        <MainContentContainer>
+                            {this.renderMainContent()}
+                        </MainContentContainer>
                     ) : (
                         <LoadingBox height={'400px'}>
                             <LoadingIndicator size={34} />
@@ -927,7 +941,7 @@ export class ReaderPageView extends UIElement<
                         resizeGrid={[1, 0]}
                         dragAxis={'none'}
                         minWidth={screenSmall ? 'fill-available' : '400px'}
-                        maxWidth={'1000px'}
+                        maxWidth={'600px'}
                         disableDragging={true}
                         enableResizing={{
                             top: false,
@@ -939,7 +953,10 @@ export class ReaderPageView extends UIElement<
                             bottomLeft: false,
                             topLeft: false,
                         }}
-                        onResizeStop={(
+                        onResizeStart={() =>
+                            this.processEvent('toggleClickBlocker', null)
+                        }
+                        onResize={(
                             e: any,
                             direction: any,
                             ref: any,
@@ -949,6 +966,15 @@ export class ReaderPageView extends UIElement<
                             this.processEvent('setSidebarWidth', {
                                 width: ref.style.width,
                             })
+                        }}
+                        onResizeStop={(
+                            e: any,
+                            direction: any,
+                            ref: any,
+                            delta: any,
+                            position: any,
+                        ) => {
+                            this.processEvent('toggleClickBlocker', null)
                         }}
                     >
                         <SidebarTopBar
@@ -963,10 +989,66 @@ export class ReaderPageView extends UIElement<
                                     }
                                 />
                             ) : (
-                                <AuthHeader
-                                    services={this.props.services}
-                                    storage={this.props.storage}
-                                />
+                                <RightSideTopBar>
+                                    {this.state.showSupportChat && (
+                                        <PopoutBox
+                                            targetElementRef={
+                                                this.chatBoxRef.current ??
+                                                undefined
+                                            }
+                                            closeComponent={() =>
+                                                this.processEvent(
+                                                    'toggleSupportChat',
+                                                    null,
+                                                )
+                                            }
+                                            placement="bottom"
+                                            offsetX={20}
+                                        >
+                                            <ChatBox>
+                                                <LoadingIndicator size={30} />
+                                                <ChatFrame
+                                                    src={
+                                                        'https://go.crisp.chat/chat/embed/?website_id=05013744-c145-49c2-9c84-bfb682316599'
+                                                    }
+                                                    height={600}
+                                                    width={500}
+                                                />
+                                            </ChatBox>
+                                            <ChatFrame
+                                                src={
+                                                    'https://go.crisp.chat/chat/embed/?website_id=05013744-c145-49c2-9c84-bfb682316599'
+                                                }
+                                                height={600}
+                                                width={500}
+                                            />
+                                        </PopoutBox>
+                                    )}
+                                    {!isIframe() && (
+                                        <SupportChatBox>
+                                            <PrimaryAction
+                                                onClick={() => {
+                                                    this.processEvent(
+                                                        'toggleSupportChat',
+                                                        null,
+                                                    )
+                                                }}
+                                                type="tertiary"
+                                                iconColor="prime1"
+                                                icon="chatWithUs"
+                                                innerRef={
+                                                    this.chatBoxRef ?? undefined
+                                                }
+                                                size="medium"
+                                                label="Support Chat"
+                                            />
+                                        </SupportChatBox>
+                                    )}
+                                    <AuthHeader
+                                        services={this.props.services}
+                                        storage={this.props.storage}
+                                    />
+                                </RightSideTopBar>
                             )}
                         </SidebarTopBar>
                         <SidebarAnnotationContainer>
@@ -1048,6 +1130,22 @@ function isInRange(timestamp: number, range: TimestampRange | undefined) {
     return range.fromTimestamp <= timestamp && range.toTimestamp >= timestamp
 }
 
+const MainContentContainer = styled.div`
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex: 1;
+`
+
+const ClickBlocker = styled.div`
+    background: transparent;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+`
+
 const OverlayAnnotationInstructionContainer = styled.div`
     position: absolute;
     width: 100%;
@@ -1118,6 +1216,37 @@ const OptionsMenuBox = styled.div`
             margin-top: 5px;
         }
     }
+`
+
+const SupportChatBox = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    grid-gap: 10px;
+    color: ${(props) => props.theme.colors.white};
+    z-index: 100;
+    cursor: pointer;
+
+    & * {
+        cursor: pointer;
+    }
+`
+
+const ChatBox = styled.div`
+    position: relative;
+    height: 600px;
+    width: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+`
+const ChatFrame = styled.iframe`
+    border: none;
+    border-radius: 12px;
+    position: absolute;
+    top: 0px;
+    left: 0px;
 `
 
 const NotifBox = styled.div`
