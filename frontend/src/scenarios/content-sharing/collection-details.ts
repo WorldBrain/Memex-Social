@@ -168,31 +168,16 @@ export const SCENARIOS: ScenarioMap<Targets> = {
             params: { id: 'default-list' },
         },
         setup: {
-            callModifications: ({ storage }) => [
-                callModification({
-                    name: 'block-entries-loading',
-                    object: storage.serverModules.contentSharing,
-                    property: 'getAnnotationListEntries',
-                    modifier: 'block',
-                }),
+            callModifications: ({ services }) => [
                 callModification({
                     name: 'block-annotations-loading',
-                    object: storage.serverModules.contentSharing,
-                    property: 'getAnnotations',
+                    object: services.contentSharing.backend,
+                    property: 'loadAnnotationsWithThreads',
                     modifier: 'block',
                 }),
             ],
         },
         steps: [
-            step({
-                name: 'entries-loaded',
-                callModifications: ({ storage }) => [
-                    {
-                        name: 'block-entries-loading',
-                        modifier: 'undo',
-                    },
-                ],
-            }),
             step({
                 name: 'first-annotations-toggle',
                 target: 'CollectionDetailsPage',
