@@ -10,7 +10,10 @@ import { Rnd } from 'react-rnd'
 import { ReaderPageViewLogic } from './logic'
 import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
 import { PrimaryAction } from '@worldbrain/memex-common/lib/common-ui/components/PrimaryAction'
-import { SharedListEntry } from '@worldbrain/memex-common/lib/content-sharing/types'
+import type {
+    SharedListEntry,
+    SharedAnnotation,
+} from '@worldbrain/memex-common/lib/content-sharing/types'
 import { UserReference } from '../../user-management/types'
 import AnnotationsInPage from '@worldbrain/memex-common/lib/content-conversations/ui/components/annotations-in-page'
 import AnnotationCreate from '@worldbrain/memex-common/lib/content-conversations/ui/components/annotation-create'
@@ -22,8 +25,7 @@ import IconBox from '@worldbrain/memex-common/lib/common-ui/components/icon-box'
 import { getReaderYoutubePlayerId } from '../utils/utils'
 import { ViewportBreakpoint } from '@worldbrain/memex-common/lib/common-ui/styles/types'
 import { getViewportBreakpoint } from '@worldbrain/memex-common/lib/common-ui/styles/utils'
-import Overlay from '@worldbrain/memex-common/lib/main-ui/containers/overlay'
-import { SharedAnnotationInPage } from '../../annotations/ui/components/types'
+import type { AutoPk } from '../../../types'
 
 const TopBarHeight = 60
 const memexLogo = require('../../../assets/img/memex-logo-beta.svg')
@@ -181,7 +183,7 @@ export class ReaderPageView extends UIElement<
                 </EmptyMessageContainer>
             )
         } else {
-            let annotationsList: any = []
+            let annotationsList: Array<SharedAnnotation & { id: AutoPk }> = []
 
             if (
                 state.annotationEntryData &&
@@ -196,30 +198,34 @@ export class ReaderPageView extends UIElement<
                                 annotationEntry.sharedAnnotation.id.toString()
                             ]
                         ) {
-                            annotationsList.push(
-                                this.state.annotations[
+                            annotationsList.push({
+                                ...this.state.annotations[
                                     annotationEntry.sharedAnnotation.id.toString()
                                 ],
-                            )
+                                id: annotationEntry.sharedAnnotation.id,
+                            })
                         }
                     },
                 )
             }
 
             if (annotationsList.length > 0) {
-                let entries = Object.values(annotationsList)
-                // Sort the array based on the start value from the parsed selector strings
-                entries.sort((a, b) => {
-                    let parsedA = JSON.parse((a as any).selector)
-                    let parsedB = JSON.parse((b as any).selector)
-                    let startA = parsedA.descriptor.content.find(
-                        (item: any) => item.type === 'TextPositionSelector',
-                    ).start
-                    let startB = parsedB.descriptor.content.find(
-                        (item: any) => item.type === 'TextPositionSelector',
-                    ).start
-                    return startA - startB
-                })
+                const entries = Object.values(annotationsList)
+                entries
+                    .filter((a) => a.selector != null)
+                    // Sort the array based on the start value from the parsed selector strings
+                    .sort((a, b) => {
+                        const parsedA = JSON.parse(a.selector!)
+                        const parsedB = JSON.parse(b.selector!)
+                        const startA = parsedA.descriptor.content.find(
+                            (item: any) => item.type === 'TextPositionSelector',
+                        ).start
+                        const startB = parsedB.descriptor.content.find(
+                            (item: any) => item.type === 'TextPositionSelector',
+                        ).start
+                        return startA - startB
+                    })
+
                 annotationsList = entries
             }
 
@@ -292,7 +298,16 @@ export class ReaderPageView extends UIElement<
                             annotationId: annotation.id,
                         })}
                     loadState={state.annotationLoadStates[entry.normalizedUrl]}
-                    annotations={annotationsList ?? null}
+                    annotations={
+                        annotationsList?.map((annot) => ({
+                            ...annot,
+                            linkId: annot.id.toString(),
+                            reference: {
+                                type: 'shared-annotation-reference',
+                                id: annot.id,
+                            },
+                        })) ?? null
+                    }
                     annotationConversations={this.state.conversations}
                     getAnnotationCreator={(annotationReference) => {
                         const creatorRef = this.state.annotations[
@@ -467,7 +482,6 @@ export class ReaderPageView extends UIElement<
     }
 
     private renderOptionsMenu = () => {
-        console.log('sd', this.state.showSupportChat)
         if (this.state.showOptionsMenu) {
             return (
                 <PopoutBox
