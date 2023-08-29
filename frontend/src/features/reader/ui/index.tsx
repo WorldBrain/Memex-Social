@@ -26,6 +26,7 @@ import { getReaderYoutubePlayerId } from '../utils/utils'
 import { ViewportBreakpoint } from '@worldbrain/memex-common/lib/common-ui/styles/types'
 import { getViewportBreakpoint } from '@worldbrain/memex-common/lib/common-ui/styles/utils'
 import type { AutoPk } from '../../../types'
+import { MemexEditorInstance } from '@worldbrain/memex-common/lib/editor'
 
 const TopBarHeight = 60
 const memexLogo = require('../../../assets/img/memex-logo-beta.svg')
@@ -55,6 +56,8 @@ export class ReaderPageView extends UIElement<
             reply: parseRange(query.fromReply, query.toReply),
         }
     }
+
+    private editor: MemexEditorInstance | null = null
 
     itemRanges: {
         [Key in 'listEntry' | 'annotEntry' | 'reply']:
@@ -691,12 +694,19 @@ export class ReaderPageView extends UIElement<
                                     icon="clock"
                                     type="forth"
                                     size="medium"
-                                    onClick={() =>
-                                        this.processEvent(
-                                            'createYoutubeNote',
-                                            {},
-                                        )
-                                    }
+                                    onClick={() => {
+                                        if (
+                                            this.state.annotationCreateState
+                                                .comment.length > 0
+                                        ) {
+                                            this.editor?.addYoutubeTimestamp()
+                                        } else {
+                                            this.processEvent(
+                                                'createYoutubeNote',
+                                                {},
+                                            )
+                                        }
+                                    }}
                                 />
                             ))}
                         <YoutubeVideoBox>
@@ -1108,12 +1118,23 @@ export class ReaderPageView extends UIElement<
                                                 null,
                                             )
                                         }
-                                        onChange={(comment) =>
+                                        setAnnotationCreating={(value) =>
                                             this.processEvent(
-                                                'changeAnnotationCreateComment',
-                                                { comment },
+                                                'setAnnotationCreating',
+                                                { isCreating: value },
                                             )
                                         }
+                                        setEditorInstanceRef={(ref) =>
+                                            (this.editor = ref)
+                                        }
+                                        onChange={(comment) => {
+                                            this.processEvent(
+                                                'changeAnnotationCreateComment',
+                                                {
+                                                    comment,
+                                                },
+                                            )
+                                        }}
                                         getYoutubePlayer={() =>
                                             this.state.listLoadState ===
                                                 'success' &&
