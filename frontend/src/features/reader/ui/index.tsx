@@ -211,12 +211,31 @@ export class ReaderPageView extends UIElement<
 
             if (annotationsList.length > 0) {
                 const entries = Object.values(annotationsList)
-                entries
+
+                const noteItemsForTopDisplay = entries.filter(
+                    (entry) =>
+                        entry == null ||
+                        (entry as any).selector == 'null' ||
+                        (entry as any).selector == null,
+                )
+
+                const newEntries = entries.filter(
+                    (entry) =>
+                        entry != null &&
+                        (entry as any).selector != 'null' &&
+                        (entry as any).selector != null,
+                )
+
+                newEntries
                     .filter((a) => a.selector != null)
                     // Sort the array based on the start value from the parsed selector strings
                     .sort((a, b) => {
-                        const parsedA = JSON.parse(a.selector!)
-                        const parsedB = JSON.parse(b.selector!)
+                        let parsedA =
+                            (a as any).selector != null &&
+                            JSON.parse((a as any)?.selector!)
+                        let parsedB =
+                            (b as any).selector != null &&
+                            JSON.parse((b as any)?.selector!)
                         const startA = parsedA.descriptor.content.find(
                             (item: any) => item.type === 'TextPositionSelector',
                         ).start
@@ -226,7 +245,7 @@ export class ReaderPageView extends UIElement<
                         return startA - startB
                     })
 
-                annotationsList = entries
+                annotationsList = [...noteItemsForTopDisplay, ...entries]
             }
 
             return (
@@ -1108,10 +1127,13 @@ export class ReaderPageView extends UIElement<
                                     />
                                 </AnnotationCreateContainer>
                             )}
-                            {this.state.listData &&
-                                this.renderPageAnnotations(
-                                    this.state.listData.entry,
-                                )}
+                            {this.state.listData && (
+                                <AnnotationsidebarContainer>
+                                    {this.renderPageAnnotations(
+                                        this.state.listData.entry,
+                                    )}
+                                </AnnotationsidebarContainer>
+                            )}
                         </SidebarAnnotationContainer>
                     </Sidebar>
                 </ContainerStyled>
@@ -1143,6 +1165,13 @@ function isInRange(timestamp: number, range: TimestampRange | undefined) {
     }
     return range.fromTimestamp <= timestamp && range.toTimestamp >= timestamp
 }
+
+const AnnotationsidebarContainer = styled.div`
+    height: 100%;
+    overflow: scroll;
+    width: 100%;
+    padding-bottom: 150px;
+`
 
 const MainContentContainer = styled.div`
     width: 100%;
