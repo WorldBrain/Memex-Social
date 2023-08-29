@@ -58,6 +58,7 @@ export class ReaderPageView extends UIElement<
     }
 
     private editor: MemexEditorInstance | null = null
+    private firstLoad: boolean = true
 
     itemRanges: {
         [Key in 'listEntry' | 'annotEntry' | 'reply']:
@@ -215,40 +216,50 @@ export class ReaderPageView extends UIElement<
             if (annotationsList.length > 0) {
                 const entries = Object.values(annotationsList)
 
-                const noteItemsForTopDisplay = entries.filter(
-                    (entry) =>
-                        entry == null ||
-                        (entry as any).selector == 'null' ||
-                        (entry as any).selector == null,
-                )
-
-                const newEntries = entries.filter(
+                let noteItems = entries.filter(
                     (entry) =>
                         entry != null &&
-                        (entry as any).selector != 'null' &&
-                        (entry as any).selector != null,
+                        entry.comment &&
+                        entry.comment.length > 0 &&
+                        !entry.body,
                 )
 
-                newEntries
-                    .filter((a) => a.selector != null)
-                    // Sort the array based on the start value from the parsed selector strings
-                    .sort((a, b) => {
-                        let parsedA =
-                            (a as any).selector != null &&
-                            JSON.parse((a as any)?.selector!)
-                        let parsedB =
-                            (b as any).selector != null &&
-                            JSON.parse((b as any)?.selector!)
-                        const startA = parsedA.descriptor.content.find(
-                            (item: any) => item.type === 'TextPositionSelector',
-                        ).start
-                        const startB = parsedB.descriptor.content.find(
-                            (item: any) => item.type === 'TextPositionSelector',
-                        ).start
+                let highlights = entries.filter(
+                    (entry) => entry != null && entry.body != null,
+                )
+
+                if (this.firstLoad) {
+                    this.firstLoad = false
+                    noteItems.sort((a, b) => {
+                        const startA = a.createdWhen
+                        const startB = b.createdWhen
                         return startA - startB
                     })
 
-                annotationsList = [...noteItemsForTopDisplay, ...entries]
+                    highlights
+                        .filter((a) => a.selector != null)
+                        // Sort the array based on the start value from the parsed selector strings
+                        .sort((a, b) => {
+                            let parsedA =
+                                (a as any).selector != null &&
+                                JSON.parse((a as any)?.selector!)
+                            let parsedB =
+                                (b as any).selector != null &&
+                                JSON.parse((b as any)?.selector!)
+                            const startA = parsedA.descriptor.content.find(
+                                (item: any) =>
+                                    item.type === 'TextPositionSelector',
+                            ).start
+                            const startB = parsedB.descriptor.content.find(
+                                (item: any) =>
+                                    item.type === 'TextPositionSelector',
+                            ).start
+                            return startA - startB
+                        })
+                    annotationsList = [...noteItems, ...highlights]
+                } else {
+                    annotationsList = [...noteItems, ...highlights]
+                }
             }
 
             return (
