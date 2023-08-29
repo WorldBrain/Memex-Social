@@ -708,7 +708,9 @@ export class ReaderPageView extends UIElement<
                                     onClick={() => {
                                         if (
                                             this.state.annotationCreateState
-                                                .comment.length > 0
+                                                .comment.length > 0 ||
+                                            this.state.annotationCreateState
+                                                .isCreating
                                         ) {
                                             this.editor?.addYoutubeTimestamp()
                                         } else {
