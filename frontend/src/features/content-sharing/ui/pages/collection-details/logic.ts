@@ -1039,75 +1039,83 @@ export default class CollectionDetailsLogic extends UILogic<
         if (!listData) {
             return
         }
-        this.emitMutation({
-            paginateLoading: { $set: 'running' },
-        })
-        let newListEntries: CollectionDetailsListEntry[] = []
-        if (!this.latestSearchRequest) {
-            if (incoming.event.entryIndex < this.mainLatestEntryIndex) {
-                return
-            }
-            this.mainLatestEntryIndex = incoming.event.entryIndex
+        await executeUITask(this, 'paginateLoading', async () => {
+            let newListEntries: CollectionDetailsListEntry[] = []
+            if (!this.latestSearchRequest) {
+                if (incoming.event.entryIndex < this.mainLatestEntryIndex) {
+                    return
+                }
+                this.mainLatestEntryIndex = incoming.event.entryIndex
 
-            const listEntries = await this.dependencies.storage.contentSharing.getListEntriesByList(
-                {
-                    listReference: listData.reference,
-                    from:
-                        listData.listEntries[listData.listEntries.length - 1]
-                            .updatedWhen,
-                    limit: PAGE_SIZE,
-                },
-            )
-            newListEntries = listEntries.map((entry) => ({
-                ...entry,
-                sourceUrl: entry.originalUrl,
-                id: entry.reference.id,
-            }))
-            this.mainListEntries.push(...newListEntries)
-        } else {
-            const page =
-                Math.floor(
-                    (incoming.event.entryIndex + 1) /
-                        incoming.previousState.listData!.pageSize,
-                ) + 1
-            if (page <= (this.latestSearchRequest.page ?? 0)) {
-                return
+                const pageResult = await this.dependencies.services.contentSharing.backend.loadCollectionDetailsPage(
+                    {
+                        listId: listData.reference.id,
+                        from:
+                            listData.listEntries[
+                                listData.listEntries.length - 1
+                            ].updatedWhen,
+                    },
+                )
+                if (pageResult.status !== 'success') {
+                    throw new Error(
+                        `Expected 'success' status loading collection details page, but got '${pageResult.status}'`,
+                    )
+                }
+                const listEntries = pageResult.data.entries
+                newListEntries = listEntries.map((entry) => ({
+                    ...entry,
+                    sourceUrl: entry.originalUrl,
+                    id: entry.reference.id,
+                }))
+                this.mainListEntries.push(...newListEntries)
+            } else {
+                const page =
+                    Math.floor(
+                        (incoming.event.entryIndex + 1) /
+                            incoming.previousState.listData!.pageSize,
+                    ) + 1
+                if (page <= (this.latestSearchRequest.page ?? 0)) {
+                    return
+                }
+                this.latestSearchRequest.page = page
+                const response = await this.dependencies.services.fullTextSearch.searchListEntries(
+                    this.latestSearchRequest,
+                )
+                newListEntries = response.sharedListEntries.map((entry) => ({
+                    ...entry,
+                    sourceUrl: entry.originalUrl,
+                    creator: {
+                        type: 'user-reference' as const,
+                        id: entry.creator,
+                    },
+                }))
             }
-            this.latestSearchRequest.page = page
-            const response = await this.dependencies.services.fullTextSearch.searchListEntries(
-                this.latestSearchRequest,
-            )
-            newListEntries = response.sharedListEntries.map((entry) => ({
-                ...entry,
-                sourceUrl: entry.originalUrl,
-                creator: { type: 'user-reference' as const, id: entry.creator },
-            }))
-        }
-        const mutation: UIMutation<CollectionDetailsState> = {
-            paginateLoading: { $set: 'success' },
-            listData: {
-                listEntries: {
-                    $push: newListEntries,
+            const mutation: UIMutation<CollectionDetailsState> = {
+                paginateLoading: { $set: 'success' },
+                listData: {
+                    listEntries: {
+                        $push: newListEntries,
+                    },
                 },
-            },
-        }
-        this.emitMutation(mutation)
-        this.loadPageAnnotations(
-            this.withMutation(incoming.previousState, mutation)
-                .annotationEntryData!,
-            newListEntries.map((entry) => entry.normalizedUrl),
-        )
-        const usersToLoad = new Set<string | number>(
-            newListEntries.map((entry) => entry.creator.id),
-        )
-        this._users.loadUsers(
-            [...usersToLoad].map(
-                (id): UserReference => ({
-                    type: 'user-reference',
-                    id,
-                }),
-            ),
-        )
+            }
+            this.emitMutation(mutation)
+            this.loadPageAnnotations(
+                this.withMutation(incoming.previousState, mutation)
+                    .annotationEntryData!,
+                newListEntries.map((entry) => entry.normalizedUrl),
+            )
+            const usersToLoad = new Set<string | number>(
+                newListEntries.map((entry) => entry.creator.id),
+            )
+            this._users.loadUsers(
+                [...usersToLoad].map(
+                    (id): UserReference => ({
+                        type: 'user-reference',
+                        id,
+                    }),
+                ),
+            )
+        })
     }
 
     clickFollowBtn: EventHandler<'clickFollowBtn'> = async ({

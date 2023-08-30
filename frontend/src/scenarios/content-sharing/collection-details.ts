@@ -267,7 +267,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                     name: 'first-waypoint-hit',
                     target: 'CollectionDetailsPage',
                     eventName: 'pageBreakpointHit',
-                    eventArgs: { entryIndex: 10 },
+                    eventArgs: { entryIndex: 9 },
                 }),
                 step({
                     name: 'second-annotations-loaded',
