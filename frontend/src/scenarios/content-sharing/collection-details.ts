@@ -197,26 +197,6 @@ export const SCENARIOS: ScenarioMap<Targets> = {
             }),
         ],
     })),
-    'annotations-entries-error': scenario<Targets>(
-        ({ step, callModification }) => ({
-            fixture: 'annotated-list-with-user',
-            startRoute: {
-                route: 'collectionDetails',
-                params: { id: 'default-list' },
-            },
-            setup: {
-                callModifications: ({ storage }) => [
-                    callModification({
-                        name: 'annotation-entries-loading',
-                        object: storage.serverModules.contentSharing,
-                        property: 'getAnnotationListEntries',
-                        modifier: 'sabotage',
-                    }),
-                ],
-            },
-            steps: [],
-        }),
-    ),
     'annotations-error': scenario<Targets>(({ step, callModification }) => ({
         fixture: 'annotated-list-with-user',
         startRoute: {
