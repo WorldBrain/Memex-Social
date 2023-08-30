@@ -23,6 +23,7 @@ import type { URLNormalizer } from '@worldbrain/memex-common/lib/url-utils/norma
 import type { AutoPk } from '@worldbrain/memex-common/lib/storage/types'
 import type StorageManager from '@worldbrain/storex'
 import { ContentSharingQueryParams } from '../../content-sharing/types'
+import { MemexEditorInstance } from '@worldbrain/memex-common/lib/editor'
 
 export interface ReaderPageViewDependencies {
     services: UIElementServices<
@@ -123,7 +124,9 @@ export type ReaderPageViewEvent = UIEvent<AnnotationConversationEvent> & {
     setAnnotationCreating: { isCreating: boolean }
     cancelAnnotationCreate: null
     confirmAnnotationCreate: null
-    changeAnnotationCreateComment: { comment: string }
+    changeAnnotationCreateComment: {
+        comment: string
+    }
     setAnnotationEditing: { annotationId: AutoPk; isEditing: boolean }
     setAnnotationHovering: { annotationId: AutoPk; isHovering: boolean }
     cancelAnnotationEdit: { annotationId: AutoPk }

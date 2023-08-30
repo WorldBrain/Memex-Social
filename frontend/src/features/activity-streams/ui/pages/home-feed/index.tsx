@@ -2,6 +2,7 @@ import React from 'react'
 import styled, { css } from 'styled-components'
 import { UIElement } from '../../../../../main-ui/classes'
 import Logic from './logic'
+import moment from 'moment'
 import {
     HomeFeedEvent,
     HomeFeedDependencies,
@@ -461,6 +462,21 @@ export default class HomeFeedPage extends UIElement<
                             )}
                         </UpdateItemTitle>
                     </UpdateItemTitleArea>
+                </UpdateItemTopBar>
+                {/* <UpdateItemReferencedContentContainer>
+                    <PageBox>
+                        <PageTitle>{activityItem.pageTitle}</PageTitle>
+                        <PageDomain>
+                            {activityItem.normalizedPageUrl.split('/')[0]}
+                        </PageDomain>
+                    </PageBox>
+                </UpdateItemReferencedContentContainer> */}
+                <UpdateItemFooter>
+                    <CreationDate>
+                        {moment(activityItem.notifiedWhen).format(
+                            'MMMM Do YYYY, h:mma',
+                        )}
+                    </CreationDate>
                     {activityItem.list && (
                         <RouteLink
                             services={this.props.services}
@@ -480,20 +496,12 @@ export default class HomeFeedPage extends UIElement<
                                 onClick={null}
                                 icon="arrowRight"
                                 iconPosition="right"
-                                type="primary"
+                                type="secondary"
                                 size="medium"
                             />
                         </RouteLink>
                     )}
-                </UpdateItemTopBar>
-                <UpdateItemReferencedContentContainer>
-                    <PageBox>
-                        <PageTitle>{activityItem.pageTitle}</PageTitle>
-                        <PageDomain>
-                            {activityItem.normalizedPageUrl.split('/')[0]}
-                        </PageDomain>
-                    </PageBox>
-                </UpdateItemReferencedContentContainer>
+                </UpdateItemFooter>
             </UpdateItemContainer>
         )
     }
@@ -559,30 +567,6 @@ export default class HomeFeedPage extends UIElement<
                             )}
                         </UpdateItemTitle>
                     </UpdateItemTitleArea>
-                    {activityItem.list && (
-                        <RouteLink
-                            services={this.props.services}
-                            route="pageView"
-                            params={{
-                                id: activityItem.list.reference.id.toString(),
-                                entryId: activityItem.list.entry.id.toString(),
-                            }}
-                            query={{
-                                annotationId: activityItem.annotation.reference.id.toString(),
-                                ...getRangeQueryParams('Reply', activityItem),
-                            }}
-                            target={'_blank'}
-                        >
-                            <PrimaryAction
-                                label="View"
-                                onClick={null}
-                                icon="arrowRight"
-                                iconPosition="right"
-                                type="primary"
-                                size="medium"
-                            />
-                        </RouteLink>
-                    )}
                 </UpdateItemTopBar>
                 <UpdateItemReferencedContentContainer>
                     <AnnotationBox>
@@ -611,6 +595,37 @@ export default class HomeFeedPage extends UIElement<
                         </PageDomain>
                     </PageBox>
                 </UpdateItemReferencedContentContainer>
+                <UpdateItemFooter>
+                    <CreationDate>
+                        {moment(activityItem.notifiedWhen).format(
+                            'MMMM Do YYYY, h:mma',
+                        )}
+                    </CreationDate>
+                    {activityItem.list && (
+                        <RouteLink
+                            services={this.props.services}
+                            route="pageView"
+                            params={{
+                                id: activityItem.list.reference.id.toString(),
+                                entryId: activityItem.list.entry.id.toString(),
+                            }}
+                            query={{
+                                annotationId: activityItem.annotation.reference.id.toString(),
+                                ...getRangeQueryParams('Reply', activityItem),
+                            }}
+                            target={'_blank'}
+                        >
+                            <PrimaryAction
+                                label="View"
+                                onClick={null}
+                                icon="arrowRight"
+                                iconPosition="right"
+                                type="secondary"
+                                size="medium"
+                            />
+                        </RouteLink>
+                    )}
+                </UpdateItemFooter>
             </UpdateItemContainer>
         )
     }
@@ -674,6 +689,13 @@ export default class HomeFeedPage extends UIElement<
                             </SpaceTitleContainer>
                         </UpdateItemTitle>
                     </UpdateItemTitleArea>
+                </UpdateItemTopBar>
+                <UpdateItemFooter>
+                    <CreationDate>
+                        {moment(listItem.notifiedWhen).format(
+                            'MMMM Do YYYY, h:mma',
+                        )}
+                    </CreationDate>
                     <RouteLink
                         services={this.props.services}
                         route="collectionDetails"
@@ -686,11 +708,11 @@ export default class HomeFeedPage extends UIElement<
                             onClick={null}
                             icon="arrowRight"
                             iconPosition="right"
-                            type="primary"
+                            type="secondary"
                             size="medium"
                         />
                     </RouteLink>
-                </UpdateItemTopBar>
+                </UpdateItemFooter>
             </UpdateItemContainer>
         )
     }
@@ -865,6 +887,21 @@ function getRangeQueryParams(
     }
 }
 
+const UpdateItemFooter = styled.div`
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    padding: 10px 24px;
+    align-items: center;
+    border-top: 1px solid ${(props) => props.theme.colors.greyScale2};
+`
+
+const CreationDate = styled.div`
+    color: ${(props) => props.theme.colors.greyScale5};
+    font-size: 14px;
+    font-weight: 300;
+`
+
 const UpdateItemReferencedContentContainer = styled.div`
     display: flex;
     flex-direction: column;
@@ -872,6 +909,7 @@ const UpdateItemReferencedContentContainer = styled.div`
     border: 1px solid ${(props) => props.theme.colors.greyScale2};
     margin-top: 15px;
     align-items: flex-start;
+    margin: 0px 20px 20px 20px;
 `
 
 const AnnotationBox = styled.div`
@@ -941,7 +979,6 @@ const PageDomain = styled.div`
 const UpdateItemContainer = styled.div`
     display: flex;
     flex-direction: column;
-    padding: 20px;
     width: fill-available;
     background: ${(props) => props.theme.colors.greyScale1};
     border-radius: 10px;
@@ -960,6 +997,7 @@ const UpdateItemTopBar = styled.div`
     justify-content: space-between;
     width: fill-available;
     grid-gap: 20px;
+    padding: 20px;
 `
 
 const UpdateItemTitleArea = styled.div`
@@ -992,8 +1030,6 @@ const UpdateItemTitle = styled.div<{
     grid-gap: 6px;
     white-space: nowrap;
     flex: 1;
-    flex-direction: column;
-    align-items: flex-start;
 `
 
 const UpdateItemTitleContainer = styled.div`

@@ -1472,12 +1472,6 @@ export class ReaderPageViewLogic extends UILogic<
         this.emitMutation({
             annotationCreateState: {
                 comment: { $set: event.comment },
-                isCreating: {
-                    $set:
-                        event.comment.trim().length > 0
-                            ? true
-                            : previousState.annotationCreateState.isCreating,
-                },
             },
         })
     }
@@ -1559,17 +1553,20 @@ export class ReaderPageViewLogic extends UILogic<
             utils.getReaderYoutubePlayerId(entry.normalizedUrl),
         )
         const linkInfo = getVideoLinkInfo({ youtubePlayer: youtubePlayer })
-        this.scheduleAnnotationCreation(
-            {
-                createdWhen: Date.now(),
-                updatedWhen: Date.now(),
-                fullPageUrl: entry.originalUrl,
-                body: null!,
-                selector: null!,
-                comment: getAnnotationVideoLink(linkInfo) + ' ',
+
+        const newComment =
+            previousState.annotationCreateState.comment +
+            getAnnotationVideoLink(linkInfo) +
+            ' '
+
+        this.emitMutation({
+            annotationCreateState: {
+                comment: { $set: newComment },
+                isCreating: {
+                    $set: true,
+                },
             },
-            true,
-        )
+        })
     }
 }
 
