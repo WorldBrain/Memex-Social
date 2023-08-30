@@ -356,30 +356,6 @@ export default class CollectionDetailsLogic extends UILogic<
         })
         await this.loadFollowBtnState()
         await this.processPermissionKey()
-
-        // NOTE: Following promises are made to return void because
-        // without this the IDE slows down a lot trying to infer types
-        // await Promise.all([
-        //     this.processUIEvent('loadListData', {
-        //         ...incoming,
-        //         event: { ...incoming.event, listID: this.dependencies.listID },
-        //     }).then(() => {}),
-        //     !incoming.event.isUpdate
-        //         ? this.processUIEvent('processPermissionKey', {
-        //               ...incoming,
-        //               event: {},
-        //           }).then(() => {})
-        //         : null,
-        // ])
-
-        // await Promise.all([
-        //     this.processUIEvent('initActivityFollows', {
-        //         ...incoming,
-        //         event: undefined,
-        //     }).then(() => {}),
-        //     this.loadFollowBtnState().then(() => {}),
-        //     this.loadListRoles(),
-        // ])
     }
 
     processPermissionKey = async () => {
@@ -583,46 +559,6 @@ export default class CollectionDetailsLogic extends UILogic<
             permissionKeyState: { $set: 'success' },
             permissionKeyResult: { $set: 'no-key-present' },
         }
-    }
-
-    async loadListRoles() {
-        // const listReference = makeStorageReference<SharedListReference>(
-        //     'shared-list-reference',
-        //     this.dependencies.listID,
-        // )
-        // let usersToLoad: UserReference[] = []
-        // await executeUITask<CollectionDetailsState>(
-        //     this,
-        //     'listRolesLoadState',
-        //     async () => {
-        //         const userReference = this.dependencies.services.auth.getCurrentUserReference()
-        //         const listRoles = await this.dependencies.storage.contentSharing.getListRoles(
-        //             { listReference },
-        //         )
-        //         usersToLoad = listRoles.map((role) => role.user)
-        //         let roleID: SharedListRoleID | undefined = undefined
-        //         if (
-        //             this._creatorReference &&
-        //             userReference?.id === this._creatorReference?.id
-        //         ) {
-        //             roleID = SharedListRoleID.Owner
-        //         } else {
-        //             roleID =
-        //                 (userReference &&
-        //                     listRoles.find(
-        //                         (role) => role.user.id === userReference.id,
-        //                     )?.roleID) ??
-        //                 undefined
-        //         }
-        //         this.emitMutation({
-        //             listRoleID: {
-        //                 $set: roleID,
-        //             },
-        //             listRoles: { $set: listRoles },
-        //         })
-        //     },
-        // )
-        // await this._users.loadUsers(usersToLoad)
     }
 
     updateSearchQuery: EventHandler<'updateSearchQuery'> = (incoming) => {
@@ -1059,43 +995,43 @@ export default class CollectionDetailsLogic extends UILogic<
     }
 
     toggleAllAnnotations: EventHandler<'toggleAllAnnotations'> = (incoming) => {
-        // const shouldBeExpanded = !incoming.previousState.allAnnotationExpanded
+        const shouldBeExpanded = !incoming.previousState.allAnnotationExpanded
         // const currentExpandedCount = Object.keys(
         //     incoming.previousState.pageAnnotationsExpanded,
         // ).length
-        // if (shouldBeExpanded) {
-        //     this.emitMutation({
-        //         allAnnotationExpanded: { $set: true },
-        //     })
-        //     incoming.previousState.listData!.listEntries.map((entry) => {
-        //         let hasAnnotations =
-        //             incoming.previousState.annotationEntryData &&
-        //             incoming.previousState.annotationEntryData[
-        //                 entry.normalizedUrl
-        //             ]
-        //         if (hasAnnotations) {
-        //             this.emitMutation({
-        //                 pageAnnotationsExpanded: {
-        //                     [entry.normalizedUrl]: { $set: true },
-        //                 },
-        //             })
-        //         }
-        //     })
-        // } else {
-        //     this.emitMutation({
-        //         allAnnotationExpanded: { $set: false },
-        //         pageAnnotationsExpanded: { $set: {} },
-        //     })
-        // }
-        // const {
-        //     latestPageSeenIndex,
-        //     normalizedPageUrls,
-        // } = this.getFirstPagesWithoutLoadedAnnotations(incoming.previousState)
-        // this.mainLatestEntryIndex = latestPageSeenIndex
-        // this.loadPageAnnotations(
-        //     incoming.previousState.annotationEntryData!,
-        //     normalizedPageUrls,
-        // )
+        if (shouldBeExpanded) {
+            this.emitMutation({
+                allAnnotationExpanded: { $set: true },
+            })
+            incoming.previousState.listData!.listEntries.map((entry) => {
+                let hasAnnotations =
+                    incoming.previousState.annotationEntryData &&
+                    incoming.previousState.annotationEntryData[
+                        entry.normalizedUrl
+                    ]
+                if (hasAnnotations) {
+                    this.emitMutation({
+                        pageAnnotationsExpanded: {
+                            [entry.normalizedUrl]: { $set: true },
+                        },
+                    })
+                }
+            })
+        } else {
+            this.emitMutation({
+                allAnnotationExpanded: { $set: false },
+                pageAnnotationsExpanded: { $set: {} },
+            })
+        }
+        const {
+            latestPageSeenIndex,
+            normalizedPageUrls,
+        } = this.getFirstPagesWithoutLoadedAnnotations(incoming.previousState)
+        this.mainLatestEntryIndex = latestPageSeenIndex
+        this.loadPageAnnotations(
+            incoming.previousState.annotationEntryData!,
+            normalizedPageUrls,
+        )
     }
 
     pageBreakpointHit: EventHandler<'pageBreakpointHit'> = async (incoming) => {
