@@ -12,6 +12,7 @@ import {
 } from '@worldbrain/memex-common/lib/content-sharing/storage/types'
 import { GetAnnotationListEntriesElement } from '@worldbrain/memex-common/lib/content-sharing/storage/types'
 import {
+    SharedAnnotation,
     SharedAnnotationReference,
     SharedListReference,
     SharedListRoleID,
@@ -70,6 +71,11 @@ import { doesUrlPointToPdf } from '@worldbrain/memex-common/lib/page-indexing/ut
 import { determineEnv } from '../../../utils/runtime-environment'
 import { CLOUDFLARE_WORKER_URLS } from '@worldbrain/memex-common/lib/content-sharing/storage/constants'
 import { getListShareUrl } from '@worldbrain/memex-common/lib/content-sharing/utils'
+import {
+    AnnotationsSorter,
+    sortByCreatedTime,
+    sortByPagePosition,
+} from '@worldbrain/memex-common/lib/annotations/sorting'
 
 type EventHandler<EventName extends keyof ReaderPageViewEvent> = UIEventHandler<
     ReaderPageViewState,
@@ -295,7 +301,7 @@ export class ReaderPageViewLogic extends UILogic<
                     router.delQueryParam('noAutoOpen')
                 }
 
-                this.emitMutation({
+                nextState = this.emitAndApplyMutation(nextState, {
                     annotationLoadStates: {
                         [listEntry.normalizedUrl]: { $set: 'running' },
                     },
@@ -332,7 +338,7 @@ export class ReaderPageViewLogic extends UILogic<
 
                 const entries = annotationEntriesByList[listReference.id] ?? []
                 if (!entries.length) {
-                    this.emitMutation({
+                    nextState = this.emitAndApplyMutation(nextState, {
                         annotationLoadStates: {
                             [listEntry.normalizedUrl]: { $set: 'success' },
                         },
@@ -340,7 +346,7 @@ export class ReaderPageViewLogic extends UILogic<
                     return
                 }
 
-                this.emitMutation({
+                nextState = this.emitAndApplyMutation(nextState, {
                     annotationEntryData: {
                         $set: { [listEntry.normalizedUrl]: entries },
                     },
@@ -1167,7 +1173,7 @@ export class ReaderPageViewLogic extends UILogic<
                         }
                     }
 
-                    const mutation: UIMutation<ReaderPageViewState> = {
+                    const nextState = this.emitAndApplyMutation(state, {
                         annotationLoadStates: {
                             [normalizedPageUrl]: { $set: 'success' },
                         },
@@ -1193,9 +1199,53 @@ export class ReaderPageViewLogic extends UILogic<
                                 },
                             }),
                         ),
-                    }
-                    const nextState = this.withMutation(state, mutation)
-                    this.emitMutation(mutation)
+                        // Sort annot entries first by created time, then by highlight position in page (if highlight)
+                        annotationEntryData: mapValues(
+                            state.annotationEntryData,
+                            (entries) => {
+                                const annotationsByEntryLookup = new Map<
+                                    AutoPk,
+                                    SharedAnnotation
+                                >()
+                                for (const entry of entries) {
+                                    annotationsByEntryLookup.set(
+                                        entry.reference.id,
+                                        newAnnotations[
+                                            entry.sharedAnnotation.id.toString()
+                                        ],
+                                    )
+                                }
+                                const initEntriesSorter = (
+                                    sortFn: AnnotationsSorter,
+                                ) => (
+                                    a: GetAnnotationListEntriesElement,
+                                    b: GetAnnotationListEntriesElement,
+                                ) =>
+                                    sortFn(
+                                        annotationsByEntryLookup.get(
+                                            a.reference.id,
+                                        )!,
+                                        annotationsByEntryLookup.get(
+                                            b.reference.id,
+                                        )!,
+                                    )
+
+                                return {
+                                    $set: entries
+                                        .sort(
+                                            initEntriesSorter(
+                                                sortByCreatedTime,
+                                            ),
+                                        )
+                                        .sort(
+                                            initEntriesSorter(
+                                                sortByPagePosition,
+                                            ),
+                                        ),
+                                }
+                            },
+                        ),
+                    })
                     await this.renderHighlightsInState(nextState)
                 } catch (e) {
                     this.emitMutation({

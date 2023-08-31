@@ -23,10 +23,6 @@ import { getSinglePageShareUrl } from '@worldbrain/memex-common/lib/content-shar
 import LoadingIndicator from '@worldbrain/memex-common/lib/common-ui/components/loading-indicator'
 import IconBox from '@worldbrain/memex-common/lib/common-ui/components/icon-box'
 import { getReaderYoutubePlayerId } from '../utils/utils'
-import {
-    sortByCreatedTime,
-    sortByPagePosition,
-} from '@worldbrain/memex-common/lib/annotations/sorting'
 import { ViewportBreakpoint } from '@worldbrain/memex-common/lib/common-ui/styles/types'
 import { getViewportBreakpoint } from '@worldbrain/memex-common/lib/common-ui/styles/utils'
 import type { AutoPk } from '../../../types'
@@ -215,10 +211,6 @@ export class ReaderPageView extends UIElement<
                     },
                 )
             }
-
-            annotationsList
-                .sort((a, b) => sortByCreatedTime(b, a))
-                .sort(sortByPagePosition)
 
             return (
                 <AnnotationsInPage
