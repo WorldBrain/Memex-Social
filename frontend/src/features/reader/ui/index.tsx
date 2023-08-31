@@ -23,6 +23,10 @@ import { getSinglePageShareUrl } from '@worldbrain/memex-common/lib/content-shar
 import LoadingIndicator from '@worldbrain/memex-common/lib/common-ui/components/loading-indicator'
 import IconBox from '@worldbrain/memex-common/lib/common-ui/components/icon-box'
 import { getReaderYoutubePlayerId } from '../utils/utils'
+import {
+    sortByCreatedTime,
+    sortByPagePosition,
+} from '@worldbrain/memex-common/lib/annotations/sorting'
 import { ViewportBreakpoint } from '@worldbrain/memex-common/lib/common-ui/styles/types'
 import { getViewportBreakpoint } from '@worldbrain/memex-common/lib/common-ui/styles/utils'
 import type { AutoPk } from '../../../types'
@@ -58,7 +62,6 @@ export class ReaderPageView extends UIElement<
     }
 
     private editor: MemexEditorInstance | null = null
-    private firstLoad: boolean = true
 
     itemRanges: {
         [Key in 'listEntry' | 'annotEntry' | 'reply']:
@@ -213,54 +216,9 @@ export class ReaderPageView extends UIElement<
                 )
             }
 
-            if (annotationsList.length > 0) {
-                const entries = Object.values(annotationsList)
-
-                let noteItems = entries.filter(
-                    (entry) =>
-                        entry != null &&
-                        entry.comment &&
-                        entry.comment.length > 0 &&
-                        !entry.body,
-                )
-
-                let highlights = entries.filter(
-                    (entry) => entry != null && entry.body != null,
-                )
-
-                if (this.firstLoad) {
-                    this.firstLoad = false
-                    noteItems.sort((a, b) => {
-                        const startA = a.createdWhen
-                        const startB = b.createdWhen
-                        return startA - startB
-                    })
-
-                    highlights
-                        .filter((a) => a.selector != null)
-                        // Sort the array based on the start value from the parsed selector strings
-                        .sort((a, b) => {
-                            let parsedA =
-                                (a as any).selector != null &&
-                                JSON.parse((a as any)?.selector!)
-                            let parsedB =
-                                (b as any).selector != null &&
-                                JSON.parse((b as any)?.selector!)
-                            const startA = parsedA.descriptor.content.find(
-                                (item: any) =>
-                                    item.type === 'TextPositionSelector',
-                            ).start
-                            const startB = parsedB.descriptor.content.find(
-                                (item: any) =>
-                                    item.type === 'TextPositionSelector',
-                            ).start
-                            return startA - startB
-                        })
-                    annotationsList = [...noteItems, ...highlights]
-                } else {
-                    annotationsList = [...noteItems, ...highlights]
-                }
-            }
+            annotationsList
+                .sort((a, b) => sortByCreatedTime(b, a))
+                .sort(sortByPagePosition)
 
             return (
                 <AnnotationsInPage

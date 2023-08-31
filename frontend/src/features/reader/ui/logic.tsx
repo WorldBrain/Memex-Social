@@ -44,7 +44,6 @@ import {
     getInitialAnnotationConversationStates,
 } from '../../content-conversations/ui/utils'
 import UserProfileCache from '../../user-management/utils/user-profile-cache'
-import { fetchWebsiteHTML } from '../utils/api'
 import * as utils from '../utils/utils'
 import {
     ReaderPageViewDependencies,
@@ -173,13 +172,13 @@ export class ReaderPageViewLogic extends UILogic<
                                     $apply: (
                                         previousState?: GetAnnotationListEntriesElement[],
                                     ) => [
-                                        ...(previousState ?? []),
                                         {
                                             ...sharedListEntry!,
                                             creator: annotation.creator,
                                             sharedAnnotation:
                                                 annotation.reference,
                                         },
+                                        ...(previousState ?? []),
                                     ],
                                 },
                             },
@@ -850,7 +849,6 @@ export class ReaderPageViewLogic extends UILogic<
                     $apply: (
                         previousState?: GetAnnotationListEntriesElement[],
                     ) => [
-                        ...(previousState ?? []),
                         {
                             creator,
                             normalizedPageUrl,
@@ -864,6 +862,7 @@ export class ReaderPageViewLogic extends UILogic<
                                 id: annotationId, // This will get overwritten with the actual list entry ID once write is done
                             },
                         },
+                        ...(previousState ?? []),
                     ],
                 },
             } as any,
