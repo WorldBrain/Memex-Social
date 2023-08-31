@@ -22,8 +22,7 @@ import type { GenerateServerID } from '@worldbrain/memex-common/lib/content-shar
 import type { URLNormalizer } from '@worldbrain/memex-common/lib/url-utils/normalize/types'
 import type { AutoPk } from '@worldbrain/memex-common/lib/storage/types'
 import type StorageManager from '@worldbrain/storex'
-import { ContentSharingQueryParams } from '../../content-sharing/types'
-import { MemexEditorInstance } from '@worldbrain/memex-common/lib/editor'
+import type { ContentSharingQueryParams } from '../../content-sharing/types'
 
 export interface ReaderPageViewDependencies {
     services: UIElementServices<
@@ -86,6 +85,12 @@ export type ReaderPageViewState = AnnotationConversationsState & {
             isHovering: boolean
         }
     }
+    annotationDeleteStates: {
+        [annotationId: string]: {
+            isDeleting: boolean
+            deleteState: UITaskState
+        }
+    }
     annotationEntryData: GetAnnotationListEntriesResult
     annotations: GetAnnotationsResult
     sidebarWidth: number
@@ -129,8 +134,10 @@ export type ReaderPageViewEvent = UIEvent<AnnotationConversationEvent> & {
     }
     setAnnotationEditing: { annotationId: AutoPk; isEditing: boolean }
     setAnnotationHovering: { annotationId: AutoPk; isHovering: boolean }
+    setAnnotationDeleting: { annotationId: AutoPk; isDeleting: boolean }
     cancelAnnotationEdit: { annotationId: AutoPk }
     confirmAnnotationEdit: { annotationId: AutoPk }
+    confirmAnnotationDelete: { annotationId: AutoPk }
     changeAnnotationEditComment: { annotationId: AutoPk; comment: string }
     installMemexClick: {
         sharedListReference: SharedListReference

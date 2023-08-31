@@ -238,6 +238,9 @@ export class ReaderPageView extends UIElement<
                         )
                     }
                     getAnnotationEditProps={(annotationRef) => ({
+                        isDeleting: this.state.annotationDeleteStates[
+                            annotationRef.id
+                        ]?.isDeleting,
                         isEditing: this.state.annotationEditStates[
                             annotationRef.id
                         ]?.isEditing,
@@ -251,6 +254,11 @@ export class ReaderPageView extends UIElement<
                         comment:
                             this.state.annotationEditStates[annotationRef.id]
                                 ?.comment ?? '',
+                        setAnnotationDeleting: (isDeleting) => (event) =>
+                            this.processEvent('setAnnotationDeleting', {
+                                isDeleting,
+                                annotationId: annotationRef.id,
+                            }),
                         setAnnotationEditing: (isEditing) => (event) =>
                             this.processEvent('setAnnotationEditing', {
                                 isEditing,
@@ -265,6 +273,10 @@ export class ReaderPageView extends UIElement<
                         onCommentChange: (comment) =>
                             this.processEvent('changeAnnotationEditComment', {
                                 comment,
+                                annotationId: annotationRef.id,
+                            }),
+                        onDeleteConfim: () =>
+                            this.processEvent('confirmAnnotationDelete', {
                                 annotationId: annotationRef.id,
                             }),
                         onEditConfirm: () => () =>

@@ -76,6 +76,7 @@ import {
     sortByCreatedTime,
     sortByPagePosition,
 } from '@worldbrain/memex-common/lib/annotations/sorting'
+import type { UITaskState } from '@worldbrain/memex-common/lib/main-ui/types'
 
 type EventHandler<EventName extends keyof ReaderPageViewEvent> = UIEventHandler<
     ReaderPageViewState,
@@ -168,6 +169,14 @@ export class ReaderPageViewLogic extends UILogic<
                                     },
                                 },
                             },
+                            annotationDeleteStates: {
+                                [annotation.linkId]: {
+                                    $set: {
+                                        isDeleting: false,
+                                        deleteState: 'pristine',
+                                    },
+                                },
+                            },
                             annotations: {
                                 [annotation.linkId]: {
                                     $set: annotation,
@@ -217,6 +226,7 @@ export class ReaderPageViewLogic extends UILogic<
             currentUserReference: null,
             annotationEditStates: {},
             annotationHoverStates: {},
+            annotationDeleteStates: {},
             annotationLoadStates: {},
             annotationEntryData: {},
             annotations: {},
@@ -833,7 +843,15 @@ export class ReaderPageViewLogic extends UILogic<
                         isHovering: false,
                     },
                 },
-            } as any,
+            },
+            annotationDeleteStates: {
+                [annotationId]: {
+                    $set: {
+                        isDeleting: false,
+                        deleteState: 'pristine' as UITaskState,
+                    },
+                },
+            },
             annotations: {
                 [annotationId]: {
                     $set: {
@@ -1194,8 +1212,15 @@ export class ReaderPageViewLogic extends UILogic<
                         annotationHoverStates: mapValues(
                             newAnnotations,
                             (newAnnotation) => ({
+                                $set: { isHovering: false },
+                            }),
+                        ),
+                        annotationDeleteStates: mapValues(
+                            newAnnotations,
+                            (newAnnotation) => ({
                                 $set: {
-                                    isHovering: false,
+                                    isDeleting: false,
+                                    deleteState: 'pristine' as UITaskState,
                                 },
                             }),
                         ),
@@ -1405,6 +1430,7 @@ export class ReaderPageViewLogic extends UILogic<
             },
         })
     }
+
     setAnnotationHovering: EventHandler<'setAnnotationHovering'> = ({
         event,
     }) => {
@@ -1414,6 +1440,69 @@ export class ReaderPageViewLogic extends UILogic<
                     isHovering: { $set: event.isHovering },
                 },
             },
+        })
+    }
+
+    setAnnotationDeleting: EventHandler<'setAnnotationDeleting'> = ({
+        event,
+    }) => {
+        this.emitMutation({
+            annotationDeleteStates: {
+                [event.annotationId]: {
+                    isDeleting: { $set: event.isDeleting },
+                },
+            },
+        })
+    }
+
+    confirmAnnotationDelete: EventHandler<'confirmAnnotationDelete'> = async ({
+        event,
+        previousState,
+    }) => {
+        const annotation = previousState.annotations[event.annotationId]
+        let nextState = previousState
+
+        await executeUITask(
+            this,
+            (loadState) => ({
+                annotationDeleteStates: {
+                    [event.annotationId]: { deleteState: { $set: loadState } },
+                },
+            }),
+            async () => {
+                if (annotation.selector != null) {
+                    this.highlightRenderer.removeAnnotationHighlight({
+                        id: event.annotationId,
+                    })
+                }
+
+                nextState = this.emitAndApplyMutation(nextState, {
+                    annotations: { $unset: [event.annotationId] },
+                    annotationEntryData: {
+                        [annotation.normalizedPageUrl]: {
+                            $apply: (prev: GetAnnotationListEntriesElement[]) =>
+                                prev.filter(
+                                    (entry) =>
+                                        entry.sharedAnnotation.id !==
+                                        event.annotationId,
+                                ),
+                        },
+                    },
+                })
+
+                await this.dependencies.storage.contentSharing.removeAnnotations(
+                    {
+                        sharedAnnotationReferences: [annotation.reference],
+                    },
+                )
+            },
+        )
+
+        // Clean up unused states related to this annotation (important this happens after the async stuff, as the UITaskState exists in one of these)
+        nextState = this.emitAndApplyMutation(nextState, {
+            annotationEditStates: { $unset: [event.annotationId] },
+            annotationHoverStates: { $unset: [event.annotationId] },
+            annotationDeleteStates: { $unset: [event.annotationId] },
         })
     }
 
