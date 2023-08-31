@@ -49,6 +49,7 @@ import type { SlackList } from '@worldbrain/memex-common/lib/slack/types'
 import * as chrono from 'chrono-node'
 import type { SharedListEntrySearchRequest } from '@worldbrain/memex-common/lib/content-sharing/search'
 import { PreparedThread } from '@worldbrain/memex-common/lib/content-conversations/storage/types'
+import { UITaskState } from '@worldbrain/memex-common/lib/main-ui/types'
 const truncate = require('truncate')
 
 const LIST_DESCRIPTION_CHAR_LIMIT = 400
@@ -989,9 +990,7 @@ export default class CollectionDetailsLogic extends UILogic<
         if (!shouldBeExpanded) {
             return
         }
-        this.loadPageAnnotations(state.annotationEntryData!, [
-            incoming.event.normalizedUrl,
-        ])
+        this.loadPageAnnotations(state, [incoming.event.normalizedUrl])
     }
 
     toggleAllAnnotations: EventHandler<'toggleAllAnnotations'> = (incoming) => {
@@ -1028,10 +1027,7 @@ export default class CollectionDetailsLogic extends UILogic<
             normalizedPageUrls,
         } = this.getFirstPagesWithoutLoadedAnnotations(incoming.previousState)
         this.mainLatestEntryIndex = latestPageSeenIndex
-        this.loadPageAnnotations(
-            incoming.previousState.annotationEntryData!,
-            normalizedPageUrls,
-        )
+        this.loadPageAnnotations(incoming.previousState, normalizedPageUrls)
     }
 
     pageBreakpointHit: EventHandler<'pageBreakpointHit'> = async (incoming) => {
@@ -1100,8 +1096,7 @@ export default class CollectionDetailsLogic extends UILogic<
             }
             this.emitMutation(mutation)
             this.loadPageAnnotations(
-                this.withMutation(incoming.previousState, mutation)
-                    .annotationEntryData!,
+                this.withMutation(incoming.previousState, mutation),
                 newListEntries.map((entry) => entry.normalizedUrl),
             )
             const usersToLoad = new Set<string | number>(
@@ -1238,60 +1233,76 @@ export default class CollectionDetailsLogic extends UILogic<
     }
 
     async loadPageAnnotations(
-        annotationEntries: GetAnnotationListEntriesResult,
+        previousState: CollectionDetailsState,
         normalizedPageUrls: string[],
     ) {
+        const { contentSharing } = this.dependencies.services
+
+        const annotationEntries = previousState.annotationEntryData!
         this.emitSignal<CollectionDetailsSignal>({
             type: 'annotation-loading-started',
         })
 
-        const { contentSharing } = this.dependencies.services
-        const annotationsResult = await contentSharing.backend.loadAnnotationsWithThreads(
-            {
-                listId: this.dependencies.listID,
-                annotationIds: filterObject(
-                    mapValues(annotationEntries, (entries) =>
-                        entries.map((entry) => entry.sharedAnnotation.id),
-                    ),
-                    (_, key) => normalizedPageUrls.includes(key),
-                ),
-            },
+        const pristinePageUrls = normalizedPageUrls.filter(
+            (url) => !previousState.annotationLoadStates[url],
         )
-        if (annotationsResult.status !== 'success') {
-            return
-        }
-        const annotationsData = annotationsResult.data
-        await this.initializePageAnnotations(
-            annotationsData.annotations,
-            annotationsData.threads,
-        )
-
-        const annotationLoadStates: UIMutation<
-            CollectionDetailsState['annotationLoadStates']
-        > = {}
-        const annotations: UIMutation<
-            CollectionDetailsState['annotations']
-        > = {}
-        for (const [normalizedPageUrl, newAnnotations] of Object.entries(
-            annotationsData.annotations,
-        )) {
-            annotationLoadStates[normalizedPageUrl] = { $set: 'success' }
-            annotations[normalizedPageUrl] = { $set: newAnnotations }
-        }
-        const mutation: UIMutation<CollectionDetailsState> = {
-            annotationLoadStates,
-            annotations,
-        }
-        this.emitMutation(mutation)
-
-        await this._users.loadUsers(
-            annotationsData.usersToLoad.map(
-                (id): UserReference => ({
-                    type: 'user-reference',
-                    id,
-                }),
+        const taskStatesMutation = (
+            taskState: UITaskState,
+        ): UIMutation<CollectionDetailsState> => ({
+            annotationLoadStates: Object.fromEntries(
+                pristinePageUrls.map((url) => [url, { $set: taskState }]),
             ),
-        )
+        })
+        await executeUITask(this, taskStatesMutation, async () => {
+            const annotationsResult = await contentSharing.backend.loadAnnotationsWithThreads(
+                {
+                    listId: this.dependencies.listID,
+                    annotationIds: filterObject(
+                        mapValues(annotationEntries, (entries) =>
+                            entries.map((entry) => entry.sharedAnnotation.id),
+                        ),
+                        (_, key) => normalizedPageUrls.includes(key),
+                    ),
+                },
+            )
+            if (annotationsResult.status !== 'success') {
+                return
+            }
+            const annotationsData = annotationsResult.data
+            await this.initializePageAnnotations(
+                annotationsData.annotations,
+                annotationsData.threads,
+            )
+
+            const annotationLoadStates: UIMutation<
+                CollectionDetailsState['annotationLoadStates']
+            > = {}
+            const annotations: UIMutation<
+                CollectionDetailsState['annotations']
+            > = {}
+            for (const [normalizedPageUrl, newAnnotations] of Object.entries(
+                annotationsData.annotations,
+            )) {
+                annotationLoadStates[normalizedPageUrl] = {
+                    $set: 'success',
+                }
+                annotations[normalizedPageUrl] = { $set: newAnnotations }
+            }
+            const mutation: UIMutation<CollectionDetailsState> = {
+                annotationLoadStates,
+                annotations,
+            }
+            this.emitMutation(mutation)
+
+            await this._users.loadUsers(
+                annotationsData.usersToLoad.map(
+                    (id): UserReference => ({
+                        type: 'user-reference',
+                        id,
+                    }),
+                ),
+            )
+        })
     }
 
     async initializePageAnnotations(
