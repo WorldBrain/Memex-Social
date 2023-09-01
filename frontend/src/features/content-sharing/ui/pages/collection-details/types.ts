@@ -4,10 +4,6 @@ import {
     AnnotationConversationsState,
 } from '../../../../content-conversations/ui/types'
 import {
-    GetAnnotationsResult,
-    GetAnnotationListEntriesResult,
-} from '@worldbrain/memex-common/lib/content-sharing/storage/types'
-import {
     SharedListEntry,
     SharedList,
     SharedListRoleID,
@@ -35,6 +31,11 @@ import { ProcessSharedListKeyResult } from '@worldbrain/memex-common/lib/content
 import { SearchType } from '@worldbrain/memex-common/lib/common-ui/components/types'
 import { ContentSharingQueryParams } from '../../../types'
 import type { SlackList } from '@worldbrain/memex-common/lib/slack/types'
+import type {
+    EditableAnnotationsEvent,
+    EditableAnnotationsState,
+} from '../../../../annotations/ui/types'
+import type StorageManager from '@worldbrain/storex'
 
 export interface CollectionDetailsDependencies {
     listID: string
@@ -71,9 +72,11 @@ export interface CollectionDetailsDependencies {
         | 'activityFollows'
     >
     query: ContentSharingQueryParams
+    storageManager: StorageManager
 }
 
 export type CollectionDetailsState = AnnotationConversationsState &
+    EditableAnnotationsState &
     ListsSidebarState &
     ExtDetectionState & {
         listLoadState: UITaskState
@@ -127,8 +130,6 @@ export type CollectionDetailsState = AnnotationConversationsState &
         allAnnotationExpanded: boolean
         isListShareModalShown: boolean
         pageAnnotationsExpanded: { [normalizedPageUrl: string]: boolean }
-        annotationEntryData?: GetAnnotationListEntriesResult
-        annotations: GetAnnotationsResult
         searchType: SearchType
     }
 
@@ -141,6 +142,7 @@ export type ResultHoverState = 'main-content' | 'footer' | null
 
 export type CollectionDetailsEvent = UIEvent<
     AnnotationConversationEvent &
+        EditableAnnotationsEvent &
         ListsSidebarEvent &
         ExtDetectionEvent & {
             load: { isUpdate?: boolean; listID?: string }

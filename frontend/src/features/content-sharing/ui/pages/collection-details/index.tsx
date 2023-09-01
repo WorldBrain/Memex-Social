@@ -618,6 +618,57 @@ export default class CollectionDetailsPage extends UIElement<
                         this.itemRanges.reply,
                     )
                 }
+                getAnnotationEditProps={(annotationRef) => ({
+                    isDeleting: this.state.annotationDeleteStates[
+                        annotationRef.id
+                    ]?.isDeleting,
+                    isEditing: this.state.annotationEditStates[annotationRef.id]
+                        ?.isEditing,
+                    isHovering: this.state.annotationHoverStates[
+                        annotationRef.id
+                    ]?.isHovering,
+                    isOwner:
+                        this.state.annotations[annotationRef.id.toString()]
+                            ?.creator.id ===
+                        this.state.currentUserReference?.id,
+                    comment:
+                        this.state.annotationEditStates[annotationRef.id]
+                            ?.comment ?? '',
+                    setAnnotationDeleting: (isDeleting) => (event) =>
+                        this.processEvent('setAnnotationDeleting', {
+                            isDeleting,
+                            annotationId: annotationRef.id,
+                        }),
+                    setAnnotationEditing: (isEditing) => (event) =>
+                        this.processEvent('setAnnotationEditing', {
+                            isEditing,
+                            annotationId: annotationRef.id,
+                        }),
+                    setAnnotationHovering: (isHovering) => (event) => {
+                        this.processEvent('setAnnotationHovering', {
+                            isHovering,
+                            annotationId: annotationRef.id,
+                        })
+                    },
+                    onCommentChange: (comment) =>
+                        this.processEvent('changeAnnotationEditComment', {
+                            comment,
+                            annotationId: annotationRef.id,
+                        }),
+                    onDeleteConfim: () =>
+                        this.processEvent('confirmAnnotationDelete', {
+                            annotationId: annotationRef.id,
+                        }),
+                    onEditConfirm: () => () =>
+                        this.processEvent('confirmAnnotationEdit', {
+                            annotationId: annotationRef.id,
+                        }),
+                    onEditCancel: () =>
+                        this.processEvent('setAnnotationEditing', {
+                            annotationId: annotationRef.id,
+                            isEditing: false,
+                        }),
+                })}
                 getAnnotationCreator={(annotationReference) => {
                     const creatorRef = this.state.annotations[
                         annotationReference.id.toString()
