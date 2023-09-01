@@ -10,7 +10,7 @@ import {
     GetAnnotationListEntriesResult,
     SharedCollectionType,
 } from '@worldbrain/memex-common/lib/content-sharing/storage/types'
-import { GetAnnotationListEntriesElement } from '@worldbrain/memex-common/lib/content-sharing/storage/types'
+import type { GetAnnotationListEntriesElement } from '@worldbrain/memex-common/lib/content-sharing/storage/types'
 import {
     SharedAnnotation,
     SharedAnnotationReference,
@@ -18,7 +18,7 @@ import {
     SharedListRoleID,
 } from '@worldbrain/memex-common/lib/content-sharing/types'
 import { makeStorageReference } from '@worldbrain/memex-common/lib/storage/references'
-import { UserReference } from '@worldbrain/memex-common/lib/web-interface/types/users'
+import type { UserReference } from '@worldbrain/memex-common/lib/web-interface/types/users'
 import {
     HighlightRenderer,
     Dependencies as HighlightRendererDeps,
@@ -28,7 +28,6 @@ import chunk from 'lodash/chunk'
 import flatten from 'lodash/flatten'
 import {
     UILogic,
-    UIEvent,
     UIEventHandler,
     executeUITask,
 } from '../../../main-ui/classes/logic'
@@ -64,7 +63,6 @@ import type { MemexTheme } from '@worldbrain/memex-common/lib/common-ui/styles/t
 import type { UploadStorageUtils } from '@worldbrain/memex-common/lib/personal-cloud/backend/translation-layer/storage-utils'
 import { createPersonalCloudStorageUtils } from '@worldbrain/memex-common/lib/content-sharing/storage/utils'
 import { userChanges } from '../../../services/auth/utils'
-import type { PersonalAnnotation } from '@worldbrain/memex-common/lib/web-interface/types/storex-generated/personal-cloud'
 import type { AutoPk } from '../../../types'
 import { doesMemexExtDetectionElExist } from '@worldbrain/memex-common/lib/common-ui/utils/content-script'
 import { doesUrlPointToPdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
@@ -76,6 +74,10 @@ import {
     sortByCreatedTime,
     sortByPagePosition,
 } from '@worldbrain/memex-common/lib/annotations/sorting'
+import {
+    editableAnnotationsEventHandlers,
+    editableAnnotationsInitialState,
+} from '../../annotations/ui/logic'
 import type { UITaskState } from '@worldbrain/memex-common/lib/main-ui/types'
 
 type EventHandler<EventName extends keyof ReaderPageViewEvent> = UIEventHandler<
@@ -84,7 +86,7 @@ type EventHandler<EventName extends keyof ReaderPageViewEvent> = UIEventHandler<
     EventName
 >
 
-// Send this upstream
+// TODO: Switch to the upstream version once merged in and updated
 const emitAndApplyMutation = <S,>(logic: UILogic<S, any>) => (
     previousState: S,
     mutation: UIMutation<S>,
@@ -127,6 +129,16 @@ export class ReaderPageViewLogic extends UILogic<
                 this.emitMutation({ users: { $merge: users } })
             },
         })
+
+        Object.assign(
+            this,
+            editableAnnotationsEventHandlers<ReaderPageViewState>(this as any, {
+                ...this.dependencies,
+                getHighlightRenderer: () => this.highlightRenderer,
+                getPersonalCloudStorageUtils: () =>
+                    this.personalCloudStorageUtils,
+            }),
+        )
 
         Object.assign(
             this,
@@ -223,13 +235,7 @@ export class ReaderPageViewLogic extends UILogic<
                 isCreating: false,
                 comment: '',
             },
-            currentUserReference: null,
-            annotationEditStates: {},
-            annotationHoverStates: {},
-            annotationDeleteStates: {},
             annotationLoadStates: {},
-            annotationEntryData: {},
-            annotations: {},
             users: {},
             sidebarWidth: 400,
             activeAnnotationId: null,
@@ -246,13 +252,14 @@ export class ReaderPageViewLogic extends UILogic<
             renderAnnotationInstructOverlay: false,
             showSupportChat: false,
             preventInteractionsInIframe: false,
+            ...editableAnnotationsInitialState(),
             ...annotationConversationInitialState(),
         }
     }
 
     init: EventHandler<'init'> = async ({ previousState }) => {
         const { contentSharing } = this.dependencies.storage
-        const { auth, router, listKeys } = this.dependencies.services
+        const { router } = this.dependencies.services
         const listReference = makeStorageReference<SharedListReference>(
             'shared-list-reference',
             this.dependencies.listID,
@@ -1419,178 +1426,6 @@ export class ReaderPageViewLogic extends UILogic<
                 selector: JSON.parse(annotationData.selector),
             })
         }
-    }
-
-    setAnnotationEditing: EventHandler<'setAnnotationEditing'> = ({
-        event,
-    }) => {
-        this.emitMutation({
-            annotationEditStates: {
-                [event.annotationId]: { isEditing: { $set: event.isEditing } },
-            },
-        })
-    }
-
-    setAnnotationHovering: EventHandler<'setAnnotationHovering'> = ({
-        event,
-    }) => {
-        this.emitMutation({
-            annotationHoverStates: {
-                [event.annotationId]: {
-                    isHovering: { $set: event.isHovering },
-                },
-            },
-        })
-    }
-
-    setAnnotationDeleting: EventHandler<'setAnnotationDeleting'> = ({
-        event,
-    }) => {
-        this.emitMutation({
-            annotationDeleteStates: {
-                [event.annotationId]: {
-                    isDeleting: { $set: event.isDeleting },
-                },
-            },
-        })
-    }
-
-    confirmAnnotationDelete: EventHandler<'confirmAnnotationDelete'> = async ({
-        event,
-        previousState,
-    }) => {
-        const annotation = previousState.annotations[event.annotationId]
-        let nextState = previousState
-
-        await executeUITask(
-            this,
-            (loadState) => ({
-                annotationDeleteStates: {
-                    [event.annotationId]: { deleteState: { $set: loadState } },
-                },
-            }),
-            async () => {
-                if (annotation.selector != null) {
-                    this.highlightRenderer.removeAnnotationHighlight({
-                        id: event.annotationId,
-                    })
-                }
-
-                nextState = this.emitAndApplyMutation(nextState, {
-                    annotations: { $unset: [event.annotationId] },
-                    annotationEntryData: {
-                        [annotation.normalizedPageUrl]: {
-                            $apply: (prev: GetAnnotationListEntriesElement[]) =>
-                                prev.filter(
-                                    (entry) =>
-                                        entry.sharedAnnotation.id !==
-                                        event.annotationId,
-                                ),
-                        },
-                    },
-                })
-
-                await this.dependencies.storage.contentSharing.removeAnnotations(
-                    {
-                        sharedAnnotationReferences: [annotation.reference],
-                    },
-                )
-            },
-        )
-
-        // Clean up unused states related to this annotation (important this happens after the async stuff, as the UITaskState exists in one of these)
-        nextState = this.emitAndApplyMutation(nextState, {
-            annotationEditStates: { $unset: [event.annotationId] },
-            annotationHoverStates: { $unset: [event.annotationId] },
-            annotationDeleteStates: { $unset: [event.annotationId] },
-        })
-    }
-
-    changeAnnotationEditComment: EventHandler<'changeAnnotationEditComment'> = ({
-        event,
-    }) => {
-        this.emitMutation({
-            annotationEditStates: {
-                [event.annotationId]: { comment: { $set: event.comment } },
-            },
-        })
-    }
-
-    cancelAnnotationEdit: EventHandler<'cancelAnnotationEdit'> = ({
-        event,
-    }) => {
-        this.emitMutation({
-            annotationEditStates: {
-                [event.annotationId]: { isEditing: { $set: false } },
-            },
-        })
-    }
-
-    confirmAnnotationEdit: EventHandler<'confirmAnnotationEdit'> = async ({
-        event,
-        previousState,
-    }) => {
-        const annotation = previousState.annotations[event.annotationId]
-        const editState = previousState.annotationEditStates[event.annotationId]
-        if (!editState) {
-            throw new Error(
-                'Attempted annotation edit for non-existent annotation',
-            )
-        }
-        if (!this.personalCloudStorageUtils) {
-            throw new Error(
-                'Attempted annotation edit without personal cloud storage utils being setup',
-            )
-        }
-
-        this.emitMutation({
-            annotations: {
-                [event.annotationId]: { comment: { $set: editState.comment } },
-            },
-            annotationEditStates: {
-                [event.annotationId]: { isEditing: { $set: false } },
-            },
-        })
-
-        await executeUITask(
-            this,
-            (loadState) => ({
-                annotationEditStates: {
-                    [event.annotationId]: { loadState: { $set: loadState } },
-                },
-            }),
-            async () => {
-                // Skip storage ops early if no change
-                if (annotation.comment === editState.comment) {
-                    return
-                }
-
-                await this.dependencies.storage.contentSharing.updateAnnotationComment(
-                    {
-                        updatedComment: editState.comment,
-                        sharedAnnotationReference: {
-                            type: 'shared-annotation-reference',
-                            id: event.annotationId,
-                        },
-                    },
-                )
-
-                // Update personal cloud DB to trigger sync changes
-                // TODO: Probably move this to a `onUpdate` storage hook (when supported) rather than manually doing here
-                const personalAnnotation = await this.personalCloudStorageUtils!.findOne<
-                    PersonalAnnotation & { id: AutoPk }
-                >('personalAnnotation', {
-                    localId: annotation.createdWhen.toString(),
-                })
-                await this.personalCloudStorageUtils!.updateById(
-                    'personalAnnotation',
-                    personalAnnotation.id,
-                    {
-                        comment: editState.comment,
-                    },
-                )
-            },
-        )
     }
 
     setAnnotationCreating: EventHandler<'setAnnotationCreating'> = ({

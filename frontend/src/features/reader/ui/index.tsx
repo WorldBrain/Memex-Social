@@ -284,8 +284,9 @@ export class ReaderPageView extends UIElement<
                                 annotationId: annotationRef.id,
                             }),
                         onEditCancel: () =>
-                            this.processEvent('cancelAnnotationEdit', {
+                            this.processEvent('setAnnotationEditing', {
                                 annotationId: annotationRef.id,
+                                isEditing: false,
                             }),
                     })}
                     onAnnotationClick={(annotation) => (event) =>
