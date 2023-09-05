@@ -44,6 +44,7 @@ export interface EditableAnnotationsState {
     }
     annotationDeleteStates: {
         [annotationId: string]: {
+            /** Denotes whether the annotation is in "confirm delete?" mode. */
             isDeleting: boolean
             deleteState: UITaskState
         }
