@@ -626,12 +626,11 @@ export default class CollectionDetailsPage extends UIElement<
                     isHovering: this.state.replyHoverStates[replyReference.id]
                         ?.isHovering,
                     isOwner:
-                        // TODO: Fix this check
                         this.state.conversations[
                             annotationReference.id.toString()
                         ].replies.find(
                             (reply) => reply.reference.id === replyReference.id,
-                        )?.creatorReference?.id ===
+                        )?.userReference?.id ===
                         this.state.currentUserReference?.id,
                     comment:
                         this.state.replyEditStates[replyReference.id]?.text ??
