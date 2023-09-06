@@ -5,6 +5,7 @@ import type { Services } from '../../../services/types'
 import type RouterService from '../../../services/router'
 import type { UserReference } from '../../user-management/types'
 import type { ConversationReplyReference } from '@worldbrain/memex-common/lib/content-conversations/types'
+import type { SharedAnnotationReference } from '@worldbrain/memex-common/lib/content-sharing/types'
 
 export default class ContentConversationsService
     implements ContentConversationsServiceInterface {
@@ -19,11 +20,15 @@ export default class ContentConversationsService
     ) {}
 
     private async hasReplyChangeAuthorization(
-        { id }: UserReference,
+        { id: currentUserId }: UserReference,
         replyReference: ConversationReplyReference,
+        annotationReference: SharedAnnotationReference,
     ): Promise<boolean> {
-        const reply = await this.options.storage.getReply({ replyReference })
-        return reply?.userReference.id === id
+        const reply = await this.options.storage.getReply({
+            replyReference,
+            annotationReference,
+        })
+        return reply?.userReference.id === currentUserId
     }
 
     submitReply: ContentConversationsServiceInterface['submitReply'] = async (
@@ -68,6 +73,7 @@ export default class ContentConversationsService
                 !(await this.hasReplyChangeAuthorization(
                     userReference,
                     params.replyReference,
+                    params.annotationReference,
                 ))
             ) {
                 return { status: 'not-authenticated' }
@@ -75,6 +81,7 @@ export default class ContentConversationsService
 
             await this.options.storage.deleteReply({
                 replyReference: params.replyReference,
+                annotationReference: params.annotationReference,
             })
             return { status: 'success' }
         } catch (error) {
@@ -100,13 +107,16 @@ export default class ContentConversationsService
                 !(await this.hasReplyChangeAuthorization(
                     userReference,
                     params.replyReference,
+                    params.annotationReference,
                 ))
             ) {
                 return { status: 'not-authenticated' }
             }
 
-            await this.options.storage.deleteReply({
+            await this.options.storage.editReply({
+                content: params.content,
                 replyReference: params.replyReference,
+                annotationReference: params.annotationReference,
             })
             return { status: 'success', replyReference: params.replyReference }
         } catch (error) {
