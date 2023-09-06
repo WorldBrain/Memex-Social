@@ -39,6 +39,13 @@ export default class ContentConversationsService
             return { status: 'not-authenticated' }
         }
 
+        if (!params.reply.content.trim().length) {
+            return {
+                status: 'failure',
+                error: new Error('Cannot create an empty reply'),
+            }
+        }
+
         const unblockLeave = this.options.services.router.blockLeave(
             `Your reply is still being submitted`,
         )
