@@ -1510,6 +1510,30 @@ export const SCENARIOS: ScenarioMap<Targets> = {
             steps: [],
         }),
     ),
+    'private-space-denied-authenticated': scenario<Targets>(
+        ({ step, callModification }) => ({
+            fixture: 'annotated-list-with-user-and-follows',
+            startRoute: {
+                route: 'collectionDetails',
+                params: { id: 'default-list' },
+            },
+            setup: {
+                execute: async ({ storage, services }) => {
+                    await services.auth.loginWithEmailPassword({
+                        email: 'two@test.com',
+                        password: 'wqrdwqdfw',
+                    })
+                    await storage.serverStorageManager.operation(
+                        'updateObjects',
+                        'sharedList',
+                        { id: 'default-list' },
+                        { private: true },
+                    )
+                },
+            },
+            steps: [],
+        }),
+    ),
     'private-space-denied-authenticated-with-key': scenario<Targets>(
         ({ step, callModification }) => ({
             fixture: 'annotated-list-with-user-and-follows',
