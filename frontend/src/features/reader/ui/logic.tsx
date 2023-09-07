@@ -301,16 +301,52 @@ export class ReaderPageViewLogic extends UILogic<
                     if (!shouldNotOpenLink) {
                         router.delQueryParam('noAutoOpen')
 
-                        await this.dependencies.services?.memexExtension.openLink(
-                            {
-                                originalPageUrl: sourceUrl,
-                                sharedListId: listReference?.id as string,
-                                isCollaboratorLink: !!router.getQueryParam(
-                                    'key',
-                                ),
-                                isOwnLink: nextState.permissions === 'owner',
-                            },
+                        const sharedListId = listReference.id as string
+                        const sourceUrl = listEntry.sourceUrl as string
+                        const isCollaborationLink = !!router.getQueryParam(
+                            'key',
                         )
+                        const isOwnLink = nextState.permissions === 'owner'
+                        const userAgent = navigator.userAgent
+
+                        if (/Firefox/i.test(userAgent)) {
+                            console.log('isfirefox')
+                            // Create a new DOM element, let's assume it's a `div`
+                            const injectedElement = document.createElement(
+                                'div',
+                            )
+
+                            // Set an ID so the MutationObserver can identify it
+                            injectedElement.id =
+                                'openPageInSelectedListModeTriggerElement'
+
+                            // Attach the necessary data as data attributes
+                            injectedElement.setAttribute('sourceurl', sourceUrl)
+                            injectedElement.setAttribute(
+                                'sharedlistid',
+                                sharedListId,
+                            )
+                            injectedElement.setAttribute(
+                                'iscollaboratorlink',
+                                isCollaborationLink.toString(),
+                            )
+                            injectedElement.setAttribute(
+                                'isownlink',
+                                isOwnLink.toString(),
+                            )
+
+                            // Append the element to the body (or any other parent element)
+                            document.body.appendChild(injectedElement)
+                        } else {
+                            await this.dependencies.services?.memexExtension.openLink(
+                                {
+                                    originalPageUrl: sourceUrl,
+                                    sharedListId: sharedListId as string,
+                                    isCollaboratorLink: isCollaborationLink,
+                                    isOwnLink: isOwnLink,
+                                },
+                            )
+                        }
                     }
                 }
 
@@ -1066,14 +1102,41 @@ export class ReaderPageViewLogic extends UILogic<
     }
     openOriginalLink: EventHandler<'openOriginalLink'> = async (incoming) => {
         if (doesMemexExtDetectionElExist()) {
-            await this.dependencies.services?.memexExtension.openLink({
-                originalPageUrl: incoming.previousState.sourceUrl as string,
-                sharedListId: incoming.previousState.listData?.reference
-                    .id as string,
-                isCollaboratorLink:
-                    incoming.previousState.permissions === 'contributor',
-                isOwnLink: incoming.previousState.permissions === 'owner',
-            })
+            const userAgent = navigator.userAgent
+
+            const sourceUrl = incoming.previousState.sourceUrl as string
+            const sharedListId = incoming.previousState.listData?.reference
+                .id as string
+            const isCollaboratorLink =
+                incoming.previousState.permissions === 'contributor'
+            const isOwnLink = incoming.previousState.permissions === 'owner'
+
+            if (/Firefox/i.test(userAgent)) {
+                // Create a new DOM element, let's assume it's a `div`
+                const injectedElement = document.createElement('div')
+
+                // Set an ID so the MutationObserver can identify it
+                injectedElement.id = 'openPageInSelectedListModeTriggerElement'
+
+                // Attach the necessary data as data attributes
+                injectedElement.setAttribute('sourceurl', sourceUrl)
+                injectedElement.setAttribute('sharedlistid', sharedListId)
+                injectedElement.setAttribute(
+                    'iscollaboratorlink',
+                    isCollaboratorLink.toString(),
+                )
+                injectedElement.setAttribute('isownlink', isOwnLink.toString())
+
+                // Append the element to the body (or any other parent element)
+                document.body.appendChild(injectedElement)
+            } else {
+                await this.dependencies.services?.memexExtension.openLink({
+                    originalPageUrl: sourceUrl,
+                    sharedListId: sharedListId,
+                    isCollaboratorLink: isCollaboratorLink,
+                    isOwnLink: isOwnLink,
+                })
+            }
         } else {
             window.open(incoming.previousState.sourceUrl as string, '_blank')
         }
