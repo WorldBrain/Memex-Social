@@ -35,6 +35,7 @@ export interface ReaderPageViewDependencies {
         | 'userManagement'
         | 'youtube'
         | 'memexExtension'
+        | 'contentSharing'
     >
     storage: Pick<
         StorageModules,

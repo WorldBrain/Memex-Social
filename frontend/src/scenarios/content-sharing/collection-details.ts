@@ -1459,6 +1459,92 @@ export const SCENARIOS: ScenarioMap<Targets> = {
         },
         steps: [],
     })),
+    'private-space-denied-unauthenticated': scenario<Targets>(
+        ({ step, callModification }) => ({
+            fixture: 'annotated-list-with-user-and-follows',
+            startRoute: {
+                route: 'collectionDetails',
+                params: { id: 'default-list' },
+            },
+            setup: {
+                execute: async ({ storage }) => {
+                    await storage.serverStorageManager.operation(
+                        'updateObjects',
+                        'sharedList',
+                        { id: 'default-list' },
+                        { private: true },
+                    )
+                },
+            },
+            steps: [],
+        }),
+    ),
+    'private-space-denied-unauthenticated-with-key': scenario<Targets>(
+        ({ step, callModification }) => ({
+            fixture: 'annotated-list-with-user-and-follows',
+            startRoute: {
+                route: 'collectionDetails',
+                params: { id: 'default-list' },
+            },
+            setup: {
+                execute: async ({ storage, services }) => {
+                    await storage.serverStorageManager.operation(
+                        'updateObjects',
+                        'sharedList',
+                        { id: 'default-list' },
+                        { private: true },
+                    )
+                    const { link } = await services.listKeys.generateKeyLink({
+                        key: { roleID: SharedListRoleID.AddOnly },
+                        listReference: {
+                            type: 'shared-list-reference',
+                            id: 'default-list',
+                        },
+                    })
+                    const keyString = getKeyStringFromLink(link)
+                    services.router.getQueryParam = () => {
+                        return keyString
+                    }
+                },
+            },
+            steps: [],
+        }),
+    ),
+    'private-space-denied-authenticated-with-key': scenario<Targets>(
+        ({ step, callModification }) => ({
+            fixture: 'annotated-list-with-user-and-follows',
+            startRoute: {
+                route: 'collectionDetails',
+                params: { id: 'default-list' },
+            },
+            setup: {
+                execute: async ({ storage, services }) => {
+                    await services.auth.loginWithEmailPassword({
+                        email: 'two@test.com',
+                        password: 'wqrdwqdfw',
+                    })
+                    await storage.serverStorageManager.operation(
+                        'updateObjects',
+                        'sharedList',
+                        { id: 'default-list' },
+                        { private: true },
+                    )
+                    const { link } = await services.listKeys.generateKeyLink({
+                        key: { roleID: SharedListRoleID.AddOnly },
+                        listReference: {
+                            type: 'shared-list-reference',
+                            id: 'default-list',
+                        },
+                    })
+                    const keyString = getKeyStringFromLink(link)
+                    services.router.getQueryParam = () => {
+                        return keyString
+                    }
+                },
+            },
+            steps: [],
+        }),
+    ),
     cocurated: scenario<Targets>(({ step, callModification }) => ({
         fixture: 'cocurated-list',
         startRoute: {

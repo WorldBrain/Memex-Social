@@ -1,3 +1,4 @@
+import React from 'react'
 import {
     mapValues,
     filterObject,
@@ -236,10 +237,39 @@ export default class CollectionDetailsLogic extends UILogic<
                 {
                     listId: this.dependencies.listID,
                     entryId: this.dependencies.entryID,
-                    keyString: keyString || undefined,
                 },
             )
             if (response.status !== 'success') {
+                if (response.status === 'permission-denied') {
+                    await this._users.loadUser({
+                        type: 'user-reference',
+                        id: response.data.creator,
+                    })
+                    this.emitMutation({
+                        listRoles: { $set: [] },
+                        permissionDenied: {
+                            $set: { ...response.data, hasKey: !!keyString },
+                        },
+                    })
+                    const { auth } = this.dependencies.services
+                    const currentUser = await auth.getCurrentUser()
+                    if (!currentUser) {
+                        await auth.requestAuth({
+                            header: keyString ? (
+                                <div>
+                                    You've been invited to{' '}
+                                    {response.data.listTitle}
+                                </div>
+                            ) : (
+                                <div>This space is private</div>
+                            ),
+                        })
+                        this.processUIEvent('load', {
+                            event: { isUpdate: false },
+                            previousState: incoming.previousState,
+                        })
+                    }
+                }
                 return
             }
             const { data } = response
@@ -497,7 +527,7 @@ export default class CollectionDetailsLogic extends UILogic<
                 await this.dependencies.services.auth.waitForAuthReady()
 
                 const userReference = this.dependencies.services.auth.getCurrentUserReference()
-                const sucessMutation: UIMutation<CollectionDetailsState> = {
+                const successMutation: UIMutation<CollectionDetailsState> = {
                     listRoleID: { $set: SharedListRoleID.ReadWrite },
                     listRoles: {
                         $unshift: [
@@ -509,19 +539,26 @@ export default class CollectionDetailsLogic extends UILogic<
                             },
                         ],
                     },
+                    permissionDenied: { $set: undefined },
                 }
 
                 const {
                     result,
                 } = await this.dependencies.services.listKeys.processCurrentKey()
                 if (result !== 'not-authenticated') {
-                    return {
-                        mutation: {
-                            permissionKeyResult: { $set: result },
-                            requestingAuth: { $set: false },
-                            ...(result === 'success' ? sucessMutation : {}),
-                        },
+                    this.emitMutation({
+                        permissionKeyResult: { $set: result },
+                        requestingAuth: { $set: false },
+                        ...(result === 'success' ? successMutation : {}),
+                    })
+                    if (incoming.previousState.permissionDenied) {
+                        this.processUIEvent('load', {
+                            event: { isUpdate: false },
+                            previousState: incoming.previousState,
+                        })
                     }
+
+                    return
                 }
 
                 this.emitMutation({ requestingAuth: { $set: true } })
@@ -535,19 +572,24 @@ export default class CollectionDetailsLogic extends UILogic<
                     authResult.status === 'error'
                 ) {
                     return
-                } else {
-                    const {
-                        result: secondKeyResult,
-                    } = await this.dependencies.services.listKeys.processCurrentKey()
+                }
 
-                    return {
-                        mutation: {
-                            permissionKeyResult: { $set: secondKeyResult },
-                            permissionKeyState: { $set: 'success' },
-                            requestingAuth: { $set: false },
-                            ...sucessMutation,
-                        },
-                    }
+                const {
+                    result: secondKeyResult,
+                } = await this.dependencies.services.listKeys.processCurrentKey()
+
+                this.emitMutation({
+                    permissionKeyResult: { $set: secondKeyResult },
+                    permissionKeyState: { $set: 'success' },
+                    requestingAuth: { $set: false },
+                    ...successMutation,
+                })
+
+                if (incoming.previousState.permissionDenied) {
+                    this.processUIEvent('load', {
+                        event: { isUpdate: false },
+                        previousState: incoming.previousState,
+                    })
                 }
             },
         )
@@ -681,202 +723,10 @@ export default class CollectionDetailsLogic extends UILogic<
                         ),
                     },
                 },
-                // newPageReplies: {
-                //     $set: fromPairs(
-                //         result.entries.map((entry) => [
-                //             entry.normalizedUrl,
-                //             getInitialNewReplyState(),
-                //         ]),
-                //     ),
-                // },
             })
         } else {
             this.emitMutation({ listData: { $set: undefined } })
         }
-    }
-
-    loadListData: EventHandler<'loadListData'> = async (incoming) => {
-        // const {
-        //     contentSharing,
-        //     slack,
-        //     discord,
-        //     slackRetroSync,
-        //     discordRetroSync,
-        // } = this.dependencies.storage
-        // const listReference = makeStorageReference<SharedListReference>(
-        //     'shared-list-reference',
-        //     incoming.event.listID,
-        // )
-        // const {
-        //     success: listDataSuccess,
-        // } = await executeUITask<CollectionDetailsState>(
-        //     this,
-        //     'listLoadState',
-        //     async () => {
-        //         this.emitSignal<CollectionDetailsSignal>({
-        //             type: 'loading-started',
-        //         })
-        //         const result = await contentSharing.retrieveList(
-        //             listReference,
-        //             {
-        //                 fetchSingleEntry: this.dependencies.entryID
-        //                     ? {
-        //                           type:
-        //                               'shared-annotation-list-entry-reference',
-        //                           id: this.dependencies.entryID,
-        //                       }
-        //                     : undefined,
-        //                 maxEntryCount: PAGE_SIZE,
-        //             },
-        //         )
-        //         if (this.dependencies.entryID) {
-        //             const normalizedPageUrl = result.entries[0].normalizedUrl
-        //             const entriesByList = await contentSharing.getAnnotationListEntriesForListsOnPage(
-        //                 {
-        //                     listReferences: [listReference],
-        //                     normalizedPageUrl,
-        //                 },
-        //             )
-        //             const entries = entriesByList[listReference.id] ?? []
-        //             if (!entries.length) {
-        //                 return
-        //             }
-        //             this.emitMutation({
-        //                 pageAnnotationsExpanded: {
-        //                     [normalizedPageUrl]: { $set: true },
-        //                 },
-        //             })
-        //             await this.loadPageAnnotations(
-        //                 { [normalizedPageUrl]: entries },
-        //                 [normalizedPageUrl],
-        //             )
-        //             if (this.dependencies.query.annotationId) {
-        //                 this.processUIEvent('toggleAnnotationReplies', {
-        //                     previousState: incoming.getState!(),
-        //                     event: {
-        //                         sharedListReference: listReference,
-        //                         annotationReference: {
-        //                             type: 'shared-annotation-reference',
-        //                             id: this.dependencies.query.annotationId,
-        //                         },
-        //                     },
-        //                 })
-        //             }
-        //         }
-        //         if (result) {
-        //             this._creatorReference = result.creator
-        //             const userIds = [
-        //                 ...new Set(
-        //                     result.entries.map((entry) => entry.creator.id),
-        //                 ),
-        //             ]
-        //             await this._users.loadUsers(
-        //                 userIds.map(
-        //                     (id): UserReference => ({
-        //                         type: 'user-reference',
-        //                         id,
-        //                     }),
-        //                 ),
-        //             )
-        //             const listDescription = result.sharedList.description ?? ''
-        //             const listDescriptionFits =
-        //                 listDescription.length < LIST_DESCRIPTION_CHAR_LIMIT
-        //             let discordList: DiscordList | null = null
-        //             let slackList: SlackList | null = null
-        //             let isChatIntegrationSyncing = false
-        //             if (result.sharedList.platform === 'discord') {
-        //                 discordList = await discord.findDiscordListForSharedList(
-        //                     result.sharedList.reference,
-        //                 )
-        //                 if (!discordList) {
-        //                     return {
-        //                         mutation: { listData: { $set: undefined } },
-        //                     }
-        //                 }
-        //                 isChatIntegrationSyncing = !!(await discordRetroSync.getSyncEntryByChannel(
-        //                     { channelId: discordList.channelId },
-        //                 ))
-        //             } else if (result.sharedList.platform === 'slack') {
-        //                 slackList = await slack.findSlackListForSharedList(
-        //                     result.sharedList.reference,
-        //                 )
-        //                 if (!slackList) {
-        //                     return {
-        //                         mutation: { listData: { $set: undefined } },
-        //                     }
-        //                 }
-        //                 isChatIntegrationSyncing = !!(await slackRetroSync.getSyncEntryByChannel(
-        //                     { channelId: slackList.channelId },
-        //                 ))
-        //             }
-        //             this.mainListEntries.push(...result.entries)
-        //             this.emitMutation({
-        //                 listData: {
-        //                     $set: {
-        //                         slackList,
-        //                         reference: listReference,
-        //                         pageSize: PAGE_SIZE,
-        //                         discordList,
-        //                         isChatIntegrationSyncing,
-        //                         creatorReference: result.creator,
-        //                         creator: await this._users.loadUser(
-        //                             result.creator,
-        //                         ),
-        //                         list: result.sharedList,
-        //                         listEntries: result.entries,
-        //                         listDescriptionState: listDescriptionFits
-        //                             ? 'fits'
-        //                             : 'collapsed',
-        //                         listDescriptionTruncated: truncate(
-        //                             listDescription,
-        //                             LIST_DESCRIPTION_CHAR_LIMIT,
-        //                         ),
-        //                     },
-        //                 },
-        //                 isListOwner: {
-        //                     $set:
-        //                         result.creator.id ===
-        //                         this.dependencies.services.auth.getCurrentUserReference()
-        //                             ?.id,
-        //                 },
-        //                 newPageReplies: {
-        //                     $set: fromPairs(
-        //                         result.entries.map((entry) => [
-        //                             entry.normalizedUrl,
-        //                             getInitialNewReplyState(),
-        //                         ]),
-        //                     ),
-        //                 },
-        //             })
-        //         } else {
-        //             this.emitMutation({ listData: { $set: undefined } })
-        //         }
-        //     },
-        // )
-        // this.emitSignal<CollectionDetailsSignal>({
-        //     type: 'loaded-list-data',
-        //     success: listDataSuccess,
-        // })
-        // const {
-        //     success: annotationEntriesSuccess,
-        // } = await executeUITask<CollectionDetailsState>(
-        //     this,
-        //     'annotationEntriesLoadState',
-        //     async () => {
-        //         const entries = await contentSharing.getAnnotationListEntries({
-        //             listReference,
-        //         })
-        //         return {
-        //             mutation: {
-        //                 annotationEntryData: { $set: entries },
-        //             },
-        //         }
-        //     },
-        // )
-        // this.emitSignal<CollectionDetailsSignal>({
-        //     type: 'loaded-annotation-entries',
-        //     success: annotationEntriesSuccess,
-        // })
     }
 
     private async loadFollowBtnState() {

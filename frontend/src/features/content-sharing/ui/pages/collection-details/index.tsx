@@ -55,6 +55,7 @@ import TextField from '@worldbrain/memex-common/lib/common-ui/components/text-fi
 import TextArea from '@worldbrain/memex-common/lib/common-ui/components/text-area'
 import DateTimePicker from 'react-datepicker'
 import debounce from 'lodash/debounce'
+import { stat } from 'fs'
 
 const commentImage = require('../../../../../assets/img/comment.svg')
 const commentEmptyImage = require('../../../../../assets/img/comment-empty.svg')
@@ -1701,6 +1702,35 @@ export default class CollectionDetailsPage extends UIElement<
                             Error loading this collection. <br /> Reload page to
                             retry.
                         </ErrorWithAction>
+                    </DefaultPageLayout>
+                </DocumentView>
+            )
+        }
+
+        if (state.permissionDenied) {
+            return (
+                <DocumentView>
+                    <DefaultPageLayout
+                        services={this.props.services}
+                        storage={this.props.storage}
+                        viewportBreakpoint={this.viewportBreakpoint}
+                        // listsSidebarProps={this.listsSidebarProps}
+                        scrollTop={this.state.scrollTop}
+                    >
+                        Permission denied, but the title is{' '}
+                        {state.permissionDenied.listTitle}
+                        {state.permissionDenied.hasKey && (
+                            <PrimaryAction
+                                label="Accept Invitation"
+                                icon="check"
+                                iconPosition="left"
+                                type={'primary'}
+                                size={'small'}
+                                onClick={() =>
+                                    this.processEvent('acceptInvitation', {})
+                                }
+                            />
+                        )}
                     </DefaultPageLayout>
                 </DocumentView>
             )

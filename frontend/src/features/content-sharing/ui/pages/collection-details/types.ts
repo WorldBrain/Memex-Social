@@ -35,6 +35,7 @@ import { ProcessSharedListKeyResult } from '@worldbrain/memex-common/lib/content
 import { SearchType } from '@worldbrain/memex-common/lib/common-ui/components/types'
 import { ContentSharingQueryParams } from '../../../types'
 import type { SlackList } from '@worldbrain/memex-common/lib/slack/types'
+import { CollectionDetailsDeniedData } from '@worldbrain/memex-common/lib/content-sharing/backend/types'
 
 export interface CollectionDetailsDependencies {
     listID: string
@@ -111,6 +112,7 @@ export type CollectionDetailsState = AnnotationConversationsState &
 
         annotationEntriesLoadState: UITaskState
         annotationLoadStates: { [normalizedPageUrl: string]: UITaskState }
+        permissionDenied?: CollectionDetailsDeniedData & { hasKey: boolean }
         listData?: {
             reference: SharedListReference
             pageSize: number

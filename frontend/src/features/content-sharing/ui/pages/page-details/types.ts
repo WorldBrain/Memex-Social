@@ -40,6 +40,7 @@ export interface PageDetailsDependencies {
         | 'documentTitle'
         | 'userMessages'
         | 'memexExtension'
+        | 'contentSharing'
     >
     storage: Pick<
         StorageModules,
