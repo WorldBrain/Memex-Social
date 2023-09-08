@@ -4,6 +4,7 @@ import { doesMemexExtDetectionElExist } from '@worldbrain/memex-common/lib/commo
 import { isMemexPageAPdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
 import { Services } from '../../../services/types'
 import { SharedListReference } from '@worldbrain/memex-common/lib/content-sharing/types'
+import { sleepPromise } from '../../../utils/promises'
 
 export interface Dependencies {
     services: Pick<Services, 'memexExtension' | 'auth'>
@@ -171,6 +172,8 @@ export const extDetectionEventHandlers = (
 
                     // Append the element to the body (or any other parent element)
                     document.body.appendChild(injectedElement)
+                    await sleepPromise(500)
+                    injectedElement.remove()
                 } else {
                     await dependencies.services?.memexExtension.openLink({
                         originalPageUrl: event.urlToOpen,
