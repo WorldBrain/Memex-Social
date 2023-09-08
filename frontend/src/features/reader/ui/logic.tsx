@@ -79,6 +79,7 @@ import {
     editableAnnotationsInitialState,
 } from '../../annotations/ui/logic'
 import type { UITaskState } from '@worldbrain/memex-common/lib/main-ui/types'
+import { sleepPromise } from '../../../utils/promises'
 
 type EventHandler<EventName extends keyof ReaderPageViewEvent> = UIEventHandler<
     ReaderPageViewState,
@@ -310,7 +311,6 @@ export class ReaderPageViewLogic extends UILogic<
                         const userAgent = navigator.userAgent
 
                         if (/Firefox/i.test(userAgent)) {
-                            console.log('isfirefox')
                             // Create a new DOM element, let's assume it's a `div`
                             const injectedElement = document.createElement(
                                 'div',
@@ -337,6 +337,8 @@ export class ReaderPageViewLogic extends UILogic<
 
                             // Append the element to the body (or any other parent element)
                             document.body.appendChild(injectedElement)
+                            await sleepPromise(500)
+                            injectedElement.remove()
                         } else {
                             await this.dependencies.services?.memexExtension.openLink(
                                 {
@@ -1129,6 +1131,8 @@ export class ReaderPageViewLogic extends UILogic<
 
                 // Append the element to the body (or any other parent element)
                 document.body.appendChild(injectedElement)
+                await sleepPromise(500)
+                injectedElement.remove()
             } else {
                 await this.dependencies.services?.memexExtension.openLink({
                     originalPageUrl: sourceUrl,
