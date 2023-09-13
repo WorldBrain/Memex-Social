@@ -1,4 +1,5 @@
 import React from 'react'
+import fromPairs from 'lodash/fromPairs'
 import {
     mapValues,
     filterObject,
@@ -8,7 +9,6 @@ import {
     SharedListRoleID,
 } from '@worldbrain/memex-common/lib/content-sharing/types'
 import {
-    GetAnnotationListEntriesResult,
     GetAnnotationListEntriesElement,
     GetAnnotationsResult,
 } from '@worldbrain/memex-common/lib/content-sharing/storage/types'
@@ -49,8 +49,13 @@ import type { DiscordList } from '@worldbrain/memex-common/lib/discord/types'
 import type { SlackList } from '@worldbrain/memex-common/lib/slack/types'
 import * as chrono from 'chrono-node'
 import type { SharedListEntrySearchRequest } from '@worldbrain/memex-common/lib/content-sharing/search'
-import { PreparedThread } from '@worldbrain/memex-common/lib/content-conversations/storage/types'
-import { UITaskState } from '@worldbrain/memex-common/lib/main-ui/types'
+import type { PreparedThread } from '@worldbrain/memex-common/lib/content-conversations/storage/types'
+import type { UITaskState } from '@worldbrain/memex-common/lib/main-ui/types'
+import {
+    editableAnnotationsEventHandlers,
+    editableAnnotationsInitialState,
+} from '../../../../annotations/ui/logic'
+import type { UploadStorageUtils } from '@worldbrain/memex-common/lib/personal-cloud/backend/translation-layer/storage-utils'
 const truncate = require('truncate')
 
 const LIST_DESCRIPTION_CHAR_LIMIT = 400
@@ -69,6 +74,11 @@ export default class CollectionDetailsLogic extends UILogic<
     } = {}
     _users: UserProfileCache
     _creatorReference: UserReference | null = null
+    /**
+     * This is only used as a way to create sync entries when we update annotation comments here.
+     * TODO: Possibly move this to a storage hook.
+     */
+    private personalCloudStorageUtils: UploadStorageUtils | null = null
 
     // Without search, we're expanding the mainListEntries as we paginate
     mainListEntries: CollectionDetailsListEntry[] = []
@@ -85,6 +95,18 @@ export default class CollectionDetailsLogic extends UILogic<
                 this.emitMutation({ users: { $merge: users } })
             },
         })
+
+        Object.assign(
+            this,
+            editableAnnotationsEventHandlers<CollectionDetailsState>(
+                this as any,
+                {
+                    ...this.dependencies,
+                    getPersonalCloudStorageUtils: () =>
+                        this.personalCloudStorageUtils,
+                },
+            ),
+        )
 
         Object.assign(
             this,
@@ -110,6 +132,30 @@ export default class CollectionDetailsLogic extends UILogic<
                         this._users.loadUser(reference),
                     onNewAnnotationCreate: (_, annotation, sharedListEntry) => {
                         this.emitMutation({
+                            annotationEditStates: {
+                                [annotation.linkId]: {
+                                    $set: {
+                                        isEditing: false,
+                                        loadState: 'pristine',
+                                        comment: annotation.comment ?? '',
+                                    },
+                                },
+                            },
+                            annotationHoverStates: {
+                                [annotation.linkId]: {
+                                    $set: {
+                                        isHovering: false,
+                                    },
+                                },
+                            },
+                            annotationDeleteStates: {
+                                [annotation.linkId]: {
+                                    $set: {
+                                        isDeleting: false,
+                                        deleteState: 'pristine',
+                                    },
+                                },
+                            },
                             annotations: {
                                 [annotation.linkId]: {
                                     $set: annotation,
@@ -196,7 +242,6 @@ export default class CollectionDetailsLogic extends UILogic<
             scrollTop: 0,
             annotationEntriesLoadState: 'pristine',
             annotationLoadStates: {},
-            annotations: {},
             isCollectionFollowed: false,
             allAnnotationExpanded: false,
             isListShareModalShown: false,
@@ -213,6 +258,7 @@ export default class CollectionDetailsLogic extends UILogic<
             paginateLoading: 'pristine',
             ...extDetectionInitialState(),
             ...listsSidebarInitialState(),
+            ...editableAnnotationsInitialState(),
             ...annotationConversationInitialState(),
         }
     }

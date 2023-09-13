@@ -150,7 +150,7 @@ export default class AnnotationDetailsPage extends UIElement<
                             </LogoLinkArea>
                         </IntroArea>
                     )}
-                    <AnnotationContainer>
+                    <AnnotationContainer isIframe={this.isIframe()}>
                         {this.isIframe() && (
                             <IntroArea isIframe>
                                 <LogoLinkArea
@@ -363,6 +363,9 @@ const AnnotationPage = styled.div<{ isIframe: boolean }>`
         props.isIframe &&
         css`
             padding: 0;
+            padding-bottom: 0;
+            width: 100%;
+            overflow: clip;
         `};
 `
 const AnnotationComment = styled.div<{
@@ -460,13 +463,23 @@ const LoadingScreen = styled.div<{
     width: 100%;
 `
 
-const AnnotationContainer = styled.div`
+const AnnotationContainer = styled.div<{ isIframe: boolean }>`
     display: flex;
     flex-direction: column;
     justify-content: center;
     max-width: 500px;
     border: 1px solid ${(props) => props.theme.colors.greyScale2};
     border-radius: 8px;
+
+    ${(props) =>
+        props.isIframe &&
+        css`
+            width: 100%;
+            max-width: 100%;
+            height: fit-content;
+            overflow: clip;
+            height: 100vh;
+        `};
 `
 
 const MarkdownBox = styled(Markdown)`

@@ -149,7 +149,6 @@ export default class ProfilePopup extends PureComponent<ProfilePopupProps> {
         })
 
         const purifiedHTML = DOMPurify.sanitize(HTML)
-        console.log(purifiedHTML)
 
         const finalHTML = parse(purifiedHTML)
 

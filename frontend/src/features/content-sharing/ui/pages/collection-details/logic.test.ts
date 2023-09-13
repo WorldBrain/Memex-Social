@@ -99,6 +99,7 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
                 },
             })
             const logic = new CollectionDetailsLogic({
+                storageManager: storage.serverStorageManager,
                 storage: storage.serverModules,
                 services,
                 listID: storage.serverModules.contentSharing.getSharedListLinkID(
@@ -221,6 +222,7 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
             })
 
             const logic = new CollectionDetailsLogic({
+                storageManager: storage.serverStorageManager,
                 storage: storage.serverModules,
                 services,
                 listID: storage.serverModules.contentSharing.getSharedListLinkID(
@@ -302,6 +304,7 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
             })
 
             const logic = new CollectionDetailsLogic({
+                storageManager: storage.serverStorageManager,
                 storage: storage.serverModules,
                 services,
                 listID,
@@ -410,6 +413,7 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
             })
 
             const logic = new CollectionDetailsLogic({
+                storageManager: storage.serverStorageManager,
                 storage: storage.serverModules,
                 services,
                 listID,
@@ -466,6 +470,7 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
             )
 
             const logic = new CollectionDetailsLogic({
+                storageManager: storage.serverStorageManager,
                 storage: storage.serverModules,
                 services,
                 listID,

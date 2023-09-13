@@ -133,6 +133,11 @@ export const theme: Theme = THEME({
         sideBySide: require('../../assets/img/strikethroughIcon.svg'),
         openAI: require('../../assets/img/openAI.svg'),
         googleLogo: require('../../assets/img/googleLogo.svg'),
+        telegram: require('../../assets/img/googleLogo.svg'),
+
+        // TODO: Update these
+        moon: require('../../assets/img/googleLogo.svg'),
+        sun: require('../../assets/img/googleLogo.svg'),
 
         // doubleArrow: require('../../assets/img/doubleArrow.svg'),,
         // import tagFull from '../../assets/img/tag_full.svg'
@@ -140,6 +145,7 @@ export const theme: Theme = THEME({
         // import heartFull from '../../assets/img/heart_full.svg'
         // import heartEmpty from '../../assets/img/heart_empty.svg'
     },
+    variant: 'dark',
     // colors: {
     //     background: 'white',
     //     warning: '#ff9090',

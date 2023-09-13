@@ -10,7 +10,10 @@ import { Rnd } from 'react-rnd'
 import { ReaderPageViewLogic } from './logic'
 import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
 import { PrimaryAction } from '@worldbrain/memex-common/lib/common-ui/components/PrimaryAction'
-import { SharedListEntry } from '@worldbrain/memex-common/lib/content-sharing/types'
+import type {
+    SharedListEntry,
+    SharedAnnotation,
+} from '@worldbrain/memex-common/lib/content-sharing/types'
 import { UserReference } from '../../user-management/types'
 import AnnotationsInPage from '@worldbrain/memex-common/lib/content-conversations/ui/components/annotations-in-page'
 import AnnotationCreate from '@worldbrain/memex-common/lib/content-conversations/ui/components/annotation-create'
@@ -22,12 +25,20 @@ import IconBox from '@worldbrain/memex-common/lib/common-ui/components/icon-box'
 import { getReaderYoutubePlayerId } from '../utils/utils'
 import { ViewportBreakpoint } from '@worldbrain/memex-common/lib/common-ui/styles/types'
 import { getViewportBreakpoint } from '@worldbrain/memex-common/lib/common-ui/styles/utils'
-import Overlay from '@worldbrain/memex-common/lib/main-ui/containers/overlay'
+import type { AutoPk } from '../../../types'
+import { MemexEditorInstance } from '@worldbrain/memex-common/lib/editor'
 
 const TopBarHeight = 60
 const memexLogo = require('../../../assets/img/memex-logo-beta.svg')
 const memexIcon = require('../../../assets/img/memex-icon.svg')
 
+const isIframe = () => {
+    try {
+        return window.self !== window.top
+    } catch (e) {
+        return true
+    }
+}
 export class ReaderPageView extends UIElement<
     ReaderPageViewDependencies,
     ReaderPageViewState,
@@ -45,6 +56,8 @@ export class ReaderPageView extends UIElement<
             reply: parseRange(query.fromReply, query.toReply),
         }
     }
+
+    private editor: MemexEditorInstance | null = null
 
     itemRanges: {
         [Key in 'listEntry' | 'annotEntry' | 'reply']:
@@ -82,6 +95,7 @@ export class ReaderPageView extends UIElement<
     private reportButtonRef = React.createRef<HTMLDivElement>()
     private sharePageButton = React.createRef<HTMLDivElement>()
     private optionsMenuButtonRef = React.createRef<HTMLDivElement>()
+    private chatBoxRef = React.createRef<HTMLDivElement>()
 
     // get isListContributor(): boolean {
     //     return (
@@ -172,6 +186,32 @@ export class ReaderPageView extends UIElement<
                 </EmptyMessageContainer>
             )
         } else {
+            let annotationsList: Array<SharedAnnotation & { id: AutoPk }> = []
+
+            if (
+                state.annotationEntryData &&
+                state.annotationEntryData[entry.normalizedUrl] &&
+                state.annotationEntryData &&
+                state.annotations !== null
+            ) {
+                state.annotationEntryData[entry.normalizedUrl].map(
+                    (annotationEntry) => {
+                        if (
+                            this.state.annotations[
+                                annotationEntry.sharedAnnotation.id.toString()
+                            ]
+                        ) {
+                            annotationsList.push({
+                                ...this.state.annotations[
+                                    annotationEntry.sharedAnnotation.id.toString()
+                                ],
+                                id: annotationEntry.sharedAnnotation.id,
+                            })
+                        }
+                    },
+                )
+            }
+
             return (
                 <AnnotationsInPage
                     hideThreadBar={true}
@@ -197,7 +237,77 @@ export class ReaderPageView extends UIElement<
                             this.itemRanges.reply,
                         )
                     }
+                    getReplyEditProps={(
+                        replyReference,
+                        annotationReference,
+                    ) => ({
+                        isDeleting: this.state.replyDeleteStates[
+                            replyReference.id
+                        ]?.isDeleting,
+                        isEditing: this.state.replyEditStates[replyReference.id]
+                            ?.isEditing,
+                        isHovering: this.state.replyHoverStates[
+                            replyReference.id
+                        ]?.isHovering,
+                        isOwner:
+                            this.state.conversations[
+                                annotationReference.id.toString()
+                            ].replies.find(
+                                (reply) =>
+                                    reply.reference.id === replyReference.id,
+                            )?.userReference?.id ===
+                            this.state.currentUserReference?.id,
+                        comment:
+                            this.state.replyEditStates[replyReference.id]
+                                ?.text ?? '',
+                        setAnnotationDeleting: (isDeleting) => (event) =>
+                            this.processEvent('setReplyToAnnotationDeleting', {
+                                isDeleting,
+                                replyReference,
+                            }),
+                        setAnnotationEditing: (isEditing) => (event) =>
+                            this.processEvent('setReplyToAnnotationEditing', {
+                                isEditing,
+                                replyReference,
+                            }),
+                        setAnnotationHovering: (isHovering) => (event) => {
+                            this.processEvent('setReplyToAnnotationHovering', {
+                                isHovering,
+                                replyReference,
+                            })
+                        },
+                        onCommentChange: (comment) =>
+                            this.processEvent('editReplyToAnnotation', {
+                                replyText: comment,
+                                replyReference,
+                            }),
+                        onDeleteConfim: () =>
+                            this.processEvent(
+                                'confirmDeleteReplyToAnnotation',
+                                {
+                                    replyReference,
+                                    annotationReference,
+                                    sharedListReference: this.state.listData!
+                                        .reference,
+                                },
+                            ),
+                        onEditConfirm: () => () =>
+                            this.processEvent('confirmEditReplyToAnnotation', {
+                                replyReference,
+                                annotationReference,
+                                sharedListReference: this.state.listData!
+                                    .reference,
+                            }),
+                        onEditCancel: () =>
+                            this.processEvent('setReplyToAnnotationEditing', {
+                                isEditing: false,
+                                replyReference,
+                            }),
+                    })}
                     getAnnotationEditProps={(annotationRef) => ({
+                        isDeleting: this.state.annotationDeleteStates[
+                            annotationRef.id
+                        ]?.isDeleting,
                         isEditing: this.state.annotationEditStates[
                             annotationRef.id
                         ]?.isEditing,
@@ -211,6 +321,11 @@ export class ReaderPageView extends UIElement<
                         comment:
                             this.state.annotationEditStates[annotationRef.id]
                                 ?.comment ?? '',
+                        setAnnotationDeleting: (isDeleting) => (event) =>
+                            this.processEvent('setAnnotationDeleting', {
+                                isDeleting,
+                                annotationId: annotationRef.id,
+                            }),
                         setAnnotationEditing: (isEditing) => (event) =>
                             this.processEvent('setAnnotationEditing', {
                                 isEditing,
@@ -227,13 +342,18 @@ export class ReaderPageView extends UIElement<
                                 comment,
                                 annotationId: annotationRef.id,
                             }),
+                        onDeleteConfim: () =>
+                            this.processEvent('confirmAnnotationDelete', {
+                                annotationId: annotationRef.id,
+                            }),
                         onEditConfirm: () => () =>
                             this.processEvent('confirmAnnotationEdit', {
                                 annotationId: annotationRef.id,
                             }),
                         onEditCancel: () =>
-                            this.processEvent('cancelAnnotationEdit', {
+                            this.processEvent('setAnnotationEditing', {
                                 annotationId: annotationRef.id,
+                                isEditing: false,
                             }),
                     })}
                     onAnnotationClick={(annotation) => (event) =>
@@ -242,15 +362,14 @@ export class ReaderPageView extends UIElement<
                         })}
                     loadState={state.annotationLoadStates[entry.normalizedUrl]}
                     annotations={
-                        state.annotationEntryData &&
-                        state.annotationEntryData[entry.normalizedUrl] &&
-                        state.annotationEntryData &&
-                        state.annotationEntryData[entry.normalizedUrl].map(
-                            (annotationEntry) =>
-                                this.state.annotations[
-                                    annotationEntry.sharedAnnotation.id.toString()
-                                ] ?? null,
-                        )
+                        annotationsList?.map((annot) => ({
+                            ...annot,
+                            linkId: annot.id.toString(),
+                            reference: {
+                                type: 'shared-annotation-reference',
+                                id: annot.id,
+                            },
+                        })) ?? null
                     }
                     annotationConversations={this.state.conversations}
                     getAnnotationCreator={(annotationReference) => {
@@ -616,12 +735,21 @@ export class ReaderPageView extends UIElement<
                                     icon="clock"
                                     type="forth"
                                     size="medium"
-                                    onClick={() =>
-                                        this.processEvent(
-                                            'createYoutubeNote',
-                                            {},
-                                        )
-                                    }
+                                    onClick={() => {
+                                        if (
+                                            this.state.annotationCreateState
+                                                .comment.length > 0 ||
+                                            this.state.annotationCreateState
+                                                .isCreating
+                                        ) {
+                                            this.editor?.addYoutubeTimestamp()
+                                        } else {
+                                            this.processEvent(
+                                                'createYoutubeNote',
+                                                {},
+                                            )
+                                        }
+                                    }}
                                 />
                             ))}
                         <YoutubeVideoBox>
@@ -632,26 +760,29 @@ export class ReaderPageView extends UIElement<
             )
         }
         return (
-            <InjectedContent
-                ref={(ref) =>
-                    this.processEvent('setReaderContainerRef', {
-                        ref,
-                    })
-                }
-            >
-                {this.state.iframeLoadState === 'error' ? (
-                    <div>
-                        The reader didn't load properly. Please try refreshing
-                        the page.
-                    </div>
-                ) : (
-                    this.state.iframeLoadState !== 'success' && (
-                        <LoadingBox height={'400px'}>
-                            <LoadingIndicator size={34} />
-                        </LoadingBox>
-                    )
-                )}
-            </InjectedContent>
+            <>
+                {this.state.preventInteractionsInIframe && <ClickBlocker />}
+                <InjectedContent
+                    ref={(ref) =>
+                        this.processEvent('setReaderContainerRef', {
+                            ref,
+                        })
+                    }
+                >
+                    {this.state.iframeLoadState === 'error' ? (
+                        <div>
+                            The reader didn't load properly. Please try
+                            refreshing the page.
+                        </div>
+                    ) : (
+                        this.state.iframeLoadState !== 'success' && (
+                            <LoadingBox height={'400px'}>
+                                <LoadingIndicator size={34} />
+                            </LoadingBox>
+                        )
+                    )}
+                </InjectedContent>
+            </>
         )
     }
 
@@ -863,7 +994,9 @@ export class ReaderPageView extends UIElement<
                         </RightSideTopBar>
                     </TopBar>
                     {this.state.permissionsLoadState === 'success' ? (
-                        <>{this.renderMainContent()}</>
+                        <MainContentContainer>
+                            {this.renderMainContent()}
+                        </MainContentContainer>
                     ) : (
                         <LoadingBox height={'400px'}>
                             <LoadingIndicator size={34} />
@@ -894,7 +1027,7 @@ export class ReaderPageView extends UIElement<
                         resizeGrid={[1, 0]}
                         dragAxis={'none'}
                         minWidth={screenSmall ? 'fill-available' : '400px'}
-                        maxWidth={'1000px'}
+                        maxWidth={'600px'}
                         disableDragging={true}
                         enableResizing={{
                             top: false,
@@ -906,7 +1039,10 @@ export class ReaderPageView extends UIElement<
                             bottomLeft: false,
                             topLeft: false,
                         }}
-                        onResizeStop={(
+                        onResizeStart={() =>
+                            this.processEvent('toggleClickBlocker', null)
+                        }
+                        onResize={(
                             e: any,
                             direction: any,
                             ref: any,
@@ -916,6 +1052,15 @@ export class ReaderPageView extends UIElement<
                             this.processEvent('setSidebarWidth', {
                                 width: ref.style.width,
                             })
+                        }}
+                        onResizeStop={(
+                            e: any,
+                            direction: any,
+                            ref: any,
+                            delta: any,
+                            position: any,
+                        ) => {
+                            this.processEvent('toggleClickBlocker', null)
                         }}
                     >
                         <SidebarTopBar
@@ -930,10 +1075,66 @@ export class ReaderPageView extends UIElement<
                                     }
                                 />
                             ) : (
-                                <AuthHeader
-                                    services={this.props.services}
-                                    storage={this.props.storage}
-                                />
+                                <RightSideTopBar>
+                                    {this.state.showSupportChat && (
+                                        <PopoutBox
+                                            targetElementRef={
+                                                this.chatBoxRef.current ??
+                                                undefined
+                                            }
+                                            closeComponent={() =>
+                                                this.processEvent(
+                                                    'toggleSupportChat',
+                                                    null,
+                                                )
+                                            }
+                                            placement="bottom"
+                                            offsetX={20}
+                                        >
+                                            <ChatBox>
+                                                <LoadingIndicator size={30} />
+                                                <ChatFrame
+                                                    src={
+                                                        'https://go.crisp.chat/chat/embed/?website_id=05013744-c145-49c2-9c84-bfb682316599'
+                                                    }
+                                                    height={600}
+                                                    width={500}
+                                                />
+                                            </ChatBox>
+                                            <ChatFrame
+                                                src={
+                                                    'https://go.crisp.chat/chat/embed/?website_id=05013744-c145-49c2-9c84-bfb682316599'
+                                                }
+                                                height={600}
+                                                width={500}
+                                            />
+                                        </PopoutBox>
+                                    )}
+                                    {!isIframe() && (
+                                        <SupportChatBox>
+                                            <PrimaryAction
+                                                onClick={() => {
+                                                    this.processEvent(
+                                                        'toggleSupportChat',
+                                                        null,
+                                                    )
+                                                }}
+                                                type="tertiary"
+                                                iconColor="prime1"
+                                                icon="chatWithUs"
+                                                innerRef={
+                                                    this.chatBoxRef ?? undefined
+                                                }
+                                                size="medium"
+                                                label="Support Chat"
+                                            />
+                                        </SupportChatBox>
+                                    )}
+                                    <AuthHeader
+                                        services={this.props.services}
+                                        storage={this.props.storage}
+                                    />
+                                </RightSideTopBar>
                             )}
                         </SidebarTopBar>
                         <SidebarAnnotationContainer>
@@ -960,12 +1161,23 @@ export class ReaderPageView extends UIElement<
                                                 null,
                                             )
                                         }
-                                        onChange={(comment) =>
+                                        setAnnotationCreating={(value) =>
                                             this.processEvent(
-                                                'changeAnnotationCreateComment',
-                                                { comment },
+                                                'setAnnotationCreating',
+                                                { isCreating: value },
                                             )
                                         }
+                                        setEditorInstanceRef={(ref) =>
+                                            (this.editor = ref)
+                                        }
+                                        onChange={(comment) => {
+                                            this.processEvent(
+                                                'changeAnnotationCreateComment',
+                                                {
+                                                    comment,
+                                                },
+                                            )
+                                        }}
                                         getYoutubePlayer={() =>
                                             this.state.listLoadState ===
                                                 'success' &&
@@ -979,10 +1191,13 @@ export class ReaderPageView extends UIElement<
                                     />
                                 </AnnotationCreateContainer>
                             )}
-                            {this.state.listData &&
-                                this.renderPageAnnotations(
-                                    this.state.listData.entry,
-                                )}
+                            {this.state.listData && (
+                                <AnnotationsidebarContainer>
+                                    {this.renderPageAnnotations(
+                                        this.state.listData.entry,
+                                    )}
+                                </AnnotationsidebarContainer>
+                            )}
                         </SidebarAnnotationContainer>
                     </Sidebar>
                 </ContainerStyled>
@@ -1014,6 +1229,29 @@ function isInRange(timestamp: number, range: TimestampRange | undefined) {
     }
     return range.fromTimestamp <= timestamp && range.toTimestamp >= timestamp
 }
+
+const AnnotationsidebarContainer = styled.div`
+    height: 100%;
+    overflow: scroll;
+    width: 100%;
+    padding-bottom: 150px;
+`
+
+const MainContentContainer = styled.div`
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex: 1;
+`
+
+const ClickBlocker = styled.div`
+    background: transparent;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+`
 
 const OverlayAnnotationInstructionContainer = styled.div`
     position: absolute;
@@ -1085,6 +1323,37 @@ const OptionsMenuBox = styled.div`
             margin-top: 5px;
         }
     }
+`
+
+const SupportChatBox = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    grid-gap: 10px;
+    color: ${(props) => props.theme.colors.white};
+    z-index: 100;
+    cursor: pointer;
+
+    & * {
+        cursor: pointer;
+    }
+`
+
+const ChatBox = styled.div`
+    position: relative;
+    height: 600px;
+    width: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+`
+const ChatFrame = styled.iframe`
+    border: none;
+    border-radius: 12px;
+    position: absolute;
+    top: 0px;
+    left: 0px;
 `
 
 const NotifBox = styled.div`

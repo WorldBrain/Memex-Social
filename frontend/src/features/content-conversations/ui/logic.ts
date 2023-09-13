@@ -27,6 +27,12 @@ export const setupConversationLogicDeps = ({
     submitNewReply: services.contentConversations.submitReply.bind(
         services.contentConversations,
     ),
+    deleteReply: services.contentConversations.deleteReply.bind(
+        services.contentConversations,
+    ),
+    editReply: services.contentConversations.editReply.bind(
+        services.contentConversations,
+    ),
     createAnnotations: storage.contentSharing.createAnnotations.bind(
         storage.contentSharing,
     ),

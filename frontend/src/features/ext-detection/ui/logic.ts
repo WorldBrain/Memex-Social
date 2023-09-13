@@ -4,6 +4,7 @@ import { doesMemexExtDetectionElExist } from '@worldbrain/memex-common/lib/commo
 import { isMemexPageAPdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
 import { Services } from '../../../services/types'
 import { SharedListReference } from '@worldbrain/memex-common/lib/content-sharing/types'
+import { sleepPromise } from '../../../utils/promises'
 
 export interface Dependencies {
     services: Pick<Services, 'memexExtension' | 'auth'>
@@ -130,17 +131,57 @@ export const extDetectionEventHandlers = (
                     return
                 }
             }
+            // if (doesMemexExtDetectionElExist()) {
+            //     const openLink = await dependencies.services?.memexExtension.openLink(
+            //         {
+            //             originalPageUrl: event.urlToOpen,
+            //             sharedListId: event.sharedListReference?.id as string,
+            //         },
+            //     )
+
+            //     if (!openLink) {
+            //         window.open(event.urlToOpen)
+            //     }
+            // }
             if (doesMemexExtDetectionElExist()) {
-                const openLink = await dependencies.services?.memexExtension.openLink(
-                    {
+                const userAgent = navigator.userAgent
+
+                const sourceUrl = event.urlToOpen as string
+                const sharedListId = event.sharedListReference?.id as string
+
+                // const isCollaboratorLink =
+                //     event.permissions === 'contributor'
+                // const isOwnLink = incoming.previousState.permissions === 'owner'
+
+                if (/Firefox/i.test(userAgent)) {
+                    // Create a new DOM element, let's assume it's a `div`
+                    const injectedElement = document.createElement('div')
+
+                    // Set an ID so the MutationObserver can identify it
+                    injectedElement.id =
+                        'openPageInSelectedListModeTriggerElement'
+
+                    // Attach the necessary data as data attributes
+                    injectedElement.setAttribute('sourceurl', sourceUrl)
+                    injectedElement.setAttribute('sharedlistid', sharedListId)
+                    // injectedElement.setAttribute(
+                    //     'iscollaboratorlink',
+                    //     isCollaboratorLink.toString(),
+                    // )
+                    // injectedElement.setAttribute('isownlink', isOwnLink.toString())
+
+                    // Append the element to the body (or any other parent element)
+                    document.body.appendChild(injectedElement)
+                    await sleepPromise(500)
+                    injectedElement.remove()
+                } else {
+                    await dependencies.services?.memexExtension.openLink({
                         originalPageUrl: event.urlToOpen,
                         sharedListId: event.sharedListReference?.id as string,
-                    },
-                )
-
-                if (!openLink) {
-                    window.open(event.urlToOpen)
+                    })
                 }
+            } else {
+                window.open(event.urlToOpen)
             }
             // This means it's a local PDF page
         },
