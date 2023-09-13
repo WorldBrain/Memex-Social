@@ -56,6 +56,7 @@ import {
     editableAnnotationsInitialState,
 } from '../../../../annotations/ui/logic'
 import type { UploadStorageUtils } from '@worldbrain/memex-common/lib/personal-cloud/backend/translation-layer/storage-utils'
+import { LoggedOutAccessBox } from './space-access-box'
 const truncate = require('truncate')
 
 const LIST_DESCRIPTION_CHAR_LIMIT = 400
@@ -275,9 +276,9 @@ export default class CollectionDetailsLogic extends UILogic<
             this.dependencies.listID = incoming.event.listID
         }
 
-        const keyString =
-            !incoming.event.isUpdate &&
-            this.dependencies.services.listKeys.getCurrentKey()
+        const keyString = !incoming.event.isUpdate
+            ? this.dependencies.services.listKeys.getCurrentKey()
+            : null
         await executeUITask(this, 'listLoadState', async () => {
             const response = await this.dependencies.services.contentSharing.backend.loadCollectionDetails(
                 {
@@ -291,23 +292,23 @@ export default class CollectionDetailsLogic extends UILogic<
                         type: 'user-reference',
                         id: response.data.creator,
                     })
+                    const permissionDeniedData = {
+                        ...response.data,
+                        hasKey: !!keyString,
+                    }
                     this.emitMutation({
                         listRoles: { $set: [] },
-                        permissionDenied: {
-                            $set: { ...response.data, hasKey: !!keyString },
-                        },
+                        permissionDenied: { $set: permissionDeniedData },
                     })
                     const { auth } = this.dependencies.services
                     const currentUser = auth.getCurrentUser()
                     if (!currentUser) {
                         await auth.requestAuth({
-                            header: keyString ? (
-                                <div>
-                                    You've been invited to{' '}
-                                    {response.data.listTitle}
-                                </div>
-                            ) : (
-                                <div>This space is private</div>
+                            header: (
+                                <LoggedOutAccessBox
+                                    keyString={keyString}
+                                    permissionDenied={permissionDeniedData}
+                                />
                             ),
                         })
                         this.processUIEvent('load', {
