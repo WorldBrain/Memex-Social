@@ -298,7 +298,7 @@ export default class CollectionDetailsLogic extends UILogic<
                         },
                     })
                     const { auth } = this.dependencies.services
-                    const currentUser = await auth.getCurrentUser()
+                    const currentUser = auth.getCurrentUser()
                     if (!currentUser) {
                         await auth.requestAuth({
                             header: keyString ? (

@@ -1824,20 +1824,48 @@ export default class CollectionDetailsPage extends UIElement<
                         // listsSidebarProps={this.listsSidebarProps}
                         scrollTop={this.state.scrollTop}
                     >
-                        Permission denied, but the title is{' '}
-                        {state.permissionDenied.listTitle}
-                        {state.permissionDenied.hasKey && (
-                            <PrimaryAction
-                                label="Accept Invitation"
-                                icon="check"
-                                iconPosition="left"
-                                type={'primary'}
-                                size={'small'}
-                                onClick={() =>
-                                    this.processEvent('acceptInvitation', {})
-                                }
-                            />
-                        )}
+                        <SpaceAccessBox>
+                            {state.permissionDenied.hasKey ? (
+                                <>
+                                    <Icon
+                                        icon="invite"
+                                        height="35px"
+                                        hoverOff
+                                    />
+                                    <SpaceAccessBoxTitle>
+                                        {state.users[
+                                            state.permissionDenied.creator
+                                        ]?.displayName ?? 'Someone'}{' '}
+                                        invited you to{' '}
+                                        <SpaceAccessBoxListTitle>
+                                            {state.permissionDenied.listTitle}
+                                        </SpaceAccessBoxListTitle>{' '}
+                                    </SpaceAccessBoxTitle>
+                                    <PrimaryAction
+                                        size="medium"
+                                        type="secondary"
+                                        label="Accept invite and go to Space →"
+                                        onClick={() =>
+                                            this.processEvent(
+                                                'acceptInvitation',
+                                                {},
+                                            )
+                                        }
+                                    />
+                                </>
+                            ) : (
+                                <>
+                                    <Icon icon="lock" height="35px" hoverOff />
+                                    <SpaceAccessBoxTitle>
+                                        You don't have access to this Space
+                                    </SpaceAccessBoxTitle>
+                                    <SpaceAccessBoxDescription>
+                                        Ask the owner for an invite link or that
+                                        they invite you via email.
+                                    </SpaceAccessBoxDescription>
+                                </>
+                            )}
+                        </SpaceAccessBox>
                     </DefaultPageLayout>
                 </DocumentView>
             )
@@ -2873,4 +2901,31 @@ const ListEntry = styled.div`
         white-space: pre-wrap;
         font-weight: initial;
     }
+`
+
+const SpaceAccessBox = styled.div`
+    background: ${(props) => props.theme.colors.greyScale1};
+    padding: 50px 25px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    grid-gap: 10px;
+`
+
+const SpaceAccessBoxTitle = styled.span`
+    color: ${(props) => props.theme.colors.white};
+    font-weight: 500;
+    font-size: 16px;
+`
+
+const SpaceAccessBoxDescription = styled.span`
+    color: ${(props) => props.theme.colors.white};
+    font-weight: 400;
+    font-size: 14px;
+`
+
+const SpaceAccessBoxListTitle = styled.span`
+    color: ${(props) => props.theme.colors.prime1};
 `
