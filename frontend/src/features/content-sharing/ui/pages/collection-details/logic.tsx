@@ -56,6 +56,7 @@ import {
     editableAnnotationsInitialState,
 } from '../../../../annotations/ui/logic'
 import type { UploadStorageUtils } from '@worldbrain/memex-common/lib/personal-cloud/backend/translation-layer/storage-utils'
+import { createPersonalCloudStorageUtils } from '@worldbrain/memex-common/lib/content-sharing/storage/utils'
 import { LoggedOutAccessBox } from './space-access-box'
 const truncate = require('truncate')
 
@@ -357,8 +358,16 @@ export default class CollectionDetailsLogic extends UILogic<
 
             await this.dependencies.services.auth.waitForAuthReady()
             const userReference = this.dependencies.services.auth.getCurrentUserReference()
-            const isAuthenticated = userReference
+            if (userReference) {
+                this.personalCloudStorageUtils = await createPersonalCloudStorageUtils(
+                    {
+                        userId: userReference.id,
+                        storageManager: this.dependencies.storageManager,
+                    },
+                )
+            }
 
+            const isAuthenticated = !!userReference
             const isContributor =
                 (userReference &&
                     data.listRoles.find(
@@ -378,6 +387,7 @@ export default class CollectionDetailsLogic extends UILogic<
             }
 
             this.emitMutation({
+                currentUserReference: { $set: userReference },
                 listData: {
                     $set: {
                         slackList,
@@ -401,10 +411,7 @@ export default class CollectionDetailsLogic extends UILogic<
                     },
                 },
                 isListOwner: {
-                    $set:
-                        retrievedList.creator.id ===
-                        this.dependencies.services.auth.getCurrentUserReference()
-                            ?.id,
+                    $set: retrievedList.creator.id === userReference?.id,
                 },
                 newPageReplies: {
                     $set: Object.fromEntries(
@@ -1185,11 +1192,35 @@ export default class CollectionDetailsLogic extends UILogic<
                 }
                 annotations[normalizedPageUrl] = { $set: newAnnotations }
             }
-            const mutation: UIMutation<CollectionDetailsState> = {
+            this.emitMutation({
                 annotationLoadStates,
                 annotations,
-            }
-            this.emitMutation(mutation)
+                annotationEditStates: mapValues(
+                    annotationsData.annotations,
+                    (annotation) => ({
+                        $set: {
+                            isEditing: false,
+                            loadState: 'pristine',
+                            comment: annotation.comment ?? '',
+                        },
+                    }),
+                ) as any,
+                annotationHoverStates: mapValues(
+                    annotationsData.annotations,
+                    (annotation) => ({
+                        $set: { isHovering: false },
+                    }),
+                ),
+                annotationDeleteStates: mapValues(
+                    annotationsData.annotations,
+                    (annotation) => ({
+                        $set: {
+                            isDeleting: false,
+                            deleteState: 'pristine',
+                        },
+                    }),
+                ) as any,
+            })
 
             await this._users.loadUsers(
                 annotationsData.usersToLoad.map(
