@@ -16,7 +16,7 @@ done
 bundle_names=$(echo $bundle_names | sed 's/ *$//')
 
 # Write latest bundle names to .env.*, so functions can access them
-for env_file in ../firebase/functions/.env*; do
+for env_file in ../firebase/functions/{.env.production,.env.staging}; do
     # If var already there, replace, else append
     if grep -q "WEB_UI_BUNDLES=" $env_file; then
         sed -i '' -e "s/WEB_UI_BUNDLES=.*/WEB_UI_BUNDLES=\"${bundle_names}\"/" $env_file
