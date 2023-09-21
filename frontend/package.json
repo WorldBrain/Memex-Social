@@ -30,8 +30,8 @@
     "build:staging": "FIREBASE_PROJECT=staging ENV_FILE=.env.staging yarn build:base",
     "build:production": "FIREBASE_PROJECT=production ENV_FILE=.env.production.local yarn build:base",
     "deploy:base": "yarn firebase -P $FIREBASE_PROJECT deploy --only hosting",
-    "deploy:staging": "yarn build:staging && FIREBASE_PROJECT=staging yarn deploy:base",
-    "deploy:production": "yarn build:production && FIREBASE_PROJECT=production yarn deploy:base"
+    "deploy:staging": "yarn build:staging && bash deploy-social-preview-functions.sh staging && FIREBASE_PROJECT=staging yarn deploy:base",
+    "deploy:production": "yarn build:production && bash deploy-social-preview-functions.sh production && FIREBASE_PROJECT=production yarn deploy:base"
   },
   "proxy": "http://localhost:5030/",
   "browserslist": [
