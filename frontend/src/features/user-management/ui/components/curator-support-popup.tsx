@@ -3,12 +3,10 @@ import styled from 'styled-components'
 
 import { UITaskState } from '../../../../main-ui/types'
 import { UIElementServices } from '../../../../services/types'
-import { StorageModules } from '../../../../storage/types'
 
 import CuratorSupportButtonBlock from '../../../web-monetization/ui/containers/curator-support-button-block'
 import { UserReference } from '../../types'
 import { Margin } from 'styled-components-spacing'
-import { HoverBox } from '../../../../common-ui/components/hoverbox'
 import LoadingIndicator from '@worldbrain/memex-common/lib/common-ui/components/loading-indicator'
 
 const Title = styled.div<{}>`
@@ -44,7 +42,6 @@ interface CuratorSupportPopupProps {
     services: UIElementServices<
         'userManagement' | 'webMonetization' | 'documentTitle'
     >
-    storage: Pick<StorageModules, 'users'>
     loadState: UITaskState
     paymentState: UITaskState
     curatorUserRef: UserReference
@@ -54,13 +51,7 @@ interface CuratorSupportPopupProps {
 
 export default class CuratorSupportPopup extends PureComponent<CuratorSupportPopupProps> {
     render() {
-        const {
-            loadState,
-            curatorUserRef,
-            services,
-            storage,
-            paymentMade,
-        } = this.props
+        const { loadState, curatorUserRef, services, paymentMade } = this.props
 
         return (
             <Container>
@@ -112,7 +103,6 @@ export default class CuratorSupportPopup extends PureComponent<CuratorSupportPop
                                 </Margin>
                                 <CuratorSupportButtonBlock
                                     services={services}
-                                    storage={storage}
                                     curatorUserRef={curatorUserRef}
                                 />
                             </>

@@ -249,7 +249,6 @@ export default class PageDetailsPage extends UIElement<
                     renderSubtitle={(props) => (
                         <ProfilePopupContainer
                             services={services}
-                            storage={storage}
                             userRef={this.state.creatorReference ?? null}
                         >
                             {props.children}
@@ -313,7 +312,6 @@ export default class PageDetailsPage extends UIElement<
                                         }
                                         profilePopupProps={{
                                             services: this.props.services,
-                                            storage: this.props.storage,
                                         }}
                                         annotationConversations={
                                             state.conversations

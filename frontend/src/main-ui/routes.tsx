@@ -1,10 +1,7 @@
 import queryString from 'query-string'
-import * as history from 'history'
 import React from 'react'
 import { Router, Route, Switch } from 'react-router'
 
-import { Storage } from '../storage/types'
-import { Services } from '../services/types'
 import { EventHandlers } from './classes/events'
 
 import ROUTES from '../routes'

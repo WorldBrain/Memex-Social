@@ -1,6 +1,5 @@
 import { UIEvent } from '../../../../../main-ui/classes/logic'
 import { UIElementServices } from '../../../../../services/types'
-import { StorageModules } from '../../../../../storage/types'
 import {
     UserReference,
     UserPublicProfile,
@@ -17,7 +16,6 @@ export interface ProfilePopupContainerDependencies {
         | 'userManagement'
         | 'webMonetization'
     >
-    storage: Pick<StorageModules, 'users'>
     userRef: UserReference | null
 }
 

@@ -160,7 +160,6 @@ export default class AuthHeader extends UIElement<
                 {this.state.showAccountSettings && (
                     <ProfileEditModal
                         services={this.props.services}
-                        storage={this.props.storage}
                         onCloseRequested={() =>
                             this.processEvent('hideAccountSettings', null)
                         }

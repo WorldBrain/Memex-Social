@@ -1,13 +1,11 @@
 import { UIEvent } from '../../../../../main-ui/classes/logic'
 import { UITaskState } from '../../../../../main-ui/types'
 import { UIElementServices } from '../../../../../services/types'
-import { StorageModules } from '../../../../../storage/types'
 import { ProfilePopupContainerState } from '../profile-popup-container/types'
 import { UserPublicProfile } from '../../../types'
 
 export type ProfileEditModalDependencies = {
     services: UIElementServices<'userManagement' | 'auth' | 'overlay'>
-    storage: Pick<StorageModules, 'users'>
     onCloseRequested: () => void
 }
 

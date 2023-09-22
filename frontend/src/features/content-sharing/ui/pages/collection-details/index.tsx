@@ -27,7 +27,6 @@ import AnnotationsInPage from '../../../../annotations/ui/components/annotations
 import ErrorWithAction from '../../../../../common-ui/components/error-with-action'
 import FollowBtn from '../../../../activity-follows/ui/components/follow-btn'
 import WebMonetizationIcon from '../../../../web-monetization/ui/components/web-monetization-icon'
-import PermissionKeyOverlay from './permission-key-overlay'
 import InstallExtOverlay from '../../../../ext-detection/ui/components/install-ext-overlay'
 import { mergeTaskStates } from '../../../../../main-ui/classes/logic'
 import { UserReference } from '../../../../user-management/types'
@@ -241,7 +240,6 @@ export default class CollectionDetailsPage extends UIElement<
         return (
             <WebMonetizationIcon
                 services={this.props.services}
-                storage={this.props.storage}
                 curatorUserRef={creatorReference}
                 isFollowedSpace={this.state.isCollectionFollowed}
             />
@@ -738,10 +736,7 @@ export default class CollectionDetailsPage extends UIElement<
                     ]?.creator
                     return creatorRef
                 }}
-                profilePopupProps={{
-                    storage: this.props.storage,
-                    services: this.props.services,
-                }}
+                profilePopupProps={{ services: this.props.services }}
                 onToggleReplies={(event) =>
                     this.processEvent('toggleAnnotationReplies', {
                         ...event,
@@ -944,7 +939,6 @@ export default class CollectionDetailsPage extends UIElement<
                     </SharedBy>
                     <ProfilePopupContainer
                         services={this.props.services}
-                        storage={this.props.storage}
                         userRef={userReference!}
                     >
                         <Creator>
@@ -1111,10 +1105,6 @@ export default class CollectionDetailsPage extends UIElement<
                                                                 services={
                                                                     this.props
                                                                         .services
-                                                                }
-                                                                storage={
-                                                                    this.props
-                                                                        .storage
                                                                 }
                                                                 userRef={
                                                                     userReference!

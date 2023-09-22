@@ -1,5 +1,4 @@
 import React from 'react'
-import fromPairs from 'lodash/fromPairs'
 import {
     mapValues,
     filterObject,
