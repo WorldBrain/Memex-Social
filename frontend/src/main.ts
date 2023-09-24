@@ -5,11 +5,13 @@ import { mainProgram } from './setup/main'
 import { metaProgram } from './setup/meta'
 import { ProgramQueryParams } from './setup/types'
 import { runDevelopmentRpc } from './rpc'
+import { ImageSupportInterface } from '@worldbrain/memex-common/lib/image-support/types'
 
 export async function setup(options: {
     backend: BackendType
     logLogicEvents?: boolean
     queryParams: ProgramQueryParams
+    imageSupport: ImageSupportInterface
 }) {
     const runMetaProgram = options.queryParams.meta === 'true'
 
@@ -21,7 +23,11 @@ export async function setup(options: {
         }
 
         const history = createBrowserHistory()
-        metaProgram({ history, queryParams: options.queryParams })
+        metaProgram({
+            history,
+            queryParams: options.queryParams,
+            imageSupport: options.imageSupport,
+        })
     } else {
         const setup = await mainProgram(options)
         Object.assign(window, setup)
@@ -34,6 +40,7 @@ export async function main(options: {
     backend: BackendType
     logLogicEvents?: boolean
     queryParams: ProgramQueryParams
+    imageSupport: ImageSupportInterface
 }) {
     if (
         process.env.NODE_ENV === 'development' &&

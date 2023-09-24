@@ -7,6 +7,7 @@ import type { UIRunner } from '../main-ui/types'
 import type { FixtureFetcher } from '../services/fixtures/types'
 import type { ContentSharingQueryParams } from '../features/content-sharing/types'
 import type { YoutubeServiceOptions } from '@worldbrain/memex-common/lib/services/youtube/types'
+import { ImageSupportInterface } from '@worldbrain/memex-common/lib/image-support/types'
 
 export type MetaScreenSize = 'small' | 'large'
 
@@ -31,10 +32,12 @@ export interface MainProgramOptions {
     uiRunner?: UIRunner
     dontRunUi?: boolean
     fixtureFetcher?: FixtureFetcher
+    imageSupport: ImageSupportInterface
 }
 export interface MainProgramSetup {
     storage: Storage
     services: Services
     stepWalkthrough?: () => void
     runUi: () => Promise<void>
+    imageSupport: ImageSupportInterface
 }

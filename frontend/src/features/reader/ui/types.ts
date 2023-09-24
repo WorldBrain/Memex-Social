@@ -23,6 +23,7 @@ import type {
     EditableAnnotationsEvent,
     EditableAnnotationsState,
 } from '../../annotations/ui/types'
+import { ImageSupportInterface } from '@worldbrain/memex-common/lib/image-support/types'
 
 export interface ReaderPageViewDependencies {
     services: UIElementServices<
@@ -46,6 +47,7 @@ export interface ReaderPageViewDependencies {
     normalizeUrl: URLNormalizer
     generateServerId: GenerateServerID
     query: ContentSharingQueryParams
+    imageSupport: ImageSupportInterface
 }
 
 export type ReaderPageViewState = AnnotationConversationsState &

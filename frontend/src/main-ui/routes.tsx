@@ -114,6 +114,7 @@ export default class Routes extends React.Component<Props> {
                                     generateServerId={
                                         this.props.generateServerId
                                     }
+                                    imageSupport={this.props.imageSupport}
                                 />
                             )
                         }}
@@ -137,6 +138,7 @@ export default class Routes extends React.Component<Props> {
                                     }
                                     storage={serverModules}
                                     query={query}
+                                    imageSupport={this.props.imageSupport}
                                 />
                             )
                         }}
@@ -151,6 +153,7 @@ export default class Routes extends React.Component<Props> {
                                     services={this.props.services}
                                     storage={serverModules}
                                     userManagement={serverModules.users}
+                                    imageSupport={this.props.imageSupport}
                                 />
                             )
                         }}
