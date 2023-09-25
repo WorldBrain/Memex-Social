@@ -89,6 +89,7 @@ async function createMemoryTestDevice(
         localStorage: null!,
         youtubeOptions: {} as any,
         fetchPDFData,
+        imageSupport: null as any,
     })
     storageHooksChangeWatcher.setUp({
         fetch,
@@ -191,6 +192,7 @@ async function createFirebaseTestDevice(
         clipboard: mockClipboardAPI,
         youtubeOptions: {} as any,
         fetchPDFData,
+        imageSupport: null as any,
     })
     if (userId) {
         await services.auth.loginWithEmailPassword({
