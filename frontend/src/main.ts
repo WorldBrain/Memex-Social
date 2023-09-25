@@ -1,27 +1,36 @@
-console.log('test')
 import createBrowserHistory from 'history/createBrowserHistory'
-import * as serviceWorker from './serviceWorker'
+import { CloudflareImageSupportBackend } from '@worldbrain/memex-common/lib/image-support/backend'
+import { ImageSupportInterface } from '@worldbrain/memex-common/lib/image-support/types'
 import { BackendType } from './types'
 import { mainProgram } from './setup/main'
 import { metaProgram } from './setup/meta'
 import { ProgramQueryParams } from './setup/types'
 import { runDevelopmentRpc } from './rpc'
-import { CloudflareImageSupportBackend } from '@worldbrain/memex-common/lib/image-support/backend'
-console.log('test2')
 
 export async function setup(options: {
     backend: BackendType
     logLogicEvents?: boolean
     queryParams: ProgramQueryParams
 }) {
-    console.log('test3')
     const runMetaProgram = options.queryParams.meta === 'true'
 
-    const imageSupport = new CloudflareImageSupportBackend({
+    const imageSupportBackend = new CloudflareImageSupportBackend({
         env: process.env.NODE_ENV == 'production' ? 'production' : 'staging',
     })
+    const imageSupport: ImageSupportInterface = {
+        generateImageId: async () => '', // replaced later in services setup
+        uploadImage: (params) => {
+            if (typeof params.image === 'string') {
+                throw new Error(`You can only upload blobs, not data URIs`)
+            }
+            return imageSupportBackend.uploadImage({
+                ...params,
+                image: params.image,
+            })
+        },
+        getImageUrl: (params) => imageSupportBackend.getImageUrl(params),
+    }
 
-    console.log('test5')
     if (process.env.NODE_ENV === 'development' && runMetaProgram) {
         if (options.backend !== 'memory') {
             throw new Error(
@@ -33,13 +42,12 @@ export async function setup(options: {
         metaProgram({
             history,
             queryParams: options.queryParams,
-            imageSupport: options.imageSupport,
+            imageSupport,
         })
     } else {
-        const setup = await mainProgram(options)
+        const setup = await mainProgram({ ...options, imageSupport })
         Object.assign(window, setup)
     }
-    console.log('test4')
 
     // serviceWorker.unregister()
 }

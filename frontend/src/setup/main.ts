@@ -14,7 +14,6 @@ import { MemoryLocalStorage } from '../utils/web-storage'
 import { RouteName } from '../routes'
 import { createYoutubeServiceOptions } from '@worldbrain/memex-common/lib/services/youtube/library'
 import type { GenerateServerID } from '@worldbrain/memex-common/lib/content-sharing/service/types'
-import { ImageSupportInterface } from '@worldbrain/memex-common/lib/image-support/types'
 
 export async function mainProgram(
     options: MainProgramOptions,
