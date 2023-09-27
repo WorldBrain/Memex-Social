@@ -181,6 +181,15 @@ export function createServices(options: {
     const contentSharingBackend =
         options.backend === 'memory'
             ? new ContentSharingBackend({
+                  // TODO: Set up better FB Auth mocks for meta UI
+                  fbAuth: () => ({
+                      getUser: async () =>
+                          ({ uid: '1', email: 'test@test.com' } as any),
+                      getUsers: async () => ({ users: [], notFound: [] }),
+                  }),
+                  sendPrivateListEmailInvite: async () => ({
+                      status: 'success',
+                  }),
                   services: { pushMessaging: undefined }, // TODO: Set up push messaging service for meta UI
                   storageManager: options.storage.serverStorageManager,
                   storageModules: options.storage.serverModules,
