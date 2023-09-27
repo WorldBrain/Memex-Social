@@ -157,7 +157,6 @@ export type CollectionDetailsEvent = UIEvent<
             toggleAllAnnotations: {}
             toggleListShareModal: {}
             loadListData: { isUpdate: boolean; listID: string }
-            processPermissionKey: {}
             acceptInvitation: {}
             toggleDateFilters: null
             closePermissionOverlay: {}

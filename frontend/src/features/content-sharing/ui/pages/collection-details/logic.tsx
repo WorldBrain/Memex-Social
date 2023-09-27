@@ -439,47 +439,6 @@ export default class CollectionDetailsLogic extends UILogic<
             }
         })
         await this.loadFollowBtnState()
-        await this.processPermissionKey()
-    }
-
-    processPermissionKey = async () => {
-        if (!this.dependencies.services.listKeys.hasCurrentKey()) {
-            return this.emitMutation({
-                permissionKeyState: { $set: 'success' },
-            })
-        }
-        await executeUITask<CollectionDetailsState>(
-            this,
-            'permissionKeyState',
-            async () => {
-                await this.dependencies.services.auth.waitForAuthReady()
-                const listReference = makeStorageReference<SharedListReference>(
-                    'shared-list-reference',
-                    this.dependencies.listID,
-                )
-                const userReference = this.dependencies.services.auth.getCurrentUserReference()
-                const listRoles = await this.dependencies.storage.contentSharing.getListRoles(
-                    { listReference },
-                )
-                const isAuthenticated = userReference
-                const isContributor =
-                    (userReference &&
-                        listRoles.find(
-                            (role) => role.user.id === userReference.id,
-                        )?.roleID) ??
-                    undefined
-                if (isAuthenticated && isContributor) {
-                    this.emitMutation({
-                        permissionKeyResult: { $set: 'success' },
-                    })
-                } else {
-                    this.emitMutation({
-                        permissionKeyResult: { $set: 'not-authenticated' },
-                        requestingAuth: { $set: true },
-                    })
-                }
-            },
-        )
     }
 
     setSearchType: EventHandler<'setPageHover'> = ({
