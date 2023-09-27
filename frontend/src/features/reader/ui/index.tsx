@@ -217,6 +217,7 @@ export class ReaderPageView extends UIElement<
                     hideThreadBar={true}
                     originalUrl={entry.originalUrl}
                     contextLocation={'webUI'}
+                    imageSupport={this.props.imageSupport}
                     variant={'dark-mode'}
                     // newPageReply={
                     //     this.isListContributor || state.isListOwner
@@ -249,6 +250,7 @@ export class ReaderPageView extends UIElement<
                         isHovering: this.state.replyHoverStates[
                             replyReference.id
                         ]?.isHovering,
+                        imageSupport: this.props.imageSupport,
                         isOwner:
                             this.state.conversations[
                                 annotationReference.id.toString()
@@ -308,6 +310,7 @@ export class ReaderPageView extends UIElement<
                         isDeleting: this.state.annotationDeleteStates[
                             annotationRef.id
                         ]?.isDeleting,
+                        imageSupport: this.props.imageSupport,
                         isEditing: this.state.annotationEditStates[
                             annotationRef.id
                         ]?.isEditing,
@@ -1184,6 +1187,7 @@ export class ReaderPageView extends UIElement<
                                                 ),
                                             )
                                         }
+                                        imageSupport={this.props.imageSupport}
                                     />
                                 </AnnotationCreateContainer>
                             )}

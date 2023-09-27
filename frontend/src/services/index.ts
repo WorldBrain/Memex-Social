@@ -46,6 +46,7 @@ import PageLinkService from '../features/page-links/services'
 import type { ExtractedPDFData } from '@worldbrain/memex-common/lib/page-indexing/types'
 import { determineEnv } from '../utils/runtime-environment'
 import { CLOUDFLARE_WORKER_URLS } from '@worldbrain/memex-common/lib/content-sharing/storage/constants'
+import { ImageSupportInterface } from '@worldbrain/memex-common/lib/image-support/types'
 
 export function createServices(options: {
     backend: BackendType
@@ -60,6 +61,7 @@ export function createServices(options: {
     fixtureFetcher?: FixtureFetcher
     clipboard: Pick<Clipboard, 'writeText'>
     youtubeOptions: YoutubeServiceOptions
+    imageSupport: ImageSupportInterface
     fetchPDFData?: (
         fullPageUrl: string,
         proxyUrl: string,
@@ -82,6 +84,8 @@ export function createServices(options: {
         options.backend === 'firebase' ||
         options.backend === 'firebase-emulator'
     ) {
+        options.imageSupport.generateImageId = async () =>
+            firebase.firestore().collection('images').id
         auth = new FirebaseAuthService(firebase, {
             storage: options.storage,
             localStorage: options.localStorage,
@@ -106,6 +110,9 @@ export function createServices(options: {
             }
         }
     } else if (options.backend === 'memory') {
+        let imageId = 1
+        options.imageSupport.generateImageId = async () =>
+            (++imageId).toString()
         auth = new MemoryAuthService({ storage: options.storage })
     } else {
         throw new Error(

@@ -228,6 +228,7 @@ describe('In-memory scenario tests', () => {
             uiRunner: async (options) => {
                 render(renderMainUi(options))
             },
+            imageSupport: null as any,
             dontRunUi: true,
             fixtureFetcher: async (name) =>
                 loadFixture(name, { fixtureFetcher: loadSingleFixture }),

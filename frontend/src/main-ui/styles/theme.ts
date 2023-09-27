@@ -138,6 +138,11 @@ export const theme: Theme = THEME({
         // TODO: Update these
         moon: require('../../assets/img/googleLogo.svg'),
         sun: require('../../assets/img/googleLogo.svg'),
+        cameraIcon: require('../../assets/img/cameraIcon.svg'),
+        memexIconDarkMode: require('../../assets/img/memexIconDarkMode.svg'),
+        memexIconLightMode: require('../../assets/img/memexIconLightMode.svg'),
+        obsidianLogo: require('../../assets/img/obsidianLogo.svg'),
+        logseqLogo: require('../../assets/img/logseqLogo.svg'),
 
         // doubleArrow: require('../../assets/img/doubleArrow.svg'),,
         // import tagFull from '../../assets/img/tag_full.svg'

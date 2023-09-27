@@ -8,7 +8,11 @@ export class DevelopmentRpc implements DevelopmentRpcInterface {
 
     async run(options: { queryParams: ProgramQueryParams }): Promise<void> {
         // console.log('running main application')
-        this.mainSetup = await mainProgram({ ...options, backend: 'memory' })
+        this.mainSetup = await mainProgram({
+            ...options,
+            backend: 'memory',
+            imageSupport: null as any,
+        })
     }
 
     async stepWalkthrough(): Promise<void> {

@@ -106,6 +106,7 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
                     listReference,
                 ),
                 query: {},
+                imageSupport: null as any,
             })
             const container = new TestLogicContainer<
                 CollectionDetailsState,
@@ -229,6 +230,7 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
                     listReference,
                 ),
                 query: {},
+                imageSupport: null as any,
             })
             const container = new TestLogicContainer<
                 CollectionDetailsState,
@@ -309,6 +311,7 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
                 services,
                 listID,
                 query: {},
+                imageSupport: null as any,
             })
             const container = new TestLogicContainer<
                 CollectionDetailsState,
@@ -418,6 +421,7 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
                 services,
                 listID,
                 query: {},
+                imageSupport: null as any,
             })
             const container = new TestLogicContainer<
                 CollectionDetailsState,
@@ -475,6 +479,7 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
                 services,
                 listID,
                 query: {},
+                imageSupport: null as any,
             })
             const container = new TestLogicContainer<
                 CollectionDetailsState,

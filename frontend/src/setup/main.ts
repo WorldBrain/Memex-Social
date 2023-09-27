@@ -141,7 +141,13 @@ export async function mainProgram(
             return
         }
         uiRunning = true
-        return uiRunner({ services, storage, history, generateServerId })
+        return uiRunner({
+            services,
+            storage,
+            history,
+            generateServerId,
+            imageSupport: options.imageSupport,
+        })
     }
     if (!options.dontRunUi) {
         await runUi()
@@ -155,5 +161,6 @@ export async function mainProgram(
                 await services.scenarios?.stepWalkthrough?.()
             }),
         runUi,
+        imageSupport: options.imageSupport,
     }
 }

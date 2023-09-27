@@ -37,6 +37,7 @@ export function renderMainUi(options: UIRunnerOptions) {
                         storage={options.storage}
                         services={options.services}
                         generateServerId={options.generateServerId}
+                        imageSupport={options.imageSupport}
                     />
                 </App>
             </ThemeProvider>
