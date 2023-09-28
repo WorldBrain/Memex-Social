@@ -80,6 +80,8 @@ import {
 } from '../../annotations/ui/logic'
 import type { UITaskState } from '@worldbrain/memex-common/lib/main-ui/types'
 import { sleepPromise } from '../../../utils/promises'
+import sanitizeHTMLhelper from '@worldbrain/memex-common/lib/utils/sanitize-html-helper'
+import { processCommentForImageUpload } from '@worldbrain/memex-common/lib/annotations/processCommentForImageUpload'
 
 type EventHandler<EventName extends keyof ReaderPageViewEvent> = UIEventHandler<
     ReaderPageViewState,
@@ -846,7 +848,7 @@ export class ReaderPageViewLogic extends UILogic<
         })
     }
 
-    private scheduleAnnotationCreation: HighlightRendererDeps['scheduleAnnotationCreation'] = (
+    private scheduleAnnotationCreation: HighlightRendererDeps['scheduleAnnotationCreation'] = async (
         annotationData,
         openInEditMode,
     ) => {
@@ -871,13 +873,29 @@ export class ReaderPageViewLogic extends UILogic<
             id: this.dependencies.listID,
         }
 
+        let sanitizedAnnotation
+
+        if (annotationData.comment && annotationData.comment.length > 0) {
+            sanitizedAnnotation = sanitizeHTMLhelper(
+                annotationData.comment?.trim(),
+            )
+        }
+
+        let annotationCommentWithImages = sanitizedAnnotation
+        if (sanitizedAnnotation) {
+            annotationCommentWithImages = await processCommentForImageUpload(
+                sanitizedAnnotation,
+                this.dependencies.imageSupport,
+            )
+        }
+
         // Update UI state (TODO: Why are the types messed up enough that I need to `as any` here?)
         this.emitMutation({
             annotationEditStates: {
                 [annotationId]: {
                     $set: {
                         isEditing: !!openInEditMode,
-                        comment: annotationData.comment ?? '',
+                        comment: sanitizedAnnotation ?? '',
                         loadState: 'pristine',
                     },
                 },
@@ -905,7 +923,7 @@ export class ReaderPageViewLogic extends UILogic<
                         linkId: annotationId,
                         reference: annotationRef,
                         body: annotationData.body,
-                        comment: annotationData.comment,
+                        comment: annotationData.comment ?? undefined,
                         updatedWhen: annotationData.createdWhen,
                         createdWhen: annotationData.createdWhen,
                         uploadedWhen: annotationData.createdWhen,
@@ -954,7 +972,7 @@ export class ReaderPageViewLogic extends UILogic<
                         {
                             id: annotationId,
                             body: annotationData.body,
-                            comment: annotationData.comment,
+                            comment: annotationCommentWithImages ?? undefined,
                             selector: JSON.stringify(annotationData.selector),
                             createdWhen: annotationData.createdWhen,
                             localId: annotationId.toString(),
@@ -1552,12 +1570,26 @@ export class ReaderPageViewLogic extends UILogic<
             throw new Error('Cannot create annotation if not logged in')
         }
 
+        let sanitizedAnnotation
+
+        if (comment && comment.length > 0) {
+            sanitizedAnnotation = sanitizeHTMLhelper(comment?.trim())
+        }
+
+        let annotationCommentWithImages = sanitizedAnnotation
+        if (sanitizedAnnotation) {
+            annotationCommentWithImages = await processCommentForImageUpload(
+                sanitizedAnnotation,
+                this.dependencies.imageSupport,
+            )
+        }
+
         const createdWhen = Date.now()
         const { createPromise } = this.scheduleAnnotationCreation({
             fullPageUrl: previousState.listData.entry.originalUrl,
             updatedWhen: createdWhen,
             createdWhen,
-            comment,
+            comment: annotationCommentWithImages,
             creator,
         })
         this.emitMutation({
