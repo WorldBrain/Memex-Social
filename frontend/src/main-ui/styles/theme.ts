@@ -143,6 +143,7 @@ export const theme: Theme = THEME({
         memexIconLightMode: require('../../assets/img/memexIconLightMode.svg'),
         obsidianLogo: require('../../assets/img/obsidianLogo.svg'),
         logseqLogo: require('../../assets/img/logseqLogo.svg'),
+        rectangleDraw: require('../../assets/img/rectangleDraw.svg'),
 
         // doubleArrow: require('../../assets/img/doubleArrow.svg'),,
         // import tagFull from '../../assets/img/tag_full.svg'

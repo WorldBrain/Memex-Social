@@ -82,6 +82,15 @@ import type { UITaskState } from '@worldbrain/memex-common/lib/main-ui/types'
 import { sleepPromise } from '../../../utils/promises'
 import sanitizeHTMLhelper from '@worldbrain/memex-common/lib/utils/sanitize-html-helper'
 import { processCommentForImageUpload } from '@worldbrain/memex-common/lib/annotations/processCommentForImageUpload'
+import {
+    PdfScreenshot,
+    promptPdfScreenshot,
+} from '@worldbrain/memex-common/lib/pdf/screenshots/selection'
+import {
+    Anchor,
+    PdfScreenshotAnchor,
+} from '@worldbrain/memex-common/lib/annotations/types'
+import { ImageSupportInterface } from '@worldbrain/memex-common/lib/image-support/types'
 
 type EventHandler<EventName extends keyof ReaderPageViewEvent> = UIEventHandler<
     ReaderPageViewState,
@@ -734,6 +743,9 @@ export class ReaderPageViewLogic extends UILogic<
             selection: Selection
             shouldShare?: boolean
             openInEditMode?: boolean
+            screenShotAnchor?: PdfScreenshotAnchor
+            screenShotImage?: HTMLCanvasElement
+            imageSupport?: ImageSupportInterface
         }): SaveAndRenderHighlightDeps => {
             const currentUser =
                 this.dependencies.services.auth.getCurrentUserReference() ??
@@ -750,6 +762,9 @@ export class ReaderPageViewLogic extends UILogic<
                 onClick: this.handleHighlightClick,
                 getSelection: () => args.selection,
                 getFullPageUrl: async () => state.listData?.entry.originalUrl!,
+                screenshotAnchor: args.screenShotAnchor,
+                screenshotImage: args.screenShotImage,
+                imageSupport: args.imageSupport,
             }
         }
         const fixedTheme: MemexTheme = {
@@ -778,13 +793,52 @@ export class ReaderPageViewLogic extends UILogic<
                     <Tooltip
                         hideAddToSpaceBtn
                         getWindow={() => iframe.contentWindow!}
-                        createHighlight={async (selection, shouldShare) => {
+                        createHighlight={async (
+                            selection,
+                            shouldShare,
+                            drawRectangle,
+                        ) => {
                             if (state.currentUserReference == null) {
                                 this.dependencies.services.auth.requestAuth({
                                     reason: 'login-requested',
                                 })
                                 return
                             } else {
+                                let screenshotGrabResult
+                                let pdfViewer
+
+                                const isIframe = iframe!.contentWindow
+                                if (isIframe) {
+                                    pdfViewer =
+                                        isIframe['PDFViewerApplication']
+                                            ?.pdfViewer
+                                }
+                                if (pdfViewer && drawRectangle) {
+                                    screenshotGrabResult = await promptPdfScreenshot(
+                                        iframe!.contentDocument,
+                                        iframe!.contentWindow,
+                                    )
+                                    if (
+                                        screenshotGrabResult == null ||
+                                        screenshotGrabResult.anchor == null
+                                    ) {
+                                        return
+                                    } else {
+                                        await this.highlightRenderer.saveAndRenderHighlight(
+                                            getRenderHighlightParams({
+                                                selection,
+                                                shouldShare,
+                                                openInEditMode: false,
+                                                screenShotAnchor:
+                                                    screenshotGrabResult.anchor,
+                                                screenShotImage:
+                                                    screenshotGrabResult.screenshot,
+                                                imageSupport: this.dependencies
+                                                    .imageSupport,
+                                            }),
+                                        )
+                                    }
+                                }
                                 await this.highlightRenderer.saveAndRenderHighlight(
                                     getRenderHighlightParams({
                                         selection,
@@ -885,7 +939,10 @@ export class ReaderPageViewLogic extends UILogic<
         if (sanitizedAnnotation) {
             annotationCommentWithImages = await processCommentForImageUpload(
                 sanitizedAnnotation,
+                normalizedPageUrl,
+                annotationId,
                 this.dependencies.imageSupport,
+                false,
             )
         }
 
