@@ -59,7 +59,10 @@ import {
     getAnnotationVideoLink,
     getVideoLinkInfo,
 } from '@worldbrain/memex-common/lib/editor/utils'
-import type { MemexTheme } from '@worldbrain/memex-common/lib/common-ui/styles/types'
+import type {
+    IconKeys,
+    MemexTheme,
+} from '@worldbrain/memex-common/lib/common-ui/styles/types'
 import type { UploadStorageUtils } from '@worldbrain/memex-common/lib/personal-cloud/backend/translation-layer/storage-utils'
 import { createPersonalCloudStorageUtils } from '@worldbrain/memex-common/lib/content-sharing/storage/utils'
 import { userChanges } from '../../../services/auth/utils'
@@ -713,6 +716,18 @@ export class ReaderPageViewLogic extends UILogic<
             getWindow: () => iframe!.contentWindow,
             getDocument: () => iframe!.contentDocument,
             scheduleAnnotationCreation: this.scheduleAnnotationCreation,
+            icons: (iconName: IconKeys) => theme.icons[iconName],
+            createHighlight: async (selection, shouldShare, drawRectangle) => {
+                if (this.createHighlightExec) {
+                    await this.createHighlightExec(
+                        selection,
+                        shouldShare,
+                        drawRectangle,
+                        state,
+                        iframe,
+                    )
+                }
+            },
         })
 
         const keyString = router.getQueryParam('key')
@@ -739,34 +754,6 @@ export class ReaderPageViewLogic extends UILogic<
         const reactContainer = document.createElement('div')
         shadowRoot.appendChild(reactContainer)
 
-        const getRenderHighlightParams = (args: {
-            selection: Selection
-            shouldShare?: boolean
-            openInEditMode?: boolean
-            screenShotAnchor?: PdfScreenshotAnchor
-            screenShotImage?: HTMLCanvasElement
-            imageSupport?: ImageSupportInterface
-        }): SaveAndRenderHighlightDeps => {
-            const currentUser =
-                this.dependencies.services.auth.getCurrentUserReference() ??
-                undefined
-            if (!currentUser) {
-                throw new Error('No user logged in')
-            }
-
-            return {
-                currentUser,
-                isPdf: doesUrlPointToPdf(state.sourceUrl!),
-                shouldShare: args.shouldShare,
-                openInEditMode: args.openInEditMode,
-                onClick: this.handleHighlightClick,
-                getSelection: () => args.selection,
-                getFullPageUrl: async () => state.listData?.entry.originalUrl!,
-                screenshotAnchor: args.screenShotAnchor,
-                screenshotImage: args.screenShotImage,
-                imageSupport: args.imageSupport,
-            }
-        }
         const fixedTheme: MemexTheme = {
             ...theme,
             icons: { ...theme.icons },
@@ -798,52 +785,13 @@ export class ReaderPageViewLogic extends UILogic<
                             shouldShare,
                             drawRectangle,
                         ) => {
-                            if (state.currentUserReference == null) {
-                                this.dependencies.services.auth.requestAuth({
-                                    reason: 'login-requested',
-                                })
-                                return
-                            } else {
-                                let screenshotGrabResult
-                                let pdfViewer
-
-                                const isIframe = iframe!.contentWindow
-                                if (isIframe) {
-                                    pdfViewer =
-                                        isIframe['PDFViewerApplication']
-                                            ?.pdfViewer
-                                }
-                                if (pdfViewer && drawRectangle) {
-                                    screenshotGrabResult = await promptPdfScreenshot(
-                                        iframe!.contentDocument,
-                                        iframe!.contentWindow,
-                                    )
-                                    if (
-                                        screenshotGrabResult == null ||
-                                        screenshotGrabResult.anchor == null
-                                    ) {
-                                        return
-                                    } else {
-                                        await this.highlightRenderer.saveAndRenderHighlight(
-                                            getRenderHighlightParams({
-                                                selection,
-                                                shouldShare,
-                                                openInEditMode: false,
-                                                screenShotAnchor:
-                                                    screenshotGrabResult.anchor,
-                                                screenShotImage:
-                                                    screenshotGrabResult.screenshot,
-                                                imageSupport: this.dependencies
-                                                    .imageSupport,
-                                            }),
-                                        )
-                                    }
-                                }
-                                await this.highlightRenderer.saveAndRenderHighlight(
-                                    getRenderHighlightParams({
-                                        selection,
-                                        shouldShare,
-                                    }),
+                            if (this.createHighlightExec) {
+                                await this.createHighlightExec(
+                                    selection,
+                                    shouldShare,
+                                    drawRectangle,
+                                    state,
+                                    iframe,
                                 )
                             }
                         }}
@@ -855,7 +803,7 @@ export class ReaderPageViewLogic extends UILogic<
                                 return
                             } else {
                                 await this.highlightRenderer.saveAndRenderHighlight(
-                                    getRenderHighlightParams({
+                                    this.getRenderHighlightParams({
                                         selection,
                                         shouldShare,
                                         openInEditMode: true,
@@ -893,6 +841,96 @@ export class ReaderPageViewLogic extends UILogic<
                 'mouseup',
                 showTooltipListener,
             )
+        }
+    }
+
+    private createHighlightExec: HighlightRendererDeps['createHighlightExec'] = async (
+        selection: Selection,
+        shouldShare: boolean,
+        drawRectangle?: boolean,
+        state?: ReaderPageViewState,
+        iframe?: HTMLIFrameElement | null,
+    ) => {
+        if (state?.currentUserReference == null) {
+            this.dependencies.services.auth.requestAuth({
+                reason: 'login-requested',
+            })
+            return
+        } else {
+            let screenshotGrabResult
+            let pdfViewer
+
+            const isIframe = iframe!.contentWindow
+
+            if (isIframe) {
+                pdfViewer = isIframe['PDFViewerApplication']?.pdfViewer
+            }
+            if (pdfViewer && drawRectangle) {
+                screenshotGrabResult = await promptPdfScreenshot(
+                    iframe!.contentDocument,
+                    iframe!.contentWindow,
+                )
+                if (
+                    screenshotGrabResult == null ||
+                    screenshotGrabResult.anchor == null
+                ) {
+                    return
+                } else {
+                    await this.highlightRenderer.saveAndRenderHighlight(
+                        this.getRenderHighlightParams({
+                            selection: null,
+                            shouldShare,
+                            openInEditMode: false,
+                            screenShotAnchor: screenshotGrabResult.anchor,
+                            screenShotImage: screenshotGrabResult.screenshot,
+                            imageSupport: this.dependencies.imageSupport,
+                            state,
+                        }),
+                    )
+                }
+            }
+            await this.highlightRenderer.saveAndRenderHighlight(
+                this.getRenderHighlightParams({
+                    selection,
+                    shouldShare,
+                    openInEditMode: false,
+                    screenShotAnchor: undefined,
+                    screenShotImage: undefined,
+                    imageSupport: this.dependencies.imageSupport,
+                    state,
+                }),
+            )
+        }
+    }
+
+    private getRenderHighlightParams = (args: {
+        selection: Selection
+        shouldShare?: boolean
+        openInEditMode?: boolean
+        screenShotAnchor?: PdfScreenshotAnchor | undefined
+        screenShotImage?: HTMLCanvasElement | undefined
+        imageSupport?: ImageSupportInterface
+        state?: ReaderPageViewState
+    }): SaveAndRenderHighlightDeps => {
+        const currentUser =
+            this.dependencies.services.auth.getCurrentUserReference() ??
+            undefined
+        if (!currentUser) {
+            throw new Error('No user logged in')
+        }
+
+        return {
+            currentUser,
+            isPdf: doesUrlPointToPdf(args.state?.sourceUrl!),
+            shouldShare: args.shouldShare,
+            openInEditMode: args.openInEditMode,
+            onClick: this.handleHighlightClick,
+            getSelection: () => args.selection,
+            getFullPageUrl: async () =>
+                args.state?.listData?.entry.originalUrl!,
+            screenshotAnchor: args.screenShotAnchor,
+            screenshotImage: args.screenShotImage,
+            imageSupport: args.imageSupport,
         }
     }
 

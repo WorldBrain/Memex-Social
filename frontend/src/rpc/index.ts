@@ -7,7 +7,6 @@ export class DevelopmentRpc implements DevelopmentRpcInterface {
     private mainSetup?: MainProgramSetup
 
     async run(options: { queryParams: ProgramQueryParams }): Promise<void> {
-        // console.log('running main application')
         this.mainSetup = await mainProgram({
             ...options,
             backend: 'memory',
