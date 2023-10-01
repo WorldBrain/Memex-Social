@@ -1504,6 +1504,7 @@ export class ReaderPageViewLogic extends UILogic<
                     type: 'shared-list-reference',
                     id: this.dependencies.listID,
                 },
+                imageSupport: this.dependencies.imageSupport,
             },
         ).catch(console.error)
         intializeNewPageReplies(this as any, {
@@ -1511,6 +1512,7 @@ export class ReaderPageViewLogic extends UILogic<
                 (normalizedPageUrl) =>
                     !this.conversationThreadPromises[normalizedPageUrl],
             ),
+            imageSupport: this.dependencies.imageSupport,
         })
 
         for (const normalizedPageUrl of normalizedPageUrls) {
