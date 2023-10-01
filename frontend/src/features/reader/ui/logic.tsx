@@ -94,6 +94,7 @@ import {
     PdfScreenshotAnchor,
 } from '@worldbrain/memex-common/lib/annotations/types'
 import { ImageSupportInterface } from '@worldbrain/memex-common/lib/image-support/types'
+import { normalizeUrl } from '@worldbrain/memex-common/lib/url-utils/normalize'
 
 type EventHandler<EventName extends keyof ReaderPageViewEvent> = UIEventHandler<
     ReaderPageViewState,
@@ -152,6 +153,7 @@ export class ReaderPageViewLogic extends UILogic<
                 getHighlightRenderer: () => this.highlightRenderer,
                 getPersonalCloudStorageUtils: () =>
                     this.personalCloudStorageUtils,
+                imageSupport: this.dependencies.imageSupport,
             }),
         )
 
@@ -612,6 +614,7 @@ export class ReaderPageViewLogic extends UILogic<
             return
         }
 
+        console.log('Initializing reader', state)
         const isPdf = doesUrlPointToPdf(state.sourceUrl!)
         let iframe: HTMLIFrameElement | null = null
         await executeUITask<ReaderPageViewState>(
@@ -722,9 +725,9 @@ export class ReaderPageViewLogic extends UILogic<
                     await this.createHighlightExec(
                         selection,
                         shouldShare,
-                        drawRectangle,
+                        drawRectangle as boolean,
                         state,
-                        iframe,
+                        iframe as HTMLIFrameElement,
                     )
                 }
             },
@@ -785,14 +788,16 @@ export class ReaderPageViewLogic extends UILogic<
                             shouldShare,
                             drawRectangle,
                         ) => {
-                            if (this.createHighlightExec) {
-                                await this.createHighlightExec(
-                                    selection,
-                                    shouldShare,
-                                    drawRectangle,
-                                    state,
-                                    iframe,
-                                )
+                            {
+                                if (this.createHighlightExec) {
+                                    await this.createHighlightExec(
+                                        selection,
+                                        shouldShare,
+                                        drawRectangle as boolean,
+                                        state,
+                                        iframe,
+                                    )
+                                }
                             }
                         }}
                         createAnnotation={async (selection, shouldShare) => {
@@ -807,6 +812,11 @@ export class ReaderPageViewLogic extends UILogic<
                                         selection,
                                         shouldShare,
                                         openInEditMode: true,
+                                        screenShotAnchor: undefined,
+                                        screenShotImage: undefined,
+                                        imageSupport: this.dependencies
+                                            .imageSupport,
+                                        state,
                                     }),
                                 )
                             }
@@ -847,7 +857,7 @@ export class ReaderPageViewLogic extends UILogic<
     private createHighlightExec: HighlightRendererDeps['createHighlightExec'] = async (
         selection: Selection,
         shouldShare: boolean,
-        drawRectangle?: boolean,
+        drawRectangle: boolean,
         state?: ReaderPageViewState,
         iframe?: HTMLIFrameElement | null,
     ) => {
@@ -863,7 +873,7 @@ export class ReaderPageViewLogic extends UILogic<
             const isIframe = iframe!.contentWindow
 
             if (isIframe) {
-                pdfViewer = isIframe['PDFViewerApplication']?.pdfViewer
+                pdfViewer = (isIframe as any)['PDFViewerApplication']?.pdfViewer
             }
             if (pdfViewer && drawRectangle) {
                 screenshotGrabResult = await promptPdfScreenshot(
@@ -904,7 +914,7 @@ export class ReaderPageViewLogic extends UILogic<
     }
 
     private getRenderHighlightParams = (args: {
-        selection: Selection
+        selection: Selection | null
         shouldShare?: boolean
         openInEditMode?: boolean
         screenShotAnchor?: PdfScreenshotAnchor | undefined
@@ -925,7 +935,7 @@ export class ReaderPageViewLogic extends UILogic<
             shouldShare: args.shouldShare,
             openInEditMode: args.openInEditMode,
             onClick: this.handleHighlightClick,
-            getSelection: () => args.selection,
+            getSelection: () => args.selection ?? null,
             getFullPageUrl: async () =>
                 args.state?.listData?.entry.originalUrl!,
             screenshotAnchor: args.screenShotAnchor,
@@ -1643,6 +1653,7 @@ export class ReaderPageViewLogic extends UILogic<
         event,
         previousState,
     }) => {
+        console.log('asdadsfads')
         if (!previousState.listData) {
             throw new Error(
                 'Cannot create annotation before page URL is loaded',
@@ -1671,22 +1682,31 @@ export class ReaderPageViewLogic extends UILogic<
             sanitizedAnnotation = sanitizeHTMLhelper(comment?.trim())
         }
 
+        console.log('sanitizedAnnotation', this.dependencies.imageSupport)
+
         let annotationCommentWithImages = sanitizedAnnotation
         if (sanitizedAnnotation) {
             annotationCommentWithImages = await processCommentForImageUpload(
                 sanitizedAnnotation,
+                null,
+                null,
                 this.dependencies.imageSupport,
+                true,
             )
         }
 
         const createdWhen = Date.now()
-        const { createPromise } = this.scheduleAnnotationCreation({
+        const {
+            createPromise,
+            annotationId,
+        } = await this.scheduleAnnotationCreation({
             fullPageUrl: previousState.listData.entry.originalUrl,
             updatedWhen: createdWhen,
             createdWhen,
             comment: annotationCommentWithImages,
             creator,
         })
+
         this.emitMutation({
             annotationCreateState: {
                 isCreating: { $set: false },
