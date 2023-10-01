@@ -20,12 +20,14 @@ export async function setup(options: {
     const imageSupport: ImageSupportInterface = {
         generateImageId: async () => '', // replaced later in services setup
         uploadImage: (params) => {
+            let blob
             if (typeof params.image === 'string') {
-                throw new Error(`You can only upload blobs, not data URIs`)
+                blob = dataURLToBlob(params.image)
             }
+
             return imageSupportBackend.uploadImage({
                 ...params,
-                image: params.image,
+                image: blob ?? (params.image as Blob),
             })
         },
         getImageUrl: (params) => imageSupportBackend.getImageUrl(params),
@@ -65,4 +67,17 @@ export async function main(options: {
     } else {
         await setup(options)
     }
+}
+
+function dataURLToBlob(dataurl: string) {
+    const parts = dataurl.split(';base64,')
+    const byteString = atob(parts[1])
+    const mime = parts[0].split(':')[1].split(';')[0]
+    const buffer = new Uint8Array(byteString.length)
+
+    for (let i = 0; i < byteString.length; i++) {
+        buffer[i] = byteString.charCodeAt(i)
+    }
+
+    return new Blob([buffer], { type: mime })
 }
