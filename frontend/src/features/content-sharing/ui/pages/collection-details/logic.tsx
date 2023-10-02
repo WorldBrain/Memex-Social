@@ -283,7 +283,6 @@ export default class CollectionDetailsLogic extends UILogic<
             const response = await this.dependencies.services.contentSharing.backend.loadCollectionDetails(
                 {
                     listId: this.dependencies.listID,
-                    entryId: this.dependencies.entryID,
                 },
             )
             if (response.status !== 'success') {
