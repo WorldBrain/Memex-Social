@@ -19,7 +19,7 @@ bundle_names=$(echo $bundle_names | sed 's/ *$//')
 for env_file in ../firebase/functions/.env*; do
     # If var already there, replace, else append
     if grep -q "WEB_UI_BUNDLES=" $env_file; then
-        sed -i '' -e "s/WEB_UI_BUNDLES=.*/WEB_UI_BUNDLES=\"${bundle_names}\"/" $env_file
+        sed -i -e "s/WEB_UI_BUNDLES=.*/WEB_UI_BUNDLES=\"${bundle_names}\"/" $env_file
     else
         echo "WEB_UI_BUNDLES=\"${bundle_names}\"" >> $env_file
     fi

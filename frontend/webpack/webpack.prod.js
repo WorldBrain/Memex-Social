@@ -9,9 +9,11 @@ module.exports = merge(common, {
         clean: true,
     },
     optimization: {
+        // minimize: false,
         minimize: true,
         sideEffects: true,
         concatenateModules: true,
+        // runtimeChunk: 'multiple',
         runtimeChunk: 'single',
         splitChunks: {
             chunks: 'all',
