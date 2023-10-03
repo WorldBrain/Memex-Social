@@ -2,13 +2,17 @@ const path = require('path')
 
 module.exports = {
     mode: 'development',
-    entry: ['./src/index.tsx'],
+    entry: {
+        main: './src/index.tsx',
+        'bookmarklet-bootstrap': './src/features/bookmarklet/bootstrap.ts',
+        'bookmarklet-main': './src/features/bookmarklet/main.ts',
+    },
     module: {
         rules: require('./rules'),
     },
     output: {
-        filename: '[name].[contenthash].js',
-        chunkFilename: '[name].[contenthash].chunk.js',
+        filename: '[name].js',
+        chunkFilename: '[name].chunk.js',
         path: path.resolve(__dirname, '../build'),
         publicPath: '/',
     },
@@ -20,6 +24,9 @@ module.exports = {
         port: 3000,
         // open: true,
         historyApiFallback: true,
+        devMiddleware: {
+            writeToDisk: true,
+        },
     },
     optimization: {
         splitChunks: {

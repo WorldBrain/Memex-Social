@@ -53,7 +53,9 @@ export default class FixtureService {
 }
 
 export async function defaultFixtureFetcher(name: string): Promise<Fixture> {
-    const response = await fetch('/playground/fixture/' + name)
+    const response = await fetch(
+        'http://localhost:5030/playground/fixture/' + name,
+    )
     const data = response.json()
     return data
 }

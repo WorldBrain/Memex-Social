@@ -19,6 +19,7 @@ module.exports = {
         process: false,
         perf_hooks: false,
         child_process: false,
+        jsdom: false,
     },
     alias: {
         react: require.resolve('react'),

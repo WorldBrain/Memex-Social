@@ -63,7 +63,13 @@ export async function main() {
         console.log('UI console.log:', ...data)
     })
 
-    app.use(router.routes()).use(router.allowedMethods()).listen(5030)
+    app.use(async (ctx, next) => {
+        ctx.set('Access-Control-Allow-Origin', '*')
+        return next()
+    })
+        .use(router.routes())
+        .use(router.allowedMethods())
+        .listen(5030)
     console.log('Dev server started!')
 }
 

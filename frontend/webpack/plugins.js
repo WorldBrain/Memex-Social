@@ -15,7 +15,7 @@ module.exports = [
     new HtmlWebpackPlugin({
         template: 'src/index.html',
         // favicon: 'assets/images/logo.png',
-        inject: true,
+        chunks: ['main'],
     }),
     new MiniCssExtractPlugin({
         filename: '[name].[chunkhash].css',

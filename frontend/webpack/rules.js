@@ -3,6 +3,10 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 
 module.exports = [
     {
+        test: /jsdom/,
+        use: 'null-loader',
+    },
+    {
         test: /\.m?js/,
         resolve: {
             fullySpecified: false,
