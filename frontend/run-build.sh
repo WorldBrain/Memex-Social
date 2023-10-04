@@ -8,6 +8,11 @@ cp -r public/* ../firebase/public/
 # Derive bundle names (contain dynamic cache-busting hashes)
 bundle_names=''
 for bundle in ../firebase/public/*.{js,css}; do
+    # Ignore the bookmarklet* output bundles
+    if [[ $(basename $bundle) == bookmarklet* ]]; then
+        continue
+    fi
+
     base_name=$(basename $bundle)
     bundle_names+="${base_name} "
 done
