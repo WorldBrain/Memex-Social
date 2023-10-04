@@ -20,7 +20,8 @@ MEMEX_COMMON_HEAD=$(
     sed 's/^+//'        # Remove any leading '+' from the hash
 )
 cd $FB_REPO_DIR/firebase/functions/external/@worldbrain/memex-common
-git checkout $MEMEX_COMMON_HEAD
+git stash
+git checkout -f $MEMEX_COMMON_HEAD
 
 # Now install deps in firebase/functions
 cd ../../..
