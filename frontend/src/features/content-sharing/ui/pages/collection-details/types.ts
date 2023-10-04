@@ -36,6 +36,7 @@ import type {
     EditableAnnotationsState,
 } from '../../../../annotations/ui/types'
 import type StorageManager from '@worldbrain/storex'
+import { ImageSupportInterface } from '@worldbrain/memex-common/lib/image-support/types'
 
 export interface CollectionDetailsDependencies {
     listID: string
@@ -73,6 +74,7 @@ export interface CollectionDetailsDependencies {
     >
     query: ContentSharingQueryParams
     storageManager: StorageManager
+    imageSupport: ImageSupportInterface
 }
 
 export type CollectionDetailsState = AnnotationConversationsState &

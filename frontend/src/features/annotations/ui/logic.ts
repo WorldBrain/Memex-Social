@@ -13,6 +13,9 @@ import type {
 } from './types'
 import type { AutoPk } from '@worldbrain/memex-common/lib/storage/types'
 import type { StorageModules } from '../../../storage/types'
+import sanitizeHTMLhelper from '@worldbrain/memex-common/lib/utils/sanitize-html-helper'
+import { processCommentForImageUpload } from '@worldbrain/memex-common/lib/annotations/processCommentForImageUpload'
+import { ImageSupportInterface } from '@worldbrain/memex-common/lib/image-support/types'
 
 export function editableAnnotationsInitialState(): EditableAnnotationsState {
     return {
@@ -33,6 +36,7 @@ export function editableAnnotationsEventHandlers<
         storage: Pick<StorageModules, 'contentSharing'>
         getHighlightRenderer?: () => HighlightRendererInterface | undefined
         getPersonalCloudStorageUtils: () => UploadStorageUtils | null
+        imageSupport: ImageSupportInterface
     },
 ): EditableAnnotationsHandlers {
     return {
@@ -134,16 +138,46 @@ export function editableAnnotationsEventHandlers<
                 )
             }
 
+            let sanitizedAnnotation
+
+            if (editState.comment && editState.comment.length > 0) {
+                sanitizedAnnotation = sanitizeHTMLhelper(
+                    editState.comment?.trim(),
+                )
+            }
+
+            let annotationCommentWithImagesNoUpload = sanitizedAnnotation
+            if (sanitizedAnnotation) {
+                annotationCommentWithImagesNoUpload = await processCommentForImageUpload(
+                    sanitizedAnnotation,
+                    annotation.normalizedPageUrl,
+                    null,
+                    dependencies.imageSupport,
+                    true,
+                )
+            }
+
             logic.emitMutation({
                 annotations: {
                     [event.annotationId]: {
-                        comment: { $set: editState.comment },
+                        comment: { $set: annotationCommentWithImagesNoUpload },
                     },
                 },
                 annotationEditStates: {
                     [event.annotationId]: { isEditing: { $set: false } },
                 },
             })
+
+            let annotationCommentWithImagesWithUpload = sanitizedAnnotation
+            if (sanitizedAnnotation) {
+                annotationCommentWithImagesWithUpload = await processCommentForImageUpload(
+                    sanitizedAnnotation,
+                    annotation.normalizedPageUrl,
+                    null,
+                    dependencies.imageSupport,
+                    false,
+                )
+            }
 
             await executeUITask(
                 logic,
@@ -162,7 +196,7 @@ export function editableAnnotationsEventHandlers<
 
                     await dependencies.storage.contentSharing.updateAnnotationComment(
                         {
-                            updatedComment: editState.comment,
+                            updatedComment: annotationCommentWithImagesWithUpload,
                             sharedAnnotationReference: {
                                 type: 'shared-annotation-reference',
                                 id: event.annotationId,
@@ -181,7 +215,7 @@ export function editableAnnotationsEventHandlers<
                         'personalAnnotation',
                         personalAnnotation.id,
                         {
-                            comment: editState.comment,
+                            comment: annotationCommentWithImagesWithUpload,
                         },
                     )
                 },

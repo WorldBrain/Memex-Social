@@ -26,6 +26,7 @@ import type {
     ExtDetectionState,
     ExtDetectionEvent,
 } from '../../../../ext-detection/ui/logic'
+import { ImageSupportInterface } from '@worldbrain/memex-common/lib/image-support/types'
 
 export interface PageDetailsDependencies {
     services: UIElementServices<
@@ -51,6 +52,7 @@ export interface PageDetailsDependencies {
     >
     pageID: string
     userManagement: UserStorage
+    imageSupport: ImageSupportInterface
 }
 
 export type PageDetailsState = AnnotationConversationsState &

@@ -13,10 +13,12 @@ import { mainProgram } from './main'
 import { mockClipboardAPI } from '../services/clipboard/mock'
 import type { _Tuple } from '@worldbrain/memex-common/lib/_workarounds/types'
 import { createYoutubeServiceOptions } from '@worldbrain/memex-common/lib/services/youtube/library'
+import { ImageSupportInterface } from '@worldbrain/memex-common/lib/image-support/types'
 
 export async function metaProgram(options: {
     history: History
     queryParams: ProgramQueryParams
+    imageSupport: ImageSupportInterface
 }) {
     if (!options.queryParams.scenario) {
         throw new Error(`Requested meta UI without specifying scenario`)
@@ -62,6 +64,7 @@ export async function metaProgram(options: {
                             scenario: `${scenarioIdentifier.pageName}.${scenarioName}.$start`,
                         },
                         youtubeOptions: createYoutubeServiceOptions(),
+                        imageSupport: options.imageSupport,
                     })
                 },
             }
@@ -81,6 +84,7 @@ export async function metaProgram(options: {
                             scenario: `${scenarioIdentifier.pageName}.${scenarioName}.${step.name}`,
                         },
                         youtubeOptions: createYoutubeServiceOptions(),
+                        imageSupport: options.imageSupport,
                     })
                 }
             }

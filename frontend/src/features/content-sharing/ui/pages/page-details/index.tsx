@@ -319,6 +319,7 @@ export default class PageDetailsPage extends UIElement<
                                             state.conversations
                                         }
                                         newPageReplyEventHandlers={{}}
+                                        imageSupport={this.props.imageSupport}
                                     />
                                 )}
                         </Margin>

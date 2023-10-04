@@ -59,7 +59,10 @@ import {
     getAnnotationVideoLink,
     getVideoLinkInfo,
 } from '@worldbrain/memex-common/lib/editor/utils'
-import type { MemexTheme } from '@worldbrain/memex-common/lib/common-ui/styles/types'
+import type {
+    IconKeys,
+    MemexTheme,
+} from '@worldbrain/memex-common/lib/common-ui/styles/types'
 import type { UploadStorageUtils } from '@worldbrain/memex-common/lib/personal-cloud/backend/translation-layer/storage-utils'
 import { createPersonalCloudStorageUtils } from '@worldbrain/memex-common/lib/content-sharing/storage/utils'
 import { userChanges } from '../../../services/auth/utils'
@@ -80,6 +83,18 @@ import {
 } from '../../annotations/ui/logic'
 import type { UITaskState } from '@worldbrain/memex-common/lib/main-ui/types'
 import { sleepPromise } from '../../../utils/promises'
+import sanitizeHTMLhelper from '@worldbrain/memex-common/lib/utils/sanitize-html-helper'
+import { processCommentForImageUpload } from '@worldbrain/memex-common/lib/annotations/processCommentForImageUpload'
+import {
+    PdfScreenshot,
+    promptPdfScreenshot,
+} from '@worldbrain/memex-common/lib/pdf/screenshots/selection'
+import {
+    Anchor,
+    PdfScreenshotAnchor,
+} from '@worldbrain/memex-common/lib/annotations/types'
+import { ImageSupportInterface } from '@worldbrain/memex-common/lib/image-support/types'
+import { normalizeUrl } from '@worldbrain/memex-common/lib/url-utils/normalize'
 
 type EventHandler<EventName extends keyof ReaderPageViewEvent> = UIEventHandler<
     ReaderPageViewState,
@@ -138,6 +153,7 @@ export class ReaderPageViewLogic extends UILogic<
                 getHighlightRenderer: () => this.highlightRenderer,
                 getPersonalCloudStorageUtils: () =>
                     this.personalCloudStorageUtils,
+                imageSupport: this.dependencies.imageSupport,
             }),
         )
 
@@ -598,6 +614,7 @@ export class ReaderPageViewLogic extends UILogic<
             return
         }
 
+        console.log('Initializing reader', state)
         const isPdf = doesUrlPointToPdf(state.sourceUrl!)
         let iframe: HTMLIFrameElement | null = null
         await executeUITask<ReaderPageViewState>(
@@ -702,6 +719,18 @@ export class ReaderPageViewLogic extends UILogic<
             getWindow: () => iframe!.contentWindow,
             getDocument: () => iframe!.contentDocument,
             scheduleAnnotationCreation: this.scheduleAnnotationCreation,
+            icons: (iconName: IconKeys) => theme.icons[iconName],
+            createHighlight: async (selection, shouldShare, drawRectangle) => {
+                if (this.createHighlightExec) {
+                    await this.createHighlightExec(
+                        selection,
+                        shouldShare,
+                        drawRectangle as boolean,
+                        state,
+                        iframe as HTMLIFrameElement,
+                    )
+                }
+            },
         })
 
         const keyString = router.getQueryParam('key')
@@ -728,28 +757,6 @@ export class ReaderPageViewLogic extends UILogic<
         const reactContainer = document.createElement('div')
         shadowRoot.appendChild(reactContainer)
 
-        const getRenderHighlightParams = (args: {
-            selection: Selection
-            shouldShare?: boolean
-            openInEditMode?: boolean
-        }): SaveAndRenderHighlightDeps => {
-            const currentUser =
-                this.dependencies.services.auth.getCurrentUserReference() ??
-                undefined
-            if (!currentUser) {
-                throw new Error('No user logged in')
-            }
-
-            return {
-                currentUser,
-                isPdf: doesUrlPointToPdf(state.sourceUrl!),
-                shouldShare: args.shouldShare,
-                openInEditMode: args.openInEditMode,
-                onClick: this.handleHighlightClick,
-                getSelection: () => args.selection,
-                getFullPageUrl: async () => state.listData?.entry.originalUrl!,
-            }
-        }
         const fixedTheme: MemexTheme = {
             ...theme,
             icons: { ...theme.icons },
@@ -776,19 +783,21 @@ export class ReaderPageViewLogic extends UILogic<
                     <Tooltip
                         hideAddToSpaceBtn
                         getWindow={() => iframe.contentWindow!}
-                        createHighlight={async (selection, shouldShare) => {
-                            if (state.currentUserReference == null) {
-                                this.dependencies.services.auth.requestAuth({
-                                    reason: 'login-requested',
-                                })
-                                return
-                            } else {
-                                await this.highlightRenderer.saveAndRenderHighlight(
-                                    getRenderHighlightParams({
+                        createHighlight={async (
+                            selection,
+                            shouldShare,
+                            drawRectangle,
+                        ) => {
+                            {
+                                if (this.createHighlightExec) {
+                                    await this.createHighlightExec(
                                         selection,
                                         shouldShare,
-                                    }),
-                                )
+                                        drawRectangle as boolean,
+                                        state,
+                                        iframe,
+                                    )
+                                }
                             }
                         }}
                         createAnnotation={async (selection, shouldShare) => {
@@ -799,10 +808,15 @@ export class ReaderPageViewLogic extends UILogic<
                                 return
                             } else {
                                 await this.highlightRenderer.saveAndRenderHighlight(
-                                    getRenderHighlightParams({
+                                    this.getRenderHighlightParams({
                                         selection,
                                         shouldShare,
                                         openInEditMode: true,
+                                        screenShotAnchor: undefined,
+                                        screenShotImage: undefined,
+                                        imageSupport: this.dependencies
+                                            .imageSupport,
+                                        state,
                                     }),
                                 )
                             }
@@ -840,13 +854,103 @@ export class ReaderPageViewLogic extends UILogic<
         }
     }
 
+    private createHighlightExec: HighlightRendererDeps['createHighlightExec'] = async (
+        selection: Selection,
+        shouldShare: boolean,
+        drawRectangle: boolean,
+        state?: ReaderPageViewState,
+        iframe?: HTMLIFrameElement | null,
+    ) => {
+        if (state?.currentUserReference == null) {
+            this.dependencies.services.auth.requestAuth({
+                reason: 'login-requested',
+            })
+            return
+        } else {
+            let screenshotGrabResult
+            let pdfViewer
+
+            const isIframe = iframe!.contentWindow
+
+            if (isIframe) {
+                pdfViewer = (isIframe as any)['PDFViewerApplication']?.pdfViewer
+            }
+            if (pdfViewer && drawRectangle) {
+                screenshotGrabResult = await promptPdfScreenshot(
+                    iframe!.contentDocument,
+                    iframe!.contentWindow,
+                )
+                if (
+                    screenshotGrabResult == null ||
+                    screenshotGrabResult.anchor == null
+                ) {
+                    return
+                } else {
+                    await this.highlightRenderer.saveAndRenderHighlight(
+                        this.getRenderHighlightParams({
+                            selection: null,
+                            shouldShare,
+                            openInEditMode: false,
+                            screenShotAnchor: screenshotGrabResult.anchor,
+                            screenShotImage: screenshotGrabResult.screenshot,
+                            imageSupport: this.dependencies.imageSupport,
+                            state,
+                        }),
+                    )
+                }
+            }
+            await this.highlightRenderer.saveAndRenderHighlight(
+                this.getRenderHighlightParams({
+                    selection,
+                    shouldShare,
+                    openInEditMode: false,
+                    screenShotAnchor: undefined,
+                    screenShotImage: undefined,
+                    imageSupport: this.dependencies.imageSupport,
+                    state,
+                }),
+            )
+        }
+    }
+
+    private getRenderHighlightParams = (args: {
+        selection: Selection | null
+        shouldShare?: boolean
+        openInEditMode?: boolean
+        screenShotAnchor?: PdfScreenshotAnchor | undefined
+        screenShotImage?: HTMLCanvasElement | undefined
+        imageSupport?: ImageSupportInterface
+        state?: ReaderPageViewState
+    }): SaveAndRenderHighlightDeps => {
+        const currentUser =
+            this.dependencies.services.auth.getCurrentUserReference() ??
+            undefined
+        if (!currentUser) {
+            throw new Error('No user logged in')
+        }
+
+        return {
+            currentUser,
+            isPdf: doesUrlPointToPdf(args.state?.sourceUrl!),
+            shouldShare: args.shouldShare,
+            openInEditMode: args.openInEditMode,
+            onClick: this.handleHighlightClick,
+            getSelection: () => args.selection ?? null,
+            getFullPageUrl: async () =>
+                args.state?.listData?.entry.originalUrl!,
+            screenshotAnchor: args.screenShotAnchor,
+            screenshotImage: args.screenShotImage,
+            imageSupport: args.imageSupport,
+        }
+    }
+
     private hideAnnotationInstruct: EventHandler<'hideAnnotationInstruct'> = async () => {
         this.emitMutation({
             renderAnnotationInstructOverlay: { $set: false },
         })
     }
 
-    private scheduleAnnotationCreation: HighlightRendererDeps['scheduleAnnotationCreation'] = (
+    private scheduleAnnotationCreation: HighlightRendererDeps['scheduleAnnotationCreation'] = async (
         annotationData,
         openInEditMode,
     ) => {
@@ -871,13 +975,32 @@ export class ReaderPageViewLogic extends UILogic<
             id: this.dependencies.listID,
         }
 
+        let sanitizedAnnotation
+
+        if (annotationData.comment && annotationData.comment.length > 0) {
+            sanitizedAnnotation = sanitizeHTMLhelper(
+                annotationData.comment?.trim(),
+            )
+        }
+
+        let annotationCommentWithImages = sanitizedAnnotation
+        if (sanitizedAnnotation) {
+            annotationCommentWithImages = await processCommentForImageUpload(
+                sanitizedAnnotation,
+                normalizedPageUrl,
+                annotationId,
+                this.dependencies.imageSupport,
+                false,
+            )
+        }
+
         // Update UI state (TODO: Why are the types messed up enough that I need to `as any` here?)
         this.emitMutation({
             annotationEditStates: {
                 [annotationId]: {
                     $set: {
                         isEditing: !!openInEditMode,
-                        comment: annotationData.comment ?? '',
+                        comment: sanitizedAnnotation ?? '',
                         loadState: 'pristine',
                     },
                 },
@@ -905,7 +1028,7 @@ export class ReaderPageViewLogic extends UILogic<
                         linkId: annotationId,
                         reference: annotationRef,
                         body: annotationData.body,
-                        comment: annotationData.comment,
+                        comment: annotationData.comment ?? undefined,
                         updatedWhen: annotationData.createdWhen,
                         createdWhen: annotationData.createdWhen,
                         uploadedWhen: annotationData.createdWhen,
@@ -954,7 +1077,7 @@ export class ReaderPageViewLogic extends UILogic<
                         {
                             id: annotationId,
                             body: annotationData.body,
-                            comment: annotationData.comment,
+                            comment: annotationCommentWithImages ?? undefined,
                             selector: JSON.stringify(annotationData.selector),
                             createdWhen: annotationData.createdWhen,
                             localId: annotationId.toString(),
@@ -1381,6 +1504,7 @@ export class ReaderPageViewLogic extends UILogic<
                     type: 'shared-list-reference',
                     id: this.dependencies.listID,
                 },
+                imageSupport: this.dependencies.imageSupport,
             },
         ).catch(console.error)
         intializeNewPageReplies(this as any, {
@@ -1388,6 +1512,7 @@ export class ReaderPageViewLogic extends UILogic<
                 (normalizedPageUrl) =>
                     !this.conversationThreadPromises[normalizedPageUrl],
             ),
+            imageSupport: this.dependencies.imageSupport,
         })
 
         for (const normalizedPageUrl of normalizedPageUrls) {
@@ -1530,6 +1655,7 @@ export class ReaderPageViewLogic extends UILogic<
         event,
         previousState,
     }) => {
+        console.log('asdadsfads')
         if (!previousState.listData) {
             throw new Error(
                 'Cannot create annotation before page URL is loaded',
@@ -1552,14 +1678,37 @@ export class ReaderPageViewLogic extends UILogic<
             throw new Error('Cannot create annotation if not logged in')
         }
 
+        let sanitizedAnnotation
+
+        if (comment && comment.length > 0) {
+            sanitizedAnnotation = sanitizeHTMLhelper(comment?.trim())
+        }
+
+        console.log('sanitizedAnnotation', this.dependencies.imageSupport)
+
+        let annotationCommentWithImages = sanitizedAnnotation
+        if (sanitizedAnnotation) {
+            annotationCommentWithImages = await processCommentForImageUpload(
+                sanitizedAnnotation,
+                null,
+                null,
+                this.dependencies.imageSupport,
+                true,
+            )
+        }
+
         const createdWhen = Date.now()
-        const { createPromise } = this.scheduleAnnotationCreation({
+        const {
+            createPromise,
+            annotationId,
+        } = await this.scheduleAnnotationCreation({
             fullPageUrl: previousState.listData.entry.originalUrl,
             updatedWhen: createdWhen,
             createdWhen,
-            comment,
+            comment: annotationCommentWithImages,
             creator,
         })
+
         this.emitMutation({
             annotationCreateState: {
                 isCreating: { $set: false },

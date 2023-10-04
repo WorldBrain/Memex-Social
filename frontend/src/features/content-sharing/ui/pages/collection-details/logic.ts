@@ -1383,6 +1383,7 @@ export default class CollectionDetailsLogic extends UILogic<
                     type: 'shared-list-reference',
                     id: this.dependencies.listID,
                 },
+                imageSupport: this.dependencies.imageSupport,
             },
         ).catch(console.error)
         intializeNewPageReplies(this as any, {
@@ -1390,6 +1391,7 @@ export default class CollectionDetailsLogic extends UILogic<
                 (normalizedPageUrl) =>
                     !this.conversationThreadPromises[normalizedPageUrl],
             ),
+            imageSupport: this.dependencies.imageSupport,
         })
 
         for (const normalizedPageUrl of normalizedPageUrls) {

@@ -579,10 +579,13 @@ export default class CollectionDetailsPage extends UIElement<
             entry.normalizedUrl,
         )
 
+        console.log('image support', this.props.imageSupport)
+
         return (
             <AnnotationsInPage
                 originalUrl={entry.originalUrl}
                 contextLocation={'webUI'}
+                imageSupport={this.props.imageSupport}
                 variant={'dark-mode'}
                 getYoutubePlayer={() =>
                     this.props.services.youtube.getPlayerByElementId(
@@ -651,6 +654,7 @@ export default class CollectionDetailsPage extends UIElement<
                             replyReference,
                         })
                     },
+                    imageSupport: this.props.imageSupport,
                     onCommentChange: (comment) =>
                         this.processEvent('editReplyToAnnotation', {
                             replyText: comment,
@@ -683,6 +687,7 @@ export default class CollectionDetailsPage extends UIElement<
                     isHovering: this.state.annotationHoverStates[
                         annotationRef.id
                     ]?.isHovering,
+                    imageSupport: this.props.imageSupport,
                     isOwner:
                         this.state.annotations[annotationRef.id.toString()]
                             ?.creator.id ===
@@ -1714,6 +1719,9 @@ export default class CollectionDetailsPage extends UIElement<
             return
         }
 
+        const listdescription =
+            data?.list.description || data?.listDescriptionTruncated || ''
+
         return (
             // <CollectionDescriptionBox
             //     viewportBreakpoint={this.viewportBreakpoint}
@@ -1764,9 +1772,7 @@ export default class CollectionDetailsPage extends UIElement<
             <CollectionDescriptionText
                 viewportBreakpoint={this.viewportBreakpoint}
             >
-                {data?.listDescriptionState === 'collapsed'
-                    ? data?.listDescriptionTruncated
-                    : data?.list.description}
+                {listdescription ?? ''}
             </CollectionDescriptionText>
         )
     }

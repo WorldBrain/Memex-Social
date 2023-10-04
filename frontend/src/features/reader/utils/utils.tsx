@@ -230,6 +230,7 @@ export const createIframeForBlob = async (
 export const createIframeForPDFViewer = (): HTMLIFrameElement => {
     const iframe = createReaderIframe()
     iframe.src = `${window.location.origin}/pdfjs/viewer.html`
+    iframe.id = 'pdf-iframe-memex-social'
     return iframe
 }
 
