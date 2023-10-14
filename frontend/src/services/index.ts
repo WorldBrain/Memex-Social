@@ -85,7 +85,7 @@ export function createServices(options: {
         options.backend === 'firebase-emulator'
     ) {
         options.imageSupport.generateImageId = async () =>
-            firebase.firestore().collection('images').id
+            firebase.firestore().collection('images').doc().id
         auth = new FirebaseAuthService(firebase, {
             storage: options.storage,
             localStorage: options.localStorage,

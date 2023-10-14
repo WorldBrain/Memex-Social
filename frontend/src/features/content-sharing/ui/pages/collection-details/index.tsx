@@ -578,6 +578,8 @@ export default class CollectionDetailsPage extends UIElement<
             entry.normalizedUrl,
         )
 
+        console.log('image support', this.props.imageSupport)
+
         return (
             <AnnotationsInPage
                 originalUrl={entry.originalUrl}

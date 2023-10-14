@@ -1217,6 +1217,7 @@ export default class CollectionDetailsLogic extends UILogic<
                     type: 'shared-list-reference',
                     id: this.dependencies.listID,
                 },
+                imageSupport: this.dependencies.imageSupport,
             })
         }
         intializeNewPageReplies(this as any, {
@@ -1225,6 +1226,7 @@ export default class CollectionDetailsLogic extends UILogic<
                     (annotation) => annotation.normalizedPageUrl,
                 ),
             ],
+            imageSupport: this.dependencies.imageSupport,
             // .filter(
             //     (normalizedPageUrl) =>
             //         !this.conversationThreadPromises[normalizedPageUrl],
