@@ -59,7 +59,9 @@ export type AuthLoginFlow =
     | 'direct-with-confirm' // We'll get a direct response back whether the account was created, but the user needs to confirm their account
 export interface AuthRequest {
     reason?: AuthRequestReason
-    header?: { title: string | JSX.Element; subtitle?: string | JSX.Element }
+    header?:
+        | { title: string | JSX.Element; subtitle?: string | JSX.Element }
+        | JSX.Element
 }
 export type AuthRequestReason = 'login-requested' | 'registration-requested'
 

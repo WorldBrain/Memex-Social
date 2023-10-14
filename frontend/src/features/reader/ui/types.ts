@@ -36,6 +36,7 @@ export interface ReaderPageViewDependencies {
         | 'userManagement'
         | 'youtube'
         | 'memexExtension'
+        | 'contentSharing'
     >
     storage: Pick<
         StorageModules,
@@ -99,6 +100,7 @@ export type ReaderPageViewState = AnnotationConversationsState &
 export type ReaderPageViewEvent = UIEvent<
     AnnotationConversationEvent &
         EditableAnnotationsEvent & {
+            load: { isUpdate: boolean; listID?: string }
             setReaderContainerRef: { ref: HTMLDivElement | null }
             setSidebarRef: { ref: HTMLElement | null }
             setSidebarWidth: { width: number }

@@ -27,7 +27,6 @@ import AnnotationsInPage from '../../../../annotations/ui/components/annotations
 import ErrorWithAction from '../../../../../common-ui/components/error-with-action'
 import FollowBtn from '../../../../activity-follows/ui/components/follow-btn'
 import WebMonetizationIcon from '../../../../web-monetization/ui/components/web-monetization-icon'
-import PermissionKeyOverlay from './permission-key-overlay'
 import InstallExtOverlay from '../../../../ext-detection/ui/components/install-ext-overlay'
 import { mergeTaskStates } from '../../../../../main-ui/classes/logic'
 import { UserReference } from '../../../../user-management/types'
@@ -55,6 +54,7 @@ import TextField from '@worldbrain/memex-common/lib/common-ui/components/text-fi
 import TextArea from '@worldbrain/memex-common/lib/common-ui/components/text-area'
 import DateTimePicker from 'react-datepicker'
 import debounce from 'lodash/debounce'
+import { LoggedInAccessBox } from './space-access-box'
 
 const commentImage = require('../../../../../assets/img/comment.svg')
 const commentEmptyImage = require('../../../../../assets/img/comment-empty.svg')
@@ -240,7 +240,6 @@ export default class CollectionDetailsPage extends UIElement<
         return (
             <WebMonetizationIcon
                 services={this.props.services}
-                storage={this.props.storage}
                 curatorUserRef={creatorReference}
                 isFollowedSpace={this.state.isCollectionFollowed}
             />
@@ -564,8 +563,8 @@ export default class CollectionDetailsPage extends UIElement<
                 isContributor={this.isListContributor}
                 loadState={mergeTaskStates([
                     this.state.followLoadState,
-                    this.state.listRolesLoadState,
-                    this.state.permissionKeyState,
+                    // this.state.listRolesLoadState,
+                    // this.state.permissionKeyState,
                 ])}
                 viewPortWidth={this.viewportBreakpoint}
             />
@@ -742,10 +741,7 @@ export default class CollectionDetailsPage extends UIElement<
                     ]?.creator
                     return creatorRef
                 }}
-                profilePopupProps={{
-                    storage: this.props.storage,
-                    services: this.props.services,
-                }}
+                profilePopupProps={{ services: this.props.services }}
                 onToggleReplies={(event) =>
                     this.processEvent('toggleAnnotationReplies', {
                         ...event,
@@ -900,20 +896,20 @@ export default class CollectionDetailsPage extends UIElement<
         const { state } = this
         const { listData: data } = state
         const users: Array<{ userReference: UserReference; user: User }> = []
-        if (
-            (state.listRolesLoadState === 'running' ||
-                state.listRolesLoadState === 'pristine') &&
-            !users.length
-        ) {
-            return (
-                <SubtitleContainer
-                    loading
-                    viewportBreakpoint={this.viewportBreakpoint}
-                >
-                    <LoadingIndicator size={16} />
-                </SubtitleContainer>
-            )
-        }
+        // if (
+        //     (state.listRolesLoadState === 'running' ||
+        //         state.listRolesLoadState === 'pristine') &&
+        //     !users.length
+        // ) {
+        //     return (
+        //         <SubtitleContainer
+        //             loading
+        //             viewportBreakpoint={this.viewportBreakpoint}
+        //         >
+        //             <LoadingIndicator size={16} />
+        //         </SubtitleContainer>
+        //     )
+        // }
 
         if (!data) {
             return (
@@ -948,7 +944,6 @@ export default class CollectionDetailsPage extends UIElement<
                     </SharedBy>
                     <ProfilePopupContainer
                         services={this.props.services}
-                        storage={this.props.storage}
                         userRef={userReference!}
                     >
                         <Creator>
@@ -1024,7 +1019,10 @@ export default class CollectionDetailsPage extends UIElement<
         // Case Space View
 
         if (!isPageView) {
-            if (state.listRolesLoadState === 'success' && users.length > 0) {
+            if (
+                // state.listRolesLoadState === 'success' &&
+                users.length > 0
+            ) {
                 const showListRoleLimit = () => {
                     if (this.viewportBreakpoint === 'small') {
                         return 2
@@ -1113,10 +1111,6 @@ export default class CollectionDetailsPage extends UIElement<
                                                                     this.props
                                                                         .services
                                                                 }
-                                                                storage={
-                                                                    this.props
-                                                                        .storage
-                                                                }
                                                                 userRef={
                                                                     userReference!
                                                                 }
@@ -1168,21 +1162,21 @@ export default class CollectionDetailsPage extends UIElement<
         // )
     }
 
-    renderPermissionKeyOverlay() {
-        return !this.state.requestingAuth ? (
-            <PermissionKeyOverlay
-                services={this.props.services}
-                viewportBreakpoint={this.viewportBreakpoint}
-                permissionKeyState={this.state.permissionKeyState}
-                permissionKeyResult={this.state.permissionKeyResult}
-                onCloseRequested={() =>
-                    this.processEvent('closePermissionOverlay', {})
-                }
-                isContributor={this.isListContributor}
-                isOwner={this.state.isListOwner}
-            />
-        ) : null
-    }
+    // renderPermissionKeyOverlay() {
+    //     return !this.state.requestingAuth ? (
+    //         <PermissionKeyOverlay
+    //             services={this.props.services}
+    //             viewportBreakpoint={this.viewportBreakpoint}
+    //             permissionKeyState={this.state.permissionKeyState}
+    //             permissionKeyResult={this.state.permissionKeyResult}
+    //             onCloseRequested={() =>
+    //                 this.processEvent('closePermissionOverlay', {})
+    //             }
+    //             isContributor={this.isListContributor}
+    //             isOwner={this.state.isListOwner}
+    //         />
+    //     ) : null
+    // }
 
     private renderSearchBox() {
         return (
@@ -1524,8 +1518,9 @@ export default class CollectionDetailsPage extends UIElement<
 
         if (
             // this.state.followLoadState === 'running' ||
-            this.state.listRolesLoadState === 'running' ||
-            this.state.permissionKeyState === 'running'
+            // this.state.listRolesLoadState === 'running' ||
+            // this.state.permissionKeyState === 'running'
+            false
         ) {
             return (
                 <LoadingBoxHeaderActionArea>
@@ -1569,7 +1564,7 @@ export default class CollectionDetailsPage extends UIElement<
 
             if (this.state.permissionKeyResult === 'success') {
                 if (
-                    this.state.permissionKeyState === 'success' &&
+                    // this.state.permissionKeyState === 'success' &&
                     this.isListContributor &&
                     !this.state.isListOwner
                 ) {
@@ -1815,6 +1810,28 @@ export default class CollectionDetailsPage extends UIElement<
             )
         }
 
+        if (state.permissionDenied) {
+            return (
+                <DocumentView>
+                    <DefaultPageLayout
+                        services={this.props.services}
+                        storage={this.props.storage}
+                        viewportBreakpoint={this.viewportBreakpoint}
+                        // listsSidebarProps={this.listsSidebarProps}
+                        scrollTop={this.state.scrollTop}
+                    >
+                        <LoggedInAccessBox
+                            {...state}
+                            onInvitationAccept={() =>
+                                this.processEvent('acceptInvitation', {})
+                            }
+                            showDeniedNote={this.state.showDeniedNote}
+                        />
+                    </DefaultPageLayout>
+                </DocumentView>
+            )
+        }
+
         const data = state.listData
         if (!data) {
             return (
@@ -1863,7 +1880,7 @@ export default class CollectionDetailsPage extends UIElement<
                     webMonetizationIcon={this.renderWebMonetizationIcon()}
                     // listsSidebarProps={this.listsSidebarProps}
                     // isSidebarShown={this.listsSidebarProps.isShown}
-                    permissionKeyOverlay={this.renderPermissionKeyOverlay()}
+                    // permissionKeyOverlay={this.renderPermissionKeyOverlay()}
                     scrollTop={this.state.scrollTop}
                     breadCrumbs={this.renderBreadCrumbs()}
                     renderDescription={this.renderDescription()}

@@ -1,14 +1,15 @@
-import chunk from 'lodash/chunk'
-import fromPairs from 'lodash/fromPairs'
+import React from 'react'
 import {
-    SharedAnnotationReference,
+    mapValues,
+    filterObject,
+} from '@worldbrain/memex-common/lib/utils/iteration'
+import {
     SharedListReference,
     SharedListRoleID,
 } from '@worldbrain/memex-common/lib/content-sharing/types'
 import {
-    GetAnnotationListEntriesResult,
-    GetAnnotationsResult,
     GetAnnotationListEntriesElement,
+    GetAnnotationsResult,
 } from '@worldbrain/memex-common/lib/content-sharing/storage/types'
 import {
     CollectionDetailsEvent,
@@ -23,7 +24,6 @@ import {
     executeUITask,
 } from '../../../../../main-ui/classes/logic'
 import { UIMutation } from 'ui-logic-core'
-import flatten from 'lodash/flatten'
 import { PAGE_SIZE } from './constants'
 import {
     annotationConversationInitialState,
@@ -32,11 +32,7 @@ import {
     setupConversationLogicDeps,
     intializeNewPageReplies,
 } from '../../../../content-conversations/ui/logic'
-import {
-    getInitialNewReplyState,
-    getInitialAnnotationConversationStates,
-} from '../../../../content-conversations/ui/utils'
-import mapValues from 'lodash/mapValues'
+import { getInitialNewReplyState } from '../../../../content-conversations/ui/utils'
 import UserProfileCache from '../../../../user-management/utils/user-profile-cache'
 import {
     listsSidebarInitialState,
@@ -52,12 +48,15 @@ import type { DiscordList } from '@worldbrain/memex-common/lib/discord/types'
 import type { SlackList } from '@worldbrain/memex-common/lib/slack/types'
 import * as chrono from 'chrono-node'
 import type { SharedListEntrySearchRequest } from '@worldbrain/memex-common/lib/content-sharing/search'
+import type { PreparedThread } from '@worldbrain/memex-common/lib/content-conversations/storage/types'
+import type { UITaskState } from '@worldbrain/memex-common/lib/main-ui/types'
 import {
     editableAnnotationsEventHandlers,
     editableAnnotationsInitialState,
 } from '../../../../annotations/ui/logic'
 import type { UploadStorageUtils } from '@worldbrain/memex-common/lib/personal-cloud/backend/translation-layer/storage-utils'
 import { createPersonalCloudStorageUtils } from '@worldbrain/memex-common/lib/content-sharing/storage/utils'
+import { LoggedOutAccessBox } from './space-access-box'
 const truncate = require('truncate')
 
 const LIST_DESCRIPTION_CHAR_LIMIT = 400
@@ -231,9 +230,9 @@ export default class CollectionDetailsLogic extends UILogic<
     getInitialState(): CollectionDetailsState {
         return {
             listLoadState: 'pristine',
-            followLoadState: 'running',
+            followLoadState: 'pristine',
             permissionKeyState: 'running',
-            listRolesLoadState: 'running',
+            // listRolesLoadState: 'pristine',
             copiedLink: false,
             showMoreCollaborators: false,
             listRoleLimit: 3,
@@ -277,75 +276,168 @@ export default class CollectionDetailsLogic extends UILogic<
             this.dependencies.listID = incoming.event.listID
         }
 
-        // NOTE: Following promises are made to return void because
-        // without this the IDE slows down a lot trying to infer types
-        await Promise.all([
-            this.processUIEvent('loadListData', {
-                ...incoming,
-                event: { listID: this.dependencies.listID },
-            }).then(() => {}),
-            !incoming.event.isUpdate
-                ? this.processUIEvent('processPermissionKey', {
-                      ...incoming,
-                      event: {},
-                  }).then(() => {})
-                : null,
-        ])
-
-        await Promise.all([
-            this.processUIEvent('initActivityFollows', {
-                ...incoming,
-                event: undefined,
-            }).then(() => {}),
-            this.loadFollowBtnState().then(() => {}),
-            this.loadListRoles(),
-        ])
-    }
-
-    processPermissionKey: EventHandler<'processPermissionKey'> = async (
-        incoming,
-    ) => {
-        if (!this.dependencies.services.listKeys.hasCurrentKey()) {
-            return this.emitMutation({
-                permissionKeyState: { $set: 'success' },
-            })
-        }
-        await executeUITask<CollectionDetailsState>(
-            this,
-            'permissionKeyState',
-            async () => {
-                await this.dependencies.services.auth.waitForAuthReady()
-
-                const listReference = makeStorageReference<SharedListReference>(
-                    'shared-list-reference',
-                    this.dependencies.listID,
-                )
-                const userReference = this.dependencies.services.auth.getCurrentUserReference()
-                const listRoles = await this.dependencies.storage.contentSharing.getListRoles(
-                    { listReference },
-                )
-
-                const isAuthenticated = userReference
-
-                const isContributor =
-                    (userReference &&
-                        listRoles.find(
-                            (role) => role.user.id === userReference.id,
-                        )?.roleID) ??
-                    undefined
-
-                if (isAuthenticated && isContributor) {
-                    this.emitMutation({
-                        permissionKeyResult: { $set: 'success' },
+        const keyString = !incoming.event.isUpdate
+            ? this.dependencies.services.listKeys.getCurrentKey()
+            : null
+        await executeUITask(this, 'listLoadState', async () => {
+            const response = await this.dependencies.services.contentSharing.backend.loadCollectionDetails(
+                {
+                    listId: this.dependencies.listID,
+                },
+            )
+            if (response.status !== 'success') {
+                if (response.status === 'permission-denied') {
+                    await this._users.loadUser({
+                        type: 'user-reference',
+                        id: response.data.creator,
                     })
-                } else {
+                    const permissionDeniedData = {
+                        ...response.data,
+                        hasKey: !!keyString,
+                    }
                     this.emitMutation({
-                        permissionKeyResult: { $set: 'not-authenticated' },
-                        requestingAuth: { $set: true },
+                        listRoles: { $set: [] },
+                        permissionDenied: { $set: permissionDeniedData },
                     })
+                    const { auth } = this.dependencies.services
+                    const currentUser = auth.getCurrentUser()
+                    if (!currentUser) {
+                        await auth.requestAuth({
+                            header: (
+                                <LoggedOutAccessBox
+                                    keyString={keyString}
+                                    permissionDenied={permissionDeniedData}
+                                />
+                            ),
+                        })
+                        this.processUIEvent('load', {
+                            event: { isUpdate: false },
+                            previousState: incoming.previousState,
+                        })
+                    }
                 }
-            },
-        )
+                return
+            }
+            const { data } = response
+            const { retrievedList } = data
+
+            const listDescription = retrievedList.sharedList.description ?? ''
+            const listDescriptionFits =
+                listDescription.length < LIST_DESCRIPTION_CHAR_LIMIT
+            let discordList: DiscordList | null = null
+            let slackList: SlackList | null = null
+            let isChatIntegrationSyncing = false
+            if (retrievedList.sharedList.platform === 'discord') {
+                discordList = await this.dependencies.storage.discord.findDiscordListForSharedList(
+                    retrievedList.sharedList.reference,
+                )
+                if (!discordList) {
+                    return {
+                        mutation: { listData: { $set: undefined } },
+                    }
+                }
+                isChatIntegrationSyncing = !!(await this.dependencies.storage.discordRetroSync.getSyncEntryByChannel(
+                    { channelId: discordList.channelId },
+                ))
+            } else if (retrievedList.sharedList.platform === 'slack') {
+                slackList = await this.dependencies.storage.slack.findSlackListForSharedList(
+                    retrievedList.sharedList.reference,
+                )
+                if (!slackList) {
+                    return {
+                        mutation: { listData: { $set: undefined } },
+                    }
+                }
+                isChatIntegrationSyncing = !!(await this.dependencies.storage.slackRetroSync.getSyncEntryByChannel(
+                    { channelId: slackList.channelId },
+                ))
+            }
+            this.mainListEntries.push(...retrievedList.entries)
+
+            await this.dependencies.services.auth.waitForAuthReady()
+            const userReference = this.dependencies.services.auth.getCurrentUserReference()
+            if (userReference) {
+                this.personalCloudStorageUtils = await createPersonalCloudStorageUtils(
+                    {
+                        userId: userReference.id,
+                        storageManager: this.dependencies.storageManager,
+                    },
+                )
+            }
+
+            const isAuthenticated = !!userReference
+            const isContributor =
+                (userReference &&
+                    data.listRoles.find(
+                        (role) => role.user.id === userReference.id,
+                    )?.roleID) ??
+                undefined
+
+            if (isAuthenticated && isContributor) {
+                this.emitMutation({
+                    permissionKeyResult: { $set: 'success' },
+                })
+            } else {
+                this.emitMutation({
+                    permissionKeyResult: { $set: 'not-authenticated' },
+                    requestingAuth: { $set: true },
+                })
+            }
+
+            this.emitMutation({
+                currentUserReference: { $set: userReference },
+                listData: {
+                    $set: {
+                        slackList,
+                        reference: retrievedList.sharedList.reference,
+                        pageSize: PAGE_SIZE,
+                        discordList,
+                        isChatIntegrationSyncing,
+                        creatorReference: data.retrievedList.creator,
+                        creator: await this._users.loadUser(
+                            retrievedList.creator,
+                        ),
+                        list: retrievedList.sharedList,
+                        listEntries: retrievedList.entries,
+                        listDescriptionState: listDescriptionFits
+                            ? 'fits'
+                            : 'collapsed',
+                        listDescriptionTruncated: truncate(
+                            listDescription,
+                            LIST_DESCRIPTION_CHAR_LIMIT,
+                        ),
+                    },
+                },
+                isListOwner: {
+                    $set: retrievedList.creator.id === userReference?.id,
+                },
+                newPageReplies: {
+                    $set: Object.fromEntries(
+                        retrievedList.entries.map((entry) => [
+                            entry.normalizedUrl,
+                            getInitialNewReplyState(),
+                        ]),
+                    ),
+                },
+                annotationEntriesLoadState: { $set: 'success' },
+                annotationEntryData: { $set: data.annotationEntries },
+            })
+
+            if (this.dependencies.entryID) {
+                const normalizedPageUrl = retrievedList.entries[0].normalizedUrl
+                this.emitMutation({
+                    pageAnnotationsExpanded: {
+                        [normalizedPageUrl]: { $set: true },
+                    },
+                })
+                await this.initializePageAnnotations(
+                    // data.usersToLoad,
+                    data.annotations!,
+                    data.threads,
+                )
+            }
+        })
+        await this.loadFollowBtnState()
     }
 
     setSearchType: EventHandler<'setPageHover'> = ({
@@ -443,10 +535,21 @@ export default class CollectionDetailsLogic extends UILogic<
             this,
             'permissionKeyState',
             async () => {
+                this.emitMutation({
+                    showDeniedNote: { $set: false },
+                })
+
+                if (incoming.previousState.permissionDenied) {
+                    this.processUIEvent('load', {
+                        event: { isUpdate: false },
+                        previousState: incoming.previousState,
+                    })
+                }
+
                 await this.dependencies.services.auth.waitForAuthReady()
 
                 const userReference = this.dependencies.services.auth.getCurrentUserReference()
-                const sucessMutation: UIMutation<CollectionDetailsState> = {
+                const successMutation: UIMutation<CollectionDetailsState> = {
                     listRoleID: { $set: SharedListRoleID.ReadWrite },
                     listRoles: {
                         $unshift: [
@@ -458,19 +561,37 @@ export default class CollectionDetailsLogic extends UILogic<
                             },
                         ],
                     },
+                    permissionDenied: { $set: undefined },
                 }
 
                 const {
                     result,
                 } = await this.dependencies.services.listKeys.processCurrentKey()
+
                 if (result !== 'not-authenticated') {
-                    return {
-                        mutation: {
+                    if (result === 'denied') {
+                        this.emitMutation({
                             permissionKeyResult: { $set: result },
                             requestingAuth: { $set: false },
-                            ...(result === 'success' ? sucessMutation : {}),
-                        },
+                            showDeniedNote: { $set: true },
+                        })
+
+                        return
                     }
+
+                    this.emitMutation({
+                        permissionKeyResult: { $set: result },
+                        requestingAuth: { $set: false },
+                        ...(result === 'success' ? successMutation : {}),
+                    })
+                    if (incoming.previousState.permissionDenied) {
+                        this.processUIEvent('load', {
+                            event: { isUpdate: false },
+                            previousState: incoming.previousState,
+                        })
+                    }
+
+                    return
                 }
 
                 this.emitMutation({ requestingAuth: { $set: true } })
@@ -484,19 +605,24 @@ export default class CollectionDetailsLogic extends UILogic<
                     authResult.status === 'error'
                 ) {
                     return
-                } else {
-                    const {
-                        result: secondKeyResult,
-                    } = await this.dependencies.services.listKeys.processCurrentKey()
+                }
 
-                    return {
-                        mutation: {
-                            permissionKeyResult: { $set: secondKeyResult },
-                            permissionKeyState: { $set: 'success' },
-                            requestingAuth: { $set: false },
-                            ...sucessMutation,
-                        },
-                    }
+                const {
+                    result: secondKeyResult,
+                } = await this.dependencies.services.listKeys.processCurrentKey()
+
+                this.emitMutation({
+                    permissionKeyResult: { $set: secondKeyResult },
+                    permissionKeyState: { $set: 'success' },
+                    requestingAuth: { $set: false },
+                    ...successMutation,
+                })
+
+                if (incoming.previousState.permissionDenied) {
+                    this.processUIEvent('load', {
+                        event: { isUpdate: false },
+                        previousState: incoming.previousState,
+                    })
                 }
             },
         )
@@ -509,47 +635,6 @@ export default class CollectionDetailsLogic extends UILogic<
             permissionKeyState: { $set: 'success' },
             permissionKeyResult: { $set: 'no-key-present' },
         }
-    }
-
-    async loadListRoles() {
-        const listReference = makeStorageReference<SharedListReference>(
-            'shared-list-reference',
-            this.dependencies.listID,
-        )
-
-        let usersToLoad: UserReference[] = []
-        await executeUITask<CollectionDetailsState>(
-            this,
-            'listRolesLoadState',
-            async () => {
-                const userReference = this.dependencies.services.auth.getCurrentUserReference()
-                const listRoles = await this.dependencies.storage.contentSharing.getListRoles(
-                    { listReference },
-                )
-                usersToLoad = listRoles.map((role) => role.user)
-                let roleID: SharedListRoleID | undefined = undefined
-                if (
-                    this._creatorReference &&
-                    userReference?.id === this._creatorReference?.id
-                ) {
-                    roleID = SharedListRoleID.Owner
-                } else {
-                    roleID =
-                        (userReference &&
-                            listRoles.find(
-                                (role) => role.user.id === userReference.id,
-                            )?.roleID) ??
-                        undefined
-                }
-                this.emitMutation({
-                    listRoleID: {
-                        $set: roleID,
-                    },
-                    listRoles: { $set: listRoles },
-                })
-            },
-        )
-        await this._users.loadUsers(usersToLoad)
     }
 
     updateSearchQuery: EventHandler<'updateSearchQuery'> = (incoming) => {
@@ -671,219 +756,10 @@ export default class CollectionDetailsLogic extends UILogic<
                         ),
                     },
                 },
-                // newPageReplies: {
-                //     $set: fromPairs(
-                //         result.entries.map((entry) => [
-                //             entry.normalizedUrl,
-                //             getInitialNewReplyState(),
-                //         ]),
-                //     ),
-                // },
             })
         } else {
             this.emitMutation({ listData: { $set: undefined } })
         }
-    }
-
-    loadListData: EventHandler<'loadListData'> = async (incoming) => {
-        const {
-            contentSharing,
-            slack,
-            discord,
-            slackRetroSync,
-            discordRetroSync,
-        } = this.dependencies.storage
-        const listReference = makeStorageReference<SharedListReference>(
-            'shared-list-reference',
-            incoming.event.listID,
-        )
-        const {
-            success: listDataSuccess,
-        } = await executeUITask<CollectionDetailsState>(
-            this,
-            'listLoadState',
-            async () => {
-                this.emitSignal<CollectionDetailsSignal>({
-                    type: 'loading-started',
-                })
-
-                const result = await contentSharing.retrieveList(
-                    listReference,
-                    {
-                        fetchSingleEntry: this.dependencies.entryID
-                            ? {
-                                  type:
-                                      'shared-annotation-list-entry-reference',
-                                  id: this.dependencies.entryID,
-                              }
-                            : undefined,
-                        maxEntryCount: PAGE_SIZE,
-                    },
-                )
-
-                const currentUser = this.dependencies.services.auth.getCurrentUserReference()
-                if (currentUser) {
-                    this.personalCloudStorageUtils = await createPersonalCloudStorageUtils(
-                        {
-                            userId: currentUser.id,
-                            storageManager: this.dependencies.storageManager,
-                        },
-                    )
-                }
-
-                if (this.dependencies.entryID) {
-                    const normalizedPageUrl = result.entries[0].normalizedUrl
-                    const entriesByList = await contentSharing.getAnnotationListEntriesForListsOnPage(
-                        {
-                            listReferences: [listReference],
-                            normalizedPageUrl,
-                        },
-                    )
-                    const entries = entriesByList[listReference.id] ?? []
-                    if (!entries.length) {
-                        return
-                    }
-
-                    this.emitMutation({
-                        pageAnnotationsExpanded: {
-                            [normalizedPageUrl]: { $set: true },
-                        },
-                    })
-
-                    await this.loadPageAnnotations(
-                        { [normalizedPageUrl]: entries },
-                        [normalizedPageUrl],
-                    )
-                    if (this.dependencies.query.annotationId) {
-                        this.processUIEvent('toggleAnnotationReplies', {
-                            previousState: incoming.getState!(),
-                            event: {
-                                sharedListReference: listReference,
-                                annotationReference: {
-                                    type: 'shared-annotation-reference',
-                                    id: this.dependencies.query.annotationId,
-                                },
-                            },
-                        })
-                    }
-                }
-
-                if (result) {
-                    this._creatorReference = result.creator
-                    const userIds = [
-                        ...new Set(
-                            result.entries.map((entry) => entry.creator.id),
-                        ),
-                    ]
-                    await this._users.loadUsers(
-                        userIds.map(
-                            (id): UserReference => ({
-                                type: 'user-reference',
-                                id,
-                            }),
-                        ),
-                    )
-
-                    const listDescription = result.sharedList.description ?? ''
-                    const listDescriptionFits =
-                        listDescription.length < LIST_DESCRIPTION_CHAR_LIMIT
-
-                    let discordList: DiscordList | null = null
-                    let slackList: SlackList | null = null
-                    let isChatIntegrationSyncing = false
-
-                    if (result.sharedList.platform === 'discord') {
-                        discordList = await discord.findDiscordListForSharedList(
-                            result.sharedList.reference,
-                        )
-                        if (!discordList) {
-                            return {
-                                mutation: { listData: { $set: undefined } },
-                            }
-                        }
-                        isChatIntegrationSyncing = !!(await discordRetroSync.getSyncEntryByChannel(
-                            { channelId: discordList.channelId },
-                        ))
-                    } else if (result.sharedList.platform === 'slack') {
-                        slackList = await slack.findSlackListForSharedList(
-                            result.sharedList.reference,
-                        )
-                        if (!slackList) {
-                            return {
-                                mutation: { listData: { $set: undefined } },
-                            }
-                        }
-                        isChatIntegrationSyncing = !!(await slackRetroSync.getSyncEntryByChannel(
-                            { channelId: slackList.channelId },
-                        ))
-                    }
-
-                    this.mainListEntries.push(...result.entries)
-                    this.emitMutation({
-                        listData: {
-                            $set: {
-                                slackList,
-                                reference: listReference,
-                                pageSize: PAGE_SIZE,
-                                discordList,
-                                isChatIntegrationSyncing,
-                                creatorReference: result.creator,
-                                creator: await this._users.loadUser(
-                                    result.creator,
-                                ),
-                                list: result.sharedList,
-                                listEntries: result.entries,
-                                listDescriptionState: listDescriptionFits
-                                    ? 'fits'
-                                    : 'collapsed',
-                                listDescriptionTruncated: truncate(
-                                    listDescription,
-                                    LIST_DESCRIPTION_CHAR_LIMIT,
-                                ),
-                            },
-                        },
-                        currentUserReference: { $set: currentUser },
-                        isListOwner: {
-                            $set: result.creator.id === currentUser?.id,
-                        },
-                        newPageReplies: {
-                            $set: fromPairs(
-                                result.entries.map((entry) => [
-                                    entry.normalizedUrl,
-                                    getInitialNewReplyState(),
-                                ]),
-                            ),
-                        },
-                    })
-                } else {
-                    this.emitMutation({ listData: { $set: undefined } })
-                }
-            },
-        )
-        this.emitSignal<CollectionDetailsSignal>({
-            type: 'loaded-list-data',
-            success: listDataSuccess,
-        })
-        const {
-            success: annotationEntriesSuccess,
-        } = await executeUITask<CollectionDetailsState>(
-            this,
-            'annotationEntriesLoadState',
-            async () => {
-                const entries = await contentSharing.getAnnotationListEntries({
-                    listReference,
-                })
-                return {
-                    mutation: {
-                        annotationEntryData: { $set: entries },
-                    },
-                }
-            },
-        )
-        this.emitSignal<CollectionDetailsSignal>({
-            type: 'loaded-annotation-entries',
-            success: annotationEntriesSuccess,
-        })
     }
 
     private async loadFollowBtnState() {
@@ -968,7 +844,7 @@ export default class CollectionDetailsLogic extends UILogic<
         return mutation
     }
 
-    togglePageAnnotations: EventHandler<'togglePageAnnotations'> = (
+    togglePageAnnotations: EventHandler<'togglePageAnnotations'> = async (
         incoming,
     ) => {
         const state = incoming.previousState
@@ -981,7 +857,6 @@ export default class CollectionDetailsLogic extends UILogic<
             currentExpandedCount + (shouldBeExpanded ? 1 : -1)
         const allAnnotationExpanded =
             nextExpandedCount === state.listData!.listEntries.length
-
         const mutation: UIMutation<CollectionDetailsState> = {
             pageAnnotationsExpanded: shouldBeExpanded
                 ? {
@@ -995,31 +870,27 @@ export default class CollectionDetailsLogic extends UILogic<
             allAnnotationExpanded: { $set: allAnnotationExpanded },
         }
         this.emitMutation(mutation)
-        if (shouldBeExpanded) {
-            this.loadPageAnnotations(state.annotationEntryData!, [
-                incoming.event.normalizedUrl,
-            ])
+        if (!shouldBeExpanded) {
+            return
         }
+        this.loadPageAnnotations(state, [incoming.event.normalizedUrl])
     }
 
     toggleAllAnnotations: EventHandler<'toggleAllAnnotations'> = (incoming) => {
         const shouldBeExpanded = !incoming.previousState.allAnnotationExpanded
-        const currentExpandedCount = Object.keys(
-            incoming.previousState.pageAnnotationsExpanded,
-        ).length
-
+        // const currentExpandedCount = Object.keys(
+        //     incoming.previousState.pageAnnotationsExpanded,
+        // ).length
         if (shouldBeExpanded) {
             this.emitMutation({
                 allAnnotationExpanded: { $set: true },
             })
-
             incoming.previousState.listData!.listEntries.map((entry) => {
                 let hasAnnotations =
                     incoming.previousState.annotationEntryData &&
                     incoming.previousState.annotationEntryData[
                         entry.normalizedUrl
                     ]
-
                 if (hasAnnotations) {
                     this.emitMutation({
                         pageAnnotationsExpanded: {
@@ -1039,10 +910,7 @@ export default class CollectionDetailsLogic extends UILogic<
             normalizedPageUrls,
         } = this.getFirstPagesWithoutLoadedAnnotations(incoming.previousState)
         this.mainLatestEntryIndex = latestPageSeenIndex
-        this.loadPageAnnotations(
-            incoming.previousState.annotationEntryData!,
-            normalizedPageUrls,
-        )
+        this.loadPageAnnotations(incoming.previousState, normalizedPageUrls)
     }
 
     pageBreakpointHit: EventHandler<'pageBreakpointHit'> = async (incoming) => {
@@ -1050,75 +918,82 @@ export default class CollectionDetailsLogic extends UILogic<
         if (!listData) {
             return
         }
-        this.emitMutation({
-            paginateLoading: { $set: 'running' },
-        })
-        let newListEntries: CollectionDetailsListEntry[] = []
-        if (!this.latestSearchRequest) {
-            if (incoming.event.entryIndex < this.mainLatestEntryIndex) {
-                return
-            }
-            this.mainLatestEntryIndex = incoming.event.entryIndex
+        await executeUITask(this, 'paginateLoading', async () => {
+            let newListEntries: CollectionDetailsListEntry[] = []
+            if (!this.latestSearchRequest) {
+                if (incoming.event.entryIndex < this.mainLatestEntryIndex) {
+                    return
+                }
+                this.mainLatestEntryIndex = incoming.event.entryIndex
 
-            const listEntries = await this.dependencies.storage.contentSharing.getListEntriesByList(
-                {
-                    listReference: listData.reference,
-                    from:
-                        listData.listEntries[listData.listEntries.length - 1]
-                            .updatedWhen,
-                    limit: PAGE_SIZE,
-                },
-            )
-            newListEntries = listEntries.map((entry) => ({
-                ...entry,
-                sourceUrl: entry.originalUrl,
-                id: entry.reference.id,
-            }))
-            this.mainListEntries.push(...newListEntries)
-        } else {
-            const page =
-                Math.floor(
-                    (incoming.event.entryIndex + 1) /
-                        incoming.previousState.listData!.pageSize,
-                ) + 1
-            if (page <= (this.latestSearchRequest.page ?? 0)) {
-                return
+                const pageResult = await this.dependencies.services.contentSharing.backend.loadCollectionDetailsPage(
+                    {
+                        listId: listData.reference.id,
+                        from:
+                            listData.listEntries[
+                                listData.listEntries.length - 1
+                            ].updatedWhen,
+                    },
+                )
+                if (pageResult.status !== 'success') {
+                    throw new Error(
+                        `Expected 'success' status loading collection details page, but got '${pageResult.status}'`,
+                    )
+                }
+                const listEntries = pageResult.data.entries
+                newListEntries = listEntries.map((entry) => ({
+                    ...entry,
+                    sourceUrl: entry.originalUrl,
+                    id: entry.reference.id,
+                }))
+                this.mainListEntries.push(...newListEntries)
+            } else {
+                const page =
+                    Math.floor(
+                        (incoming.event.entryIndex + 1) /
+                            incoming.previousState.listData!.pageSize,
+                    ) + 1
+                if (page <= (this.latestSearchRequest.page ?? 0)) {
+                    return
+                }
+                this.latestSearchRequest.page = page
+                const response = await this.dependencies.services.fullTextSearch.searchListEntries(
+                    this.latestSearchRequest,
+                )
+                newListEntries = response.sharedListEntries.map((entry) => ({
+                    ...entry,
+                    sourceUrl: entry.originalUrl,
+                    creator: {
+                        type: 'user-reference' as const,
+                        id: entry.creator,
+                    },
+                }))
             }
-            this.latestSearchRequest.page = page
-            const response = await this.dependencies.services.fullTextSearch.searchListEntries(
-                this.latestSearchRequest,
-            )
-            newListEntries = response.sharedListEntries.map((entry) => ({
-                ...entry,
-                sourceUrl: entry.originalUrl,
-                creator: { type: 'user-reference' as const, id: entry.creator },
-            }))
-        }
-        const mutation: UIMutation<CollectionDetailsState> = {
-            paginateLoading: { $set: 'success' },
-            listData: {
-                listEntries: {
-                    $push: newListEntries,
+            const mutation: UIMutation<CollectionDetailsState> = {
+                paginateLoading: { $set: 'success' },
+                listData: {
+                    listEntries: {
+                        $push: newListEntries,
+                    },
                 },
-            },
-        }
-        this.emitMutation(mutation)
-        this.loadPageAnnotations(
-            this.withMutation(incoming.previousState, mutation)
-                .annotationEntryData!,
-            newListEntries.map((entry) => entry.normalizedUrl),
-        )
-        const usersToLoad = new Set<string | number>(
-            newListEntries.map((entry) => entry.creator.id),
-        )
-        this._users.loadUsers(
-            [...usersToLoad].map(
-                (id): UserReference => ({
-                    type: 'user-reference',
-                    id,
-                }),
-            ),
-        )
+            }
+            this.emitMutation(mutation)
+            this.loadPageAnnotations(
+                this.withMutation(incoming.previousState, mutation),
+                newListEntries.map((entry) => entry.normalizedUrl),
+            )
+            const usersToLoad = new Set<string | number>(
+                newListEntries.map((entry) => entry.creator.id),
+            )
+            this._users.loadUsers(
+                [...usersToLoad].map(
+                    (id): UserReference => ({
+                        type: 'user-reference',
+                        id,
+                    }),
+                ),
+            )
+        })
     }
 
     clickFollowBtn: EventHandler<'clickFollowBtn'> = async ({
@@ -1241,195 +1116,143 @@ export default class CollectionDetailsLogic extends UILogic<
     }
 
     async loadPageAnnotations(
-        annotationEntries: GetAnnotationListEntriesResult,
+        previousState: CollectionDetailsState,
         normalizedPageUrls: string[],
     ) {
+        const { contentSharing } = this.dependencies.services
+
+        const annotationEntries = previousState.annotationEntryData!
         this.emitSignal<CollectionDetailsSignal>({
             type: 'annotation-loading-started',
         })
 
-        const toFetch: Array<{
-            normalizedPageUrl: string
-            sharedAnnotation: SharedAnnotationReference
-        }> = flatten(
-            normalizedPageUrls
-                .filter(
-                    (normalizedPageUrl) =>
-                        !this.pageAnnotationPromises[normalizedPageUrl],
-                )
-                .map((normalizedPageUrl) =>
-                    (annotationEntries[normalizedPageUrl] ?? []).map(
-                        (entry) => ({
-                            normalizedPageUrl,
-                            sharedAnnotation: entry.sharedAnnotation,
-                        }),
-                    ),
-                ),
+        const pristinePageUrls = normalizedPageUrls.filter(
+            (url) => !previousState.annotationLoadStates[url],
         )
-
-        const promisesByPage: {
-            [normalizedUrl: string]: Promise<GetAnnotationsResult>[]
-        } = {}
-        const annotationChunks: Promise<GetAnnotationsResult>[] = []
-        const { contentSharing } = this.dependencies.storage
-        for (const entryChunk of chunk(toFetch, 10)) {
-            const pageUrlsInChuck = new Set(
-                entryChunk.map((entry) => entry.normalizedPageUrl),
-            )
-            const promise = contentSharing.getAnnotations({
-                references: entryChunk.map((entry) => entry.sharedAnnotation),
-            })
-            for (const normalizedPageUrl of pageUrlsInChuck) {
-                promisesByPage[normalizedPageUrl] =
-                    promisesByPage[normalizedPageUrl] ?? []
-                promisesByPage[normalizedPageUrl].push(promise)
-            }
-            annotationChunks.push(promise)
-        }
-
-        const usersToLoad = new Set<UserReference['id']>()
-        for (const normalizedPageUrl in promisesByPage) {
-            this.pageAnnotationPromises[normalizedPageUrl] = (async (
-                normalizedPageUrl: string,
-                pagePromises: Promise<GetAnnotationsResult>[],
-            ) => {
-                this.emitMutation({
-                    annotationLoadStates: {
-                        [normalizedPageUrl]: { $set: 'running' },
-                    },
-                })
-
-                try {
-                    const annotationChunks = await Promise.all(pagePromises)
-                    const newAnnotations: CollectionDetailsState['annotations'] = {}
-                    for (const annotationChunk of annotationChunks) {
-                        for (const [annotationId, annotation] of Object.entries(
-                            annotationChunk,
-                        )) {
-                            newAnnotations[annotationId] = annotation
-                        }
-                    }
-                    for (const newAnnotation of Object.values(newAnnotations)) {
-                        usersToLoad.add(newAnnotation.creator.id)
-                    }
-
-                    const mutation = {
-                        annotationLoadStates: {
-                            [normalizedPageUrl]: { $set: 'success' },
-                        },
-                        annotations: mapValues(
-                            newAnnotations,
-                            (newAnnotation) => ({ $set: newAnnotation }),
-                        ),
-                        annotationEditStates: mapValues(
-                            newAnnotations,
-                            (newAnnotation) => ({
-                                $set: {
-                                    isEditing: false,
-                                    loadState: 'pristine',
-                                    comment: newAnnotation.comment ?? '',
-                                },
-                            }),
-                        ) as any,
-                        annotationHoverStates: mapValues(
-                            newAnnotations,
-                            (newAnnotation) => ({
-                                $set: { isHovering: false },
-                            }),
-                        ),
-                        annotationDeleteStates: mapValues(
-                            newAnnotations,
-                            (newAnnotation) => ({
-                                $set: {
-                                    isDeleting: false,
-                                    deleteState: 'pristine',
-                                },
-                            }),
-                        ),
-                    }
-                    this.emitMutation(mutation as any)
-                } catch (e) {
-                    this.emitMutation({
-                        annotationLoadStates: {
-                            [normalizedPageUrl]: { $set: 'error' },
-                        },
-                    })
-                    console.error(e)
-                }
-            })(normalizedPageUrl, promisesByPage[normalizedPageUrl])
-        }
-
-        const annotationReferences = flatten(
-            Object.values(annotationEntries),
-        ).map((entry) => entry.sharedAnnotation)
-        this.emitMutation({
-            conversations: {
-                $merge: getInitialAnnotationConversationStates(
-                    annotationReferences.map(({ id }) => ({
-                        linkId: id.toString(),
-                    })),
-                ),
-            },
-        })
-        const conversationThreadPromise = detectAnnotationConversationThreads(
-            this as any,
-            {
-                getThreadsForAnnotations: (...args) =>
-                    this.dependencies.storage.contentConversations.getThreadsForAnnotations(
-                        ...args,
-                    ),
-                annotationReferences,
-                sharedListReference: {
-                    type: 'shared-list-reference',
-                    id: this.dependencies.listID,
-                },
-                imageSupport: this.dependencies.imageSupport,
-            },
-        ).catch(console.error)
-        intializeNewPageReplies(this as any, {
-            normalizedPageUrls: [...normalizedPageUrls].filter(
-                (normalizedPageUrl) =>
-                    !this.conversationThreadPromises[normalizedPageUrl],
+        const taskStatesMutation = (
+            taskState: UITaskState,
+        ): UIMutation<CollectionDetailsState> => ({
+            annotationLoadStates: Object.fromEntries(
+                pristinePageUrls.map((url) => [url, { $set: taskState }]),
             ),
-            imageSupport: this.dependencies.imageSupport,
         })
+        await executeUITask(this, taskStatesMutation, async () => {
+            const annotationsResult = await contentSharing.backend.loadAnnotationsWithThreads(
+                {
+                    listId: this.dependencies.listID,
+                    annotationIds: filterObject(
+                        mapValues(annotationEntries, (entries) =>
+                            entries.map((entry) => entry.sharedAnnotation.id),
+                        ),
+                        (_, key) => normalizedPageUrls.includes(key),
+                    ),
+                },
+            )
+            if (annotationsResult.status !== 'success') {
+                return
+            }
+            const annotationsData = annotationsResult.data
+            await this.initializePageAnnotations(
+                annotationsData.annotations,
+                annotationsData.threads,
+            )
 
-        for (const normalizedPageUrl of normalizedPageUrls) {
-            this.conversationThreadPromises[
-                normalizedPageUrl
-            ] = conversationThreadPromise
-        }
+            const annotationLoadStates: UIMutation<
+                CollectionDetailsState['annotationLoadStates']
+            > = {}
+            const annotations: UIMutation<
+                CollectionDetailsState['annotations']
+            > = {}
+            for (const [normalizedPageUrl, newAnnotations] of Object.entries(
+                annotationsData.annotations,
+            )) {
+                annotationLoadStates[normalizedPageUrl] = {
+                    $set: 'success',
+                }
+                annotations[normalizedPageUrl] = { $set: newAnnotations }
+            }
+            this.emitMutation({
+                annotationLoadStates,
+                annotations,
+                annotationEditStates: mapValues(
+                    annotationsData.annotations,
+                    (annotation) => ({
+                        $set: {
+                            isEditing: false,
+                            loadState: 'pristine',
+                            comment: annotation.comment ?? '',
+                        },
+                    }),
+                ) as any,
+                annotationHoverStates: mapValues(
+                    annotationsData.annotations,
+                    (annotation) => ({
+                        $set: { isHovering: false },
+                    }),
+                ),
+                annotationDeleteStates: mapValues(
+                    annotationsData.annotations,
+                    (annotation) => ({
+                        $set: {
+                            isDeleting: false,
+                            deleteState: 'pristine',
+                        },
+                    }),
+                ) as any,
+            })
 
-        try {
-            const result = await Promise.all([
-                ...normalizedPageUrls.map(
-                    (normalizedPageUrl) =>
-                        this.pageAnnotationPromises[normalizedPageUrl],
-                ),
-                ...normalizedPageUrls.map(
-                    (normalizedPageUrl) =>
-                        this.conversationThreadPromises[normalizedPageUrl],
-                ),
-            ])
             await this._users.loadUsers(
-                [...usersToLoad].map(
+                annotationsData.usersToLoad.map(
                     (id): UserReference => ({
                         type: 'user-reference',
                         id,
                     }),
                 ),
             )
-            this.emitSignal<CollectionDetailsSignal>({
-                type: 'loaded-annotations',
-                success: true,
+        })
+    }
+
+    async initializePageAnnotations(
+        // usersToLoad: AutoPk[],
+        annotations: GetAnnotationsResult,
+        threads?: PreparedThread[],
+    ) {
+        // await this._users.loadUsers(
+        //     usersToLoad.map(
+        //         (id): UserReference => ({
+        //             type: 'user-reference',
+        //             id,
+        //         }),
+        //     ),
+        // )
+        if (threads) {
+            await detectAnnotationConversationThreads(this as any, {
+                threads,
+                getThreadsForAnnotations: (...args) =>
+                    this.dependencies.storage.contentConversations.getThreadsForAnnotations(
+                        ...args,
+                    ),
+                annotationReferences: Object.values(annotations).map(
+                    (annotation) => annotation.reference,
+                ),
+                sharedListReference: {
+                    type: 'shared-list-reference',
+                    id: this.dependencies.listID,
+                },
+                imageSupport: this.dependencies.imageSupport,
             })
-            return result
-        } catch (e) {
-            this.emitSignal<CollectionDetailsSignal>({
-                type: 'loaded-annotations',
-                success: false,
-            })
-            throw e
         }
+        intializeNewPageReplies(this as any, {
+            normalizedPageUrls: [
+                ...Object.values(annotations).map(
+                    (annotation) => annotation.normalizedPageUrl,
+                ),
+            ],
+            imageSupport: this.dependencies.imageSupport,
+            // .filter(
+            //     (normalizedPageUrl) =>
+            //         !this.conversationThreadPromises[normalizedPageUrl],
+            // ),
+        })
     }
 }

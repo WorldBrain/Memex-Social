@@ -29,7 +29,7 @@ export default function DefaultPageLayout(props: {
         | 'userManagement'
         | 'webMonetization'
     >
-    storage: Pick<StorageModules, 'users' | 'activityStreams'>
+    storage: Pick<StorageModules, 'activityStreams'>
     headerTitle?: string | JSX.Element
     headerSubtitle?: JSX.Element | string
     followBtn?: JSX.Element
@@ -173,10 +173,7 @@ export default function DefaultPageLayout(props: {
                                 viewportWidth={viewportWidth}
                             >
                                 {renderFeedArea()}
-                                <AuthHeader
-                                    services={props.services}
-                                    storage={props.storage}
-                                />
+                                <AuthHeader services={props.services} />
                             </HeaderAuthArea>
                         </>
                     )}

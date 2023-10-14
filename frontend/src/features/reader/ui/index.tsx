@@ -563,10 +563,7 @@ export class ReaderPageView extends UIElement<
                     {this.renderInstallTooltip()}
                     {this.renderShareTooltip()}
                     <OptionsMenuBox>
-                        <AuthHeader
-                            services={this.props.services}
-                            storage={this.props.storage}
-                        />
+                        <AuthHeader services={this.props.services} />
                         {this.state.listLoadState === 'success' && (
                             <PrimaryAction
                                 icon={
@@ -1135,7 +1132,6 @@ export class ReaderPageView extends UIElement<
                                     )}
                                     <AuthHeader
                                         services={this.props.services}
-                                        storage={this.props.storage}
                                     />
                                 </RightSideTopBar>
                             )}

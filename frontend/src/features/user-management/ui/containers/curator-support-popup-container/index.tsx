@@ -53,7 +53,6 @@ export default class CuratorSupportPopupContainer extends UIElement<
                 loadState={loadState}
                 curatorUserRef={props.userRef}
                 services={props.services}
-                storage={props.storage}
                 paymentMade={props.paymentMade}
                 paymentState={props.paymentState}
                 isMonetizationAvailable={props.isMonetizationAvailable}

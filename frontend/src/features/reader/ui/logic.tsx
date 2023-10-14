@@ -10,7 +10,10 @@ import {
     GetAnnotationListEntriesResult,
     SharedCollectionType,
 } from '@worldbrain/memex-common/lib/content-sharing/storage/types'
-import type { GetAnnotationListEntriesElement } from '@worldbrain/memex-common/lib/content-sharing/storage/types'
+import type {
+    GetAnnotationListEntriesElement,
+    GetListRolesResult,
+} from '@worldbrain/memex-common/lib/content-sharing/storage/types'
 import {
     SharedAnnotation,
     SharedAnnotationReference,
@@ -83,6 +86,7 @@ import {
 } from '../../annotations/ui/logic'
 import type { UITaskState } from '@worldbrain/memex-common/lib/main-ui/types'
 import { sleepPromise } from '../../../utils/promises'
+import { LoggedOutAccessBox } from '../../content-sharing/ui/pages/collection-details/space-access-box'
 import sanitizeHTMLhelper from '@worldbrain/memex-common/lib/utils/sanitize-html-helper'
 import { processCommentForImageUpload } from '@worldbrain/memex-common/lib/annotations/processCommentForImageUpload'
 import {
@@ -274,9 +278,16 @@ export class ReaderPageViewLogic extends UILogic<
         }
     }
 
-    init: EventHandler<'init'> = async ({ previousState }) => {
-        const { contentSharing } = this.dependencies.storage
-        const { router } = this.dependencies.services
+    init: EventHandler<'init'> = async (incoming) => {
+        await this.processUIEvent('load', {
+            ...incoming,
+            event: { isUpdate: false },
+        })
+    }
+
+    load: EventHandler<'load'> = async ({ previousState }) => {
+        const { services } = this.dependencies
+        const keyString = services.listKeys.getCurrentKey()
         const listReference = makeStorageReference<SharedListReference>(
             'shared-list-reference',
             this.dependencies.listID,
@@ -286,22 +297,62 @@ export class ReaderPageViewLogic extends UILogic<
             this,
             'listLoadState',
             async () => {
-                const result = await contentSharing.retrieveList(
-                    listReference,
+                const response = await services.contentSharing.backend.loadCollectionDetails(
                     {
-                        fetchSingleEntry: this.dependencies.entryID
-                            ? {
-                                  type:
-                                      'shared-annotation-list-entry-reference',
-                                  id: this.dependencies.entryID,
-                              }
-                            : undefined,
+                        listId: this.dependencies.listID,
+                        entryId: this.dependencies.entryID,
+                        keyString: keyString ?? undefined,
                     },
                 )
-                this.listCreator.resolve(result.creator)
-                let nextState = await this.loadPermissions(previousState)
+                if (response.status !== 'success') {
+                    if (response.status === 'permission-denied') {
+                        await this.users.loadUser({
+                            type: 'user-reference',
+                            id: response.data.creator,
+                        })
+                        const permissionDeniedData = {
+                            ...response.data,
+                            hasKey: !!keyString,
+                        }
+                        // TODO: figure out what we're doing view-wise with perm denied private list reader links
+                        // this.emitMutation({
+                        //   permissionDenied: { $set: permissionDeniedData },
+                        // })
+                        const currentUser = services.auth.getCurrentUser()
+                        if (!currentUser) {
+                            await services.auth.requestAuth({
+                                header: (
+                                    <LoggedOutAccessBox
+                                        keyString={keyString}
+                                        permissionDenied={permissionDeniedData}
+                                    />
+                                ),
+                            })
+                            this.processUIEvent('load', {
+                                event: { isUpdate: false },
+                                previousState,
+                            })
+                        }
+                    }
+                    return
+                }
+                const { data } = response
 
-                const listEntry = result.entries[0]
+                this.listCreator.resolve(data.retrievedList.creator)
+                let nextState = await this.loadPermissions(
+                    previousState,
+                    data.listRoles[0]?.roleID,
+                )
+
+                if (data.collaborationKey != null) {
+                    nextState = this.emitAndApplyMutation(nextState, {
+                        collaborationKey: {
+                            $set: data.collaborationKey,
+                        },
+                    })
+                }
+
+                const listEntry = data.retrievedList.entries[0]
                 const sourceUrl = listEntry.sourceUrl
 
                 document.title = listEntry.entryTitle ?? ''
@@ -316,11 +367,11 @@ export class ReaderPageViewLogic extends UILogic<
                     nextState.currentUserReference != null
                 ) {
                     if (!shouldNotOpenLink) {
-                        router.delQueryParam('noAutoOpen')
+                        services.router.delQueryParam('noAutoOpen')
 
                         const sharedListId = listReference.id as string
                         const sourceUrl = listEntry.sourceUrl as string
-                        const isCollaborationLink = !!router.getQueryParam(
+                        const isCollaborationLink = !!services.router.getQueryParam(
                             'key',
                         )
                         const isOwnLink = nextState.permissions === 'owner'
@@ -369,7 +420,7 @@ export class ReaderPageViewLogic extends UILogic<
                 }
 
                 if (shouldNotOpenLink) {
-                    router.delQueryParam('noAutoOpen')
+                    services.router.delQueryParam('noAutoOpen')
                 }
 
                 nextState = this.emitAndApplyMutation(nextState, {
@@ -383,31 +434,28 @@ export class ReaderPageViewLogic extends UILogic<
                         ),
                     },
                     renderAnnotationInstructOverlay: {
-                        $set: !!router.getQueryParam('key'),
+                        $set: !!services.router.getQueryParam('key'),
                     },
                     listData: {
                         $set: {
                             reference: listReference,
-                            creatorReference: result.creator,
-                            creator: await this.users.loadUser(result.creator),
-                            list: result.sharedList,
+                            creatorReference: data.retrievedList.creator,
+                            creator: await this.users.loadUser(
+                                data.retrievedList.creator,
+                            ),
+                            list: data.retrievedList.sharedList,
                             entry: listEntry,
-                            title: result.sharedList.title,
+                            title: data.retrievedList.sharedList.title,
                             url: getListShareUrl({
-                                remoteListId: result.sharedList.reference.id.toString(),
+                                remoteListId: data.retrievedList.sharedList.reference.id.toString(),
                             }),
                         },
                     },
                 })
 
-                const annotationEntriesByList = await contentSharing.getAnnotationListEntriesForListsOnPage(
-                    {
-                        listReferences: [listReference],
-                        normalizedPageUrl: listEntry.normalizedUrl,
-                    },
-                )
+                const entries =
+                    data.annotationEntries[listEntry.normalizedUrl] ?? []
 
-                const entries = annotationEntriesByList[listReference.id] ?? []
                 if (!entries.length) {
                     nextState = this.emitAndApplyMutation(nextState, {
                         annotationLoadStates: {
@@ -477,13 +525,9 @@ export class ReaderPageViewLogic extends UILogic<
 
     private async loadPermissions(
         previousState: ReaderPageViewState,
+        listRole?: SharedListRoleID,
     ): Promise<ReaderPageViewState> {
-        const { contentSharing } = this.dependencies.storage
         const { auth, router, listKeys } = this.dependencies.services
-        const listReference = makeStorageReference<SharedListReference>(
-            'shared-list-reference',
-            this.dependencies.listID,
-        )
         let nextState = previousState
         await executeUITask<ReaderPageViewState>(
             this,
@@ -517,26 +561,15 @@ export class ReaderPageViewLogic extends UILogic<
                     })
                 }
 
-                // Ensure the current user has a role in this list elevated enough to share collaboration keys
-                const listRoles = await contentSharing.getUserListRolesForList({
-                    userReference,
-                    listReference,
-                })
-
-                let currentRoleID = listRoles.find(
-                    (role) =>
-                        role.sharedList.id.toString() ===
-                        this.dependencies.listID,
-                )?.roleID
-
-                if (currentRoleID == null) {
+                // TODO: Is this necessary?
+                if (listRole == null) {
                     const creator = (await this.listCreator) ?? undefined
                     if (creator.id === userReference.id) {
-                        currentRoleID = SharedListRoleID.Owner
+                        listRole = SharedListRoleID.Owner
                     }
                 }
 
-                if (currentRoleID == null) {
+                if (listRole == null) {
                     if (keyString?.length) {
                         await executeUITask<ReaderPageViewState>(
                             this,
@@ -561,30 +594,9 @@ export class ReaderPageViewLogic extends UILogic<
                     return
                 }
 
-                const isOwner = currentRoleID === SharedListRoleID.Owner
+                const isOwner = listRole === SharedListRoleID.Owner
                 nextState = this.emitAndApplyMutation(nextState, {
                     permissions: { $set: isOwner ? 'owner' : 'contributor' },
-                })
-
-                if (!isOwner) {
-                    return // Only the owner has permission to lookup the key
-                }
-
-                const collaborationKeys = await contentSharing.getListKeys({
-                    listReference,
-                })
-
-                const collaborationKey = collaborationKeys.find(
-                    (key) => key.roleID >= SharedListRoleID.ReadWrite,
-                )
-                if (!collaborationKey) {
-                    return
-                }
-
-                nextState = this.emitAndApplyMutation(nextState, {
-                    collaborationKey: {
-                        $set: collaborationKey.reference.id.toString(),
-                    },
                 })
             },
         )

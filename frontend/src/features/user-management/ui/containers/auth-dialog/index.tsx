@@ -88,7 +88,8 @@ export default class AuthDialog extends UIElement<
                 {/* HEADER AREA */}
                 {state.mode === 'login' && (
                     <>
-                        {header && (
+                        {header && !('title' in header) && header}
+                        {header && 'title' in header && (
                             <InvitationBox>
                                 <FormTitle
                                     viewportBreakpoint={this.viewportBreakpoint}
@@ -123,7 +124,8 @@ export default class AuthDialog extends UIElement<
                 )}
                 {state.mode === 'register' && (
                     <>
-                        {header && (
+                        {header && !('title' in header) && header}
+                        {header && 'title' in header && (
                             <InvitationBox>
                                 <FormTitle
                                     viewportBreakpoint={this.viewportBreakpoint}

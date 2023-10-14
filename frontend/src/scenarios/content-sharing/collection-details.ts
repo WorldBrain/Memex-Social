@@ -42,10 +42,10 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                     modifier: 'block',
                 }),
             ],
-            waitForSignal: {
-                target: 'CollectionDetailsPage',
-                signal: { type: 'loading-started' },
-            },
+            // waitForSignal: {
+            //     target: 'CollectionDetailsPage',
+            //     signal: { type: 'loading-started' },
+            // },
         },
         steps: [
             step({
@@ -168,31 +168,16 @@ export const SCENARIOS: ScenarioMap<Targets> = {
             params: { id: 'default-list' },
         },
         setup: {
-            callModifications: ({ storage }) => [
-                callModification({
-                    name: 'block-entries-loading',
-                    object: storage.serverModules.contentSharing,
-                    property: 'getAnnotationListEntries',
-                    modifier: 'block',
-                }),
+            callModifications: ({ services }) => [
                 callModification({
                     name: 'block-annotations-loading',
-                    object: storage.serverModules.contentSharing,
-                    property: 'getAnnotations',
+                    object: services.contentSharing.backend,
+                    property: 'loadAnnotationsWithThreads',
                     modifier: 'block',
                 }),
             ],
         },
         steps: [
-            step({
-                name: 'entries-loaded',
-                callModifications: ({ storage }) => [
-                    {
-                        name: 'block-entries-loading',
-                        modifier: 'undo',
-                    },
-                ],
-            }),
             step({
                 name: 'first-annotations-toggle',
                 target: 'CollectionDetailsPage',
@@ -212,26 +197,6 @@ export const SCENARIOS: ScenarioMap<Targets> = {
             }),
         ],
     })),
-    'annotations-entries-error': scenario<Targets>(
-        ({ step, callModification }) => ({
-            fixture: 'annotated-list-with-user',
-            startRoute: {
-                route: 'collectionDetails',
-                params: { id: 'default-list' },
-            },
-            setup: {
-                callModifications: ({ storage }) => [
-                    callModification({
-                        name: 'annotation-entries-loading',
-                        object: storage.serverModules.contentSharing,
-                        property: 'getAnnotationListEntries',
-                        modifier: 'sabotage',
-                    }),
-                ],
-            },
-            steps: [],
-        }),
-    ),
     'annotations-error': scenario<Targets>(({ step, callModification }) => ({
         fixture: 'annotated-list-with-user',
         startRoute: {
@@ -302,7 +267,7 @@ export const SCENARIOS: ScenarioMap<Targets> = {
                     name: 'first-waypoint-hit',
                     target: 'CollectionDetailsPage',
                     eventName: 'pageBreakpointHit',
-                    eventArgs: { entryIndex: 10 },
+                    eventArgs: { entryIndex: 9 },
                 }),
                 step({
                     name: 'second-annotations-loaded',
@@ -1494,6 +1459,116 @@ export const SCENARIOS: ScenarioMap<Targets> = {
         },
         steps: [],
     })),
+    'private-space-denied-unauthenticated': scenario<Targets>(
+        ({ step, callModification }) => ({
+            fixture: 'annotated-list-with-user-and-follows',
+            startRoute: {
+                route: 'collectionDetails',
+                params: { id: 'default-list' },
+            },
+            setup: {
+                execute: async ({ storage }) => {
+                    await storage.serverStorageManager.operation(
+                        'updateObjects',
+                        'sharedList',
+                        { id: 'default-list' },
+                        { private: true },
+                    )
+                },
+            },
+            steps: [],
+        }),
+    ),
+    'private-space-denied-unauthenticated-with-key': scenario<Targets>(
+        ({ step, callModification }) => ({
+            fixture: 'annotated-list-with-user-and-follows',
+            startRoute: {
+                route: 'collectionDetails',
+                params: { id: 'default-list' },
+            },
+            setup: {
+                execute: async ({ storage, services }) => {
+                    await storage.serverStorageManager.operation(
+                        'updateObjects',
+                        'sharedList',
+                        { id: 'default-list' },
+                        { private: true },
+                    )
+                    const { link } = await services.listKeys.generateKeyLink({
+                        key: { roleID: SharedListRoleID.AddOnly },
+                        listReference: {
+                            type: 'shared-list-reference',
+                            id: 'default-list',
+                        },
+                    })
+                    const keyString = getKeyStringFromLink(link)
+                    services.router.getQueryParam = () => {
+                        return keyString
+                    }
+                },
+            },
+            steps: [],
+        }),
+    ),
+    'private-space-denied-authenticated': scenario<Targets>(
+        ({ step, callModification }) => ({
+            fixture: 'annotated-list-with-user-and-follows',
+            startRoute: {
+                route: 'collectionDetails',
+                params: { id: 'default-list' },
+            },
+            setup: {
+                execute: async ({ storage, services }) => {
+                    await services.auth.loginWithEmailPassword({
+                        email: 'two@test.com',
+                        password: 'wqrdwqdfw',
+                    })
+                    await storage.serverStorageManager.operation(
+                        'updateObjects',
+                        'sharedList',
+                        { id: 'default-list' },
+                        { private: true },
+                    )
+                },
+            },
+            steps: [],
+        }),
+    ),
+    'private-space-denied-authenticated-with-key': scenario<Targets>(
+        ({ step, callModification }) => ({
+            fixture: 'annotated-list-with-user-and-follows',
+            startRoute: {
+                route: 'collectionDetails',
+                params: { id: 'default-list' },
+            },
+            setup: {
+                execute: async ({ storage, services }) => {
+                    await services.auth.loginWithEmailPassword({
+                        email: 'two@test.com',
+                        password: 'wqrdwqdfw',
+                    })
+                    await storage.serverStorageManager.operation(
+                        'updateObjects',
+                        'sharedList',
+                        { id: 'default-list' },
+                        { private: true },
+                    )
+                    const { link } = await services.listKeys.generateKeyLink({
+                        key: { roleID: SharedListRoleID.AddOnly },
+                        listReference: {
+                            type: 'shared-list-reference',
+                            id: 'default-list',
+                        },
+                    })
+                    const keyString = getKeyStringFromLink(link)
+                    services.router.getQueryParam = () => {
+                        return keyString
+                    }
+                },
+            },
+            steps: [],
+        }),
+    ),
     cocurated: scenario<Targets>(({ step, callModification }) => ({
         fixture: 'cocurated-list',
         startRoute: {

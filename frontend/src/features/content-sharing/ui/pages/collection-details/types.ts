@@ -31,6 +31,7 @@ import { ProcessSharedListKeyResult } from '@worldbrain/memex-common/lib/content
 import { SearchType } from '@worldbrain/memex-common/lib/common-ui/components/types'
 import { ContentSharingQueryParams } from '../../../types'
 import type { SlackList } from '@worldbrain/memex-common/lib/slack/types'
+import type { CollectionDetailsDeniedData } from '@worldbrain/memex-common/lib/content-sharing/backend/types'
 import type {
     EditableAnnotationsEvent,
     EditableAnnotationsState,
@@ -45,6 +46,7 @@ export interface CollectionDetailsDependencies {
         | 'auth'
         | 'overlay'
         | 'listKeys'
+        | 'contentSharing'
         | 'contentConversations'
         | 'activityStreams'
         | 'router'
@@ -88,6 +90,7 @@ export type CollectionDetailsState = AnnotationConversationsState &
         permissionKeyResult?: ProcessSharedListKeyResult
         showPermissionKeyIssue?: boolean
         requestingAuth?: boolean
+        showDeniedNote?: boolean
         copiedLink?: boolean
         summarizeArticleLoadState: {
             [normalizedPageUrl: string]: UITaskState | undefined
@@ -96,7 +99,7 @@ export type CollectionDetailsState = AnnotationConversationsState &
         renderEmbedModal?: boolean
         isEmbedShareModalCopyTextShown: string
 
-        listRolesLoadState: UITaskState
+        // listRolesLoadState: UITaskState
         listRoleID?: SharedListRoleID
         listRoles?: Array<SharedListRole & { user: UserReference }>
         listKeyPresent?: boolean
@@ -115,6 +118,7 @@ export type CollectionDetailsState = AnnotationConversationsState &
 
         annotationEntriesLoadState: UITaskState
         annotationLoadStates: { [normalizedPageUrl: string]: UITaskState }
+        permissionDenied?: CollectionDetailsDeniedData & { hasKey: boolean }
         listData?: {
             reference: SharedListReference
             pageSize: number
@@ -147,14 +151,13 @@ export type CollectionDetailsEvent = UIEvent<
         EditableAnnotationsEvent &
         ListsSidebarEvent &
         ExtDetectionEvent & {
-            load: { isUpdate?: boolean; listID?: string }
+            load: { isUpdate: boolean; listID?: string }
             processCollectionSwitch: {}
             toggleDescriptionTruncation: {}
             togglePageAnnotations: { normalizedUrl: string }
             toggleAllAnnotations: {}
             toggleListShareModal: {}
-            loadListData: { listID: string }
-            processPermissionKey: {}
+            loadListData: { isUpdate: boolean; listID: string }
             acceptInvitation: {}
             toggleDateFilters: null
             closePermissionOverlay: {}

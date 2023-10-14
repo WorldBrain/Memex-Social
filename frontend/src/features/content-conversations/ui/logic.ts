@@ -1,6 +1,10 @@
 import { Services } from '../../../services/types'
 import ContentConversationStorage from '../storage'
 import ContentSharingStorage from '../../content-sharing/storage'
+import {
+    SharedAnnotationReference,
+    SharedListReference,
+} from '@worldbrain/memex-common/lib/content-sharing/types'
 
 export * from '@worldbrain/memex-common/lib/content-conversations/ui/logic'
 
@@ -8,7 +12,7 @@ export const setupConversationLogicDeps = ({
     services,
     storage,
 }: {
-    services: Pick<Services, 'auth' | 'contentConversations'>
+    services: Pick<Services, 'auth' | 'contentConversations' | 'contentSharing'>
     storage: {
         contentSharing: Pick<
             ContentSharingStorage,
@@ -16,9 +20,7 @@ export const setupConversationLogicDeps = ({
         >
         contentConversations: Pick<
             ContentConversationStorage,
-            | 'getThreadsForAnnotations'
-            | 'getOrCreateThread'
-            | 'getRepliesByAnnotation'
+            'getThreadsForAnnotations' | 'getOrCreateThread'
         >
     }
 }) => ({
@@ -37,9 +39,23 @@ export const setupConversationLogicDeps = ({
     getSharedAnnotationLinkID: storage.contentSharing.getSharedAnnotationLinkID.bind(
         storage.contentSharing,
     ),
-    getRepliesByAnnotation: storage.contentConversations.getRepliesByAnnotation.bind(
-        storage.contentConversations,
-    ),
+    getRepliesByAnnotation: async (params: {
+        annotationReference: SharedAnnotationReference
+        sharedListReference: SharedListReference | null
+    }) => {
+        const result = await services.contentSharing.backend.loadAnnotationReplies(
+            {
+                listId: params.sharedListReference?.id ?? null,
+                annotationId: params.annotationReference.id,
+            },
+        )
+        if (result.status !== 'success') {
+            throw new Error(
+                `Expected 'success status retrieving replies, got '${result.status}'`,
+            )
+        }
+        return result.data.replies
+    },
     getCurrentUser: async () => {
         const user = services.auth.getCurrentUser()
         const reference = services.auth.getCurrentUserReference()

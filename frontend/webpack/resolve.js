@@ -1,3 +1,10 @@
+const path = require('path')
+
+const jsdomPath = path.resolve(
+    __dirname,
+    '../../external/@worldbrain/memex-common',
+    'node_modules/jsdom',
+)
 module.exports = {
     extensions: ['.js', '.ts', '.jsx', '.tsx', '.css'],
     fallback: {
@@ -24,5 +31,6 @@ module.exports = {
         react: require.resolve('react'),
         'react-dom': require.resolve('react-dom'),
         'styled-components': require.resolve('styled-components'),
+        [jsdomPath]: false,
     },
 }

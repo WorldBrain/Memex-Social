@@ -15,7 +15,6 @@ import {
 import { UITaskState } from '../../../../main-ui/types'
 
 import { theme } from '../../../../main-ui/styles/theme'
-import { StorageModules } from '../../../../storage/types'
 import { UIElementServices } from '../../../../services/types'
 import Icon from '../../../../common-ui/components/icon'
 import { HoverBox } from '../../../../common-ui/components/hoverbox'
@@ -115,7 +114,6 @@ interface ProfilePopupProps {
     user: User
     userRef: UserReference | null
     services: UIElementServices<'userManagement' | 'webMonetization'>
-    storage: Pick<StorageModules, 'users'>
     taskState: UITaskState
     userPublicProfile: UserPublicProfile | null
     webLinksArray: ProfileWebLink[]
