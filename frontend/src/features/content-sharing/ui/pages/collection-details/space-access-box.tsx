@@ -3,10 +3,12 @@ import styled from 'styled-components'
 import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
 import { PrimaryAction } from '@worldbrain/memex-common/lib/common-ui/components/PrimaryAction'
 import type { CollectionDetailsState } from './types'
+import { Margin } from 'styled-components-spacing'
 
 interface LoggedInProps
     extends Pick<CollectionDetailsState, 'permissionDenied' | 'users'> {
     onInvitationAccept: () => Promise<void>
+    showDeniedNote?: boolean
 }
 
 interface LoggedOutProps
@@ -18,6 +20,7 @@ export const LoggedInAccessBox: React.FunctionComponent<LoggedInProps> = ({
     permissionDenied,
     users,
     onInvitationAccept,
+    showDeniedNote,
 }) => {
     if (!permissionDenied) {
         return null
@@ -28,9 +31,11 @@ export const LoggedInAccessBox: React.FunctionComponent<LoggedInProps> = ({
             {permissionDenied.hasKey ? (
                 <>
                     <Icon icon="invite" height="35px" hoverOff />
-                    <SpaceAccessBoxTitle>
-                        {users[permissionDenied.creator]?.displayName ??
-                            'Someone'}{' '}
+                    <SpaceAccessBoxTitle bottom={'large'}>
+                        <SpaceAccessBoxListTitle>
+                            {users[permissionDenied.creator]?.displayName ??
+                                'Someone'}{' '}
+                        </SpaceAccessBoxListTitle>
                         invited you to{' '}
                         <SpaceAccessBoxListTitle>
                             {permissionDenied.listTitle}
@@ -42,6 +47,11 @@ export const LoggedInAccessBox: React.FunctionComponent<LoggedInProps> = ({
                         label="Accept invite and go to Space →"
                         onClick={onInvitationAccept}
                     />
+                    {showDeniedNote && (
+                        <DeniedWarning>
+                            You tried to accept it with the wrong email address
+                        </DeniedWarning>
+                    )}
                 </>
             ) : (
                 <>
@@ -90,6 +100,11 @@ export const LoggedOutAccessBox: React.FunctionComponent<LoggedOutProps> = ({
     )
 }
 
+const DeniedWarning = styled.span`
+    display: flex;
+    color: ${(props) => props.theme.colors.warning};
+`
+
 const SpaceAccessBox = styled.div`
     background: ${(props) => props.theme.colors.greyScale1};
     padding: 50px 25px;
@@ -101,14 +116,14 @@ const SpaceAccessBox = styled.div`
     grid-gap: 10px;
 `
 
-const SpaceAccessBoxTitle = styled.span`
+const SpaceAccessBoxTitle = styled(Margin)`
     color: ${(props) => props.theme.colors.white};
     font-weight: 500;
     font-size: 16px;
 `
 
 const SpaceAccessBoxDescription = styled.span`
-    color: ${(props) => props.theme.colors.white};
+    color: ${(props) => props.theme.colors.greyScale5};
     font-weight: 400;
     font-size: 14px;
 `

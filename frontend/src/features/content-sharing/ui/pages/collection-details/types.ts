@@ -90,6 +90,7 @@ export type CollectionDetailsState = AnnotationConversationsState &
         permissionKeyResult?: ProcessSharedListKeyResult
         showPermissionKeyIssue?: boolean
         requestingAuth?: boolean
+        showDeniedNote?: boolean
         copiedLink?: boolean
         summarizeArticleLoadState: {
             [normalizedPageUrl: string]: UITaskState | undefined

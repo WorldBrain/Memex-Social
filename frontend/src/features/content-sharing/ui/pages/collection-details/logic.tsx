@@ -535,6 +535,17 @@ export default class CollectionDetailsLogic extends UILogic<
             this,
             'permissionKeyState',
             async () => {
+                this.emitMutation({
+                    showDeniedNote: { $set: false },
+                })
+
+                if (incoming.previousState.permissionDenied) {
+                    this.processUIEvent('load', {
+                        event: { isUpdate: false },
+                        previousState: incoming.previousState,
+                    })
+                }
+
                 await this.dependencies.services.auth.waitForAuthReady()
 
                 const userReference = this.dependencies.services.auth.getCurrentUserReference()
@@ -556,7 +567,18 @@ export default class CollectionDetailsLogic extends UILogic<
                 const {
                     result,
                 } = await this.dependencies.services.listKeys.processCurrentKey()
+
                 if (result !== 'not-authenticated') {
+                    if (result === 'denied') {
+                        this.emitMutation({
+                            permissionKeyResult: { $set: result },
+                            requestingAuth: { $set: false },
+                            showDeniedNote: { $set: true },
+                        })
+
+                        return
+                    }
+
                     this.emitMutation({
                         permissionKeyResult: { $set: result },
                         requestingAuth: { $set: false },

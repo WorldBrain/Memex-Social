@@ -1825,6 +1825,7 @@ export default class CollectionDetailsPage extends UIElement<
                             onInvitationAccept={() =>
                                 this.processEvent('acceptInvitation', {})
                             }
+                            showDeniedNote={this.state.showDeniedNote}
                         />
                     </DefaultPageLayout>
                 </DocumentView>
