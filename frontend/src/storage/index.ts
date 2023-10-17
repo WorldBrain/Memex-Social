@@ -54,8 +54,12 @@ export async function createStorage(options: {
         options.backend === 'firebase-emulator'
     ) {
         storageBackend = new FirestoreStorageBackend({
-            firebase: firebase as any,
             firestore: firebase.firestore() as any,
+            firebaseModules: {
+                serverTimestamp: firebase.firestore.FieldValue.serverTimestamp,
+                documentId: firebase.firestore.FieldPath.documentId,
+                fromMillis: firebase.firestore.Timestamp.fromMillis,
+            },
         })
         if (options.backend === 'firebase-emulator') {
             firebase.firestore().settings({
