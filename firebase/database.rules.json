@@ -1,22 +1,44 @@
 {
-    "rules": {
-        "userMessages": {
-            "$user_id": {
-                ".read": "auth != null && $user_id == auth.uid",
-                ".write": "auth != null && $user_id == auth.uid",
-                "$message_id": {
-                    ".indexOn": ["timestamp"],
-                    "timestamp": {
-                        ".validate": "newData.val() == now"
-                    },
-                    "message": {
-                        ".validate": true
-                    },
-                    "$other": {
-                        ".validate": false
-                    }
-                }
-            }
+  "rules": {
+    "signalling": {
+      "$id": {
+        ".read": true,
+        ".write": true,
+        ".indexOn": [
+          "created"
+        ],
+        ".validate": "data.child('created').val() != null || newData.child('created').val() == now",
+        "firstQueue": {
+          "$message": {
+            ".validate": "data.val() == null && newData.isString() && newData.val().length < 10240"
+          }
+        },
+        "secondQueue": {
+          "$message": {
+            ".validate": "data.val() == null && newData.isString() && newData.val().length < 10240"
+          }
         }
+      }
+    },
+    "userMessages": {
+      "$user_id": {
+        ".read": "auth != null && $user_id == auth.uid",
+        ".write": "auth != null && $user_id == auth.uid",
+        "$message_id": {
+          ".indexOn": [
+            "timestamp"
+          ],
+          "timestamp": {
+            ".validate": "newData.val() == now"
+          },
+          "message": {
+            ".validate": true
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      }
     }
+  }
 }

@@ -1,4 +1,47 @@
 {
-    "indexes": [],
-    "fieldOverrides": []
+  "indexes": [
+    {
+      "collectionGroup": "objects",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "collection",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdWhen",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "sharedAnnotationListEntry",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "sharedList",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdWhen",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "sharedListEntry",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "sharedList",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdWhen",
+          "order": "DESCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": []
 }
