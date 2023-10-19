@@ -1,5 +1,6 @@
 import fetch from 'node-fetch'
 import * as firebase from '@firebase/testing'
+import { documentId, Timestamp, serverTimestamp } from '@firebase/firestore'
 import { Storage } from '../storage/types'
 import { createStorage } from '../storage'
 import { FirestoreStorageBackend } from '@worldbrain/storex-backend-firestore'
@@ -133,7 +134,7 @@ async function createFirebaseTestDevice(
             ? 'default-user'
             : testOptions.withTestUser.uid
         : undefined
-    const firebaseApp = testOptions.superuser
+    const context = testOptions.superuser
         ? firebase.initializeAdminApp({
               projectId: testOptions.firebaseProjectId,
           })
@@ -142,11 +143,13 @@ async function createFirebaseTestDevice(
               auth: userId ? { uid: userId } : undefined,
           })
 
-    const firestore = firebaseApp.firestore()
     const storageBackend = new FirestoreStorageBackend({
-        firebase: firebaseApp as any,
-        firebaseModule: firebase as any,
-        firestore: firestore as any,
+        firestore: context.firestore() as any,
+        firebaseModules: {
+            documentId,
+            serverTimestamp,
+            fromMillis: Timestamp.fromMillis,
+        },
     })
     const storage = await createStorage({ backend: storageBackend })
 
@@ -184,7 +187,7 @@ async function createFirebaseTestDevice(
         fetch,
         storage,
         backend: 'memory',
-        firebase: firebaseApp as any,
+        firebase: context as any,
         queryParams: testOptions.queryParams ?? {},
         history: null!,
         uiMountPoint: null!,
@@ -205,7 +208,7 @@ async function createFirebaseTestDevice(
         services,
         enforcesAccessRules: true,
         cleanup: async () => {
-            await firebaseApp.delete()
+            await context.delete()
         },
     }
 }
