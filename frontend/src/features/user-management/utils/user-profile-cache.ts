@@ -14,16 +14,20 @@ export default class UserProfileCache {
         },
     ) {}
 
-    loadUser = async (userReference: UserReference): Promise<User | null> => {
+    loadUser = async (
+        userReference: UserReference,
+        skipCb?: boolean,
+    ): Promise<User | null> => {
         if (await this.users[userReference.id]) {
             return this.users[userReference.id]
         }
 
         const user = this.dependencies.storage.users.getUser(userReference)
         this.users[userReference.id] = user
-        user.then((userData) =>
-            this.dependencies.onUsersLoad?.({ [userReference.id]: userData }),
-        )
+        const userData = await user
+        if (!skipCb) {
+            this.dependencies.onUsersLoad?.({ [userReference.id]: userData })
+        }
         return user
     }
 
@@ -33,9 +37,13 @@ export default class UserProfileCache {
         const users: { [id: string]: User | null } = {}
         await Promise.all(
             userReferences.map(async (userReference) => {
-                users[userReference.id] = await this.loadUser(userReference)
+                users[userReference.id] = await this.loadUser(
+                    userReference,
+                    true,
+                )
             }),
         )
+        this.dependencies.onUsersLoad?.(users)
         return users
     }
 }

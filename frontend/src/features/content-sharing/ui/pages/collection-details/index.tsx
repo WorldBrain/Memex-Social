@@ -1554,6 +1554,9 @@ export default class CollectionDetailsPage extends UIElement<
                             iconPosition="left"
                             type={'primary'}
                             size={'small'}
+                            disabled={
+                                this.state.permissionKeyState !== 'pristine'
+                            }
                             onClick={() =>
                                 this.processEvent('acceptInvitation', {})
                             }
