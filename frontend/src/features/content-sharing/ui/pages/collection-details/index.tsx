@@ -1517,10 +1517,8 @@ export default class CollectionDetailsPage extends UIElement<
         }
 
         if (
-            // this.state.followLoadState === 'running' ||
-            // this.state.listRolesLoadState === 'running' ||
-            // this.state.permissionKeyState === 'running'
-            false
+            this.state.followLoadState === 'running' ||
+            this.state.permissionKeyState === 'running'
         ) {
             return (
                 <LoadingBoxHeaderActionArea>
@@ -1779,7 +1777,8 @@ export default class CollectionDetailsPage extends UIElement<
         const { state } = this
         if (
             state.listLoadState === 'pristine' ||
-            state.listLoadState === 'running'
+            state.listLoadState === 'running' ||
+            (state.permissionDenied && state.permissionKeyState === 'running')
         ) {
             return (
                 <DocumentView id="DocumentView">
