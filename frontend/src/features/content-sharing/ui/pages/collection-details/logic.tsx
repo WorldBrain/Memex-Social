@@ -231,8 +231,9 @@ export default class CollectionDetailsLogic extends UILogic<
         return {
             listLoadState: 'pristine',
             followLoadState: 'pristine',
-            permissionKeyState: 'running',
+            permissionKeyState: 'pristine',
             // listRolesLoadState: 'pristine',
+            listRoles: [],
             copiedLink: false,
             showMoreCollaborators: false,
             listRoleLimit: 3,
@@ -384,6 +385,11 @@ export default class CollectionDetailsLogic extends UILogic<
                 })
             }
 
+            const loadedUsers = await this._users.loadUsers([
+                retrievedList.creator,
+                ...data.listRoles.map((role) => role.user),
+            ])
+
             this.emitMutation({
                 currentUserReference: { $set: userReference },
                 listData: {
@@ -394,9 +400,7 @@ export default class CollectionDetailsLogic extends UILogic<
                         discordList,
                         isChatIntegrationSyncing,
                         creatorReference: data.retrievedList.creator,
-                        creator: await this._users.loadUser(
-                            retrievedList.creator,
-                        ),
+                        creator: loadedUsers[retrievedList.creator.id],
                         list: retrievedList.sharedList,
                         listEntries: retrievedList.entries,
                         listDescriptionState: listDescriptionFits
@@ -408,6 +412,7 @@ export default class CollectionDetailsLogic extends UILogic<
                         ),
                     },
                 },
+                listRoles: { $set: data.listRoles },
                 isListOwner: {
                     $set: retrievedList.creator.id === userReference?.id,
                 },
@@ -522,6 +527,7 @@ export default class CollectionDetailsLogic extends UILogic<
             })
         }
     }
+
     hideSummary: EventHandler<'hideSummary'> = (incoming) => {
         this.emitMutation({
             summarizeArticleLoadState: {
@@ -540,7 +546,7 @@ export default class CollectionDetailsLogic extends UILogic<
                 })
 
                 if (incoming.previousState.permissionDenied) {
-                    this.processUIEvent('load', {
+                    await this.processUIEvent('load', {
                         event: { isUpdate: false },
                         previousState: incoming.previousState,
                     })
@@ -548,7 +554,7 @@ export default class CollectionDetailsLogic extends UILogic<
 
                 await this.dependencies.services.auth.waitForAuthReady()
 
-                const userReference = this.dependencies.services.auth.getCurrentUserReference()
+                let userReference = this.dependencies.services.auth.getCurrentUserReference()!
                 const successMutation: UIMutation<CollectionDetailsState> = {
                     listRoleID: { $set: SharedListRoleID.ReadWrite },
                     listRoles: {
@@ -579,6 +585,7 @@ export default class CollectionDetailsLogic extends UILogic<
                         return
                     }
 
+                    await this._users.loadUser(userReference)
                     this.emitMutation({
                         permissionKeyResult: { $set: result },
                         requestingAuth: { $set: false },
@@ -611,9 +618,11 @@ export default class CollectionDetailsLogic extends UILogic<
                     result: secondKeyResult,
                 } = await this.dependencies.services.listKeys.processCurrentKey()
 
+                userReference = this.dependencies.services.auth.getCurrentUserReference()!
+                await this._users.loadUser(userReference)
+
                 this.emitMutation({
                     permissionKeyResult: { $set: secondKeyResult },
-                    permissionKeyState: { $set: 'success' },
                     requestingAuth: { $set: false },
                     ...successMutation,
                 })
