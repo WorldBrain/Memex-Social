@@ -506,7 +506,6 @@ export default class CollectionDetailsLogic extends UILogic<
             undefined,
             undefined,
             true,
-            true,
         )) {
             const token = result?.t
 
