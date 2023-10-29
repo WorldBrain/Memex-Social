@@ -279,6 +279,7 @@ export class ReaderPageViewLogic extends UILogic<
     }
 
     init: EventHandler<'init'> = async (incoming) => {
+        await this.dependencies.services.auth.waitForAuthReady()
         await this.processUIEvent('load', {
             ...incoming,
             event: { isUpdate: false },
@@ -292,6 +293,7 @@ export class ReaderPageViewLogic extends UILogic<
             'shared-list-reference',
             this.dependencies.listID,
         )
+        const currentUser = services.auth.getCurrentUser()
 
         await executeUITask<ReaderPageViewState>(
             this,
@@ -318,7 +320,6 @@ export class ReaderPageViewLogic extends UILogic<
                         // this.emitMutation({
                         //   permissionDenied: { $set: permissionDeniedData },
                         // })
-                        const currentUser = services.auth.getCurrentUser()
                         if (!currentUser) {
                             await services.auth.requestAuth({
                                 header: (
@@ -339,9 +340,15 @@ export class ReaderPageViewLogic extends UILogic<
                 const { data } = response
 
                 this.listCreator.resolve(data.retrievedList.creator)
+                const myListRole =
+                    currentUser != null
+                        ? data.listRoles.find(
+                              (role) => role.user.id === currentUser.id,
+                          )
+                        : undefined
                 let nextState = await this.loadPermissions(
                     previousState,
-                    data.listRoles[0]?.roleID,
+                    myListRole?.roleID,
                 )
 
                 if (data.collaborationKey != null) {
@@ -626,7 +633,6 @@ export class ReaderPageViewLogic extends UILogic<
             return
         }
 
-        console.log('Initializing reader', state)
         const isPdf = doesUrlPointToPdf(state.sourceUrl!)
         let iframe: HTMLIFrameElement | null = null
         await executeUITask<ReaderPageViewState>(
@@ -1667,7 +1673,6 @@ export class ReaderPageViewLogic extends UILogic<
         event,
         previousState,
     }) => {
-        console.log('asdadsfads')
         if (!previousState.listData) {
             throw new Error(
                 'Cannot create annotation before page URL is loaded',
