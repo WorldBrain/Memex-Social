@@ -769,6 +769,30 @@ export class ReaderPageView extends UIElement<
                         })
                     }
                 >
+                    {this.state.showDropPDFNotice && (
+                        <PDFDropNoticeContainer
+                            onDragOver={(event) => {
+                                event.preventDefault()
+                                this.processEvent('hideDropZone', null)
+                            }}
+                        >
+                            <Icon
+                                heightAndWidth="30px"
+                                icon="plus"
+                                hoverOff
+                                color="prime1"
+                            />
+                            <PDFDropTitle>
+                                Drag & Drop the file: "
+                                {this.state.listData?.entry.entryTitle}"
+                            </PDFDropTitle>
+                            <PDFDropSubTitle>
+                                We don't support file uploads for sharing PDFs
+                                yet. You must have the file on your computer and
+                                drop it in here.
+                            </PDFDropSubTitle>
+                        </PDFDropNoticeContainer>
+                    )}
                     {this.state.iframeLoadState === 'error' ? (
                         <div>
                             The reader didn't load properly. Please try
@@ -1230,6 +1254,32 @@ function isInRange(timestamp: number, range: TimestampRange | undefined) {
     return range.fromTimestamp <= timestamp && range.toTimestamp >= timestamp
 }
 
+const PDFDropNoticeContainer = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    background: ${(props) => props.theme.colors.black};
+    backdrop-filter: blur(10px);
+    flex-direction: column;
+    grid-gap: 10px;
+`
+
+const PDFDropTitle = styled.div`
+    color: ${(props) => props.theme.colors.greyScale6};
+    font-size: 18px;
+    font-weight: 500;
+`
+const PDFDropSubTitle = styled.div`
+    color: ${(props) => props.theme.colors.greyScale5};
+    font-size: 16px;
+    font-weight: 300;
+    width: 500px;
+    text-align: center;
+`
+
 const AnnotationsidebarContainer = styled.div`
     height: 100%;
     overflow: scroll;
@@ -1522,6 +1572,7 @@ const InjectedContent = styled.div`
     bottom: 0;
     border: 0px solid;
     background: white;
+    position: relative;
 `
 
 const BreadCrumbBox = styled.div`
