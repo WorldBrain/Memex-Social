@@ -95,6 +95,7 @@ export type ReaderPageViewState = AnnotationConversationsState &
         renderAnnotationInstructOverlay: boolean
         showSupportChat: boolean
         preventInteractionsInIframe: boolean
+        showDropPDFNotice: boolean
     }
 
 export type ReaderPageViewEvent = UIEvent<
@@ -118,6 +119,7 @@ export type ReaderPageViewEvent = UIEvent<
             changeAnnotationCreateComment: {
                 comment: string
             }
+            hideDropZone: null
             installMemexClick: {
                 sharedListReference: SharedListReference
                 urlToOpen: string

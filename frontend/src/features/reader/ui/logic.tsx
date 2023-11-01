@@ -273,6 +273,7 @@ export class ReaderPageViewLogic extends UILogic<
             renderAnnotationInstructOverlay: false,
             showSupportChat: false,
             preventInteractionsInIframe: false,
+            showDropPDFNotice: false,
             ...editableAnnotationsInitialState(),
             ...annotationConversationInitialState(),
         }
@@ -715,6 +716,9 @@ export class ReaderPageViewLogic extends UILogic<
                 await utils.waitForIframeLoad(iframe)
 
                 if (isPdf) {
+                    const isLocalPDF =
+                        state?.sourceUrl != null &&
+                        state?.sourceUrl.includes('memex.cloud/ct/')
                     // Get PDFViewer from now-loaded iframe
                     const pdfJsViewer = (iframe.contentWindow as any)[
                         'PDFViewerApplication'
@@ -724,7 +728,17 @@ export class ReaderPageViewLogic extends UILogic<
                             'PDF.js viewer script did not load inside iframe',
                         )
                     }
-                    await utils.loadPDFInViewer(pdfJsViewer, state.sourceUrl!)
+                    if (isLocalPDF) {
+                        this.emitMutation({
+                            showDropPDFNotice: { $set: true },
+                        })
+                        // await utils.loadPDFInViewer(pdfJsViewer, null)
+                    } else {
+                        await utils.loadPDFInViewer(
+                            pdfJsViewer,
+                            state.sourceUrl!,
+                        )
+                    }
                 }
             },
         )
@@ -1173,6 +1187,11 @@ export class ReaderPageViewLogic extends UILogic<
     toggleOptionsMenu: EventHandler<'toggleOptionsMenu'> = async (incoming) => {
         this.emitMutation({
             showOptionsMenu: { $set: !incoming.previousState.showOptionsMenu },
+        })
+    }
+    hideDropZone: EventHandler<'hideDropZone'> = async (incoming) => {
+        this.emitMutation({
+            showDropPDFNotice: { $set: false },
         })
     }
     toggleSidebar: EventHandler<'toggleSidebar'> = async (incoming) => {
