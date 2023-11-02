@@ -13,10 +13,6 @@ import type { UIElementServices } from '../../../../../services/types'
 import type { StorageModules } from '../../../../../storage/types'
 import type { UITaskState } from '../../../../../main-ui/types'
 import type {
-    ListsSidebarState,
-    ListsSidebarEvent,
-} from '../../../../lists-sidebar/ui/types'
-import type {
     ExtDetectionState,
     ExtDetectionEvent,
 } from '../../../../ext-detection/ui/logic'
@@ -54,16 +50,15 @@ export type HomeFeedState = {
     lastSeenTimestamp?: number | null
     shouldShowNewLine: boolean
     loadingIncludingUIFinished: boolean
-} & (ListsSidebarState & ExtDetectionState)
+} & ExtDetectionState
 
 export type HomeFeedEvent = UIEvent<
     // AnnotationConversationEvent &
-    ListsSidebarEvent &
-        ExtDetectionEvent & {
-            waypointHit: null
-            getLastSeenLinePosition: null
-            loadingIncludingUIFinished: boolean
-        }
+    ExtDetectionEvent & {
+        waypointHit: null
+        getLastSeenLinePosition: null
+        loadingIncludingUIFinished: boolean
+    }
 >
 
 export type ActivityItem =

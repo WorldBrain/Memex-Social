@@ -1,9 +1,9 @@
 import { UIEvent, UISignal } from '../../../../../main-ui/classes/logic'
-import {
+import type {
     AnnotationConversationEvent,
     AnnotationConversationsState,
 } from '../../../../content-conversations/ui/types'
-import {
+import type {
     SharedListEntry,
     SharedList,
     SharedListRoleID,
@@ -11,17 +11,13 @@ import {
     SharedListReference,
 } from '@worldbrain/memex-common/lib/content-sharing/types'
 import type { DiscordList } from '@worldbrain/memex-common/lib/discord/types'
-import { UITaskState } from '../../../../../main-ui/types'
-import {
+import type { UITaskState } from '../../../../../main-ui/types'
+import type {
     UserReference,
     User,
 } from '@worldbrain/memex-common/lib/web-interface/types/users'
-import { UIElementServices } from '../../../../../services/types'
-import { StorageModules } from '../../../../../storage/types'
-import {
-    ListsSidebarState,
-    ListsSidebarEvent,
-} from '../../../../lists-sidebar/ui/types'
+import type { UIElementServices } from '../../../../../services/types'
+import type { StorageModules } from '../../../../../storage/types'
 import type {
     ExtDetectionState,
     ExtDetectionEvent,
@@ -81,7 +77,6 @@ export interface CollectionDetailsDependencies {
 
 export type CollectionDetailsState = AnnotationConversationsState &
     EditableAnnotationsState &
-    ListsSidebarState &
     ExtDetectionState & {
         listLoadState: UITaskState
         followLoadState: UITaskState
@@ -149,7 +144,6 @@ export type ResultHoverState = 'main-content' | 'footer' | null
 export type CollectionDetailsEvent = UIEvent<
     AnnotationConversationEvent &
         EditableAnnotationsEvent &
-        ListsSidebarEvent &
         ExtDetectionEvent & {
             load: { isUpdate: boolean; listID?: string }
             processCollectionSwitch: {}
