@@ -60,6 +60,12 @@
                 "pinTag": true
             },
             {
+                "source": "/api/**",
+                "function": "publicApiHttp",
+                "region": "us-central1",
+                "pinTag": true
+            },
+            {
                 "source": "**",
                 "destination": "/index.html"
             }

@@ -1203,13 +1203,15 @@ export class ReaderPageView extends UIElement<
                                         }}
                                         getYoutubePlayer={() =>
                                             this.state.listLoadState ===
-                                                'success' &&
-                                            this.props.services.youtube.getPlayerByElementId(
-                                                getReaderYoutubePlayerId(
-                                                    this.state.listData!.entry
-                                                        .normalizedUrl,
-                                                ),
-                                            )
+                                            'success'
+                                                ? this.props.services.youtube.getPlayerByElementId(
+                                                      getReaderYoutubePlayerId(
+                                                          this.state.listData!
+                                                              .entry
+                                                              .normalizedUrl,
+                                                      ),
+                                                  )
+                                                : null!
                                         }
                                         imageSupport={this.props.imageSupport}
                                     />
