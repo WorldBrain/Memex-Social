@@ -74,6 +74,15 @@ export function editableAnnotationsEventHandlers<
                 },
             })
         },
+        fetchHighlightColors: async ({ event, previousState }) => {
+            const users = event.users
+
+            logic.emitMutation({
+                annotationEditStates: {
+                    [event.annotationId]: { comment: { $set: event.comment } },
+                },
+            })
+        },
         confirmAnnotationDelete: async ({ event, previousState }) => {
             const annotation = previousState.annotations[event.annotationId]
             const highlightRenderer = dependencies.getHighlightRenderer?.()

@@ -99,6 +99,7 @@ import {
 } from '@worldbrain/memex-common/lib/annotations/types'
 import { ImageSupportInterface } from '@worldbrain/memex-common/lib/image-support/types'
 import { normalizeUrl } from '@worldbrain/memex-common/lib/url-utils/normalize'
+import { array2RGBA } from '@worldbrain/memex-common/lib/common-ui/components/highlightColorPicker/utils'
 
 type EventHandler<EventName extends keyof ReaderPageViewEvent> = UIEventHandler<
     ReaderPageViewState,
@@ -441,6 +442,7 @@ export class ReaderPageViewLogic extends UILogic<
                             'youtube.com/',
                         ),
                     },
+                    userColors: { $set: data.userColors },
                     renderAnnotationInstructOverlay: {
                         $set: !!services.router.getQueryParam('key'),
                     },
@@ -490,6 +492,7 @@ export class ReaderPageViewLogic extends UILogic<
                             { [listEntry.normalizedUrl]: entries },
                             [listEntry.normalizedUrl],
                             nextState,
+                            data.userColors,
                         )
                     }
                 }, 100)
@@ -1354,6 +1357,7 @@ export class ReaderPageViewLogic extends UILogic<
         annotationEntries: GetAnnotationListEntriesResult,
         normalizedPageUrls: string[],
         state: ReaderPageViewState,
+        userColors?: any[],
     ) {
         const toFetch: Array<{
             normalizedPageUrl: string
@@ -1391,6 +1395,7 @@ export class ReaderPageViewLogic extends UILogic<
                     promisesByPage[normalizedPageUrl] ?? []
                 promisesByPage[normalizedPageUrl].push(promise)
             }
+
             annotationChunks.push(promise)
         }
 
@@ -1413,6 +1418,7 @@ export class ReaderPageViewLogic extends UILogic<
                         for (const [annotationId, annotation] of Object.entries(
                             annotationChunk,
                         )) {
+                            // annotation.color = userColors
                             newAnnotations[annotationId] = annotation
                         }
                     }
@@ -1505,7 +1511,7 @@ export class ReaderPageViewLogic extends UILogic<
                             },
                         ),
                     })
-                    await this.renderHighlightsInState(nextState)
+                    await this.renderHighlightsInState(nextState, userColors)
                 } catch (e) {
                     this.emitMutation({
                         annotationLoadStates: {
@@ -1585,12 +1591,26 @@ export class ReaderPageViewLogic extends UILogic<
 
     private async renderHighlightsInState({
         annotations,
+        userColors,
     }: ReaderPageViewState): Promise<void> {
         const toRender: RenderableAnnotation[] = []
 
-        for (const { reference, selector } of Object.values(annotations)) {
+        for (const { reference, selector, creator, color } of Object.values(
+            annotations,
+        )) {
             if (!selector) {
                 continue
+            }
+
+            let userColorsAll =
+                userColors && userColors.length && userColors[0][creator.id]
+
+            let userColor = undefined
+
+            if (userColorsAll && color) {
+                userColor = array2RGBA(
+                    userColorsAll.find((item: any) => item.id === color).color,
+                )
             }
 
             try {
@@ -1598,6 +1618,7 @@ export class ReaderPageViewLogic extends UILogic<
                 toRender.push({
                     id: reference.id,
                     selector: deserializedSelector,
+                    color: userColor ?? undefined,
                 })
             } catch (err) {
                 // TODO: capture error

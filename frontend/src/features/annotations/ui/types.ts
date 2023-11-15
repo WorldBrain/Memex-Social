@@ -5,7 +5,10 @@ import type {
 import type { UIEventHandler } from '@worldbrain/memex-common/lib/main-ui/classes/logic'
 import type { UITaskState } from '@worldbrain/memex-common/lib/main-ui/types'
 import type { AutoPk } from '@worldbrain/memex-common/lib/storage/types'
-import type { UserReference } from '@worldbrain/memex-common/lib/web-interface/types/users'
+import type {
+    User,
+    UserReference,
+} from '@worldbrain/memex-common/lib/web-interface/types/users'
 
 export type EditableAnnotationsHandlers = {
     [EventName in keyof EditableAnnotationsEvent]: UIEventHandler<
@@ -24,6 +27,9 @@ export interface EditableAnnotationsEvent {
     changeAnnotationEditComment: {
         annotationId: AutoPk
         comment: string
+    }
+    fetchHighlightColors: {
+        users: { [id: string]: Pick<User, 'displayName' | 'platform'> }
     }
 }
 
