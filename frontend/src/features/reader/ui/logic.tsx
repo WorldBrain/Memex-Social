@@ -1588,7 +1588,9 @@ export class ReaderPageViewLogic extends UILogic<
     }: ReaderPageViewState): Promise<void> {
         const toRender: RenderableAnnotation[] = []
 
-        for (const { reference, selector } of Object.values(annotations)) {
+        for (const { reference, selector, color } of Object.values(
+            annotations,
+        )) {
             if (!selector) {
                 continue
             }
@@ -1598,6 +1600,7 @@ export class ReaderPageViewLogic extends UILogic<
                 toRender.push({
                     id: reference.id,
                     selector: deserializedSelector,
+                    color: color ? JSON.parse(color)[0] : undefined,
                 })
             } catch (err) {
                 // TODO: capture error
