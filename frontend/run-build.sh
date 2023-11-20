@@ -5,6 +5,10 @@ rm -rf ../firebase/public/*
 mv build/* ../firebase/public/
 cp -r public/* ../firebase/public/
 
+if [ $SKIP_DEPLOY_SOCIAL_PREVIEW_FUNCS = "true" ]; then
+    exit 0
+fi
+
 # Derive bundle names (contain dynamic cache-busting hashes)
 bundle_names=''
 for bundle in ../firebase/public/*.{js,css}; do

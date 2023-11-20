@@ -35,15 +35,10 @@ import {
 import { getInitialNewReplyState } from '../../../../content-conversations/ui/utils'
 import UserProfileCache from '../../../../user-management/utils/user-profile-cache'
 import {
-    listsSidebarInitialState,
-    listsSidebarEventHandlers,
-} from '../../../../lists-sidebar/ui/logic'
-import {
     extDetectionInitialState,
     extDetectionEventHandlers,
 } from '../../../../ext-detection/ui/logic'
 import { UserReference } from '../../../../user-management/types'
-import { makeStorageReference } from '@worldbrain/memex-common/lib/storage/references'
 import type { DiscordList } from '@worldbrain/memex-common/lib/discord/types'
 import type { SlackList } from '@worldbrain/memex-common/lib/slack/types'
 import * as chrono from 'chrono-node'
@@ -191,14 +186,6 @@ export default class CollectionDetailsLogic extends UILogic<
 
         Object.assign(
             this,
-            listsSidebarEventHandlers(this as any, {
-                ...this.dependencies,
-                localStorage: this.dependencies.services.localStorage,
-            }),
-        )
-
-        Object.assign(
-            this,
             extDetectionEventHandlers(this as any, {
                 ...this.dependencies,
             }),
@@ -259,7 +246,6 @@ export default class CollectionDetailsLogic extends UILogic<
             resultLoadingState: 'pristine',
             paginateLoading: 'pristine',
             ...extDetectionInitialState(),
-            ...listsSidebarInitialState(),
             ...editableAnnotationsInitialState(),
             ...annotationConversationInitialState(),
         }
@@ -1054,26 +1040,8 @@ export default class CollectionDetailsLogic extends UILogic<
 
                 if (isAlreadyFollowed) {
                     await activityFollows.deleteFollow(entityArgs)
-                    const indexToDelete = previousState.followedLists.findIndex(
-                        (list) => list.reference.id === listID,
-                    )
-                    mutation.followedLists = { $splice: [[indexToDelete, 1]] }
                 } else {
                     await activityFollows.storeFollow(entityArgs)
-                    const { list } = previousState.listData!
-                    mutation.followedLists = {
-                        $push: [
-                            {
-                                title: list.title,
-                                createdWhen: list.createdWhen,
-                                updatedWhen: list.updatedWhen,
-                                reference: {
-                                    type: 'shared-list-reference',
-                                    id: listID,
-                                },
-                            },
-                        ],
-                    }
                 }
 
                 this.emitMutation(mutation)

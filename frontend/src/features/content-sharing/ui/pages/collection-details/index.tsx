@@ -88,19 +88,6 @@ export default class CollectionDetailsPage extends UIElement<
     scrollableRef?: { element: HTMLElement; timestammp: number }
     scrollTimeout?: ReturnType<typeof setTimeout>
 
-    // get listsSidebarProps(): Omit<
-    //     ListsSidebarProps,
-    //     'services' | 'storage' | 'viewportBreakpoint'
-    // > {
-    //     return {
-    //         collaborativeLists: this.state.collaborativeLists,
-    //         followedLists: this.state.followedLists,
-    //         isShown: this.state.isListSidebarShown,
-    //         loadState: this.state.listSidebarLoadState,
-    //         onToggle: () => this.processEvent('toggleListSidebar', undefined),
-    //     }
-    // }
-
     onListEntryRef = (event: {
         element: HTMLElement
         entry: CollectionDetailsListEntry

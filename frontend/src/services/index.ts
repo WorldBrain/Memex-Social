@@ -47,6 +47,7 @@ import type { ExtractedPDFData } from '@worldbrain/memex-common/lib/page-indexin
 import { determineEnv } from '../utils/runtime-environment'
 import { CLOUDFLARE_WORKER_URLS } from '@worldbrain/memex-common/lib/content-sharing/storage/constants'
 import { ImageSupportInterface } from '@worldbrain/memex-common/lib/image-support/types'
+import { PublicApiServiceInterface } from '@worldbrain/memex-common/lib/public-api/types'
 
 export function createServices(options: {
     backend: BackendType
@@ -266,6 +267,10 @@ export function createServices(options: {
         }),
         fullTextSearch: new FullTextSearchService(),
         pageLinks: new PageLinkService({ contentSharingBackend }),
+        publicApi: firebaseService<PublicApiServiceInterface>(
+            'publicApi',
+            executeFirebaseCall,
+        ),
     }
 
     return services

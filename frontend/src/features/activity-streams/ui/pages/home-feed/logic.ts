@@ -18,16 +18,11 @@ import {
     ActivityItem,
     AnnotationActivityItem,
 } from './types'
-import {
-    listsSidebarInitialState,
-    listsSidebarEventHandlers,
-} from '../../../../lists-sidebar/ui/logic'
 import UserProfileCache from '../../../../user-management/utils/user-profile-cache'
 import {
     extDetectionInitialState,
     extDetectionEventHandlers,
 } from '../../../../ext-detection/ui/logic'
-import { UITaskState } from '../../../../../main-ui/types'
 
 type EventHandler<EventName extends keyof HomeFeedEvent> = UIEventHandler<
     HomeFeedState,
@@ -57,14 +52,6 @@ export default class HomeFeedLogic extends UILogic<
         })
         Object.assign(
             this,
-            listsSidebarEventHandlers(this as any, {
-                ...this.dependencies,
-                localStorage: this.dependencies.services.localStorage,
-            }),
-        )
-
-        Object.assign(
-            this,
             extDetectionEventHandlers(this as any, {
                 ...this.dependencies,
             }),
@@ -79,7 +66,6 @@ export default class HomeFeedLogic extends UILogic<
             shouldShowNewLine: true,
             loadingIncludingUIFinished: false,
             ...extDetectionInitialState(),
-            ...listsSidebarInitialState(),
         }
     }
 
@@ -116,10 +102,6 @@ export default class HomeFeedLogic extends UILogic<
             })
 
         await this.loadNextActivities({ isInitial: true })
-        await this.processUIEvent('initActivityFollows', {
-            previousState,
-            event,
-        })
     }
 
     getLastSeenLinePosition: EventHandler<'getLastSeenLinePosition'> = async ({}) => {

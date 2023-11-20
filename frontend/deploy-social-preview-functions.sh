@@ -1,5 +1,9 @@
 FB_REPO_DIR=../../firebase-backend
 
+if [ $SKIP_DEPLOY_SOCIAL_PREVIEW_FUNCS = "true" ]; then
+    exit 0
+fi
+
 if ! test -d $FB_REPO_DIR; then
     echo 'firebase-backend repo not found as a sibling dir to Memex-Social repo. Please clone it'
     exit 1
