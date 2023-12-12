@@ -373,9 +373,13 @@ export default class CollectionDetailsLogic extends UILogic<
 
             const loadedUsers = await this._users.loadUsers([
                 retrievedList.creator,
-                ...data.usersToLoad.map(
-                    (id) => ({ type: 'user-reference', id } as UserReference),
-                ),
+                ...new Set([
+                    ...data.usersToLoad.map(
+                        (id) =>
+                            ({ type: 'user-reference', id } as UserReference),
+                    ),
+                    ...data.listRoles.map((role) => role.user),
+                ]),
             ])
 
             this.emitMutation({
