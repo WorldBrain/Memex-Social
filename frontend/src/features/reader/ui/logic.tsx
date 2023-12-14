@@ -123,7 +123,6 @@ export class ReaderPageViewLogic extends UILogic<
     private emitAndApplyMutation = emitAndApplyMutation(this)
     private users: UserProfileCache
     private isReaderInitialized = false
-    private iframeLoaded = false
     private sidebarRef: HTMLElement | null = null
     private highlightRenderer!: HighlightRenderer
     /**
@@ -139,6 +138,7 @@ export class ReaderPageViewLogic extends UILogic<
     } = {}
     private cleanupIframeTooltipShowListener?: () => void
     private listCreator = createResolvable<UserReference>()
+    private iframeSetupResolvable = createResolvable()
 
     constructor(private dependencies: ReaderPageViewDependencies) {
         super()
@@ -307,7 +307,6 @@ export class ReaderPageViewLogic extends UILogic<
                         keyString: keyString ?? undefined,
                     },
                 )
-                console.log('response', response)
                 if (response.status !== 'success') {
                     if (response.status === 'permission-denied') {
                         await this.users.loadUser({
@@ -901,7 +900,6 @@ export class ReaderPageViewLogic extends UILogic<
         if (!iframe) {
             return
         }
-        this.iframeLoaded = true
         this.highlightRenderer = new HighlightRenderer({
             getWindow: () => iframe!.contentWindow,
             getDocument: () => iframe!.contentDocument,
@@ -924,6 +922,7 @@ export class ReaderPageViewLogic extends UILogic<
         if (state.permissions != null || keyString != null) {
             this.setupIframeTooltip(iframe, state)
         }
+        this.iframeSetupResolvable.resolve()
     }
 
     private setupIframeTooltip(
@@ -1704,18 +1703,12 @@ export class ReaderPageViewLogic extends UILogic<
             }
         }
 
-        while (!this.iframeLoaded) {
-            await sleepPromise(100)
-            if (this.iframeLoaded) {
-                if (toRender.length) {
-                    console.log('torender', toRender)
-                    await this.highlightRenderer.renderHighlights(
-                        toRender,
-                        this.handleHighlightClick,
-                    )
-                }
-                continue
-            }
+        await this.iframeSetupResolvable
+        if (toRender.length) {
+            await this.highlightRenderer.renderHighlights(
+                toRender,
+                this.handleHighlightClick,
+            )
         }
     }
 
@@ -1821,8 +1814,6 @@ export class ReaderPageViewLogic extends UILogic<
         if (comment && comment.length > 0) {
             sanitizedAnnotation = sanitizeHTMLhelper(comment?.trim())
         }
-
-        console.log('sanitizedAnnotation', this.dependencies.imageSupport)
 
         let annotationCommentWithImages = sanitizedAnnotation
         if (sanitizedAnnotation) {
