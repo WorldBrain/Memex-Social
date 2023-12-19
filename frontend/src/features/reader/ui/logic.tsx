@@ -1,5 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
+import html2canvas from 'html2canvas'
 import { ThemeProvider, StyleSheetManager } from 'styled-components'
 import createResolvable from '@josephg/resolvable'
 import Tooltip from '@worldbrain/memex-common/lib/in-page-ui/tooltip/container'
@@ -1065,6 +1066,9 @@ export class ReaderPageViewLogic extends UILogic<
                 screenshotGrabResult = await promptPdfScreenshot(
                     iframe!.contentDocument,
                     iframe!.contentWindow,
+                    {
+                        htmlElToCanvasEl: (el) => html2canvas(el),
+                    },
                 )
                 if (
                     screenshotGrabResult == null ||
