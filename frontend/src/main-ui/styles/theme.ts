@@ -145,6 +145,8 @@ export const theme: Theme = THEME({
         obsidianLogo: require('../../assets/img/obsidianLogo.svg'),
         logseqLogo: require('../../assets/img/logseqLogo.svg'),
         rectangleDraw: require('../../assets/img/rectangleDraw.svg'),
+        spread: require('../../assets/img/rectangleDraw.svg'),
+        key: require('../../assets/img/rectangleDraw.svg'),
 
         // doubleArrow: require('../../assets/img/doubleArrow.svg'),,
         // import tagFull from '../../assets/img/tag_full.svg'

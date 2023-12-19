@@ -123,7 +123,6 @@ export class ReaderPageViewLogic extends UILogic<
     private emitAndApplyMutation = emitAndApplyMutation(this)
     private users: UserProfileCache
     private isReaderInitialized = false
-    private iframeLoaded = false
     private sidebarRef: HTMLElement | null = null
     private highlightRenderer!: HighlightRenderer
     /**
@@ -139,6 +138,7 @@ export class ReaderPageViewLogic extends UILogic<
     } = {}
     private cleanupIframeTooltipShowListener?: () => void
     private listCreator = createResolvable<UserReference>()
+    private iframeSetupResolvable = createResolvable()
 
     constructor(private dependencies: ReaderPageViewDependencies) {
         super()
@@ -427,7 +427,7 @@ export class ReaderPageViewLogic extends UILogic<
                     }
                 }
 
-                if (shouldNotOpenLink) {
+                if (shouldNotOpenLink && determineEnv() === 'production') {
                     services.router.delQueryParam('noAutoOpen')
                 }
 
@@ -479,29 +479,183 @@ export class ReaderPageViewLogic extends UILogic<
                     },
                 })
 
-                const isYoutube = listEntry.normalizedUrl.startsWith(
-                    'youtube.com/',
-                )
+                const usersToLoad = new Set<UserReference['id']>()
+                const annotations = response.data.annotations
+                const annotationEntryData = response.data.annotationEntries
+                const normalizedPageUrl = listEntry.normalizedUrl
 
-                const intervalId = setInterval(() => {
-                    if (this.iframeLoaded && !isYoutube) {
-                        clearInterval(intervalId)
-                        this.loadPageAnnotations(
-                            { [listEntry.normalizedUrl]: entries },
-                            [listEntry.normalizedUrl],
-                            nextState,
-                        )
+                if (annotations) {
+                    for (const newAnnotation of Object.values(annotations)) {
+                        usersToLoad.add(newAnnotation.creator.id)
+                        if (!newAnnotation.selector) {
+                            continue
+                        }
                     }
-                }, 100)
+                }
 
-                if (isYoutube) {
-                    this.loadPageAnnotations(
-                        { [listEntry.normalizedUrl]: entries },
-                        [listEntry.normalizedUrl],
-                        nextState,
+                nextState = this.emitAndApplyMutation(nextState, {
+                    annotationLoadStates: {
+                        [normalizedPageUrl]: { $set: 'success' },
+                    },
+                    annotations: mapValues(annotations, (newAnnotation) => ({
+                        $set: newAnnotation,
+                    })),
+                    annotationEditStates: mapValues(
+                        annotations,
+                        (newAnnotation) => ({
+                            $set: {
+                                isEditing: false,
+                                loadState: 'pristine',
+                                comment: newAnnotation.comment ?? '',
+                            },
+                        }),
+                    ) as any,
+                    annotationHoverStates: mapValues(
+                        annotations,
+                        (newAnnotation) => ({
+                            $set: { isHovering: false },
+                        }),
+                    ),
+                    annotationDeleteStates: mapValues(
+                        annotations,
+                        (newAnnotation) => ({
+                            $set: {
+                                isDeleting: false,
+                                deleteState: 'pristine' as UITaskState,
+                            },
+                        }),
+                    ),
+                    // Sort annot entries first by created time, then by highlight position in page (if highlight)
+                    annotationEntryData: mapValues(
+                        annotationEntryData,
+                        (entries) => {
+                            const annotationsByEntryLookup = new Map<
+                                AutoPk,
+                                SharedAnnotation
+                            >()
+                            for (const entry of entries) {
+                                if (
+                                    annotations &&
+                                    annotations[
+                                        entry.sharedAnnotation.id.toString()
+                                    ]
+                                ) {
+                                    annotationsByEntryLookup.set(
+                                        entry.reference.id,
+                                        annotations[
+                                            entry.sharedAnnotation.id.toString()
+                                        ],
+                                    )
+                                }
+                            }
+                            const initEntriesSorter = (
+                                sortFn: AnnotationsSorter,
+                            ) => (
+                                a: GetAnnotationListEntriesElement,
+                                b: GetAnnotationListEntriesElement,
+                            ) =>
+                                sortFn(
+                                    annotationsByEntryLookup.get(
+                                        a.reference.id,
+                                    )!,
+                                    annotationsByEntryLookup.get(
+                                        b.reference.id,
+                                    )!,
+                                )
+
+                            return {
+                                $set: entries
+                                    .sort(initEntriesSorter(sortByCreatedTime))
+                                    .sort(
+                                        initEntriesSorter(sortByPagePosition),
+                                    ),
+                            }
+                        },
+                    ),
+                })
+
+                // const intervalId = setInterval(() => {
+                //     if (this.iframeLoaded && !isYoutube) {
+                //         clearInterval(intervalId)
+                //         this.loadPageAnnotations(
+                //             { [listEntry.normalizedUrl]: entries },
+                //             [listEntry.normalizedUrl],
+                //             nextState,
+                //         )
+                //     }
+                // }, 100)
+                await this.renderHighlightsInState(nextState)
+
+                const annotationReferences = flatten(
+                    Object.values(annotationEntryData),
+                ).map((entry) => entry.sharedAnnotation)
+                this.emitMutation({
+                    conversations: {
+                        $merge: getInitialAnnotationConversationStates(
+                            annotationReferences.map(({ id }) => ({
+                                linkId: id.toString(),
+                            })),
+                        ),
+                    },
+                })
+                const conversationThreadPromise = detectAnnotationConversationThreads(
+                    this as any,
+                    {
+                        getThreadsForAnnotations: (...args) =>
+                            this.dependencies.storage.contentConversations.getThreadsForAnnotations(
+                                ...args,
+                            ),
+                        annotationReferences,
+                        sharedListReference: {
+                            type: 'shared-list-reference',
+                            id: this.dependencies.listID,
+                        },
+                        imageSupport: this.dependencies.imageSupport,
+                    },
+                ).catch(console.error)
+                intializeNewPageReplies(this as any, {
+                    normalizedPageUrls: [...normalizedPageUrl].filter(
+                        (normalizedPageUrl) =>
+                            !this.conversationThreadPromises[normalizedPageUrl],
+                    ),
+                    imageSupport: this.dependencies.imageSupport,
+                })
+
+                this.conversationThreadPromises[
+                    normalizedPageUrl
+                ] = conversationThreadPromise
+
+                try {
+                    const result = await Promise.all([
+                        this.pageAnnotationPromises[normalizedPageUrl],
+                        this.conversationThreadPromises[normalizedPageUrl],
+                    ])
+                    await this.users.loadUsers(
+                        [...usersToLoad].map(
+                            (id): UserReference => ({
+                                type: 'user-reference',
+                                id,
+                            }),
+                        ),
                     )
+                    return
+                } catch (e) {
+                    throw e
                 }
             },
+            // const isYoutube = listEntry.normalizedUrl.startsWith(
+            //     'youtube.com/',
+            // )
+
+            // console.log('annotations', response.data.annotations)
+
+            // if (isYoutube) {
+            //     this.loadPageAnnotations(
+            //         { [listEntry.normalizedUrl]: entries },
+            //         [listEntry.normalizedUrl],
+            //         nextState,
+            //     )
+            // }
         )
     }
 
@@ -746,7 +900,6 @@ export class ReaderPageViewLogic extends UILogic<
         if (!iframe) {
             return
         }
-        this.iframeLoaded = true
         this.highlightRenderer = new HighlightRenderer({
             getWindow: () => iframe!.contentWindow,
             getDocument: () => iframe!.contentDocument,
@@ -769,6 +922,7 @@ export class ReaderPageViewLogic extends UILogic<
         if (state.permissions != null || keyString != null) {
             this.setupIframeTooltip(iframe, state)
         }
+        this.iframeSetupResolvable.resolve()
     }
 
     private setupIframeTooltip(
@@ -821,10 +975,10 @@ export class ReaderPageViewLogic extends UILogic<
                             drawRectangle,
                         ) => {
                             {
-                                if (this.createHighlightExec) {
+                                if (this.createHighlightExec && selection) {
                                     await this.createHighlightExec(
                                         selection,
-                                        shouldShare,
+                                        shouldShare ?? false,
                                         drawRectangle as boolean,
                                         state,
                                         iframe,
@@ -887,9 +1041,9 @@ export class ReaderPageViewLogic extends UILogic<
     }
 
     private createHighlightExec: HighlightRendererDeps['createHighlightExec'] = async (
-        selection: Selection,
-        shouldShare: boolean,
-        drawRectangle: boolean,
+        selection?: Selection | undefined,
+        shouldShare?: boolean,
+        drawRectangle?: boolean | undefined,
         state?: ReaderPageViewState,
         iframe?: HTMLIFrameElement | null,
     ) => {
@@ -946,9 +1100,9 @@ export class ReaderPageViewLogic extends UILogic<
     }
 
     private getRenderHighlightParams = (args: {
-        selection: Selection | null
-        shouldShare?: boolean
-        openInEditMode?: boolean
+        selection?: Selection | null
+        shouldShare?: boolean | null
+        openInEditMode?: boolean | null
         screenShotAnchor?: PdfScreenshotAnchor | undefined
         screenShotImage?: HTMLCanvasElement | undefined
         imageSupport?: ImageSupportInterface
@@ -964,8 +1118,8 @@ export class ReaderPageViewLogic extends UILogic<
         return {
             currentUser,
             isPdf: doesUrlPointToPdf(args.state?.sourceUrl!),
-            shouldShare: args.shouldShare,
-            openInEditMode: args.openInEditMode,
+            shouldShare: args.shouldShare ?? undefined,
+            openInEditMode: args.openInEditMode ?? undefined,
             onClick: this.handleHighlightClick,
             getSelection: () => args.selection ?? null,
             getFullPageUrl: async () =>
@@ -1350,238 +1504,175 @@ export class ReaderPageViewLogic extends UILogic<
         }
     }
 
-    private async loadPageAnnotations(
-        annotationEntries: GetAnnotationListEntriesResult,
-        normalizedPageUrls: string[],
-        state: ReaderPageViewState,
-    ) {
-        const toFetch: Array<{
-            normalizedPageUrl: string
-            sharedAnnotation: SharedAnnotationReference
-        }> = flatten(
-            normalizedPageUrls
-                .filter(
-                    (normalizedPageUrl) =>
-                        !this.pageAnnotationPromises[normalizedPageUrl],
-                )
-                .map((normalizedPageUrl) =>
-                    (annotationEntries[normalizedPageUrl] ?? []).map(
-                        (entry) => ({
-                            normalizedPageUrl,
-                            sharedAnnotation: entry.sharedAnnotation,
-                        }),
-                    ),
-                ),
-        )
+    // private async loadPageAnnotations(
+    //     annotations: SharedAnnotation[],
+    //     annotationEntries: GetAnnotationListEntriesResult,
+    //     normalizedPageUrls: string[],
+    //     state: ReaderPageViewState,
+    // ) {
+    //     console.log('annotationEntries', annotationEntries)
+    //     // const toFetch: Array<{
+    //     //     normalizedPageUrl: string
+    //     //     sharedAnnotation: SharedAnnotationReference
+    //     // }> = flatten(
+    //     //     normalizedPageUrls
+    //     //         .filter(
+    //     //             (normalizedPageUrl) =>
+    //     //                 !this.pageAnnotationPromises[normalizedPageUrl],
+    //     //         )
+    //     //         .map((normalizedPageUrl) =>
+    //     //             (annotationEntries[normalizedPageUrl] ?? []).map(
+    //     //                 (entry) => ({
+    //     //                     normalizedPageUrl,
+    //     //                     sharedAnnotation: entry.sharedAnnotation,
+    //     //                 }),
+    //     //             ),
+    //     //         ),
+    //     // )
 
-        const promisesByPage: {
-            [normalizedUrl: string]: Promise<GetAnnotationsResult>[]
-        } = {}
-        const annotationChunks: Promise<GetAnnotationsResult>[] = []
-        const { contentSharing } = this.dependencies.storage
-        for (const entryChunk of chunk(toFetch, 10)) {
-            const pageUrlsInChuck = new Set(
-                entryChunk.map((entry) => entry.normalizedPageUrl),
-            )
-            const promise = contentSharing.getAnnotations({
-                references: entryChunk.map((entry) => entry.sharedAnnotation),
-            })
-            for (const normalizedPageUrl of pageUrlsInChuck) {
-                promisesByPage[normalizedPageUrl] =
-                    promisesByPage[normalizedPageUrl] ?? []
-                promisesByPage[normalizedPageUrl].push(promise)
-            }
-            annotationChunks.push(promise)
-        }
+    //     // const promisesByPage: {
+    //     //     [normalizedUrl: string]: Promise<GetAnnotationsResult>[]
+    //     // } = {}
+    //     // const annotationChunks: Promise<GetAnnotationsResult>[] = []
+    //     // const { contentSharing } = this.dependencies.storage
+    //     // for (const entryChunk of chunk(toFetch, 10)) {
+    //     //     const pageUrlsInChuck = new Set(
+    //     //         entryChunk.map((entry) => entry.normalizedPageUrl),
+    //     //     )
+    //     //     const promise = contentSharing.getAnnotations({
+    //     //         references: entryChunk.map((entry) => entry.sharedAnnotation),
+    //     //     })
+    //     //     for (const normalizedPageUrl of pageUrlsInChuck) {
+    //     //         promisesByPage[normalizedPageUrl] =
+    //     //             promisesByPage[normalizedPageUrl] ?? []
+    //     //         promisesByPage[normalizedPageUrl].push(promise)
+    //     //     }
+    //     //     annotationChunks.push(promise)
+    //     // }
 
-        const usersToLoad = new Set<UserReference['id']>()
-        for (const normalizedPageUrl in promisesByPage) {
-            this.pageAnnotationPromises[normalizedPageUrl] = (async (
-                normalizedPageUrl: string,
-                pagePromises: Promise<GetAnnotationsResult>[],
-            ) => {
-                this.emitMutation({
-                    annotationLoadStates: {
-                        [normalizedPageUrl]: { $set: 'running' },
-                    },
-                })
+    //     const usersToLoad = new Set<UserReference['id']>()
+    //     // for (const normalizedPageUrl in promisesByPage) {
+    //     //     this.pageAnnotationPromises[normalizedPageUrl] = (async (
+    //     //         normalizedPageUrl: string,
+    //     //         pagePromises: Promise<GetAnnotationsResult>[],
+    //     //     ) => {
+    //             this.emitMutation({
+    //                 annotationLoadStates: {
+    //                     [normalizedPageUrls[0]]: { $set: 'running' },
+    //                 },
+    //             })
 
-                try {
-                    const annotationChunks = await Promise.all(pagePromises)
-                    const newAnnotations: ReaderPageViewState['annotations'] = {}
-                    for (const annotationChunk of annotationChunks) {
-                        for (const [annotationId, annotation] of Object.entries(
-                            annotationChunk,
-                        )) {
-                            newAnnotations[annotationId] = annotation
-                        }
-                    }
+    //             try {
+    //                 const annotationChunks = await Promise.all(pagePromises)
+    //                 console.log('chunks', annotationChunks)
+    //                 const newAnnotations: ReaderPageViewState['annotations'] = {}
+    //                 for (const annotationChunk of annotationChunks) {
+    //                     for (const [annotationId, annotation] of Object.entries(
+    //                         annotationChunk,
+    //                     )) {
+    //                         newAnnotations[annotationId] = annotation
+    //                     }
+    //                 }
 
-                    const toRender: RenderableAnnotation[] = []
-                    for (const newAnnotation of Object.values(newAnnotations)) {
-                        usersToLoad.add(newAnnotation.creator.id)
-                        if (!newAnnotation.selector) {
-                            continue
-                        }
-                    }
+    //                 const toRender: RenderableAnnotation[] = []
+    //                 for (const newAnnotation of Object.values(newAnnotations)) {
+    //                     usersToLoad.add(newAnnotation.creator.id)
+    //                     if (!newAnnotation.selector) {
+    //                         continue
+    //                     }
+    //                 }
 
-                    const nextState = this.emitAndApplyMutation(state, {
-                        annotationLoadStates: {
-                            [normalizedPageUrl]: { $set: 'success' },
-                        },
-                        annotations: mapValues(
-                            newAnnotations,
-                            (newAnnotation) => ({ $set: newAnnotation }),
-                        ),
-                        annotationEditStates: mapValues(
-                            newAnnotations,
-                            (newAnnotation) => ({
-                                $set: {
-                                    isEditing: false,
-                                    loadState: 'pristine',
-                                    comment: newAnnotation.comment ?? '',
-                                },
-                            }),
-                        ) as any,
-                        annotationHoverStates: mapValues(
-                            newAnnotations,
-                            (newAnnotation) => ({
-                                $set: { isHovering: false },
-                            }),
-                        ),
-                        annotationDeleteStates: mapValues(
-                            newAnnotations,
-                            (newAnnotation) => ({
-                                $set: {
-                                    isDeleting: false,
-                                    deleteState: 'pristine' as UITaskState,
-                                },
-                            }),
-                        ),
-                        // Sort annot entries first by created time, then by highlight position in page (if highlight)
-                        annotationEntryData: mapValues(
-                            state.annotationEntryData,
-                            (entries) => {
-                                const annotationsByEntryLookup = new Map<
-                                    AutoPk,
-                                    SharedAnnotation
-                                >()
-                                for (const entry of entries) {
-                                    annotationsByEntryLookup.set(
-                                        entry.reference.id,
-                                        newAnnotations[
-                                            entry.sharedAnnotation.id.toString()
-                                        ],
-                                    )
-                                }
-                                const initEntriesSorter = (
-                                    sortFn: AnnotationsSorter,
-                                ) => (
-                                    a: GetAnnotationListEntriesElement,
-                                    b: GetAnnotationListEntriesElement,
-                                ) =>
-                                    sortFn(
-                                        annotationsByEntryLookup.get(
-                                            a.reference.id,
-                                        )!,
-                                        annotationsByEntryLookup.get(
-                                            b.reference.id,
-                                        )!,
-                                    )
+    //                 const nextState = this.emitAndApplyMutation(state, {
+    //                     annotationLoadStates: {
+    //                         [normalizedPageUrl]: { $set: 'success' },
+    //                     },
+    //                     annotations: mapValues(
+    //                         newAnnotations,
+    //                         (newAnnotation) => ({ $set: newAnnotation }),
+    //                     ),
+    //                     annotationEditStates: mapValues(
+    //                         newAnnotations,
+    //                         (newAnnotation) => ({
+    //                             $set: {
+    //                                 isEditing: false,
+    //                                 loadState: 'pristine',
+    //                                 comment: newAnnotation.comment ?? '',
+    //                             },
+    //                         }),
+    //                     ) as any,
+    //                     annotationHoverStates: mapValues(
+    //                         newAnnotations,
+    //                         (newAnnotation) => ({
+    //                             $set: { isHovering: false },
+    //                         }),
+    //                     ),
+    //                     annotationDeleteStates: mapValues(
+    //                         newAnnotations,
+    //                         (newAnnotation) => ({
+    //                             $set: {
+    //                                 isDeleting: false,
+    //                                 deleteState: 'pristine' as UITaskState,
+    //                             },
+    //                         }),
+    //                     ),
+    //                     // Sort annot entries first by created time, then by highlight position in page (if highlight)
+    //                     annotationEntryData: mapValues(
+    //                         state.annotationEntryData,
+    //                         (entries) => {
+    //                             const annotationsByEntryLookup = new Map<
+    //                                 AutoPk,
+    //                                 SharedAnnotation
+    //                             >()
+    //                             for (const entry of entries) {
+    //                                 annotationsByEntryLookup.set(
+    //                                     entry.reference.id,
+    //                                     newAnnotations[
+    //                                         entry.sharedAnnotation.id.toString()
+    //                                     ],
+    //                                 )
+    //                             }
+    //                             const initEntriesSorter = (
+    //                                 sortFn: AnnotationsSorter,
+    //                             ) => (
+    //                                 a: GetAnnotationListEntriesElement,
+    //                                 b: GetAnnotationListEntriesElement,
+    //                             ) =>
+    //                                 sortFn(
+    //                                     annotationsByEntryLookup.get(
+    //                                         a.reference.id,
+    //                                     )!,
+    //                                     annotationsByEntryLookup.get(
+    //                                         b.reference.id,
+    //                                     )!,
+    //                                 )
 
-                                return {
-                                    $set: entries
-                                        .sort(
-                                            initEntriesSorter(
-                                                sortByCreatedTime,
-                                            ),
-                                        )
-                                        .sort(
-                                            initEntriesSorter(
-                                                sortByPagePosition,
-                                            ),
-                                        ),
-                                }
-                            },
-                        ),
-                    })
-                    await this.renderHighlightsInState(nextState)
-                } catch (e) {
-                    this.emitMutation({
-                        annotationLoadStates: {
-                            [normalizedPageUrl]: { $set: 'error' },
-                        },
-                    })
-                    console.error(e)
-                }
-            })(normalizedPageUrl, promisesByPage[normalizedPageUrl])
-        }
-
-        const annotationReferences = flatten(
-            Object.values(annotationEntries),
-        ).map((entry) => entry.sharedAnnotation)
-        this.emitMutation({
-            conversations: {
-                $merge: getInitialAnnotationConversationStates(
-                    annotationReferences.map(({ id }) => ({
-                        linkId: id.toString(),
-                    })),
-                ),
-            },
-        })
-        const conversationThreadPromise = detectAnnotationConversationThreads(
-            this as any,
-            {
-                getThreadsForAnnotations: (...args) =>
-                    this.dependencies.storage.contentConversations.getThreadsForAnnotations(
-                        ...args,
-                    ),
-                annotationReferences,
-                sharedListReference: {
-                    type: 'shared-list-reference',
-                    id: this.dependencies.listID,
-                },
-                imageSupport: this.dependencies.imageSupport,
-            },
-        ).catch(console.error)
-        intializeNewPageReplies(this as any, {
-            normalizedPageUrls: [...normalizedPageUrls].filter(
-                (normalizedPageUrl) =>
-                    !this.conversationThreadPromises[normalizedPageUrl],
-            ),
-            imageSupport: this.dependencies.imageSupport,
-        })
-
-        for (const normalizedPageUrl of normalizedPageUrls) {
-            this.conversationThreadPromises[
-                normalizedPageUrl
-            ] = conversationThreadPromise
-        }
-
-        try {
-            const result = await Promise.all([
-                ...normalizedPageUrls.map(
-                    (normalizedPageUrl) =>
-                        this.pageAnnotationPromises[normalizedPageUrl],
-                ),
-                ...normalizedPageUrls.map(
-                    (normalizedPageUrl) =>
-                        this.conversationThreadPromises[normalizedPageUrl],
-                ),
-            ])
-            await this.users.loadUsers(
-                [...usersToLoad].map(
-                    (id): UserReference => ({
-                        type: 'user-reference',
-                        id,
-                    }),
-                ),
-            )
-            return result
-        } catch (e) {
-            throw e
-        }
-    }
+    //                             return {
+    //                                 $set: entries
+    //                                     .sort(
+    //                                         initEntriesSorter(
+    //                                             sortByCreatedTime,
+    //                                         ),
+    //                                     )
+    //                                     .sort(
+    //                                         initEntriesSorter(
+    //                                             sortByPagePosition,
+    //                                         ),
+    //                                     ),
+    //                             }
+    //                         },
+    //                     ),
+    //                 })
+    //                 await this.renderHighlightsInState(nextState)
+    //             } catch (e) {
+    //                 this.emitMutation({
+    //                     annotationLoadStates: {
+    //                         [normalizedPageUrl]: { $set: 'error' },
+    //                     },
+    //                 })
+    //                 console.error(e)
+    //             }
+    //         })(normalizedPageUrl, promisesByPage[normalizedPageUrl])
+    //     }
 
     private async renderHighlightsInState({
         annotations,
@@ -1600,7 +1691,7 @@ export class ReaderPageViewLogic extends UILogic<
                 toRender.push({
                     id: reference.id,
                     selector: deserializedSelector,
-                    color: color ? JSON.parse(color)[0] : undefined,
+                    color: color ? JSON.parse(color as string)[0] : undefined,
                 })
             } catch (err) {
                 // TODO: capture error
@@ -1612,7 +1703,8 @@ export class ReaderPageViewLogic extends UILogic<
             }
         }
 
-        if (this.highlightRenderer && toRender.length) {
+        await this.iframeSetupResolvable
+        if (toRender.length) {
             await this.highlightRenderer.renderHighlights(
                 toRender,
                 this.handleHighlightClick,
@@ -1722,8 +1814,6 @@ export class ReaderPageViewLogic extends UILogic<
         if (comment && comment.length > 0) {
             sanitizedAnnotation = sanitizeHTMLhelper(comment?.trim())
         }
-
-        console.log('sanitizedAnnotation', this.dependencies.imageSupport)
 
         let annotationCommentWithImages = sanitizedAnnotation
         if (sanitizedAnnotation) {
