@@ -791,6 +791,7 @@ export class ReaderPageViewLogic extends UILogic<
 
         const isPdf = doesUrlPointToPdf(state.sourceUrl!)
         let iframe: HTMLIFrameElement | null = null
+        let pdfJsViewer
         await executeUITask<ReaderPageViewState>(
             this,
             'iframeLoadState',
@@ -875,7 +876,7 @@ export class ReaderPageViewLogic extends UILogic<
                         state?.sourceUrl != null &&
                         state?.sourceUrl.includes('memex.cloud/ct/')
                     // Get PDFViewer from now-loaded iframe
-                    const pdfJsViewer = (iframe.contentWindow as any)[
+                    pdfJsViewer = (iframe.contentWindow as any)[
                         'PDFViewerApplication'
                     ]
                     if (!pdfJsViewer) {
@@ -918,6 +919,32 @@ export class ReaderPageViewLogic extends UILogic<
                 }
             },
         })
+
+        // fixes loading issue by making sure the PDF viewer is loaded before we try to render highlights
+        while (isPdf && this.highlightRenderer.pdfViewer == null) {
+            await sleepPromise(100)
+            this.highlightRenderer = new HighlightRenderer({
+                getWindow: () => iframe!.contentWindow,
+                getDocument: () => iframe!.contentDocument,
+                scheduleAnnotationCreation: this.scheduleAnnotationCreation,
+                icons: (iconName: IconKeys) => theme.icons[iconName],
+                createHighlight: async (
+                    selection,
+                    shouldShare,
+                    drawRectangle,
+                ) => {
+                    if (this.createHighlightExec) {
+                        await this.createHighlightExec(
+                            selection,
+                            shouldShare,
+                            drawRectangle as boolean,
+                            state,
+                            iframe as HTMLIFrameElement,
+                        )
+                    }
+                },
+            })
+        }
 
         const keyString = router.getQueryParam('key')
         if (state.permissions != null || keyString != null) {
