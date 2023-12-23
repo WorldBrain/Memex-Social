@@ -1287,6 +1287,12 @@ const AnnotationsidebarContainer = styled.div`
     overflow: scroll;
     width: 100%;
     padding-bottom: 150px;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+
+    scrollbar-width: none;
 `
 
 const MainContentContainer = styled.div`

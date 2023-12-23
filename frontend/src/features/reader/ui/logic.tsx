@@ -99,6 +99,7 @@ import {
 } from '@worldbrain/memex-common/lib/annotations/types'
 import { ImageSupportInterface } from '@worldbrain/memex-common/lib/image-support/types'
 import { normalizeUrl } from '@worldbrain/memex-common/lib/url-utils/normalize'
+import html2canvas from 'html2canvas'
 
 type EventHandler<EventName extends keyof ReaderPageViewEvent> = UIEventHandler<
     ReaderPageViewState,
@@ -790,6 +791,7 @@ export class ReaderPageViewLogic extends UILogic<
 
         const isPdf = doesUrlPointToPdf(state.sourceUrl!)
         let iframe: HTMLIFrameElement | null = null
+        let pdfJsViewer
         await executeUITask<ReaderPageViewState>(
             this,
             'iframeLoadState',
@@ -874,7 +876,7 @@ export class ReaderPageViewLogic extends UILogic<
                         state?.sourceUrl != null &&
                         state?.sourceUrl.includes('memex.cloud/ct/')
                     // Get PDFViewer from now-loaded iframe
-                    const pdfJsViewer = (iframe.contentWindow as any)[
+                    pdfJsViewer = (iframe.contentWindow as any)[
                         'PDFViewerApplication'
                     ]
                     if (!pdfJsViewer) {
@@ -917,6 +919,32 @@ export class ReaderPageViewLogic extends UILogic<
                 }
             },
         })
+
+        // fixes loading issue by making sure the PDF viewer is loaded before we try to render highlights
+        while (isPdf && this.highlightRenderer.pdfViewer == null) {
+            await sleepPromise(100)
+            this.highlightRenderer = new HighlightRenderer({
+                getWindow: () => iframe!.contentWindow,
+                getDocument: () => iframe!.contentDocument,
+                scheduleAnnotationCreation: this.scheduleAnnotationCreation,
+                icons: (iconName: IconKeys) => theme.icons[iconName],
+                createHighlight: async (
+                    selection,
+                    shouldShare,
+                    drawRectangle,
+                ) => {
+                    if (this.createHighlightExec) {
+                        await this.createHighlightExec(
+                            selection,
+                            shouldShare,
+                            drawRectangle as boolean,
+                            state,
+                            iframe as HTMLIFrameElement,
+                        )
+                    }
+                },
+            })
+        }
 
         const keyString = router.getQueryParam('key')
         if (state.permissions != null || keyString != null) {
@@ -1061,10 +1089,16 @@ export class ReaderPageViewLogic extends UILogic<
             if (isIframe) {
                 pdfViewer = (isIframe as any)['PDFViewerApplication']?.pdfViewer
             }
+
+            let result
             if (pdfViewer && drawRectangle) {
                 screenshotGrabResult = await promptPdfScreenshot(
                     iframe!.contentDocument,
                     iframe!.contentWindow,
+                    {
+                        captureScreenshot: undefined,
+                        htmlElToCanvasEl: html2canvas,
+                    },
                 )
                 if (
                     screenshotGrabResult == null ||
@@ -1072,7 +1106,7 @@ export class ReaderPageViewLogic extends UILogic<
                 ) {
                     return
                 } else {
-                    await this.highlightRenderer.saveAndRenderHighlight(
+                    result = await this.highlightRenderer.saveAndRenderHighlight(
                         this.getRenderHighlightParams({
                             selection: null,
                             shouldShare,
@@ -1085,7 +1119,7 @@ export class ReaderPageViewLogic extends UILogic<
                     )
                 }
             }
-            await this.highlightRenderer.saveAndRenderHighlight(
+            result = await this.highlightRenderer.saveAndRenderHighlight(
                 this.getRenderHighlightParams({
                     selection,
                     shouldShare,
@@ -1096,6 +1130,11 @@ export class ReaderPageViewLogic extends UILogic<
                     state,
                 }),
             )
+
+            const annotationId = result?.annotationId || null
+            const createPromise = result?.createPromise || null
+
+            return { annotationId, createPromise }
         }
     }
 
