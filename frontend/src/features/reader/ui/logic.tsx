@@ -99,6 +99,7 @@ import {
 } from '@worldbrain/memex-common/lib/annotations/types'
 import { ImageSupportInterface } from '@worldbrain/memex-common/lib/image-support/types'
 import { normalizeUrl } from '@worldbrain/memex-common/lib/url-utils/normalize'
+import html2canvas from 'html2canvas'
 
 type EventHandler<EventName extends keyof ReaderPageViewEvent> = UIEventHandler<
     ReaderPageViewState,
@@ -1061,10 +1062,16 @@ export class ReaderPageViewLogic extends UILogic<
             if (isIframe) {
                 pdfViewer = (isIframe as any)['PDFViewerApplication']?.pdfViewer
             }
+
+            let result
             if (pdfViewer && drawRectangle) {
                 screenshotGrabResult = await promptPdfScreenshot(
                     iframe!.contentDocument,
                     iframe!.contentWindow,
+                    {
+                        captureScreenshot: undefined,
+                        htmlElToCanvasEl: html2canvas,
+                    },
                 )
                 if (
                     screenshotGrabResult == null ||
@@ -1072,7 +1079,7 @@ export class ReaderPageViewLogic extends UILogic<
                 ) {
                     return
                 } else {
-                    await this.highlightRenderer.saveAndRenderHighlight(
+                    result = await this.highlightRenderer.saveAndRenderHighlight(
                         this.getRenderHighlightParams({
                             selection: null,
                             shouldShare,
@@ -1085,7 +1092,7 @@ export class ReaderPageViewLogic extends UILogic<
                     )
                 }
             }
-            await this.highlightRenderer.saveAndRenderHighlight(
+            result = await this.highlightRenderer.saveAndRenderHighlight(
                 this.getRenderHighlightParams({
                     selection,
                     shouldShare,
@@ -1096,6 +1103,11 @@ export class ReaderPageViewLogic extends UILogic<
                     state,
                 }),
             )
+
+            const annotationId = result?.annotationId || null
+            const createPromise = result?.createPromise || null
+
+            return { annotationId, createPromise }
         }
     }
 
