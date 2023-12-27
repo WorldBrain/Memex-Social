@@ -182,6 +182,7 @@ export function createServices(options: {
     const contentSharingBackend =
         options.backend === 'memory'
             ? new ContentSharingBackend({
+                  secretPlainText: 'my-test-secret',
                   // TODO: Set up better FB Auth mocks for meta UI
                   fbAuth: () => ({
                       getUser: async () =>
