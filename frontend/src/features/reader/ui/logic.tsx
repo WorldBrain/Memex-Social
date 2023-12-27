@@ -1131,10 +1131,7 @@ export class ReaderPageViewLogic extends UILogic<
                 }),
             )
 
-            const annotationId = result?.annotationId || null
-            const createPromise = result?.createPromise || null
-
-            return { annotationId, createPromise }
+            // TODO: Do something with result (part of it is a Promise)
         }
     }
 
