@@ -86,104 +86,59 @@ export const extDetectionEventHandlers = (
                 return
             }
 
+            // Memex PDFs go straight to the reader, which will figure out how to get access to them
+            if (isMemexPageAPdf({ url: event.urlToOpen })) {
+                window.open(event.pageLinkURL, '_self')
+                return
+            }
+
             if (!doesMemexExtDetectionElExist()) {
                 event.preventOpening()
                 window.open(event.pageLinkURL, '_self')
 
                 if (event.notifAlreadyShown) {
-                    if (isMemexPageAPdf({ url: event.urlToOpen })) {
-                        event.preventOpening()
-                        logic.emitMutation({
-                            isMissingPDFModalShown: { $set: true },
-                            clickedPageUrl: { $set: undefined },
-                        })
-                        return
-                    }
                     window.open(event.pageLinkURL, '_self')
                 } else {
-                    if (isMemexPageAPdf({ url: event.urlToOpen })) {
-                        event.preventOpening()
-                        logic.emitMutation({
-                            isMissingPDFModalShown: { $set: true },
-                            clickedPageUrl: { $set: undefined },
-                        })
-                        return
-                    } else {
-                        logic.emitMutation({
-                            isInstallExtModalShown: { $set: false },
-                            clickedPageUrl: { $set: event.urlToOpen },
-                            notifAlreadyShown: { $set: true },
-                        })
-                    }
+                    logic.emitMutation({
+                        isInstallExtModalShown: { $set: false },
+                        clickedPageUrl: { $set: event.urlToOpen },
+                        notifAlreadyShown: { $set: true },
+                    })
                     if (event.urlToOpen && event.sharedListReference) {
                         await trySendingURLToOpenToExtension(
                             event.urlToOpen,
                             event.sharedListReference,
                         )
                     }
-
-                    // if (event.isFollowedSpace || event.isFeed) {
-                    //     logic.emitMutation({
-                    //         showFollowModal: { $set: true },
-                    //         clickedPageUrl: { $set: event.urlToOpen },
-                    //     })
-                    // }
                     return
                 }
+                return
             }
-            // if (doesMemexExtDetectionElExist()) {
-            //     const openLink = await dependencies.services?.memexExtension.openLink(
-            //         {
-            //             originalPageUrl: event.urlToOpen,
-            //             sharedListId: event.sharedListReference?.id as string,
-            //         },
-            //     )
+            const userAgent = navigator.userAgent
+            const sourceUrl = event.urlToOpen as string
+            const sharedListId = event.sharedListReference?.id as string
 
-            //     if (!openLink) {
-            //         window.open(event.urlToOpen)
-            //     }
-            // }
-            if (doesMemexExtDetectionElExist()) {
-                const userAgent = navigator.userAgent
+            if (/Firefox/i.test(userAgent)) {
+                // Create a new DOM element, let's assume it's a `div`
+                const injectedElement = document.createElement('div')
 
-                const sourceUrl = event.urlToOpen as string
-                const sharedListId = event.sharedListReference?.id as string
+                // Set an ID so the MutationObserver can identify it
+                injectedElement.id = 'openPageInSelectedListModeTriggerElement'
 
-                // const isCollaboratorLink =
-                //     event.permissions === 'contributor'
-                // const isOwnLink = incoming.previousState.permissions === 'owner'
+                // Attach the necessary data as data attributes
+                injectedElement.setAttribute('sourceurl', sourceUrl)
+                injectedElement.setAttribute('sharedlistid', sharedListId)
 
-                if (/Firefox/i.test(userAgent)) {
-                    // Create a new DOM element, let's assume it's a `div`
-                    const injectedElement = document.createElement('div')
-
-                    // Set an ID so the MutationObserver can identify it
-                    injectedElement.id =
-                        'openPageInSelectedListModeTriggerElement'
-
-                    // Attach the necessary data as data attributes
-                    injectedElement.setAttribute('sourceurl', sourceUrl)
-                    injectedElement.setAttribute('sharedlistid', sharedListId)
-                    // injectedElement.setAttribute(
-                    //     'iscollaboratorlink',
-                    //     isCollaboratorLink.toString(),
-                    // )
-                    // injectedElement.setAttribute('isownlink', isOwnLink.toString())
-
-                    // Append the element to the body (or any other parent element)
-                    document.body.appendChild(injectedElement)
-                    await sleepPromise(500)
-                    injectedElement.remove()
-                } else {
-                    await dependencies.services?.memexExtension.openLink({
-                        originalPageUrl: event.urlToOpen,
-                        sharedListId: event.sharedListReference?.id as string,
-                    })
-                }
+                // Append the element to the body (or any other parent element)
+                document.body.appendChild(injectedElement)
+                await sleepPromise(500)
+                injectedElement.remove()
             } else {
-                window.open(event.urlToOpen)
+                await dependencies.services?.memexExtension.openLink({
+                    originalPageUrl: event.urlToOpen,
+                    sharedListId: event.sharedListReference?.id as string,
+                })
             }
-            // This means it's a local PDF page
         },
         clickFollowButtonForNotif: async ({ previousState, event }) => {
             if (!doesMemexExtDetectionElExist()) {
