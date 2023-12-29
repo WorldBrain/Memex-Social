@@ -8,6 +8,7 @@ import ROUTES from '../routes'
 import UserHome from './pages/user-home'
 import NotFound from './pages/not-found'
 import LandingPage from './pages/landing-page'
+import PdfUploadPage from '../features/content-sharing/ui/pages/pdf-uploads'
 import PageLinkCreationPage from '../features/content-sharing/ui/pages/page-links'
 import CollectionDetailsPage from '../features/content-sharing/ui/pages/collection-details'
 import AnnotationDetailsPage from '../features/content-sharing/ui/pages/annotation-details'
@@ -86,6 +87,21 @@ export default class Routes extends React.Component<Props> {
                                     services={this.props.services}
                                     storage={this.props.storage.serverModules}
                                     fullPageUrl={queryParams.get('url')}
+                                />
+                            )
+                        }}
+                    />
+                    <Route
+                        exact
+                        path={getReactRoutePattern(ROUTES.pdfUpload.path)}
+                        render={(route) => {
+                            const queryParams = new URLSearchParams(
+                                route.location.search,
+                            )
+                            return (
+                                <PdfUploadPage
+                                    services={this.props.services}
+                                    storage={this.props.storage.serverModules}
                                 />
                             )
                         }}
