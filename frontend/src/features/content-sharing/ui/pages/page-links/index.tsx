@@ -20,7 +20,12 @@ export default class PageLinkCreationPage extends UIElement<
     PageLinkCreationPageEvent
 > {
     constructor(props: Props) {
-        super(props, { logic: new Logic(props) })
+        super(props, {
+            logic: new Logic({
+                ...props,
+                windowObj: globalThis.window,
+            }),
+        })
     }
 
     private get viewportBreakpoint(): ViewportBreakpoint {

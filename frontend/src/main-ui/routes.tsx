@@ -86,6 +86,9 @@ export default class Routes extends React.Component<Props> {
                                 <PageLinkCreationPage
                                     services={this.props.services}
                                     storage={this.props.storage.serverModules}
+                                    generateServerId={
+                                        this.props.generateServerId
+                                    }
                                     fullPageUrl={queryParams.get('url')}
                                 />
                             )

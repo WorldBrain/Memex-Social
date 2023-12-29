@@ -12,7 +12,10 @@ export class MemexExtensionService {
     async openLink(params: MemexOpenLinkParams) {
         const requestId = ++this.requestsMade
         const detail: MemexOpenLinkDetail = {
-            ...params,
+            isCollaboratorLink: params.isCollaboratorLink,
+            originalPageUrl: params.originalPageUrl,
+            sharedListId: params.sharedListId,
+            isOwnLink: params.isOwnLink,
             requestId,
         }
         const event = new CustomEvent(MEMEX_OPEN_LINK_EVENT_NAME, { detail })

@@ -15,7 +15,8 @@ import type { AnalyticsService } from './analytics'
 import type { SummarizationService } from '@worldbrain/memex-common/lib/summarization'
 import type { FullTextSearchService } from './full-text-search'
 import type { PageLinkServiceInterface } from '../features/page-links/services/types'
-import { PublicApiServiceInterface } from '@worldbrain/memex-common/lib/public-api/types'
+import type { PublicApiServiceInterface } from '@worldbrain/memex-common/lib/public-api/types'
+import type { PdfUploadServiceInterface } from '@worldbrain/memex-common/lib/pdf/uploads/types'
 
 type UIServices = 'logicRegistry' | 'device'
 export type UIElementServices<Wanted extends keyof Services = never> = Pick<
@@ -43,4 +44,5 @@ export type Services = SharedServices & {
     summarization: SummarizationService
     pageLinks: PageLinkServiceInterface
     publicApi: PublicApiServiceInterface
+    pdfUploadService: PdfUploadServiceInterface
 }

@@ -8,7 +8,7 @@ import { MemoryUserMessageService } from '@worldbrain/memex-common/lib/user-mess
 import { FirebaseUserMessageService } from '@worldbrain/memex-common/lib/user-messages/service/firebase'
 import { ContentSharingBackend } from '@worldbrain/memex-common/lib/content-sharing/backend/index'
 import { ContentSharingBackendInterface } from '@worldbrain/memex-common/lib/content-sharing/backend/types'
-import { BackendType } from '../types'
+import { AutoPk, BackendType } from '../types'
 import { Storage } from '../storage/types'
 import ROUTES from '../routes'
 import ContentConversationsService from '../features/content-conversations/services/content-conversations'
@@ -48,6 +48,8 @@ import { determineEnv } from '../utils/runtime-environment'
 import { CLOUDFLARE_WORKER_URLS } from '@worldbrain/memex-common/lib/content-sharing/storage/constants'
 import { ImageSupportInterface } from '@worldbrain/memex-common/lib/image-support/types'
 import { PublicApiServiceInterface } from '@worldbrain/memex-common/lib/public-api/types'
+import { PdfUploadService } from '@worldbrain/memex-common/lib/pdf/uploads/service'
+import type { GenerateServerID } from '@worldbrain/memex-common/lib/content-sharing/service/types'
 
 export function createServices(options: {
     backend: BackendType
@@ -63,6 +65,7 @@ export function createServices(options: {
     clipboard: Pick<Clipboard, 'writeText'>
     youtubeOptions: YoutubeServiceOptions
     imageSupport: ImageSupportInterface
+    generateServerId: GenerateServerID
     fetchPDFData?: (
         fullPageUrl: string,
         proxyUrl: string,
@@ -86,7 +89,7 @@ export function createServices(options: {
         options.backend === 'firebase-emulator'
     ) {
         options.imageSupport.generateImageId = async () =>
-            firebase.firestore().collection('images').doc().id
+            options.generateServerId('images').toString()
         auth = new FirebaseAuthService(firebase, {
             storage: options.storage,
             localStorage: options.localStorage,
@@ -272,6 +275,16 @@ export function createServices(options: {
             'publicApi',
             executeFirebaseCall,
         ),
+        pdfUploadService: new PdfUploadService({
+            callFirebaseFunction: executeFirebaseCall,
+            dataUrlToBlob: () => {
+                throw new Error('Should not get here')
+            },
+            env:
+                process.env.NODE_ENV === 'production'
+                    ? 'production'
+                    : 'staging',
+        }),
     }
 
     return services

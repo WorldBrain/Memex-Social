@@ -48,6 +48,9 @@ export async function mainProgram(
         storageHooksChangeWatcher = new StorageHooksChangeWatcher()
     }
 
+    const generateServerId: GenerateServerID = (collectionName) =>
+        firebase.firestore().collection(collectionName).doc().id
+
     const storage = await createStorage({
         ...options,
         changeWatcher: storageHooksChangeWatcher,
@@ -60,6 +63,7 @@ export async function mainProgram(
         history,
         storage,
         uiMountPoint,
+        generateServerId,
         fixtureFetcher: options.fixtureFetcher,
         clipboard: options.clipboard ?? navigator.clipboard,
         fetchPDFData:
@@ -72,8 +76,6 @@ export async function mainProgram(
                 : localStorage,
         youtubeOptions: options.youtubeOptions ?? createYoutubeServiceOptions(),
     })
-    const generateServerId: GenerateServerID = (collectionName) =>
-        firebase.firestore().collection(collectionName).doc().id
 
     if (!options.domUnavailable) {
         window.addEventListener(

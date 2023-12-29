@@ -14,9 +14,11 @@ export default class PageLinkService implements PageLinkServiceInterface {
 
     createPageLink: PageLinkServiceInterface['createPageLink'] = async ({
         fullPageUrl,
+        uploadedPdfId,
     }) => {
         const { link } = await this.deps.contentSharingBackend.createPageLink({
             fullPageUrl,
+            uploadId: uploadedPdfId,
         })
         const {
             remoteListId,
