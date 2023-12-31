@@ -12,6 +12,9 @@ import type {
 import type { AutoPk } from '@worldbrain/memex-common/lib/storage/types'
 import { CLOUDFLARE_WORKER_URLS } from '@worldbrain/memex-common/lib/content-sharing/storage/constants'
 import { RETRIEVE_PDF_ROUTE } from '@worldbrain/memex-common/lib/pdf/uploads/constants'
+import { getDocument as getPDFDocument } from 'pdfjs-dist'
+import type { TypedArray } from 'pdfjs-dist/types/display/api'
+import { extractDataFromPDFDocument } from '@worldbrain/memex-common/lib/page-indexing/content-extraction/extract-pdf-content'
 
 export interface PageLinkCreationState {
     needsAuth: boolean
@@ -114,44 +117,50 @@ export default class PageLinkCreationLogic extends UILogic<
     async createAndRouteToPageLinkForBlob(content: Blob) {
         const { services, generateServerId } = this.dependencies
         await executeUITask(this, 'linkCreationState', async () => {
-            // TODO 1: Move all these calls behind a single FB function
-            // Get PDF Upload Token
-            const uploadId = generateServerId('uploadAuditLogEntry').toString()
-            const uploadResult = await services.pdfUploadService.uploadPdf({
-                pdfFile: content,
-                uploadId,
-            })
-            if (uploadResult.error != null) {
-                throw new Error(uploadResult.error)
-            }
+            // Extract PDF data from Blob via PDFjs
+            const arrayBuffer = await content.arrayBuffer()
+            const pdf = await getPDFDocument(arrayBuffer as TypedArray).promise
+            const pdfData = await extractDataFromPDFDocument(pdf)
 
-            const downloadTokenResult = await services.pdfUploadService.getDownloadToken(
+            const uploadId = generateServerId('uploadAuditLogEntry').toString()
+            const uploadTokenResult = await services.pdfUploadService.getUploadToken(
                 {
                     uploadId,
-                    // listId: ??? // TODO: Can we pre-fill this?
                 },
             )
-
-            if (downloadTokenResult.error != null) {
-                throw new Error(downloadTokenResult.error)
+            if (uploadTokenResult.error != null) {
+                throw new Error(
+                    `Could not get PDF upload token - reason: ${uploadTokenResult.error}`,
+                )
             }
 
-            // TODO: Switch CF URL between envs
+            const token = uploadTokenResult.token
             const tempPDFAccessLink =
-                CLOUDFLARE_WORKER_URLS.staging +
-                RETRIEVE_PDF_ROUTE +
-                '?token=' +
-                downloadTokenResult.token
+                process.env.NODE_ENV === 'production'
+                    ? CLOUDFLARE_WORKER_URLS.production
+                    : CLOUDFLARE_WORKER_URLS.staging +
+                      RETRIEVE_PDF_ROUTE +
+                      '?token=' +
+                      token
 
-            // Create actual page link using temp access link to PDF
-            const {
-                remoteListId,
-                remoteListEntryId,
-            } = await services.pageLinks.createPageLink({
+            // Start PDF upload + page link creation at the same time
+            const pdfUploadPromise = services.pdfUploadService.uploadPdfContent(
+                { token, content },
+            )
+            const pageLinkPromise = services.pageLinks.createPageLink({
                 fullPageUrl: tempPDFAccessLink,
-                uploadedPdfId: uploadId,
+                uploadedPdfParams: {
+                    uploadId,
+                    title: pdfData.title,
+                    fingerprints: pdfData.pdfMetadata.fingerprints,
+                },
             })
 
+            // Wait for them both to finish before routing to the new page link in the reader
+            const [
+                pdfUploadResult,
+                { remoteListId, remoteListEntryId },
+            ] = await Promise.all([pdfUploadPromise, pageLinkPromise])
             this.routeToPageLink(remoteListId, remoteListEntryId)
         })
     }
