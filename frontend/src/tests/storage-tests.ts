@@ -79,6 +79,10 @@ async function createMemoryTestDevice(
     const storageHooksChangeWatcher = new StorageHooksChangeWatcher()
     const storage =
         testOptions.storage ?? (await createStorage({ backend: 'memory' }))
+
+    let idCounter = 0
+    const generateServerId = () => idCounter++
+
     const services = createServices({
         fetch,
         storage,
@@ -91,6 +95,7 @@ async function createMemoryTestDevice(
         youtubeOptions: {} as any,
         fetchPDFData,
         imageSupport: null as any,
+        generateServerId,
     })
     storageHooksChangeWatcher.setUp({
         fetch,
@@ -183,6 +188,9 @@ async function createFirebaseTestDevice(
         })
     }
 
+    let idCounter = 0
+    const generateServerId = () => idCounter++
+
     const services = createServices({
         fetch,
         storage,
@@ -196,6 +204,7 @@ async function createFirebaseTestDevice(
         youtubeOptions: {} as any,
         fetchPDFData,
         imageSupport: null as any,
+        generateServerId,
     })
     if (userId) {
         await services.auth.loginWithEmailPassword({

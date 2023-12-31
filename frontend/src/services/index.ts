@@ -68,7 +68,7 @@ export function createServices(options: {
     generateServerId: GenerateServerID
     fetchPDFData?: (
         fullPageUrl: string,
-        proxyUrl: string,
+        proxyUrl?: string,
     ) => Promise<ExtractedPDFData>
 }): Services {
     const firebase = options.firebase ?? firebaseModule
