@@ -15,6 +15,7 @@ import { RETRIEVE_PDF_ROUTE } from '@worldbrain/memex-common/lib/pdf/uploads/con
 import { getDocument as getPDFDocument } from 'pdfjs-dist'
 import type { TypedArray } from 'pdfjs-dist/types/display/api'
 import { extractDataFromPDFDocument } from '@worldbrain/memex-common/lib/page-indexing/content-extraction/extract-pdf-content'
+import { determineEnv } from '../../../../../utils/runtime-environment'
 
 export interface PageLinkCreationState {
     needsAuth: boolean
@@ -135,13 +136,12 @@ export default class PageLinkCreationLogic extends UILogic<
             }
 
             const token = uploadTokenResult.token
-            const tempPDFAccessLink =
-                process.env.NODE_ENV === 'production'
+            const cfWorkerUrl =
+                determineEnv() === 'production'
                     ? CLOUDFLARE_WORKER_URLS.production
-                    : CLOUDFLARE_WORKER_URLS.staging +
-                      RETRIEVE_PDF_ROUTE +
-                      '?token=' +
-                      token
+                    : CLOUDFLARE_WORKER_URLS.staging
+            const tempPDFAccessLink =
+                cfWorkerUrl + RETRIEVE_PDF_ROUTE + '?token=' + token
 
             // Start PDF upload + page link creation at the same time
             const pdfUploadPromise = services.pdfUploadService.uploadPdfContent(
@@ -161,6 +161,9 @@ export default class PageLinkCreationLogic extends UILogic<
                 pdfUploadResult,
                 { remoteListId, remoteListEntryId },
             ] = await Promise.all([pdfUploadPromise, pageLinkPromise])
+
+            // TODO: handle bad PDF upload result
+
             this.routeToPageLink(remoteListId, remoteListEntryId)
         })
     }
