@@ -7,7 +7,6 @@ export type RouteName =
     | 'annotationDetails'
     | 'homeFeed'
     | 'pageLinkCreation'
-    | 'pdfUpload'
 
 export type RouteMap = { [Name in RouteName]: Route }
 export interface Route {
@@ -38,7 +37,6 @@ const ROUTES: RouteMap = {
     pageDetails: { path: [{ literal: 'p' }, { placeholder: 'id' }] },
     annotationDetails: { path: [{ literal: 'a' }, { placeholder: 'id' }] },
     pageLinkCreation: { path: [{ literal: 'new' }] },
-    pdfUpload: { path: [{ literal: 'pdf' }] },
 }
 
 export default ROUTES
