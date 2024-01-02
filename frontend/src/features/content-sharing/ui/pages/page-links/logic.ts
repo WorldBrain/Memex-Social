@@ -31,9 +31,16 @@ export default class PageLinkCreationLogic extends UILogic<
     PageLinkCreationState,
     PageLinkCreationPageEvent
 > {
+    private static EXPECTED_ORIGIN = 'https://guests-estimate-402553.framer.app'
+    // TODO: Swap this in when going into staging
+    // private static EXPECTED_ORIGIN = 'https://memex.garden'
+
     constructor(
         private dependencies: PageLinkCreationPageDependencies & {
-            windowObj: Pick<Window, 'addEventListener' | 'removeEventListener'>
+            windowObj: Pick<
+                Window,
+                'addEventListener' | 'removeEventListener' | 'opener'
+            >
         },
     ) {
         super()
@@ -47,27 +54,45 @@ export default class PageLinkCreationLogic extends UILogic<
         }
     }
 
-    private handleWindowMessage = ({ data, origin }: MessageEvent<Blob>) => {
+    private handlePdfReceiveMessage = async ({
+        data,
+        origin,
+    }: MessageEvent<{ file: File }>) => {
         if (
-            origin !== 'https://memex.garden' ||
-            !(data instanceof Blob) ||
-            data.type !== 'application/pdf'
+            // TODO: Swap this in when going into staging
+            // origin !== PageLinkCreationLogic.EXPECTED_ORIGIN ||
+            !(data.file instanceof Blob) ||
+            data.file.type !== 'application/pdf'
         ) {
             return // Ignore any unexpected messages
         }
 
-        // data.
         this.dependencies.windowObj.removeEventListener(
             'message',
-            this.handleWindowMessage,
+            this.handlePdfReceiveMessage,
+        )
+
+        await this.createAndRouteToPageLinkForBlob(data.file)
+    }
+
+    private sendReadyMessage() {
+        // TODO: Swap this in when going into staging
+        // if (this.dependencies.windowObj.opener == null || document.referrer !== PageLinkCreationLogic.EXPECTED_ORIGIN) {
+        if (this.dependencies.windowObj.opener == null) {
+            return
+        }
+
+        ;(this.dependencies.windowObj.opener as Window).postMessage(
+            'ready',
+            PageLinkCreationLogic.EXPECTED_ORIGIN,
         )
     }
 
     init: EventHandler<'init'> = async () => {
-        this.dependencies.windowObj.addEventListener(
-            'message',
-            this.handleWindowMessage,
-        )
+        const { windowObj } = this.dependencies
+        if (this.dependencies.fullPageUrl == null) {
+            windowObj.addEventListener('message', this.handlePdfReceiveMessage)
+        }
 
         await loadInitial(this, async () => {
             const authEnforced = await this.dependencies.services.auth.enforceAuth(
@@ -79,6 +104,11 @@ export default class PageLinkCreationLogic extends UILogic<
                 this.emitMutation({ needsAuth: { $set: true } })
                 await this.dependencies.services.auth.waitForAuth()
                 this.emitMutation({ needsAuth: { $set: false } })
+            }
+
+            if (this.dependencies.fullPageUrl == null) {
+                // Send message to memex.garden saying we're ready to receive files
+                this.sendReadyMessage()
             }
         })
 
