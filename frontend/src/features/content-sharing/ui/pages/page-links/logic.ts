@@ -12,7 +12,7 @@ import type {
 import type { AutoPk } from '@worldbrain/memex-common/lib/storage/types'
 import { CLOUDFLARE_WORKER_URLS } from '@worldbrain/memex-common/lib/content-sharing/storage/constants'
 import { RETRIEVE_PDF_ROUTE } from '@worldbrain/memex-common/lib/pdf/uploads/constants'
-import { getDocument as getPDFDocument } from 'pdfjs-dist'
+import * as PDFJS from 'pdfjs-dist'
 import type { TypedArray } from 'pdfjs-dist/types/display/api'
 import { extractDataFromPDFDocument } from '@worldbrain/memex-common/lib/page-indexing/content-extraction/extract-pdf-content'
 import { determineEnv } from '../../../../../utils/runtime-environment'
@@ -120,7 +120,9 @@ export default class PageLinkCreationLogic extends UILogic<
         await executeUITask(this, 'linkCreationState', async () => {
             // Extract PDF data from Blob via PDFjs
             const arrayBuffer = await content.arrayBuffer()
-            const pdf = await getPDFDocument(arrayBuffer as TypedArray).promise
+            PDFJS.GlobalWorkerOptions.workerSrc = 'build/pdf.worker.min.js'
+            const pdf = await PDFJS.getDocument(arrayBuffer as TypedArray)
+                .promise
             const pdfData = await extractDataFromPDFDocument(pdf)
 
             const uploadId = generateServerId('uploadAuditLogEntry').toString()
