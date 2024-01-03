@@ -7,7 +7,7 @@ import { SharedListReference } from '@worldbrain/memex-common/lib/content-sharin
 import { sleepPromise } from '../../../utils/promises'
 
 export interface Dependencies {
-    services: Pick<Services, 'memexExtension' | 'auth'>
+    services: Pick<Services, 'memexExtension' | 'auth' | 'router'>
 }
 
 export interface ExtDetectionState {
@@ -22,6 +22,7 @@ export interface ExtDetectionEvent {
     toggleInstallExtModal: {}
     toggleMissingPdfModal: {}
     toggleFollowSpaceOverlay: {}
+    // TODO: Clean up these params - I don't think these are all needed
     clickPageResult: {
         urlToOpen: string | undefined
         preventOpening: () => void
@@ -29,7 +30,8 @@ export interface ExtDetectionEvent {
         isFeed?: boolean
         notifAlreadyShown?: boolean
         sharedListReference?: SharedListReference
-        pageLinkURL: string
+        listID: string
+        listEntryID: string
     }
     clickFollowButtonForNotif: {
         spaceToFollow: string | undefined
@@ -88,16 +90,33 @@ export const extDetectionEventHandlers = (
 
             // Memex PDFs go straight to the reader, which will figure out how to get access to them
             if (isMemexPageAPdf({ url: event.urlToOpen })) {
-                window.open(event.pageLinkURL, '_self')
+                dependencies.services.router.goTo(
+                    'pageView',
+                    {
+                        id: event.listID,
+                        entryId: event.listEntryID,
+                    },
+                    {
+                        query: { noAutoOpen: 'true' },
+                    },
+                )
                 return
             }
 
             if (!doesMemexExtDetectionElExist()) {
+                const currentBaseURL = new URL(window.location.href).origin
+                const pageLinkURL =
+                    currentBaseURL +
+                    '/c/' +
+                    event.listID +
+                    '/p/' +
+                    event.listEntryID
+
                 event.preventOpening()
-                window.open(event.pageLinkURL, '_self')
+                window.open(pageLinkURL, '_self')
 
                 if (event.notifAlreadyShown) {
-                    window.open(event.pageLinkURL, '_self')
+                    window.open(pageLinkURL, '_self')
                 } else {
                     logic.emitMutation({
                         isInstallExtModalShown: { $set: false },

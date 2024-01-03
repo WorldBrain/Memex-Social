@@ -828,8 +828,6 @@ export default class CollectionDetailsPage extends UIElement<
         const title = listData!.list.title
         const isPageView = this.props.entryID
 
-        const currentBaseURL = new URL(window.location.href).origin
-
         if (isPageView) {
             return (
                 <TitleClick
@@ -847,12 +845,8 @@ export default class CollectionDetailsPage extends UIElement<
                                           .notifAlreadyShown,
                                       sharedListReference: this
                                           .sharedListReference,
-                                      pageLinkURL:
-                                          currentBaseURL +
-                                          '/c/' +
-                                          this.props.listID +
-                                          '/p/' +
-                                          this.props.entryID,
+                                      listID: this.props.listID,
+                                      listEntryID: this.props.entryID!,
                                   })
                                   e.preventDefault()
                                   e.stopPropagation()
@@ -1995,14 +1989,10 @@ export default class CollectionDetailsPage extends UIElement<
                                                                 .notifAlreadyShown,
                                                             sharedListReference: this
                                                                 .sharedListReference,
-                                                            pageLinkURL:
-                                                                currentBaseURL +
-                                                                '/c/' +
-                                                                this.props
-                                                                    .listID +
-                                                                '/p/' +
-                                                                entry.reference
-                                                                    ?.id,
+                                                            listID: this.props
+                                                                .listID,
+                                                            listEntryID: entry
+                                                                .reference?.id!,
                                                         },
                                                     )
                                                     e.preventDefault()
