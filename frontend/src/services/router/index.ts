@@ -26,9 +26,15 @@ export default class RouterService {
     goTo(
         route: RouteName,
         params: { [key: string]: string } = {},
-        options?: { query?: { [key: string]: string } },
+        options?: {
+            query?: { [key: string]: string }
+            state?: any
+        },
     ) {
-        this.options.history.push(this.getUrl(route, params, options))
+        this.options.history.push(
+            this.getUrl(route, params, options),
+            options?.state,
+        )
     }
 
     goToExternalUrl(url: string) {

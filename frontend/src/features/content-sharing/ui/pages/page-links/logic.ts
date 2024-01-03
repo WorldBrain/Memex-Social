@@ -175,11 +175,15 @@ export default class PageLinkCreationLogic extends UILogic<
             const tempPDFAccessLink =
                 cfWorkerUrl + RETRIEVE_PDF_ROUTE + '?token=' + token
 
-            // Start PDF upload + page link creation at the same time
+            // Start PDF upload but don't wait for it
             const pdfUploadPromise = services.pdfUploadService.uploadPdfContent(
                 { token, content },
             )
-            const pageLinkPromise = services.pageLinks.createPageLink({
+
+            const {
+                remoteListId,
+                remoteListEntryId,
+            } = await services.pageLinks.createPageLink({
                 fullPageUrl: tempPDFAccessLink,
                 uploadedPdfParams: {
                     uploadId,
@@ -188,19 +192,18 @@ export default class PageLinkCreationLogic extends UILogic<
                 },
             })
 
-            // Wait for them both to finish before routing to the new page link in the reader
-            const [
-                pdfUploadResult,
-                { remoteListId, remoteListEntryId },
-            ] = await Promise.all([pdfUploadPromise, pageLinkPromise])
+            this.routeToPageLink(remoteListId, remoteListEntryId, content)
 
             // TODO: handle bad PDF upload result
-
-            this.routeToPageLink(remoteListId, remoteListEntryId)
+            const uploadResult = await pdfUploadPromise
         })
     }
 
-    private routeToPageLink(listId: AutoPk, listEntryId: AutoPk): void {
+    private routeToPageLink(
+        listId: AutoPk,
+        listEntryId: AutoPk,
+        pdfBlob?: Blob,
+    ): void {
         this.dependencies.services.router.goTo(
             'pageView',
             {
@@ -209,6 +212,7 @@ export default class PageLinkCreationLogic extends UILogic<
             },
             {
                 query: { noAutoOpen: 'true' },
+                state: { pdfBlob },
             },
         )
     }

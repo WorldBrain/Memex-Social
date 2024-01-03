@@ -114,6 +114,7 @@ export default class Routes extends React.Component<Props> {
                                     generateServerId={
                                         this.props.generateServerId
                                     }
+                                    pdfBlob={route.location.state?.pdfBlob}
                                     imageSupport={this.props.imageSupport}
                                 />
                             )

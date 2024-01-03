@@ -287,6 +287,15 @@ export class ReaderPageViewLogic extends UILogic<
         })
     }
 
+    cleanup: EventHandler<'cleanup'> = async ({ previousState }) => {
+        if (
+            this.dependencies.pdfBlob != null &&
+            previousState.sourceUrl != null
+        ) {
+            URL.revokeObjectURL(previousState.sourceUrl)
+        }
+    }
+
     load: EventHandler<'load'> = async ({ previousState }) => {
         const { services } = this.dependencies
         const keyString = services.listKeys.getCurrentKey()
@@ -361,7 +370,14 @@ export class ReaderPageViewLogic extends UILogic<
                 }
 
                 const listEntry = data.retrievedList.entries[0]
-                const sourceUrl = listEntry.sourceUrl
+                let sourceUrl = listEntry.sourceUrl
+
+                if (this.dependencies.pdfBlob) {
+                    const objectUrl = URL.createObjectURL(
+                        this.dependencies.pdfBlob,
+                    )
+                    sourceUrl = objectUrl
+                }
 
                 document.title = listEntry.entryTitle ?? ''
 
@@ -788,7 +804,10 @@ export class ReaderPageViewLogic extends UILogic<
             return
         }
 
-        const isPdf = doesUrlPointToPdf(state.sourceUrl!)
+        const isPdf =
+            doesUrlPointToPdf(state.sourceUrl!) ||
+            this.dependencies.pdfBlob != null
+
         let iframe: HTMLIFrameElement | null = null
         let pdfJsViewer
         await executeUITask<ReaderPageViewState>(
