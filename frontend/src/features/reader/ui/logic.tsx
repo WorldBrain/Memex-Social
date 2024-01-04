@@ -287,15 +287,6 @@ export class ReaderPageViewLogic extends UILogic<
         })
     }
 
-    cleanup: EventHandler<'cleanup'> = async ({ previousState }) => {
-        if (
-            this.dependencies.pdfBlob != null &&
-            previousState.sourceUrl != null
-        ) {
-            URL.revokeObjectURL(previousState.sourceUrl)
-        }
-    }
-
     load: EventHandler<'load'> = async ({ previousState }) => {
         const { services } = this.dependencies
         const keyString = services.listKeys.getCurrentKey()
@@ -675,8 +666,15 @@ export class ReaderPageViewLogic extends UILogic<
         )
     }
 
-    cleanup: EventHandler<'cleanup'> = async () => {
+    cleanup: EventHandler<'cleanup'> = async ({ previousState }) => {
         this.cleanupIframeTooltipShowListener?.()
+
+        if (
+            this.dependencies.pdfBlob != null &&
+            previousState.sourceUrl != null
+        ) {
+            URL.revokeObjectURL(previousState.sourceUrl)
+        }
     }
 
     private async listenToUserChanges() {
