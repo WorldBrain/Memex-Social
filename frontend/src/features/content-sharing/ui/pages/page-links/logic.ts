@@ -31,9 +31,7 @@ export default class PageLinkCreationLogic extends UILogic<
     PageLinkCreationState,
     PageLinkCreationPageEvent
 > {
-    private static EXPECTED_ORIGIN = 'https://guests-estimate-402553.framer.app'
-    // TODO: Swap this in when going into staging
-    // private static EXPECTED_ORIGIN = 'https://memex.garden'
+    private static EXPECTED_ORIGIN = 'https://memex.garden'
 
     constructor(
         private dependencies: PageLinkCreationPageDependencies & {
@@ -59,8 +57,7 @@ export default class PageLinkCreationLogic extends UILogic<
         origin,
     }: MessageEvent<{ file: File }>) => {
         if (
-            // TODO: Swap this in when going into staging
-            // origin !== PageLinkCreationLogic.EXPECTED_ORIGIN ||
+            origin !== PageLinkCreationLogic.EXPECTED_ORIGIN ||
             !(data.file instanceof Blob) ||
             data.file.type !== 'application/pdf'
         ) {
@@ -76,9 +73,10 @@ export default class PageLinkCreationLogic extends UILogic<
     }
 
     private sendReadyMessage() {
-        // TODO: Swap this in when going into staging
-        // if (this.dependencies.windowObj.opener == null || document.referrer !== PageLinkCreationLogic.EXPECTED_ORIGIN) {
-        if (this.dependencies.windowObj.opener == null) {
+        if (
+            this.dependencies.windowObj.opener == null ||
+            document.referrer !== PageLinkCreationLogic.EXPECTED_ORIGIN
+        ) {
             return
         }
 
