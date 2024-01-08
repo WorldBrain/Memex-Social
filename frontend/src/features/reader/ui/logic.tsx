@@ -1727,6 +1727,7 @@ export class ReaderPageViewLogic extends UILogic<
 
     private async renderHighlightsInState({
         annotations,
+        isYoutubeVideo,
     }: ReaderPageViewState): Promise<void> {
         const toRender: RenderableAnnotation[] = []
 
@@ -1754,7 +1755,10 @@ export class ReaderPageViewLogic extends UILogic<
             }
         }
 
-        await this.iframeSetupResolvable
+        // Youtube pages don't open the page inside an iframe, thus no need to wait for it
+        if (!isYoutubeVideo) {
+            await this.iframeSetupResolvable
+        }
         if (toRender.length) {
             await this.highlightRenderer.renderHighlights(
                 toRender,
