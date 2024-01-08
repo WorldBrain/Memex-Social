@@ -49,8 +49,8 @@ export default class PageLinkCreationPage extends UIElement<
             <MainContainer>
                 {this.state.loadState === 'success' && (
                     <>
-                        <MainText>Preparing conversation space for</MainText>
-                        <SubText>{this.props.fullPageUrl}</SubText>
+                        <MainText>Preparing conversation</MainText>
+                        <SubText>Just a moment 🤙🏻</SubText>
                     </>
                 )}
                 <LoadingIndicator />
@@ -80,9 +80,47 @@ const MainContainer = styled.div`
 `
 
 const MainText = styled.div`
-    color: ${(props) => props.theme.colors.white};
+    background: ${(props) => props.theme.colors.headerGradient};
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-align: center;
+    font-size: 3.5rem;
+    font-weight: 900;
+    @media (max-width: 1200px) {
+        font-size: 3rem;
+    }
+
+    @media (max-width: 992px) {
+        font-size: 2.5rem;
+    }
+
+    @media (max-width: 768px) {
+        font-size: 2rem;
+    }
+
+    @media (max-width: 576px) {
+        font-size: 1.5rem;
+    }
 `
 const SubText = styled.div`
     color: ${(props) => props.theme.colors.greyScale5};
     margin-bottom: 40px;
+    font-size: 20px;
+
+    @media (max-width: 1200px) {
+        font-size: 20px;
+    }
+
+    @media (max-width: 992px) {
+        font-size: 18px;
+    }
+
+    @media (max-width: 768px) {
+        font-size: 16px;
+    }
+
+    @media (max-width: 576px) {
+        font-size: 16px;
+    }
 `
