@@ -373,64 +373,60 @@ export class ReaderPageViewLogic extends UILogic<
                 document.title = listEntry.entryTitle ?? ''
 
                 const isMemexInstalled = doesMemexExtDetectionElExist()
-                const shouldNotOpenLink = window.location.href.includes(
-                    'noAutoOpen=true',
-                )
+                const shouldNotOpenLink =
+                    services.router.getQueryParam('noAutoOpen') === 'true'
 
                 if (
                     isMemexInstalled &&
-                    nextState.currentUserReference != null
+                    nextState.currentUserReference != null &&
+                    !shouldNotOpenLink
                 ) {
-                    if (!shouldNotOpenLink) {
-                        services.router.delQueryParam('noAutoOpen')
+                    services.router.delQueryParam('noAutoOpen')
 
-                        const sharedListId = listReference.id as string
-                        const sourceUrl = listEntry.sourceUrl as string
-                        const isCollaborationLink = !!services.router.getQueryParam(
-                            'key',
+                    const sharedListId = listReference.id as string
+                    const sourceUrl = listEntry.sourceUrl as string
+                    const isCollaborationLink = !!services.router.getQueryParam(
+                        'key',
+                    )
+                    const isOwnLink = nextState.permissions === 'owner'
+                    const userAgent = navigator.userAgent
+
+                    if (/Firefox/i.test(userAgent)) {
+                        // Create a new DOM element, let's assume it's a `div`
+                        const injectedElement = document.createElement('div')
+
+                        // Set an ID so the MutationObserver can identify it
+                        injectedElement.id =
+                            'openPageInSelectedListModeTriggerElement'
+
+                        // Attach the necessary data as data attributes
+                        injectedElement.setAttribute('sourceurl', sourceUrl)
+                        injectedElement.setAttribute(
+                            'sharedlistid',
+                            sharedListId,
                         )
-                        const isOwnLink = nextState.permissions === 'owner'
-                        const userAgent = navigator.userAgent
+                        injectedElement.setAttribute(
+                            'iscollaboratorlink',
+                            isCollaborationLink.toString(),
+                        )
+                        injectedElement.setAttribute(
+                            'isownlink',
+                            isOwnLink.toString(),
+                        )
 
-                        if (/Firefox/i.test(userAgent)) {
-                            // Create a new DOM element, let's assume it's a `div`
-                            const injectedElement = document.createElement(
-                                'div',
-                            )
-
-                            // Set an ID so the MutationObserver can identify it
-                            injectedElement.id =
-                                'openPageInSelectedListModeTriggerElement'
-
-                            // Attach the necessary data as data attributes
-                            injectedElement.setAttribute('sourceurl', sourceUrl)
-                            injectedElement.setAttribute(
-                                'sharedlistid',
-                                sharedListId,
-                            )
-                            injectedElement.setAttribute(
-                                'iscollaboratorlink',
-                                isCollaborationLink.toString(),
-                            )
-                            injectedElement.setAttribute(
-                                'isownlink',
-                                isOwnLink.toString(),
-                            )
-
-                            // Append the element to the body (or any other parent element)
-                            document.body.appendChild(injectedElement)
-                            await sleepPromise(500)
-                            injectedElement.remove()
-                        } else {
-                            await this.dependencies.services?.memexExtension.openLink(
-                                {
-                                    originalPageUrl: sourceUrl,
-                                    sharedListId: sharedListId as string,
-                                    isCollaboratorLink: isCollaborationLink,
-                                    isOwnLink: isOwnLink,
-                                },
-                            )
-                        }
+                        // Append the element to the body (or any other parent element)
+                        document.body.appendChild(injectedElement)
+                        await sleepPromise(500)
+                        injectedElement.remove()
+                    } else {
+                        await this.dependencies.services?.memexExtension.openLink(
+                            {
+                                originalPageUrl: sourceUrl,
+                                sharedListId: sharedListId as string,
+                                isCollaboratorLink: isCollaborationLink,
+                                isOwnLink: isOwnLink,
+                            },
+                        )
                     }
                 }
 
@@ -605,21 +601,22 @@ export class ReaderPageViewLogic extends UILogic<
                         ),
                     },
                 })
-                const conversationThreadPromise = detectAnnotationConversationThreads(
-                    this as any,
-                    {
-                        getThreadsForAnnotations: (...args) =>
-                            this.dependencies.storage.contentConversations.getThreadsForAnnotations(
-                                ...args,
-                            ),
-                        annotationReferences,
-                        sharedListReference: {
-                            type: 'shared-list-reference',
-                            id: this.dependencies.listID,
-                        },
-                        imageSupport: this.dependencies.imageSupport,
+
+                this.conversationThreadPromises[
+                    normalizedPageUrl
+                ] = detectAnnotationConversationThreads(this as any, {
+                    getThreadsForAnnotations: (...args) =>
+                        this.dependencies.storage.contentConversations.getThreadsForAnnotations(
+                            ...args,
+                        ),
+                    annotationReferences,
+                    sharedListReference: {
+                        type: 'shared-list-reference',
+                        id: this.dependencies.listID,
                     },
-                ).catch(console.error)
+                    imageSupport: this.dependencies.imageSupport,
+                }).catch(console.error)
+
                 intializeNewPageReplies(this as any, {
                     normalizedPageUrls: [...normalizedPageUrl].filter(
                         (normalizedPageUrl) =>
@@ -627,10 +624,6 @@ export class ReaderPageViewLogic extends UILogic<
                     ),
                     imageSupport: this.dependencies.imageSupport,
                 })
-
-                this.conversationThreadPromises[
-                    normalizedPageUrl
-                ] = conversationThreadPromise
 
                 try {
                     const result = await Promise.all([
