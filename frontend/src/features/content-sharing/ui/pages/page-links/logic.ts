@@ -57,7 +57,7 @@ export default class PageLinkCreationLogic extends UILogic<
         origin,
     }: MessageEvent<{ file: File }>) => {
         if (
-            origin !== PageLinkCreationLogic.EXPECTED_ORIGIN ||
+            !origin?.startsWith(PageLinkCreationLogic.EXPECTED_ORIGIN) ||
             !(data.file instanceof Blob) ||
             data.file.type !== 'application/pdf'
         ) {
@@ -75,7 +75,9 @@ export default class PageLinkCreationLogic extends UILogic<
     private sendReadyMessage() {
         if (
             this.dependencies.windowObj.opener == null ||
-            document.referrer !== PageLinkCreationLogic.EXPECTED_ORIGIN
+            !document.referrer?.startsWith(
+                PageLinkCreationLogic.EXPECTED_ORIGIN,
+            )
         ) {
             return
         }
