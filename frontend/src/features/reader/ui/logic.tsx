@@ -374,7 +374,8 @@ export class ReaderPageViewLogic extends UILogic<
 
                 const isMemexInstalled = doesMemexExtDetectionElExist()
                 const shouldNotOpenLink =
-                    services.router.getQueryParam('noAutoOpen') === 'true'
+                    services.router.getQueryParam('noAutoOpen') === 'true' ||
+                    window.location.href.includes('noAutoOpen=true')
 
                 if (
                     isMemexInstalled &&
@@ -418,6 +419,7 @@ export class ReaderPageViewLogic extends UILogic<
                         document.body.appendChild(injectedElement)
                         await sleepPromise(500)
                         injectedElement.remove()
+                        services.router.delQueryParam('noAutoOpen')
                     } else {
                         await this.dependencies.services?.memexExtension.openLink(
                             {
