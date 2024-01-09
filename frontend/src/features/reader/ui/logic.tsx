@@ -382,7 +382,7 @@ export class ReaderPageViewLogic extends UILogic<
                     nextState.currentUserReference != null &&
                     !shouldNotOpenLink
                 ) {
-                    services.router.delQueryParam('noAutoOpen')
+                    console.log('got here')
 
                     const sharedListId = listReference.id as string
                     const sourceUrl = listEntry.sourceUrl as string
