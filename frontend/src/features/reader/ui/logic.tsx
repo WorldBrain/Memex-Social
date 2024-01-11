@@ -8,13 +8,9 @@ import { conditionallyTriggerTooltip } from '@worldbrain/memex-common/lib/in-pag
 import { theme } from '../../../../src/main-ui/styles/theme'
 import {
     GetAnnotationsResult,
-    GetAnnotationListEntriesResult,
     SharedCollectionType,
 } from '@worldbrain/memex-common/lib/content-sharing/storage/types'
-import type {
-    GetAnnotationListEntriesElement,
-    GetListRolesResult,
-} from '@worldbrain/memex-common/lib/content-sharing/storage/types'
+import type { GetAnnotationListEntriesElement } from '@worldbrain/memex-common/lib/content-sharing/storage/types'
 import {
     SharedAnnotation,
     SharedAnnotationReference,
@@ -28,7 +24,6 @@ import {
     Dependencies as HighlightRendererDeps,
 } from '@worldbrain/memex-common/lib/in-page-ui/highlighting/renderer'
 import mapValues from 'lodash/mapValues'
-import chunk from 'lodash/chunk'
 import flatten from 'lodash/flatten'
 import {
     UILogic,
@@ -90,15 +85,9 @@ import { sleepPromise } from '../../../utils/promises'
 import { LoggedOutAccessBox } from '../../content-sharing/ui/pages/collection-details/space-access-box'
 import sanitizeHTMLhelper from '@worldbrain/memex-common/lib/utils/sanitize-html-helper'
 import { processCommentForImageUpload } from '@worldbrain/memex-common/lib/annotations/processCommentForImageUpload'
-import {
-    PdfScreenshot,
-    promptPdfScreenshot,
-} from '@worldbrain/memex-common/lib/pdf/screenshots/selection'
-import {
-    Anchor,
-    PdfScreenshotAnchor,
-} from '@worldbrain/memex-common/lib/annotations/types'
-import { ImageSupportInterface } from '@worldbrain/memex-common/lib/image-support/types'
+import { promptPdfScreenshot } from '@worldbrain/memex-common/lib/pdf/screenshots/selection'
+import type { PdfScreenshotAnchor } from '@worldbrain/memex-common/lib/annotations/types'
+import type { ImageSupportInterface } from '@worldbrain/memex-common/lib/image-support/types'
 
 type EventHandler<EventName extends keyof ReaderPageViewEvent> = UIEventHandler<
     ReaderPageViewState,

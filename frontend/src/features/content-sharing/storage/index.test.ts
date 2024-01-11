@@ -1856,7 +1856,7 @@ createMultiDeviceStorageTestSuite(
             expect(
                 await devicesByRole.listOwner.storage.serverModules.contentSharing.getListRoles(
                     {
-                        listReference,
+                        baseListReference: listReference,
                     },
                 ),
             ).toEqual([
