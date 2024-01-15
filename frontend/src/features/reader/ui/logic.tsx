@@ -329,10 +329,12 @@ export class ReaderPageViewLogic extends UILogic<
                 }
                 const { data } = response
 
+                const baseListRoles =
+                    data.rolesByList[this.dependencies.listID] ?? []
                 this.listCreator.resolve(data.retrievedList.creator)
                 const myListRole =
                     currentUser != null
-                        ? data.listRoles.find(
+                        ? baseListRoles.find(
                               (role) => role.user.id === currentUser.id,
                           )
                         : undefined

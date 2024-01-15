@@ -352,10 +352,12 @@ export default class CollectionDetailsLogic extends UILogic<
                 )
             }
 
+            const baseListRoles =
+                data.rolesByList[this.dependencies.listID] ?? []
             const isAuthenticated = !!userReference
             const isContributor =
                 (userReference &&
-                    data.listRoles.find(
+                    baseListRoles.find(
                         (role) => role.user.id === userReference.id,
                     )?.roleID) ??
                 undefined
@@ -378,7 +380,7 @@ export default class CollectionDetailsLogic extends UILogic<
                         (id) =>
                             ({ type: 'user-reference', id } as UserReference),
                     ),
-                    ...data.listRoles.map((role) => role.user),
+                    ...baseListRoles.map((role) => role.user),
                 ]),
             ])
 
@@ -404,7 +406,7 @@ export default class CollectionDetailsLogic extends UILogic<
                         ),
                     },
                 },
-                listRoles: { $set: data.listRoles },
+                listRoles: { $set: baseListRoles },
                 isListOwner: {
                     $set: retrievedList.creator.id === userReference?.id,
                 },
