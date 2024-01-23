@@ -100,6 +100,7 @@ async function createMemoryTestDevice(
     storageHooksChangeWatcher.setUp({
         fetch,
         services,
+        getNow: () => Date.now(),
         getFunctionsConfig: () => ({
             twitter: { api_key: 'test', api_key_secret: 'test' },
             content_sharing: { cloudflare_worker_credentials: 'test' },
