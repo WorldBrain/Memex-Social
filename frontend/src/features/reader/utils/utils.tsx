@@ -242,9 +242,15 @@ export async function loadPDFInViewer(
     pdfJsViewer: { open: (url: string) => Promise<void> },
     pdfUrl: string,
 ): Promise<void> {
+    const validErrMessages = [
+        'NetworkError when attempting to fetch resource.', // This is the FF error for CORS related stuff
+        'Failed to fetch', // This is the equiv error on Chrome
+    ]
+
+    // TODO: Document why this setTimeout is here
     setTimeout(async () => {
         await pdfJsViewer.open(pdfUrl).catch((err) => {
-            if (err.message !== 'Failed to fetch') {
+            if (!validErrMessages.includes(err.message)) {
                 throw err
             }
             // If it didn't work the first time, it's possibly a CORS issue, thus retry through our proxy
