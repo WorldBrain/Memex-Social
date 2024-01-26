@@ -125,7 +125,7 @@ export class ReaderPageViewLogic extends UILogic<
     private conversationThreadPromises: {
         [normalizePageUrl: string]: Promise<void>
     } = {}
-    private cleanupIframeTooltipShowListener?: () => void
+    private cleanupIframeTooltipShowListeners?: () => void
     private listCreator = createResolvable<UserReference>()
     private iframeSetupResolvable = createResolvable()
 
@@ -653,7 +653,7 @@ export class ReaderPageViewLogic extends UILogic<
     }
 
     cleanup: EventHandler<'cleanup'> = async ({ previousState }) => {
-        this.cleanupIframeTooltipShowListener?.()
+        this.cleanupIframeTooltipShowListeners?.()
 
         if (
             this.dependencies.pdfBlob != null &&
@@ -1047,7 +1047,7 @@ export class ReaderPageViewLogic extends UILogic<
             reactContainer,
         )
 
-        const showTooltipListener = async (event: MouseEvent) => {
+        const showTooltipListener = async (event: MouseEvent | TouchEvent) => {
             await conditionallyTriggerTooltip(
                 {
                     getWindow: () => iframe.contentWindow!,
@@ -1061,10 +1061,18 @@ export class ReaderPageViewLogic extends UILogic<
             'mouseup',
             showTooltipListener,
         )
+        iframe.contentDocument?.body.addEventListener(
+            'touchend',
+            showTooltipListener,
+        )
 
-        this.cleanupIframeTooltipShowListener = () => {
+        this.cleanupIframeTooltipShowListeners = () => {
             iframe.contentDocument?.body.removeEventListener(
                 'mouseup',
+                showTooltipListener,
+            )
+            iframe.contentDocument?.body.removeEventListener(
+                'touchend',
                 showTooltipListener,
             )
         }
