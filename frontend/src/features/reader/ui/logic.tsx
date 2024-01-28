@@ -263,6 +263,8 @@ export class ReaderPageViewLogic extends UILogic<
             showSupportChat: false,
             preventInteractionsInIframe: false,
             showDropPDFNotice: false,
+            openOriginalStatus: 'pristine',
+            overlayModalState: null,
             ...editableAnnotationsInitialState(),
             ...annotationConversationInitialState(),
         }
@@ -437,8 +439,10 @@ export class ReaderPageViewLogic extends UILogic<
                             'youtube.com/',
                         ),
                     },
-                    renderAnnotationInstructOverlay: {
-                        $set: !!services.router.getQueryParam('key'),
+                    overlayModalState: {
+                        $set:
+                            services.router.getQueryParam('key') &&
+                            'invitedForCollaboration',
                     },
                     listData: {
                         $set: {
@@ -1175,9 +1179,11 @@ export class ReaderPageViewLogic extends UILogic<
         }
     }
 
-    private hideAnnotationInstruct: EventHandler<'hideAnnotationInstruct'> = async () => {
+    private setModalState: EventHandler<'setModalState'> = async ({
+        event,
+    }) => {
         this.emitMutation({
-            renderAnnotationInstructOverlay: { $set: false },
+            overlayModalState: { $set: event },
         })
     }
 
@@ -1223,6 +1229,12 @@ export class ReaderPageViewLogic extends UILogic<
                 this.dependencies.imageSupport,
                 false,
             )
+        }
+
+        if (openInEditMode) {
+            this.emitMutation({
+                showSidebar: { $set: true },
+            })
         }
 
         // Update UI state (TODO: Why are the types messed up enough that I need to `as any` here?)
@@ -1461,8 +1473,18 @@ export class ReaderPageViewLogic extends UILogic<
             showInstallTooltip: { $set: false },
         })
     }
+    showInstallTooltip: EventHandler<'showInstallTooltip'> = async (
+        incoming,
+    ) => {
+        this.emitMutation({
+            showInstallTooltip: { $set: true },
+        })
+    }
     openOriginalLink: EventHandler<'openOriginalLink'> = async (incoming) => {
         if (doesMemexExtDetectionElExist()) {
+            this.emitMutation({
+                openOriginalStatus: { $set: 'running' },
+            })
             const userAgent = navigator.userAgent
 
             const sourceUrl = incoming.previousState.sourceUrl as string
@@ -1500,6 +1522,11 @@ export class ReaderPageViewLogic extends UILogic<
                     isOwnLink: isOwnLink,
                 })
             }
+
+            await sleepPromise(10000)
+            this.emitMutation({
+                openOriginalStatus: { $set: 'success' },
+            })
         } else {
             window.open(incoming.previousState.sourceUrl as string, '_blank')
         }

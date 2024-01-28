@@ -97,6 +97,13 @@ export type ReaderPageViewState = AnnotationConversationsState &
         showSupportChat: boolean
         preventInteractionsInIframe: boolean
         showDropPDFNotice: boolean
+        openOriginalStatus: UITaskState
+        overlayModalState:
+            | 'installTools'
+            | 'upgradePlan'
+            | 'invitedForCollaboration'
+            | 'installMemexForVideo'
+            | null
     }
 
 export type ReaderPageViewEvent = UIEvent<
@@ -106,6 +113,7 @@ export type ReaderPageViewEvent = UIEvent<
             setReaderContainerRef: { ref: HTMLDivElement | null }
             setSidebarRef: { ref: HTMLElement | null }
             setSidebarWidth: { width: number }
+            setModalState: ReaderPageViewState['overlayModalState']
             clickAnnotationInSidebar: { annotationId: AutoPk }
             reportUrl: { url: string }
             openOriginalLink: null
@@ -113,6 +121,7 @@ export type ReaderPageViewEvent = UIEvent<
             toggleSupportChat: null
             toggleClickBlocker: null
             closeInstallTooltip: null
+            showInstallTooltip: null
             showSharePageMenu: null
             setAnnotationCreating: { isCreating: boolean }
             cancelAnnotationCreate: null
