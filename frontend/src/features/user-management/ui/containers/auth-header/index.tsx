@@ -67,10 +67,10 @@ const MenuContainerInner = styled.div`
 const LoadingBox = styled.div`
     display: flex;
     position: relative;
-    right: 24px;
     height: 100%;
     align-items: center;
 `
+const Wrapper = styled.div``
 
 export default class AuthHeader extends UIElement<
     AuthHeaderDependencies,
@@ -98,6 +98,7 @@ export default class AuthHeader extends UIElement<
                     placement="bottom-end"
                     closeComponent={() => this.processEvent('hideMenu', null)}
                     targetElementRef={this.UserInfoButtonRef?.current}
+                    strategy="absolute"
                 >
                     <MenuContainerOuter>
                         <AuthMenu
@@ -146,11 +147,17 @@ export default class AuthHeader extends UIElement<
         }
 
         return (
-            <>
+            <Wrapper>
                 <PrimaryAction
                     label={this.state.user.displayName}
                     onClick={() => this.processEvent('toggleMenu', null)}
-                    icon={'settings'}
+                    icon={
+                        this.state.loadState !== 'success' ? (
+                            <LoadingIndicator size={16} />
+                        ) : (
+                            'personFine'
+                        )
+                    }
                     type={'tertiary'}
                     iconPosition="right"
                     size="medium"
@@ -165,7 +172,7 @@ export default class AuthHeader extends UIElement<
                         }
                     />
                 )}
-            </>
+            </Wrapper>
         )
     }
 }
