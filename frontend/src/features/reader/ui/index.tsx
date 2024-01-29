@@ -27,8 +27,10 @@ import { ViewportBreakpoint } from '@worldbrain/memex-common/lib/common-ui/style
 import { getViewportBreakpoint } from '@worldbrain/memex-common/lib/common-ui/styles/utils'
 import type { AutoPk } from '../../../types'
 import { MemexEditorInstance } from '@worldbrain/memex-common/lib/editor'
+import { TooltipBox } from '@worldbrain/memex-common/lib/common-ui/components/tooltip-box'
+import { OverlayModal } from './components/OverlayModals'
 
-const TopBarHeight = 60
+const TopBarHeight = 50
 const memexLogo = require('../../../assets/img/memex-logo-beta.svg')
 const memexIcon = require('../../../assets/img/memex-icon.svg')
 
@@ -123,35 +125,6 @@ export class ReaderPageView extends UIElement<
                   })
                 : null,
         }
-    }
-
-    private renderOverlay() {
-        return (
-            <OverlayAnnotationInstructionContainer
-                onClick={() =>
-                    this.processEvent('hideAnnotationInstruct', null)
-                }
-            >
-                <OverlayAnnotationInstructionInnerBox>
-                    <IconBox heightAndWidth="50px">
-                        <Icon
-                            heightAndWidth="30px"
-                            icon="invite"
-                            color="prime1"
-                        />
-                    </IconBox>
-                    <Spacer height="5px" />
-                    <Title>
-                        You've been invited to collaborate on this document
-                    </Title>
-                    <Description>
-                        This means you can also add your own annotations.
-                        <br />
-                        Just select some text to get started.
-                    </Description>
-                </OverlayAnnotationInstructionInnerBox>
-            </OverlayAnnotationInstructionContainer>
-        )
     }
 
     private renderPageAnnotations(
@@ -510,42 +483,35 @@ export class ReaderPageView extends UIElement<
         )
     }
 
-    private renderInstallTooltip = () => {
-        if (this.state.showInstallTooltip) {
-            return (
-                <PopoutBox
-                    targetElementRef={this.reportButtonRef.current ?? undefined}
-                    placement="bottom"
-                    closeComponent={() =>
-                        this.processEvent('closeInstallTooltip', null)
-                    }
-                    offsetX={10}
-                >
-                    <TooltipBox>
-                        <Title>Page does not render correctly?</Title>
-                        <Description>
-                            Try installing the Memex browser extension to view,
-                            annotate and reply on the live page.
-                            <br /> And it's just 2 clicks away.
-                        </Description>
-                        <PrimaryAction
-                            label="Install Extension"
-                            onClick={() =>
-                                this.processEvent('installMemexClick', {
-                                    urlToOpen: this.state.listData!.entry
-                                        .originalUrl,
-                                    sharedListReference: this.state.listData!
-                                        .reference,
-                                })
-                            }
-                            type="secondary"
-                            size="medium"
-                        />
-                    </TooltipBox>
-                </PopoutBox>
-            )
-        }
-    }
+    // private renderInstallTooltip = () => {
+    //     if (this.state.showInstallTooltip) {
+    //         return (
+    //             <OverlayContainer>
+    //                 <TooltipContainer>
+    //                     <Title>Screens</Title>
+    //                     <Description>
+    //                         Try installing the Memex browser extension to view,
+    //                         annotate and reply on the live page.
+    //                         <br /> And it's just 2 clicks away.
+    //                     </Description>
+    //                     <PrimaryAction
+    //                         label="Install Extension"
+    //                         onClick={() =>
+    //                             this.processEvent('installMemexClick', {
+    //                                 urlToOpen: this.state.listData!.entry
+    //                                     .originalUrl,
+    //                                 sharedListReference: this.state.listData!
+    //                                     .reference,
+    //                             })
+    //                         }
+    //                         type="secondary"
+    //                         size="medium"
+    //                     />
+    //                 </TooltipContainer>
+    //             </OverlayContainer>
+    //         )
+    //     }
+    // }
 
     private renderOptionsMenu = () => {
         if (this.state.showOptionsMenu) {
@@ -560,30 +526,8 @@ export class ReaderPageView extends UIElement<
                     }
                     offsetX={10}
                 >
-                    {this.renderInstallTooltip()}
-                    {this.renderShareTooltip()}
                     <OptionsMenuBox>
                         <AuthHeader services={this.props.services} />
-                        {this.state.listLoadState === 'success' && (
-                            <PrimaryAction
-                                icon={
-                                    this.state.reportURLSuccess
-                                        ? 'check'
-                                        : 'warning'
-                                }
-                                type="tertiary"
-                                label={'Report URL'}
-                                size="medium"
-                                innerRef={this.reportButtonRef}
-                                onClick={() =>
-                                    this.processEvent('reportUrl', {
-                                        url: this.state.listData!.entry
-                                            .originalUrl,
-                                    })
-                                }
-                                padding="5px 10px 5px 5px"
-                            />
-                        )}
                         {this.state.listLoadState === 'success' && (
                             <PrimaryAction
                                 icon={'goTo'}
@@ -595,29 +539,6 @@ export class ReaderPageView extends UIElement<
                                         this.state.listData!.entry.originalUrl,
                                         '_blank',
                                     )
-                                }
-                                padding="5px 10px 5px 5px"
-                            />
-                        )}
-                        <PrimaryAction
-                            icon="plus"
-                            type="tertiary"
-                            label={'New Page'}
-                            size="medium"
-                            onClick={() =>
-                                window.open('https://memex.garden', '_blank')
-                            }
-                            padding="5px 10px 5px 5px"
-                        />
-                        {this.state.permissionsLoadState === 'success' && (
-                            <PrimaryAction
-                                icon={'invite'}
-                                type="primary"
-                                label={'Invite People'}
-                                size="medium"
-                                innerRef={this.sharePageButton}
-                                onClick={() =>
-                                    this.processEvent('showSharePageMenu', null)
                                 }
                                 padding="5px 10px 5px 5px"
                             />
@@ -641,7 +562,7 @@ export class ReaderPageView extends UIElement<
                     }
                     offsetX={10}
                 >
-                    <TooltipBox>
+                    <TooltipContainer>
                         {this.state.linkCopiedToClipBoard ? (
                             <NotifBox>
                                 <Icon
@@ -658,7 +579,9 @@ export class ReaderPageView extends UIElement<
                                 this.state.permissionsLoadState ===
                                     'success' ? (
                                     <LinksContainer>
-                                        <LinkTitle>Read & Reply</LinkTitle>
+                                        <LinkTitle>
+                                            Read & Reply Access
+                                        </LinkTitle>
                                         <LinkBox>
                                             <LinkField>
                                                 {links!.reader}
@@ -682,7 +605,7 @@ export class ReaderPageView extends UIElement<
                                         {links.collab != null && (
                                             <>
                                                 <LinkTitle>
-                                                    Annotate & Reply
+                                                    Contribute Access
                                                 </LinkTitle>
                                                 <LinkBox>
                                                     <LinkField>
@@ -717,10 +640,27 @@ export class ReaderPageView extends UIElement<
                                 )}
                             </NotifBox>
                         )}
-                    </TooltipBox>
+                    </TooltipContainer>
                 </PopoutBox>
             )
         }
+    }
+
+    async captureScreenshotFromHTMLVideo(screenshotTarget: any) {
+        let canvas = document.createElement('canvas')
+        let height = screenshotTarget.offsetHeight
+        let width = screenshotTarget.offsetWidth
+
+        canvas.width = width
+        canvas.height = height
+
+        let ctx = canvas.getContext('2d')
+
+        ctx?.drawImage(screenshotTarget, 0, 0, canvas.width, canvas.height)
+
+        let image = canvas.toDataURL('image/jpeg')
+
+        return image
     }
 
     private renderMainContent() {
@@ -728,40 +668,86 @@ export class ReaderPageView extends UIElement<
             return (
                 <YoutubeArea>
                     <YoutubeVideoContainer>
-                        {this.state.permissions === 'contributor' ||
-                            (this.state.permissions === 'owner' && (
-                                <PrimaryAction
-                                    label="Add timestamped note"
-                                    icon="clock"
-                                    type="forth"
-                                    size="medium"
-                                    onClick={() => {
-                                        if (
-                                            this.state.annotationCreateState
-                                                .comment.length > 0 ||
-                                            this.state.annotationCreateState
-                                                .isCreating
-                                        ) {
-                                            this.editor?.addYoutubeTimestamp()
-                                        } else {
-                                            this.processEvent(
-                                                'createYoutubeNote',
-                                                {},
-                                            )
-                                        }
-                                    }}
-                                />
-                            ))}
-                        <YoutubeVideoBox>
+                        <YoutubeVideoBox id={'YoutubeVideoBox'}>
                             {this.renderYoutubePlayer()}
                         </YoutubeVideoBox>
+                        {this.state.permissions === 'contributor' ||
+                            (this.state.permissions === 'owner' && (
+                                <VideoActionBar>
+                                    <PrimaryAction
+                                        label="Add note at current time"
+                                        icon="clock"
+                                        type="glass"
+                                        size="medium"
+                                        fontColor="greyScale7"
+                                        padding="5px 10px 5px 5px"
+                                        onClick={() => {
+                                            if (
+                                                this.state.annotationCreateState
+                                                    .comment.length > 0 ||
+                                                this.state.annotationCreateState
+                                                    .isCreating
+                                            ) {
+                                                this.editor?.addYoutubeTimestamp()
+                                            } else {
+                                                this.processEvent(
+                                                    'createYoutubeNote',
+                                                    {},
+                                                )
+                                            }
+                                        }}
+                                    />
+                                    <TooltipBox
+                                        tooltipText={
+                                            <span>
+                                                Create screenshot of current
+                                                frame.
+                                                <br /> Only possible via
+                                                extension
+                                            </span>
+                                        }
+                                        placement="bottom"
+                                        offsetX={10}
+                                        targetElementRef={
+                                            this.reportButtonRef.current ??
+                                            undefined
+                                        }
+                                    >
+                                        <PrimaryAction
+                                            label="Screenshot note"
+                                            icon="imageIcon"
+                                            type="glass"
+                                            size="medium"
+                                            fontColor="greyScale7"
+                                            padding="5px 10px 5px 5px"
+                                            onClick={async () => {
+                                                this.processEvent(
+                                                    'setModalState',
+                                                    'installMemexForVideo',
+                                                )
+                                                // if (
+                                                //     this.state.annotationCreateState
+                                                //         .comment.length > 0 ||
+                                                //     this.state.annotationCreateState
+                                                //         .isCreating
+                                                // ) {
+                                                // } else {
+                                                //     this.processEvent(
+                                                //         'createYoutubeScreenshot',
+                                                //         {},
+                                                //     )
+                                                // }
+                                            }}
+                                        />
+                                    </TooltipBox>
+                                </VideoActionBar>
+                            ))}
                     </YoutubeVideoContainer>
                 </YoutubeArea>
             )
         }
         return (
             <>
-                {this.state.preventInteractionsInIframe && <ClickBlocker />}
                 <InjectedContent
                     ref={(ref) =>
                         this.processEvent('setReaderContainerRef', {
@@ -769,6 +755,7 @@ export class ReaderPageView extends UIElement<
                         })
                     }
                 >
+                    {this.state.preventInteractionsInIframe && <ClickBlocker />}
                     {this.state.showDropPDFNotice && (
                         <PDFDropNoticeContainer
                             onDragOver={(event) => {
@@ -839,8 +826,10 @@ export class ReaderPageView extends UIElement<
 
         return (
             <MainContainer>
-                {this.state.renderAnnotationInstructOverlay &&
-                    this.renderOverlay()}
+                {OverlayModal({
+                    type: this.state.overlayModalState,
+                    closeModal: () => this.processEvent('setModalState', null),
+                })}
                 <LeftSide>
                     <TopBar>
                         <LeftSideTopBar>
@@ -901,6 +890,28 @@ export class ReaderPageView extends UIElement<
                                         }
                                         containerRef={this.optionsMenuButtonRef}
                                     />
+                                    {this.state.permissionsLoadState ===
+                                        'success' && (
+                                        <ShareContainer>
+                                            <PrimaryAction
+                                                icon={'peopleFine'}
+                                                type="primary"
+                                                label={'Share & Invite'}
+                                                size="small"
+                                                fontSize="14px"
+                                                iconSize="18px"
+                                                innerRef={this.sharePageButton}
+                                                onClick={() =>
+                                                    this.processEvent(
+                                                        'showSharePageMenu',
+                                                        null,
+                                                    )
+                                                }
+                                                padding="10px 10px 10px 5px"
+                                            />
+                                            {this.renderShareTooltip()}
+                                        </ShareContainer>
+                                    )}
                                     {this.viewportBreakpoint === 'mobile' && (
                                         <>
                                             {loadState ? (
@@ -946,73 +957,91 @@ export class ReaderPageView extends UIElement<
                                 </>
                             ) : (
                                 <>
-                                    {this.renderInstallTooltip()}
-                                    {this.renderShareTooltip()}
                                     {this.state.listLoadState === 'success' && (
                                         <PrimaryAction
-                                            icon={
-                                                this.state.reportURLSuccess
-                                                    ? 'check'
-                                                    : 'warning'
-                                            }
-                                            type="tertiary"
-                                            label={'Report URL'}
-                                            size="medium"
-                                            innerRef={this.reportButtonRef}
-                                            onClick={() =>
-                                                this.processEvent('reportUrl', {
-                                                    url: this.state.listData!
-                                                        .entry.originalUrl,
-                                                })
-                                            }
-                                            padding="5px 10px 5px 5px"
-                                        />
-                                    )}
-                                    {this.state.listLoadState === 'success' && (
-                                        <PrimaryAction
-                                            icon={'goTo'}
                                             type="tertiary"
                                             label={'Open Original'}
                                             size="medium"
+                                            icon={
+                                                this.state
+                                                    .openOriginalStatus ===
+                                                'running' ? (
+                                                    <LoadingIndicator
+                                                        size={16}
+                                                    />
+                                                ) : (
+                                                    'goTo'
+                                                )
+                                            }
                                             onClick={() =>
                                                 this.processEvent(
                                                     'openOriginalLink',
                                                     null,
                                                 )
                                             }
-                                            padding="5px 10px 5px 5px"
+                                            padding="5px 10px 5px 10px"
                                         />
                                     )}
-                                    <PrimaryAction
-                                        icon="plus"
-                                        type="tertiary"
-                                        label={'New Page'}
-                                        size="medium"
-                                        onClick={() =>
-                                            window.open(
-                                                'https://memex.garden',
-                                                '_blank',
-                                            )
-                                        }
-                                        padding="5px 10px 5px 5px"
+                                    {!isIframe() && (
+                                        <SupportChatBox>
+                                            <PrimaryAction
+                                                onClick={() => {
+                                                    this.processEvent(
+                                                        'toggleSupportChat',
+                                                        null,
+                                                    )
+                                                }}
+                                                type="tertiary"
+                                                iconColor="prime1"
+                                                icon="chatWithUs"
+                                                innerRef={
+                                                    this.chatBoxRef ?? undefined
+                                                }
+                                                size="medium"
+                                                label="Support Chat"
+                                            />
+                                            {this.state.showSupportChat && (
+                                                <PopoutBox
+                                                    targetElementRef={
+                                                        this.chatBoxRef
+                                                            .current ??
+                                                        undefined
+                                                    }
+                                                    closeComponent={() =>
+                                                        this.processEvent(
+                                                            'toggleSupportChat',
+                                                            null,
+                                                        )
+                                                    }
+                                                    placement="bottom"
+                                                    offsetX={20}
+                                                >
+                                                    <ChatBox>
+                                                        <LoadingIndicator
+                                                            size={30}
+                                                        />
+                                                        <ChatFrame
+                                                            src={
+                                                                'https://go.crisp.chat/chat/embed/?website_id=05013744-c145-49c2-9c84-bfb682316599'
+                                                            }
+                                                            height={600}
+                                                            width={500}
+                                                        />
+                                                    </ChatBox>
+                                                    <ChatFrame
+                                                        src={
+                                                            'https://go.crisp.chat/chat/embed/?website_id=05013744-c145-49c2-9c84-bfb682316599'
+                                                        }
+                                                        height={600}
+                                                        width={500}
+                                                    />
+                                                </PopoutBox>
+                                            )}
+                                        </SupportChatBox>
+                                    )}
+                                    <AuthHeader
+                                        services={this.props.services}
                                     />
-                                    {this.state.permissionsLoadState ===
-                                        'success' && (
-                                        <PrimaryAction
-                                            icon={'invite'}
-                                            type="primary"
-                                            label={'Invite People'}
-                                            size="medium"
-                                            innerRef={this.sharePageButton}
-                                            onClick={() =>
-                                                this.processEvent(
-                                                    'showSharePageMenu',
-                                                    null,
-                                                )
-                                            }
-                                            padding="5px 10px 5px 5px"
-                                        />
-                                    )}
                                 </>
                             )}
                         </RightSideTopBar>
@@ -1090,7 +1119,36 @@ export class ReaderPageView extends UIElement<
                         <SidebarTopBar
                             viewportBreakpoint={this.viewportBreakpoint}
                         >
-                            {this.viewportBreakpoint === 'mobile' ? (
+                            <RightSideTopBar>
+                                {this.state.permissionsLoadState ===
+                                    'success' && (
+                                    <ShareContainer>
+                                        <PrimaryAction
+                                            icon={'peopleFine'}
+                                            type="primary"
+                                            label={'Share & Invite'}
+                                            size={
+                                                this.viewportBreakpoint ===
+                                                'mobile'
+                                                    ? 'small'
+                                                    : 'medium'
+                                            }
+                                            fontSize="14px"
+                                            iconSize="18px"
+                                            innerRef={this.sharePageButton}
+                                            onClick={() =>
+                                                this.processEvent(
+                                                    'showSharePageMenu',
+                                                    null,
+                                                )
+                                            }
+                                            padding="12px 10px 12px 5px"
+                                        />
+                                        {this.renderShareTooltip()}
+                                    </ShareContainer>
+                                )}
+                            </RightSideTopBar>
+                            {this.viewportBreakpoint === 'mobile' && (
                                 <Icon
                                     icon="removeX"
                                     heightAndWidth="24px"
@@ -1098,66 +1156,6 @@ export class ReaderPageView extends UIElement<
                                         this.processEvent('toggleSidebar', null)
                                     }
                                 />
-                            ) : (
-                                <RightSideTopBar>
-                                    {this.state.showSupportChat && (
-                                        <PopoutBox
-                                            targetElementRef={
-                                                this.chatBoxRef.current ??
-                                                undefined
-                                            }
-                                            closeComponent={() =>
-                                                this.processEvent(
-                                                    'toggleSupportChat',
-                                                    null,
-                                                )
-                                            }
-                                            placement="bottom"
-                                            offsetX={20}
-                                        >
-                                            <ChatBox>
-                                                <LoadingIndicator size={30} />
-                                                <ChatFrame
-                                                    src={
-                                                        'https://go.crisp.chat/chat/embed/?website_id=05013744-c145-49c2-9c84-bfb682316599'
-                                                    }
-                                                    height={600}
-                                                    width={500}
-                                                />
-                                            </ChatBox>
-                                            <ChatFrame
-                                                src={
-                                                    'https://go.crisp.chat/chat/embed/?website_id=05013744-c145-49c2-9c84-bfb682316599'
-                                                }
-                                                height={600}
-                                                width={500}
-                                            />
-                                        </PopoutBox>
-                                    )}
-                                    {!isIframe() && (
-                                        <SupportChatBox>
-                                            <PrimaryAction
-                                                onClick={() => {
-                                                    this.processEvent(
-                                                        'toggleSupportChat',
-                                                        null,
-                                                    )
-                                                }}
-                                                type="tertiary"
-                                                iconColor="prime1"
-                                                icon="chatWithUs"
-                                                innerRef={
-                                                    this.chatBoxRef ?? undefined
-                                                }
-                                                size="medium"
-                                                label="Support Chat"
-                                            />
-                                        </SupportChatBox>
-                                    )}
-                                    <AuthHeader
-                                        services={this.props.services}
-                                    />
-                                </RightSideTopBar>
                             )}
                         </SidebarTopBar>
                         <SidebarAnnotationContainer>
@@ -1256,6 +1254,14 @@ function isInRange(timestamp: number, range: TimestampRange | undefined) {
     return range.fromTimestamp <= timestamp && range.toTimestamp >= timestamp
 }
 
+const ShareContainer = styled.div``
+
+const VideoActionBar = styled.div`
+    display: flex;
+    justify-content: flex-end;
+    grid-gap: 10px;
+`
+
 const PDFDropNoticeContainer = styled.div`
     display: flex;
     align-items: center;
@@ -1287,6 +1293,7 @@ const AnnotationsidebarContainer = styled.div`
     overflow: scroll;
     width: 100%;
     padding-bottom: 150px;
+    z-index: 10;
 
     &::-webkit-scrollbar {
         display: none;
@@ -1309,6 +1316,7 @@ const ClickBlocker = styled.div`
     position: absolute;
     top: 0px;
     left: 0px;
+    z-index: 1000000000;
 `
 
 const OverlayAnnotationInstructionContainer = styled.div`
@@ -1387,7 +1395,6 @@ const SupportChatBox = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
-    grid-gap: 10px;
     color: ${(props) => props.theme.colors.white};
     z-index: 100;
     cursor: pointer;
@@ -1415,17 +1422,18 @@ const ChatFrame = styled.iframe`
 `
 
 const NotifBox = styled.div`
-    height: 170px;
+    height: fit-content;
     display: flex;
     width: fill-available;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
 `
 
 const AnnotationCreateContainer = styled.div`
     display: flex;
     padding: 10px;
+    z-index: 100;
 `
 
 const EmptyMessageContainer = styled.div`
@@ -1463,8 +1471,8 @@ const LinksContainer = styled.div`
 
 const LinkTitle = styled.div`
     display: flex;
-    color: ${(props) => props.theme.colors.greyScale5};
-    font-size: 14px;
+    color: ${(props) => props.theme.colors.greyScale6};
+    font-size: 16px;
     font-weight: 300;
     margin-bottom: 5px;
     margin-top: 15px;
@@ -1492,13 +1500,13 @@ const LinkBox = styled.div`
 const LinkField = styled.div`
     display: flex;
     background: ${(props) => props.theme.colors.greyScale2};
-    color: ${(props) => props.theme.colors.greyScale4};
+    color: ${(props) => props.theme.colors.greyScale5};
     border-radius: 5px;
     align-items: center;
     overflow: scroll;
     text-overflow: ellipsis;
     padding: 0 10px;
-    font-size: 12px;
+    font-size: 14px;
     white-space: nowrap;
 
     &::-webkit-scrollbar {
@@ -1507,7 +1515,7 @@ const LinkField = styled.div`
     scrollbar-width: none;
 `
 
-const TooltipBox = styled.div`
+const TooltipContainer = styled.div`
     display: flex;
     flex-direction: column;
     grid-gap: 10px;
@@ -1517,11 +1525,14 @@ const TooltipBox = styled.div`
 `
 
 const Title = styled.div`
-    display: flex;
-    color: ${(props) => props.theme.colors.white};
-    font-size: 16px;
-    font-weight: 600;
-    justify-content: flex-start;
+    font-size: 20px;
+    line-height: 25px;
+    font-weight: 800;
+    background: ${(props) => props.theme.colors.headerGradient};
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-align: left;
 `
 
 const Description = styled.div`
@@ -1542,7 +1553,7 @@ const LeftSideTopBar = styled.div`
 const RightSideTopBar = styled.div`
     display: flex;
     align-items: center;
-    grid-gap: 15px;
+    grid-gap: 10px;
 `
 
 const Logo = styled.img`
@@ -1626,6 +1637,8 @@ const SidebarTopBar = styled.div<{
     align-items: center;
     padding: 0 10px;
     justify-content: flex-end;
+    grid-gap: 15px;
+    z-index: 10000000;
 
     ${(props) =>
         props.viewportBreakpoint === 'mobile' &&
