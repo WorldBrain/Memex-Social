@@ -938,7 +938,6 @@ export class ReaderPageViewLogic extends UILogic<
                 shouldCopyShareLink,
                 drawRectangle,
             ) => {
-                console.log('createHighlightExec')
                 if (this.createHighlightExec) {
                     await this.createHighlightExec(
                         selection,
