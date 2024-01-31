@@ -276,6 +276,25 @@ export class ReaderPageViewLogic extends UILogic<
             ...incoming,
             event: { isUpdate: false },
         })
+
+        const isMemexInstalled = doesMemexExtDetectionElExist()
+
+        if (!isMemexInstalled) {
+            const pageLinkCreationCounter = JSON.parse(
+                localStorage.getItem('pageLinkCreationCounter') || '[]',
+            )
+            // show the install tooltip every 2, 5, 10, 20 times the user creates a page link
+            if (
+                pageLinkCreationCounter.length === 2 ||
+                pageLinkCreationCounter.length === 5 ||
+                pageLinkCreationCounter.length === 10 ||
+                pageLinkCreationCounter.length === 20
+            ) {
+                this.emitMutation({
+                    overlayModalState: { $set: 'installTools' },
+                })
+            }
+        }
     }
 
     load: EventHandler<'load'> = async ({ previousState }) => {

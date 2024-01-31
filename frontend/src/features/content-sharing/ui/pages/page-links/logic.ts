@@ -204,6 +204,15 @@ export default class PageLinkCreationLogic extends UILogic<
         listEntryId: AutoPk,
         pdfBlob?: Blob,
     ): void {
+        const pageLinkCreationCounter = JSON.parse(
+            localStorage.getItem('pageLinkCreationCounter') || '[]',
+        )
+        pageLinkCreationCounter.push(Date.now())
+        localStorage.setItem(
+            'pageLinkCreationCounter',
+            JSON.stringify(pageLinkCreationCounter),
+        )
+
         this.dependencies.services.router.goTo(
             'pageView',
             {

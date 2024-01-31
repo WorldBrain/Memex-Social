@@ -1,4 +1,5 @@
 import { PrimaryAction } from '@worldbrain/memex-common/lib/common-ui/components/PrimaryAction'
+import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
 import { detect } from 'detect-browser'
 import React from 'react'
 import styled from 'styled-components'
@@ -13,56 +14,6 @@ interface OverlayModalProps {
     closeModal: () => Promise<void>
 }
 
-const OverlayBackground = styled.div`
-    background: ${(props) => props.theme.colors.black}30;
-    backdrop-filter: blur(10px);
-    height: 100vh;
-    width: 100vw;
-    position: fixed;
-    z-index: 1000000000;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-`
-
-const OverlayBox = styled.div`
-    background: ${(props) => props.theme.colors.black}99;
-    backdrop-filter: blur(20px);
-    border-radius: 20px;
-    border: 1px solid ${(props) => props.theme.colors.greyScale2};
-    padding: 50px;
-    min-height: 300px;
-    min-width: 500px;
-    max-width: 800px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    grid-gap: 15px;
-
-    &:last-child {
-        margin-top: 20px;
-    }
-`
-
-const Title = styled.div`
-    font-size: 30px;
-    line-height: 45px;
-    font-weight: 800;
-    background: ${(props) => props.theme.colors.headerGradient};
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-`
-const Subtitle = styled.div`
-    font-size: 18px;
-    line-height: 24px;
-    font-weight: 400;
-
-    color: ${(props) => props.theme.colors.greyScale6};
-    text-align: center;
-`
-
 export const OverlayModal: React.FC<OverlayModalProps> = ({
     type,
     closeModal,
@@ -71,8 +22,33 @@ export const OverlayModal: React.FC<OverlayModalProps> = ({
         return (
             <OverlayBackground onClick={closeModal}>
                 <OverlayBox>
-                    <Title>Install Memex</Title>
-                    <Subtitle>Save and organize your research</Subtitle>
+                    <Title>
+                        Get super powers with
+                        <br /> the Memex browser extension
+                    </Title>
+                    <FeatureContainer>
+                        {FeatureArry.map((feature) => (
+                            <FeatureBox>
+                                <Icon
+                                    icon={feature.icon}
+                                    heightAndWidth="22px"
+                                    color="prime1"
+                                    hoverOff
+                                />
+                                <FeatureTitle>{feature.title}</FeatureTitle>
+                            </FeatureBox>
+                        ))}
+                    </FeatureContainer>
+                    <PrimaryAction
+                        onClick={() =>
+                            window.open(getBrowserDownloadLink(), '_blank')
+                        }
+                        type={'primary'}
+                        label={'Download Memex'}
+                        size={'large'}
+                        icon={getBrowserIcon()}
+                        padding={'5px 15px 5px 5px'}
+                    />
                 </OverlayBox>
             </OverlayBackground>
         )
@@ -152,6 +128,33 @@ function getBrowserIcon(): JSX.Element {
     }
 }
 
+const FeatureArry = [
+    {
+        title: 'Annotate & Share while browsing',
+        icon: 'highlight',
+    },
+    {
+        title: 'Summarize websites, PDFs and Videos',
+        icon: 'stars',
+    },
+    {
+        title: 'Organise & Share Folders',
+        icon: 'folder',
+    },
+    {
+        title: 'Full Text search everything you save',
+        icon: 'searchIcon',
+    },
+    {
+        title: 'Sync to Obsidian, Logseq and Readwise',
+        icon: 'reload',
+    },
+    {
+        title: 'YouTube Screenshots & Smart Notes',
+        icon: 'play',
+    },
+]
+
 function getBrowserDownloadLink() {
     const browserDetect = detect()
     let downloadLink
@@ -177,3 +180,80 @@ function getBrowserDownloadLink() {
                 'https://chrome.google.com/webstore/detail/abkfbakhjpmblaafnpgjppbmioombali')
     }
 }
+
+const FeatureBox = styled.div`
+    display: flex;
+    grid-gap: 10px;
+    padding: 15px;
+    align-items: center;
+    border-radius: 10px;
+    width: fit-content;
+    border: 1px solid ${(props) => props.theme.colors.greyScale2};
+    background: ${(props) => props.theme.colors.greyScale1};
+`
+const FeatureTitle = styled.div`
+    font-size: 16px;
+    font-weight: 400;
+    color: ${(props) => props.theme.colors.greyScale6};
+`
+
+const FeatureContainer = styled.div`
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+`
+
+const OverlayBackground = styled.div`
+    background: ${(props) => props.theme.colors.black}30;
+    backdrop-filter: blur(10px);
+    height: 100vh;
+    width: 100vw;
+    position: fixed;
+    z-index: 1000000000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`
+
+const OverlayBox = styled.div`
+    background: ${(props) => props.theme.colors.black}99;
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    border: 1px solid ${(props) => props.theme.colors.greyScale3};
+    padding: 50px;
+    min-height: 300px;
+    min-width: 500px;
+    max-width: 800px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    grid-gap: 15px;
+
+    &:last-child {
+        margin-top: 20px;
+    }
+`
+
+const Title = styled.div`
+    font-size: 38px;
+    line-height: 55px;
+    font-weight: 800;
+    background: ${(props) => props.theme.colors.headerGradient};
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-align: center;
+`
+const Subtitle = styled.div`
+    font-size: 18px;
+    line-height: 24px;
+    font-weight: 400;
+
+    color: ${(props) => props.theme.colors.greyScale6};
+    text-align: center;
+`
