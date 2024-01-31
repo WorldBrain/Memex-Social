@@ -97,7 +97,7 @@ export default class PageLinkCreationLogic extends UILogic<
         await loadInitial(this, async () => {
             const authEnforced = await this.dependencies.services.auth.enforceAuth(
                 {
-                    reason: 'login-requested',
+                    reason: 'registration-requested',
                 },
             )
             if (!authEnforced) {

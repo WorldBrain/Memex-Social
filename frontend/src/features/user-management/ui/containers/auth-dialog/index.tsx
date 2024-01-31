@@ -144,7 +144,8 @@ export default class AuthDialog extends UIElement<
                         )}
                         <Margin bottom="small">
                             <Header>
-                                {state.mode === 'register' && 'Sign up'}
+                                {state.mode === 'register' &&
+                                    'Sign up. Just once.'}
                             </Header>
                         </Margin>
                         <Footer>
@@ -575,11 +576,15 @@ const StyledAuthDialog = styled.div<{ viewportBreakpoint: ViewportBreakpoint }>`
         `}
 `
 const Header = styled.div`
-    text-align: center;
-    font-size: 26px;
     font-weight: 900;
-    color: ${(props) => props.theme.colors.white};
     margin-bottom: 10px;
+    font-size: 38px;
+    line-height: 55px;
+    background: ${(props) => props.theme.colors.headerGradient};
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-align: center;
 `
 const AuthenticationMethods = styled.div`
     display: flex;
