@@ -52,11 +52,11 @@ export default class LandingPage extends UIElement<
                     <MainContainer>
                         <TitleBox>
                             <Title>
-                                Wanna share a bunch of notes on a <br />a
-                                website, PDF or YouTube video?
+                                Wanna share a bunch of notes on <br />a website,
+                                PDF or YouTube video?
                             </Title>
                             <SubTitle>
-                                Instantly generate a link to highlight & discuss
+                                Instantly share a link to highlight & discuss
                                 them with the ease of working on a Google Doc
                             </SubTitle>
                         </TitleBox>
