@@ -239,14 +239,7 @@ export default class LandingPage extends UIElement<
                             }}
                         >
                             {this.state.showBookmarkletText && (
-                                <DragBookmarkletBox
-                                    onMouseLeave={() => {
-                                        this.processEvent(
-                                            'switchToBookmarkletText',
-                                            false,
-                                        )
-                                    }}
-                                >
+                                <DragBookmarkletBox>
                                     <DragBookmarkletText>
                                         Drag me into the bookmarks bar and click
                                         while on any public url
@@ -262,12 +255,6 @@ export default class LandingPage extends UIElement<
                                                 )
                                             }, 6000)
                                         }}
-                                        onMouseLeave={() => {
-                                            this.processEvent(
-                                                'switchToBookmarkletText',
-                                                false,
-                                            )
-                                        }}
                                     >
                                         Memex New
                                     </DragBookmarkletHiddenText>
@@ -281,12 +268,6 @@ export default class LandingPage extends UIElement<
                                             '_blank',
                                         )
                                     }
-                                    onMouseLeave={() => {
-                                        this.processEvent(
-                                            'switchToExtensionDownloadText',
-                                            false,
-                                        )
-                                    }}
                                 >
                                     Download for
                                     <BrowserIcon icon={getBrowserIcon()} />
@@ -386,18 +367,17 @@ const Logo = styled.img`
 `
 
 const IconBox = styled.div`
-    animation: wiggle 2s ease-in-out infinite;
+    animation: wiggle 3s ease-in-out infinite;
 
     @keyframes wiggle {
-        0%,
-        100% {
-            transform: translateY(0);
-        }
         25% {
             transform: translateY(10px);
         }
         50% {
             transform: translateY(0);
+        }
+        75% {
+            transform: translateY(10px);
         }
     }
 `
@@ -475,6 +455,23 @@ const NewPDFArea = styled.div<{ fileDragState: boolean }>`
         css`
             border: 1px dashed ${props.theme.colors.prime1};
         `}
+
+    font-size: 1.2rem;
+    @media (max-width: 1200px) {
+        font-size: 1.2rem;
+    }
+
+    @media (max-width: 992px) {
+        font-size: 1.2rem;
+    }
+
+    @media (max-width: 768px) {
+        font-size: 1rem;
+    }
+
+    @media (max-width: 576px) {
+        font-size: 1rem;
+    }
 `
 
 const MainContainer = styled.div`
@@ -500,7 +497,7 @@ const Title = styled.div`
     -webkit-text-fill-color: transparent;
     background-clip: text;
     text-align: center;
-    font-size: 4.5rem;
+    font-size: 3.5rem;
     text-align: center;
     font-weight: 900;
     @media (max-width: 1200px) {
@@ -522,24 +519,24 @@ const Title = styled.div`
 const SubTitle = styled.div`
     color: ${(props) => props.theme.colors.greyScale6};
     margin-bottom: 40px;
-    font-size: 30px;
     font-weight: 300;
     text-align: center;
 
+    font-size: 1.5rem;
     @media (max-width: 1200px) {
-        font-size: 20px;
+        font-size: 1.5rem;
     }
 
     @media (max-width: 992px) {
-        font-size: 18px;
+        font-size: 1.2rem;
     }
 
     @media (max-width: 768px) {
-        font-size: 16px;
+        font-size: 1rem;
     }
 
     @media (max-width: 576px) {
-        font-size: 16px;
+        font-size: 1rem;
     }
 `
 

@@ -91,6 +91,13 @@ export default class LandingPageLogic extends UILogic<
             return // Ignore any unexpected messages
         }
 
+        const authEnforced = await this.dependencies.services.auth.enforceAuth({
+            reason: 'registration-requested',
+        })
+        if (!authEnforced) {
+            await this.dependencies.services.auth.waitForAuth()
+        }
+
         await this.createAndRouteToPageLinkForBlob(incoming.event.file)
     }
 
@@ -110,6 +117,13 @@ export default class LandingPageLogic extends UILogic<
         incoming,
     ) => {
         const url = incoming.event.url
+
+        const authEnforced = await this.dependencies.services.auth.enforceAuth({
+            reason: 'registration-requested',
+        })
+        if (!authEnforced) {
+            await this.dependencies.services.auth.waitForAuth()
+        }
 
         try {
             new URL(url)
@@ -161,14 +175,6 @@ export default class LandingPageLogic extends UILogic<
 
     async createAndRouteToPageLinkForBlob(content: Blob) {
         const { services, generateServerId } = this.dependencies
-
-        const authEnforced = await this.dependencies.services.auth.enforceAuth({
-            reason: 'registration-requested',
-        })
-        if (!authEnforced) {
-            await this.dependencies.services.auth.waitForAuth()
-        }
-
         // if (this.dependencies.fullPageUrl == null) {
         //     // Send message to memex.garden saying we're ready to receive files
         //     this.sendReadyMessage()

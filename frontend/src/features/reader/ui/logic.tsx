@@ -389,20 +389,18 @@ export class ReaderPageViewLogic extends UILogic<
                     services.router.getQueryParam('noAutoOpen') === 'true' ||
                     window.location.href.includes('noAutoOpen=true')
 
+                const isOwnLink = nextState.permissions === 'owner'
+                const userAgent = navigator.userAgent
                 if (
                     isMemexInstalled &&
                     nextState.currentUserReference != null &&
                     !shouldNotOpenLink
                 ) {
-                    console.log('got here')
-
                     const sharedListId = listReference.id as string
                     const sourceUrl = listEntry.sourceUrl as string
                     const isCollaborationLink = !!services.router.getQueryParam(
                         'key',
                     )
-                    const isOwnLink = nextState.permissions === 'owner'
-                    const userAgent = navigator.userAgent
 
                     if (/Firefox/i.test(userAgent)) {
                         // Create a new DOM element, let's assume it's a `div`
@@ -448,6 +446,12 @@ export class ReaderPageViewLogic extends UILogic<
                     services.router.delQueryParam('noAutoOpen')
                 }
 
+                let overLayModalStateValue: ReaderPageViewState['overlayModalState'] = null
+
+                if (services.router.getQueryParam('key') && !isOwnLink) {
+                    overLayModalStateValue = 'invitedForCollaboration'
+                }
+
                 nextState = this.emitAndApplyMutation(nextState, {
                     annotationLoadStates: {
                         [listEntry.normalizedUrl]: { $set: 'running' },
@@ -459,8 +463,7 @@ export class ReaderPageViewLogic extends UILogic<
                         ),
                     },
                     overlayModalState: {
-                        $set: (services.router.getQueryParam('key') ??
-                            'invitedForCollaboration') as ReaderPageViewState['overlayModalState'],
+                        $set: overLayModalStateValue ?? null,
                     },
                     listData: {
                         $set: {
