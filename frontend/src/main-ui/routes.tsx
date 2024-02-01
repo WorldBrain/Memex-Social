@@ -47,6 +47,9 @@ export default class Routes extends React.Component<Props> {
                                 <LandingPage
                                     storage={serverModules}
                                     services={this.props.services}
+                                    generateServerId={
+                                        this.props.generateServerId
+                                    }
                                 />
                             )
                         }}

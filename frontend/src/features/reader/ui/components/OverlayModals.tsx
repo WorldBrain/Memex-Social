@@ -114,6 +114,8 @@ function getBrowserIcon(): JSX.Element {
         return browserIcon
     }
 
+    console.log('browserDetect', browserDetect)
+
     switch (browserDetect && browserDetect.name) {
         case 'chrome':
             browserIcon = require('../../../../assets/img/chromeLogo.svg')

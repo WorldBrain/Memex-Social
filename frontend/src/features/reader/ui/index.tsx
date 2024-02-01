@@ -1557,7 +1557,7 @@ const RightSideTopBar = styled.div`
 `
 
 const Logo = styled.img`
-    height: 24px;
+    height: 40px;
 `
 
 const YoutubeIframe = styled.div<{}>`
