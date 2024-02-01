@@ -833,7 +833,14 @@ export class ReaderPageView extends UIElement<
                 <LeftSide>
                     <TopBar>
                         <LeftSideTopBar>
-                            <Logo src={screenSmall ? memexIcon : memexLogo} />
+                            <Logo
+                                onClick={() => {
+                                    this.props.services.router.goTo(
+                                        'landingPage',
+                                    )
+                                }}
+                                src={screenSmall ? memexIcon : memexLogo}
+                            />
                             <BreadCrumbBox>
                                 {this.state.listData &&
                                     this.state.listData?.list.type !==
@@ -1558,6 +1565,7 @@ const RightSideTopBar = styled.div`
 
 const Logo = styled.img`
     height: 40px;
+    cursor: pointer;
 `
 
 const YoutubeIframe = styled.div<{}>`

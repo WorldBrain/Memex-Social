@@ -362,7 +362,7 @@ function getBrowserDownloadLink() {
 const Logo = styled.img`
     height: 40px;
     position: absolute;
-    top: 20px;
+    top: 15px;
     left: 20px;
 `
 
