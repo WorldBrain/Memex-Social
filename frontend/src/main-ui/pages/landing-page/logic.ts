@@ -128,7 +128,6 @@ export default class LandingPageLogic extends UILogic<
         try {
             new URL(url)
             // If the URL is valid, proceed with creating and routing to page link for the remote URL
-            await this.createAndRouteToPageLinkForRemoteUrl(url)
         } catch (error) {
             console.error(`Invalid URL: ${url}`)
             // Handle invalid URL case here, e.g., by setting an error state or notifying the user
