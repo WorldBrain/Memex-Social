@@ -52,17 +52,17 @@ export default class LandingPage extends UIElement<
                     <MainContainer>
                         <TitleBox>
                             <Title>
-                                Annotate & discuss <br />
-                                websites, PDFs and YouTube videos
+                                Wanna share a bunch of notes on a <br />a
+                                website, PDF or YouTube video?
                             </Title>
                             <SubTitle>
-                                Deep-read, give feedback & review with the ease
-                                of working on a Google Doc. Just share a link.
+                                Instantly generate a link to highlight & discuss
+                                them with the ease of working on a Google Doc
                             </SubTitle>
                         </TitleBox>
                         <AddNewBox>
                             <TextField
-                                placeholder="Paste public url of website, PDF or YouTube video"
+                                placeholder="Paste public URL of website, PDF or YouTube video"
                                 onChange={(e) =>
                                     this.processEvent('newUrlInputChanged', {
                                         newUrlInputValue: (e.target as HTMLInputElement)
@@ -298,7 +298,8 @@ export default class LandingPage extends UIElement<
                                         >
                                             browser extension
                                         </ActionInText>{' '}
-                                        for 1-click links on any public url
+                                        to create links with 1-click while
+                                        browsing
                                     </DefaultTextBox>
                                 )}
                         </BottomContainer>
@@ -574,15 +575,15 @@ const DefaultTextBox = styled.div`
     -webkit-text-fill-color: transparent;
     background-clip: text;
     text-align: center;
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     text-align: center;
     font-weight: 300;
     display: flex;
     grid-gap: 5px;
     letter-spacing: 1px;
     @media (max-width: 1200px) {
-        font-size: 1.5rem;
-        line-height: 1.5rem;
+        font-size: 1.3rem;
+        line-height: 1.3rem;
     }
 
     @media (max-width: 992px) {
@@ -591,13 +592,24 @@ const DefaultTextBox = styled.div`
     }
 
     @media (max-width: 768px) {
-        font-size: 0.75rem;
-        line-height: 0.75rem;
+        font-size: 0.9rem;
+        line-height: 0.9rem;
+        white-space: nowrap;
+        flex-wrap: wrap;
+        text-align: center;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 18px;
     }
 
     @media (max-width: 576px) {
-        font-size: 0.5rem;
-        line-height: 0.5rem;
+        font-size: 0.9rem;
+        line-height: 0.9rem;
+        flex-wrap: wrap;
+        text-align: center;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 18px;
     }
 `
 
