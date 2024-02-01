@@ -459,9 +459,8 @@ export class ReaderPageViewLogic extends UILogic<
                         ),
                     },
                     overlayModalState: {
-                        $set:
-                            services.router.getQueryParam('key') &&
-                            'invitedForCollaboration',
+                        $set: (services.router.getQueryParam('key') ??
+                            'invitedForCollaboration') as ReaderPageViewState['overlayModalState'],
                     },
                     listData: {
                         $set: {
