@@ -2,14 +2,11 @@ import { Trans } from 'react-i18next'
 import React from 'react'
 import styled from 'styled-components'
 import { UIElement } from '../../classes'
-import { UIElementServices } from '../../../services/types'
 import Logic, { LandingPageState } from './logic'
-import { LandingPageEvent } from './types'
+import type { LandingPageDependencies, LandingPageEvent } from './types'
 import LoadingIndicator from '../../../common-ui/components/loading-indicator'
 
-interface LandingPageProps {
-    services: UIElementServices<'auth' | 'router'>
-}
+interface LandingPageProps extends LandingPageDependencies {}
 
 const Container = styled.div`
     height: 100vh;
@@ -25,19 +22,14 @@ export default class LandingPage extends UIElement<
     LandingPageEvent
 > {
     constructor(props: LandingPageProps) {
-        super(props, { logic: new Logic() })
-    }
-
-    async componentDidMount() {
-        await super.componentDidMount()
-        this.props.services.router.goToExternalUrl('https://memex.garden/')
+        super(props, { logic: new Logic(props) })
     }
 
     render() {
         return (
             <Trans>
                 <Container>
-                    <LoadingIndicator />
+                    <p style={{ color: 'white' }}>My Landing Page</p>
                 </Container>
             </Trans>
         )

@@ -1,5 +1,5 @@
 import { UILogic, UIMutation } from '../../classes/logic'
-import { LandingPageEvent } from './types'
+import type { LandingPageEvent, LandingPageDependencies } from './types'
 
 export interface LandingPageState {
     foo: boolean
@@ -8,6 +8,10 @@ export default class LandingPageLogic extends UILogic<
     LandingPageState,
     LandingPageEvent
 > {
+    constructor(private dependencies: LandingPageDependencies) {
+        super()
+    }
+
     getInitialState() {
         return { foo: false }
     }

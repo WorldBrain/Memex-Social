@@ -5,7 +5,6 @@ import { Router, Route, Switch } from 'react-router'
 import { EventHandlers } from './classes/events'
 
 import ROUTES from '../routes'
-import UserHome from './pages/user-home'
 import NotFound from './pages/not-found'
 import LandingPage from './pages/landing-page'
 import PageLinkCreationPage from '../features/content-sharing/ui/pages/page-links'
@@ -44,20 +43,12 @@ export default class Routes extends React.Component<Props> {
                         exact
                         path={getReactRoutePattern(ROUTES.landingPage.path)}
                         render={() => {
-                            if (this.props.services.auth.getCurrentUser()) {
-                                return (
-                                    <UserHome
-                                        storage={this.props.storage}
-                                        services={this.props.services}
-                                    />
-                                )
-                            } else {
-                                return (
-                                    <LandingPage
-                                        services={this.props.services}
-                                    />
-                                )
-                            }
+                            return (
+                                <LandingPage
+                                    storage={serverModules}
+                                    services={this.props.services}
+                                />
+                            )
                         }}
                     />
                     <Route
