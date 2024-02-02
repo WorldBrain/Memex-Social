@@ -1,8 +1,12 @@
 import React from 'react'
 import styled, { css } from 'styled-components'
 import { UIElement } from '../../classes'
-import Logic, { LandingPageState } from './logic'
-import type { LandingPageDependencies, LandingPageEvent } from './types'
+import Logic from './logic'
+import type {
+    LandingPageDependencies,
+    LandingPageState,
+    LandingPageEvent,
+} from './types'
 import LoadingIndicator from '../../../common-ui/components/loading-indicator'
 import TextField from '@worldbrain/memex-common/lib/common-ui/components/text-field'
 import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
@@ -159,7 +163,8 @@ export default class LandingPage extends UIElement<
                                         input.type = 'file'
                                         input.accept = 'application/pdf'
                                         input.onchange = (e) => {
-                                            const file = e.target.files[0]
+                                            const file = (e.target as HTMLInputElement)
+                                                .files?.[0]
                                             if (file) {
                                                 file.arrayBuffer().then(
                                                     (arrayBuffer) => {
@@ -170,7 +175,7 @@ export default class LandingPage extends UIElement<
                                                                     'application/pdf',
                                                             },
                                                         )
-                                                        this.processEvent(
+                                                        return this.processEvent(
                                                             'handlePDFBlob',
                                                             {
                                                                 file: blob,

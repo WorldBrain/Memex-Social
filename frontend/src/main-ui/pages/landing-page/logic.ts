@@ -108,6 +108,7 @@ export default class LandingPageLogic extends UILogic<
             fileDragState: false,
             linkProcessingState: 'pristine',
             isValidUrl: false,
+            fileAreaHoverState: false,
             showBookmarkletText: false,
             showExtensionDownloadText: false,
         }
