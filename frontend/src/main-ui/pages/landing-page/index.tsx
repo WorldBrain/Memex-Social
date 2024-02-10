@@ -118,7 +118,6 @@ export default class LandingPage extends UIElement<
                                 <NewPDFArea
                                     fileDragState={this.state.fileDragState}
                                     onDrop={(e) => {
-                                        console.log('drop')
                                         e.preventDefault()
                                         const files = e.dataTransfer.files
                                         if (files.length > 0) {
@@ -128,9 +127,6 @@ export default class LandingPage extends UIElement<
                                             ) {
                                                 file.arrayBuffer().then(
                                                     (arrayBuffer) => {
-                                                        console.log(
-                                                            'arrayBuffer',
-                                                        )
                                                         const blob = new Blob(
                                                             [arrayBuffer],
                                                             {
@@ -138,10 +134,7 @@ export default class LandingPage extends UIElement<
                                                                     'application/pdf',
                                                             },
                                                         )
-                                                        console.log(
-                                                            'drop pdf blob',
-                                                            blob,
-                                                        )
+
                                                         this.processEvent(
                                                             'handlePDFBlob',
                                                             {

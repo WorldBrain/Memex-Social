@@ -15,7 +15,7 @@ const GlobalStyle = createGlobalStyle`
   body {
     width: 100%;
     height: 100vh;
-    overflow: scroll;
+    overflow: none;
 
     margin: 0;
     background: ${theme.colors.black};

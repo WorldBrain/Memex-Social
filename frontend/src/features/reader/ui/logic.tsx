@@ -1130,11 +1130,8 @@ export class ReaderPageViewLogic extends UILogic<
                 pdfViewer = (isIframe as any)['PDFViewerApplication']?.pdfViewer
             }
 
-            console.log('isiframe', pdfViewer)
-
             let result
             if (pdfViewer && drawRectangle) {
-                console.log('pdfViewer', drawRectangle)
                 screenshotGrabResult = await promptPdfScreenshot(
                     iframe!.contentDocument,
                     iframe!.contentWindow,
@@ -1172,8 +1169,6 @@ export class ReaderPageViewLogic extends UILogic<
                     state,
                 }),
             )
-
-            console.log('result', result)
 
             // TODO: Do something with result (part of it is a Promise)
         }

@@ -30,10 +30,6 @@ export default class LandingPageLogic extends UILogic<
     setFileAreaHoverState: EventHandler<'setFileAreaHoverState'> = async (
         incoming,
     ) => {
-        console.log(
-            'switching to bookmarklet text',
-            incoming.event.fileAreaHoverState,
-        )
         this.emitMutation({
             fileAreaHoverState: { $set: incoming.event.fileAreaHoverState },
         })
@@ -42,7 +38,6 @@ export default class LandingPageLogic extends UILogic<
     switchToBookmarkletText: EventHandler<'switchToBookmarkletText'> = async (
         incoming,
     ) => {
-        console.log('switching to bookmarklet text', incoming.event)
         this.emitMutation({
             showBookmarkletText: { $set: incoming.event },
         })
@@ -50,7 +45,6 @@ export default class LandingPageLogic extends UILogic<
     switchToExtensionDownloadText: EventHandler<'switchToExtensionDownloadText'> = async (
         incoming,
     ) => {
-        console.log('switching to extension text', incoming.event)
         this.emitMutation({
             showExtensionDownloadText: { $set: incoming.event },
         })
@@ -59,12 +53,10 @@ export default class LandingPageLogic extends UILogic<
         incoming,
     ) => {
         let isValidUrl = false
-        console.log('test')
+
         try {
             const url = new URL(incoming.event.newUrlInputValue)
-            console.log('url', url)
             if (url.protocol === 'http:' || url.protocol === 'https:') {
-                console.log('ur', url.protocol)
                 isValidUrl = true
             }
         } catch (error) {

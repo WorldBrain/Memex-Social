@@ -387,7 +387,6 @@ export default function InstallExtOverlay(props: Props) {
     const config = { attributes: true, childList: true }
 
     const detectExtensionReady = () => {
-        console.log('detecting extension')
         const observer = new MutationObserver((mutation) => {
             const targetObject = mutation[0].addedNodes[0]
             if (
