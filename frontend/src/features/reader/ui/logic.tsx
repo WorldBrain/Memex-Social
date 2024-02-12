@@ -247,7 +247,7 @@ export class ReaderPageViewLogic extends UILogic<
             },
             annotationLoadStates: {},
             users: {},
-            sidebarWidth: 400,
+            sidebarWidth: 450,
             activeAnnotationId: null,
             collaborationKey: null,
             joinListResult: null,

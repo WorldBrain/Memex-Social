@@ -1111,6 +1111,7 @@ export class ReaderPageView extends UIElement<
                                 height: '100px',
                             }}
                             width={this.state.sidebarWidth}
+                            minWidth={400}
                             resizeHandleWrapperClass={'sidebarResizeHandle'}
                             className="sidebar-draggable"
                             resizeGrid={[1, 0]}
@@ -1789,6 +1790,7 @@ const ContainerStyled = styled.div<{
     top: 0px;
     right: 0px;
     width: ${(props) => props.width}px;
+    min-width: ${(props) => props.width}px;
     border-left: 1px solid ${(props) => props.theme.colors.greyScale3};
     font-family: 'Satoshi', sans-serif;
     font-feature-settings: 'pnum' on, 'lnum' on, 'case' on, 'ss03' on, 'ss04' on,
