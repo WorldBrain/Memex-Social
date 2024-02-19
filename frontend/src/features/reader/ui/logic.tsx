@@ -5,6 +5,10 @@ import { ThemeProvider, StyleSheetManager } from 'styled-components'
 import createResolvable from '@josephg/resolvable'
 import Tooltip from '@worldbrain/memex-common/lib/in-page-ui/tooltip/container'
 import { conditionallyTriggerTooltip } from '@worldbrain/memex-common/lib/in-page-ui/tooltip/utils'
+import {
+    TOOLTIP_HOST_ID,
+    TOOLTIP_CONTAINER_ID,
+} from '@worldbrain/memex-common/lib/in-page-ui/tooltip/constants'
 import { theme } from '../../../../src/main-ui/styles/theme'
 import {
     GetAnnotationsResult,
@@ -990,7 +994,7 @@ export class ReaderPageViewLogic extends UILogic<
         state: ReaderPageViewState,
     ): void {
         const shadowRootContainer = document.createElement('div')
-        shadowRootContainer.id = 'memex-tooltip-container' // NOTE: this needs to be here else tooltip won't auto-hide on click away (see <ClickAway> comp)
+        shadowRootContainer.id = TOOLTIP_CONTAINER_ID // NOTE: this needs to be here else tooltip won't auto-hide on click away (see <ClickAway> comp)
         iframe.contentDocument?.body.appendChild(shadowRootContainer)
         const shadowRoot = shadowRootContainer?.attachShadow({ mode: 'open' })
         let showTooltipCb = () => {}
@@ -1027,7 +1031,13 @@ export class ReaderPageViewLogic extends UILogic<
             <StyleSheetManager target={shadowRoot as any}>
                 <ThemeProvider theme={fixedTheme}>
                     <Tooltip
-                        getRootElement={() => iframe.contentDocument!.body}
+                        getRootElement={() =>
+                            iframe.contentDocument
+                                ?.getElementById(TOOLTIP_CONTAINER_ID)
+                                ?.shadowRoot?.getElementById(
+                                    TOOLTIP_HOST_ID,
+                                ) as HTMLElement
+                        }
                         hideAddToSpaceBtn
                         getWindow={() => iframe.contentWindow!}
                         createHighlight={async (
