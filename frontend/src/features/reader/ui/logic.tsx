@@ -128,6 +128,7 @@ export class ReaderPageViewLogic extends UILogic<
     private cleanupIframeTooltipShowListeners?: () => void
     private listCreator = createResolvable<UserReference>()
     private iframeSetupResolvable = createResolvable()
+    iframe: HTMLIFrameElement | null = null
 
     constructor(private dependencies: ReaderPageViewDependencies) {
         super()
@@ -817,17 +818,16 @@ export class ReaderPageViewLogic extends UILogic<
             doesUrlPointToPdf(state.sourceUrl!) ||
             this.dependencies.pdfBlob != null
 
-        let iframe: HTMLIFrameElement | null = null
         let pdfJsViewer
         await executeUITask<ReaderPageViewState>(
             this,
             'iframeLoadState',
             async () => {
                 if (isPdf) {
-                    iframe = utils.createIframeForPDFViewer()
+                    this.iframe = utils.createIframeForPDFViewer()
                 } else {
                     const url = state.sourceUrl
-                    iframe = utils.createReaderIframe()
+                    this.iframe = utils.createReaderIframe()
 
                     // const scope = window.location.pathname
                     const scope = '/'
@@ -893,17 +893,17 @@ export class ReaderPageViewLogic extends UILogic<
                     }
 
                     let iframeUrl = `/w/liveproxy/mp_/${url}`
-                    iframe.src = iframeUrl
+                    this.iframe.src = iframeUrl
                 }
-                containerEl.appendChild(iframe)
-                await utils.waitForIframeLoad(iframe)
+                containerEl.appendChild(this.iframe)
+                await utils.waitForIframeLoad(this.iframe)
 
                 if (isPdf) {
                     const isLocalPDF =
                         state?.sourceUrl != null &&
                         state?.sourceUrl.includes('memex.cloud/ct/')
                     // Get PDFViewer from now-loaded iframe
-                    pdfJsViewer = (iframe.contentWindow as any)[
+                    pdfJsViewer = (this.iframe.contentWindow as any)[
                         'PDFViewerApplication'
                     ]
                     if (!pdfJsViewer) {
@@ -926,12 +926,12 @@ export class ReaderPageViewLogic extends UILogic<
             },
         )
 
-        if (!iframe) {
+        if (!this.iframe) {
             return
         }
         this.highlightRenderer = new HighlightRenderer({
-            getWindow: () => iframe!.contentWindow,
-            getDocument: () => iframe!.contentDocument,
+            getWindow: () => this.iframe!.contentWindow,
+            getDocument: () => this.iframe!.contentDocument,
             scheduleAnnotationCreation: this.scheduleAnnotationCreation,
             icons: (iconName: IconKeys) => theme.icons[iconName],
             createHighlight: async (
@@ -946,7 +946,7 @@ export class ReaderPageViewLogic extends UILogic<
                         shouldShare,
                         drawRectangle as boolean,
                         state,
-                        iframe as HTMLIFrameElement,
+                        this.iframe as HTMLIFrameElement,
                     )
                 }
             },
@@ -956,8 +956,8 @@ export class ReaderPageViewLogic extends UILogic<
         while (isPdf && this.highlightRenderer.pdfViewer == null) {
             await sleepPromise(100)
             this.highlightRenderer = new HighlightRenderer({
-                getWindow: () => iframe!.contentWindow,
-                getDocument: () => iframe!.contentDocument,
+                getWindow: () => this.iframe!.contentWindow,
+                getDocument: () => this.iframe!.contentDocument,
                 scheduleAnnotationCreation: this.scheduleAnnotationCreation,
                 icons: (iconName: IconKeys) => theme.icons[iconName],
                 createHighlight: async (
@@ -971,7 +971,7 @@ export class ReaderPageViewLogic extends UILogic<
                             shouldShare,
                             drawRectangle as boolean,
                             state,
-                            iframe as HTMLIFrameElement,
+                            this.iframe as HTMLIFrameElement,
                         )
                     }
                 },
@@ -980,7 +980,7 @@ export class ReaderPageViewLogic extends UILogic<
 
         const keyString = router.getQueryParam('key')
         if (state.permissions != null || keyString != null) {
-            this.setupIframeTooltip(iframe, state)
+            this.setupIframeTooltip(this.iframe, state)
         }
         this.iframeSetupResolvable.resolve()
     }
@@ -1027,6 +1027,7 @@ export class ReaderPageViewLogic extends UILogic<
             <StyleSheetManager target={shadowRoot as any}>
                 <ThemeProvider theme={fixedTheme}>
                     <Tooltip
+                        getRootElement={() => iframe.contentDocument!.body}
                         hideAddToSpaceBtn
                         getWindow={() => iframe.contentWindow!}
                         createHighlight={async (

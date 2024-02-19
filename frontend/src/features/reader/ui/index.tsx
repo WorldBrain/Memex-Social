@@ -59,6 +59,17 @@ export class ReaderPageView extends UIElement<
         }
     }
 
+    private getRootElement = (): HTMLElement => {
+        const iframe = (this.logic as ReaderPageViewLogic).iframe
+        if (!iframe?.contentDocument) {
+            console.warn(
+                'Reader iframe has not yet been loaded into the DOM - using DOM body instead',
+            )
+            return document.body
+        }
+        return iframe.contentDocument.body
+    }
+
     private editor: MemexEditorInstance | null = null
 
     itemRanges: {
@@ -187,6 +198,7 @@ export class ReaderPageView extends UIElement<
 
             return (
                 <AnnotationsInPage
+                    getRootElement={this.getRootElement}
                     hideThreadBar={true}
                     originalUrl={entry.originalUrl}
                     contextLocation={'webUI'}
