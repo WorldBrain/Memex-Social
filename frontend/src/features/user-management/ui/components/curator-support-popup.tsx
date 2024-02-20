@@ -47,6 +47,7 @@ interface CuratorSupportPopupProps {
     curatorUserRef: UserReference
     paymentMade: boolean
     isMonetizationAvailable: boolean
+    getRootElement: () => HTMLElement
 }
 
 export default class CuratorSupportPopup extends PureComponent<CuratorSupportPopupProps> {
@@ -104,6 +105,7 @@ export default class CuratorSupportPopup extends PureComponent<CuratorSupportPop
                                 <CuratorSupportButtonBlock
                                     services={services}
                                     curatorUserRef={curatorUserRef}
+                                    getRootElement={this.props.getRootElement}
                                 />
                             </>
                         )}

@@ -17,6 +17,7 @@ export interface AnnotationDetailsDependencies {
         StorageModules,
         'users' | 'contentSharing' | 'activityStreams'
     >
+    getRootElement: () => HTMLElement
 }
 
 export type AnnotationDetailsEvent = UIEvent<{

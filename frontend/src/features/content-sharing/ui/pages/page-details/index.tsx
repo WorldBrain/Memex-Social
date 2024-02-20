@@ -172,6 +172,7 @@ export default class PageDetailsPage extends UIElement<
                     viewportBreakpoint={this.viewportBreakpoint}
                     headerTitle={'Loading page...'}
                     // listsSidebarProps={this.listsSidebarProps}
+                    getRootElement={this.props.getRootElement}
                 >
                     <DocumentTitle
                         documentTitle={services.documentTitle}
@@ -188,6 +189,7 @@ export default class PageDetailsPage extends UIElement<
                     storage={storage}
                     viewportBreakpoint={this.viewportBreakpoint}
                     headerTitle={'Could not load page'}
+                    getRootElement={this.props.getRootElement}
                     // listsSidebarProps={this.listsSidebarProps}
                 >
                     <DocumentTitle
@@ -209,6 +211,7 @@ export default class PageDetailsPage extends UIElement<
                     storage={storage}
                     viewportBreakpoint={this.viewportBreakpoint}
                     headerTitle={'Shared page not found'}
+                    getRootElement={this.props.getRootElement}
                     // listsSidebarProps={this.listsSidebarProps}
                 >
                     <DocumentTitle
@@ -254,6 +257,7 @@ export default class PageDetailsPage extends UIElement<
                             {props.children}
                         </ProfilePopupContainer>
                     )}
+                    getRootElement={this.props.getRootElement}
                 >
                     <PageInfoList>
                         {/* <Margin>
@@ -318,6 +322,9 @@ export default class PageDetailsPage extends UIElement<
                                         }
                                         newPageReplyEventHandlers={{}}
                                         imageSupport={this.props.imageSupport}
+                                        getRootElement={
+                                            this.props.getRootElement
+                                        }
                                     />
                                 )}
                         </Margin>

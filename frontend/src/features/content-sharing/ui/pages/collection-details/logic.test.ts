@@ -107,6 +107,8 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
                 ),
                 query: {},
                 imageSupport: null as any,
+                getRootElement: () =>
+                    document.getElementById('body') as HTMLElement,
             })
             const container = new TestLogicContainer<
                 CollectionDetailsState,
@@ -231,6 +233,8 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
                 ),
                 query: {},
                 imageSupport: null as any,
+                getRootElement: () =>
+                    document.getElementById('body') as HTMLElement,
             })
             const container = new TestLogicContainer<
                 CollectionDetailsState,
@@ -312,6 +316,8 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
                 listID,
                 query: {},
                 imageSupport: null as any,
+                getRootElement: () =>
+                    document.getElementById('body') as HTMLElement,
             })
             const container = new TestLogicContainer<
                 CollectionDetailsState,
@@ -422,7 +428,10 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
                 listID,
                 query: {},
                 imageSupport: null as any,
+                getRootElement: () =>
+                    document.getElementById('body') as HTMLElement,
             })
+
             const container = new TestLogicContainer<
                 CollectionDetailsState,
                 CollectionDetailsEvent

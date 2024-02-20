@@ -73,6 +73,7 @@ export interface CollectionDetailsDependencies {
     query: ContentSharingQueryParams
     storageManager: StorageManager
     imageSupport: ImageSupportInterface
+    getRootElement: () => HTMLElement
 }
 
 export type CollectionDetailsState = AnnotationConversationsState &

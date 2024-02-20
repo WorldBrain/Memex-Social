@@ -50,6 +50,7 @@ export default function DefaultPageLayout(props: {
     renderDescription?: JSX.Element
     isPageView?: string | undefined
     context?: string
+    getRootElement: () => HTMLElement
 }) {
     const { viewportBreakpoint: viewportWidth } = props
     const renderSubtitle = props.renderSubtitle ?? ((props) => props.children)
@@ -173,7 +174,10 @@ export default function DefaultPageLayout(props: {
                                 viewportWidth={viewportWidth}
                             >
                                 {renderFeedArea()}
-                                <AuthHeader services={props.services} />
+                                <AuthHeader
+                                    services={props.services}
+                                    getRootElement={props.getRootElement}
+                                />
                             </HeaderAuthArea>
                         </>
                     )}
@@ -288,6 +292,7 @@ export default function DefaultPageLayout(props: {
                     closeComponent={() => setShowChatBox(false)}
                     placement="top"
                     offsetX={20}
+                    getPortalRoot={() => props.getRootElement()}
                 >
                     <ChatBox>
                         <LoadingIndicator size={30} />

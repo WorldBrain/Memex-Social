@@ -40,6 +40,7 @@ export interface HomeFeedDependencies {
         | 'activityFollows'
     >
     listActivitiesLimit: number
+    getRootElement: () => HTMLElement
 }
 
 export type HomeFeedState = {

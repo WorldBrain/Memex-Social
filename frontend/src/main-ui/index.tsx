@@ -38,6 +38,7 @@ export function renderMainUi(options: UIRunnerOptions) {
                         services={options.services}
                         generateServerId={options.generateServerId}
                         imageSupport={options.imageSupport}
+                        getRootElement={options.getRootElement}
                     />
                 </App>
             </ThemeProvider>

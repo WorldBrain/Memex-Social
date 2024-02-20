@@ -54,6 +54,7 @@ export interface PageDetailsDependencies {
     pageID: string
     userManagement: UserStorage
     imageSupport: ImageSupportInterface
+    getRootElement: () => HTMLElement
 }
 
 export type PageDetailsState = AnnotationConversationsState &

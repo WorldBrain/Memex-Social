@@ -50,6 +50,7 @@ export interface ReaderPageViewDependencies {
     query: ContentSharingQueryParams
     imageSupport: ImageSupportInterface
     pdfBlob?: Blob
+    getRootElement: () => HTMLElement
 }
 
 export type ReaderPageViewState = AnnotationConversationsState &

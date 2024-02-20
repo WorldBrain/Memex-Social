@@ -94,6 +94,7 @@ export default class AnnotationDetailsPage extends UIElement<
                     services={this.props.services}
                     storage={this.props.storage}
                     viewportBreakpoint={viewportWidth}
+                    getRootElement={this.props.getRootElement}
                 >
                     <ErrorContent>
                         <IconBox heightAndWidth="60px">
@@ -116,6 +117,7 @@ export default class AnnotationDetailsPage extends UIElement<
                     services={this.props.services}
                     storage={this.props.storage}
                     viewportBreakpoint={viewportWidth}
+                    getRootElement={this.props.getRootElement}
                 >
                     <ErrorContent>
                         <IconBox heightAndWidth="60px">

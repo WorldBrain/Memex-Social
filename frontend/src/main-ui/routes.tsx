@@ -50,6 +50,7 @@ export default class Routes extends React.Component<Props> {
                                     generateServerId={
                                         this.props.generateServerId
                                     }
+                                    getRootElement={this.props.getRootElement}
                                 />
                             )
                         }}
@@ -62,6 +63,7 @@ export default class Routes extends React.Component<Props> {
                                 <HomeFeedPage
                                     services={this.props.services}
                                     storage={serverModules}
+                                    getRootElement={this.props.getRootElement}
                                 />
                             )
                         }}
@@ -83,6 +85,7 @@ export default class Routes extends React.Component<Props> {
                                         this.props.generateServerId
                                     }
                                     fullPageUrl={queryParams.get('url')}
+                                    getRootElement={this.props.getRootElement}
                                 />
                             )
                         }}
@@ -110,6 +113,7 @@ export default class Routes extends React.Component<Props> {
                                     }
                                     pdfBlob={route.location.state?.pdfBlob}
                                     imageSupport={this.props.imageSupport}
+                                    getRootElement={this.props.getRootElement}
                                 />
                             )
                         }}
@@ -134,6 +138,7 @@ export default class Routes extends React.Component<Props> {
                                     storage={serverModules}
                                     query={query}
                                     imageSupport={this.props.imageSupport}
+                                    getRootElement={this.props.getRootElement}
                                 />
                             )
                         }}
@@ -149,6 +154,7 @@ export default class Routes extends React.Component<Props> {
                                     storage={serverModules}
                                     userManagement={serverModules.users}
                                     imageSupport={this.props.imageSupport}
+                                    getRootElement={this.props.getRootElement}
                                 />
                             )
                         }}
@@ -164,6 +170,7 @@ export default class Routes extends React.Component<Props> {
                                     annotationID={route.match.params.id}
                                     services={this.props.services}
                                     storage={serverModules}
+                                    getRootElement={this.props.getRootElement}
                                 />
                             )
                         }}

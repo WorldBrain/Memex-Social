@@ -12,6 +12,7 @@ export interface UIRunnerOptions {
     history: history.History
     generateServerId: GenerateServerID
     imageSupport: ImageSupportInterface
+    getRootElement: () => HTMLElement
 }
 
 export type UIRunner = (options: UIRunnerOptions) => Promise<void>

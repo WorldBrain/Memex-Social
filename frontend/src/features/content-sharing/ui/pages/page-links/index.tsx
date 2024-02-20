@@ -64,6 +64,7 @@ export default class PageLinkCreationPage extends UIElement<
                 services={this.props.services}
                 storage={this.props.storage}
                 viewportBreakpoint={this.viewportBreakpoint}
+                getRootElement={this.props.getRootElement}
             >
                 {this.renderMainContent()}
             </DefaultPageLayout>

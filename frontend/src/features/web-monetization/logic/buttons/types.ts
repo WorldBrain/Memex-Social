@@ -9,6 +9,7 @@ export interface WebMonetizationButtonDependencies {
     >
     curatorUserRef: UserReference
     isFollowedSpace?: boolean
+    getRootElement: () => HTMLElement
 }
 
 export interface WebMonetizationButtonState {

@@ -39,4 +39,5 @@ export interface LandingPageDependencies {
     storage: Pick<StorageModules, 'contentSharing'>
     generateServerId: GenerateServerID
     fullPageUrl?: string
+    getRootElement: () => HTMLElement
 }

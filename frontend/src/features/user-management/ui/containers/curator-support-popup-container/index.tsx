@@ -22,6 +22,7 @@ export type CuratorSupportPopupContainerDependencies = Omit<
     isMonetizationAvailable: boolean
     userRef: UserReference
     onMouseLeave?: () => void
+    getRootElement: () => HTMLElement
 }
 export type CuratorSupportPopupContainerState = ProfilePopupContainerState
 export type CuratorSupportPopupContainerEvent = ProfilePopupContainerEvent
@@ -56,6 +57,7 @@ export default class CuratorSupportPopupContainer extends UIElement<
                 paymentMade={props.paymentMade}
                 paymentState={props.paymentState}
                 isMonetizationAvailable={props.isMonetizationAvailable}
+                getRootElement={props.getRootElement}
             />
         )
     }

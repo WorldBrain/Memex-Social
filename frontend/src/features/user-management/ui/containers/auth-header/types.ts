@@ -5,6 +5,7 @@ import { UITaskState } from '../../../../../main-ui/types'
 
 export interface AuthHeaderDependencies {
     services: UIElementServices<'auth' | 'overlay' | 'userManagement'>
+    getRootElement: () => HTMLElement
 }
 
 export interface AuthHeaderState {

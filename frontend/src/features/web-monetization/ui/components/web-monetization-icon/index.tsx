@@ -106,6 +106,7 @@ export default class WebMonetizationIcon extends UIElement<
                         </span>
                     }
                     targetElementRef={this.iconRef.current ?? undefined}
+                    getPortalRoot={this.props.getRootElement}
                 >
                     {this.renderIcon()}
                 </TooltipBox>
@@ -118,6 +119,7 @@ export default class WebMonetizationIcon extends UIElement<
                             this.processEvent('hidePopup', null)
                         }
                         offsetX={10}
+                        getPortalRoot={this.props.getRootElement}
                     >
                         <CuratorSupportPopupContainer
                             services={this.props.services}
@@ -130,6 +132,7 @@ export default class WebMonetizationIcon extends UIElement<
                             onMouseLeave={() =>
                                 this.processEvent('hidePopup', null)
                             }
+                            getRootElement={this.props.getRootElement}
                         />
                     </PopoutBox>
                 )}

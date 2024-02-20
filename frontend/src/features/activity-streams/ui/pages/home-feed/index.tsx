@@ -729,6 +729,7 @@ export default class HomeFeedPage extends UIElement<
                     storage={this.props.storage}
                     viewportBreakpoint={this.viewportBreakpoint}
                     hideActivityIndicator
+                    getRootElement={this.props.getRootElement}
                 >
                     <ErrorBox>You need to login to view your feed.</ErrorBox>
                 </DefaultPageLayout>
@@ -800,6 +801,7 @@ export default class HomeFeedPage extends UIElement<
                     headerTitle="Notifications"
                     headerSubtitle={this.renderHeaderSubTitle()}
                     context="feed"
+                    getRootElement={this.props.getRootElement}
                     // listsSidebarProps={{
                     //     collaborativeLists: this.state.collaborativeLists,
                     //     followedLists: this.state.followedLists,

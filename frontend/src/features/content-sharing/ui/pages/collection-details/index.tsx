@@ -229,6 +229,7 @@ export default class CollectionDetailsPage extends UIElement<
                 services={this.props.services}
                 curatorUserRef={creatorReference}
                 isFollowedSpace={this.state.isCollectionFollowed}
+                getRootElement={this.props.getRootElement}
             />
         )
     }
@@ -780,6 +781,7 @@ export default class CollectionDetailsPage extends UIElement<
                 }}
                 onAnnotationBoxRootRef={this.onAnnotEntryRef}
                 onReplyRootRef={this.onReplyRef}
+                getRootElement={this.props.getRootElement}
             />
         )
     }
@@ -1075,6 +1077,9 @@ export default class CollectionDetailsPage extends UIElement<
                                                     )
                                                 }
                                                 offsetX={5}
+                                                getPortalRoot={
+                                                    this.props.getRootElement
+                                                }
                                             >
                                                 <ContributorContainer>
                                                     {users.map(
@@ -1181,6 +1186,7 @@ export default class CollectionDetailsPage extends UIElement<
                 <TooltipBox
                     placement="bottom"
                     tooltipText='Use natural language, like "2 weeks ago"'
+                    getPortalRoot={this.props.getRootElement}
                 >
                     <TextField
                         icon={'calendar'}
@@ -1205,6 +1211,7 @@ export default class CollectionDetailsPage extends UIElement<
                 <TooltipBox
                     placement="bottom"
                     tooltipText='Use natural language, like "2 weeks ago"'
+                    getPortalRoot={this.props.getRootElement}
                 >
                     <TextField
                         icon={'calendar'}
@@ -1243,6 +1250,7 @@ export default class CollectionDetailsPage extends UIElement<
                 closeComponent={() =>
                     this.processEvent('toggleDateFilters', null)
                 }
+                getPortalRoot={this.props.getRootElement}
             >
                 <DateTimePicker onChange={() => {}} />
             </PopoutBox>
@@ -1302,6 +1310,9 @@ export default class CollectionDetailsPage extends UIElement<
                                     <TooltipBox
                                         tooltipText={'Hide all notes'}
                                         placement={'bottom'}
+                                        getPortalRoot={
+                                            this.props.getRootElement
+                                        }
                                     >
                                         <Icon
                                             icon={'compress'}
@@ -1312,6 +1323,9 @@ export default class CollectionDetailsPage extends UIElement<
                                     <TooltipBox
                                         tooltipText={'Show all notes'}
                                         placement={'bottom'}
+                                        getPortalRoot={
+                                            this.props.getRootElement
+                                        }
                                     >
                                         <Icon
                                             icon={'expand'}
@@ -1389,6 +1403,7 @@ export default class CollectionDetailsPage extends UIElement<
                     </span>
                 }
                 placement={'bottom'}
+                getPortalRoot={this.props.getRootElement}
             >
                 <Icon
                     icon="link"
@@ -1414,6 +1429,7 @@ export default class CollectionDetailsPage extends UIElement<
                     placement={'bottom'}
                     targetElementRef={this.embedButtonRef?.current ?? undefined}
                     offsetX={10}
+                    getPortalRoot={this.props.getRootElement}
                 >
                     <EmbedContainer>
                         <EmbedLinkContainer>
@@ -1781,6 +1797,7 @@ export default class CollectionDetailsPage extends UIElement<
                         viewportBreakpoint={this.viewportBreakpoint}
                         // listsSidebarProps={this.listsSidebarProps}
                         scrollTop={this.state.scrollTop}
+                        getRootElement={this.props.getRootElement}
                     >
                         <ErrorWithAction errorType="internal-error">
                             Error loading this collection. <br /> Reload page to
@@ -1800,6 +1817,7 @@ export default class CollectionDetailsPage extends UIElement<
                         viewportBreakpoint={this.viewportBreakpoint}
                         // listsSidebarProps={this.listsSidebarProps}
                         scrollTop={this.state.scrollTop}
+                        getRootElement={this.props.getRootElement}
                     >
                         <LoggedInAccessBox
                             {...state}
@@ -1820,6 +1838,7 @@ export default class CollectionDetailsPage extends UIElement<
                     services={this.props.services}
                     storage={this.props.storage}
                     viewportBreakpoint={this.viewportBreakpoint}
+                    getRootElement={this.props.getRootElement}
                     // listsSidebarProps={this.listsSidebarProps}
                 >
                     <ErrorWithAction
@@ -1852,6 +1871,7 @@ export default class CollectionDetailsPage extends UIElement<
                 {this.renderModals()}
                 <DefaultPageLayout
                     services={this.props.services}
+                    getRootElement={this.props.getRootElement}
                     storage={this.props.storage}
                     viewportBreakpoint={this.viewportBreakpoint}
                     headerTitle={this.renderTitle()}
@@ -2009,6 +2029,9 @@ export default class CollectionDetailsPage extends UIElement<
                                                         ? 'main-content'
                                                         : undefined
                                                 }
+                                                getRootElement={
+                                                    this.props.getRootElement
+                                                }
                                             />
                                             {this.state
                                                 .summarizeArticleLoadState[
@@ -2102,6 +2125,9 @@ export default class CollectionDetailsPage extends UIElement<
                                                     entry,
                                                     entryIndex,
                                                 )}
+                                                getRootElement={
+                                                    this.props.getRootElement
+                                                }
                                             />
                                         </ItemBox>
                                         {state.pageAnnotationsExpanded[

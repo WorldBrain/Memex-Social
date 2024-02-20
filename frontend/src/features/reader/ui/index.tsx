@@ -198,7 +198,7 @@ export class ReaderPageView extends UIElement<
 
             return (
                 <AnnotationsInPage
-                    getRootElement={this.getRootElement}
+                    getRootElement={this.props.getRootElement}
                     hideThreadBar={true}
                     originalUrl={entry.originalUrl}
                     contextLocation={'webUI'}
@@ -537,10 +537,13 @@ export class ReaderPageView extends UIElement<
                         this.processEvent('toggleOptionsMenu', null)
                     }
                     offsetX={10}
-                    getPortalRoot={() => this.getRootElement()}
+                    getPortalRoot={() => this.props.getRootElement()}
                 >
                     <OptionsMenuBox>
-                        <AuthHeader services={this.props.services} />
+                        <AuthHeader
+                            services={this.props.services}
+                            getRootElement={this.props.getRootElement}
+                        />
                         {this.state.listLoadState === 'success' && (
                             <PrimaryAction
                                 icon={'goTo'}
@@ -574,7 +577,7 @@ export class ReaderPageView extends UIElement<
                         this.processEvent('showSharePageMenu', null)
                     }
                     offsetX={10}
-                    getPortalRoot={() => this.getRootElement()}
+                    getPortalRoot={() => this.props.getRootElement()}
                 >
                     <TooltipContainer>
                         {this.state.linkCopiedToClipBoard ? (
@@ -727,7 +730,7 @@ export class ReaderPageView extends UIElement<
                                             undefined
                                         }
                                         getPortalRoot={() =>
-                                            this.getRootElement()
+                                            this.props.getRootElement()
                                         }
                                     >
                                         <PrimaryAction
@@ -1057,7 +1060,7 @@ export class ReaderPageView extends UIElement<
                                                     placement="bottom"
                                                     offsetX={20}
                                                     getPortalRoot={() =>
-                                                        this.getRootElement()
+                                                        this.props.getRootElement()
                                                     }
                                                 >
                                                     <ChatBox>
@@ -1085,6 +1088,9 @@ export class ReaderPageView extends UIElement<
                                     )}
                                     <AuthHeader
                                         services={this.props.services}
+                                        getRootElement={
+                                            this.props.getRootElement
+                                        }
                                     />
                                 </>
                             )}
@@ -1289,7 +1295,7 @@ export class ReaderPageView extends UIElement<
                                                 this.props.imageSupport
                                             }
                                             getRootElement={() =>
-                                                this.getRootElement()
+                                                this.props.getRootElement()
                                             }
                                         />
                                     </AnnotationCreateContainer>

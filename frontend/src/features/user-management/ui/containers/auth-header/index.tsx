@@ -99,6 +99,7 @@ export default class AuthHeader extends UIElement<
                     closeComponent={() => this.processEvent('hideMenu', null)}
                     targetElementRef={this.UserInfoButtonRef?.current}
                     strategy="absolute"
+                    getPortalRoot={this.props.getRootElement}
                 >
                     <MenuContainerOuter>
                         <AuthMenu

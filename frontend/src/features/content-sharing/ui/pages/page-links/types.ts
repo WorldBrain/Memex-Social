@@ -17,6 +17,7 @@ export interface PageLinkCreationPageDependencies {
     storage: Pick<StorageModules, 'users' | 'activityStreams'>
     fullPageUrl: string | null
     generateServerId: GenerateServerID
+    getRootElement: () => HTMLElement
 }
 
 export type PageLinkCreationPageEvent = UIEvent<{}>

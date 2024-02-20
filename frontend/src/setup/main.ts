@@ -149,6 +149,14 @@ export async function mainProgram(
             history,
             generateServerId,
             imageSupport: options.imageSupport,
+            getRootElement: () => {
+                if (!uiMountPoint) {
+                    throw new Error(
+                        `Tried to get root element, but no UI mount point was given`,
+                    )
+                }
+                return uiMountPoint as HTMLElement
+            },
         })
     }
     if (!options.dontRunUi) {
