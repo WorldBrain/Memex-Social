@@ -537,6 +537,7 @@ export class ReaderPageView extends UIElement<
                         this.processEvent('toggleOptionsMenu', null)
                     }
                     offsetX={10}
+                    getPortalRoot={() => this.getRootElement()}
                 >
                     <OptionsMenuBox>
                         <AuthHeader services={this.props.services} />
@@ -573,6 +574,7 @@ export class ReaderPageView extends UIElement<
                         this.processEvent('showSharePageMenu', null)
                     }
                     offsetX={10}
+                    getPortalRoot={() => this.getRootElement()}
                 >
                     <TooltipContainer>
                         {this.state.linkCopiedToClipBoard ? (
@@ -724,6 +726,9 @@ export class ReaderPageView extends UIElement<
                                             this.reportButtonRef.current ??
                                             undefined
                                         }
+                                        getPortalRoot={() =>
+                                            this.getRootElement()
+                                        }
                                     >
                                         <PrimaryAction
                                             label="Screenshot Note"
@@ -832,7 +837,7 @@ export class ReaderPageView extends UIElement<
 
         const annotationCounter = Object.keys(this.state.annotations).length
 
-        let screenSmall
+        let screenSmall = false
 
         if (
             this.viewportBreakpoint === 'mobile' ||
@@ -1051,6 +1056,9 @@ export class ReaderPageView extends UIElement<
                                                     }
                                                     placement="bottom"
                                                     offsetX={20}
+                                                    getPortalRoot={() =>
+                                                        this.getRootElement()
+                                                    }
                                                 >
                                                     <ChatBox>
                                                         <LoadingIndicator
@@ -1279,6 +1287,9 @@ export class ReaderPageView extends UIElement<
                                             }
                                             imageSupport={
                                                 this.props.imageSupport
+                                            }
+                                            getRootElement={() =>
+                                                this.getRootElement()
                                             }
                                         />
                                     </AnnotationCreateContainer>

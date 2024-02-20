@@ -10,9 +10,10 @@
         "lib": ["es2017", "dom"],
         "noLib": false,
         "preserveConstEnums": true,
+        "suppressImplicitAnyIndexErrors": true,
         "declaration": true,
         "sourceMap": true,
-        "suppressImplicitAnyIndexErrors": true,
+        "jsx": "react",
         "typeRoots": ["./node_modules/@types"]
     },
     "xxxfilesGlob": ["./ts/**/*.ts", "!./node_modules/**/*.ts"]
