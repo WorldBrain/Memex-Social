@@ -837,7 +837,7 @@ export class ReaderPageViewLogic extends UILogic<
                     const scope = '/'
 
                     // also add inject of custom.js as a script into each replayed page
-                    await navigator.serviceWorker.register(
+                    const swRegistration = await navigator.serviceWorker.register(
                         '/webrecorder-sw.js?injectScripts=/webrecorder-custom.js',
                         { scope },
                     )
@@ -879,17 +879,15 @@ export class ReaderPageViewLogic extends UILogic<
                         },
                     }
 
-                    if (!navigator.serviceWorker.controller) {
+                    if (!swRegistration.active) {
                         navigator.serviceWorker.addEventListener(
                             'controllerchange',
                             () => {
-                                navigator.serviceWorker.controller!.postMessage(
-                                    msg,
-                                )
+                                swRegistration.active!.postMessage(msg)
                             },
                         )
                     } else {
-                        navigator.serviceWorker.controller.postMessage(msg)
+                        swRegistration.active.postMessage(msg)
                     }
 
                     if (inited) {
