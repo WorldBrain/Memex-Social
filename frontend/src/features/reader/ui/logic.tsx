@@ -378,7 +378,11 @@ export class ReaderPageViewLogic extends UILogic<
                 }
 
                 const listEntry = data.retrievedList.entries[0]
-                let sourceUrl = listEntry.sourceUrl
+                // Ensure any hash fragment is removed. Got to here as some PDFs had hash fragments which broke our .endsWith('.pdf') checks
+                //  TODO: make more robust
+                const entrySourceUrl = new URL(listEntry.sourceUrl)
+                entrySourceUrl.hash = ''
+                let sourceUrl = entrySourceUrl.href
 
                 if (this.dependencies.pdfBlob) {
                     const objectUrl = URL.createObjectURL(
@@ -402,7 +406,6 @@ export class ReaderPageViewLogic extends UILogic<
                     !shouldNotOpenLink
                 ) {
                     const sharedListId = listReference.id as string
-                    const sourceUrl = listEntry.sourceUrl as string
                     const isCollaborationLink = !!services.router.getQueryParam(
                         'key',
                     )
