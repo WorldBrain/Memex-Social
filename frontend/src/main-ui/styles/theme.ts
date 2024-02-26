@@ -3,6 +3,7 @@ import { THEME } from '@worldbrain/memex-common/lib/common-ui/styles/theme'
 
 export const theme: Theme = THEME({
     icons: {
+        memexIconOnly: 'ssss.png',
         local: 'foo.png',
         openAIicon: 'xyx.png',
         addPeople: require('../../assets/img/addPeople.svg'),
