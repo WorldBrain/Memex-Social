@@ -33,7 +33,6 @@ import { UserReference } from '../../../../user-management/types'
 import ListShareModal from '@worldbrain/memex-common/lib/content-sharing/ui/list-share-modal'
 // import type { Props as ListsSidebarProps } from '../../../../lists-sidebar/ui/components/lists-sidebar'
 import { isMemexPageAPdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
-import Markdown from '@worldbrain/memex-common/lib/common-ui/components/markdown'
 import BlockContent, {
     getBlockContentYoutubePlayerId,
 } from '@worldbrain/memex-common/lib/common-ui/components/block-content'
@@ -1572,20 +1571,7 @@ export default class CollectionDetailsPage extends UIElement<
         const listdescription =
             data?.list.description || data?.listDescriptionTruncated || ''
 
-        return (
-            <DescriptionContainer>
-                <MemexEditor
-                    markdownContent={listdescription}
-                    getRootElement={this.props.getRootElement}
-                    editable={false}
-                    onContentUpdate={() => null}
-                    onKeyDown={() => null}
-                    imageSupport={this.props.imageSupport}
-                    setDebouncingSaveBlock={() => null}
-                    readOnly={true}
-                />
-            </DescriptionContainer>
-        )
+        return <DescriptionContainer></DescriptionContainer>
     }
 
     render() {
@@ -2574,31 +2560,6 @@ const CollectionDescriptionBox = styled.div<{
         css`
             padding: 20px 0px;
         `}
-`
-const CollectionDescriptionText = styled(Markdown)<{
-    viewportBreakpoint: ViewportBreakpoint
-}>`
-    font-size: 16px;
-    color: ${(props) => props.theme.colors.white};
-    font-weight: 200;
-    font-family: ${(props) => props.theme.fonts.primary};
-    border-radius: 10px;
-`
-const CollectionDescriptionToggle = styled.div<{
-    viewportBreakpoint: ViewportBreakpoint
-}>`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    justify-self: flex-start;
-    font-family: ${(props) => props.theme.fonts.primary};
-    font-size: 12px;
-    cursor: pointer;
-    color: ${(props) => props.theme.colors.greyScale5};
-
-    & * {
-        cursor: pointer;
-    }
 `
 
 // const DomainName = styled.div`

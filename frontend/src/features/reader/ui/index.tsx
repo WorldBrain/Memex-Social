@@ -334,11 +334,12 @@ export class ReaderPageView extends UIElement<
                                 isDeleting,
                                 annotationId: annotationRef.id,
                             }),
-                        setAnnotationEditing: (isEditing) =>
+                        setAnnotationEditing: (isEditing) => {
                             this.processEvent('setAnnotationEditing', {
                                 isEditing,
                                 annotationId: annotationRef.id,
-                            }),
+                            })
+                        },
                         setAnnotationHovering: (isHovering) => (event) => {
                             this.processEvent('setAnnotationHovering', {
                                 isHovering,
@@ -1805,7 +1806,7 @@ const TopBar = styled.div`
     align-items: center;
     padding: 0 20px;
     width: fill-available;
-    background: ${(props) => props.theme.colors.black};
+    background: ${(props) => props.theme.colors.black0};
     border-bottom: 1px solid ${(props) => props.theme.colors.greyScale3};
     justify-content: space-between;
     z-index: 10;
@@ -1814,7 +1815,7 @@ const Sidebar = styled(Rnd)`
     top: 0;
     right: 0;
     height: fill-available;
-    background: ${(props) => props.theme.colors.black};
+    background: ${(props) => props.theme.colors.black0};
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -1878,7 +1879,6 @@ const ContainerStyled = styled.div<{
             width: fill-available;
             width: -moz-available;
             border-left: none;
-            background: red;
             height: 300px;
         `}
 `
