@@ -76,6 +76,43 @@ export default class CollectionDetailsPage extends UIElement<
         }
     }
 
+    private handleBeforeUnload = (e: BeforeUnloadEvent) => {
+        const editingAnyAnnots = Object.values(
+            this.state.annotationEditStates,
+        ).reduce((prev, curr) => prev || curr.isEditing, false)
+        const editingAnyReplies = Object.values(
+            this.state.replyEditStates,
+        ).reduce((prev, curr) => prev || curr.isEditing, false)
+        const writingNewReply = Object.values(this.state.conversations).reduce(
+            (prev, curr) => prev || curr.newReply.content.length > 0,
+            false,
+        )
+        const writingNewNote = Object.values(this.state.newPageReplies).reduce(
+            (prev, curr) => prev || curr.content.length > 0,
+            false,
+        )
+
+        // Any of these states set are to be considered "unsaved changes"
+        if (
+            editingAnyReplies ||
+            editingAnyAnnots ||
+            writingNewReply ||
+            writingNewNote
+        ) {
+            e.preventDefault()
+        }
+    }
+
+    async componentDidMount() {
+        window.addEventListener('beforeunload', this.handleBeforeUnload)
+        await super.componentDidMount()
+    }
+
+    async componentWillUnmount() {
+        window.removeEventListener('beforeunload', this.handleBeforeUnload)
+        await super.componentWillUnmount()
+    }
+
     showMoreCollaboratorsRef = React.createRef<HTMLElement>()
     embedButtonRef = React.createRef<HTMLDivElement>()
     dateFilterButtonRef = React.createRef<HTMLDivElement>()
