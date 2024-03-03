@@ -271,11 +271,12 @@ export class ReaderPageView extends UIElement<
                                 isDeleting,
                                 replyReference,
                             }),
-                        setAnnotationEditing: (isEditing) => (event) =>
+                        setAnnotationEditing: (isEditing) => {
                             this.processEvent('setReplyToAnnotationEditing', {
                                 isEditing,
                                 replyReference,
-                            }),
+                            })
+                        },
                         setAnnotationHovering: (isHovering) => (event) => {
                             this.processEvent('setReplyToAnnotationHovering', {
                                 isHovering,

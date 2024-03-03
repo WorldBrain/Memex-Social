@@ -57,6 +57,8 @@ import debounce from 'lodash/debounce'
 import { LoggedInAccessBox } from './space-access-box'
 import { hasUnsavedAnnotationEdits } from '../../../../annotations/ui/logic'
 import { hasUnsavedConversationEdits } from '@worldbrain/memex-common/lib/content-conversations/ui/logic'
+import MemexEditor from '@worldbrain/memex-common/lib/editor'
+import CreationInfo from '../../../../../common-ui/components/creation-info'
 
 const commentImage = require('../../../../../assets/img/comment.svg')
 const commentEmptyImage = require('../../../../../assets/img/comment-empty.svg')
@@ -300,6 +302,7 @@ export default class CollectionDetailsPage extends UIElement<
             image: this.state.copiedLink ? 'check' : 'link',
             imageColor: this.state.copiedLink ? 'prime1' : 'greyScale5',
             ButtonText: this.state.copiedLink ? 'Copied' : 'Copy Link',
+            tooltipText: 'Copy link to annotated page',
             onClick: () => {
                 navigator.clipboard.writeText(
                     currentBaseURL +
@@ -315,12 +318,14 @@ export default class CollectionDetailsPage extends UIElement<
         const commentButton: ItemBoxBottomAction = {
             key: 'expand-notes-btn',
             image: count > 0 ? 'commentFull' : 'commentAdd',
-            ButtonText: count > 0 ? count : '',
+            ButtonText: 'Notes',
             imageColor: 'prime1',
             onClick: () =>
                 this.processEvent('togglePageAnnotations', {
                     normalizedUrl: entry.normalizedUrl,
                 }),
+            rightSideItem:
+                count > 0 ? <NoteCounter>{count}</NoteCounter> : undefined,
         }
 
         const summaryButton: ItemBoxBottomAction = {
@@ -371,187 +376,17 @@ export default class CollectionDetailsPage extends UIElement<
                 return [copyButton, summaryButton, commentButton]
             }
 
-            return [summaryButton, commentButton]
+            return [copyButton, summaryButton, commentButton]
         } else if (toggleAnnotationsIcon === null) {
             if (
                 this.state.listData?.listEntries[entryIndex].hoverState &&
                 !this.isIframe()
             ) {
-                return [copyButton, summaryButton]
+                return [copyButton, summaryButton, commentButton]
             }
 
-            return [summaryButton]
+            return [copyButton, summaryButton, commentButton]
         }
-        //     // if (
-        //     //     this.state.listData?.listEntries[entryIndex].hoverState &&
-        //     //     !this.isIframe()
-        //     // ) {
-        //     //     return [
-        //     //         {
-        //     //             key: 'copy-link-btn',
-        //     //             image: this.state.copiedLink ? 'check' : 'link',
-        //     //             imageColor: this.state.copiedLink
-        //     //                 ? 'prime1'
-        //     //                 : 'greyScale5',
-        //     //             ButtonText: this.state.copiedLink
-        //     //                 ? 'Copied'
-        //     //                 : 'Copy Link',
-        //     //             onClick: () => {
-        //     //                 navigator.clipboard.writeText(
-        //     //                     currentBaseURL +
-        //     //                         '/c/' +
-        //     //                         this.props.listID +
-        //     //                         '/p/' +
-        //     //                         entry.reference?.id,
-        //     //                 )
-        //     //                 this.processEvent('copiedLinkButton', null)
-        //     //             },
-        //     //         },
-        //     //         {
-        //     //             key: 'generate-summary-btn',
-        //     //             image:
-        //     //                 this.state.summarizeArticleLoadState[
-        //     //                     entry.normalizedUrl
-        //     //                 ] === 'success' ||
-        //     //                 this.state.summarizeArticleLoadState[
-        //     //                     entry.normalizedUrl
-        //     //                 ] === 'error'
-        //     //                     ? 'compress'
-        //     //                     : 'feed',
-        //     //             imageColor: 'prime1',
-        //     //             ButtonText:
-        //     //                 this.state.summarizeArticleLoadState[
-        //     //                     entry.normalizedUrl
-        //     //                 ] === 'success' ||
-        //     //                 this.state.summarizeArticleLoadState[
-        //     //                     entry.normalizedUrl
-        //     //                 ] === 'error'
-        //     //                     ? 'Hide Summary'
-        //     //                     : 'Summarize',
-        //     //             onClick: () => {
-        //     //                 if (
-        //     //                     this.state.summarizeArticleLoadState[
-        //     //                         entry.normalizedUrl
-        //     //                     ] === 'success' ||
-        //     //                     this.state.summarizeArticleLoadState[
-        //     //                         entry.normalizedUrl
-        //     //                     ] === 'error'
-        //     //                 ) {
-        //     //                     this.processEvent('hideSummary', {
-        //     //                         entry: entry,
-        //     //                     })
-        //     //                 } else {
-        //     //                     this.processEvent('summarizeArticle', {
-        //     //                         entry: entry,
-        //     //                     })
-        //     //                 }
-        //     //             },
-        //     //         },
-        //     //         {
-        //     //             key: 'expand-notes-btn',
-        //     //             image: count > 0 ? 'commentFull' : 'commentAdd',
-        //     //             ButtonText: count > 0 ? count : '',
-        //     //             imageColor: 'prime1',
-        //     //             onClick: () =>
-        //     //                 this.processEvent('togglePageAnnotations', {
-        //     //                     normalizedUrl: entry.normalizedUrl,
-        //     //                 }),
-        //     //         },
-        //     //     ]
-        //     // }
-
-        //     return [
-        //         {
-        //             key: 'generate-summary-btn',
-        //             image:
-        //                 this.state.summarizeArticleLoadState[
-        //                     entry.normalizedUrl
-        //                 ] === 'success' ||
-        //                 this.state.summarizeArticleLoadState[
-        //                     entry.normalizedUrl
-        //                 ] === 'error'
-        //                     ? 'compress'
-        //                     : 'feed',
-        //             imageColor: 'prime1',
-        //             ButtonText:
-        //                 this.state.summarizeArticleLoadState[
-        //                     entry.normalizedUrl
-        //                 ] === 'success' ||
-        //                 this.state.summarizeArticleLoadState[
-        //                     entry.normalizedUrl
-        //                 ] === 'error'
-        //                     ? 'Hide Summary'
-        //                     : 'Summarize',
-        //             onClick: () => {
-        //                 if (
-        //                     this.state.summarizeArticleLoadState[
-        //                         entry.normalizedUrl
-        //                     ] === 'success' ||
-        //                     this.state.summarizeArticleLoadState[
-        //                         entry.normalizedUrl
-        //                     ] === 'error'
-        //                 ) {
-        //                     this.processEvent('hideSummary', {
-        //                         entry: entry,
-        //                     })
-        //                 } else {
-        //                     this.processEvent('summarizeArticle', {
-        //                         entry: entry,
-        //                     })
-        //                 }
-        //             },
-        //         },
-        //         {
-        //             key: 'expand-notes-btn',
-        //             image: count > 0 ? 'commentFull' : 'commentAdd',
-        //             ButtonText: count > 0 ? count : '',
-        //             imageColor: 'prime1',
-        //             onClick: () =>
-        //                 this.processEvent('togglePageAnnotations', {
-        //                     normalizedUrl: entry.normalizedUrl,
-        //                 }),
-        //         },
-        //         // {
-        //         //     node: (
-        //         //         <CommentIconBox
-        //         //             onClick={() =>
-        //         //                 this.processEvent('togglePageAnnotations', {
-        //         //                     normalizedUrl: entry.normalizedUrl,
-        //         //                 })
-        //         //             }
-        //         //         >
-        //         //             {count > 0 && <Counter>{count}</Counter>}
-        //         //             <Icon
-        //         //                 icon={toggleAnnotationsIcon}
-        //         //                 heightAndWidth={'16px'}
-        //         //                 hoverOff
-        //         //             />
-        //         //         </CommentIconBox>
-        //         //     ),
-        //         // },
-        //     ]
-        // } else if (
-        //     this.state.listData?.listEntries[entryIndex].hoverState &&
-        //     !this.isIframe()
-        // ) {
-        //     return [
-        //         {
-        //             key: 'expand-notes-btn',
-        //             image: 'link',
-        //             imageColor: 'greyScale5',
-        //             ButtonText: 'Copy Link',
-        //             onClick: () => {
-        //                 navigator.clipboard.writeText(
-        //                     currentBaseURL +
-        //                         '/c/' +
-        //                         this.props.listID +
-        //                         '/p/' +
-        //                         entry.reference?.id,
-        //                 )
-        //             },
-        //         },
-        //     ]
-        // }
     }
 
     renderFollowBtn = (pageToOpenPostFollow?: string) => () => {
@@ -649,11 +484,12 @@ export default class CollectionDetailsPage extends UIElement<
                             isDeleting,
                             replyReference,
                         }),
-                    setAnnotationEditing: (isEditing) => (event) =>
+                    setAnnotationEditing: (isEditing) => {
                         this.processEvent('setReplyToAnnotationEditing', {
                             isEditing,
                             replyReference,
-                        }),
+                        })
+                    },
                     setAnnotationHovering: (isHovering) => (event) => {
                         this.processEvent('setReplyToAnnotationHovering', {
                             isHovering,
@@ -706,11 +542,12 @@ export default class CollectionDetailsPage extends UIElement<
                             isDeleting,
                             annotationId: annotationRef.id,
                         }),
-                    setAnnotationEditing: (isEditing) => (event) =>
+                    setAnnotationEditing: (isEditing) => {
                         this.processEvent('setAnnotationEditing', {
                             isEditing,
                             annotationId: annotationRef.id,
-                        }),
+                        })
+                    },
                     setAnnotationHovering: (isHovering) => (event) => {
                         this.processEvent('setAnnotationHovering', {
                             isHovering,
@@ -1735,57 +1572,18 @@ export default class CollectionDetailsPage extends UIElement<
             data?.list.description || data?.listDescriptionTruncated || ''
 
         return (
-            // <CollectionDescriptionBox
-            //     viewportBreakpoint={this.viewportBreakpoint}
-            // >
-            //     <DescriptionActions bottom={'small'}>
-            //         {data?.listDescriptionState !== 'fits' && (
-            //             <CollectionDescriptionToggle
-            //                 onClick={() =>
-            //                     this.processEvent(
-            //                         'toggleDescriptionTruncation',
-            //                         {},
-            //                     )
-            //                 }
-            //                 viewportBreakpoint={this.viewportBreakpoint}
-            //             >
-            //                 {data?.listDescriptionState === 'collapsed' ? (
-            //                     <TooltipBox
-            //                         tooltipText={'Show full description'}
-            //                         placement={'bottom'}
-            //                     >
-            //                         <Icon
-            //                             icon={'expand'}
-            //                             heightAndWidth="22px"
-            //                         />
-            //                     </TooltipBox>
-            //                 ) : (
-            //                     <TooltipBox
-            //                         tooltipText={'Hide description'}
-            //                         placement={'bottom'}
-            //                     >
-            //                         <Icon
-            //                             icon={'compress'}
-            //                             heightAndWidth="22px"
-            //                         />
-            //                     </TooltipBox>
-            //                 )}
-            //             </CollectionDescriptionToggle>
-            //         )}
-            //     </DescriptionActions>
-            //     <CollectionDescriptionText
-            //         viewportBreakpoint={this.viewportBreakpoint}
-            //     >
-            //         {data?.listDescriptionState === 'collapsed'
-            //             ? data?.listDescriptionTruncated
-            //             : data?.list.description}
-            //     </CollectionDescriptionText>
-            // </CollectionDescriptionBox>
-            <CollectionDescriptionText
-                viewportBreakpoint={this.viewportBreakpoint}
-            >
-                {listdescription ?? ''}
-            </CollectionDescriptionText>
+            <DescriptionContainer>
+                <MemexEditor
+                    markdownContent={listdescription}
+                    getRootElement={this.props.getRootElement}
+                    editable={false}
+                    onContentUpdate={() => null}
+                    onKeyDown={() => null}
+                    imageSupport={this.props.imageSupport}
+                    setDebouncingSaveBlock={() => null}
+                    readOnly={true}
+                />
+            </DescriptionContainer>
         )
     }
 
@@ -1908,6 +1706,9 @@ export default class CollectionDetailsPage extends UIElement<
                     renderDescription={this.renderDescription()}
                     isPageView={this.props.entryID}
                 >
+                    {data && data?.list?.description?.length > 0 && (
+                        <ReferencesBox>References</ReferencesBox>
+                    )}
                     {this.renderSearchBox()}
                     {!isPageView && this.renderAbovePagesBox()}
                     {state.annotationEntriesLoadState === 'error' && (
@@ -1927,8 +1728,8 @@ export default class CollectionDetailsPage extends UIElement<
                                     hoverOff
                                     color="prime1"
                                 />{' '}
-                                This channel is still being synced. It may take
-                                a while for everything to show up.
+                                This Space is still being synced. It may take a
+                                while for everything to show up.
                             </ChatSyncNotif>
                         )}
                     <ResultsList
@@ -2053,6 +1854,17 @@ export default class CollectionDetailsPage extends UIElement<
                                                 getRootElement={
                                                     this.props.getRootElement
                                                 }
+                                                renderCreationInfo={() => {
+                                                    return entry.createdWhen ? (
+                                                        <CreationInfo
+                                                            createdWhen={
+                                                                entry.createdWhen
+                                                            }
+                                                        />
+                                                    ) : (
+                                                        <></>
+                                                    )
+                                                }}
                                             />
                                             {this.state
                                                 .summarizeArticleLoadState[
@@ -2081,35 +1893,6 @@ export default class CollectionDetailsPage extends UIElement<
                                                                         .normalizedUrl
                                                                 ] ?? undefined}
                                                             </SummaryText>
-                                                            <SummaryFooter>
-                                                                <RightSideButtons>
-                                                                    <BetaButton>
-                                                                        <BetaButtonInner>
-                                                                            BETA
-                                                                        </BetaButtonInner>
-                                                                    </BetaButton>
-                                                                    <PrimaryAction
-                                                                        type="tertiary"
-                                                                        size="small"
-                                                                        onClick={() => {
-                                                                            window.open(
-                                                                                'https://memex.garden/chatsupport',
-                                                                                '_blank',
-                                                                            )
-                                                                        }}
-                                                                        label="Report Bug"
-                                                                    />
-                                                                </RightSideButtons>
-                                                                <PoweredBy>
-                                                                    Powered by
-                                                                    <Icon
-                                                                        icon="openAI"
-                                                                        height="18px"
-                                                                        hoverOff
-                                                                        width="70px"
-                                                                    />
-                                                                </PoweredBy>
-                                                            </SummaryFooter>
                                                         </SummaryContainer>
                                                     )}
                                                     {this.state
@@ -2277,6 +2060,8 @@ const SummaryContainer = styled.div`
     justify-content: space-between;
     grid-gap: 10px;
     align-items: flex-start;
+    border-top: 1px solid ${(props) => props.theme.colors.greyScale3};
+    margin-top: 10px;
 `
 
 const SummaryFooter = styled.div`
@@ -2303,12 +2088,12 @@ const SummarySection = styled.div`
     width: 100%;
     min-height: 60px;
     justify-content: center;
-    align-items: center;
-    border-top: 1px solid ${(props) => props.theme.colors.greyScale2};
+    align-items: flex-start;
+    margin-bottom: 10px;
 `
 
 const SummaryText = styled.div`
-    padding: 20px 20px 0px 20px;
+    padding: 10px 20px 10px 20px;
     color: ${(props) => props.theme.colors.greyScale7};
     font-size: 16px;
     line-height: 24px;
@@ -2423,6 +2208,7 @@ const ResultsList = styled.div<{
     flex-direction: column;
     z-index: 20;
     padding-bottom: 200px;
+    padding-top: 2px;
 
     ${(props) =>
         props.viewportWidth === 'mobile' &&
@@ -2886,4 +2672,29 @@ const ListEntry = styled.div`
         white-space: pre-wrap;
         font-weight: initial;
     }
+`
+
+const NoteCounter = styled.span`
+    color: ${(props) => props.theme.colors.black};
+    font-weight: 400;
+    font-size: 12px;
+    margin-left: 5px;
+    border-radius: 30px;
+    padding: 2px 10px;
+    background: ${(props) => props.theme.colors.headerGradient};
+    text-align: center;
+`
+
+const ReferencesBox = styled.div`
+    background: ${(props) => props.theme.colors.headerGradient};
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-size: 18px;
+    font-weight: 800;
+    margin-top: 20px;
+    margin-bottom: 10px;
+`
+const DescriptionContainer = styled.div`
+    margin: 0 -10px;
 `

@@ -12,3 +12,5 @@ firebase/.runtimeconfig.json
 .env.development
 
 frontend/.env
+
+.npmrc

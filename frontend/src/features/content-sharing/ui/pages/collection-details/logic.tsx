@@ -486,6 +486,9 @@ export default class CollectionDetailsLogic extends UILogic<
 
     summarizeArticle: EventHandler<'summarizeArticle'> = async (incoming) => {
         this.emitMutation({
+            articleSummary: {
+                [incoming.event.entry.normalizedUrl]: { $set: '' },
+            },
             summarizeArticleLoadState: {
                 [incoming.event.entry.normalizedUrl]: { $set: 'running' },
             },
