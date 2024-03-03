@@ -255,8 +255,8 @@ export default function DefaultPageLayout(props: {
                                             children: props.headerSubtitle,
                                         })}
                                 </PageMidleAreaTitles>
-                                {/* {props.renderDescription &&
-                                    props.renderDescription} */}
+                                {props.renderDescription &&
+                                    props.renderDescription}
                                 {/* <LeftRightBlock /> */}
                             </HeaderMiddleArea>
                         </StyledHeaderContainer>
