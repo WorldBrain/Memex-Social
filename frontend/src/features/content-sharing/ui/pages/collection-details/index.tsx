@@ -56,7 +56,7 @@ import DateTimePicker from 'react-datepicker'
 import debounce from 'lodash/debounce'
 import { LoggedInAccessBox } from './space-access-box'
 import { hasUnsavedAnnotationEdits } from '../../../../annotations/ui/logic'
-import { hasUnsavedConversationEdits } from '@worldbrain/memex-common/lib/content-conversations/ui/logic'
+// import { hasUnsavedConversationEdits } from '@worldbrain/memex-common/lib/content-conversations/ui/logic'
 import MemexEditor from '@worldbrain/memex-common/lib/editor'
 import CreationInfo from '../../../../../common-ui/components/creation-info'
 
@@ -82,8 +82,9 @@ export default class CollectionDetailsPage extends UIElement<
 
     private handleBeforeUnload = (e: BeforeUnloadEvent) => {
         if (
-            hasUnsavedAnnotationEdits(this.state) ||
-            hasUnsavedConversationEdits(this.state)
+            hasUnsavedAnnotationEdits(this.state)
+            // ||
+            // hasUnsavedConversationEdits(this.state)
         ) {
             e.preventDefault()
         }
@@ -1706,7 +1707,7 @@ export default class CollectionDetailsPage extends UIElement<
                     renderDescription={this.renderDescription()}
                     isPageView={this.props.entryID}
                 >
-                    {data && data?.list?.description?.length > 0 && (
+                    {data != null && data?.list?.description?.length > 0 && (
                         <ReferencesBox>References</ReferencesBox>
                     )}
                     {this.renderSearchBox()}
@@ -1786,12 +1787,12 @@ export default class CollectionDetailsPage extends UIElement<
                                                     ?.listEntries[entryIndex]
                                                     .hoverState
                                             }
-                                            onRef={(event) => {
-                                                this.onListEntryRef({
-                                                    ...event,
-                                                    entry,
-                                                })
-                                            }}
+                                            // onRef={(event) => {
+                                            //     this.onListEntryRef({
+                                            //         element: event.currentTarget
+                                            //         entry,
+                                            //     })
+                                            // }}
                                         >
                                             <BlockContent
                                                 // pageLink ={'https://memex.social/' + this.props.listID + '/' + entry.reference.id}

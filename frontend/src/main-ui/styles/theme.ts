@@ -149,6 +149,7 @@ export const theme: Theme = THEME({
         spread: require('../../assets/img/rectangleDraw.svg'),
         key: require('../../assets/img/rectangleDraw.svg'),
         dragList: require('../../assets/img/rectangleDraw.svg'),
+        browserIcon: require('../../assets/img/memexIconLightMode.svg'),
 
         // doubleArrow: require('../../assets/img/doubleArrow.svg'),,
         // import tagFull from '../../assets/img/tag_full.svg'
