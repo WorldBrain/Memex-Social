@@ -493,7 +493,7 @@ export default class HomeFeedPage extends UIElement<
                         >
                             <PrimaryAction
                                 label="View"
-                                onClick={null}
+                                onClick={() => null}
                                 icon="arrowRight"
                                 iconPosition="right"
                                 type="secondary"
@@ -617,7 +617,7 @@ export default class HomeFeedPage extends UIElement<
                         >
                             <PrimaryAction
                                 label="View"
-                                onClick={null}
+                                onClick={() => null}
                                 icon="arrowRight"
                                 iconPosition="right"
                                 type="secondary"
@@ -705,7 +705,7 @@ export default class HomeFeedPage extends UIElement<
                     >
                         <PrimaryAction
                             label="View"
-                            onClick={null}
+                            onClick={() => null}
                             icon="arrowRight"
                             iconPosition="right"
                             type="secondary"
