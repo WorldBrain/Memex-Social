@@ -55,6 +55,8 @@ import TextArea from '@worldbrain/memex-common/lib/common-ui/components/text-are
 import DateTimePicker from 'react-datepicker'
 import debounce from 'lodash/debounce'
 import { LoggedInAccessBox } from './space-access-box'
+import { hasUnsavedAnnotationEdits } from '../../../../annotations/ui/logic'
+import { hasUnsavedConversationEdits } from '@worldbrain/memex-common/lib/content-conversations/ui/logic'
 
 const commentImage = require('../../../../../assets/img/comment.svg')
 const commentEmptyImage = require('../../../../../assets/img/comment-empty.svg')
@@ -77,27 +79,9 @@ export default class CollectionDetailsPage extends UIElement<
     }
 
     private handleBeforeUnload = (e: BeforeUnloadEvent) => {
-        const editingAnyAnnots = Object.values(
-            this.state.annotationEditStates,
-        ).reduce((prev, curr) => prev || curr.isEditing, false)
-        const editingAnyReplies = Object.values(
-            this.state.replyEditStates,
-        ).reduce((prev, curr) => prev || curr.isEditing, false)
-        const writingNewReply = Object.values(this.state.conversations).reduce(
-            (prev, curr) => prev || curr.newReply.content.length > 0,
-            false,
-        )
-        const writingNewNote = Object.values(this.state.newPageReplies).reduce(
-            (prev, curr) => prev || curr.content.length > 0,
-            false,
-        )
-
-        // Any of these states set are to be considered "unsaved changes"
         if (
-            editingAnyReplies ||
-            editingAnyAnnots ||
-            writingNewReply ||
-            writingNewNote
+            hasUnsavedAnnotationEdits(this.state) ||
+            hasUnsavedConversationEdits(this.state)
         ) {
             e.preventDefault()
         }
