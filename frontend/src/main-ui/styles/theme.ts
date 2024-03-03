@@ -3,6 +3,7 @@ import { THEME } from '@worldbrain/memex-common/lib/common-ui/styles/theme'
 
 export const theme: Theme = THEME({
     icons: {
+        memexIconOnly: 'ssss.png',
         local: 'foo.png',
         openAIicon: 'xyx.png',
         addPeople: require('../../assets/img/addPeople.svg'),
@@ -148,6 +149,7 @@ export const theme: Theme = THEME({
         spread: require('../../assets/img/rectangleDraw.svg'),
         key: require('../../assets/img/rectangleDraw.svg'),
         dragList: require('../../assets/img/rectangleDraw.svg'),
+        browserIcon: require('../../assets/img/memexIconLightMode.svg'),
 
         // doubleArrow: require('../../assets/img/doubleArrow.svg'),,
         // import tagFull from '../../assets/img/tag_full.svg'
