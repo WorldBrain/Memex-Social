@@ -55,6 +55,8 @@ import TextArea from '@worldbrain/memex-common/lib/common-ui/components/text-are
 import DateTimePicker from 'react-datepicker'
 import debounce from 'lodash/debounce'
 import { LoggedInAccessBox } from './space-access-box'
+import { hasUnsavedAnnotationEdits } from '../../../../annotations/ui/logic'
+import { hasUnsavedConversationEdits } from '@worldbrain/memex-common/lib/content-conversations/ui/logic'
 
 const commentImage = require('../../../../../assets/img/comment.svg')
 const commentEmptyImage = require('../../../../../assets/img/comment-empty.svg')
@@ -74,6 +76,25 @@ export default class CollectionDetailsPage extends UIElement<
             annotEntry: parseRange(query.fromAnnotEntry, query.toAnnotEntry),
             reply: parseRange(query.fromReply, query.toReply),
         }
+    }
+
+    private handleBeforeUnload = (e: BeforeUnloadEvent) => {
+        if (
+            hasUnsavedAnnotationEdits(this.state) ||
+            hasUnsavedConversationEdits(this.state)
+        ) {
+            e.preventDefault()
+        }
+    }
+
+    async componentDidMount() {
+        window.addEventListener('beforeunload', this.handleBeforeUnload)
+        await super.componentDidMount()
+    }
+
+    async componentWillUnmount() {
+        window.removeEventListener('beforeunload', this.handleBeforeUnload)
+        await super.componentWillUnmount()
     }
 
     showMoreCollaboratorsRef = React.createRef<HTMLElement>()

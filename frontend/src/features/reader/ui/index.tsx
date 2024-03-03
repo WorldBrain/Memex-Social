@@ -29,6 +29,8 @@ import type { AutoPk } from '../../../types'
 import { MemexEditorInstance } from '@worldbrain/memex-common/lib/editor'
 import { TooltipBox } from '@worldbrain/memex-common/lib/common-ui/components/tooltip-box'
 import { OverlayModal } from './components/OverlayModals'
+import { hasUnsavedAnnotationEdits } from '../../annotations/ui/logic'
+import { hasUnsavedConversationEdits } from '../../content-conversations/ui/logic'
 
 const TopBarHeight = 50
 const memexLogo = require('../../../assets/img/memex-logo-beta.svg')
@@ -41,6 +43,7 @@ const isIframe = () => {
         return true
     }
 }
+
 export class ReaderPageView extends UIElement<
     ReaderPageViewDependencies,
     ReaderPageViewState,
@@ -82,7 +85,18 @@ export class ReaderPageView extends UIElement<
         return getViewportBreakpoint(this.getViewportWidth())
     }
 
+    private handleBeforeUnload = (e: BeforeUnloadEvent) => {
+        if (
+            hasUnsavedAnnotationEdits(this.state) ||
+            hasUnsavedConversationEdits(this.state) ||
+            this.state.annotationCreateState.isCreating
+        ) {
+            e.preventDefault()
+        }
+    }
+
     async componentDidMount() {
+        window.addEventListener('beforeunload', this.handleBeforeUnload)
         await super.componentDidMount()
 
         const screenSmall =
@@ -98,6 +112,11 @@ export class ReaderPageView extends UIElement<
                 })
             }
         }
+    }
+
+    async componentWillUnmount() {
+        window.removeEventListener('beforeunload', this.handleBeforeUnload)
+        await super.componentWillUnmount()
     }
 
     // itemRanges: {
