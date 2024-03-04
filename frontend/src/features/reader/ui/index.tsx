@@ -30,7 +30,7 @@ import { MemexEditorInstance } from '@worldbrain/memex-common/lib/editor'
 import { TooltipBox } from '@worldbrain/memex-common/lib/common-ui/components/tooltip-box'
 import { OverlayModal } from './components/OverlayModals'
 import { hasUnsavedAnnotationEdits } from '../../annotations/ui/logic'
-// import { hasUnsavedConversationEdits } from '../../content-conversations/ui/logic'
+import { hasUnsavedConversationEdits } from '../../content-conversations/ui/logic'
 
 const TopBarHeight = 50
 const memexLogo = require('../../../assets/img/memex-logo-beta.svg')
@@ -88,8 +88,9 @@ export class ReaderPageView extends UIElement<
     private handleBeforeUnload = (e: BeforeUnloadEvent) => {
         if (
             hasUnsavedAnnotationEdits(this.state) ||
-            // hasUnsavedConversationEdits(this.state) ||
-            this.state.annotationCreateState.isCreating
+            hasUnsavedConversationEdits(this.state) ||
+            this.state.annotationCreateState.isCreating ||
+            this.state.annotationCreateState.loadState === 'running'
         ) {
             e.preventDefault()
         }
