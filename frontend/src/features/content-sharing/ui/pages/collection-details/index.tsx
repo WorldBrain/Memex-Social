@@ -1693,7 +1693,7 @@ export default class CollectionDetailsPage extends UIElement<
                     renderDescription={this.renderDescription()}
                     isPageView={this.props.entryID}
                 >
-                    {data != null && data?.list?.description?.length > 0 && (
+                    {data.list.description?.length && (
                         <ReferencesBox>References</ReferencesBox>
                     )}
                     {this.renderSearchBox()}
