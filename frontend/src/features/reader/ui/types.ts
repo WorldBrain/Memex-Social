@@ -79,6 +79,7 @@ export type ReaderPageViewState = AnnotationConversationsState &
             isCreating: boolean
             loadState: UITaskState
         }
+        highlightCreateState: UITaskState
         sidebarWidth: number
         collaborationKey: string | null
         permissionsLoadState: UITaskState

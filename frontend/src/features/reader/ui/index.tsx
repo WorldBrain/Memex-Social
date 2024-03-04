@@ -90,7 +90,8 @@ export class ReaderPageView extends UIElement<
             hasUnsavedAnnotationEdits(this.state) ||
             hasUnsavedConversationEdits(this.state) ||
             this.state.annotationCreateState.isCreating ||
-            this.state.annotationCreateState.loadState === 'running'
+            this.state.annotationCreateState.loadState === 'running' ||
+            this.state.highlightCreateState === 'running'
         ) {
             e.preventDefault()
         }

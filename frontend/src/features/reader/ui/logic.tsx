@@ -245,6 +245,7 @@ export class ReaderPageViewLogic extends UILogic<
             iframeLoadState: 'running',
             joinListState: 'pristine',
             listLoadState: 'pristine',
+            highlightCreateState: 'pristine',
             annotationCreateState: {
                 loadState: 'pristine',
                 isCreating: false,
@@ -1132,8 +1133,9 @@ export class ReaderPageViewLogic extends UILogic<
                 reason: 'login-requested',
             })
             return
-        } else {
-            let screenshotGrabResult
+        }
+
+        await executeUITask(this, 'highlightCreateState', async () => {
             let pdfViewer
 
             const isIframe = iframe!.contentWindow
@@ -1144,7 +1146,7 @@ export class ReaderPageViewLogic extends UILogic<
 
             let result
             if (pdfViewer && drawRectangle) {
-                screenshotGrabResult = await promptPdfScreenshot(
+                const screenshotGrabResult = await promptPdfScreenshot(
                     iframe!.contentDocument,
                     iframe!.contentWindow,
                     {
@@ -1181,9 +1183,8 @@ export class ReaderPageViewLogic extends UILogic<
                     state,
                 }),
             )
-
-            // TODO: Do something with result (part of it is a Promise)
-        }
+            await result.createPromise
+        })
     }
 
     private getRenderHighlightParams = (args: {
