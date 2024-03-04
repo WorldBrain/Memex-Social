@@ -33,7 +33,6 @@ import { UserReference } from '../../../../user-management/types'
 import ListShareModal from '@worldbrain/memex-common/lib/content-sharing/ui/list-share-modal'
 // import type { Props as ListsSidebarProps } from '../../../../lists-sidebar/ui/components/lists-sidebar'
 import { isMemexPageAPdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
-import Markdown from '@worldbrain/memex-common/lib/common-ui/components/markdown'
 import BlockContent, {
     getBlockContentYoutubePlayerId,
 } from '@worldbrain/memex-common/lib/common-ui/components/block-content'
