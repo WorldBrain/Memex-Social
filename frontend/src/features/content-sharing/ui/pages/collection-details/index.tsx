@@ -2560,46 +2560,6 @@ const ChatServerName = styled.span`
     grid-gap: 5px;
 `
 
-const CollectionDescriptionBox = styled.div<{
-    viewportBreakpoint: ViewportBreakpoint
-}>`
-    margin: 20px 0 15px 0;
-    display: flex;
-    align-items: flex-start;
-    flex-direction: column;
-
-    ${(props) =>
-        props.viewportBreakpoint === 'mobile' &&
-        css`
-            padding: 20px 0px;
-        `}
-`
-const CollectionDescriptionText = styled(Markdown)<{
-    viewportBreakpoint: ViewportBreakpoint
-}>`
-    font-size: 16px;
-    color: ${(props) => props.theme.colors.white};
-    font-weight: 200;
-    font-family: ${(props) => props.theme.fonts.primary};
-    border-radius: 10px;
-`
-const CollectionDescriptionToggle = styled.div<{
-    viewportBreakpoint: ViewportBreakpoint
-}>`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    justify-self: flex-start;
-    font-family: ${(props) => props.theme.fonts.primary};
-    font-size: 12px;
-    cursor: pointer;
-    color: ${(props) => props.theme.colors.greyScale5};
-
-    & * {
-        cursor: pointer;
-    }
-`
-
 // const DomainName = styled.div`
 //     color: ${(props) => props.theme.colors.white};
 // `
