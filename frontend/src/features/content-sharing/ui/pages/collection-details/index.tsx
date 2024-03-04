@@ -57,6 +57,7 @@ import { LoggedInAccessBox } from './space-access-box'
 import { hasUnsavedAnnotationEdits } from '../../../../annotations/ui/logic'
 import { hasUnsavedConversationEdits } from '@worldbrain/memex-common/lib/content-conversations/ui/logic'
 import CreationInfo from '../../../../../common-ui/components/creation-info'
+import MemexEditor from '@worldbrain/memex-common/lib/editor'
 
 const commentImage = require('../../../../../assets/img/comment.svg')
 const commentEmptyImage = require('../../../../../assets/img/comment-empty.svg')
