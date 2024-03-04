@@ -55,8 +55,7 @@ import DateTimePicker from 'react-datepicker'
 import debounce from 'lodash/debounce'
 import { LoggedInAccessBox } from './space-access-box'
 import { hasUnsavedAnnotationEdits } from '../../../../annotations/ui/logic'
-// import { hasUnsavedConversationEdits } from '@worldbrain/memex-common/lib/content-conversations/ui/logic'
-import MemexEditor from '@worldbrain/memex-common/lib/editor'
+import { hasUnsavedConversationEdits } from '@worldbrain/memex-common/lib/content-conversations/ui/logic'
 import CreationInfo from '../../../../../common-ui/components/creation-info'
 
 const commentImage = require('../../../../../assets/img/comment.svg')
@@ -81,9 +80,8 @@ export default class CollectionDetailsPage extends UIElement<
 
     private handleBeforeUnload = (e: BeforeUnloadEvent) => {
         if (
-            hasUnsavedAnnotationEdits(this.state)
-            // ||
-            // hasUnsavedConversationEdits(this.state)
+            hasUnsavedAnnotationEdits(this.state) ||
+            hasUnsavedConversationEdits(this.state)
         ) {
             e.preventDefault()
         }
