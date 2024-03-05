@@ -2656,4 +2656,6 @@ const ReferencesBox = styled.div`
 `
 const DescriptionContainer = styled.div`
     margin: 0 -10px;
+    width: fill-available;
+    width: -moz-available;
 `
