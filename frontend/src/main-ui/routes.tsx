@@ -171,6 +171,7 @@ export default class Routes extends React.Component<Props> {
                                     services={this.props.services}
                                     storage={serverModules}
                                     getRootElement={this.props.getRootElement}
+                                    imageSupport={this.props.imageSupport}
                                 />
                             )
                         }}

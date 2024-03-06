@@ -55,9 +55,9 @@ import DateTimePicker from 'react-datepicker'
 import debounce from 'lodash/debounce'
 import { LoggedInAccessBox } from './space-access-box'
 import { hasUnsavedAnnotationEdits } from '../../../../annotations/ui/logic'
-// import { hasUnsavedConversationEdits } from '@worldbrain/memex-common/lib/content-conversations/ui/logic'
-import MemexEditor from '@worldbrain/memex-common/lib/editor'
+import { hasUnsavedConversationEdits } from '@worldbrain/memex-common/lib/content-conversations/ui/logic'
 import CreationInfo from '../../../../../common-ui/components/creation-info'
+import MemexEditor from '@worldbrain/memex-common/lib/editor'
 
 const commentImage = require('../../../../../assets/img/comment.svg')
 const commentEmptyImage = require('../../../../../assets/img/comment-empty.svg')
@@ -81,9 +81,8 @@ export default class CollectionDetailsPage extends UIElement<
 
     private handleBeforeUnload = (e: BeforeUnloadEvent) => {
         if (
-            hasUnsavedAnnotationEdits(this.state)
-            // ||
-            // hasUnsavedConversationEdits(this.state)
+            hasUnsavedAnnotationEdits(this.state) ||
+            hasUnsavedConversationEdits(this.state)
         ) {
             e.preventDefault()
         }
@@ -1571,7 +1570,20 @@ export default class CollectionDetailsPage extends UIElement<
         const listdescription =
             data?.list.description || data?.listDescriptionTruncated || ''
 
-        return <DescriptionContainer></DescriptionContainer>
+        return (
+            <DescriptionContainer>
+                <MemexEditor
+                    markdownContent={listdescription}
+                    getRootElement={this.props.getRootElement}
+                    editable={false}
+                    onContentUpdate={() => null}
+                    onKeyDown={() => null}
+                    imageSupport={this.props.imageSupport}
+                    setDebouncingSaveBlock={() => null}
+                    readOnly={true}
+                />
+            </DescriptionContainer>
+        )
     }
 
     render() {
@@ -2547,21 +2559,6 @@ const ChatServerName = styled.span`
     grid-gap: 5px;
 `
 
-const CollectionDescriptionBox = styled.div<{
-    viewportBreakpoint: ViewportBreakpoint
-}>`
-    margin: 20px 0 15px 0;
-    display: flex;
-    align-items: flex-start;
-    flex-direction: column;
-
-    ${(props) =>
-        props.viewportBreakpoint === 'mobile' &&
-        css`
-            padding: 20px 0px;
-        `}
-`
-
 // const DomainName = styled.div`
 //     color: ${(props) => props.theme.colors.white};
 // `
@@ -2659,4 +2656,6 @@ const ReferencesBox = styled.div`
 `
 const DescriptionContainer = styled.div`
     margin: 0 -10px;
+    width: fill-available;
+    width: -moz-available;
 `

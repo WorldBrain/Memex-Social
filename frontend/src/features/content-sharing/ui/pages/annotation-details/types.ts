@@ -1,3 +1,4 @@
+import { ImageSupportInterface } from '@worldbrain/memex-common/lib/image-support/types'
 import type { UIEvent, UISignal } from '../../../../../main-ui/classes/logic'
 import type { UIElementServices } from '../../../../../services/types'
 import type { StorageModules } from '../../../../../storage/types'
@@ -18,6 +19,7 @@ export interface AnnotationDetailsDependencies {
         'users' | 'contentSharing' | 'activityStreams'
     >
     getRootElement: () => HTMLElement
+    imageSupport: ImageSupportInterface
 }
 
 export type AnnotationDetailsEvent = UIEvent<{

@@ -228,7 +228,7 @@ export function hasUnsavedAnnotationEdits(
     state: EditableAnnotationsState,
 ): boolean {
     const editingAnyAnnots = Object.values(state.annotationEditStates).reduce(
-        (prev, curr) => prev || curr.isEditing,
+        (prev, curr) => prev || curr.isEditing || curr.loadState === 'running',
         false,
     )
     return editingAnyAnnots
