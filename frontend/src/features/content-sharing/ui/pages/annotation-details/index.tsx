@@ -12,6 +12,8 @@ import Markdown from '../../../../../common-ui/components/markdown'
 import { PrimaryAction } from '@worldbrain/memex-common/lib/common-ui/components/PrimaryAction'
 import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
 import IconBox from '@worldbrain/memex-common/lib/common-ui/components/icon-box'
+import AnnotationEdit from '@worldbrain/memex-common/lib/content-conversations/ui/components/annotation-edit'
+import MemexEditor from '@worldbrain/memex-common/lib/editor'
 const logoImage = require('../../../../../assets/img/memex-logo.svg')
 const iconImage = require('../../../../../assets/img/memex-icon.svg')
 
@@ -168,9 +170,17 @@ export default class AnnotationDetailsPage extends UIElement<
                                 <HighlightBox>
                                     <HighlightBar />
                                     <HighlightContainer>
-                                        <MarkdownBox isHighlight>
-                                            {annotation.body}
-                                        </MarkdownBox>
+                                        <MemexEditor
+                                            readOnly
+                                            markdownContent={annotation.body}
+                                            editable={false}
+                                            getRootElement={
+                                                this.props.getRootElement
+                                            }
+                                            imageSupport={
+                                                this.props.imageSupport
+                                            }
+                                        />
                                     </HighlightContainer>
                                 </HighlightBox>
                             )}
@@ -178,14 +188,23 @@ export default class AnnotationDetailsPage extends UIElement<
                                 <AnnotationComment
                                     hasHighlight={!!annotation.body}
                                 >
-                                    <Markdown
+                                    <MemexEditor
+                                        readOnly
+                                        markdownContent={annotation.comment}
+                                        editable={false}
+                                        getRootElement={
+                                            this.props.getRootElement
+                                        }
+                                        imageSupport={this.props.imageSupport}
+                                    />
+                                    {/* <Markdown
                                     // contextLocation={props.contextLocation}
                                     // getYoutubePlayer={
                                     //     props.getYoutubePlayer
                                     // }
                                     >
                                         {annotation.comment}
-                                    </Markdown>
+                                    </Markdown> */}
                                 </AnnotationComment>
                             )}
                         </AnnotationTopBox>
@@ -470,7 +489,7 @@ const AnnotationContainer = styled.div<{ isIframe: boolean }>`
     flex-direction: column;
     justify-content: center;
     max-width: 500px;
-    border: 1px solid ${(props) => props.theme.colors.greyScale2};
+    border: 1px solid ${(props) => props.theme.colors.greyScale3};
     border-radius: 8px;
 
     ${(props) =>
