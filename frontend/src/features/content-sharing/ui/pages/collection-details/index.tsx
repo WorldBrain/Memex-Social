@@ -1021,7 +1021,7 @@ export default class CollectionDetailsPage extends UIElement<
 
     private renderSearchBox() {
         return (
-            <SearchBar>
+            <SearchBar viewportWidth={this.viewportBreakpoint}>
                 <TextField
                     icon={'searchIcon'}
                     placeholder="Search"
@@ -1570,20 +1570,22 @@ export default class CollectionDetailsPage extends UIElement<
         const listdescription =
             data?.list.description || data?.listDescriptionTruncated || ''
 
-        return (
-            <DescriptionContainer>
-                <MemexEditor
-                    markdownContent={listdescription}
-                    getRootElement={this.props.getRootElement}
-                    editable={false}
-                    onContentUpdate={() => null}
-                    onKeyDown={() => null}
-                    imageSupport={this.props.imageSupport}
-                    setDebouncingSaveBlock={() => null}
-                    readOnly={true}
-                />
-            </DescriptionContainer>
-        )
+        if (listdescription.length > 0) {
+            return (
+                <DescriptionContainer>
+                    <MemexEditor
+                        markdownContent={listdescription}
+                        getRootElement={this.props.getRootElement}
+                        editable={false}
+                        onContentUpdate={() => null}
+                        onKeyDown={() => null}
+                        imageSupport={this.props.imageSupport}
+                        setDebouncingSaveBlock={() => null}
+                        readOnly={true}
+                    />
+                </DescriptionContainer>
+            )
+        }
     }
 
     render() {
@@ -1705,9 +1707,9 @@ export default class CollectionDetailsPage extends UIElement<
                     renderDescription={this.renderDescription()}
                     isPageView={this.props.entryID}
                 >
-                    {data.list.description?.length && (
+                    {data.list.description?.length ? (
                         <ReferencesBox>References</ReferencesBox>
-                    )}
+                    ) : null}
                     {this.renderSearchBox()}
                     {!isPageView && this.renderAbovePagesBox()}
                     {state.annotationEntriesLoadState === 'error' && (
@@ -2107,13 +2109,21 @@ const LoadingBox = styled.div`
     align-items: center;
 `
 
-const SearchBar = styled.div`
+const SearchBar = styled.div<{ viewportWidth: ViewportBreakpoint }>`
     margin-bottom: 10px;
     display: flex;
     grid-gap: 10px;
     justify-content: flex-start;
     width: fit-content;
     z-index: 40;
+
+    ${(props) =>
+        (props.viewportWidth === 'mobile' || props.viewportWidth === 'small') &&
+        css`
+            padding: 10px 15px 10px 15px;
+            margin-left: 0px;
+            width: calc(100%);
+        `}
 `
 
 const PrimaryActionContainer = styled.div`
@@ -2212,12 +2222,12 @@ const ResultsList = styled.div<{
     ${(props) =>
         props.viewportWidth === 'mobile' &&
         css`
-            padding: 0px 15px 0px 15px;
+            padding: 2px 15px 0px 15px;
         `}
     ${(props) =>
         props.viewportWidth === 'small' &&
         css`
-            padding: 0px 15px 0px 15px;
+            padding: 2px 15px 0px 15px;
         `} /* ${(props) =>
         props.isIframe &&
         css`
