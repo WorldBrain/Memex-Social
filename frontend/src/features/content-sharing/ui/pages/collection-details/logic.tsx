@@ -498,9 +498,10 @@ export default class CollectionDetailsLogic extends UILogic<
         for await (const result of this.dependencies.services.summarization.queryAI(
             incoming.event.entry.sourceUrl,
             undefined,
-            undefined,
+            'Summarize this content for me in 2 sentences without saying things like "here is a summery". Be descriptive',
             undefined,
             true,
+            'claude-3-haiku',
         )) {
             const token = result?.t
 
