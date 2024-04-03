@@ -150,6 +150,8 @@ export const theme: Theme = THEME({
         key: require('../../assets/img/rectangleDraw.svg'),
         dragList: require('../../assets/img/rectangleDraw.svg'),
         browserIcon: require('../../assets/img/memexIconLightMode.svg'),
+        move: require('../../assets/img/memexIconLightMode.svg'),
+        enter: require('../../assets/img/memexIconLightMode.svg'),
 
         // doubleArrow: require('../../assets/img/doubleArrow.svg'),,
         // import tagFull from '../../assets/img/tag_full.svg'

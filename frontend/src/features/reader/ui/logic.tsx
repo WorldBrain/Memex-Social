@@ -1058,6 +1058,7 @@ export class ReaderPageViewLogic extends UILogic<
                                     )
                                 }
                             }
+                            return null
                         }}
                         createAnnotation={async (selection, shouldShare) => {
                             if (state.currentUserReference == null) {
