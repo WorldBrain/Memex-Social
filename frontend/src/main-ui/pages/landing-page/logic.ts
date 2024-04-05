@@ -157,7 +157,7 @@ export default class LandingPageLogic extends UILogic<
             const {
                 remoteListId,
                 remoteListEntryId,
-            } = await services.pageLinks.createPageLink({
+            } = await services.contentSharing.backend.createPageLink({
                 fullPageUrl,
             })
 
@@ -210,7 +210,7 @@ export default class LandingPageLogic extends UILogic<
             const {
                 remoteListId,
                 remoteListEntryId,
-            } = await services.pageLinks.createPageLink({
+            } = await services.contentSharing.backend.createPageLink({
                 fullPageUrl: tempPDFAccessLink,
                 uploadedPdfParams: {
                     uploadId,
