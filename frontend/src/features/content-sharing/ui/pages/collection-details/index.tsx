@@ -1512,18 +1512,20 @@ export default class CollectionDetailsPage extends UIElement<
                 <EmptyListBox>
                     {this.getNoResultsTextforSearchType()}
                 </EmptyListBox>
-                <PrimaryAction
-                    label={'Add Links'}
-                    onClick={() => {
-                        this.processEvent(
-                            'setActionBarSearchAndAddMode',
-                            'AddLinks',
-                        )
-                    }}
-                    type="primary"
-                    size="medium"
-                    icon="plus"
-                />
+                {(this.state.isListOwner || this.isListContributor) && (
+                    <PrimaryAction
+                        label={'Add Links'}
+                        onClick={() => {
+                            this.processEvent(
+                                'setActionBarSearchAndAddMode',
+                                'AddLinks',
+                            )
+                        }}
+                        type="primary"
+                        size="medium"
+                        icon="plus"
+                    />
+                )}
             </NoResultsContainer>
         )
     }
@@ -1932,16 +1934,18 @@ export default class CollectionDetailsPage extends UIElement<
                     {data.list.description?.length ? (
                         <ReferencesBox>References</ReferencesBox>
                     ) : null}
-                    {(this.state.listData &&
+                    {((this.state.listData &&
                         this.state.listData?.listEntries?.length > 0) ||
-                        (this.state.actionBarSearchAndAddMode ===
-                            'AddLinks' && (
-                            <ActionBarSearchAndAdd>
-                                {this.renderAddLinksField()}
-                                {this.state.actionBarSearchAndAddMode !==
-                                    'AddLinks' && this.renderSearchBox()}
-                            </ActionBarSearchAndAdd>
-                        ))}
+                        this.state.actionBarSearchAndAddMode ===
+                            'AddLinks') && (
+                        <ActionBarSearchAndAdd>
+                            {(this.state.isListOwner ||
+                                this.isListContributor) &&
+                                this.renderAddLinksField()}
+                            {this.state.actionBarSearchAndAddMode !==
+                                'AddLinks' && this.renderSearchBox()}
+                        </ActionBarSearchAndAdd>
+                    )}
                     {!isPageView && this.renderAbovePagesBox()}
                     {state.annotationEntriesLoadState === 'error' && (
                         <Margin bottom={'large'}>

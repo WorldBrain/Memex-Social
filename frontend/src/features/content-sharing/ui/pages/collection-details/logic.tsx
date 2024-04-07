@@ -1074,14 +1074,18 @@ export default class CollectionDetailsLogic extends UILogic<
         const { urlsToAddToSpace } = previousState
         const { contentSharing } = this.dependencies.services
 
-        for (let url in urlsToAddToSpace) {
+        for (let item in urlsToAddToSpace) {
+            const url = urlsToAddToSpace[item].url
+
+
             this.emitMutation({
                 urlsToAddToSpace: {
-                    [url]: {
+                    [item]: {
                         status: { $set: 'adding' },
                     },
                 },
             })
+
             try {
                 await contentSharing.backend.addRemoteUrlsToList({
                     listReference: {
@@ -1092,7 +1096,7 @@ export default class CollectionDetailsLogic extends UILogic<
                 })
                 this.emitMutation({
                     urlsToAddToSpace: {
-                        [url]: {
+                        [item]: {
                             status: { $set: 'success' },
                         },
                     },
@@ -1100,7 +1104,7 @@ export default class CollectionDetailsLogic extends UILogic<
             } catch (e) {
                 this.emitMutation({
                     urlsToAddToSpace: {
-                        [url]: {
+                        [item]: {
                             status: { $set: 'failed' },
                         },
                     },
