@@ -1710,36 +1710,37 @@ export default class CollectionDetailsPage extends UIElement<
                     )}
                 {(this.state.importUrlDisplayMode === 'queued' ||
                     this.state.importUrlDisplayMode === 'success' ||
-                    this.state.importUrlDisplayMode === 'failed') && (
-                    <LinkListContainer>
-                        {this.state.urlsToAddToSpace
-                            ?.filter(
-                                (entry) =>
-                                    entry.status ===
-                                    this.state.importUrlDisplayMode,
-                            )
-                            .map((link) => (
-                                <LinkListItem>
-                                    {link.url}
-                                    {this.state.importUrlDisplayMode ===
-                                        'queued' && (
-                                        <RemoveLinkIconBox>
-                                            <Icon
-                                                icon={'removeX'}
-                                                onClick={() => {
-                                                    this.processEvent(
-                                                        'removeLinkFromImporterQueue',
-                                                        link.url,
-                                                    )
-                                                }}
-                                                heightAndWidth={'20px'}
-                                            />
-                                        </RemoveLinkIconBox>
-                                    )}
-                                </LinkListItem>
-                            ))}
-                    </LinkListContainer>
-                )}
+                    this.state.importUrlDisplayMode === 'failed') &&
+                    this.state.actionBarSearchAndAddMode === 'AddLinks' && (
+                        <LinkListContainer>
+                            {this.state.urlsToAddToSpace
+                                ?.filter(
+                                    (entry) =>
+                                        entry.status ===
+                                        this.state.importUrlDisplayMode,
+                                )
+                                .map((link) => (
+                                    <LinkListItem>
+                                        {link.url}
+                                        {this.state.importUrlDisplayMode ===
+                                            'queued' && (
+                                            <RemoveLinkIconBox>
+                                                <Icon
+                                                    icon={'removeX'}
+                                                    onClick={() => {
+                                                        this.processEvent(
+                                                            'removeLinkFromImporterQueue',
+                                                            link.url,
+                                                        )
+                                                    }}
+                                                    heightAndWidth={'20px'}
+                                                />
+                                            </RemoveLinkIconBox>
+                                        )}
+                                    </LinkListItem>
+                                ))}
+                        </LinkListContainer>
+                    )}
 
                 {this.state.importUrlDisplayMode === 'input' &&
                     this.state.actionBarSearchAndAddMode === 'AddLinks' && (
@@ -2904,7 +2905,9 @@ const DescriptionContainer = styled.div`
     width: -moz-available;
 `
 
-const TextFieldContainer = styled.div``
+const TextFieldContainer = styled.div`
+    margin-top: 10px;
+`
 
 const LinkListContainer = styled.div`
     display: flex;
@@ -2915,6 +2918,7 @@ const LinkListContainer = styled.div`
     grid-gap: 3px;
     max-height: 600px;
     overflow: scroll;
+    margin-top: 10px;
 
     &::-webkit-scrollbar {
         display: none;
@@ -2929,7 +2933,6 @@ const TopBar = styled.div`
     justify-content: space-between;
     width: 100%;
     grid-gap: 20px;
-    margin-bottom: 10px;
 `
 const TopBarRight = styled.div`
     display: flex;
