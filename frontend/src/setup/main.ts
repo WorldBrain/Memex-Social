@@ -14,6 +14,7 @@ import { MemoryLocalStorage } from '../utils/web-storage'
 import { RouteName } from '../routes'
 import { createYoutubeServiceOptions } from '@worldbrain/memex-common/lib/services/youtube/library'
 import type { GenerateServerID } from '@worldbrain/memex-common/lib/content-sharing/service/types'
+import { normalizeUrl } from '@worldbrain/memex-common/lib/url-utils/normalize'
 
 export async function mainProgram(
     options: MainProgramOptions,
@@ -95,6 +96,7 @@ export async function mainProgram(
         storageHooksChangeWatcher.setUp({
             fetch,
             services,
+            normalizeUrl,
             getFunctionsConfig: () => ({
                 twitter: { api_key: 'test', api_key_secret: 'test' },
                 content_sharing: { cloudflare_worker_credentials: 'test' },

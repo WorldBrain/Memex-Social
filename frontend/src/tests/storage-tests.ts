@@ -12,6 +12,7 @@ import { Services } from '../services/types'
 import { ProgramQueryParams } from '../setup/types'
 import { mockClipboardAPI } from '../services/clipboard/mock'
 import fetchPDFData from '@worldbrain/memex-common/lib/page-indexing/fetch-page-data/fetch-pdf-data.node'
+import { normalizeUrl } from '@worldbrain/memex-common/lib/url-utils/normalize'
 
 export interface StorageTestDevice {
     storage: Storage
@@ -100,6 +101,7 @@ async function createMemoryTestDevice(
     storageHooksChangeWatcher.setUp({
         fetch,
         services,
+        normalizeUrl,
         getNow: () => Date.now(),
         getFunctionsConfig: () => ({
             twitter: { api_key: 'test', api_key_secret: 'test' },
