@@ -245,6 +245,10 @@ export default class CollectionDetailsLogic extends UILogic<
             endDateFilterValue: '',
             resultLoadingState: 'pristine',
             paginateLoading: 'pristine',
+            urlsToAddToSpace: [],
+            textFieldValueState: '',
+            importUrlDisplayMode: 'input',
+            actionBarSearchAndAddMode: null,
             ...extDetectionInitialState(),
             ...editableAnnotationsInitialState(),
             ...annotationConversationInitialState(),
@@ -999,6 +1003,118 @@ export default class CollectionDetailsLogic extends UILogic<
                     }),
                 ),
             )
+        })
+    }
+
+    updateAddLinkField: EventHandler<'updateAddLinkField'> = async ({
+        previousState,
+        event,
+    }) => {
+        const text = event.textFieldValue
+        this.emitMutation({
+            textFieldValueState: { $set: text },
+        })
+        let existingUrls = previousState.urlsToAddToSpace
+        const urls =
+            text.match(
+                /(\b(https?|http):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gi,
+            ) || []
+
+        for (let url of urls) {
+            const urlToAdd = url
+                ? { url: url, status: 'queued' as const }
+                : null
+
+            if (
+                urlToAdd &&
+                !existingUrls.some(
+                    (existingUrl) => existingUrl.url === urlToAdd.url,
+                )
+            ) {
+                existingUrls.push(urlToAdd)
+            }
+        }
+
+        // Example mutation to update state with extracted URLs
+        this.emitMutation({
+            urlsToAddToSpace: { $set: existingUrls },
+        })
+    }
+
+    removeLinkFromImporterQueue: EventHandler<'removeLinkFromImporterQueue'> = async ({
+        previousState,
+        event,
+    }) => {
+        const { urlsToAddToSpace } = previousState
+        const url = event
+        const urlIndex = urlsToAddToSpace.findIndex(
+            (urlToAdd) => urlToAdd.url === url,
+        )
+        if (urlIndex === -1) {
+            return
+        }
+        urlsToAddToSpace.splice(urlIndex, 1)
+        this.emitMutation({
+            urlsToAddToSpace: { $set: urlsToAddToSpace },
+        })
+    }
+
+    setActionBarSearchAndAddMode: EventHandler<'setActionBarSearchAndAddMode'> = async ({
+        previousState,
+        event,
+    }) => {
+        this.emitMutation({
+            actionBarSearchAndAddMode: { $set: event },
+        })
+    }
+    addLinkToCollection: EventHandler<'addLinkToCollection'> = async ({
+        previousState,
+        event,
+    }) => {
+        const { urlsToAddToSpace } = previousState
+        const { contentSharing } = this.dependencies.services
+
+        for (let url in urlsToAddToSpace) {
+            this.emitMutation({
+                urlsToAddToSpace: {
+                    [url]: {
+                        status: { $set: 'adding' },
+                    },
+                },
+            })
+            try {
+                await contentSharing.backend.addRemoteUrlsToList({
+                    listReference: {
+                        id: this.dependencies.listID,
+                        type: 'shared-list-reference',
+                    },
+                    fullPageUrls: [url],
+                })
+                this.emitMutation({
+                    urlsToAddToSpace: {
+                        [url]: {
+                            status: { $set: 'success' },
+                        },
+                    },
+                })
+            } catch (e) {
+                this.emitMutation({
+                    urlsToAddToSpace: {
+                        [url]: {
+                            status: { $set: 'failed' },
+                        },
+                    },
+                })
+            }
+        }
+    }
+
+    switchImportUrlDisplayMode: EventHandler<'switchImportUrlDisplayMode'> = async ({
+        previousState,
+        event,
+    }) => {
+        this.emitMutation({
+            importUrlDisplayMode: { $set: event },
         })
     }
 

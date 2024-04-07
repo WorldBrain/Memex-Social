@@ -111,6 +111,13 @@ export type CollectionDetailsState = AnnotationConversationsState &
         startDateFilterValue: string
         resultLoadingState: UITaskState
         paginateLoading: UITaskState
+        textFieldValueState: string
+        urlsToAddToSpace: {
+            url: string
+            status: 'input' | 'queued' | 'adding' | 'success' | 'failed'
+        }[]
+        importUrlDisplayMode: 'input' | 'queued' | 'success' | 'failed'
+        actionBarSearchAndAddMode: 'AddLinks' | null
 
         annotationEntriesLoadState: UITaskState
         annotationLoadStates: { [normalizedPageUrl: string]: UITaskState }
@@ -158,6 +165,16 @@ export type CollectionDetailsEvent = UIEvent<
             closePermissionOverlay: {}
             pageBreakpointHit: { entryIndex: number }
             clickFollowBtn: { pageToOpenPostFollow?: string }
+            updateAddLinkField: { textFieldValue: string }
+            switchImportUrlDisplayMode:
+                | 'input'
+                | 'queued'
+                | 'success'
+                | 'failed'
+            removeLinkFromImporterQueue: string
+            setActionBarSearchAndAddMode: 'AddLinks' | null
+            switchLinksAdderMode: 'linkList' | 'textField'
+            addLinkToCollection: null
             toggleMoreCollaborators: {}
             hideMoreCollaborators: {}
             updateScrollState: { previousScrollTop: number }

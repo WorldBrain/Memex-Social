@@ -1123,26 +1123,29 @@ export default class CollectionDetailsPage extends UIElement<
 
         return (
             <AbovePagesBox viewportWidth={this.viewportBreakpoint}>
-                <SearchTypeSwitch
-                    viewportWidth={this.viewportBreakpoint}
-                    onPagesSearchSwitch={() =>
-                        this.processEvent('setSearchType', 'pages')
-                    }
-                    onVideosSearchSwitch={() =>
-                        this.processEvent('setSearchType', 'videos')
-                    }
-                    onTwitterSearchSwitch={() =>
-                        this.processEvent('setSearchType', 'twitter')
-                    }
-                    onPDFSearchSwitch={() =>
-                        this.processEvent('setSearchType', 'pdf')
-                    }
-                    onEventSearchSwitch={() =>
-                        this.processEvent('setSearchType', 'events')
-                    }
-                    searchType={this.state.searchType}
-                    toExclude={['notes']}
-                />
+                {this.state.listData &&
+                    this.state.listData?.listEntries?.length > 0 && (
+                        <SearchTypeSwitch
+                            viewportWidth={this.viewportBreakpoint}
+                            onPagesSearchSwitch={() =>
+                                this.processEvent('setSearchType', 'pages')
+                            }
+                            onVideosSearchSwitch={() =>
+                                this.processEvent('setSearchType', 'videos')
+                            }
+                            onTwitterSearchSwitch={() =>
+                                this.processEvent('setSearchType', 'twitter')
+                            }
+                            onPDFSearchSwitch={() =>
+                                this.processEvent('setSearchType', 'pdf')
+                            }
+                            onEventSearchSwitch={() =>
+                                this.processEvent('setSearchType', 'events')
+                            }
+                            searchType={this.state.searchType}
+                            toExclude={['notes']}
+                        />
+                    )}
                 <ActionItems>
                     {/* {(this.isListContributor || isListOwner) && (
                         <AddPageBtn
@@ -1509,6 +1512,18 @@ export default class CollectionDetailsPage extends UIElement<
                 <EmptyListBox>
                     {this.getNoResultsTextforSearchType()}
                 </EmptyListBox>
+                <PrimaryAction
+                    label={'Add Links'}
+                    onClick={() => {
+                        this.processEvent(
+                            'setActionBarSearchAndAddMode',
+                            'AddLinks',
+                        )
+                    }}
+                    type="primary"
+                    size="medium"
+                    icon="plus"
+                />
             </NoResultsContainer>
         )
     }
@@ -1551,6 +1566,213 @@ export default class CollectionDetailsPage extends UIElement<
         }
 
         return entries
+    }
+
+    renderAddLinksField() {
+        return (
+            <ImportUrlsContainer>
+                <TopBar>
+                    {this.state.actionBarSearchAndAddMode === null && (
+                        <PrimaryAction
+                            label={'Add Links'}
+                            onClick={() => {
+                                this.processEvent(
+                                    'setActionBarSearchAndAddMode',
+                                    'AddLinks',
+                                )
+                            }}
+                            type="primary"
+                            size="medium"
+                            icon="plus"
+                        />
+                    )}
+                    {this.state.actionBarSearchAndAddMode === 'AddLinks' && (
+                        <PrimaryAction
+                            label={'Back'}
+                            onClick={() => {
+                                this.processEvent(
+                                    'setActionBarSearchAndAddMode',
+                                    null,
+                                )
+                            }}
+                            type="tertiary"
+                            size="medium"
+                            icon="arrowLeft"
+                            iconPosition="left"
+                        />
+                    )}
+                    {this.state.actionBarSearchAndAddMode === 'AddLinks' && (
+                        <TopBarRight>
+                            <PrimaryAction
+                                label={'Input'}
+                                onClick={() => {
+                                    this.processEvent(
+                                        'switchImportUrlDisplayMode',
+                                        'input',
+                                    )
+                                }}
+                                type="menuBar"
+                                size="medium"
+                                active={
+                                    this.state.importUrlDisplayMode === 'input'
+                                }
+                            />
+                            <PrimaryAction
+                                label={`${
+                                    this.state.urlsToAddToSpace?.filter(
+                                        (entry) => entry.status === 'queued',
+                                    ).length
+                                } Queue`}
+                                onClick={() => {
+                                    if (
+                                        this.state.urlsToAddToSpace?.filter(
+                                            (entry) =>
+                                                entry.status === 'queued',
+                                        ).length > 0
+                                    ) {
+                                        this.processEvent(
+                                            'switchImportUrlDisplayMode',
+                                            'queued',
+                                        )
+                                    }
+                                }}
+                                type="menuBar"
+                                size="medium"
+                                active={
+                                    this.state.importUrlDisplayMode === 'queued'
+                                }
+                                disabled={
+                                    this.state.urlsToAddToSpace?.filter(
+                                        (entry) => entry.status === 'queued',
+                                    ).length === 0
+                                }
+                            />
+                            <PrimaryAction
+                                label={`${
+                                    this.state.urlsToAddToSpace?.filter(
+                                        (entry) => entry.status === 'success',
+                                    ).length
+                                } Imported`}
+                                onClick={() => {
+                                    if (
+                                        this.state.urlsToAddToSpace?.filter(
+                                            (entry) =>
+                                                entry.status === 'success',
+                                        ).length > 0
+                                    ) {
+                                        this.processEvent(
+                                            'switchImportUrlDisplayMode',
+                                            'success',
+                                        )
+                                    }
+                                }}
+                                type="menuBar"
+                                size="medium"
+                                active={
+                                    this.state.importUrlDisplayMode ===
+                                    'success'
+                                }
+                            />
+                            <PrimaryAction
+                                label={`${
+                                    this.state.urlsToAddToSpace?.filter(
+                                        (entry) => entry.status === 'failed',
+                                    ).length
+                                } Failed`}
+                                onClick={() => {
+                                    this.processEvent(
+                                        'switchImportUrlDisplayMode',
+                                        'failed',
+                                    )
+                                }}
+                                active={
+                                    this.state.importUrlDisplayMode === 'failed'
+                                }
+                                type="menuBar"
+                                size="medium"
+                            />
+                        </TopBarRight>
+                    )}
+                </TopBar>
+                {this.state.importUrlDisplayMode === 'queued' &&
+                    this.state.actionBarSearchAndAddMode === 'AddLinks' && (
+                        <PrimaryAction
+                            onClick={() => {
+                                this.processEvent('addLinkToCollection', null)
+                            }}
+                            fullWidth
+                            label="Import Queued Links"
+                            type="secondary"
+                            size="medium"
+                        />
+                    )}
+                {(this.state.importUrlDisplayMode === 'queued' ||
+                    this.state.importUrlDisplayMode === 'success' ||
+                    this.state.importUrlDisplayMode === 'failed') && (
+                    <LinkListContainer>
+                        {this.state.urlsToAddToSpace
+                            ?.filter(
+                                (entry) =>
+                                    entry.status ===
+                                    this.state.importUrlDisplayMode,
+                            )
+                            .map((link) => (
+                                <LinkListItem>
+                                    {link.url}
+                                    {this.state.importUrlDisplayMode ===
+                                        'queued' && (
+                                        <RemoveLinkIconBox>
+                                            <Icon
+                                                icon={'removeX'}
+                                                onClick={() => {
+                                                    this.processEvent(
+                                                        'removeLinkFromImporterQueue',
+                                                        link.url,
+                                                    )
+                                                }}
+                                                heightAndWidth={'20px'}
+                                            />
+                                        </RemoveLinkIconBox>
+                                    )}
+                                </LinkListItem>
+                            ))}
+                    </LinkListContainer>
+                )}
+
+                {this.state.importUrlDisplayMode === 'input' &&
+                    this.state.actionBarSearchAndAddMode === 'AddLinks' && (
+                        <TextFieldContainer>
+                            <TextArea
+                                onChange={(event) => {
+                                    this.processEvent('updateAddLinkField', {
+                                        textFieldValue: (event?.target as HTMLTextAreaElement)
+                                            .value,
+                                    })
+                                }}
+                                placeholder="Paste any text, urls are filtered out"
+                                defaultValue={this.state.textFieldValueState}
+                                maxHeight={'300px'}
+                                borderColor={'greyScale3'}
+                                autoFocus
+                                // minHeight={'40px'}
+                            />
+                            {/* <PrimaryAction
+                            label={`${
+                                this.state.urlsToAddToSpace.filter(
+                                    (entry) => entry.status === 'queued',
+                                ).length
+                            } links`}
+                            onClick={() => {
+                                this.processEvent(
+                                    'switchLinksAdderMode',
+                                    'linkList',
+                                )
+                            }}
+                        /> */}
+                        </TextFieldContainer>
+                    )}
+            </ImportUrlsContainer>
+        )
     }
 
     renderDescription() {
@@ -1710,7 +1932,16 @@ export default class CollectionDetailsPage extends UIElement<
                     {data.list.description?.length ? (
                         <ReferencesBox>References</ReferencesBox>
                     ) : null}
-                    {this.renderSearchBox()}
+                    {(this.state.listData &&
+                        this.state.listData?.listEntries?.length > 0) ||
+                        (this.state.actionBarSearchAndAddMode ===
+                            'AddLinks' && (
+                            <ActionBarSearchAndAdd>
+                                {this.renderAddLinksField()}
+                                {this.state.actionBarSearchAndAddMode !==
+                                    'AddLinks' && this.renderSearchBox()}
+                            </ActionBarSearchAndAdd>
+                        ))}
                     {!isPageView && this.renderAbovePagesBox()}
                     {state.annotationEntriesLoadState === 'error' && (
                         <Margin bottom={'large'}>
@@ -2110,7 +2341,6 @@ const LoadingBox = styled.div`
 `
 
 const SearchBar = styled.div<{ viewportWidth: ViewportBreakpoint }>`
-    margin-bottom: 10px;
     display: flex;
     grid-gap: 10px;
     justify-content: flex-start;
@@ -2668,4 +2898,82 @@ const DescriptionContainer = styled.div`
     margin: 0 -10px;
     width: fill-available;
     width: -moz-available;
+`
+
+const TextFieldContainer = styled.div``
+
+const LinkListContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    width: 100%;
+    grid-gap: 3px;
+    max-height: 600px;
+    overflow: scroll;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+
+    scrollbar-width: none;
+`
+
+const TopBar = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    grid-gap: 20px;
+    margin-bottom: 10px;
+`
+const TopBarRight = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+`
+const RemoveLinkIconBox = styled.div`
+    display: none;
+    position: absolute;
+    right: 10px;
+`
+
+const LinkListItem = styled.div`
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    box-sizing: border-box;
+    border-bottom: 1px solid ${(props) => props.theme.colors.greyScale3};
+    color: ${(props) => props.theme.colors.greyScale6};
+    font-size: 14px;
+    position: relative;
+
+    &:hover {
+        background: ${(props) => props.theme.colors.greyScale2};
+    }
+    &:hover ${RemoveLinkIconBox} {
+        display: flex;
+    }
+
+    &:last-child {
+        border-bottom: none;
+    }
+`
+
+const ImportUrlsContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+`
+
+const ActionBarSearchAndAdd = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    grid-gap: 20px;
+    margin-bottom: 30px;
+    width: 100%;
 `
