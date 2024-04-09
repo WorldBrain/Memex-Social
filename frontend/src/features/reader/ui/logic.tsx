@@ -929,6 +929,10 @@ export class ReaderPageViewLogic extends UILogic<
                         )
                     }
                 }
+                const anchors = this.iframe.querySelectorAll('a')
+                anchors.forEach((anchor) => {
+                    anchor.setAttribute('target', '_blank')
+                })
             },
         )
 

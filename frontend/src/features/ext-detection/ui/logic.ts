@@ -32,6 +32,7 @@ export interface ExtDetectionEvent {
         sharedListReference?: SharedListReference
         listID: string
         listEntryID: string
+        openInWeb?: boolean
     }
     clickFollowButtonForNotif: {
         spaceToFollow: string | undefined
@@ -104,6 +105,10 @@ export const extDetectionEventHandlers = (
             }
 
             if (!doesMemexExtDetectionElExist()) {
+                if (event.openInWeb) {
+                    window.open(event.urlToOpen, '_blank')
+                    return
+                }
                 const currentBaseURL = new URL(window.location.href).origin
                 const pageLinkURL =
                     currentBaseURL +
@@ -114,6 +119,8 @@ export const extDetectionEventHandlers = (
 
                 event.preventOpening()
                 window.open(pageLinkURL, '_self')
+
+                console.log('oepening page link url', pageLinkURL)
 
                 if (event.notifAlreadyShown) {
                     window.open(pageLinkURL, '_self')

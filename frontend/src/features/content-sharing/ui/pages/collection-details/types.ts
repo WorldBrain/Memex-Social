@@ -114,9 +114,20 @@ export type CollectionDetailsState = AnnotationConversationsState &
         textFieldValueState: string
         urlsToAddToSpace: {
             url: string
-            status: 'input' | 'queued' | 'adding' | 'success' | 'failed'
+            status:
+                | 'input'
+                | 'queued'
+                | 'adding'
+                | 'success'
+                | 'failed'
+                | 'running'
         }[]
-        importUrlDisplayMode: 'input' | 'queued' | 'success' | 'failed'
+        importUrlDisplayMode:
+            | 'input'
+            | 'queued'
+            | 'success'
+            | 'failed'
+            | 'running'
         actionBarSearchAndAddMode: 'AddLinks' | null
 
         annotationEntriesLoadState: UITaskState
@@ -140,6 +151,7 @@ export type CollectionDetailsState = AnnotationConversationsState &
         isListShareModalShown: boolean
         pageAnnotationsExpanded: { [normalizedPageUrl: string]: boolean }
         searchType: SearchType
+        showStartImportButton: boolean
     }
 
 export interface PageEventArgs {

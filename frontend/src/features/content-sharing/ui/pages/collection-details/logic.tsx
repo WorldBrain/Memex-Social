@@ -4,6 +4,7 @@ import {
     filterObject,
 } from '@worldbrain/memex-common/lib/utils/iteration'
 import {
+    SharedListEntry,
     SharedListReference,
     SharedListRoleID,
 } from '@worldbrain/memex-common/lib/content-sharing/types'
@@ -247,7 +248,7 @@ export default class CollectionDetailsLogic extends UILogic<
             paginateLoading: 'pristine',
             urlsToAddToSpace: [],
             textFieldValueState: '',
-            importUrlDisplayMode: 'input',
+            importUrlDisplayMode: 'queued',
             actionBarSearchAndAddMode: null,
             ...extDetectionInitialState(),
             ...editableAnnotationsInitialState(),
@@ -1014,7 +1015,11 @@ export default class CollectionDetailsLogic extends UILogic<
         this.emitMutation({
             textFieldValueState: { $set: text },
         })
-        let existingUrls = previousState.urlsToAddToSpace
+        let existingUrls: {
+            url: string
+            status: 'success' | 'queued' | 'input' | 'adding' | 'failed'
+        }[] = []
+
         const urls =
             text.match(
                 /(\b(https?|http):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gi,
@@ -1038,6 +1043,7 @@ export default class CollectionDetailsLogic extends UILogic<
         // Example mutation to update state with extracted URLs
         this.emitMutation({
             urlsToAddToSpace: { $set: existingUrls },
+            showStartImportButton: { $set: true },
         })
     }
 
@@ -1074,26 +1080,34 @@ export default class CollectionDetailsLogic extends UILogic<
         const { urlsToAddToSpace } = previousState
         const { contentSharing } = this.dependencies.services
 
+        this.emitMutation({
+            showStartImportButton: { $set: false },
+        })
+
+        let existingListEntries = previousState.listData?.listEntries
+
         for (let item in urlsToAddToSpace) {
             const url = urlsToAddToSpace[item].url
-
 
             this.emitMutation({
                 urlsToAddToSpace: {
                     [item]: {
-                        status: { $set: 'adding' },
+                        status: { $set: 'running' },
                     },
                 },
             })
 
+            let addedEntry: SharedListEntry[] = []
+
             try {
-                await contentSharing.backend.addRemoteUrlsToList({
+                addedEntry = await contentSharing.backend.addRemoteUrlsToList({
                     listReference: {
                         id: this.dependencies.listID,
                         type: 'shared-list-reference',
                     },
                     fullPageUrls: [url],
                 })
+
                 this.emitMutation({
                     urlsToAddToSpace: {
                         [item]: {
@@ -1107,6 +1121,31 @@ export default class CollectionDetailsLogic extends UILogic<
                         [item]: {
                             status: { $set: 'failed' },
                         },
+                    },
+                })
+            } finally {
+                const newCollectionEntry: CollectionDetailsListEntry = {
+                    ...addedEntry[0],
+                    creator: {
+                        type: 'user-reference',
+                        id: previousState.currentUserReference?.id ?? '',
+                    },
+                    sourceUrl: addedEntry[0]?.originalUrl,
+                    updatedWhen: addedEntry[0]?.createdWhen,
+                    reference: {
+                        id: 'J09OOLinzMORB7dWmaAd',
+                        type: 'shared-list-entry-reference',
+                    },
+                }
+
+                console.log('newCollectionEntry', newCollectionEntry)
+
+                existingListEntries?.unshift(newCollectionEntry)
+
+                console.log('existingListEntries', existingListEntries)
+                this.emitMutation({
+                    listData: {
+                        listEntries: { $set: existingListEntries },
                     },
                 })
             }

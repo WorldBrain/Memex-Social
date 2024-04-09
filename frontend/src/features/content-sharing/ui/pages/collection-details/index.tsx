@@ -327,6 +327,26 @@ export default class CollectionDetailsPage extends UIElement<
                 count > 0 ? <NoteCounter>{count}</NoteCounter> : undefined,
         }
 
+        const openPageButton: ItemBoxBottomAction = {
+            key: 'annotate-page-btn',
+            image: 'highlight',
+            ButtonText: 'Annotate',
+            onClick: (e) => {
+                this.processEvent('clickPageResult', {
+                    urlToOpen: entry.sourceUrl,
+                    preventOpening: () => e.preventDefault(),
+                    isFollowedSpace:
+                        this.state.isCollectionFollowed ||
+                        this.state.isListOwner,
+                    notifAlreadyShown: this.state.notifAlreadyShown,
+                    sharedListReference: this.sharedListReference,
+                    listID: this.props.listID,
+                    listEntryID: entry.reference?.id!,
+                })
+                e.preventDefault()
+                e.stopPropagation()
+            },
+        }
         const summaryButton: ItemBoxBottomAction = {
             key: 'generate-summary-btn',
             image:
@@ -336,7 +356,6 @@ export default class CollectionDetailsPage extends UIElement<
                     'error'
                     ? 'compress'
                     : 'feed',
-            imageColor: 'prime1',
             ButtonText:
                 this.state.summarizeArticleLoadState[entry.normalizedUrl] ===
                     'success' ||
@@ -372,19 +391,29 @@ export default class CollectionDetailsPage extends UIElement<
                 this.state.listData?.listEntries[entryIndex].hoverState &&
                 !this.isIframe()
             ) {
-                return [copyButton, summaryButton, commentButton]
+                return [
+                    copyButton,
+                    summaryButton,
+                    openPageButton,
+                    commentButton,
+                ]
             }
 
-            return [copyButton, summaryButton, commentButton]
+            return [copyButton, summaryButton, openPageButton, commentButton]
         } else if (toggleAnnotationsIcon === null) {
             if (
                 this.state.listData?.listEntries[entryIndex].hoverState &&
                 !this.isIframe()
             ) {
-                return [copyButton, summaryButton, commentButton]
+                return [
+                    copyButton,
+                    summaryButton,
+                    openPageButton,
+                    commentButton,
+                ]
             }
 
-            return [copyButton, summaryButton, commentButton]
+            return [copyButton, summaryButton, openPageButton, commentButton]
         }
     }
 
@@ -1572,7 +1601,11 @@ export default class CollectionDetailsPage extends UIElement<
 
     renderAddLinksField() {
         return (
-            <ImportUrlsContainer>
+            <ImportUrlsContainer
+                shouldShowFrame={
+                    this.state.actionBarSearchAndAddMode === 'AddLinks'
+                }
+            >
                 <TopBar>
                     {this.state.actionBarSearchAndAddMode === null && (
                         <PrimaryAction
@@ -1604,21 +1637,40 @@ export default class CollectionDetailsPage extends UIElement<
                         />
                     )}
                     {this.state.actionBarSearchAndAddMode === 'AddLinks' && (
-                        <TopBarRight>
-                            <PrimaryAction
-                                label={'Input'}
-                                onClick={() => {
-                                    this.processEvent(
-                                        'switchImportUrlDisplayMode',
-                                        'input',
-                                    )
-                                }}
-                                type="menuBar"
-                                size="medium"
-                                active={
-                                    this.state.importUrlDisplayMode === 'input'
-                                }
-                            />
+                        <PrimaryAction
+                            label={'Import Links'}
+                            onClick={() => {
+                                this.processEvent('addLinkToCollection', null)
+                            }}
+                            type="secondary"
+                            size="medium"
+                            icon="plus"
+                            disabled={this.state.urlsToAddToSpace.length === 0}
+                        />
+                    )}
+                </TopBar>
+                {this.state.actionBarSearchAndAddMode === 'AddLinks' && (
+                    <TextFieldContainer>
+                        <TextArea
+                            onChange={(event) => {
+                                this.processEvent('updateAddLinkField', {
+                                    textFieldValue: (event?.target as HTMLTextAreaElement)
+                                        .value,
+                                })
+                            }}
+                            placeholder="Paste any text, urls are filtered out"
+                            defaultValue={this.state.textFieldValueState}
+                            maxHeight={'300px'}
+                            borderColor={'greyScale3'}
+                            autoFocus
+                            background="black0"
+                            // minHeight={'40px'}
+                        />
+                    </TextFieldContainer>
+                )}
+                {this.state.actionBarSearchAndAddMode === 'AddLinks' &&
+                    this.state.urlsToAddToSpace.length > 0 && (
+                        <BottomBar>
                             <PrimaryAction
                                 label={`${
                                     this.state.urlsToAddToSpace?.filter(
@@ -1639,15 +1691,18 @@ export default class CollectionDetailsPage extends UIElement<
                                     }
                                 }}
                                 type="menuBar"
-                                size="medium"
+                                size="small"
                                 active={
                                     this.state.importUrlDisplayMode === 'queued'
                                 }
                                 disabled={
                                     this.state.urlsToAddToSpace?.filter(
-                                        (entry) => entry.status === 'queued',
+                                        (entry) =>
+                                            entry.status === 'queued' ||
+                                            entry.status === 'running',
                                     ).length === 0
                                 }
+                                fontColor={'greyScale5'}
                             />
                             <PrimaryAction
                                 label={`${
@@ -1669,11 +1724,17 @@ export default class CollectionDetailsPage extends UIElement<
                                     }
                                 }}
                                 type="menuBar"
-                                size="medium"
+                                size="small"
                                 active={
                                     this.state.importUrlDisplayMode ===
                                     'success'
                                 }
+                                disabled={
+                                    this.state.urlsToAddToSpace?.filter(
+                                        (entry) => entry.status === 'success',
+                                    ).length === 0
+                                }
+                                fontColor={'greyScale5'}
                             />
                             <PrimaryAction
                                 label={`${
@@ -1682,42 +1743,41 @@ export default class CollectionDetailsPage extends UIElement<
                                     ).length
                                 } Failed`}
                                 onClick={() => {
-                                    this.processEvent(
-                                        'switchImportUrlDisplayMode',
-                                        'failed',
-                                    )
+                                    if (
+                                        this.state.urlsToAddToSpace?.filter(
+                                            (entry) =>
+                                                entry.status === 'failed',
+                                        ).length > 0
+                                    ) {
+                                        this.processEvent(
+                                            'switchImportUrlDisplayMode',
+                                            'failed',
+                                        )
+                                    }
                                 }}
+                                disabled={
+                                    this.state.urlsToAddToSpace?.filter(
+                                        (entry) => entry.status === 'failed',
+                                    ).length === 0
+                                }
                                 active={
                                     this.state.importUrlDisplayMode === 'failed'
                                 }
                                 type="menuBar"
-                                size="medium"
+                                size="small"
+                                fontColor={'greyScale5'}
                             />
-                        </TopBarRight>
+                        </BottomBar>
                     )}
-                </TopBar>
-                {this.state.importUrlDisplayMode === 'queued' &&
-                    this.state.actionBarSearchAndAddMode === 'AddLinks' && (
-                        <PrimaryAction
-                            onClick={() => {
-                                this.processEvent('addLinkToCollection', null)
-                            }}
-                            fullWidth
-                            label="Import Queued Links"
-                            type="secondary"
-                            size="medium"
-                        />
-                    )}
-                {(this.state.importUrlDisplayMode === 'queued' ||
-                    this.state.importUrlDisplayMode === 'success' ||
-                    this.state.importUrlDisplayMode === 'failed') &&
-                    this.state.actionBarSearchAndAddMode === 'AddLinks' && (
+                {this.state.actionBarSearchAndAddMode === 'AddLinks' &&
+                    (this.state.importUrlDisplayMode === 'queued' ||
+                        this.state.importUrlDisplayMode === 'running') && (
                         <LinkListContainer>
                             {this.state.urlsToAddToSpace
                                 ?.filter(
                                     (entry) =>
-                                        entry.status ===
-                                        this.state.importUrlDisplayMode,
+                                        entry.status === 'running' ||
+                                        entry.status === 'queued',
                                 )
                                 .map((link) => (
                                     <LinkListItem>
@@ -1737,42 +1797,29 @@ export default class CollectionDetailsPage extends UIElement<
                                                 />
                                             </RemoveLinkIconBox>
                                         )}
+                                        {link.status === 'running' && (
+                                            <LoadingIndicatorRowBox>
+                                                <LoadingIndicator size={18} />
+                                            </LoadingIndicatorRowBox>
+                                        )}
                                     </LinkListItem>
                                 ))}
                         </LinkListContainer>
                     )}
-
-                {this.state.importUrlDisplayMode === 'input' &&
-                    this.state.actionBarSearchAndAddMode === 'AddLinks' && (
-                        <TextFieldContainer>
-                            <TextArea
-                                onChange={(event) => {
-                                    this.processEvent('updateAddLinkField', {
-                                        textFieldValue: (event?.target as HTMLTextAreaElement)
-                                            .value,
-                                    })
-                                }}
-                                placeholder="Paste any text, urls are filtered out"
-                                defaultValue={this.state.textFieldValueState}
-                                maxHeight={'300px'}
-                                borderColor={'greyScale3'}
-                                autoFocus
-                                // minHeight={'40px'}
-                            />
-                            {/* <PrimaryAction
-                            label={`${
-                                this.state.urlsToAddToSpace.filter(
-                                    (entry) => entry.status === 'queued',
-                                ).length
-                            } links`}
-                            onClick={() => {
-                                this.processEvent(
-                                    'switchLinksAdderMode',
-                                    'linkList',
+                {this.state.actionBarSearchAndAddMode === 'AddLinks' &&
+                    this.state.importUrlDisplayMode !== 'queued' &&
+                    this.state.importUrlDisplayMode !== 'running' && (
+                        <LinkListContainer>
+                            {this.state.urlsToAddToSpace
+                                ?.filter(
+                                    (entry) =>
+                                        entry.status ===
+                                        this.state.importUrlDisplayMode,
                                 )
-                            }}
-                        /> */}
-                        </TextFieldContainer>
+                                .map((link) => (
+                                    <LinkListItem>{link.url}</LinkListItem>
+                                ))}
+                        </LinkListContainer>
                     )}
             </ImportUrlsContainer>
         )
@@ -1939,7 +1986,9 @@ export default class CollectionDetailsPage extends UIElement<
                         this.state.listData?.listEntries?.length > 0) ||
                         this.state.actionBarSearchAndAddMode ===
                             'AddLinks') && (
-                        <ActionBarSearchAndAdd>
+                        <ActionBarSearchAndAdd
+                            viewportWidth={this.viewportBreakpoint}
+                        >
                             {(this.state.isListOwner ||
                                 this.isListContributor) &&
                                 this.renderAddLinksField()}
@@ -2051,6 +2100,7 @@ export default class CollectionDetailsPage extends UIElement<
                                                     entry && entry.entryTitle
                                                 }
                                                 onClick={(e) => {
+                                                    console.log('hee')
                                                     this.processEvent(
                                                         'clickPageResult',
                                                         {
@@ -2072,6 +2122,7 @@ export default class CollectionDetailsPage extends UIElement<
                                                                 .listID,
                                                             listEntryID: entry
                                                                 .reference?.id!,
+                                                            openInWeb: true,
                                                         },
                                                     )
                                                     e.preventDefault()
@@ -2351,14 +2402,6 @@ const SearchBar = styled.div<{ viewportWidth: ViewportBreakpoint }>`
     justify-content: flex-start;
     width: fit-content;
     z-index: 40;
-
-    ${(props) =>
-        (props.viewportWidth === 'mobile' || props.viewportWidth === 'small') &&
-        css`
-            padding: 10px 15px 10px 15px;
-            margin-left: 0px;
-            width: calc(100%);
-        `}
 `
 
 const PrimaryActionContainer = styled.div`
@@ -2934,14 +2977,20 @@ const TopBar = styled.div`
     width: 100%;
     grid-gap: 20px;
 `
-const TopBarRight = styled.div`
+const BottomBar = styled.div`
     display: flex;
     align-items: center;
     justify-content: space-between;
     width: 100%;
+    margin-top: 10px;
 `
 const RemoveLinkIconBox = styled.div`
     display: none;
+    position: absolute;
+    right: 10px;
+`
+const LoadingIndicatorRowBox = styled.div`
+    display: flex;
     position: absolute;
     right: 10px;
 `
@@ -2970,17 +3019,33 @@ const LinkListItem = styled.div`
     }
 `
 
-const ImportUrlsContainer = styled.div`
+const ImportUrlsContainer = styled.div<{ shouldShowFrame: boolean }>`
     display: flex;
     flex-direction: column;
     width: 100%;
+
+    ${(props) =>
+        props.shouldShowFrame &&
+        css`
+            border: 1px solid ${(props) => props.theme.colors.greyScale3};
+            border-radius: 10px;
+            padding: 10px;
+        `}
 `
 
-const ActionBarSearchAndAdd = styled.div`
+const ActionBarSearchAndAdd = styled.div<{ viewportWidth: ViewportBreakpoint }>`
     display: flex;
     align-items: center;
     justify-content: space-between;
     grid-gap: 20px;
     margin-bottom: 30px;
     width: 100%;
+
+    ${(props) =>
+        (props.viewportWidth === 'mobile' || props.viewportWidth === 'small') &&
+        css`
+            padding: 10px 15px 10px 15px;
+            margin-left: 0px;
+            width: calc(100%);
+        `}
 `
