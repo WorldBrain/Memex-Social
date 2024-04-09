@@ -34,7 +34,7 @@ export interface LandingPageDependencies {
         | 'localStorage'
         | 'documentTitle'
         | 'pdfUploadService'
-        | 'pageLinks'
+        | 'contentSharing'
     >
     storage: Pick<StorageModules, 'contentSharing'>
     generateServerId: GenerateServerID

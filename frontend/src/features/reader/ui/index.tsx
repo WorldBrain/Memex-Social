@@ -925,13 +925,17 @@ export class ReaderPageView extends UIElement<
                                                         this.state.listData
                                                             ?.title
                                                     }
-                                                    onClick={() =>
+                                                    onClick={() => {
+                                                        console.log(
+                                                            this.state.listData
+                                                                ?.url,
+                                                        )
                                                         window.open(
                                                             this.state.listData
                                                                 ?.url,
                                                             '_self',
                                                         )
-                                                    }
+                                                    }}
                                                     padding="5px 10px 5px 5px"
                                                 />
                                             </BreadCrumbButton>

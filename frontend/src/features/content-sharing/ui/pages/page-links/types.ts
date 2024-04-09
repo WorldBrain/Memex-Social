@@ -8,7 +8,7 @@ export interface PageLinkCreationPageDependencies {
         | 'auth'
         | 'router'
         | 'overlay'
-        | 'pageLinks'
+        | 'contentSharing'
         | 'userManagement'
         | 'webMonetization'
         | 'activityStreams'

@@ -327,6 +327,26 @@ export default class CollectionDetailsPage extends UIElement<
                 count > 0 ? <NoteCounter>{count}</NoteCounter> : undefined,
         }
 
+        const openPageButton: ItemBoxBottomAction = {
+            key: 'annotate-page-btn',
+            image: 'highlight',
+            ButtonText: 'Annotate',
+            onClick: (e) => {
+                this.processEvent('clickPageResult', {
+                    urlToOpen: entry.sourceUrl,
+                    preventOpening: () => e.preventDefault(),
+                    isFollowedSpace:
+                        this.state.isCollectionFollowed ||
+                        this.state.isListOwner,
+                    notifAlreadyShown: this.state.notifAlreadyShown,
+                    sharedListReference: this.sharedListReference,
+                    listID: this.props.listID,
+                    listEntryID: entry.reference?.id!,
+                })
+                e.preventDefault()
+                e.stopPropagation()
+            },
+        }
         const summaryButton: ItemBoxBottomAction = {
             key: 'generate-summary-btn',
             image:
@@ -336,7 +356,6 @@ export default class CollectionDetailsPage extends UIElement<
                     'error'
                     ? 'compress'
                     : 'feed',
-            imageColor: 'prime1',
             ButtonText:
                 this.state.summarizeArticleLoadState[entry.normalizedUrl] ===
                     'success' ||
@@ -372,19 +391,29 @@ export default class CollectionDetailsPage extends UIElement<
                 this.state.listData?.listEntries[entryIndex].hoverState &&
                 !this.isIframe()
             ) {
-                return [copyButton, summaryButton, commentButton]
+                return [
+                    copyButton,
+                    summaryButton,
+                    openPageButton,
+                    commentButton,
+                ]
             }
 
-            return [copyButton, summaryButton, commentButton]
+            return [copyButton, summaryButton, openPageButton, commentButton]
         } else if (toggleAnnotationsIcon === null) {
             if (
                 this.state.listData?.listEntries[entryIndex].hoverState &&
                 !this.isIframe()
             ) {
-                return [copyButton, summaryButton, commentButton]
+                return [
+                    copyButton,
+                    summaryButton,
+                    openPageButton,
+                    commentButton,
+                ]
             }
 
-            return [copyButton, summaryButton, commentButton]
+            return [copyButton, summaryButton, openPageButton, commentButton]
         }
     }
 
@@ -1123,26 +1152,29 @@ export default class CollectionDetailsPage extends UIElement<
 
         return (
             <AbovePagesBox viewportWidth={this.viewportBreakpoint}>
-                <SearchTypeSwitch
-                    viewportWidth={this.viewportBreakpoint}
-                    onPagesSearchSwitch={() =>
-                        this.processEvent('setSearchType', 'pages')
-                    }
-                    onVideosSearchSwitch={() =>
-                        this.processEvent('setSearchType', 'videos')
-                    }
-                    onTwitterSearchSwitch={() =>
-                        this.processEvent('setSearchType', 'twitter')
-                    }
-                    onPDFSearchSwitch={() =>
-                        this.processEvent('setSearchType', 'pdf')
-                    }
-                    onEventSearchSwitch={() =>
-                        this.processEvent('setSearchType', 'events')
-                    }
-                    searchType={this.state.searchType}
-                    toExclude={['notes']}
-                />
+                {this.state.listData &&
+                    this.state.listData?.listEntries?.length > 0 && (
+                        <SearchTypeSwitch
+                            viewportWidth={this.viewportBreakpoint}
+                            onPagesSearchSwitch={() =>
+                                this.processEvent('setSearchType', 'pages')
+                            }
+                            onVideosSearchSwitch={() =>
+                                this.processEvent('setSearchType', 'videos')
+                            }
+                            onTwitterSearchSwitch={() =>
+                                this.processEvent('setSearchType', 'twitter')
+                            }
+                            onPDFSearchSwitch={() =>
+                                this.processEvent('setSearchType', 'pdf')
+                            }
+                            onEventSearchSwitch={() =>
+                                this.processEvent('setSearchType', 'events')
+                            }
+                            searchType={this.state.searchType}
+                            toExclude={['notes']}
+                        />
+                    )}
                 <ActionItems>
                     {/* {(this.isListContributor || isListOwner) && (
                         <AddPageBtn
@@ -1509,6 +1541,20 @@ export default class CollectionDetailsPage extends UIElement<
                 <EmptyListBox>
                     {this.getNoResultsTextforSearchType()}
                 </EmptyListBox>
+                {(this.state.isListOwner || this.isListContributor) && (
+                    <PrimaryAction
+                        label={'Add Links'}
+                        onClick={() => {
+                            this.processEvent(
+                                'setActionBarSearchAndAddMode',
+                                'AddLinks',
+                            )
+                        }}
+                        type="primary"
+                        size="medium"
+                        icon="plus"
+                    />
+                )}
             </NoResultsContainer>
         )
     }
@@ -1551,6 +1597,232 @@ export default class CollectionDetailsPage extends UIElement<
         }
 
         return entries
+    }
+
+    renderAddLinksField() {
+        return (
+            <ImportUrlsContainer
+                shouldShowFrame={
+                    this.state.actionBarSearchAndAddMode === 'AddLinks'
+                }
+            >
+                <TopBar>
+                    {this.state.actionBarSearchAndAddMode === null && (
+                        <PrimaryAction
+                            label={'Add Links'}
+                            onClick={() => {
+                                this.processEvent(
+                                    'setActionBarSearchAndAddMode',
+                                    'AddLinks',
+                                )
+                            }}
+                            type="primary"
+                            size="medium"
+                            icon="plus"
+                        />
+                    )}
+                    {this.state.actionBarSearchAndAddMode === 'AddLinks' && (
+                        <PrimaryAction
+                            label={'Back'}
+                            onClick={() => {
+                                this.processEvent(
+                                    'setActionBarSearchAndAddMode',
+                                    null,
+                                )
+                            }}
+                            type="tertiary"
+                            size="medium"
+                            icon="arrowLeft"
+                            iconPosition="left"
+                        />
+                    )}
+                    {this.state.actionBarSearchAndAddMode === 'AddLinks' && (
+                        <PrimaryAction
+                            label={'Import Links'}
+                            onClick={() => {
+                                this.processEvent('addLinkToCollection', null)
+                            }}
+                            type="secondary"
+                            size="medium"
+                            icon="plus"
+                            disabled={this.state.urlsToAddToSpace.length === 0}
+                        />
+                    )}
+                </TopBar>
+                {this.state.actionBarSearchAndAddMode === 'AddLinks' && (
+                    <TextFieldContainer>
+                        <TextArea
+                            onChange={(event) => {
+                                this.processEvent('updateAddLinkField', {
+                                    textFieldValue: (event?.target as HTMLTextAreaElement)
+                                        .value,
+                                })
+                            }}
+                            placeholder="Paste any text, urls are filtered out"
+                            defaultValue={this.state.textFieldValueState}
+                            maxHeight={'300px'}
+                            borderColor={'greyScale3'}
+                            autoFocus
+                            background="black0"
+                            // minHeight={'40px'}
+                        />
+                    </TextFieldContainer>
+                )}
+                {this.state.actionBarSearchAndAddMode === 'AddLinks' &&
+                    this.state.urlsToAddToSpace.length > 0 && (
+                        <BottomBar>
+                            <PrimaryAction
+                                label={`${
+                                    this.state.urlsToAddToSpace?.filter(
+                                        (entry) => entry.status === 'queued',
+                                    ).length
+                                } Queue`}
+                                onClick={() => {
+                                    if (
+                                        this.state.urlsToAddToSpace?.filter(
+                                            (entry) =>
+                                                entry.status === 'queued',
+                                        ).length > 0
+                                    ) {
+                                        this.processEvent(
+                                            'switchImportUrlDisplayMode',
+                                            'queued',
+                                        )
+                                    }
+                                }}
+                                type="menuBar"
+                                size="small"
+                                active={
+                                    this.state.importUrlDisplayMode === 'queued'
+                                }
+                                disabled={
+                                    this.state.urlsToAddToSpace?.filter(
+                                        (entry) =>
+                                            entry.status === 'queued' ||
+                                            entry.status === 'running',
+                                    ).length === 0
+                                }
+                                fontColor={'greyScale5'}
+                            />
+                            <PrimaryAction
+                                label={`${
+                                    this.state.urlsToAddToSpace?.filter(
+                                        (entry) => entry.status === 'success',
+                                    ).length
+                                } Imported`}
+                                onClick={() => {
+                                    if (
+                                        this.state.urlsToAddToSpace?.filter(
+                                            (entry) =>
+                                                entry.status === 'success',
+                                        ).length > 0
+                                    ) {
+                                        this.processEvent(
+                                            'switchImportUrlDisplayMode',
+                                            'success',
+                                        )
+                                    }
+                                }}
+                                type="menuBar"
+                                size="small"
+                                active={
+                                    this.state.importUrlDisplayMode ===
+                                    'success'
+                                }
+                                disabled={
+                                    this.state.urlsToAddToSpace?.filter(
+                                        (entry) => entry.status === 'success',
+                                    ).length === 0
+                                }
+                                fontColor={'greyScale5'}
+                            />
+                            <PrimaryAction
+                                label={`${
+                                    this.state.urlsToAddToSpace?.filter(
+                                        (entry) => entry.status === 'failed',
+                                    ).length
+                                } Failed`}
+                                onClick={() => {
+                                    if (
+                                        this.state.urlsToAddToSpace?.filter(
+                                            (entry) =>
+                                                entry.status === 'failed',
+                                        ).length > 0
+                                    ) {
+                                        this.processEvent(
+                                            'switchImportUrlDisplayMode',
+                                            'failed',
+                                        )
+                                    }
+                                }}
+                                disabled={
+                                    this.state.urlsToAddToSpace?.filter(
+                                        (entry) => entry.status === 'failed',
+                                    ).length === 0
+                                }
+                                active={
+                                    this.state.importUrlDisplayMode === 'failed'
+                                }
+                                type="menuBar"
+                                size="small"
+                                fontColor={'greyScale5'}
+                            />
+                        </BottomBar>
+                    )}
+                {this.state.actionBarSearchAndAddMode === 'AddLinks' &&
+                    (this.state.importUrlDisplayMode === 'queued' ||
+                        this.state.importUrlDisplayMode === 'running') && (
+                        <LinkListContainer>
+                            {this.state.urlsToAddToSpace
+                                ?.filter(
+                                    (entry) =>
+                                        entry.status === 'running' ||
+                                        entry.status === 'queued',
+                                )
+                                .map((link) => (
+                                    <LinkListItem>
+                                        {link.url}
+                                        {this.state.importUrlDisplayMode ===
+                                            'queued' && (
+                                            <RemoveLinkIconBox>
+                                                <Icon
+                                                    icon={'removeX'}
+                                                    onClick={() => {
+                                                        this.processEvent(
+                                                            'removeLinkFromImporterQueue',
+                                                            link.url,
+                                                        )
+                                                    }}
+                                                    heightAndWidth={'20px'}
+                                                />
+                                            </RemoveLinkIconBox>
+                                        )}
+                                        {link.status === 'running' && (
+                                            <LoadingIndicatorRowBox>
+                                                <LoadingIndicator size={18} />
+                                            </LoadingIndicatorRowBox>
+                                        )}
+                                    </LinkListItem>
+                                ))}
+                        </LinkListContainer>
+                    )}
+                {this.state.actionBarSearchAndAddMode === 'AddLinks' &&
+                    this.state.importUrlDisplayMode !== 'queued' &&
+                    this.state.importUrlDisplayMode !== 'running' && (
+                        <LinkListContainer>
+                            {this.state.urlsToAddToSpace
+                                ?.filter(
+                                    (entry) =>
+                                        entry.status ===
+                                        this.state.importUrlDisplayMode,
+                                )
+                                .map((link) => (
+                                    <LinkListItem>{link.url}</LinkListItem>
+                                ))}
+                        </LinkListContainer>
+                    )}
+            </ImportUrlsContainer>
+        )
     }
 
     renderDescription() {
@@ -1710,7 +1982,20 @@ export default class CollectionDetailsPage extends UIElement<
                     {data.list.description?.length ? (
                         <ReferencesBox>References</ReferencesBox>
                     ) : null}
-                    {this.renderSearchBox()}
+                    {((this.state.listData &&
+                        this.state.listData?.listEntries?.length > 0) ||
+                        this.state.actionBarSearchAndAddMode ===
+                            'AddLinks') && (
+                        <ActionBarSearchAndAdd
+                            viewportWidth={this.viewportBreakpoint}
+                        >
+                            {(this.state.isListOwner ||
+                                this.isListContributor) &&
+                                this.renderAddLinksField()}
+                            {this.state.actionBarSearchAndAddMode !==
+                                'AddLinks' && this.renderSearchBox()}
+                        </ActionBarSearchAndAdd>
+                    )}
                     {!isPageView && this.renderAbovePagesBox()}
                     {state.annotationEntriesLoadState === 'error' && (
                         <Margin bottom={'large'}>
@@ -1815,6 +2100,7 @@ export default class CollectionDetailsPage extends UIElement<
                                                     entry && entry.entryTitle
                                                 }
                                                 onClick={(e) => {
+                                                    console.log('hee')
                                                     this.processEvent(
                                                         'clickPageResult',
                                                         {
@@ -1836,6 +2122,7 @@ export default class CollectionDetailsPage extends UIElement<
                                                                 .listID,
                                                             listEntryID: entry
                                                                 .reference?.id!,
+                                                            openInWeb: true,
                                                         },
                                                     )
                                                     e.preventDefault()
@@ -2110,20 +2397,11 @@ const LoadingBox = styled.div`
 `
 
 const SearchBar = styled.div<{ viewportWidth: ViewportBreakpoint }>`
-    margin-bottom: 10px;
     display: flex;
     grid-gap: 10px;
     justify-content: flex-start;
     width: fit-content;
     z-index: 40;
-
-    ${(props) =>
-        (props.viewportWidth === 'mobile' || props.viewportWidth === 'small') &&
-        css`
-            padding: 10px 15px 10px 15px;
-            margin-left: 0px;
-            width: calc(100%);
-        `}
 `
 
 const PrimaryActionContainer = styled.div`
@@ -2668,4 +2946,106 @@ const DescriptionContainer = styled.div`
     margin: 0 -10px;
     width: fill-available;
     width: -moz-available;
+`
+
+const TextFieldContainer = styled.div`
+    margin-top: 10px;
+`
+
+const LinkListContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    width: 100%;
+    grid-gap: 3px;
+    max-height: 600px;
+    overflow: scroll;
+    margin-top: 10px;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+
+    scrollbar-width: none;
+`
+
+const TopBar = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    grid-gap: 20px;
+`
+const BottomBar = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 10px;
+`
+const RemoveLinkIconBox = styled.div`
+    display: none;
+    position: absolute;
+    right: 10px;
+`
+const LoadingIndicatorRowBox = styled.div`
+    display: flex;
+    position: absolute;
+    right: 10px;
+`
+
+const LinkListItem = styled.div`
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    box-sizing: border-box;
+    border-bottom: 1px solid ${(props) => props.theme.colors.greyScale3};
+    color: ${(props) => props.theme.colors.greyScale6};
+    font-size: 14px;
+    position: relative;
+
+    &:hover {
+        background: ${(props) => props.theme.colors.greyScale2};
+    }
+    &:hover ${RemoveLinkIconBox} {
+        display: flex;
+    }
+
+    &:last-child {
+        border-bottom: none;
+    }
+`
+
+const ImportUrlsContainer = styled.div<{ shouldShowFrame: boolean }>`
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+
+    ${(props) =>
+        props.shouldShowFrame &&
+        css`
+            border: 1px solid ${(props) => props.theme.colors.greyScale3};
+            border-radius: 10px;
+            padding: 10px;
+        `}
+`
+
+const ActionBarSearchAndAdd = styled.div<{ viewportWidth: ViewportBreakpoint }>`
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    grid-gap: 20px;
+    margin-bottom: 30px;
+    width: 100%;
+
+    ${(props) =>
+        (props.viewportWidth === 'mobile' || props.viewportWidth === 'small') &&
+        css`
+            padding: 10px 15px 10px 15px;
+            margin-left: 0px;
+            width: calc(100%);
+        `}
 `

@@ -4,6 +4,7 @@ import {
     filterObject,
 } from '@worldbrain/memex-common/lib/utils/iteration'
 import {
+    SharedListEntry,
     SharedListReference,
     SharedListRoleID,
 } from '@worldbrain/memex-common/lib/content-sharing/types'
@@ -245,6 +246,10 @@ export default class CollectionDetailsLogic extends UILogic<
             endDateFilterValue: '',
             resultLoadingState: 'pristine',
             paginateLoading: 'pristine',
+            urlsToAddToSpace: [],
+            textFieldValueState: '',
+            importUrlDisplayMode: 'queued',
+            actionBarSearchAndAddMode: null,
             ...extDetectionInitialState(),
             ...editableAnnotationsInitialState(),
             ...annotationConversationInitialState(),
@@ -999,6 +1004,160 @@ export default class CollectionDetailsLogic extends UILogic<
                     }),
                 ),
             )
+        })
+    }
+
+    updateAddLinkField: EventHandler<'updateAddLinkField'> = async ({
+        previousState,
+        event,
+    }) => {
+        const text = event.textFieldValue
+        this.emitMutation({
+            textFieldValueState: { $set: text },
+        })
+        let existingUrls: {
+            url: string
+            status: 'success' | 'queued' | 'input' | 'adding' | 'failed'
+        }[] = []
+
+        const urls =
+            text.match(
+                /(\b(https?|http):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gi,
+            ) || []
+
+        for (let url of urls) {
+            const urlToAdd = url
+                ? { url: url, status: 'queued' as const }
+                : null
+
+            if (
+                urlToAdd &&
+                !existingUrls.some(
+                    (existingUrl) => existingUrl.url === urlToAdd.url,
+                )
+            ) {
+                existingUrls.push(urlToAdd)
+            }
+        }
+
+        // Example mutation to update state with extracted URLs
+        this.emitMutation({
+            urlsToAddToSpace: { $set: existingUrls },
+            showStartImportButton: { $set: true },
+        })
+    }
+
+    removeLinkFromImporterQueue: EventHandler<'removeLinkFromImporterQueue'> = async ({
+        previousState,
+        event,
+    }) => {
+        const { urlsToAddToSpace } = previousState
+        const url = event
+        const urlIndex = urlsToAddToSpace.findIndex(
+            (urlToAdd) => urlToAdd.url === url,
+        )
+        if (urlIndex === -1) {
+            return
+        }
+        urlsToAddToSpace.splice(urlIndex, 1)
+        this.emitMutation({
+            urlsToAddToSpace: { $set: urlsToAddToSpace },
+        })
+    }
+
+    setActionBarSearchAndAddMode: EventHandler<'setActionBarSearchAndAddMode'> = async ({
+        previousState,
+        event,
+    }) => {
+        this.emitMutation({
+            actionBarSearchAndAddMode: { $set: event },
+        })
+    }
+    addLinkToCollection: EventHandler<'addLinkToCollection'> = async ({
+        previousState,
+        event,
+    }) => {
+        const { urlsToAddToSpace } = previousState
+        const { contentSharing } = this.dependencies.services
+
+        this.emitMutation({
+            showStartImportButton: { $set: false },
+        })
+
+        let existingListEntries = previousState.listData?.listEntries
+
+        for (let item in urlsToAddToSpace) {
+            const url = urlsToAddToSpace[item].url
+
+            this.emitMutation({
+                urlsToAddToSpace: {
+                    [item]: {
+                        status: { $set: 'running' },
+                    },
+                },
+            })
+
+            let addedEntry: SharedListEntry[] = []
+
+            try {
+                addedEntry = await contentSharing.backend.addRemoteUrlsToList({
+                    listReference: {
+                        id: this.dependencies.listID,
+                        type: 'shared-list-reference',
+                    },
+                    fullPageUrls: [url],
+                })
+
+                this.emitMutation({
+                    urlsToAddToSpace: {
+                        [item]: {
+                            status: { $set: 'success' },
+                        },
+                    },
+                })
+            } catch (e) {
+                this.emitMutation({
+                    urlsToAddToSpace: {
+                        [item]: {
+                            status: { $set: 'failed' },
+                        },
+                    },
+                })
+            } finally {
+                const newCollectionEntry: CollectionDetailsListEntry = {
+                    ...addedEntry[0],
+                    creator: {
+                        type: 'user-reference',
+                        id: previousState.currentUserReference?.id ?? '',
+                    },
+                    sourceUrl: addedEntry[0]?.originalUrl,
+                    updatedWhen: addedEntry[0]?.createdWhen,
+                    reference: {
+                        id: 'J09OOLinzMORB7dWmaAd',
+                        type: 'shared-list-entry-reference',
+                    },
+                }
+
+                console.log('newCollectionEntry', newCollectionEntry)
+
+                existingListEntries?.unshift(newCollectionEntry)
+
+                console.log('existingListEntries', existingListEntries)
+                this.emitMutation({
+                    listData: {
+                        listEntries: { $set: existingListEntries },
+                    },
+                })
+            }
+        }
+    }
+
+    switchImportUrlDisplayMode: EventHandler<'switchImportUrlDisplayMode'> = async ({
+        previousState,
+        event,
+    }) => {
+        this.emitMutation({
+            importUrlDisplayMode: { $set: event },
         })
     }
 
