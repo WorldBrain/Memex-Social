@@ -53,6 +53,8 @@ import {
 import type { UploadStorageUtils } from '@worldbrain/memex-common/lib/personal-cloud/backend/translation-layer/storage-utils'
 import { createPersonalCloudStorageUtils } from '@worldbrain/memex-common/lib/content-sharing/storage/utils'
 import { LoggedOutAccessBox } from './space-access-box'
+import { IdField } from '@worldbrain/memex-common/lib/storage/types'
+import { isMemexPageAPdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
 const truncate = require('truncate')
 
 const LIST_DESCRIPTION_CHAR_LIMIT = 400
@@ -1084,7 +1086,7 @@ export default class CollectionDetailsLogic extends UILogic<
             showStartImportButton: { $set: false },
         })
 
-        let existingListEntries = previousState.listData?.listEntries
+        let existingListEntries = previousState.listData?.listEntries ?? []
 
         for (let item in urlsToAddToSpace) {
             const url = urlsToAddToSpace[item].url
@@ -1097,55 +1099,62 @@ export default class CollectionDetailsLogic extends UILogic<
                 },
             })
 
-            let addedEntry: SharedListEntry[] = []
-
             try {
-                addedEntry = await contentSharing.backend.addRemoteUrlsToList({
-                    listReference: {
-                        id: this.dependencies.listID,
-                        type: 'shared-list-reference',
-                    },
-                    fullPageUrls: [url],
-                })
-
-                this.emitMutation({
-                    urlsToAddToSpace: {
-                        [item]: {
-                            status: { $set: 'success' },
+                const addedEntry = await contentSharing.backend.addRemoteUrlsToList(
+                    {
+                        listReference: {
+                            id: this.dependencies.listID,
+                            type: 'shared-list-reference',
                         },
+                        fullPageUrls: [url],
                     },
-                })
+                )
+
+                console.log('add', addedEntry, url)
+
+                if (addedEntry) {
+                    const newCollectionEntry: CollectionDetailsListEntry = {
+                        ...addedEntry[url],
+                        creator: {
+                            type: 'user-reference',
+                            id: previousState.currentUserReference?.id ?? '',
+                        },
+                        sourceUrl: addedEntry[url]?.originalUrl,
+                        updatedWhen: addedEntry[url]?.createdWhen,
+                        reference: {
+                            id: addedEntry[url]?.id,
+                            type: 'shared-list-entry-reference',
+                        },
+                    }
+
+                    console.log('newCollectionEntry', newCollectionEntry)
+
+                    const hasData = newCollectionEntry.normalizedUrl != null
+
+                    if (hasData) {
+                        existingListEntries?.unshift(newCollectionEntry)
+
+                        console.log('existingListEntries', existingListEntries)
+                        this.emitMutation({
+                            listData: {
+                                listEntries: { $set: existingListEntries },
+                            },
+                        })
+                    }
+                    this.emitMutation({
+                        urlsToAddToSpace: {
+                            [item]: {
+                                status: { $set: 'success' },
+                            },
+                        },
+                    })
+                }
             } catch (e) {
                 this.emitMutation({
                     urlsToAddToSpace: {
                         [item]: {
                             status: { $set: 'failed' },
                         },
-                    },
-                })
-            } finally {
-                const newCollectionEntry: CollectionDetailsListEntry = {
-                    ...addedEntry[0],
-                    creator: {
-                        type: 'user-reference',
-                        id: previousState.currentUserReference?.id ?? '',
-                    },
-                    sourceUrl: addedEntry[0]?.originalUrl,
-                    updatedWhen: addedEntry[0]?.createdWhen,
-                    reference: {
-                        id: 'J09OOLinzMORB7dWmaAd',
-                        type: 'shared-list-entry-reference',
-                    },
-                }
-
-                console.log('newCollectionEntry', newCollectionEntry)
-
-                existingListEntries?.unshift(newCollectionEntry)
-
-                console.log('existingListEntries', existingListEntries)
-                this.emitMutation({
-                    listData: {
-                        listEntries: { $set: existingListEntries },
                     },
                 })
             }
