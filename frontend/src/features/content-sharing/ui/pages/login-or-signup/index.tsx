@@ -33,7 +33,14 @@ export default class LoginOrSignupPage extends UIElement<
     }
 
     private renderMainContent() {
-        if (this.state.signUpSuccessful) {
+        if (this.state.signupLoadState === 'pristine') {
+            return (
+                <MainContainer>
+                    <LoadingIndicator />
+                </MainContainer>
+            )
+        }
+        if (this.state.signupLoadState === 'success') {
             return (
                 <MainContainer>
                     <MainText>Login Successful</MainText>
@@ -64,6 +71,11 @@ const MainContainer = styled.div`
     grid-gap: 10px;
     align-items: center;
     justify-content: center;
+    height: fill-available;
+    width: 100%;
+    top: 100%;
+    height: fill-available;
+    position: relative;
 `
 
 const MainText = styled.div`

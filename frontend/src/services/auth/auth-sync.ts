@@ -309,7 +309,7 @@ export function getExtensionID() {
         determineEnv() === 'staging' ||
         navigator.userAgent.includes('Firefox')
     ) {
-        extensionID = 'ielfhekmfbpebfogdeipegfeooelelge'
+        extensionID = 'ielfhekmfbpebfogdeipegfeooelelge' // Oliver's staging extension
     }
     return extensionID
 }

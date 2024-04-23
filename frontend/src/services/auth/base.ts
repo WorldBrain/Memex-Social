@@ -68,8 +68,9 @@ export abstract class AuthServiceBase implements AuthService {
 
     async waitForAuth() {
         const { waitingForAuth, stopWaiting } = waitForAuth(this)
-        await waitingForAuth
+        const hasAuth = await waitingForAuth
         stopWaiting()
+        return hasAuth
     }
     abstract waitForAuthSync(): Promise<void>
 
