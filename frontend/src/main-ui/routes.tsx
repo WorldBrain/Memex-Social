@@ -17,6 +17,7 @@ import { ContentSharingQueryParams } from '../features/content-sharing/types'
 import { ReaderPageView } from '../features/reader/ui'
 import { normalizeUrl } from '@worldbrain/memex-common/lib/url-utils/normalize'
 import type { UIRunnerOptions } from './types'
+import LoginOrSignupPage from '../features/content-sharing/ui/pages/login-or-signup'
 
 interface Props extends UIRunnerOptions {}
 export default class Routes extends React.Component<Props> {
@@ -172,6 +173,21 @@ export default class Routes extends React.Component<Props> {
                                     storage={serverModules}
                                     getRootElement={this.props.getRootElement}
                                     imageSupport={this.props.imageSupport}
+                                />
+                            )
+                        }}
+                    />
+                    <Route
+                        exact
+                        path={getReactRoutePattern(
+                            ROUTES.loginOrSignupPage.path,
+                        )}
+                        render={(route) => {
+                            return (
+                                <LoginOrSignupPage
+                                    services={this.props.services}
+                                    storage={serverModules}
+                                    getRootElement={this.props.getRootElement}
                                 />
                             )
                         }}

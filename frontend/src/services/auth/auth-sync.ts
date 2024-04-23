@@ -160,18 +160,27 @@ async function sendTokenToExtHandler(
     authService: FirebaseAuthService,
     extensionID: string,
 ) {
-    const loginRequest = await sendMessageToExtension(
-        ExtMessage.LOGGED_IN,
-        extensionID,
-    )
-    if (!loginRequest || loginRequest.message !== ExtMessage.TOKEN_REQUEST) {
-        return
+    try {
+        const loginRequest = await sendMessageToExtension(
+            ExtMessage.LOGGED_IN,
+            extensionID,
+        )
+        if (
+            !loginRequest ||
+            loginRequest.message !== ExtMessage.TOKEN_REQUEST
+        ) {
+            return
+        }
+        const loginToken = (await authService.generateLoginToken()).token
+        if (!validGeneratedLoginToken(loginToken)) {
+            return
+        }
+        await sendMessageToExtension(ExtMessage.TOKEN, extensionID, loginToken)
+        return true
+    } catch (error) {
+        return false
+        throw new Error('Error sending token to extension')
     }
-    const loginToken = (await authService.generateLoginToken()).token
-    if (!validGeneratedLoginToken(loginToken)) {
-        return
-    }
-    await sendMessageToExtension(ExtMessage.TOKEN, extensionID, loginToken)
 }
 
 async function loginWithExtTokenHandler(
@@ -203,7 +212,8 @@ async function bothNotLoggedInHandler(
     debugLog(
         'Neither app nor extension are logged in. Starting polling until either one logs in.',
     )
-    const interval = 4000
+    const interval = 100
+    let attempts = 1
     await new Promise<void>((resolve) => {
         const tryAgain = () => {
             setTimeout(async () => {
@@ -216,7 +226,8 @@ async function bothNotLoggedInHandler(
                         'Successfully synced with extension after trying multiple times.',
                     )
                 }
-            }, interval)
+                attempts++
+            }, interval * attempts)
         }
         tryAgain()
     })
@@ -242,24 +253,34 @@ async function sync(
     }
 
     if (authService.isLoggedIn()) {
-        await sendTokenToExtHandler(authService, extensionID)
-        if (
-            urlAndSpaceOpenRequestData &&
-            urlAndSpaceOpenRequestData.length > 0
-        ) {
-            const payload = JSON.parse(urlAndSpaceOpenRequestData)
+        try {
+            await sendTokenToExtHandler(authService, extensionID)
+            if (
+                urlAndSpaceOpenRequestData &&
+                urlAndSpaceOpenRequestData.length > 0
+            ) {
+                const payload = JSON.parse(urlAndSpaceOpenRequestData)
 
-            if (payload.type === 'pageToOpen') {
-                analyticsService.trackEvent('AUTH-AFTER-URL-OPEN', 'CG6NFYPD')
+                if (payload.type === 'pageToOpen') {
+                    analyticsService.trackEvent(
+                        'AUTH-AFTER-URL-OPEN',
+                        'CG6NFYPD',
+                    )
+                }
+                if (payload.type === 'returnToFollowedSpace') {
+                    analyticsService.trackEvent(
+                        'Install Memex after Space Follow',
+                        'QEJNWHRI',
+                    )
+                }
+                return true
             }
-            if (payload.type === 'returnToFollowedSpace') {
-                analyticsService.trackEvent(
-                    'Install Memex after Space Follow',
-                    'QEJNWHRI',
-                )
-            }
+            return true
+        } catch (error) {
+            throw new Error('Error syncing with extension')
         }
     } else {
+        console.log('goes here')
         await loginWithExtTokenHandler(authService, extensionID)
         if (
             urlAndSpaceOpenRequestData &&
@@ -280,20 +301,24 @@ async function sync(
     }
 }
 
-export async function syncWithExtension(
-    authService: FirebaseAuthService,
-    analyticsService: AnalyticsService,
-) {
-    let extensionID
-
+export function getExtensionID() {
+    let extensionID: string | undefined
     if (determineEnv() === 'production') {
         extensionID = process.env.MEMEX_EXTENSION_ID
     } else if (
         determineEnv() === 'staging' ||
         navigator.userAgent.includes('Firefox')
     ) {
-        extensionID = null
+        extensionID = 'ielfhekmfbpebfogdeipegfeooelelge'
     }
+    return extensionID
+}
+
+export async function syncWithExtension(
+    authService: FirebaseAuthService,
+    analyticsService: AnalyticsService,
+) {
+    let extensionID = getExtensionID()
     if (!extensionID) {
         console.error('Could not find extension ID for auth sync')
     } else {

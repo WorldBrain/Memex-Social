@@ -216,7 +216,7 @@ export default class AuthDialog extends UIElement<
                                             }
                                             mode={state.mode}
                                         />
-                                        <SocialLogin
+                                        {/* <SocialLogin
                                             icon={'path to icon'}
                                             provider="twitter"
                                             onClick={() =>
@@ -228,7 +228,7 @@ export default class AuthDialog extends UIElement<
                                                 )
                                             }
                                             mode={state.mode}
-                                        />
+                                        /> */}
                                     </SocialLogins>
                                     <HorizontalLine />
                                 </>

@@ -223,7 +223,7 @@ export default class FirebaseAuthService extends AuthServiceBase {
     }
 
     async waitForAuthSync(): Promise<void> {
-        await this._authSyncPromise
+        return await this._authSyncPromise
     }
 
     async generateLoginToken() {
