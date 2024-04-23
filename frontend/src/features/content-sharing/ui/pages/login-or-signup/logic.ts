@@ -58,17 +58,13 @@ export default class LoginOrSignupPageLogic extends UILogic<
     }
 
     init: EventHandler<'init'> = async () => {
-        const { windowObj } = this.dependencies
-        // if (this.dependencies.fullPageUrl == null) {
-        //     windowObj.addEventListener('message', this.handlePdfReceiveMessage)
-        // }
-
         await loadInitial(this, async () => {
             await this.dependencies.services.auth.enforceAuth({
                 reason: 'registration-requested',
             })
-            await this.dependencies.services.auth.waitForAuthSync()
+            await this.dependencies.services.auth.waitForAuth()
             this.emitMutation({ signUpSuccessful: { $set: true } })
+            await this.dependencies.services.auth.waitForAuthSync()
             let extensionID = getExtensionID()
             const message = ExtMessage.TRIGGER_ONBOARDING
             await sendMessageToExtension(message, extensionID, undefined)
