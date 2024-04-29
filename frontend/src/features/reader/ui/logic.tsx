@@ -92,6 +92,7 @@ import { processCommentForImageUpload } from '@worldbrain/memex-common/lib/annot
 import { promptPdfScreenshot } from '@worldbrain/memex-common/lib/pdf/screenshots/selection'
 import type { PdfScreenshotAnchor } from '@worldbrain/memex-common/lib/annotations/types'
 import type { ImageSupportInterface } from '@worldbrain/memex-common/lib/image-support/types'
+import { PseudoSelection } from '@worldbrain/memex-common/lib/in-page-ui/types'
 
 type EventHandler<EventName extends keyof ReaderPageViewEvent> = UIEventHandler<
     ReaderPageViewState,
@@ -1127,7 +1128,7 @@ export class ReaderPageViewLogic extends UILogic<
     }
 
     private createHighlightExec: HighlightRendererDeps['createHighlightExec'] = async (
-        selection?: Selection | undefined,
+        selection?: PseudoSelection | undefined,
         shouldShare?: boolean,
         drawRectangle?: boolean | undefined,
         state?: ReaderPageViewState,
@@ -1193,7 +1194,7 @@ export class ReaderPageViewLogic extends UILogic<
     }
 
     private getRenderHighlightParams = (args: {
-        selection?: Selection | null
+        selection?: PseudoSelection | null
         shouldShare?: boolean | null
         openInEditMode?: boolean | null
         screenShotAnchor?: PdfScreenshotAnchor | undefined
@@ -1214,7 +1215,7 @@ export class ReaderPageViewLogic extends UILogic<
             shouldShare: args.shouldShare ?? undefined,
             openInEditMode: args.openInEditMode ?? undefined,
             onClick: this.handleHighlightClick,
-            getSelection: () => args.selection ?? null,
+            getSelection: args.selection ?? null,
             getFullPageUrl: async () =>
                 args.state?.listData?.entry.originalUrl!,
             screenshotAnchor: args.screenShotAnchor,
