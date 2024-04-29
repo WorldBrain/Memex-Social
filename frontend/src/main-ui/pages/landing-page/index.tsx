@@ -90,6 +90,7 @@ export default class LandingPage extends UIElement<
                                 value={this.state.newUrlInputValue}
                                 autoFocus
                                 fontSize="16px"
+                                background="black0"
                             />
                             {this.state.isValidUrl ? (
                                 <PrimaryActionBox>
