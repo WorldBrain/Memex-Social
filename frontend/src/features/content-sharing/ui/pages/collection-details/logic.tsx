@@ -252,6 +252,7 @@ export default class CollectionDetailsLogic extends UILogic<
             textFieldValueState: '',
             importUrlDisplayMode: 'queued',
             actionBarSearchAndAddMode: null,
+            showStartImportButton: false,
             ...extDetectionInitialState(),
             ...editableAnnotationsInitialState(),
             ...annotationConversationInitialState(),
@@ -1109,8 +1110,6 @@ export default class CollectionDetailsLogic extends UILogic<
                         fullPageUrls: [url],
                     },
                 )
-
-                console.log('add', addedEntry, url)
 
                 if (addedEntry) {
                     const newCollectionEntry: CollectionDetailsListEntry = {

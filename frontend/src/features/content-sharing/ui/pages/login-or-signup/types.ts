@@ -15,8 +15,6 @@ export interface LoginOrSignupPageDependencies {
         | 'pdfUploadService'
     >
     storage: Pick<StorageModules, 'users' | 'activityStreams'>
-    fullPageUrl: string | null
-    generateServerId: GenerateServerID
     getRootElement: () => HTMLElement
 }
 
