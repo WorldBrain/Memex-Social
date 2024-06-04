@@ -2084,6 +2084,7 @@ export default class CollectionDetailsPage extends UIElement<
                                                 youtubeService={
                                                     this.props.services.youtube
                                                 }
+                                                contextLocation={'webUI'}
                                                 type={
                                                     isMemexPageAPdf({
                                                         url:
