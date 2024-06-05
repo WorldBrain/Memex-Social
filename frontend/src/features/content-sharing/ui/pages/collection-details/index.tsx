@@ -44,7 +44,7 @@ import SearchTypeSwitch from '@worldbrain/memex-common/lib/common-ui/components/
 import { PrimaryAction } from '@worldbrain/memex-common/lib/common-ui/components/PrimaryAction'
 import IconBox from '@worldbrain/memex-common/lib/common-ui/components/icon-box'
 import { TooltipBox } from '@worldbrain/memex-common/lib/common-ui/components/tooltip-box'
-import { eventProviderUrls } from '@worldbrain/memex-common/lib/constants'
+import { EVENT_PROVIDER_URLS } from '@worldbrain/memex-common/lib/constants'
 import moment from 'moment'
 import RouteLink from '../../../../../common-ui/components/route-link'
 import { PopoutBox } from '@worldbrain/memex-common/lib/common-ui/components/popout-box'
@@ -1581,7 +1581,7 @@ export default class CollectionDetailsPage extends UIElement<
         }
         if (this.state.searchType === 'events') {
             const newEntries = entries?.filter(([, entry]) => {
-                return eventProviderUrls.some((url) =>
+                return EVENT_PROVIDER_URLS.some((url) =>
                     entry.normalizedUrl.includes(url),
                 )
             })

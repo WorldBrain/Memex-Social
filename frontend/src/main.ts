@@ -30,7 +30,7 @@ export async function setup(options: {
                 image: blob ?? (params.image as Blob),
             })
         },
-        getImageUrl: (params) => imageSupportBackend.getImageUrl(params),
+        getImageUrl: async (params) => imageSupportBackend.getImageUrl(params),
     }
 
     if (process.env.NODE_ENV === 'development' && runMetaProgram) {

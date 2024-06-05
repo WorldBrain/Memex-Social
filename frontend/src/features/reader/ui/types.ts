@@ -91,7 +91,7 @@ export type ReaderPageViewState = AnnotationConversationsState &
         joinListResult: ProcessSharedListKeyResult | null
         showShareMenu: boolean
         linkCopiedToClipBoard: boolean
-        activeAnnotationId: AutoPk | null
+        activeAnnotationId: AutoPk | null | undefined
         iframeLoadState: UITaskState
         showOptionsMenu: boolean
         showSidebar: boolean
