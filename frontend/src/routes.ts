@@ -8,6 +8,7 @@ export type RouteName =
     | 'homeFeed'
     | 'pageLinkCreation'
     | 'loginOrSignupPage'
+    | 'tutorials'
 
 export type RouteMap = { [Name in RouteName]: Route }
 export interface Route {
@@ -39,6 +40,7 @@ const ROUTES: RouteMap = {
     annotationDetails: { path: [{ literal: 'a' }, { placeholder: 'id' }] },
     pageLinkCreation: { path: [{ literal: 'new' }] },
     loginOrSignupPage: { path: [{ literal: 'auth' }] },
+    tutorials: { path: [{ literal: 'tutorials' }] },
 }
 
 export default ROUTES

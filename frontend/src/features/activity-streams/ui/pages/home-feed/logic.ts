@@ -73,7 +73,7 @@ export default class HomeFeedLogic extends UILogic<
         const authEnforced = await this.dependencies.services.auth.enforceAuth({
             reason: 'login-requested',
         })
-        if (!authEnforced) {
+        if (!authEnforced.successful) {
             this.emitMutation({ needsAuth: { $set: true } })
             await this.dependencies.services.auth.waitForAuth()
             this.emitMutation({ needsAuth: { $set: false } })

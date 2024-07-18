@@ -18,6 +18,7 @@ import { ReaderPageView } from '../features/reader/ui'
 import { normalizeUrl } from '@worldbrain/memex-common/lib/url-utils/normalize'
 import type { UIRunnerOptions } from './types'
 import LoginOrSignupPage from '../features/content-sharing/ui/pages/login-or-signup'
+import TutorialsPage from '../features/content-sharing/ui/pages/tutorials'
 
 interface Props extends UIRunnerOptions {}
 export default class Routes extends React.Component<Props> {
@@ -188,6 +189,25 @@ export default class Routes extends React.Component<Props> {
                                     services={this.props.services}
                                     storage={serverModules}
                                     getRootElement={this.props.getRootElement}
+                                />
+                            )
+                        }}
+                    />
+                    <Route
+                        exact
+                        path={getReactRoutePattern(ROUTES.tutorials.path)}
+                        render={(route) => {
+                            const queryParams = queryString.parse(
+                                route.location.search,
+                            )
+                            const tutorialId = queryParams.id
+
+                            return (
+                                <TutorialsPage
+                                    services={this.props.services}
+                                    storage={serverModules}
+                                    getRootElement={this.props.getRootElement}
+                                    tutorialId={tutorialId as string}
                                 />
                             )
                         }}

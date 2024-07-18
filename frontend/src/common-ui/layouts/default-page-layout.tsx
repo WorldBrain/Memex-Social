@@ -263,13 +263,8 @@ export default function DefaultPageLayout(props: {
                     )}
                 </StyledHeader>
                 {/* {renderListsSidebar()} */}
-                <PageResultsArea
-                    headerHeight={getHeaderHeight()}
-                    viewportWidth={viewportWidth}
-                    isIframe={isIframe()}
-                >
-                    {props.children}
-                </PageResultsArea>
+
+                {props.children}
             </MainColumn>
             {!isIframe() && (
                 <SupportChatBox>
@@ -594,28 +589,6 @@ const LogoAndFeed = styled(Margin)<{
         css`
             padding-right: 10px;
             display: flex;
-        `}
-`
-
-const PageResultsArea = styled.div<{
-    viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
-    headerHeight: number | undefined
-    isIframe: boolean
-}>`
-    max-width: ${middleMaxWidth};
-    position: relative;
-    margin: 0px auto 0;
-    width: 100%;
-    height: fit-content;
-    z-index: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-
-    ${(props) =>
-        props.isIframe &&
-        css`
-            padding: 0 10px;
         `}
 `
 
