@@ -86,7 +86,7 @@ export default class LandingPageLogic extends UILogic<
         const authEnforced = await this.dependencies.services.auth.enforceAuth({
             reason: 'registration-requested',
         })
-        if (!authEnforced) {
+        if (!authEnforced.successful) {
             await this.dependencies.services.auth.waitForAuth()
         }
 
@@ -114,7 +114,7 @@ export default class LandingPageLogic extends UILogic<
         const authEnforced = await this.dependencies.services.auth.enforceAuth({
             reason: 'registration-requested',
         })
-        if (!authEnforced) {
+        if (!authEnforced.successful) {
             await this.dependencies.services.auth.waitForAuth()
         }
 

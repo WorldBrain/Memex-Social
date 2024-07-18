@@ -49,22 +49,29 @@ export default class LoginOrSignupPageLogic extends UILogic<
 
     init: EventHandler<'init'> = async () => {
         await loadInitial(this, async () => {
-            const authEnforced = await this.dependencies.services.auth.enforceAuth(
+            let authEnforced = await this.dependencies.services.auth.enforceAuth(
                 {
                     reason: 'registration-requested',
                 },
             )
-
-            if (!authEnforced) {
-                await this.dependencies.services.auth.enforceAuth({
-                    reason: 'registration-requested',
-                })
+            if (!authEnforced.successful) {
+                authEnforced = await this.dependencies.services.auth.enforceAuth(
+                    {
+                        reason: 'registration-requested',
+                    },
+                )
+            }
+            await this.dependencies.services.auth.waitForAuthSync()
+            window.open(
+                'https://links.memex.garden/onboarding/new-user',
+                '_self',
+            )
+            if (authEnforced.type === 'registered-and-authenticated') {
             }
             this.emitMutation({ signupLoadState: { $set: 'success' } })
-            await this.dependencies.services.auth.waitForAuthSync()
-            let extensionID = getExtensionID()
-            const message = ExtMessage.TRIGGER_ONBOARDING
-            await sendMessageToExtension(message, extensionID, undefined)
+            // let extensionID = getExtensionID()
+            // const message = ExtMessage.TRIGGER_ONBOARDING
+            // await sendMessageToExtension(message, extensionID, undefined)
         })
     }
 }

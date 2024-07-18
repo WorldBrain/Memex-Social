@@ -37,7 +37,16 @@ export interface AuthService {
 
     logout(): Promise<void>
 
-    enforceAuth(options?: AuthRequest): Promise<boolean>
+    enforceAuth(
+        options?: AuthRequest,
+    ): Promise<{
+        successful: boolean
+        type:
+            | 'authenticated'
+            | 'registered-and-authenticated'
+            | 'cancelled'
+            | 'error'
+    }>
     waitForAuthReady(): Promise<void>
     waitForAuth(): Promise<void>
     waitForAuthSync(): Promise<void>

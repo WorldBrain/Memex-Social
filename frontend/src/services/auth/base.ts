@@ -52,18 +52,34 @@ export abstract class AuthServiceBase implements AuthService {
     abstract changeEmailAddressonFirebase(email: string): Promise<void>
     abstract getCurrentUserEmail(): string | null
 
-    async enforceAuth(options?: AuthRequest): Promise<boolean> {
+    async enforceAuth(
+        options?: AuthRequest,
+    ): Promise<{
+        successful: boolean
+        type:
+            | 'authenticated'
+            | 'registered-and-authenticated'
+            | 'cancelled'
+            | 'error'
+    }> {
         await this.waitForAuthReady()
+
         if (this.getCurrentUser()) {
-            return true
+            return {
+                successful: true,
+                type: 'authenticated',
+            }
         }
         const {
             result: { status },
         } = await this.requestAuth(options)
-        return (
-            status === 'authenticated' ||
-            status === 'registered-and-authenticated'
-        )
+
+        return {
+            successful:
+                status === 'authenticated' ||
+                status === 'registered-and-authenticated',
+            type: status,
+        }
     }
 
     async waitForAuth() {
