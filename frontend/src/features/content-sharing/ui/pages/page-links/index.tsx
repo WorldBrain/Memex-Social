@@ -49,7 +49,7 @@ export default class PageLinkCreationPage extends UIElement<
             <MainContainer>
                 {this.state.loadState === 'success' && (
                     <>
-                        <MainText>Preparing conversation</MainText>
+                        <MainText>Preparing Annotateable Page</MainText>
                         <SubText>Just a moment 🤙🏻</SubText>
                     </>
                 )}
@@ -86,7 +86,7 @@ const MainText = styled.div`
     -webkit-text-fill-color: transparent;
     background-clip: text;
     text-align: center;
-    font-size: 3.5rem;
+    font-size: 3rem;
     font-weight: 900;
     @media (max-width: 1200px) {
         font-size: 3rem;

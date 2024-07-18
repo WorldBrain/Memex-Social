@@ -13,6 +13,7 @@ import {
     sendMessageToExtension,
 } from '../../../../../services/auth/auth-sync'
 import { ExtMessage } from '@worldbrain/memex-common/lib/authentication/auth-sync'
+import { isMemexInstalled } from '../../../../../utils/memex-installed'
 
 export interface LoginOrSignupPageState {
     signupLoadState: UITaskState
@@ -49,6 +50,7 @@ export default class LoginOrSignupPageLogic extends UILogic<
 
     init: EventHandler<'init'> = async () => {
         await loadInitial(this, async () => {
+            let memexInstalled = isMemexInstalled()
             let authEnforced = await this.dependencies.services.auth.enforceAuth(
                 {
                     reason: 'registration-requested',
@@ -61,17 +63,19 @@ export default class LoginOrSignupPageLogic extends UILogic<
                     },
                 )
             }
-            await this.dependencies.services.auth.waitForAuthSync()
-            window.open(
-                'https://links.memex.garden/onboarding/new-user',
-                '_self',
-            )
+            if (memexInstalled) {
+                await this.dependencies.services.auth.waitForAuthSync()
+            }
+
             if (authEnforced.type === 'registered-and-authenticated') {
+                window.open(
+                    'https://links.memex.garden/onboarding/new-user',
+                    '_self',
+                )
+            } else {
+                this.emitMutation({ signupLoadState: { $set: 'success' } })
             }
             this.emitMutation({ signupLoadState: { $set: 'success' } })
-            // let extensionID = getExtensionID()
-            // const message = ExtMessage.TRIGGER_ONBOARDING
-            // await sendMessageToExtension(message, extensionID, undefined)
         })
     }
 }
