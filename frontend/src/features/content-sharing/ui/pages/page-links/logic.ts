@@ -100,7 +100,7 @@ export default class PageLinkCreationLogic extends UILogic<
                     reason: 'registration-requested',
                 },
             )
-            if (!authEnforced) {
+            if (!authEnforced.successful) {
                 this.emitMutation({ needsAuth: { $set: true } })
                 await this.dependencies.services.auth.waitForAuth()
                 this.emitMutation({ needsAuth: { $set: false } })

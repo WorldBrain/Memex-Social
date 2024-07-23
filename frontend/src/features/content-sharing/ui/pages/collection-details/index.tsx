@@ -5,6 +5,7 @@ import { Margin } from 'styled-components-spacing'
 import { UIElement } from '../../../../../main-ui/classes'
 import Logic from './logic'
 import LoadingIndicator from '@worldbrain/memex-common/lib/common-ui/components/loading-indicator'
+import ImagePreviewModal from '@worldbrain/memex-common/lib/common-ui/image-preview-modal'
 import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
 import {
     CollectionDetailsEvent,
@@ -463,6 +464,9 @@ export default class CollectionDetailsPage extends UIElement<
                         youtubeElementId,
                     )
                 }
+                openImageInPreview={async (imageSource) => {
+                    this.processEvent('openImageInPreview', { imageSource })
+                }}
                 newPageReply={
                     this.isListContributor || state.isListOwner
                         ? state.newPageReplies[entry.normalizedUrl]
@@ -1856,6 +1860,11 @@ export default class CollectionDetailsPage extends UIElement<
                         imageSupport={this.props.imageSupport}
                         setDebouncingSaveBlock={() => null}
                         readOnly={true}
+                        openImageInPreview={(imageSource: string) =>
+                            this.processEvent('openImageInPreview', {
+                                imageSource,
+                            })
+                        }
                     />
                 </DescriptionContainer>
             )
@@ -1981,6 +1990,18 @@ export default class CollectionDetailsPage extends UIElement<
                     renderDescription={this.renderDescription()}
                     isPageView={this.props.entryID}
                 >
+                    {this.state.imageSourceForPreview &&
+                    this.state.imageSourceForPreview?.length > 0 ? (
+                        <ImagePreviewModal
+                            imageSource={this.state.imageSourceForPreview}
+                            closeModal={() =>
+                                this.processEvent('openImageInPreview', {
+                                    imageSource: undefined,
+                                })
+                            }
+                            getRootElement={this.props.getRootElement}
+                        />
+                    ) : null}
                     <PageResultsArea
                         headerHeight={getHeaderHeight()}
                         viewportWidth={this.viewportBreakpoint}
@@ -2088,6 +2109,7 @@ export default class CollectionDetailsPage extends UIElement<
                                                 //         entry,
                                                 //     })
                                                 // }}
+                                                background="black"
                                             >
                                                 <BlockContent
                                                     // pageLink ={'https://memex.social/' + this.props.listID + '/' + entry.reference.id}
@@ -2524,6 +2546,7 @@ const ResultsList = styled.div<{
 }>`
     display: flex;
     flex-direction: column;
+    width: 100%;
     z-index: 20;
     padding-bottom: 200px;
     padding-top: 2px;

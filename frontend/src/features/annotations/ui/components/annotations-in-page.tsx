@@ -15,14 +15,20 @@ const AnnotationsInPage = ({
 }: Omit<Props, 'renderCreationInfo'> & {
     profilePopupProps?: Omit<ProfilePopupProps, 'userRef'>
 }) => (
-    <AnnotsInPage
-        {...props}
-        renderCreationInfo={(userRef) => ({ children }) => (
-            <ProfilePopupContainer {...profilePopupProps!} userRef={userRef}>
-                {children}
-            </ProfilePopupContainer>
-        )}
-    />
+    console.log('AnnotationsInPage', props.openImageInPreview),
+    (
+        <AnnotsInPage
+            {...props}
+            renderCreationInfo={(userRef) => ({ children }) => (
+                <ProfilePopupContainer
+                    {...profilePopupProps!}
+                    userRef={userRef}
+                >
+                    {children}
+                </ProfilePopupContainer>
+            )}
+        />
+    )
 )
 
 export default AnnotationsInPage

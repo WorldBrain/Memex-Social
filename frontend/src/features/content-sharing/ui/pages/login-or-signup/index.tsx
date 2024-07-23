@@ -44,8 +44,7 @@ export default class LoginOrSignupPage extends UIElement<
             return (
                 <MainContainer>
                     <MainText>Login Successful</MainText>
-                    <SubText>Continuing to Onboarding</SubText>
-                    <LoadingIndicator />
+                    <SubText>You can close this tab now</SubText>
                 </MainContainer>
             )
         }
@@ -73,9 +72,9 @@ const MainContainer = styled.div`
     justify-content: center;
     height: fill-available;
     width: 100%;
-    top: 100%;
     height: fill-available;
     position: relative;
+    margin-top: -100px;
 `
 
 const MainText = styled.div`

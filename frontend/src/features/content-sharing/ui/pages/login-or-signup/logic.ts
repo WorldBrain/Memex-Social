@@ -8,11 +8,7 @@ import type {
     LoginOrSignupPageDependencies,
     LoginOrSignupPageEvent,
 } from './types'
-import {
-    getExtensionID,
-    sendMessageToExtension,
-} from '../../../../../services/auth/auth-sync'
-import { ExtMessage } from '@worldbrain/memex-common/lib/authentication/auth-sync'
+import { isMemexInstalled } from '../../../../../utils/memex-installed'
 
 export interface LoginOrSignupPageState {
     signupLoadState: UITaskState
@@ -49,22 +45,41 @@ export default class LoginOrSignupPageLogic extends UILogic<
 
     init: EventHandler<'init'> = async () => {
         await loadInitial(this, async () => {
-            const authEnforced = await this.dependencies.services.auth.enforceAuth(
+            let memexInstalled = isMemexInstalled()
+            let authEnforced = await this.dependencies.services.auth.enforceAuth(
                 {
                     reason: 'registration-requested',
                 },
             )
+            if (!authEnforced.successful) {
+                authEnforced = await this.dependencies.services.auth.enforceAuth(
+                    {
+                        reason: 'registration-requested',
+                    },
+                )
+            }
+            if (memexInstalled) {
+                await this.dependencies.services.auth.waitForAuthSync()
+            } else {
+                let user = null
 
-            if (!authEnforced) {
-                await this.dependencies.services.auth.enforceAuth({
-                    reason: 'registration-requested',
-                })
+                for (let i = 0; i < 10; i++) {
+                    // 10 iterations
+                    user = await this.dependencies.services.auth.getCurrentUser()
+                    if (user) break
+                    await new Promise((resolve) => setTimeout(resolve, 1000)) // wait 1 second
+                }
+            }
+
+            if (authEnforced.isNewUser || authEnforced.reactivatedUser) {
+                window.open(
+                    'https://links.memex.garden/onboarding/new-user',
+                    '_self',
+                )
+            } else {
+                this.emitMutation({ signupLoadState: { $set: 'success' } })
             }
             this.emitMutation({ signupLoadState: { $set: 'success' } })
-            await this.dependencies.services.auth.waitForAuthSync()
-            let extensionID = getExtensionID()
-            const message = ExtMessage.TRIGGER_ONBOARDING
-            await sendMessageToExtension(message, extensionID, undefined)
         })
     }
 }
