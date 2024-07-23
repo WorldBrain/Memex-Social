@@ -33,25 +33,6 @@ export default class TutorialsPage extends UIElement<
         return getViewportBreakpoint(this.getViewportWidth())
     }
 
-    private renderMainContent() {
-        if (this.state.signupLoadState === 'pristine') {
-            return (
-                <MainContainer>
-                    <LoadingIndicator />
-                </MainContainer>
-            )
-        }
-        if (this.state.signupLoadState === 'success') {
-            return (
-                <MainContainer>
-                    <MainText>Login Successful</MainText>
-                    <SubText>Continuing to Onboarding</SubText>
-                    <LoadingIndicator />
-                </MainContainer>
-            )
-        }
-    }
-
     render() {
         return (
             <DefaultPageLayout

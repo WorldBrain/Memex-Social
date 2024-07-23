@@ -8,11 +8,6 @@ import type {
     LoginOrSignupPageDependencies,
     LoginOrSignupPageEvent,
 } from './types'
-import {
-    getExtensionID,
-    sendMessageToExtension,
-} from '../../../../../services/auth/auth-sync'
-import { ExtMessage } from '@worldbrain/memex-common/lib/authentication/auth-sync'
 import { isMemexInstalled } from '../../../../../utils/memex-installed'
 
 export interface LoginOrSignupPageState {
@@ -65,9 +60,18 @@ export default class LoginOrSignupPageLogic extends UILogic<
             }
             if (memexInstalled) {
                 await this.dependencies.services.auth.waitForAuthSync()
+            } else {
+                let user = null
+
+                for (let i = 0; i < 10; i++) {
+                    // 10 iterations
+                    user = await this.dependencies.services.auth.getCurrentUser()
+                    if (user) break
+                    await new Promise((resolve) => setTimeout(resolve, 1000)) // wait 1 second
+                }
             }
 
-            if (authEnforced.type === 'registered-and-authenticated') {
+            if (authEnforced.isNewUser || authEnforced.reactivatedUser) {
                 window.open(
                     'https://links.memex.garden/onboarding/new-user',
                     '_self',

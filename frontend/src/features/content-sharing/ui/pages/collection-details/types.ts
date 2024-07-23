@@ -94,6 +94,7 @@ export type CollectionDetailsState = AnnotationConversationsState &
         articleSummary: { [normalizedPageUrl: string]: string }
         renderEmbedModal?: boolean
         isEmbedShareModalCopyTextShown: string
+        imageSourceForPreview?: string
 
         // listRolesLoadState: UITaskState
         listRoleID?: SharedListRoleID
@@ -178,6 +179,7 @@ export type CollectionDetailsEvent = UIEvent<
             pageBreakpointHit: { entryIndex: number }
             clickFollowBtn: { pageToOpenPostFollow?: string }
             updateAddLinkField: { textFieldValue: string }
+            openImageInPreview: { imageSource?: string }
             switchImportUrlDisplayMode:
                 | 'input'
                 | 'queued'

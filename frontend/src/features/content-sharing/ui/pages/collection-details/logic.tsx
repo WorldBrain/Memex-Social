@@ -1242,6 +1242,11 @@ export default class CollectionDetailsLogic extends UILogic<
             },
         }
     }
+    openImageInPreview: EventHandler<'openImageInPreview'> = ({ event }) => {
+        this.emitMutation({
+            imageSourceForPreview: { $set: event.imageSource },
+        })
+    }
 
     hideMoreCollaborators: EventHandler<'hideMoreCollaborators'> = () => {
         return { showMoreCollaborators: { $set: false } }

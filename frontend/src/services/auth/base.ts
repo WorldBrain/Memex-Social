@@ -50,35 +50,69 @@ export abstract class AuthServiceBase implements AuthService {
 
     abstract sendPasswordResetEmailProcess(email: string): void
     abstract changeEmailAddressonFirebase(email: string): Promise<void>
+    abstract getCurrentUserData(): firebase.default.User | null
     abstract getCurrentUserEmail(): string | null
 
     async enforceAuth(
         options?: AuthRequest,
     ): Promise<{
         successful: boolean
-        type:
+        status:
             | 'authenticated'
             | 'registered-and-authenticated'
             | 'cancelled'
             | 'error'
+        isNewUser?: boolean
+        reactivatedUser?: boolean
     }> {
         await this.waitForAuthReady()
 
         if (this.getCurrentUser()) {
             return {
                 successful: true,
-                type: 'authenticated',
+                status: 'authenticated',
             }
         }
         const {
             result: { status },
+            result,
         } = await this.requestAuth(options)
+
+        const currentUser = this.getCurrentUserData()
+        let creationTime = currentUser?.metadata.creationTime
+        let signupTimeStamp = undefined
+
+        if (creationTime) {
+            signupTimeStamp = new Date(creationTime).getTime()
+        }
+
+        let isNewUser = false
+
+        if (signupTimeStamp && signupTimeStamp < 600000) {
+            isNewUser = true
+        }
+
+        const lastSignInTime = currentUser?.metadata.lastSignInTime
+        let lastSignInDateTime = undefined
+        if (lastSignInTime) {
+            lastSignInDateTime = new Date(lastSignInTime).getTime()
+        }
+
+        let reactivatedUser = false
+        //special case to also show the tutorial for people who had their last signin more than 3 months ago
+        const THREE_MONTHS_IN_MS = 3 * 30 * 24 * 60 * 60 * 1000 // 3 months in milliseconds
+
+        if (lastSignInDateTime && lastSignInDateTime > THREE_MONTHS_IN_MS) {
+            reactivatedUser = true
+        }
 
         return {
             successful:
                 status === 'authenticated' ||
                 status === 'registered-and-authenticated',
-            type: status,
+            status: status,
+            isNewUser: isNewUser,
+            reactivatedUser: reactivatedUser,
         }
     }
 

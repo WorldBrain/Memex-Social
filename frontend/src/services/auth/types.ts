@@ -4,6 +4,7 @@ import {
 } from '@worldbrain/memex-common/lib/web-interface/types/users'
 import { AuthProvider } from '../../types/auth'
 import TypedEventEmitter from 'typed-emitter'
+import { AuthServiceBase } from './base'
 
 export interface AuthService {
     events: TypedEventEmitter<AuthEvents>
@@ -22,6 +23,7 @@ export interface AuthService {
     ): Promise<{ result: RegistrationResult }>
 
     getCurrentUser(): User | null
+    getCurrentUserData(): firebase.default.User | null
     getCurrentUserReference(): UserReference | null
     refreshCurrentUser(): Promise<void>
     getCurrentUserEmail(): string | null
@@ -41,11 +43,13 @@ export interface AuthService {
         options?: AuthRequest,
     ): Promise<{
         successful: boolean
-        type:
+        status:
             | 'authenticated'
             | 'registered-and-authenticated'
             | 'cancelled'
             | 'error'
+        isNewUser?: boolean
+        reactivatedUser?: boolean
     }>
     waitForAuthReady(): Promise<void>
     waitForAuth(): Promise<void>

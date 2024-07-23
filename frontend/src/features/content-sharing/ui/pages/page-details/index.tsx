@@ -325,6 +325,11 @@ export default class PageDetailsPage extends UIElement<
                                         getRootElement={
                                             this.props.getRootElement
                                         }
+                                        openImageInPreview={async (
+                                            imageSource,
+                                        ) => {
+                                            null
+                                        }}
                                     />
                                 )}
                         </Margin>
