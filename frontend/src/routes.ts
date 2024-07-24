@@ -31,6 +31,8 @@ const ROUTES: RouteMap = {
             { placeholder: 'id' },
             { literal: 'p' },
             { placeholder: 'entryId' },
+            { literal: 'a' },
+            { placeholder: 'noteId' },
         ],
     },
     collectionDetails: {

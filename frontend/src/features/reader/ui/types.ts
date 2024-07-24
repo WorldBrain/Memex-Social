@@ -45,6 +45,7 @@ export interface ReaderPageViewDependencies {
     storageManager: StorageManager
     listID: string
     entryID: string
+    noteId?: string
     normalizeUrl: URLNormalizer
     generateServerId: GenerateServerID
     query: ContentSharingQueryParams
@@ -93,6 +94,7 @@ export type ReaderPageViewState = AnnotationConversationsState &
         linkCopiedToClipBoard: boolean
         activeAnnotationId: AutoPk | null | undefined
         iframeLoadState: UITaskState
+        readerLoadState: UITaskState
         showOptionsMenu: boolean
         showSidebar: boolean
         renderAnnotationInstructOverlay: boolean

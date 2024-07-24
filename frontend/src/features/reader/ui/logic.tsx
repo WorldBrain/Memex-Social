@@ -244,6 +244,7 @@ export class ReaderPageViewLogic extends UILogic<
             annotationEntriesLoadState: 'running',
             permissionsLoadState: 'pristine',
             iframeLoadState: 'running',
+            readerLoadState: 'running',
             joinListState: 'pristine',
             listLoadState: 'pristine',
             highlightCreateState: 'pristine',
@@ -993,7 +994,11 @@ export class ReaderPageViewLogic extends UILogic<
         if (state.permissions != null || keyString != null) {
             this.setupIframeTooltip(this.iframe, state)
         }
+        this.emitMutation({
+            readerLoadState: { $set: 'success' },
+        })
         this.iframeSetupResolvable.resolve()
+        return
     }
 
     private setupIframeTooltip(

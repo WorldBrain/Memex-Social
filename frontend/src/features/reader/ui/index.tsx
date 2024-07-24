@@ -31,6 +31,7 @@ import { TooltipBox } from '@worldbrain/memex-common/lib/common-ui/components/to
 import { OverlayModal } from './components/OverlayModals'
 import { hasUnsavedAnnotationEdits } from '../../annotations/ui/logic'
 import { hasUnsavedConversationEdits } from '../../content-conversations/ui/logic'
+import { sleepPromise } from '../../../utils/promises'
 
 const TopBarHeight = 50
 const memexLogo = require('../../../assets/img/memex-logo-beta.svg')
@@ -113,6 +114,22 @@ export class ReaderPageView extends UIElement<
                     width: window.innerWidth,
                 })
             }
+        }
+    }
+
+    async componentDidUpdate(
+        prevProps: ReaderPageViewDependencies,
+        prevState: ReaderPageViewState,
+    ) {
+        if (
+            this.props.noteId != null &&
+            prevState.readerLoadState !== 'success' &&
+            this.state.readerLoadState === 'success'
+        ) {
+            await sleepPromise(2000)
+            this.processEvent('clickAnnotationInSidebar', {
+                annotationId: this.props.noteId,
+            })
         }
     }
 
@@ -221,10 +238,13 @@ export class ReaderPageView extends UIElement<
                 <AnnotationsInPage
                     getRootElement={this.props.getRootElement}
                     hideThreadBar={true}
+                    currentSpaceId={this.props.listID}
+                    currentNoteId={this.props.noteId}
                     originalUrl={entry.originalUrl}
                     contextLocation={'webUI'}
                     imageSupport={this.props.imageSupport}
                     variant={'dark-mode'}
+                    pageEntry={entry}
                     // newPageReply={
                     //     this.isListContributor || state.isListOwner
                     //         ? state.newPageReplies[entry.normalizedUrl]
