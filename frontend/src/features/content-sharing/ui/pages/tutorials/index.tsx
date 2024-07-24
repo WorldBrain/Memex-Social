@@ -120,4 +120,5 @@ const TutorialContainer = styled.div`
     align-items: center;
     position: absolute;
     overflow: auto;
+    z-index: 1000;
 `
