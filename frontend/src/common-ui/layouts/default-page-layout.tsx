@@ -30,30 +30,23 @@ export default function DefaultPageLayout(props: {
         | 'webMonetization'
     >
     storage: Pick<StorageModules, 'activityStreams'>
-    headerTitle?: string | JSX.Element
-    headerSubtitle?: JSX.Element | string
     followBtn?: JSX.Element
     permissionKeyOverlay?: JSX.Element | null
-    renderHeaderActionArea?: JSX.Element | null
-    webMonetizationIcon?: JSX.Element
     hideActivityIndicator?: boolean
     isSidebarShown?: boolean
     // listsSidebarProps?: Omit<
     //     ListsSidebarProps,
     //     'services' | 'storage' | 'viewportBreakpoint'
     // >
-    renderSubtitle?: (props: { children: React.ReactNode }) => React.ReactNode
     viewportBreakpoint: ViewportBreakpoint
     children: React.ReactNode
     scrollTop?: number
     breadCrumbs?: JSX.Element
-    renderDescription?: JSX.Element
     isPageView?: string | undefined
     context?: string
     getRootElement: () => HTMLElement
 }) {
     const { viewportBreakpoint: viewportWidth } = props
-    const renderSubtitle = props.renderSubtitle ?? ((props) => props.children)
     const [showChatBox, setShowChatBox] = React.useState(false)
     const chatBoxRef = React.useRef<HTMLDivElement>(null)
 
@@ -137,7 +130,7 @@ export default function DefaultPageLayout(props: {
             id={'MainContainer'}
         >
             <MainColumn>
-                {!isIframe() && (
+                {/* {!isIframe() && (
                     <HeaderImage
                         // src={headerBackground}
                         isIframe={isIframe() === true}
@@ -146,7 +139,7 @@ export default function DefaultPageLayout(props: {
                         viewportWidth={viewportWidth}
                         isPageView={props.isPageView}
                     />
-                )}
+                )} */}
                 <StyledHeader
                     isIframe={isIframe() === true}
                     hideActivityIndicator={props.hideActivityIndicator}
@@ -167,7 +160,6 @@ export default function DefaultPageLayout(props: {
                                     }
                                     viewportWidth={viewportWidth}
                                 />
-                                {/* )} */}
                             </LogoAndFeed>
                             <HeaderAuthArea
                                 isIframe={isIframe() === true}
@@ -181,7 +173,7 @@ export default function DefaultPageLayout(props: {
                             </HeaderAuthArea>
                         </>
                     )}
-                    {props.isPageView ? (
+                    {/* {props.isPageView ? (
                         props.breadCrumbs && props.breadCrumbs
                     ) : (
                         <StyledHeaderContainer
@@ -193,10 +185,6 @@ export default function DefaultPageLayout(props: {
                                 id={'HeaderMiddleArea'}
                                 isIframe={isIframe() === true}
                             >
-                                {/* <SpaceActionBar>
-                                {props.webMonetizationIcon}
-                                {props.followBtn}
-                            </SpaceActionBar> */}
                                 {isIframe() ? (
                                     <PageMidleAreaAction
                                         scrollTop={props.scrollTop}
@@ -225,45 +213,11 @@ export default function DefaultPageLayout(props: {
                                         </PageMidleAreaAction>
                                     )
                                 )}
-                                <PageMidleAreaTitles
-                                    context={props.context}
-                                    scrollTop={props.scrollTop}
-                                    viewportWidth={viewportWidth}
-                                >
-                                    {props.headerTitle && (
-                                        <HeaderTitle
-                                            viewportWidth={viewportWidth}
-                                            scrollTop={props.scrollTop}
-                                            isIframe={isIframe()}
-                                            onClick={
-                                                isIframe()
-                                                    ? () =>
-                                                          window.open(
-                                                              window.location
-                                                                  .href,
-                                                              '_blank',
-                                                          )
-                                                    : undefined
-                                            }
-                                        >
-                                            {props.headerTitle}
-                                        </HeaderTitle>
-                                    )}
-                                    {props.headerTitle &&
-                                        props.headerSubtitle &&
-                                        renderSubtitle({
-                                            children: props.headerSubtitle,
-                                        })}
-                                </PageMidleAreaTitles>
-                                {props.renderDescription &&
-                                    props.renderDescription}
-                                {/* <LeftRightBlock /> */}
                             </HeaderMiddleArea>
                         </StyledHeaderContainer>
-                    )}
+                    )} */}
                 </StyledHeader>
                 {/* {renderListsSidebar()} */}
-
                 {props.children}
             </MainColumn>
             {!isIframe() && (
@@ -410,19 +364,21 @@ const StyledHeader = styled.div<{
     isPageView: string | undefined
 }>`
     font-family: ${(props) => props.theme.fonts.primary};
+    width: 100%;
     width: fill-available;
+
     position: relative;
     display: flex;
     top: 0px;
-    justify-content: center;
+    justify-content: space-between;
+    align-items: center;
     flex-direction: row;
-    z-index: 2000;
-    align-items: flex-start;
+    z-index: 0;
     //box-shadow: #101e7308 0 4px 16px;
-    border-radius: 10px 10px 0px 0px;
-    padding: 15px 30px 30px 30px;
+    padding: 10px 30px 10px 30px;
     grid-gap: 25px;
     z-index: 2;
+    background: ${(props) => props.theme.colors.black0};
 
     ${(props) =>
         props.viewportWidth === 'mobile' &&
@@ -458,7 +414,6 @@ const StyledHeader = styled.div<{
         props.isPageView &&
         css`
             padding: 20px 20px 20px 20px;
-            margin-bottom: 10px;
         `}
 `
 
@@ -560,15 +515,11 @@ const HeaderAuthArea = styled.div<{
     viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
     isIframe: boolean
 }>`
-    flex: 1;
     display: flex;
     align-items: center;
     justify-content: flex-end;
     white-space: nowrap;
-    right: 15px;
-    position: absolute;
-    top: 15px;
-    z-index: 3001;
+    z-index: 1;
 `
 
 const LogoAndFeed = styled(Margin)<{
@@ -576,13 +527,9 @@ const LogoAndFeed = styled(Margin)<{
     isIframe: boolean
 }>`
     display: flex;
-    flex: 1;
     align-items: center;
     z-index: 3001;
     cursor: pointer;
-    position: absolute;
-    top: 20px;
-    left: 20px;
 
     ${(props) =>
         (props.viewportWidth === 'small' || props.viewportWidth === 'mobile') &&

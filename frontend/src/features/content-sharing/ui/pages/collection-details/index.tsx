@@ -761,7 +761,12 @@ export default class CollectionDetailsPage extends UIElement<
             )
         }
 
-        return title
+        return (
+            <ChatChannelName viewportBreakpoint={this.viewportBreakpoint}>
+                {' '}
+                title
+            </ChatChannelName>
+        )
     }
 
     renderSubtitle() {
@@ -1058,8 +1063,8 @@ export default class CollectionDetailsPage extends UIElement<
         return (
             <SearchBar viewportWidth={this.viewportBreakpoint}>
                 <TextField
-                    icon={'searchIcon'}
-                    placeholder="Search"
+                    icon={'stars'}
+                    placeholder="Ask questions & Summarize"
                     value={this.state.searchQuery}
                     onChange={(event) => {
                         this.processEvent('loadSearchResults', {
@@ -1071,9 +1076,8 @@ export default class CollectionDetailsPage extends UIElement<
                         })
                     }}
                     onKeyDown={(event) => {}}
-                    background={'greyScale1'}
                     height="34px"
-                    width="220px"
+                    width="300px"
                 />
                 <TooltipBox
                     placement="bottom"
@@ -1547,20 +1551,6 @@ export default class CollectionDetailsPage extends UIElement<
                 <EmptyListBox>
                     {this.getNoResultsTextforSearchType()}
                 </EmptyListBox>
-                {(this.state.isListOwner || this.isListContributor) && (
-                    <PrimaryAction
-                        label={'Add Links'}
-                        onClick={() => {
-                            this.processEvent(
-                                'setActionBarSearchAndAddMode',
-                                'AddLinks',
-                            )
-                        }}
-                        type="primary"
-                        size="medium"
-                        icon="plus"
-                    />
-                )}
             </NoResultsContainer>
         )
     }
@@ -1848,7 +1838,7 @@ export default class CollectionDetailsPage extends UIElement<
         const listdescription =
             data?.list.description || data?.listDescriptionTruncated || ''
 
-        if (listdescription.length > 0) {
+        if (listdescription) {
             return (
                 <DescriptionContainer>
                     <MemexEditor
@@ -1977,17 +1967,11 @@ export default class CollectionDetailsPage extends UIElement<
                     getRootElement={this.props.getRootElement}
                     storage={this.props.storage}
                     viewportBreakpoint={this.viewportBreakpoint}
-                    headerTitle={this.renderTitle()}
-                    headerSubtitle={this.renderSubtitle()}
-                    followBtn={this.renderFollowBtn()()}
-                    renderHeaderActionArea={this.renderHeaderActionArea()}
-                    webMonetizationIcon={this.renderWebMonetizationIcon()}
                     // listsSidebarProps={this.listsSidebarProps}
                     // isSidebarShown={this.listsSidebarProps.isShown}
                     // permissionKeyOverlay={this.renderPermissionKeyOverlay()}
                     scrollTop={this.state.scrollTop}
                     breadCrumbs={this.renderBreadCrumbs()}
-                    renderDescription={this.renderDescription()}
                     isPageView={this.props.entryID}
                 >
                     {this.state.imageSourceForPreview &&
@@ -2002,14 +1986,8 @@ export default class CollectionDetailsPage extends UIElement<
                             getRootElement={this.props.getRootElement}
                         />
                     ) : null}
-                    <PageResultsArea
-                        headerHeight={getHeaderHeight()}
-                        viewportWidth={this.viewportBreakpoint}
-                        isIframe={this.isIframe()}
-                    >
-                        {data.list.description?.length ? (
-                            <ReferencesBox>References</ReferencesBox>
-                        ) : null}
+                    <PageTopBar>
+                        {' '}
                         {((this.state.listData &&
                             this.state.listData?.listEntries?.length > 0) ||
                             this.state.actionBarSearchAndAddMode ===
@@ -2017,23 +1995,65 @@ export default class CollectionDetailsPage extends UIElement<
                             <ActionBarSearchAndAdd
                                 viewportWidth={this.viewportBreakpoint}
                             >
-                                {(this.state.isListOwner ||
-                                    this.isListContributor) &&
-                                    this.renderAddLinksField()}
                                 {this.state.actionBarSearchAndAddMode !==
                                     'AddLinks' && this.renderSearchBox()}
+                                {(this.state.isListOwner ||
+                                    this.isListContributor) && (
+                                    <PrimaryAction
+                                        label={'Add Links'}
+                                        onClick={() => {
+                                            this.processEvent(
+                                                'setActionBarSearchAndAddMode',
+                                                'AddLinks',
+                                            )
+                                        }}
+                                        type="primary"
+                                        size="medium"
+                                        icon="plus"
+                                    />
+                                )}
                             </ActionBarSearchAndAdd>
                         )}
-                        {!isPageView && this.renderAbovePagesBox()}
-                        {state.annotationEntriesLoadState === 'error' && (
+                    </PageTopBar>
+                    <PageResultsArea
+                        headerHeight={getHeaderHeight()}
+                        viewportWidth={this.viewportBreakpoint}
+                        isIframe={this.isIframe()}
+                    >
+                        <HeaderTitle
+                            viewportWidth={this.viewportBreakpoint}
+                            scrollTop={this.state.scrollTop}
+                            isIframe={this.isIframe()}
+                            onClick={
+                                this.isIframe()
+                                    ? () =>
+                                          window.open(
+                                              window.location.href,
+                                              '_blank',
+                                          )
+                                    : undefined
+                            }
+                        >
+                            {this.renderTitle()}
+                            {this.renderSubtitle()}
+                            {this.renderDescription()}
+                        </HeaderTitle>
+
+                        {data.list.description?.length && data.list.description}
+                        {data.list.description?.length ? (
+                            <ReferencesBox>References</ReferencesBox>
+                        ) : null}
+
+                        {/* {!isPageView && this.renderAbovePagesBox()} */}
+                        {/* {state.annotationEntriesLoadState === 'error' && (
                             <Margin bottom={'large'}>
                                 <ErrorWithAction errorType="internal-error">
                                     Error loading page notes. Reload page to
                                     retry.
                                 </ErrorWithAction>
                             </Margin>
-                        )}
-                        {(state.listData?.discordList != null ||
+                        )} */}
+                        {/* {(state.listData?.discordList != null ||
                             state.listData?.slackList != null) &&
                             state.listData?.isChatIntegrationSyncing && (
                                 <ChatSyncNotif>
@@ -2046,7 +2066,7 @@ export default class CollectionDetailsPage extends UIElement<
                                     This Space is still being synced. It may
                                     take a while for everything to show up.
                                 </ChatSyncNotif>
-                            )}
+                            )} */}
                         <ResultsList
                             isIframe={this.isIframe()}
                             viewportWidth={this.viewportBreakpoint}
@@ -3024,6 +3044,20 @@ const LinkListContainer = styled.div`
     scrollbar-width: none;
 `
 
+const PageTopBar = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 0px;
+    width: 100%;
+    height: 54px;
+    grid-gap: 20px;
+
+    > div {
+        z-index: 30;
+    }
+`
 const TopBar = styled.div`
     display: flex;
     align-items: center;
@@ -3092,8 +3126,8 @@ const ActionBarSearchAndAdd = styled.div<{ viewportWidth: ViewportBreakpoint }>`
     align-items: center;
     justify-content: space-between;
     grid-gap: 20px;
-    margin-bottom: 30px;
     width: 100%;
+    max-width: ${middleMaxWidth};
 
     ${(props) =>
         (props.viewportWidth === 'mobile' || props.viewportWidth === 'small') &&
@@ -3124,5 +3158,39 @@ const PageResultsArea = styled.div<{
         props.isIframe &&
         css`
             padding: 0 10px;
+        `}
+`
+const HeaderTitle = styled.div<{
+    viewportWidth: 'mobile' | 'small' | 'normal' | 'big'
+    scrollTop?: number
+    isIframe?: boolean
+    isPageView?: boolean
+}>`
+    width: fill-available;
+    letter-spacing: 2px;
+    text-overflow: ${(props) => props.scrollTop! >= 100 && 'ellipsis'};
+    font-family: ${(props) => props.theme.fonts.primary};
+    font-size: 26px;
+    line-height: 39px;
+    letter-spacing: 0.7px;
+    padding: 30px 0;
+    overflow-wrap: break-word;
+    color: ${(props) => props.theme.colors.white};
+    ${(props) =>
+        props.viewportWidth === 'small' &&
+        css`
+            font-size: 24px;
+            line-height: 36px;
+        `}
+    ${(props) =>
+        props.viewportWidth === 'mobile' &&
+        css`
+            font-size: 20px;
+            line-height: 30px;
+        `};
+    ${(props) =>
+        props.isIframe &&
+        css`
+            cursor: pointer;
         `}
 `
