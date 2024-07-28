@@ -34,6 +34,16 @@ import type {
 } from '../../../../annotations/ui/types'
 import type StorageManager from '@worldbrain/storex'
 import { ImageSupportInterface } from '@worldbrain/memex-common/lib/image-support/types'
+import TypedEventEmitter from 'typed-emitter'
+import { SpaceContent } from '@worldbrain/memex-common/lib/summarization/types'
+
+export interface CollectionDetailsMessageEvents {
+    addSpaceLinksAndNotesToEditor(event: {
+        prompt: string
+        spaceContent?: SpaceContent
+    }): void
+    addPageUrlToEditor(event: { url?: string; prompt: string }): void
+}
 
 export interface CollectionDetailsDependencies {
     listID: string
@@ -57,6 +67,7 @@ export interface CollectionDetailsDependencies {
         | 'memexExtension'
         | 'summarization'
         | 'fullTextSearch'
+        | 'analytics'
     >
     storage: Pick<
         StorageModules,
@@ -87,6 +98,7 @@ export type CollectionDetailsState = AnnotationConversationsState &
         showPermissionKeyIssue?: boolean
         requestingAuth?: boolean
         showDeniedNote?: boolean
+        showAIchat: boolean
         copiedLink?: boolean
         summarizeArticleLoadState: {
             [normalizedPageUrl: string]: UITaskState | undefined
@@ -130,7 +142,7 @@ export type CollectionDetailsState = AnnotationConversationsState &
             | 'failed'
             | 'running'
         actionBarSearchAndAddMode: 'AddLinks' | null
-
+        collectionDetailsEvents?: TypedEventEmitter<CollectionDetailsMessageEvents>
         annotationEntriesLoadState: UITaskState
         annotationLoadStates: { [normalizedPageUrl: string]: UITaskState }
         permissionDenied?: CollectionDetailsDeniedData & { hasKey: boolean }
@@ -193,6 +205,10 @@ export type CollectionDetailsEvent = UIEvent<
             hideMoreCollaborators: {}
             updateScrollState: { previousScrollTop: number }
             setPageHover: (PageEventArgs & { hover: ResultHoverState }) | any
+            toggleAIchat: null
+            loadAIresults: {
+                prompt: string
+            }
             setSearchType: SearchType
             copiedLinkButton: null
             summarizeArticle: { entry: any }
@@ -222,4 +238,5 @@ export type CollectionDetailsSignal = UISignal<
     | { type: 'loaded-annotation-entries'; success: boolean }
     | { type: 'annotation-loading-started' }
     | { type: 'loaded-annotations'; success: boolean }
+    | { type: 'ai-results-requested'; sharedListId: string; prompt: string }
 >

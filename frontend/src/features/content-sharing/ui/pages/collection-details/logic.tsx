@@ -18,6 +18,7 @@ import {
     CollectionDetailsSignal,
     CollectionDetailsState,
     CollectionDetailsListEntry,
+    CollectionDetailsMessageEvents,
 } from './types'
 import {
     UILogic,
@@ -46,6 +47,7 @@ import * as chrono from 'chrono-node'
 import type { SharedListEntrySearchRequest } from '@worldbrain/memex-common/lib/content-sharing/search'
 import type { PreparedThread } from '@worldbrain/memex-common/lib/content-conversations/storage/types'
 import type { UITaskState } from '@worldbrain/memex-common/lib/main-ui/types'
+import { EventEmitter } from 'events'
 import {
     editableAnnotationsEventHandlers,
     editableAnnotationsInitialState,
@@ -55,8 +57,14 @@ import { createPersonalCloudStorageUtils } from '@worldbrain/memex-common/lib/co
 import { LoggedOutAccessBox } from './space-access-box'
 import { IdField } from '@worldbrain/memex-common/lib/storage/types'
 import { isMemexPageAPdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
-const truncate = require('truncate')
+import TypedEventEmitter from 'typed-emitter'
+import {
+    SpaceContent,
+    SpaceContentEntry,
+} from '@worldbrain/memex-common/lib/summarization/types'
+import getCleanTextFromHtml from '@worldbrain/memex-common/lib/annotations/html-to-clean-text'
 
+const truncate = require('truncate')
 const LIST_DESCRIPTION_CHAR_LIMIT = 400
 
 type EventHandler<
@@ -67,6 +75,8 @@ export default class CollectionDetailsLogic extends UILogic<
     CollectionDetailsState,
     CollectionDetailsEvent
 > {
+    public events = new EventEmitter() as TypedEventEmitter<CollectionDetailsMessageEvents>
+
     pageAnnotationPromises: { [normalizedPageUrl: string]: Promise<void> } = {}
     conversationThreadPromises: {
         [normalizePageUrl: string]: Promise<void>
@@ -252,6 +262,8 @@ export default class CollectionDetailsLogic extends UILogic<
             textFieldValueState: '',
             importUrlDisplayMode: 'queued',
             actionBarSearchAndAddMode: null,
+            showAIchat: true,
+            collectionDetailsEvents: undefined,
             showStartImportButton: false,
             ...extDetectionInitialState(),
             ...editableAnnotationsInitialState(),
@@ -263,6 +275,10 @@ export default class CollectionDetailsLogic extends UILogic<
         await this.processUIEvent('load', {
             ...incoming,
             event: { isUpdate: false },
+        })
+
+        this.emitMutation({
+            collectionDetailsEvents: { $set: this.events },
         })
     }
 
@@ -322,31 +338,31 @@ export default class CollectionDetailsLogic extends UILogic<
             let discordList: DiscordList | null = null
             let slackList: SlackList | null = null
             let isChatIntegrationSyncing = false
-            if (retrievedList.sharedList.platform === 'discord') {
-                discordList = await this.dependencies.storage.discord.findDiscordListForSharedList(
-                    retrievedList.sharedList.reference,
-                )
-                if (!discordList) {
-                    return {
-                        mutation: { listData: { $set: undefined } },
-                    }
-                }
-                isChatIntegrationSyncing = !!(await this.dependencies.storage.discordRetroSync.getSyncEntryByChannel(
-                    { channelId: discordList.channelId },
-                ))
-            } else if (retrievedList.sharedList.platform === 'slack') {
-                slackList = await this.dependencies.storage.slack.findSlackListForSharedList(
-                    retrievedList.sharedList.reference,
-                )
-                if (!slackList) {
-                    return {
-                        mutation: { listData: { $set: undefined } },
-                    }
-                }
-                isChatIntegrationSyncing = !!(await this.dependencies.storage.slackRetroSync.getSyncEntryByChannel(
-                    { channelId: slackList.channelId },
-                ))
-            }
+            // if (retrievedList.sharedList.platform === 'discord') {
+            //     discordList = await this.dependencies.storage.discord.findDiscordListForSharedList(
+            //         retrievedList.sharedList.reference,
+            //     )
+            //     if (!discordList) {
+            //         return {
+            //             mutation: { listData: { $set: undefined } },
+            //         }
+            //     }
+            //     isChatIntegrationSyncing = !!(await this.dependencies.storage.discordRetroSync.getSyncEntryByChannel(
+            //         { channelId: discordList.channelId },
+            //     ))
+            // } else if (retrievedList.sharedList.platform === 'slack') {
+            //     slackList = await this.dependencies.storage.slack.findSlackListForSharedList(
+            //         retrievedList.sharedList.reference,
+            //     )
+            //     if (!slackList) {
+            //         return {
+            //             mutation: { listData: { $set: undefined } },
+            //         }
+            //     }
+            //     isChatIntegrationSyncing = !!(await this.dependencies.storage.slackRetroSync.getSyncEntryByChannel(
+            //         { channelId: slackList.channelId },
+            //     ))
+            // }
             this.mainListEntries.push(...retrievedList.entries)
 
             await this.dependencies.services.auth.waitForAuthReady()
@@ -455,6 +471,89 @@ export default class CollectionDetailsLogic extends UILogic<
             searchType: { $set: event },
         })
     }
+    toggleAIchat: EventHandler<'setPageHover'> = ({ previousState }) => {
+        this.emitMutation({
+            showAIchat: { $set: !previousState.showAIchat },
+        })
+    }
+    loadAIresults: EventHandler<'loadAIresults'> = async ({
+        event,
+        previousState,
+    }) => {
+        const prompt = event.prompt
+
+        this.events.emit('addSpaceLinksAndNotesToEditor', {
+            prompt: prompt,
+            spaceContent: undefined,
+        })
+
+        // Load all links:
+        const response = await this.dependencies.services.contentSharing.backend.loadCollectionDetails(
+            {
+                listId: this.dependencies.listID,
+            },
+        )
+        const { data } = response
+        const entries = data.retrievedList.entries
+        const normalizedPageUrls = entries.map((entry) => entry.normalizedUrl)
+        const originalUrls = entries.map((entry) => entry.originalUrl)
+        const annotationEntries = data.annotationEntries
+
+        const annotationsResult = await this.dependencies.services.contentSharing.backend.loadAnnotationsWithThreads(
+            {
+                listId: this.dependencies.listID,
+                annotationIds: filterObject(
+                    mapValues(annotationEntries, (entries) =>
+                        entries.map((entry) => entry.sharedAnnotation.id),
+                    ),
+                    (_, key) => normalizedPageUrls.includes(key),
+                ),
+            },
+        )
+
+        if (annotationsResult.status !== 'success') {
+            return
+        }
+        const annotationsData = annotationsResult.data.annotations
+        const replyData = annotationsResult.data.threads
+
+        // Construct the SpaceContent object
+        const spaceContent: SpaceContent = {
+            entries: originalUrls.map(
+                (url: SpaceContentEntry['url'], index: number) => {
+                    const notes =
+                        Object.values(annotationsData)?.map((annotation) => {
+                            const highlightText =
+                                annotation.body &&
+                                getCleanTextFromHtml(annotation.body)
+                            const commentText =
+                                annotation.comment &&
+                                getCleanTextFromHtml(annotation.comment)
+
+                            return {
+                                id: annotation.linkId,
+                                highlightedText: highlightText,
+                                commentText: commentText,
+                                // replies:
+                                //     replyData[annotation.linkId]?.map((thread) => ({
+                                //         id: thread.id,
+                                //         replyText: thread.text,
+                                //     })) || [],
+                            }
+                        }) || []
+                    return {
+                        url,
+                        notes,
+                    }
+                },
+            ),
+        }
+
+        this.events.emit('addSpaceLinksAndNotesToEditor', {
+            prompt: prompt,
+            spaceContent: spaceContent,
+        })
+    }
 
     setPageHover: EventHandler<'setPageHover'> = ({ event, previousState }) => {
         this.emitMutation({
@@ -491,46 +590,51 @@ export default class CollectionDetailsLogic extends UILogic<
             return true
         }
     }
-
     summarizeArticle: EventHandler<'summarizeArticle'> = async (incoming) => {
-        this.emitMutation({
-            articleSummary: {
-                [incoming.event.entry.normalizedUrl]: { $set: '' },
-            },
-            summarizeArticleLoadState: {
-                [incoming.event.entry.normalizedUrl]: { $set: 'running' },
-            },
+        this.events.emit('addPageUrlToEditor', {
+            url: incoming.event.entry.sourceUrl,
+            prompt:
+                'Summarize this content for me in 2 sentences without saying things like "here is a summery". Be descriptive',
         })
 
-        let isPageSummaryEmpty = true
-        for await (const result of this.dependencies.services.summarization.queryAI(
-            incoming.event.entry.sourceUrl,
-            undefined,
-            'Summarize this content for me in 2 sentences without saying things like "here is a summery". Be descriptive',
-            undefined,
-            true,
-            'claude-3-haiku',
-        )) {
-            const token = result?.t
+        // this.emitMutation({
+        //     articleSummary: {
+        //         [incoming.event.entry.normalizedUrl]: { $set: '' },
+        //     },
+        //     summarizeArticleLoadState: {
+        //         [incoming.event.entry.normalizedUrl]: { $set: 'running' },
+        //     },
+        // })
 
-            let newToken = token
-            if (isPageSummaryEmpty) {
-                newToken = newToken.trimStart() // Remove the first two characters
-            }
+        // let isPageSummaryEmpty = true
+        // for await (const result of this.dependencies.services.summarization.queryAI(
+        //     incoming.event.entry.sourceUrl,
+        //     undefined,
+        //     'Summarize this content for me in 2 sentences without saying things like "here is a summery". Be descriptive',
+        //     undefined,
+        //     true,
+        //     'gpt-4o-mini',
+        // )) {
+        //     const token = result?.t
 
-            isPageSummaryEmpty = false
+        //     let newToken = token
+        //     if (isPageSummaryEmpty) {
+        //         newToken = newToken.trimStart() // Remove the first two characters
+        //     }
 
-            this.emitMutation({
-                summarizeArticleLoadState: {
-                    [incoming.event.entry.normalizedUrl]: { $set: 'success' },
-                },
-                articleSummary: {
-                    [incoming.event.entry.normalizedUrl]: {
-                        $apply: (prev) => (prev ? prev : '') + newToken,
-                    },
-                },
-            })
-        }
+        //     isPageSummaryEmpty = false
+
+        //     this.emitMutation({
+        //         summarizeArticleLoadState: {
+        //             [incoming.event.entry.normalizedUrl]: { $set: 'success' },
+        //         },
+        //         articleSummary: {
+        //             [incoming.event.entry.normalizedUrl]: {
+        //                 $apply: (prev) => (prev ? prev : '') + newToken,
+        //             },
+        //         },
+        //     })
+        // }
     }
 
     hideSummary: EventHandler<'hideSummary'> = (incoming) => {
@@ -1126,14 +1230,11 @@ export default class CollectionDetailsLogic extends UILogic<
                         },
                     }
 
-                    console.log('newCollectionEntry', newCollectionEntry)
-
                     const hasData = newCollectionEntry.normalizedUrl != null
 
                     if (hasData) {
                         existingListEntries?.unshift(newCollectionEntry)
 
-                        console.log('existingListEntries', existingListEntries)
                         this.emitMutation({
                             listData: {
                                 listEntries: { $set: existingListEntries },

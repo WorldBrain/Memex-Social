@@ -946,10 +946,6 @@ export class ReaderPageView extends UIElement<
                                                             ?.title
                                                     }
                                                     onClick={() => {
-                                                        console.log(
-                                                            this.state.listData
-                                                                ?.url,
-                                                        )
                                                         window.open(
                                                             this.state.listData
                                                                 ?.url,

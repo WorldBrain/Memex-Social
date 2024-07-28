@@ -672,19 +672,6 @@ export class ReaderPageViewLogic extends UILogic<
                     throw e
                 }
             },
-            // const isYoutube = listEntry.normalizedUrl.startsWith(
-            //     'youtube.com/',
-            // )
-
-            // console.log('annotations', response.data.annotations)
-
-            // if (isYoutube) {
-            //     this.loadPageAnnotations(
-            //         { [listEntry.normalizedUrl]: entries },
-            //         [listEntry.normalizedUrl],
-            //         nextState,
-            //     )
-            // }
         )
     }
 

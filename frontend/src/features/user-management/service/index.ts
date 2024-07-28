@@ -82,7 +82,6 @@ export default class UserManagementService {
             this._updateCache(userRef, profileData)
             this.events.emit('userProfileChange')
         } catch (err) {
-            console.log('userStorage.updateUserPublicProfile error')
             console.error(err)
         }
     }
