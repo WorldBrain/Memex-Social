@@ -9,6 +9,7 @@ import { AnalyticsCoreInterface } from '@worldbrain/memex-common/lib/analytics/t
 import {
     AImodels,
     PromptData,
+    PromptURL,
 } from '@worldbrain/memex-common/lib/summarization/types'
 import { CollectionDetailsMessageEvents } from '../content-sharing/ui/pages/collection-details/types'
 import TypedEventEmitter from 'typed-emitter'
@@ -24,6 +25,7 @@ export interface AIChatWebUiWrapperDependencies {
     collectionDetailsEvents:
         | TypedEventEmitter<CollectionDetailsMessageEvents>
         | undefined
+    contentList?: PromptURL[]
 }
 
 export interface AIChatWebUiWrapperState {

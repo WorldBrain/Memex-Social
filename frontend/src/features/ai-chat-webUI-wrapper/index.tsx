@@ -51,6 +51,7 @@ export default class AIChatWebUiWrapper extends UIElement<
                 getYoutubePlayer={this.props.getYoutubePlayer}
                 omitLocalContentFeature={true}
                 sidebarEvents={this.props.collectionDetailsEvents}
+                contentList={this.props.contentList}
                 // renderPromptTemplates={() => {
                 //     return (
                 //         <PromptTemplatesComponent

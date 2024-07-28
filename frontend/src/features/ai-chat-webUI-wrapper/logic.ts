@@ -50,9 +50,8 @@ export default class AIChatWebUiWrapperLogic extends UILogic<
         // resetting the buffers
         this.isPageSummaryEmpty = true
         this.tokenBuffer = ''
-        const chatId: string = event.promptData.chatId
+        const chatId: string = event.promptData.chatId ?? crypto.randomUUID()
         let promptData = event.promptData
-        let outputLocation = event.outputLocation ?? null
 
         this.emitMutation({
             currentChatId: { $set: chatId },
@@ -72,21 +71,11 @@ export default class AIChatWebUiWrapperLogic extends UILogic<
         // Store the cancel function in the map
         this.ongoingRequests.set(chatId, { cancel })
 
-        promptData.context.originalFullMessage = replaceImgSrcWithFunctionOutputNode(
-            promptData.context.originalFullMessage ?? '',
-            process.env.NODE_ENV,
-        )
-
         try {
             let isPageSummaryEmpty = true
             for await (const result of this.dependencies.services.summarization.queryAI(
-                undefined,
-                undefined,
-                promptData.userPrompt,
-                undefined,
-                true,
-                'gpt-4o-mini',
                 promptData,
+                true,
             )) {
                 const token = result?.t
 

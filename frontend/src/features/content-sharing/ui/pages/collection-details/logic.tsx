@@ -58,11 +58,9 @@ import { LoggedOutAccessBox } from './space-access-box'
 import { IdField } from '@worldbrain/memex-common/lib/storage/types'
 import { isMemexPageAPdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
 import TypedEventEmitter from 'typed-emitter'
-import {
-    SpaceContent,
-    SpaceContentEntry,
-} from '@worldbrain/memex-common/lib/summarization/types'
+import { PromptURL } from '@worldbrain/memex-common/lib/summarization/types'
 import getCleanTextFromHtml from '@worldbrain/memex-common/lib/annotations/html-to-clean-text'
+import { sleepPromise } from '../../../../../utils/promises'
 
 const truncate = require('truncate')
 const LIST_DESCRIPTION_CHAR_LIMIT = 400
@@ -263,7 +261,7 @@ export default class CollectionDetailsLogic extends UILogic<
             importUrlDisplayMode: 'queued',
             actionBarSearchAndAddMode: null,
             showAIchat: true,
-            collectionDetailsEvents: undefined,
+            collectionDetailsEvents: this.events,
             showStartImportButton: false,
             ...extDetectionInitialState(),
             ...editableAnnotationsInitialState(),
@@ -276,9 +274,13 @@ export default class CollectionDetailsLogic extends UILogic<
             ...incoming,
             event: { isUpdate: false },
         })
-
-        this.emitMutation({
-            collectionDetailsEvents: { $set: this.events },
+        let prompt = 'Summarize the key takeaways of the articles in this Space'
+        this.events.emit('addSpaceLinksAndNotesToEditor', {
+            prompt: prompt,
+        })
+        await this.processUIEvent('loadAIresults', {
+            event: { prompt: prompt },
+            previousState: incoming.previousState,
         })
     }
 
@@ -482,11 +484,6 @@ export default class CollectionDetailsLogic extends UILogic<
     }) => {
         const prompt = event.prompt
 
-        this.events.emit('addSpaceLinksAndNotesToEditor', {
-            prompt: prompt,
-            spaceContent: undefined,
-        })
-
         // Load all links:
         const response = await this.dependencies.services.contentSharing.backend.loadCollectionDetails(
             {
@@ -518,40 +515,39 @@ export default class CollectionDetailsLogic extends UILogic<
         const replyData = annotationsResult.data.threads
 
         // Construct the SpaceContent object
-        const spaceContent: SpaceContent = {
-            entries: originalUrls.map(
-                (url: SpaceContentEntry['url'], index: number) => {
-                    const notes =
-                        Object.values(annotationsData)?.map((annotation) => {
-                            const highlightText =
-                                annotation.body &&
-                                getCleanTextFromHtml(annotation.body)
-                            const commentText =
-                                annotation.comment &&
-                                getCleanTextFromHtml(annotation.comment)
+        const contentList: PromptURL[] = entries.map((item, index: number) => {
+            const url = item.originalUrl
+            const title = item.pageData?.title ?? null
+            const originalText = null
+            const notes =
+                Object.values(annotationsData)?.map((annotation) => {
+                    const highlightText =
+                        annotation.body && getCleanTextFromHtml(annotation.body)
+                    const commentText =
+                        annotation.comment &&
+                        getCleanTextFromHtml(annotation.comment)
 
-                            return {
-                                id: annotation.linkId,
-                                highlightedText: highlightText,
-                                commentText: commentText,
-                                // replies:
-                                //     replyData[annotation.linkId]?.map((thread) => ({
-                                //         id: thread.id,
-                                //         replyText: thread.text,
-                                //     })) || [],
-                            }
-                        }) || []
                     return {
-                        url,
-                        notes,
+                        id: annotation.linkId,
+                        highlightedText: highlightText,
+                        commentText: commentText,
+                        // replies:
+                        //     replyData[annotation.linkId]?.map((thread) => ({
+                        //         id: thread.id,
+                        //         replyText: thread.text,
+                        //     })) || [],
                     }
-                },
-            ),
-        }
+                }) || []
+            return {
+                url,
+                title,
+                originalText,
+                notes,
+            }
+        })
 
-        this.events.emit('addSpaceLinksAndNotesToEditor', {
-            prompt: prompt,
-            spaceContent: spaceContent,
+        this.emitMutation({
+            contentList: { $set: contentList },
         })
     }
 
@@ -593,48 +589,11 @@ export default class CollectionDetailsLogic extends UILogic<
     summarizeArticle: EventHandler<'summarizeArticle'> = async (incoming) => {
         this.events.emit('addPageUrlToEditor', {
             url: incoming.event.entry.sourceUrl,
+            title: incoming.event.entry.title,
             prompt:
                 'Summarize this content for me in 2 sentences without saying things like "here is a summery". Be descriptive',
+            instaExecutePrompt: true,
         })
-
-        // this.emitMutation({
-        //     articleSummary: {
-        //         [incoming.event.entry.normalizedUrl]: { $set: '' },
-        //     },
-        //     summarizeArticleLoadState: {
-        //         [incoming.event.entry.normalizedUrl]: { $set: 'running' },
-        //     },
-        // })
-
-        // let isPageSummaryEmpty = true
-        // for await (const result of this.dependencies.services.summarization.queryAI(
-        //     incoming.event.entry.sourceUrl,
-        //     undefined,
-        //     'Summarize this content for me in 2 sentences without saying things like "here is a summery". Be descriptive',
-        //     undefined,
-        //     true,
-        //     'gpt-4o-mini',
-        // )) {
-        //     const token = result?.t
-
-        //     let newToken = token
-        //     if (isPageSummaryEmpty) {
-        //         newToken = newToken.trimStart() // Remove the first two characters
-        //     }
-
-        //     isPageSummaryEmpty = false
-
-        //     this.emitMutation({
-        //         summarizeArticleLoadState: {
-        //             [incoming.event.entry.normalizedUrl]: { $set: 'success' },
-        //         },
-        //         articleSummary: {
-        //             [incoming.event.entry.normalizedUrl]: {
-        //                 $apply: (prev) => (prev ? prev : '') + newToken,
-        //             },
-        //         },
-        //     })
-        // }
     }
 
     hideSummary: EventHandler<'hideSummary'> = (incoming) => {

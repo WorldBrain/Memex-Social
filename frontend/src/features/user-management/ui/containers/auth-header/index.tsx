@@ -15,6 +15,7 @@ import { getViewportBreakpoint } from '../../../../../main-ui/styles/utils'
 import { ViewportBreakpoint } from '../../../../../main-ui/styles/types'
 import { PrimaryAction } from '@worldbrain/memex-common/lib/common-ui/components/PrimaryAction'
 import { PopoutBox } from '@worldbrain/memex-common/lib/common-ui/components/popout-box'
+import { TooltipBox } from '@worldbrain/memex-common/lib/common-ui/components/tooltip-box'
 
 const StyledAuthHeader = styled.div``
 
@@ -125,7 +126,6 @@ export default class AuthHeader extends UIElement<
         if (this.state.loadState !== 'success') {
             return (
                 <LoadingBox>
-                    {' '}
                     <LoadingIndicator size={20} />
                 </LoadingBox>
             )
@@ -133,37 +133,36 @@ export default class AuthHeader extends UIElement<
 
         if (!this.state.user) {
             return (
-                <PrimaryAction
-                    label={
-                        this.state.isMemexInstalled === true
-                            ? 'Login'
-                            : 'Sign Up'
-                    }
-                    onClick={() => this.processEvent('login', null)}
-                    type={'forth'}
-                    size={'medium'}
-                    icon={'login'}
-                />
+                <TooltipBox placement="bottom" tooltipText="Login or SignUp">
+                    <Icon
+                        onClick={() => this.processEvent('login', null)}
+                        icon={'login'}
+                        heightAndWidth="24px"
+                    />
+                </TooltipBox>
             )
         }
 
         return (
             <Wrapper>
-                <PrimaryAction
-                    label={this.state.user.displayName}
-                    onClick={() => this.processEvent('toggleMenu', null)}
-                    icon={
-                        this.state.loadState !== 'success' ? (
-                            <LoadingIndicator size={16} />
-                        ) : (
-                            'personFine'
-                        )
-                    }
-                    type={'tertiary'}
-                    iconPosition="right"
-                    size="medium"
-                    innerRef={this.UserInfoButtonRef}
-                />
+                <TooltipBox
+                    placement="bottom"
+                    tooltipText={'Settings / Account'}
+                >
+                    <Icon
+                        label={this.state.user.displayName}
+                        onClick={() => this.processEvent('toggleMenu', null)}
+                        icon={
+                            this.state.loadState !== 'success' ? (
+                                <LoadingIndicator size={16} />
+                            ) : (
+                                'personFine'
+                            )
+                        }
+                        containerRef={this.UserInfoButtonRef}
+                        heightAndWidth="24px"
+                    />
+                </TooltipBox>
                 {this.renderAuthMenu()}
                 {this.state.showAccountSettings && (
                     <ProfileEditModal

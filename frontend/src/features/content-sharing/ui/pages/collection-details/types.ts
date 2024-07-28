@@ -35,14 +35,19 @@ import type {
 import type StorageManager from '@worldbrain/storex'
 import { ImageSupportInterface } from '@worldbrain/memex-common/lib/image-support/types'
 import TypedEventEmitter from 'typed-emitter'
-import { SpaceContent } from '@worldbrain/memex-common/lib/summarization/types'
+import { PromptURL } from '@worldbrain/memex-common/lib/summarization/types'
 
 export interface CollectionDetailsMessageEvents {
     addSpaceLinksAndNotesToEditor(event: {
         prompt: string
-        spaceContent?: SpaceContent
+        contentList?: PromptURL[]
     }): void
-    addPageUrlToEditor(event: { url?: string; prompt: string }): void
+    addPageUrlToEditor(event: {
+        url?: string
+        title?: string
+        prompt?: string
+        instaExecutePrompt?: boolean
+    }): void
 }
 
 export interface CollectionDetailsDependencies {
@@ -165,6 +170,7 @@ export type CollectionDetailsState = AnnotationConversationsState &
         pageAnnotationsExpanded: { [normalizedPageUrl: string]: boolean }
         searchType: SearchType
         showStartImportButton: boolean
+        contentList: PromptURL[]
     }
 
 export interface PageEventArgs {
