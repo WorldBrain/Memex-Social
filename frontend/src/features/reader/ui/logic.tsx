@@ -889,6 +889,7 @@ export class ReaderPageViewLogic extends UILogic<
 
                     let iframeUrl = `/w/liveproxy/mp_/${url}`
                     this.iframe.src = iframeUrl
+                    // this.iframe.style.paddingTop = '50px'
                 }
                 containerEl.appendChild(this.iframe)
                 await utils.waitForIframeLoad(this.iframe)

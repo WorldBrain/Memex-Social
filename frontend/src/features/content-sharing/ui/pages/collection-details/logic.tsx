@@ -1455,14 +1455,6 @@ export default class CollectionDetailsLogic extends UILogic<
         annotations: GetAnnotationsResult,
         threads?: PreparedThread[],
     ) {
-        // await this._users.loadUsers(
-        //     usersToLoad.map(
-        //         (id): UserReference => ({
-        //             type: 'user-reference',
-        //             id,
-        //         }),
-        //     ),
-        // )
         if (threads) {
             await detectAnnotationConversationThreads(this as any, {
                 threads,
@@ -1479,18 +1471,14 @@ export default class CollectionDetailsLogic extends UILogic<
                 },
                 imageSupport: this.dependencies.imageSupport,
             })
+            intializeNewPageReplies(this as any, {
+                normalizedPageUrls: [
+                    ...Object.values(annotations).map(
+                        (annotation) => annotation.normalizedPageUrl,
+                    ),
+                ],
+                imageSupport: this.dependencies.imageSupport,
+            })
         }
-        intializeNewPageReplies(this as any, {
-            normalizedPageUrls: [
-                ...Object.values(annotations).map(
-                    (annotation) => annotation.normalizedPageUrl,
-                ),
-            ],
-            imageSupport: this.dependencies.imageSupport,
-            // .filter(
-            //     (normalizedPageUrl) =>
-            //         !this.conversationThreadPromises[normalizedPageUrl],
-            // ),
-        })
     }
 }

@@ -27,15 +27,26 @@ const ROUTES: RouteMap = {
     homeFeed: { path: [{ literal: 'feed' }] },
     pageView: {
         path: [
-            { literal: 'c' },
-            { placeholder: 'id' },
-            { literal: 'p' },
-            { placeholder: 'entryId' },
-            { optional: [{ literal: 'a' }, { placeholder: 'noteId' }] },
+            // { literal: 'c' },
+            // { placeholder: 'id' },
+            // { literal: 'p' },
+            // { placeholder: 'entryId' },
+            // { optional: [{ literal: 'a' }, { placeholder: 'noteId' }] },
         ],
     },
     collectionDetails: {
-        path: [{ literal: 'c' }, { placeholder: 'id' }],
+        path: [
+            { literal: 'c' },
+            { placeholder: 'id' },
+            {
+                optional: [
+                    { literal: 'p' },
+                    { placeholder: 'entryId' },
+                    { literal: 'a' },
+                    { placeholder: 'noteId' },
+                ],
+            },
+        ],
     },
     pageDetails: { path: [{ literal: 'p' }, { placeholder: 'id' }] },
     annotationDetails: { path: [{ literal: 'a' }, { placeholder: 'id' }] },

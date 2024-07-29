@@ -56,11 +56,11 @@ export class ReaderPageView extends UIElement<
 
         const { query } = props
 
-        this.itemRanges = {
-            listEntry: parseRange(query.fromListEntry, query.toListEntry),
-            annotEntry: parseRange(query.fromAnnotEntry, query.toAnnotEntry),
-            reply: parseRange(query.fromReply, query.toReply),
-        }
+        // this.itemRanges = {
+        //     listEntry: parseRange(query.fromListEntry, query.toListEntry),
+        //     annotEntry: parseRange(query.fromAnnotEntry, query.toAnnotEntry),
+        //     reply: parseRange(query.fromReply, query.toReply),
+        // }
     }
 
     private editor: MemexEditorInstance | null = null
@@ -152,318 +152,318 @@ export class ReaderPageView extends UIElement<
         }
     }
 
-    private renderPageAnnotations(
-        entry: SharedListEntry & { creator: UserReference },
-    ) {
-        const { state } = this
-        const loadState = state.annotationLoadStates[entry.normalizedUrl]
+    // private renderPageAnnotations(
+    //     entry: SharedListEntry & { creator: UserReference },
+    // ) {
+    //     const { state } = this
+    //     const loadState = state.annotationLoadStates[entry.normalizedUrl]
 
-        if (
-            loadState &&
-            loadState === 'success' &&
-            Object.keys(state.annotationEntryData).length === 0
-        ) {
-            return (
-                <EmptyMessageContainer>
-                    <IconBox heightAndWidth="40px">
-                        <Icon
-                            filePath={'commentAdd'}
-                            heightAndWidth="20px"
-                            color="prime1"
-                            hoverOff
-                        />
-                    </IconBox>
-                    <InfoText>
-                        Add a note or highlight sections of the page
-                    </InfoText>
-                </EmptyMessageContainer>
-            )
-        } else {
-            let annotationsList: Array<SharedAnnotation & { id: AutoPk }> = []
+    //     if (
+    //         loadState &&
+    //         loadState === 'success' &&
+    //         Object.keys(state.annotationEntryData).length === 0
+    //     ) {
+    //         return (
+    //             <EmptyMessageContainer>
+    //                 <IconBox heightAndWidth="40px">
+    //                     <Icon
+    //                         filePath={'commentAdd'}
+    //                         heightAndWidth="20px"
+    //                         color="prime1"
+    //                         hoverOff
+    //                     />
+    //                 </IconBox>
+    //                 <InfoText>
+    //                     Add a note or highlight sections of the page
+    //                 </InfoText>
+    //             </EmptyMessageContainer>
+    //         )
+    //     } else {
+    //         let annotationsList: Array<SharedAnnotation & { id: AutoPk }> = []
 
-            if (
-                state.annotationEntryData &&
-                state.annotationEntryData[entry.normalizedUrl] &&
-                state.annotationEntryData &&
-                state.annotations !== null
-            ) {
-                state.annotationEntryData[entry.normalizedUrl].map(
-                    (annotationEntry) => {
-                        if (
-                            this.state.annotations[
-                                annotationEntry.sharedAnnotation.id.toString()
-                            ]
-                        ) {
-                            annotationsList.push({
-                                ...this.state.annotations[
-                                    annotationEntry.sharedAnnotation.id.toString()
-                                ],
-                                id: annotationEntry.sharedAnnotation.id,
-                            })
-                        }
-                    },
-                )
-            }
+    //         if (
+    //             state.annotationEntryData &&
+    //             state.annotationEntryData[entry.normalizedUrl] &&
+    //             state.annotationEntryData &&
+    //             state.annotations !== null
+    //         ) {
+    //             state.annotationEntryData[entry.normalizedUrl].map(
+    //                 (annotationEntry) => {
+    //                     if (
+    //                         this.state.annotations[
+    //                             annotationEntry.sharedAnnotation.id.toString()
+    //                         ]
+    //                     ) {
+    //                         annotationsList.push({
+    //                             ...this.state.annotations[
+    //                                 annotationEntry.sharedAnnotation.id.toString()
+    //                             ],
+    //                             id: annotationEntry.sharedAnnotation.id,
+    //                         })
+    //                     }
+    //                 },
+    //             )
+    //         }
 
-            return (
-                <AnnotationsInPage
-                    getRootElement={this.props.getRootElement}
-                    hideThreadBar={true}
-                    currentSpaceId={this.props.listID}
-                    currentNoteId={this.props.noteId}
-                    originalUrl={entry.originalUrl}
-                    contextLocation={'webUI'}
-                    imageSupport={this.props.imageSupport}
-                    variant={'dark-mode'}
-                    pageEntry={entry}
-                    shouldHighlightAnnotation={(annotation) =>
-                        isInRange(
-                            annotation.createdWhen,
-                            this.itemRanges.annotEntry,
-                        ) ||
-                        this.state.activeAnnotationId ===
-                            annotation.reference.id
-                    }
-                    shouldHighlightReply={(_, replyData) =>
-                        isInRange(
-                            replyData.reply.createdWhen,
-                            this.itemRanges.reply,
-                        )
-                    }
-                    getReplyEditProps={(
-                        replyReference,
-                        annotationReference,
-                    ) => ({
-                        isDeleting: this.state.replyDeleteStates[
-                            replyReference.id
-                        ]?.isDeleting,
-                        isEditing: this.state.replyEditStates[replyReference.id]
-                            ?.isEditing,
-                        isHovering: this.state.replyHoverStates[
-                            replyReference.id
-                        ]?.isHovering,
-                        imageSupport: this.props.imageSupport,
-                        isOwner:
-                            this.state.conversations[
-                                annotationReference.id.toString()
-                            ].replies.find(
-                                (reply) =>
-                                    reply.reference.id === replyReference.id,
-                            )?.userReference?.id ===
-                            this.state.currentUserReference?.id,
-                        comment:
-                            this.state.replyEditStates[replyReference.id]
-                                ?.text ?? '',
-                        setAnnotationDeleting: (isDeleting) => (event) =>
-                            this.processEvent('setReplyToAnnotationDeleting', {
-                                isDeleting,
-                                replyReference,
-                            }),
-                        setAnnotationEditing: (isEditing) => {
-                            this.processEvent('setReplyToAnnotationEditing', {
-                                isEditing,
-                                replyReference,
-                            })
-                        },
-                        setAnnotationHovering: (isHovering) => () => {
-                            this.processEvent('setReplyToAnnotationHovering', {
-                                isHovering,
-                                replyReference,
-                            })
-                        },
-                        onCommentChange: (comment) =>
-                            this.processEvent('editReplyToAnnotation', {
-                                replyText: comment,
-                                replyReference,
-                            }),
-                        onDeleteConfim: () =>
-                            this.processEvent(
-                                'confirmDeleteReplyToAnnotation',
-                                {
-                                    replyReference,
-                                    annotationReference,
-                                    sharedListReference: this.state.listData!
-                                        .reference,
-                                },
-                            ),
-                        onEditConfirm: () => () =>
-                            this.processEvent('confirmEditReplyToAnnotation', {
-                                replyReference,
-                                annotationReference,
-                                sharedListReference: this.state.listData!
-                                    .reference,
-                            }),
-                        onEditCancel: () =>
-                            this.processEvent('setReplyToAnnotationEditing', {
-                                isEditing: false,
-                                replyReference,
-                            }),
-                    })}
-                    getAnnotationEditProps={(annotationRef) => ({
-                        isDeleting: this.state.annotationDeleteStates[
-                            annotationRef.id
-                        ]?.isDeleting,
-                        imageSupport: this.props.imageSupport,
-                        isEditing: this.state.annotationEditStates[
-                            annotationRef.id
-                        ]?.isEditing,
-                        isHovering: this.state.annotationHoverStates[
-                            annotationRef.id
-                        ]?.isHovering,
-                        isOwner:
-                            this.state.annotations[annotationRef.id.toString()]
-                                ?.creator.id ===
-                            this.state.currentUserReference?.id,
-                        comment:
-                            this.state.annotationEditStates[annotationRef.id]
-                                ?.comment ?? '',
-                        setAnnotationDeleting: (isDeleting) => (event) =>
-                            this.processEvent('setAnnotationDeleting', {
-                                isDeleting,
-                                annotationId: annotationRef.id,
-                            }),
-                        setAnnotationEditing: (isEditing) => {
-                            this.processEvent('setAnnotationEditing', {
-                                isEditing,
-                                annotationId: annotationRef.id,
-                            })
-                        },
-                        setAnnotationHovering: (isHovering) => (event) => {
-                            this.processEvent('setAnnotationHovering', {
-                                isHovering,
-                                annotationId: annotationRef.id,
-                            })
-                        },
-                        onCommentChange: (comment) =>
-                            this.processEvent('changeAnnotationEditComment', {
-                                comment,
-                                annotationId: annotationRef.id,
-                            }),
-                        onDeleteConfim: () =>
-                            this.processEvent('confirmAnnotationDelete', {
-                                annotationId: annotationRef.id,
-                            }),
-                        onEditConfirm: () => () =>
-                            this.processEvent('confirmAnnotationEdit', {
-                                annotationId: annotationRef.id,
-                            }),
-                        onEditCancel: () =>
-                            this.processEvent('setAnnotationEditing', {
-                                annotationId: annotationRef.id,
-                                isEditing: false,
-                            }),
-                    })}
-                    onAnnotationClick={(annotation) => (event) =>
-                        this.processEvent('clickAnnotationInSidebar', {
-                            annotationId: annotation.id,
-                        })}
-                    loadState={state.annotationLoadStates[entry.normalizedUrl]}
-                    annotations={
-                        annotationsList?.map((annot) => ({
-                            ...annot,
-                            linkId: annot.id.toString(),
-                            reference: {
-                                type: 'shared-annotation-reference',
-                                id: annot.id,
-                            },
-                        })) ?? null
-                    }
-                    annotationConversations={this.state.conversations}
-                    getAnnotationCreator={(annotationReference) => {
-                        const creatorRef = this.state.annotations[
-                            annotationReference.id.toString()
-                        ]?.creator
-                        return creatorRef && this.state.users[creatorRef.id]
-                    }}
-                    getAnnotationCreatorRef={(annotationReference) => {
-                        const creatorRef = this.state.annotations[
-                            annotationReference.id.toString()
-                        ]?.creator
-                        return creatorRef
-                    }}
-                    // profilePopupProps={{
-                    //     storage: this.props.storage,
-                    //     services: this.props.services,
-                    // }}
-                    getYoutubePlayer={() =>
-                        this.props.services.youtube.getPlayerByElementId(
-                            getReaderYoutubePlayerId(entry.normalizedUrl),
-                        )
-                    }
-                    onToggleReplies={(event) => {
-                        this.processEvent('toggleAnnotationReplies', {
-                            ...event,
-                            sharedListReference: this.state.listData!.reference,
-                        })
-                        setTimeout(() => {
-                            const highlight = document.getElementById(
-                                event.annotationReference.id.toString(),
-                            )
+    //         return (
+    //             <AnnotationsInPage
+    //                 getRootElement={this.props.getRootElement}
+    //                 hideThreadBar={true}
+    //                 currentSpaceId={this.props.listID}
+    //                 currentNoteId={this.props.noteId}
+    //                 originalUrl={entry.originalUrl}
+    //                 contextLocation={'webUI'}
+    //                 imageSupport={this.props.imageSupport}
+    //                 variant={'dark-mode'}
+    //                 pageEntry={entry}
+    //                 shouldHighlightAnnotation={(annotation) =>
+    //                     isInRange(
+    //                         annotation.createdWhen,
+    //                         this.itemRanges.annotEntry,
+    //                     ) ||
+    //                     this.state.activeAnnotationId ===
+    //                         annotation.reference.id
+    //                 }
+    //                 shouldHighlightReply={(_, replyData) =>
+    //                     isInRange(
+    //                         replyData.reply.createdWhen,
+    //                         this.itemRanges.reply,
+    //                     )
+    //                 }
+    //                 getReplyEditProps={(
+    //                     replyReference,
+    //                     annotationReference,
+    //                 ) => ({
+    //                     isDeleting: this.state.replyDeleteStates[
+    //                         replyReference.id
+    //                     ]?.isDeleting,
+    //                     isEditing: this.state.replyEditStates[replyReference.id]
+    //                         ?.isEditing,
+    //                     isHovering: this.state.replyHoverStates[
+    //                         replyReference.id
+    //                     ]?.isHovering,
+    //                     imageSupport: this.props.imageSupport,
+    //                     isOwner:
+    //                         this.state.conversations[
+    //                             annotationReference.id.toString()
+    //                         ].replies.find(
+    //                             (reply) =>
+    //                                 reply.reference.id === replyReference.id,
+    //                         )?.userReference?.id ===
+    //                         this.state.currentUserReference?.id,
+    //                     comment:
+    //                         this.state.replyEditStates[replyReference.id]
+    //                             ?.text ?? '',
+    //                     setAnnotationDeleting: (isDeleting) => (event) =>
+    //                         this.processEvent('setReplyToAnnotationDeleting', {
+    //                             isDeleting,
+    //                             replyReference,
+    //                         }),
+    //                     setAnnotationEditing: (isEditing) => {
+    //                         this.processEvent('setReplyToAnnotationEditing', {
+    //                             isEditing,
+    //                             replyReference,
+    //                         })
+    //                     },
+    //                     setAnnotationHovering: (isHovering) => () => {
+    //                         this.processEvent('setReplyToAnnotationHovering', {
+    //                             isHovering,
+    //                             replyReference,
+    //                         })
+    //                     },
+    //                     onCommentChange: (comment) =>
+    //                         this.processEvent('editReplyToAnnotation', {
+    //                             replyText: comment,
+    //                             replyReference,
+    //                         }),
+    //                     onDeleteConfim: () =>
+    //                         this.processEvent(
+    //                             'confirmDeleteReplyToAnnotation',
+    //                             {
+    //                                 replyReference,
+    //                                 annotationReference,
+    //                                 sharedListReference: this.state.listData!
+    //                                     .reference,
+    //                             },
+    //                         ),
+    //                     onEditConfirm: () => () =>
+    //                         this.processEvent('confirmEditReplyToAnnotation', {
+    //                             replyReference,
+    //                             annotationReference,
+    //                             sharedListReference: this.state.listData!
+    //                                 .reference,
+    //                         }),
+    //                     onEditCancel: () =>
+    //                         this.processEvent('setReplyToAnnotationEditing', {
+    //                             isEditing: false,
+    //                             replyReference,
+    //                         }),
+    //                 })}
+    //                 getAnnotationEditProps={(annotationRef) => ({
+    //                     isDeleting: this.state.annotationDeleteStates[
+    //                         annotationRef.id
+    //                     ]?.isDeleting,
+    //                     imageSupport: this.props.imageSupport,
+    //                     isEditing: this.state.annotationEditStates[
+    //                         annotationRef.id
+    //                     ]?.isEditing,
+    //                     isHovering: this.state.annotationHoverStates[
+    //                         annotationRef.id
+    //                     ]?.isHovering,
+    //                     isOwner:
+    //                         this.state.annotations[annotationRef.id.toString()]
+    //                             ?.creator.id ===
+    //                         this.state.currentUserReference?.id,
+    //                     comment:
+    //                         this.state.annotationEditStates[annotationRef.id]
+    //                             ?.comment ?? '',
+    //                     setAnnotationDeleting: (isDeleting) => (event) =>
+    //                         this.processEvent('setAnnotationDeleting', {
+    //                             isDeleting,
+    //                             annotationId: annotationRef.id,
+    //                         }),
+    //                     setAnnotationEditing: (isEditing) => {
+    //                         this.processEvent('setAnnotationEditing', {
+    //                             isEditing,
+    //                             annotationId: annotationRef.id,
+    //                         })
+    //                     },
+    //                     setAnnotationHovering: (isHovering) => (event) => {
+    //                         this.processEvent('setAnnotationHovering', {
+    //                             isHovering,
+    //                             annotationId: annotationRef.id,
+    //                         })
+    //                     },
+    //                     onCommentChange: (comment) =>
+    //                         this.processEvent('changeAnnotationEditComment', {
+    //                             comment,
+    //                             annotationId: annotationRef.id,
+    //                         }),
+    //                     onDeleteConfim: () =>
+    //                         this.processEvent('confirmAnnotationDelete', {
+    //                             annotationId: annotationRef.id,
+    //                         }),
+    //                     onEditConfirm: () => () =>
+    //                         this.processEvent('confirmAnnotationEdit', {
+    //                             annotationId: annotationRef.id,
+    //                         }),
+    //                     onEditCancel: () =>
+    //                         this.processEvent('setAnnotationEditing', {
+    //                             annotationId: annotationRef.id,
+    //                             isEditing: false,
+    //                         }),
+    //                 })}
+    //                 onAnnotationClick={(annotation) => (event) =>
+    //                     this.processEvent('clickAnnotationInSidebar', {
+    //                         annotationId: annotation.id,
+    //                     })}
+    //                 loadState={state.annotationLoadStates[entry.normalizedUrl]}
+    //                 annotations={
+    //                     annotationsList?.map((annot) => ({
+    //                         ...annot,
+    //                         linkId: annot.id.toString(),
+    //                         reference: {
+    //                             type: 'shared-annotation-reference',
+    //                             id: annot.id,
+    //                         },
+    //                     })) ?? null
+    //                 }
+    //                 annotationConversations={this.state.conversations}
+    //                 getAnnotationCreator={(annotationReference) => {
+    //                     const creatorRef = this.state.annotations[
+    //                         annotationReference.id.toString()
+    //                     ]?.creator
+    //                     return creatorRef && this.state.users[creatorRef.id]
+    //                 }}
+    //                 getAnnotationCreatorRef={(annotationReference) => {
+    //                     const creatorRef = this.state.annotations[
+    //                         annotationReference.id.toString()
+    //                     ]?.creator
+    //                     return creatorRef
+    //                 }}
+    //                 // profilePopupProps={{
+    //                 //     storage: this.props.storage,
+    //                 //     services: this.props.services,
+    //                 // }}
+    //                 getYoutubePlayer={() =>
+    //                     this.props.services.youtube.getPlayerByElementId(
+    //                         getReaderYoutubePlayerId(entry.normalizedUrl),
+    //                     )
+    //                 }
+    //                 onToggleReplies={(event) => {
+    //                     this.processEvent('toggleAnnotationReplies', {
+    //                         ...event,
+    //                         sharedListReference: this.state.listData!.reference,
+    //                     })
+    //                     setTimeout(() => {
+    //                         const highlight = document.getElementById(
+    //                             event.annotationReference.id.toString(),
+    //                         )
 
-                            highlight?.scrollIntoView({
-                                behavior: 'smooth',
-                                block: 'start',
-                            })
-                        }, 50)
-                    }}
-                    newPageReplyEventHandlers={{
-                        onNewReplyInitiate: () =>
-                            this.processEvent('initiateNewReplyToPage', {
-                                pageReplyId: entry.normalizedUrl,
-                            }),
-                        onNewReplyCancel: () =>
-                            this.processEvent('cancelNewReplyToPage', {
-                                pageReplyId: entry.normalizedUrl,
-                            }),
-                        onNewReplyConfirm: () =>
-                            this.processEvent('confirmNewReplyToPage', {
-                                normalizedPageUrl: entry.normalizedUrl,
-                                pageCreatorReference: entry.creator,
-                                pageReplyId: entry.normalizedUrl,
-                                sharedListReference: this.state.listData!
-                                    .reference,
-                            }),
-                        onNewReplyEdit: ({ content }) =>
-                            this.processEvent('editNewReplyToPage', {
-                                pageReplyId: entry.normalizedUrl,
-                                content,
-                            }),
-                    }}
-                    newAnnotationReplyEventHandlers={{
-                        onNewReplyInitiate: (annotationReference) => () =>
-                            this.processEvent('initiateNewReplyToAnnotation', {
-                                annotationReference,
-                                sharedListReference: this.state.listData!
-                                    .reference,
-                            }),
-                        onNewReplyCancel: (annotationReference) => () =>
-                            this.processEvent('cancelNewReplyToAnnotation', {
-                                annotationReference,
-                                sharedListReference: this.state.listData!
-                                    .reference,
-                            }),
-                        onNewReplyConfirm: (annotationReference) => () =>
-                            this.processEvent('confirmNewReplyToAnnotation', {
-                                annotationReference,
-                                sharedListReference: this.state.listData!
-                                    .reference,
-                            }),
-                        onNewReplyEdit: (annotationReference) => ({
-                            content,
-                        }) =>
-                            this.processEvent('editNewReplyToAnnotation', {
-                                annotationReference,
-                                content,
-                                sharedListReference: this.state.listData!
-                                    .reference,
-                            }),
-                    }}
-                    // onAnnotationBoxRootRef={this.onAnnotEntryRef}
-                    // onReplyRootRef={this.onReplyRef}
-                />
-            )
-        }
-    }
+    //                         highlight?.scrollIntoView({
+    //                             behavior: 'smooth',
+    //                             block: 'start',
+    //                         })
+    //                     }, 50)
+    //                 }}
+    //                 newPageReplyEventHandlers={{
+    //                     onNewReplyInitiate: () =>
+    //                         this.processEvent('initiateNewReplyToPage', {
+    //                             pageReplyId: entry.normalizedUrl,
+    //                         }),
+    //                     onNewReplyCancel: () =>
+    //                         this.processEvent('cancelNewReplyToPage', {
+    //                             pageReplyId: entry.normalizedUrl,
+    //                         }),
+    //                     onNewReplyConfirm: () =>
+    //                         this.processEvent('confirmNewReplyToPage', {
+    //                             normalizedPageUrl: entry.normalizedUrl,
+    //                             pageCreatorReference: entry.creator,
+    //                             pageReplyId: entry.normalizedUrl,
+    //                             sharedListReference: this.state.listData!
+    //                                 .reference,
+    //                         }),
+    //                     onNewReplyEdit: ({ content }) =>
+    //                         this.processEvent('editNewReplyToPage', {
+    //                             pageReplyId: entry.normalizedUrl,
+    //                             content,
+    //                         }),
+    //                 }}
+    //                 newAnnotationReplyEventHandlers={{
+    //                     onNewReplyInitiate: (annotationReference) => () =>
+    //                         this.processEvent('initiateNewReplyToAnnotation', {
+    //                             annotationReference,
+    //                             sharedListReference: this.state.listData!
+    //                                 .reference,
+    //                         }),
+    //                     onNewReplyCancel: (annotationReference) => () =>
+    //                         this.processEvent('cancelNewReplyToAnnotation', {
+    //                             annotationReference,
+    //                             sharedListReference: this.state.listData!
+    //                                 .reference,
+    //                         }),
+    //                     onNewReplyConfirm: (annotationReference) => () =>
+    //                         this.processEvent('confirmNewReplyToAnnotation', {
+    //                             annotationReference,
+    //                             sharedListReference: this.state.listData!
+    //                                 .reference,
+    //                         }),
+    //                     onNewReplyEdit: (annotationReference) => ({
+    //                         content,
+    //                     }) =>
+    //                         this.processEvent('editNewReplyToAnnotation', {
+    //                             annotationReference,
+    //                             content,
+    //                             sharedListReference: this.state.listData!
+    //                                 .reference,
+    //                         }),
+    //                 }}
+    //                 // onAnnotationBoxRootRef={this.onAnnotEntryRef}
+    //                 // onReplyRootRef={this.onReplyRef}
+    //             />
+    //         )
+    //     }
+    // }
 
     renderYoutubePlayer = () => {
         const { youtube } = this.props.services
@@ -504,45 +504,45 @@ export class ReaderPageView extends UIElement<
         )
     }
 
-    private renderOptionsMenu = () => {
-        if (this.state.showOptionsMenu) {
-            return (
-                <PopoutBox
-                    targetElementRef={
-                        this.optionsMenuButtonRef.current ?? undefined
-                    }
-                    placement="bottom"
-                    closeComponent={() =>
-                        this.processEvent('toggleOptionsMenu', null)
-                    }
-                    offsetX={10}
-                    getPortalRoot={() => this.props.getRootElement()}
-                >
-                    <OptionsMenuBox>
-                        <AuthHeader
-                            services={this.props.services}
-                            getRootElement={this.props.getRootElement}
-                        />
-                        {this.state.listLoadState === 'success' && (
-                            <PrimaryAction
-                                icon={'goTo'}
-                                type="tertiary"
-                                label={'Open Original'}
-                                size="medium"
-                                onClick={() =>
-                                    window.open(
-                                        this.state.listData!.entry.originalUrl,
-                                        '_blank',
-                                    )
-                                }
-                                padding="5px 10px 5px 5px"
-                            />
-                        )}
-                    </OptionsMenuBox>
-                </PopoutBox>
-            )
-        }
-    }
+    // private renderOptionsMenu = () => {
+    //     if (this.state.showOptionsMenu) {
+    //         return (
+    //             <PopoutBox
+    //                 targetElementRef={
+    //                     this.optionsMenuButtonRef.current ?? undefined
+    //                 }
+    //                 placement="bottom"
+    //                 closeComponent={() =>
+    //                     this.processEvent('toggleOptionsMenu', null)
+    //                 }
+    //                 offsetX={10}
+    //                 getPortalRoot={() => this.props.getRootElement()}
+    //             >
+    //                 <OptionsMenuBox>
+    //                     <AuthHeader
+    //                         services={this.props.services}
+    //                         getRootElement={this.props.getRootElement}
+    //                     />
+    //                     {this.state.listLoadState === 'success' && (
+    //                         <PrimaryAction
+    //                             icon={'goTo'}
+    //                             type="tertiary"
+    //                             label={'Open Original'}
+    //                             size="medium"
+    //                             onClick={() =>
+    //                                 window.open(
+    //                                     this.state.listData!.entry.originalUrl,
+    //                                     '_blank',
+    //                                 )
+    //                             }
+    //                             padding="5px 10px 5px 5px"
+    //                         />
+    //                     )}
+    //                 </OptionsMenuBox>
+    //             </PopoutBox>
+    //         )
+    //     }
+    // }
 
     private renderShareTooltip = () => {
         const links = this.pageLinks
@@ -1187,6 +1187,7 @@ const MainContainer = styled.div<{ isYoutubeMobile?: boolean }>`
     overflow: hidden;
     position: relative;
     flex-direction: row;
+    width: 100%;
 
     ${(props) =>
         props.isYoutubeMobile &&

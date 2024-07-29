@@ -61,6 +61,7 @@ import CreationInfo from '../../../../../common-ui/components/creation-info'
 import MemexEditor from '@worldbrain/memex-common/lib/editor'
 import AIChatWebUiWrapper from '../../../../ai-chat-webUI-wrapper'
 import { PromptURL } from '@worldbrain/memex-common/lib/summarization/types'
+import { ReaderPageView } from '../../../../reader/ui'
 
 const commentImage = require('../../../../../assets/img/comment.svg')
 const commentEmptyImage = require('../../../../../assets/img/comment-empty.svg')
@@ -659,7 +660,7 @@ export default class CollectionDetailsPage extends UIElement<
 
     private renderBreadCrumbs() {
         const isPageView = this.props.entryID
-        const title = this.state.listData!.list.title
+        const title = this.state.listData ? this.state.listData!.list.title : ''
 
         if (isPageView) {
             return (
@@ -2126,15 +2127,6 @@ export default class CollectionDetailsPage extends UIElement<
                                                 />
                                             </FooterBox>
                                         </ItemBox>
-                                        {state.pageAnnotationsExpanded[
-                                            entry.normalizedUrl
-                                        ] && (
-                                            <>
-                                                {this.renderPageAnnotations(
-                                                    entry,
-                                                )}
-                                            </>
-                                        )}
                                         {entryIndex > 0 &&
                                             (entryIndex + 1) % data.pageSize ===
                                                 0 && (
@@ -2166,23 +2158,40 @@ export default class CollectionDetailsPage extends UIElement<
         )
     }
 
-    render() {
+    renderReaderView = () => {
+        return (
+            <ReaderViewContainer>
+                <ReaderPageView
+                    services={this.props.services}
+                    storage={this.props.storage}
+                    viewportBreakpoint={this.viewportBreakpoint}
+                    getRootElement={this.props.getRootElement}
+                    entryID={this.props.entryID}
+                    listID={this.props.listID}
+                />
+            </ReaderViewContainer>
+        )
+    }
+
+    renderLeftColumnContent = (data) => {
         const { state } = this
+
+        const isPageView = this.props.entryID
+        // const isPageLink = data.list.type === 'page-link'
+
+        const resultsFilteredByType = this.getContentFilteredByType()
+
+        const currentBaseURL = new URL(window.location.href).origin
+
         if (
             state.listLoadState === 'pristine' ||
             state.listLoadState === 'running' ||
             (state.permissionDenied && state.permissionKeyState === 'running')
         ) {
             return (
-                <DocumentView id="DocumentView">
-                    <DocumentTitle
-                        documentTitle={this.props.services.documentTitle}
-                        subTitle="Loading list..."
-                    />
-                    <LoadingScreen>
-                        <LoadingIndicator />
-                    </LoadingScreen>
-                </DocumentView>
+                <LoadingScreen>
+                    <LoadingIndicator />
+                </LoadingScreen>
             )
         }
 
@@ -2229,7 +2238,6 @@ export default class CollectionDetailsPage extends UIElement<
             )
         }
 
-        const data = state.listData
         if (!data) {
             return (
                 <DefaultPageLayout
@@ -2252,18 +2260,25 @@ export default class CollectionDetailsPage extends UIElement<
                 </DefaultPageLayout>
             )
         }
-        const isPageView = this.props.entryID
-        // const isPageLink = data.list.type === 'page-link'
+        if (this.props.entryID) {
+            return this.renderReaderView()
+        } else {
+            return this.renderResultsList(
+                state,
+                data,
+                resultsFilteredByType,
+                currentBaseURL,
+            )
+        }
+    }
 
-        const resultsFilteredByType = this.getContentFilteredByType()
-
-        const currentBaseURL = new URL(window.location.href).origin
-
+    render() {
+        const data = this.state.listData
         return (
             <DocumentContainer id="DocumentContainer">
                 <DocumentTitle
                     documentTitle={this.props.services.documentTitle}
-                    subTitle={data.list.title}
+                    subTitle={(data && data.list.title) ?? ''}
                 />
                 {/* {this.renderPermissionKeyOverlay()} */}
                 {this.renderModals()}
@@ -2279,14 +2294,9 @@ export default class CollectionDetailsPage extends UIElement<
                     breadCrumbs={this.renderBreadCrumbs()}
                     isPageView={this.props.entryID}
                     renderRightColumnContent={this.renderRightSidebarContent}
-                    renderLeftColumnContent={() =>
-                        this.renderResultsList(
-                            state,
-                            data,
-                            resultsFilteredByType,
-                            currentBaseURL,
-                        )
-                    }
+                    renderLeftColumnContent={() => {
+                        return this.renderLeftColumnContent(data)
+                    }}
                 >
                     {this.state.imageSourceForPreview &&
                     this.state.imageSourceForPreview?.length > 0 ? (
@@ -2300,7 +2310,6 @@ export default class CollectionDetailsPage extends UIElement<
                             getRootElement={this.props.getRootElement}
                         />
                     ) : null}
-                    <PageTopBar></PageTopBar>
                 </DefaultPageLayout>
                 {this.state.isListShareModalShown && (
                     <ListShareModal
@@ -2343,100 +2352,6 @@ function isInRange(timestamp: number, range: TimestampRange | undefined) {
     }
     return range.fromTimestamp <= timestamp && range.toTimestamp >= timestamp
 }
-
-const RightSideButtons = styled.div`
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    grid-gap: 10px;
-`
-
-const BetaButton = styled.div`
-    display: flex;
-    background: linear-gradient(
-        90deg,
-        #d9d9d9 0%,
-        #2e73f8 0.01%,
-        #0a4bca 78.86%,
-        #0041be 100%
-    );
-    border-radius: 50px;
-    height: 24px;
-    width: 50px;
-    align-items: center;
-    justify-content: center;
-`
-
-const BetaButtonInner = styled.div`
-    display: flex;
-    background: ${(props) => props.theme.colors.greyScale1};
-    color: #0a4bca;
-    font-size: 12px;
-    letter-spacing: 1px;
-    height: 20px;
-    width: 46px;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50px;
-`
-
-const ErrorContainer = styled.div`
-    display: flex;
-    padding: 15px;
-    margin: 0 10px;
-    grid-gap: 10px;
-    color: ${(props) => props.theme.colors.greyScale6};
-    font-size: 16px;
-    width: 100%;
-    align-items: flex-start;
-`
-
-const SummaryContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    justify-content: space-between;
-    grid-gap: 10px;
-    align-items: flex-start;
-    border-top: 1px solid ${(props) => props.theme.colors.greyScale3};
-    margin-top: 10px;
-`
-
-const SummaryFooter = styled.div`
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    grid-gap: 10px;
-    padding: 10px 20px 10px 20px;
-`
-
-const PoweredBy = styled.div`
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    grid-gap: 5px;
-    color: ${(props) => props.theme.colors.greyScale4};
-    font-size: 12px;
-    height: 26px;
-`
-
-const SummarySection = styled.div`
-    display: flex;
-    width: 100%;
-    min-height: 60px;
-    justify-content: center;
-    align-items: flex-start;
-    margin-bottom: 10px;
-`
-
-const SummaryText = styled.div`
-    padding: 10px 20px 10px 20px;
-    color: ${(props) => props.theme.colors.greyScale7};
-    font-size: 16px;
-    line-height: 24px;
-    white-space: break-spaces;
-`
 
 const LoadingBox = styled.div`
     display: flex;
@@ -3184,6 +3099,7 @@ const ContentArea = styled.div`
     height: 100%;
     position: relative;
     box-sizing: border-box;
+    padding: 15px;
     padding-top: 80px;
 `
 
@@ -3253,4 +3169,14 @@ const AIChatSidebar = styled.div<{
     right: 0;
     height: 100%;
     width: 100%;
+`
+
+const ReaderViewContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
 `

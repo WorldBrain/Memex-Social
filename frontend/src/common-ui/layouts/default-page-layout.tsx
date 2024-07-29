@@ -233,7 +233,7 @@ const MainContainer = styled.div<{
         `}
 `
 
-const LeftColumn = styled.div`
+const LeftColumn = styled.div<{}>`
     width: 10%;
     flex: 1;
     display: flex;
@@ -242,7 +242,6 @@ const LeftColumn = styled.div`
     height: 100vh;
     overflow: scroll;
     position: relative;
-    padding: 15px;
 
     scrollbar-width: none;
 
@@ -301,8 +300,9 @@ const StyledHeader = styled.div<{
     align-items: center;
     flex-direction: row;
     z-index: 0;
+    height: 50px;
     //box-shadow: #101e7308 0 4px 16px;
-    padding: 10px 30px 10px 30px;
+    padding: 0px 30px 0px 30px;
     grid-gap: 25px;
     z-index: 2;
     width: fill-available;
@@ -316,15 +316,12 @@ const StyledHeader = styled.div<{
         css`
             display: none;
         `}
+
     ${(props) =>
-        props.isIframe &&
-        css`
-            padding: 20px 20px 20px 20px;
-        `}
-       ${(props) =>
         props.isPageView &&
         css`
-            padding: 20px 20px 20px 20px;
+            height: 40px;
+            background: ${(props) => props.theme.colors.black};
         `}
 `
 

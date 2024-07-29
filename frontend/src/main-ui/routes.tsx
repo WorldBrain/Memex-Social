@@ -134,6 +134,7 @@ export default class Routes extends React.Component<Props> {
                                 <CollectionDetailsPage
                                     listID={route.match.params.id}
                                     entryID={route.match.params.entryId}
+                                    noteId={route.match.params.noteId}
                                     services={this.props.services}
                                     storageManager={
                                         this.props.storage.serverStorageManager
