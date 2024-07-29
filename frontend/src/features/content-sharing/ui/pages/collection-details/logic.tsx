@@ -264,6 +264,8 @@ export default class CollectionDetailsLogic extends UILogic<
             activeTab: 'aiChat',
             collectionDetailsEvents: this.events,
             showStartImportButton: false,
+            contentList: undefined,
+            singlePageAnnotationsExpanded: undefined,
             ...extDetectionInitialState(),
             ...editableAnnotationsInitialState(),
             ...annotationConversationInitialState(),

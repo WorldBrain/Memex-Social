@@ -25,7 +25,7 @@ export interface AIChatWebUiWrapperDependencies {
     collectionDetailsEvents:
         | TypedEventEmitter<CollectionDetailsMessageEvents>
         | undefined
-    contentList?: PromptURL[]
+    fetchContentList?: () => PromptURL[]
 }
 
 export interface AIChatWebUiWrapperState {

@@ -118,7 +118,6 @@ export type CollectionDetailsState = AnnotationConversationsState &
         summarizeArticleLoadState: {
             [normalizedPageUrl: string]: UITaskState | undefined
         }
-        collectionDetails: CollectionDetailsData
         articleSummary: { [normalizedPageUrl: string]: string }
         renderEmbedModal?: boolean
         isEmbedShareModalCopyTextShown: string
@@ -179,10 +178,10 @@ export type CollectionDetailsState = AnnotationConversationsState &
         allAnnotationExpanded: boolean
         isListShareModalShown: boolean
         pageAnnotationsExpanded: { [normalizedPageUrl: string]: boolean }
-        singlePageAnnotationsExpanded: string
+        singlePageAnnotationsExpanded?: string
         searchType: SearchType
         showStartImportButton: boolean
-        contentList: PromptURL[]
+        contentList?: PromptURL[]
         activeTab: 'annotations' | 'aiChat'
     }
 

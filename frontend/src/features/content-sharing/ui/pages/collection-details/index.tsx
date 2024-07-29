@@ -1893,7 +1893,9 @@ export default class CollectionDetailsPage extends UIElement<
                         })
                     }}
                     analyticsBG={this.props.services.analytics}
-                    contentList={this.state.contentList}
+                    fetchContentList={() => {
+                        return this.state.contentList
+                    }}
                     collectionDetailsEvents={this.state.collectionDetailsEvents}
                 />
             </AIChatSidebar>
