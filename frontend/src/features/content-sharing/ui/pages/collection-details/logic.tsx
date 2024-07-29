@@ -261,6 +261,7 @@ export default class CollectionDetailsLogic extends UILogic<
             importUrlDisplayMode: 'queued',
             actionBarSearchAndAddMode: null,
             showAIchat: true,
+            activeTab: 'aiChat',
             collectionDetailsEvents: this.events,
             showStartImportButton: false,
             ...extDetectionInitialState(),
@@ -895,6 +896,11 @@ export default class CollectionDetailsLogic extends UILogic<
             })
         }, 3000)
     }
+    setActiveTab: EventHandler<'setActiveTab'> = ({ event }) => {
+        this.emitMutation({
+            activeTab: { $set: event },
+        })
+    }
 
     toggleListShareModal: EventHandler<'toggleListShareModal'> = () => {
         this.emitMutation({
@@ -919,6 +925,18 @@ export default class CollectionDetailsLogic extends UILogic<
             },
         }
         return mutation
+    }
+
+    toggleSinglePageAnnotations: EventHandler<'toggleSinglePageAnnotations'> = async (
+        incoming,
+    ) => {
+        const state = incoming.previousState
+        const url = incoming.event.normalizedUrl
+        this.emitMutation({
+            singlePageAnnotationsExpanded: { $set: url },
+            activeTab: { $set: 'annotations' },
+        })
+        this.loadPageAnnotations(state, [incoming.event.normalizedUrl])
     }
 
     togglePageAnnotations: EventHandler<'togglePageAnnotations'> = async (

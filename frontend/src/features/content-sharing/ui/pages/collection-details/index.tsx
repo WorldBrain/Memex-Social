@@ -325,7 +325,7 @@ export default class CollectionDetailsPage extends UIElement<
             ButtonText: 'Notes',
             imageColor: 'prime1',
             onClick: () =>
-                this.processEvent('togglePageAnnotations', {
+                this.processEvent('toggleSinglePageAnnotations', {
                     normalizedUrl: entry.normalizedUrl,
                 }),
             rightSideItem:
@@ -1870,9 +1870,55 @@ export default class CollectionDetailsPage extends UIElement<
         }
     }
 
+    renderRightSidebarContent = () => {
+        const entry = this.state.listData?.listEntries.find(
+            (item) =>
+                item.normalizedUrl === this.state.singlePageAnnotationsExpanded,
+        )
+        console.log('activeTab', this.state.activeTab)
+        return (
+            <RightSideSidebar>
+                <RightSidebarTopBar>
+                    <PrimaryAction
+                        type={'menuBar'}
+                        label="Notes"
+                        size={'medium'}
+                        fullWidth
+                        onClick={() =>
+                            this.processEvent('setActiveTab', 'annotations')
+                        }
+                    />
+                    <PrimaryAction
+                        type={'menuBar'}
+                        label="AI Chat"
+                        size={'medium'}
+                        fullWidth
+                        onClick={() =>
+                            this.processEvent('setActiveTab', 'aiChat')
+                        }
+                    />
+                    <PrimaryAction
+                        type={'menuBar'}
+                        label="Share Page"
+                        size={'medium'}
+                        fullWidth
+                    />
+                </RightSidebarTopBar>
+                <RightSidebarBottomArea>
+                    {this.renderAIChatSidebar()}
+                    <NotesSidebarSection
+                        visible={this.state.activeTab === 'annotations'}
+                    >
+                        {entry && this.renderPageAnnotations(entry)}
+                    </NotesSidebarSection>
+                </RightSidebarBottomArea>
+            </RightSideSidebar>
+        )
+    }
+
     renderAIChatSidebar = () => {
         return (
-            <AIChatSidebar>
+            <AIChatSidebar visible={this.state.activeTab === 'aiChat'}>
                 <AIChatWebUiWrapper
                     getRootElement={this.props.getRootElement}
                     services={this.props.services}
@@ -2268,7 +2314,7 @@ export default class CollectionDetailsPage extends UIElement<
                     scrollTop={this.state.scrollTop}
                     breadCrumbs={this.renderBreadCrumbs()}
                     isPageView={this.props.entryID}
-                    renderRightColumnContent={this.renderAIChatSidebar}
+                    renderRightColumnContent={this.renderRightSidebarContent}
                     renderLeftColumnContent={() =>
                         this.renderResultsList(
                             state,
@@ -3165,19 +3211,6 @@ const HeaderTitle = styled.div<{
         `}
 `
 
-const AIChatSidebar = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    position: relative;
-    right: 0;
-    height: 100%;
-    padding: 0px;
-    background: ${(props) => props.theme.colors.black0};
-    border-left: 1px solid ${(props) => props.theme.colors.greyScale2};
-`
-
 const ContentArea = styled.div`
     display: flex;
     flex-direction: row;
@@ -3200,4 +3233,60 @@ const FooterBox = styled.div<{ visible: boolean }>`
     background: ${(props) => props.theme.colors.greyScale1}90;
     backdrop-filter: blur(10px);
     border-radius: 0 0 12px 12px;
+`
+
+const RightSideSidebar = styled.div`
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: ${(props) => props.theme.colors.black0};
+
+    border-left: 1px solid ${(props) => props.theme.colors.greyScale3};
+`
+
+const RightSidebarTopBar = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 5px;
+    grid-gap: 5px;
+    background: ${(props) => props.theme.colors.black}40;
+    height: 40px;
+`
+const RightSidebarBottomArea = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    height: 100%;
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+`
+
+const NotesSidebarSection = styled.div<{
+    visible: boolean
+}>`
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: ${(props) => (props.visible ? 1000 : -1)};
+    width: 100%;
+    height: 100%;
+`
+
+const AIChatSidebar = styled.div<{
+    visible: boolean
+}>`
+    z-index: ${(props) => (props.visible ? 1000 : -1)};
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 100%;
 `

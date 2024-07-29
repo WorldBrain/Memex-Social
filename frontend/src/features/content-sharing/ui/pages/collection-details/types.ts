@@ -168,9 +168,11 @@ export type CollectionDetailsState = AnnotationConversationsState &
         allAnnotationExpanded: boolean
         isListShareModalShown: boolean
         pageAnnotationsExpanded: { [normalizedPageUrl: string]: boolean }
+        singlePageAnnotationsExpanded: string
         searchType: SearchType
         showStartImportButton: boolean
         contentList: PromptURL[]
+        activeTab: 'annotations' | 'aiChat'
     }
 
 export interface PageEventArgs {
@@ -188,6 +190,7 @@ export type CollectionDetailsEvent = UIEvent<
             processCollectionSwitch: {}
             toggleDescriptionTruncation: {}
             togglePageAnnotations: { normalizedUrl: string }
+            toggleSinglePageAnnotations: { normalizedUrl: string }
             toggleAllAnnotations: {}
             toggleListShareModal: {}
             loadListData: { isUpdate: boolean; listID: string }
@@ -215,6 +218,7 @@ export type CollectionDetailsEvent = UIEvent<
             loadAIresults: {
                 prompt: string
             }
+            setActiveTab: 'annotations' | 'aiChat'
             setSearchType: SearchType
             copiedLinkButton: null
             summarizeArticle: { entry: any }
