@@ -661,7 +661,6 @@ export default class CollectionDetailsPage extends UIElement<
     renderBreadCrumbs() {
         const isPageView = this.props.entryID
         const title = this.state.listData ? this.state.listData!.list.title : ''
-        return null
         if (isPageView && title) {
             return (
                 <BreadCrumbBox isPageView={isPageView}>
