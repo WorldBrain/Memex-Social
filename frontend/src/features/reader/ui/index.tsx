@@ -156,11 +156,6 @@ export class ReaderPageView extends UIElement<
         entry: SharedListEntry & { creator: UserReference },
     ) {
         const { state } = this
-
-        // const youtubeElementId = getBlockContentYoutubePlayerId(
-        //     entry.normalizedUrl,
-        // )
-
         const loadState = state.annotationLoadStates[entry.normalizedUrl]
 
         if (
@@ -221,11 +216,6 @@ export class ReaderPageView extends UIElement<
                     imageSupport={this.props.imageSupport}
                     variant={'dark-mode'}
                     pageEntry={entry}
-                    // newPageReply={
-                    //     this.isListContributor || state.isListOwner
-                    //         ? state.newPageReplies[entry.normalizedUrl]
-                    //         : undefined
-                    // }
                     shouldHighlightAnnotation={(annotation) =>
                         isInRange(
                             annotation.createdWhen,
@@ -919,10 +909,6 @@ export class ReaderPageView extends UIElement<
 
         return (
             <MainContainer isYoutubeMobile={isYoutubeMobile}>
-                {OverlayModal({
-                    type: this.state.overlayModalState,
-                    closeModal: () => this.processEvent('setModalState', null),
-                })}
                 <LeftSide isYoutubeMobile={isYoutubeMobile}>
                     {this.state.permissionsLoadState === 'success' ? (
                         <MainContentContainer isYoutubeMobile={isYoutubeMobile}>
@@ -937,96 +923,6 @@ export class ReaderPageView extends UIElement<
                         </LoadingBox>
                     )}
                 </LeftSide>
-                {this.state.sourceUrl != null && (
-                    <ContainerStyled
-                        width={this.state.sidebarWidth}
-                        id={'annotationSidebarContainer'}
-                        viewportBreakpoint={this.viewportBreakpoint}
-                        shouldShowSidebar={
-                            this.state.showSidebar ||
-                            (isYoutubeMobile && screenSmall)
-                        }
-                        isYoutubeMobile={isYoutubeMobile}
-                    >
-                        <Sidebar
-                            ref={(ref: Rnd) =>
-                                this.processEvent('setSidebarRef', {
-                                    ref: ref?.getSelfElement() ?? null,
-                                })
-                            }
-                            style={style}
-                            default={{
-                                x: 0,
-                                y: 0,
-                                // width:
-                                //     screenSmall || isYoutubeMobile
-                                //         ? 'fill-available'
-                                //         : '400px',
-                                height: '100px',
-                            }}
-                            width={this.state.sidebarWidth}
-                            minWidth={400}
-                            resizeHandleWrapperClass={'sidebarResizeHandle'}
-                            className="sidebar-draggable"
-                            resizeGrid={[1, 0]}
-                            dragAxis={'none'}
-                            // minWidth={
-                            //     screenSmall || isYoutubeMobile
-                            //         ? 'fill-available'
-                            //         : '400px'
-                            // }
-                            // maxWidth={
-                            //     screenSmall || isYoutubeMobile
-                            //         ? 'fill-available'
-                            //         : '600px'
-                            // }
-                            disableDragging={true}
-                            enableResizing={{
-                                top: false,
-                                right: false,
-                                bottom: false,
-                                left: true,
-                                topRight: false,
-                                bottomRight: false,
-                                bottomLeft: false,
-                                topLeft: false,
-                            }}
-                            onResizeStart={() =>
-                                this.processEvent('toggleClickBlocker', null)
-                            }
-                            onResize={(
-                                e: any,
-                                direction: any,
-                                ref: any,
-                                delta: any,
-                                position: any,
-                            ) => {
-                                this.processEvent('setSidebarWidth', {
-                                    width: ref.style.width,
-                                })
-                            }}
-                            onResizeStop={(
-                                e: any,
-                                direction: any,
-                                ref: any,
-                                delta: any,
-                                position: any,
-                            ) => {
-                                this.processEvent('toggleClickBlocker', null)
-                            }}
-                        >
-                            <SidebarAnnotationContainer>
-                                {this.state.listData && (
-                                    <AnnotationsidebarContainer>
-                                        {this.renderPageAnnotations(
-                                            this.state.listData.entry,
-                                        )}
-                                    </AnnotationsidebarContainer>
-                                )}
-                            </SidebarAnnotationContainer>
-                        </Sidebar>
-                    </ContainerStyled>
-                )}
             </MainContainer>
         )
     }

@@ -221,46 +221,6 @@ export default class CollectionDetailsPage extends UIElement<
         }
     }
 
-    private renderWebMonetizationIcon() {
-        const creatorReference = this.state.listData?.creatorReference
-
-        if (!creatorReference) {
-            return
-        }
-
-        if (this.state.isListOwner) {
-            return (
-                <PrimaryAction
-                    type={'tertiary'}
-                    icon={'addPeople'}
-                    iconColor={'prime1'}
-                    size={
-                        this.viewportBreakpoint === 'mobile'
-                            ? 'small'
-                            : 'medium'
-                    }
-                    onClick={() =>
-                        this.processEvent('toggleListShareModal', {})
-                    }
-                    label={'Invite Contributors'}
-                />
-            )
-        }
-
-        if (this.isListContributor) {
-            return
-        }
-
-        return (
-            <WebMonetizationIcon
-                services={this.props.services}
-                curatorUserRef={creatorReference}
-                isFollowedSpace={this.state.isCollectionFollowed}
-                getRootElement={this.props.getRootElement}
-            />
-        )
-    }
-
     getPageEntryActions(
         entry: CollectionDetailsListEntry,
         entryIndex: number,
@@ -457,10 +417,17 @@ export default class CollectionDetailsPage extends UIElement<
 
         return (
             <AnnotationsInPage
+                getRootElement={this.props.getRootElement}
+                hideThreadBar={true}
                 originalUrl={entry.originalUrl}
-                contextLocation={'webUI'}
+                currentSpaceId={this.state.listData?.reference.id.toString()}
+                currentNoteId={this.props.noteId}
                 imageSupport={this.props.imageSupport}
                 variant={'dark-mode'}
+                pageEntry={entry}
+                onAnnotationBoxRootRef={this.onAnnotEntryRef}
+                onReplyRootRef={this.onReplyRef}
+                contextLocation={'webUI'}
                 getYoutubePlayer={() =>
                     this.props.services.youtube.getPlayerByElementId(
                         youtubeElementId,
@@ -673,9 +640,6 @@ export default class CollectionDetailsPage extends UIElement<
                             sharedListReference: this.sharedListReference,
                         }),
                 }}
-                onAnnotationBoxRootRef={this.onAnnotEntryRef}
-                onReplyRootRef={this.onReplyRef}
-                getRootElement={this.props.getRootElement}
             />
         )
     }
