@@ -24,6 +24,7 @@ import type {
     EditableAnnotationsState,
 } from '../../annotations/ui/types'
 import type { ImageSupportInterface } from '@worldbrain/memex-common/lib/image-support/types'
+import { CollectionDetailsData } from '@worldbrain/memex-common/lib/content-sharing/backend/types'
 
 export interface ReaderPageViewDependencies {
     services: UIElementServices<
@@ -47,11 +48,12 @@ export interface ReaderPageViewDependencies {
     entryID: string
     noteId?: string
     normalizeUrl: URLNormalizer
+    pdfBlob?: Blob
     generateServerId: GenerateServerID
     query: ContentSharingQueryParams
     imageSupport: ImageSupportInterface
-    pdfBlob?: Blob
     getRootElement: () => HTMLElement
+    toggleSinglePageAnnotations: (normalizedUrl: string) => void
 }
 
 export type ReaderPageViewState = AnnotationConversationsState &

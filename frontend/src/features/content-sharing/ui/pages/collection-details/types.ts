@@ -23,11 +23,17 @@ import type {
     ExtDetectionEvent,
 } from '../../../../ext-detection/ui/logic'
 import { SharedListRole } from '@worldbrain/memex-common/lib/web-interface/types/storex-generated/content-sharing'
-import { ProcessSharedListKeyResult } from '@worldbrain/memex-common/lib/content-sharing/service/types'
+import {
+    GenerateServerID,
+    ProcessSharedListKeyResult,
+} from '@worldbrain/memex-common/lib/content-sharing/service/types'
 import { SearchType } from '@worldbrain/memex-common/lib/common-ui/components/types'
 import { ContentSharingQueryParams } from '../../../types'
 import type { SlackList } from '@worldbrain/memex-common/lib/slack/types'
-import type { CollectionDetailsDeniedData } from '@worldbrain/memex-common/lib/content-sharing/backend/types'
+import type {
+    CollectionDetailsData,
+    CollectionDetailsDeniedData,
+} from '@worldbrain/memex-common/lib/content-sharing/backend/types'
 import type {
     EditableAnnotationsEvent,
     EditableAnnotationsState,
@@ -36,6 +42,7 @@ import type StorageManager from '@worldbrain/storex'
 import { ImageSupportInterface } from '@worldbrain/memex-common/lib/image-support/types'
 import TypedEventEmitter from 'typed-emitter'
 import { PromptURL } from '@worldbrain/memex-common/lib/summarization/types'
+import { URLNormalizer } from '@worldbrain/memex-common/lib/url-utils/normalize/types'
 
 export interface CollectionDetailsMessageEvents {
     addSpaceLinksAndNotesToEditor(event: {
@@ -90,6 +97,9 @@ export interface CollectionDetailsDependencies {
     storageManager: StorageManager
     imageSupport: ImageSupportInterface
     getRootElement: () => HTMLElement
+    normalizeUrl: URLNormalizer
+    pdfBlob?: Blob
+    generateServerId: GenerateServerID
 }
 
 export type CollectionDetailsState = AnnotationConversationsState &
@@ -108,6 +118,7 @@ export type CollectionDetailsState = AnnotationConversationsState &
         summarizeArticleLoadState: {
             [normalizedPageUrl: string]: UITaskState | undefined
         }
+        collectionDetails: CollectionDetailsData
         articleSummary: { [normalizedPageUrl: string]: string }
         renderEmbedModal?: boolean
         isEmbedShareModalCopyTextShown: string

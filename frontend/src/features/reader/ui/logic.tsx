@@ -606,16 +606,6 @@ export class ReaderPageViewLogic extends UILogic<
                     ),
                 })
 
-                // const intervalId = setInterval(() => {
-                //     if (this.iframeLoaded && !isYoutube) {
-                //         clearInterval(intervalId)
-                //         this.loadPageAnnotations(
-                //             { [listEntry.normalizedUrl]: entries },
-                //             [listEntry.normalizedUrl],
-                //             nextState,
-                //         )
-                //     }
-                // }, 100)
                 await this.renderHighlightsInState(nextState)
 
                 const annotationReferences = flatten(

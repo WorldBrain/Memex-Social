@@ -341,31 +341,7 @@ export default class CollectionDetailsLogic extends UILogic<
             let discordList: DiscordList | null = null
             let slackList: SlackList | null = null
             let isChatIntegrationSyncing = false
-            // if (retrievedList.sharedList.platform === 'discord') {
-            //     discordList = await this.dependencies.storage.discord.findDiscordListForSharedList(
-            //         retrievedList.sharedList.reference,
-            //     )
-            //     if (!discordList) {
-            //         return {
-            //             mutation: { listData: { $set: undefined } },
-            //         }
-            //     }
-            //     isChatIntegrationSyncing = !!(await this.dependencies.storage.discordRetroSync.getSyncEntryByChannel(
-            //         { channelId: discordList.channelId },
-            //     ))
-            // } else if (retrievedList.sharedList.platform === 'slack') {
-            //     slackList = await this.dependencies.storage.slack.findSlackListForSharedList(
-            //         retrievedList.sharedList.reference,
-            //     )
-            //     if (!slackList) {
-            //         return {
-            //             mutation: { listData: { $set: undefined } },
-            //         }
-            //     }
-            //     isChatIntegrationSyncing = !!(await this.dependencies.storage.slackRetroSync.getSyncEntryByChannel(
-            //         { channelId: slackList.channelId },
-            //     ))
-            // }
+
             this.mainListEntries.push(...retrievedList.entries)
 
             await this.dependencies.services.auth.waitForAuthReady()

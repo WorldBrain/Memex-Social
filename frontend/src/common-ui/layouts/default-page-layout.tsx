@@ -5,13 +5,9 @@ import { UIElementServices } from '../../services/types'
 import AuthHeader from '../../features/user-management/ui/containers/auth-header'
 import { StorageModules } from '../../storage/types'
 import { Margin } from 'styled-components-spacing'
-import { PrimaryAction } from '@worldbrain/memex-common/lib/common-ui/components/PrimaryAction'
 import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
-import { PopoutBox } from '@worldbrain/memex-common/lib/common-ui/components/popout-box'
-import LoadingIndicator from '@worldbrain/memex-common/lib/common-ui/components/loading-indicator'
-// import RouteLink from '../components/route-link'
+
 import UnseenActivityIndicator from '../../features/activity-streams/ui/containers/unseen-activity-indicator'
-import RouteLink from '../components/route-link'
 import { Rnd } from 'react-rnd'
 import { TooltipBox } from '@worldbrain/memex-common/lib/common-ui/components/tooltip-box'
 // import ListsSidebar, {
@@ -43,7 +39,7 @@ export default function DefaultPageLayout(props: {
     viewportBreakpoint: ViewportBreakpoint
     children: React.ReactNode
     scrollTop?: number
-    breadCrumbs?: JSX.Element
+    renderBreadCrumbs?: () => JSX.Element
     isPageView?: string | undefined
     context?: string
     getRootElement: () => HTMLElement
@@ -106,21 +102,6 @@ export default function DefaultPageLayout(props: {
         )
     }
 
-    // const renderListsSidebar = () => {
-    //     if (props.listsSidebarProps == null) {
-    //         return null
-    //     }
-
-    //     return (
-    //         <ListsSidebar
-    //             {...props.listsSidebarProps}
-    //             storage={props.storage}
-    //             services={props.services}
-    //             viewportBreakpoint={props.viewportBreakpoint}
-    //         />
-    //     )
-    // }
-
     const isIframe = () => {
         try {
             return window.self !== window.top
@@ -156,6 +137,8 @@ export default function DefaultPageLayout(props: {
                                     }
                                     viewportWidth={viewportWidth}
                                 />
+                                {props.renderBreadCrumbs &&
+                                    props.renderBreadCrumbs()}
                             </LogoAndFeed>
                             <HeaderAuthArea
                                 isIframe={isIframe() === true}
@@ -171,8 +154,6 @@ export default function DefaultPageLayout(props: {
                     )}
                 </StyledHeader>
                 {props.renderLeftColumnContent()}
-                {/* {renderListsSidebar()} */}
-                {/* {props.children} */}
             </LeftColumn>
             <RightColumn
                 style={{
@@ -320,7 +301,6 @@ const StyledHeader = styled.div<{
     ${(props) =>
         props.isPageView &&
         css`
-            height: 40px;
             background: ${(props) => props.theme.colors.black};
         `}
 `

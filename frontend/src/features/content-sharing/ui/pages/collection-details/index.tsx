@@ -658,11 +658,11 @@ export default class CollectionDetailsPage extends UIElement<
         return annotation ?? null
     }
 
-    private renderBreadCrumbs() {
+    renderBreadCrumbs() {
         const isPageView = this.props.entryID
         const title = this.state.listData ? this.state.listData!.list.title : ''
-
-        if (isPageView) {
+        return null
+        if (isPageView && title) {
             return (
                 <BreadCrumbBox isPageView={isPageView}>
                     <RouteLink
@@ -672,12 +672,13 @@ export default class CollectionDetailsPage extends UIElement<
                             id: this.props.listID,
                         }}
                     >
-                        <Icon
-                            filePath="arrowLeft"
-                            heightAndWidth="20px"
-                            hoverOff
+                        <PrimaryAction
+                            label={title}
+                            icon={'arrowLeft'}
+                            type={'tertiary'}
+                            size={'small'}
+                            onClick={() => {}}
                         />
-                        {title}
                     </RouteLink>
                 </BreadCrumbBox>
             )
@@ -696,8 +697,7 @@ export default class CollectionDetailsPage extends UIElement<
                         !this.isIframe()
                             ? (e) => {
                                   this.processEvent('clickPageResult', {
-                                      urlToOpen:
-                                          listData?.listEntries[0].originalUrl,
+                                      urlToOpen: undefined,
                                       preventOpening: () => e.preventDefault(),
                                       isFollowedSpace:
                                           this.state.isCollectionFollowed ||
@@ -2168,6 +2168,14 @@ export default class CollectionDetailsPage extends UIElement<
                     getRootElement={this.props.getRootElement}
                     entryID={this.props.entryID}
                     listID={this.props.listID}
+                    toggleSinglePageAnnotations={(normalizedUrl: string) =>
+                        this.processEvent('toggleSinglePageAnnotations', {
+                            normalizedUrl,
+                        })
+                    }
+                    normalizeUrl={this.props.normalizeUrl}
+                    pdfBlob={this.props.pdfBlob}
+                    generateServerId={this.props.generateServerId}
                 />
             </ReaderViewContainer>
         )
@@ -2291,7 +2299,7 @@ export default class CollectionDetailsPage extends UIElement<
                     // isSidebarShown={this.listsSidebarProps.isShown}
                     // permissionKeyOverlay={this.renderPermissionKeyOverlay()}
                     scrollTop={this.state.scrollTop}
-                    breadCrumbs={this.renderBreadCrumbs()}
+                    renderBreadCrumbs={() => this.renderBreadCrumbs()}
                     isPageView={this.props.entryID}
                     renderRightColumnContent={this.renderRightSidebarContent}
                     renderLeftColumnContent={() => {
@@ -2621,8 +2629,7 @@ const BreadCrumbBox = styled.div<{
     display: flex;
     align-items: center;
     grid-gap: 10px;
-    margin-left: -8px;
-    margin-top: 15px;
+    margin-left: 10px;
     color: ${(props) => props.theme.colors.white};
     white-space: nowrap;
     text-overflow: ellipsis;

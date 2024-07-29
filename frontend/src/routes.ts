@@ -39,12 +39,10 @@ const ROUTES: RouteMap = {
             { literal: 'c' },
             { placeholder: 'id' },
             {
-                optional: [
-                    { literal: 'p' },
-                    { placeholder: 'entryId' },
-                    { literal: 'a' },
-                    { placeholder: 'noteId' },
-                ],
+                optional: [{ literal: 'p' }, { placeholder: 'entryId' }],
+            },
+            {
+                optional: [{ literal: 'a' }, { placeholder: 'noteId' }],
             },
         ],
     },

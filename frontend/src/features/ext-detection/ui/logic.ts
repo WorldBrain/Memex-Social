@@ -105,11 +105,16 @@ export const extDetectionEventHandlers = (
             }
 
             if (!doesMemexExtDetectionElExist()) {
-                if (event.openInWeb) {
-                    dependencies.services.router.goTo('pageView', {
+                if (event.listEntryID) {
+                    dependencies.services.router.goTo('collectionDetails', {
                         id: event.listID,
                         entryId: event.listEntryID,
                     })
+                    return
+                }
+
+                if (event.openInWeb) {
+                    window.open(event.urlToOpen, '_blank')
                     return
                 }
                 const currentBaseURL = new URL(window.location.href).origin
