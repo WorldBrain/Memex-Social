@@ -17,7 +17,6 @@
     },
     "dependencies": {
         "@popperjs/core": "^2.11.6",
-        "@slack/bolt": "^3.12.2",
         "@tiptap-pro/extension-mathematics": "^2.7.7",
         "@tiptap/extension-code-block": "^2.2.4",
         "@tiptap/extension-heading": "^2.2.4",
@@ -40,7 +39,6 @@
         "cheerio": "^1.0.0-rc.12",
         "chrono-node": "^2.5.0",
         "detect-browser": "^5.3.0",
-        "discord.js": "^14.7.1",
         "dompurify": "^2.1.0",
         "html-react-parser": "^3.0.4",
         "html2canvas": "^1.4.1",
