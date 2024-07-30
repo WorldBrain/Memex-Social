@@ -97,6 +97,11 @@ export default class MemoryAuthService extends AuthServiceBase {
         return this._user?.user ?? null
     }
 
+    // Implement the missing method
+    getCurrentUserData(): firebase.default.User | null {
+        return (this._user?.user as firebase.default.User) ?? null
+    }
+
     getCurrentUserReference(): UserReference | null {
         return this._user ? { type: 'user-reference', id: this._user.id } : null
     }
