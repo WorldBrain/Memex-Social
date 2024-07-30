@@ -133,7 +133,11 @@ export default class AuthHeader extends UIElement<
 
         if (!this.state.user) {
             return (
-                <TooltipBox placement="bottom" tooltipText="Login or SignUp">
+                <TooltipBox
+                    getPortalRoot={this.props.getRootElement}
+                    placement="bottom"
+                    tooltipText="Login or SignUp"
+                >
                     <Icon
                         onClick={() => this.processEvent('login', null)}
                         icon={'login'}
@@ -148,20 +152,20 @@ export default class AuthHeader extends UIElement<
                 <TooltipBox
                     placement="bottom"
                     tooltipText={'Settings / Account'}
+                    getPortalRoot={this.props.getRootElement}
                 >
-                    <Icon
-                        label={this.state.user.displayName}
-                        onClick={() => this.processEvent('toggleMenu', null)}
-                        icon={
-                            this.state.loadState !== 'success' ? (
-                                <LoadingIndicator size={16} />
-                            ) : (
-                                'personFine'
-                            )
-                        }
-                        containerRef={this.UserInfoButtonRef}
-                        heightAndWidth="24px"
-                    />
+                    {this.state.loadState !== 'success' ? (
+                        <LoadingIndicator size={16} />
+                    ) : (
+                        <Icon
+                            onClick={() =>
+                                this.processEvent('toggleMenu', null)
+                            }
+                            icon="personFine"
+                            containerRef={this.UserInfoButtonRef}
+                            heightAndWidth="24px"
+                        />
+                    )}
                 </TooltipBox>
                 {this.renderAuthMenu()}
                 {this.state.showAccountSettings && (

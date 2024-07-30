@@ -119,7 +119,9 @@ const LocatorDropContainerInner = styled.div<{ isBeingDraggedOver?: boolean }>`
     padding: 20px;
 `
 
-const DropImage = styled.img`
+const DropImage = styled.img<{
+    src: string
+}>`
     display: flex;
     background-size: 25px;
     background-position: center center;

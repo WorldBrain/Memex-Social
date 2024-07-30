@@ -12,6 +12,7 @@ import { TestLogicContainer } from '../../../../../tests/ui-logic'
 import CollectionDetailsLogic from './logic'
 import CallModifier from '../../../../../utils/call-modifier'
 import { CollectionDetailsEvent, CollectionDetailsState } from './types'
+import { normalizeUrl } from '@worldbrain/memex-common/lib/url-utils/normalize'
 
 class TestDataFactory {
     createdWhen = 0
@@ -109,6 +110,9 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
                 imageSupport: null as any,
                 getRootElement: () =>
                     document.getElementById('body') as HTMLElement,
+                openImageInPreview: async () => {},
+                normalizeUrl: normalizeUrl,
+                generateServerId: null,
             })
             const container = new TestLogicContainer<
                 CollectionDetailsState,
@@ -235,6 +239,9 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
                 imageSupport: null as any,
                 getRootElement: () =>
                     document.getElementById('body') as HTMLElement,
+                openImageInPreview: async () => {},
+                normalizeUrl: normalizeUrl,
+                generateServerId: null,
             })
             const container = new TestLogicContainer<
                 CollectionDetailsState,
@@ -318,6 +325,9 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
                 imageSupport: null as any,
                 getRootElement: () =>
                     document.getElementById('body') as HTMLElement,
+                openImageInPreview: async () => {},
+                normalizeUrl: normalizeUrl,
+                generateServerId: null,
             })
             const container = new TestLogicContainer<
                 CollectionDetailsState,
@@ -430,6 +440,9 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
                 imageSupport: null as any,
                 getRootElement: () =>
                     document.getElementById('body') as HTMLElement,
+                openImageInPreview: async () => {},
+                normalizeUrl: normalizeUrl,
+                generateServerId: null,
             })
 
             const container = new TestLogicContainer<

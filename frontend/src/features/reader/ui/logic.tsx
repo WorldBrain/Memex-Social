@@ -382,9 +382,10 @@ export class ReaderPageViewLogic extends UILogic<
 
                 const listEntry = data.retrievedList.entries[0]
 
-                this.dependencies.toggleSinglePageAnnotations(
-                    listEntry.normalizedUrl,
-                )
+                this.dependencies.toggleSinglePageAnnotations &&
+                    this.dependencies.toggleSinglePageAnnotations(
+                        listEntry.normalizedUrl,
+                    )
                 // Ensure any hash fragment is removed. Got to here as some PDFs had hash fragments which broke our .endsWith('.pdf') checks
                 //  TODO: make more robust
                 const entrySourceUrl = new URL(listEntry.sourceUrl)
@@ -1031,6 +1032,9 @@ export class ReaderPageViewLogic extends UILogic<
                                 ?.shadowRoot?.getElementById(
                                     TOOLTIP_HOST_ID,
                                 ) as HTMLElement
+                        }
+                        openImageInPreview={
+                            this.dependencies.openImageInPreview
                         }
                         hideAddToSpaceBtn
                         getWindow={() => iframe.contentWindow!}

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { RefObject } from 'react'
 import styled, { css } from 'styled-components'
 import { UIElement } from '../../../main-ui/classes'
 import {
@@ -65,11 +65,11 @@ export class ReaderPageView extends UIElement<
 
     private editor: MemexEditorInstance | null = null
 
-    itemRanges: {
-        [Key in 'listEntry' | 'annotEntry' | 'reply']:
-            | TimestampRange
-            | undefined
-    }
+    // itemRanges: {
+    //     [Key in 'listEntry' | 'annotEntry' | 'reply']:
+    //         | TimestampRange
+    //         | undefined
+    // }
 
     get viewportBreakpoint(): ViewportBreakpoint {
         return getViewportBreakpoint(this.getViewportWidth())
@@ -132,20 +132,19 @@ export class ReaderPageView extends UIElement<
     private optionsMenuButtonRef = React.createRef<HTMLDivElement>()
 
     private get pageLinks(): { reader: string; collab: string | null } | null {
-        const pageLinkIds = {
-            remoteListEntryId: this.props.entryID,
-            remoteListId: this.props.listID,
-        }
-
         if (this.state.permissionsLoadState !== 'success') {
             return null // Still loading
         }
 
         return {
-            reader: getSinglePageShareUrl(pageLinkIds),
+            reader: getSinglePageShareUrl({
+                remoteListEntryId: this.props.entryID as AutoPk,
+                remoteListId: this.props.listID as AutoPk,
+            }),
             collab: this.state.collaborationKey
                 ? getSinglePageShareUrl({
-                      ...pageLinkIds,
+                      remoteListEntryId: this.props.entryID as AutoPk,
+                      remoteListId: this.props.listID as AutoPk,
                       collaborationKey: this.state.collaborationKey,
                   })
                 : null,
@@ -490,7 +489,7 @@ export class ReaderPageView extends UIElement<
             <div>
                 <YoutubeIframe
                     id={playerId}
-                    ref={(ref) => {
+                    ref={(ref: HTMLDivElement | null) => {
                         if (ref) {
                             youtube.createYoutubePlayer(playerId, {
                                 width: 'fill-available', // yes, these are meant to be strings

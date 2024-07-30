@@ -469,6 +469,9 @@ export default class CollectionDetailsLogic extends UILogic<
                 listId: this.dependencies.listID,
             },
         )
+        if (response.status !== 'success') {
+            return
+        }
         const { data } = response
         const entries = data.retrievedList.entries
         const normalizedPageUrls = entries.map((entry) => entry.normalizedUrl)
@@ -496,8 +499,8 @@ export default class CollectionDetailsLogic extends UILogic<
         // Construct the SpaceContent object
         const contentList: PromptURL[] = entries.map((item, index: number) => {
             const url = item.originalUrl
-            const title = item.pageData?.title ?? null
-            const originalText = null
+            const title = item.entryTitle ?? undefined
+            const originalText = undefined
             const notes =
                 Object.values(annotationsData)?.map((annotation) => {
                     const highlightText =

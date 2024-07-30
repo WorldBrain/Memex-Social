@@ -180,6 +180,9 @@ export default class AnnotationDetailsPage extends UIElement<
                                             imageSupport={
                                                 this.props.imageSupport
                                             }
+                                            openImageInPreview={
+                                                this.props.openImageInPreview
+                                            }
                                         />
                                     </HighlightContainer>
                                 </HighlightBox>
@@ -196,6 +199,9 @@ export default class AnnotationDetailsPage extends UIElement<
                                             this.props.getRootElement
                                         }
                                         imageSupport={this.props.imageSupport}
+                                        openImageInPreview={
+                                            this.props.openImageInPreview
+                                        }
                                     />
                                     {/* <Markdown
                                     // contextLocation={props.contextLocation}

@@ -22,7 +22,7 @@ export default class AIChatWebUiWrapper extends UIElement<
         super.componentDidMount()
     }
 
-    componentDidUpdate(prevProps) {}
+    componentDidUpdate() {}
 
     async componentWillUnmount(): Promise<void> {
         super.componentWillUnmount()

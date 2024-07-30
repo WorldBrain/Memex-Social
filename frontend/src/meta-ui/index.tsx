@@ -202,7 +202,9 @@ function MetaUI({ options }: { options: MetaUIOptions }) {
                                             {isShown && (
                                                 <ProgramContainer
                                                     size={screenSize}
-                                                    ref={(element) => {
+                                                    ref={(
+                                                        element: HTMLDivElement | null,
+                                                    ) => {
                                                         if (!element) {
                                                             return
                                                         }

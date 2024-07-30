@@ -60,6 +60,7 @@ export interface CollectionDetailsMessageEvents {
 export interface CollectionDetailsDependencies {
     listID: string
     entryID?: string
+    noteId?: string
     services: UIElementServices<
         | 'auth'
         | 'overlay'
@@ -100,6 +101,7 @@ export interface CollectionDetailsDependencies {
     normalizeUrl: URLNormalizer
     pdfBlob?: Blob
     generateServerId: GenerateServerID
+    openImageInPreview?: (imageSource: string) => Promise<void>
 }
 
 export type CollectionDetailsState = AnnotationConversationsState &

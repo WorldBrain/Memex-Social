@@ -39,12 +39,14 @@ export default function DefaultPageLayout(props: {
     viewportBreakpoint: ViewportBreakpoint
     children: React.ReactNode
     scrollTop?: number
+    headerTitle?: string | JSX.Element
+    headerSubtitle?: string | JSX.Element
     renderBreadCrumbs?: () => JSX.Element
     isPageView?: string | undefined
     context?: string
     getRootElement: () => HTMLElement
-    renderRightColumnContent: () => JSX.Element
-    renderLeftColumnContent: () => JSX.Element
+    renderRightColumnContent?: () => JSX.Element
+    renderLeftColumnContent?: () => JSX.Element
 }) {
     const { viewportBreakpoint: viewportWidth } = props
     const [showChatBox, setShowChatBox] = React.useState(false)
@@ -77,7 +79,11 @@ export default function DefaultPageLayout(props: {
 
         return (
             <FeedArea right="large">
-                <TooltipBox tooltipText="Notifications" placement="bottom">
+                <TooltipBox
+                    getPortalRoot={props.getRootElement}
+                    tooltipText="Notifications"
+                    placement="bottom"
+                >
                     <Icon
                         icon="feed"
                         heightAndWidth="20px"
@@ -153,34 +159,37 @@ export default function DefaultPageLayout(props: {
                         </>
                     )}
                 </StyledHeader>
-                {props.renderLeftColumnContent()}
+                {props.renderLeftColumnContent &&
+                    props.renderLeftColumnContent()}
             </LeftColumn>
-            <RightColumn
-                style={{
-                    right: 0,
-                    position: 'relative',
-                }}
-                default={{
-                    right: 0,
-                    width: 500,
-                    height: '100vh',
-                    position: 'relative',
-                }}
-                enableResizing={{
-                    top: false,
-                    right: false,
-                    bottom: false,
-                    left: true,
-                    topRight: false,
-                    bottomRight: false,
-                    bottomLeft: false,
-                    topLeft: false,
-                }}
-                disableDragging={true}
-                bounds="parent"
-            >
-                {props.renderRightColumnContent()}
-            </RightColumn>
+            {props.renderRightColumnContent && (
+                <RightColumn
+                    style={{
+                        right: 0,
+                        position: 'relative',
+                    }}
+                    default={{
+                        right: 0,
+                        width: 500,
+                        height: '100vh',
+                        position: 'relative',
+                    }}
+                    enableResizing={{
+                        top: false,
+                        right: false,
+                        bottom: false,
+                        left: true,
+                        topRight: false,
+                        bottomRight: false,
+                        bottomLeft: false,
+                        topLeft: false,
+                    }}
+                    disableDragging={true}
+                    bounds="parent"
+                >
+                    {props.renderRightColumnContent()}
+                </RightColumn>
+            )}
         </MainContainer>
     )
 }

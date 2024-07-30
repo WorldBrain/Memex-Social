@@ -59,7 +59,7 @@ export default class AIChatWebUiWrapperLogic extends UILogic<
 
         // Cancel any existing request for this messageId
         if (this.ongoingRequests?.has(chatId)) {
-            this.ongoingRequests.get(chatId).cancel()
+            this.ongoingRequests.get(chatId)?.cancel()
         }
 
         // Create a new controller for the current request

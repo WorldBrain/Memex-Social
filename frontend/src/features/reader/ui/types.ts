@@ -45,7 +45,7 @@ export interface ReaderPageViewDependencies {
     >
     storageManager: StorageManager
     listID: string
-    entryID: string
+    entryID?: string
     noteId?: string
     normalizeUrl: URLNormalizer
     pdfBlob?: Blob
@@ -53,7 +53,8 @@ export interface ReaderPageViewDependencies {
     query: ContentSharingQueryParams
     imageSupport: ImageSupportInterface
     getRootElement: () => HTMLElement
-    toggleSinglePageAnnotations: (normalizedUrl: string) => void
+    toggleSinglePageAnnotations?: (normalizedUrl: string) => void
+    openImageInPreview?: (imageSource: string) => Promise<void>
 }
 
 export type ReaderPageViewState = AnnotationConversationsState &

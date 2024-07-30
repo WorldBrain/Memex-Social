@@ -67,7 +67,9 @@ export const PrimaryActionButton = ({
         onClick={disabled === true ? undefined : onClick}
         disabled={disabled}
         ref={innerRef}
-        onKeyPress={(e) => (e.key === 'Enter' ? onClick() : false)}
+        onKeyPress={(e: React.KeyboardEvent) =>
+            e.key === 'Enter' ? onClick() : false
+        }
     >
         <StyledActionLinkText>{label}</StyledActionLinkText>
     </StyledActionButton>

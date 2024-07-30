@@ -62,6 +62,7 @@ import MemexEditor from '@worldbrain/memex-common/lib/editor'
 import AIChatWebUiWrapper from '../../../../ai-chat-webUI-wrapper'
 import { PromptURL } from '@worldbrain/memex-common/lib/summarization/types'
 import { ReaderPageView } from '../../../../reader/ui'
+import { CollectionDetailsData } from '@worldbrain/memex-common/lib/content-sharing/backend/types'
 
 const commentImage = require('../../../../../assets/img/comment.svg')
 const commentEmptyImage = require('../../../../../assets/img/comment-empty.svg')
@@ -681,6 +682,8 @@ export default class CollectionDetailsPage extends UIElement<
                     </RouteLink>
                 </BreadCrumbBox>
             )
+        } else {
+            return <></>
         }
     }
 
@@ -694,7 +697,7 @@ export default class CollectionDetailsPage extends UIElement<
                 <TitleClick
                     onClick={
                         !this.isIframe()
-                            ? (e) => {
+                            ? (e: React.MouseEvent) => {
                                   this.processEvent('clickPageResult', {
                                       urlToOpen: undefined,
                                       preventOpening: () => e.preventDefault(),
@@ -1894,7 +1897,7 @@ export default class CollectionDetailsPage extends UIElement<
                     }}
                     analyticsBG={this.props.services.analytics}
                     fetchContentList={() => {
-                        return this.state.contentList
+                        return this.state.contentList ?? []
                     }}
                     collectionDetailsEvents={this.state.collectionDetailsEvents}
                 />
@@ -1903,11 +1906,14 @@ export default class CollectionDetailsPage extends UIElement<
     }
 
     renderResultsList = (
-        state,
-        data,
-        resultsFilteredByType,
-        currentBaseURL,
+        state: CollectionDetailsState,
+        data: CollectionDetailsState['listData'],
+        currentBaseURL: string,
+        resultsFilteredByType?: [number, CollectionDetailsListEntry][],
     ) => {
+        if (!data) {
+            return this.renderNoResults()
+        }
         return (
             <ContentArea>
                 <PageResultsArea
@@ -2100,12 +2106,10 @@ export default class CollectionDetailsPage extends UIElement<
                                             />
                                             <FooterBox
                                                 visible={
-                                                    this.state.listData
+                                                    !!this.state.listData
                                                         ?.listEntries[
                                                         entryIndex
                                                     ].hoverState
-                                                        ? 'main-content'
-                                                        : undefined
                                                 }
                                             >
                                                 <ItemBoxBottom
@@ -2165,7 +2169,6 @@ export default class CollectionDetailsPage extends UIElement<
                 <ReaderPageView
                     services={this.props.services}
                     storage={this.props.storage}
-                    viewportBreakpoint={this.viewportBreakpoint}
                     getRootElement={this.props.getRootElement}
                     entryID={this.props.entryID}
                     listID={this.props.listID}
@@ -2177,12 +2180,18 @@ export default class CollectionDetailsPage extends UIElement<
                     normalizeUrl={this.props.normalizeUrl}
                     pdfBlob={this.props.pdfBlob}
                     generateServerId={this.props.generateServerId}
+                    storageManager={this.props.storageManager}
+                    imageSupport={this.props.imageSupport}
+                    query={this.props.query}
+                    openImageInPreview={this.props.openImageInPreview}
                 />
             </ReaderViewContainer>
         )
     }
 
-    renderLeftColumnContent = (data) => {
+    renderLeftColumnContent = (
+        data: CollectionDetailsState['listData'],
+    ): JSX.Element => {
         const { state } = this
 
         const isPageView = this.props.entryID
@@ -2275,8 +2284,8 @@ export default class CollectionDetailsPage extends UIElement<
             return this.renderResultsList(
                 state,
                 data,
-                resultsFilteredByType,
                 currentBaseURL,
+                resultsFilteredByType,
             )
         }
     }
@@ -2300,7 +2309,9 @@ export default class CollectionDetailsPage extends UIElement<
                     // isSidebarShown={this.listsSidebarProps.isShown}
                     // permissionKeyOverlay={this.renderPermissionKeyOverlay()}
                     scrollTop={this.state.scrollTop}
-                    renderBreadCrumbs={() => this.renderBreadCrumbs()}
+                    renderBreadCrumbs={() => {
+                        return this.renderBreadCrumbs()
+                    }}
                     isPageView={this.props.entryID}
                     renderRightColumnContent={this.renderRightSidebarContent}
                     renderLeftColumnContent={() => {

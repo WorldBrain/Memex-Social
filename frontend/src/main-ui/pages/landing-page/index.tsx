@@ -118,16 +118,18 @@ export default class LandingPage extends UIElement<
                             ) : (
                                 <NewPDFArea
                                     fileDragState={this.state.fileDragState}
-                                    onDrop={(e) => {
+                                    onDrop={(e: React.DragEvent) => {
                                         e.preventDefault()
-                                        const files = e.dataTransfer.files
-                                        if (files.length > 0) {
+                                        const files = e?.dataTransfer?.files
+                                        if (files && files.length > 0) {
                                             const file = files[0]
                                             if (
                                                 file.type === 'application/pdf'
                                             ) {
                                                 file.arrayBuffer().then(
-                                                    (arrayBuffer) => {
+                                                    (
+                                                        arrayBuffer: ArrayBuffer,
+                                                    ) => {
                                                         const blob = new Blob(
                                                             [arrayBuffer],
                                                             {

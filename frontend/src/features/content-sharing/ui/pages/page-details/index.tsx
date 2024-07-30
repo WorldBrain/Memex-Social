@@ -249,14 +249,14 @@ export default class PageDetailsPage extends UIElement<
                     //headerSubtitle={this.state.pageInfo?.normalizedUrl}
                     // listsSidebarProps={this.listsSidebarProps}
                     headerSubtitle={this.getHeaderSubtitle()}
-                    renderSubtitle={(props) => (
-                        <ProfilePopupContainer
-                            services={services}
-                            userRef={this.state.creatorReference ?? null}
-                        >
-                            {props.children}
-                        </ProfilePopupContainer>
-                    )}
+                    // renderSubtitle={() => (
+                    //     <ProfilePopupContainer
+                    //         services={services}
+                    //         userRef={this.state.creatorReference ?? null}
+                    //     >
+                    //         {props.children}
+                    //     </ProfilePopupContainer>
+                    // )}
                     getRootElement={this.props.getRootElement}
                 >
                     <PageInfoList>
