@@ -20,7 +20,7 @@ export interface AnnotationDetailsDependencies {
     >
     getRootElement: () => HTMLElement
     imageSupport: ImageSupportInterface
-    openImageInPreview?: (imageSource: string)  => Promise<void
+    openImageInPreview: (imageSource: string) => Promise<void>
 }
 
 export type AnnotationDetailsEvent = UIEvent<{

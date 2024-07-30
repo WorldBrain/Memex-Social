@@ -99,6 +99,9 @@ export default class Routes extends React.Component<Props> {
                             const query = queryString.parse(
                                 route.location.search,
                             ) as ContentSharingQueryParams
+                            let routeState = route.location.state as
+                                | { pdfBlob?: Blob }
+                                | undefined
                             return (
                                 <ReaderPageView
                                     query={query}
@@ -114,7 +117,7 @@ export default class Routes extends React.Component<Props> {
                                     generateServerId={
                                         this.props.generateServerId
                                     }
-                                    pdfBlob={route.location.state?.pdfBlob}
+                                    pdfBlob={routeState?.pdfBlob}
                                     imageSupport={this.props.imageSupport}
                                     getRootElement={this.props.getRootElement}
                                 />
@@ -130,6 +133,9 @@ export default class Routes extends React.Component<Props> {
                             const query = queryString.parse(
                                 route.location.search,
                             ) as ContentSharingQueryParams
+                            let routeState = route.location.state as
+                                | { pdfBlob?: Blob }
+                                | undefined
                             return (
                                 <CollectionDetailsPage
                                     listID={route.match.params.id}
@@ -144,7 +150,7 @@ export default class Routes extends React.Component<Props> {
                                     imageSupport={this.props.imageSupport}
                                     getRootElement={this.props.getRootElement}
                                     normalizeUrl={normalizeUrl}
-                                    pdfBlob={route.location.state?.pdfBlob}
+                                    pdfBlob={routeState?.pdfBlob}
                                     generateServerId={
                                         this.props.generateServerId
                                     }
@@ -181,6 +187,9 @@ export default class Routes extends React.Component<Props> {
                                     storage={serverModules}
                                     getRootElement={this.props.getRootElement}
                                     imageSupport={this.props.imageSupport}
+                                    openImageInPreview={() => {
+                                        throw new Error('TODO: Implement me!')
+                                    }}
                                 />
                             )
                         }}

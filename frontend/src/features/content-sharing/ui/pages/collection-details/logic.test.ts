@@ -13,6 +13,7 @@ import CollectionDetailsLogic from './logic'
 import CallModifier from '../../../../../utils/call-modifier'
 import { CollectionDetailsEvent, CollectionDetailsState } from './types'
 import { normalizeUrl } from '@worldbrain/memex-common/lib/url-utils/normalize'
+import type { GenerateServerID } from '@worldbrain/memex-common/lib/content-sharing/service/types'
 
 class TestDataFactory {
     createdWhen = 0
@@ -65,6 +66,9 @@ async function setupTest(context: Pick<StorageTestContext, 'services'>) {
 // just for code formatting purposes
 const description = (s: string) => s
 
+let annotIdCounter = 0
+let generateServerId: GenerateServerID = () => annotIdCounter++
+
 createStorageTestSuite('Collection details logic', ({ it }) => {
     it(
         'should load all annotations for a page',
@@ -112,7 +116,7 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
                     document.getElementById('body') as HTMLElement,
                 openImageInPreview: async () => {},
                 normalizeUrl: normalizeUrl,
-                generateServerId: null,
+                generateServerId,
             })
             const container = new TestLogicContainer<
                 CollectionDetailsState,
@@ -241,7 +245,7 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
                     document.getElementById('body') as HTMLElement,
                 openImageInPreview: async () => {},
                 normalizeUrl: normalizeUrl,
-                generateServerId: null,
+                generateServerId,
             })
             const container = new TestLogicContainer<
                 CollectionDetailsState,
@@ -327,7 +331,7 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
                     document.getElementById('body') as HTMLElement,
                 openImageInPreview: async () => {},
                 normalizeUrl: normalizeUrl,
-                generateServerId: null,
+                generateServerId,
             })
             const container = new TestLogicContainer<
                 CollectionDetailsState,
@@ -442,7 +446,7 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
                     document.getElementById('body') as HTMLElement,
                 openImageInPreview: async () => {},
                 normalizeUrl: normalizeUrl,
-                generateServerId: null,
+                generateServerId,
             })
 
             const container = new TestLogicContainer<
