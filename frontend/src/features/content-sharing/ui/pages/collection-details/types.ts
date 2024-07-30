@@ -1,4 +1,4 @@
-import { UIEvent, UISignal } from '../../../../../main-ui/classes/logic'
+import type { UIEvent, UISignal } from '../../../../../main-ui/classes/logic'
 import type {
     AnnotationConversationEvent,
     AnnotationConversationsState,
@@ -22,27 +22,21 @@ import type {
     ExtDetectionState,
     ExtDetectionEvent,
 } from '../../../../ext-detection/ui/logic'
-import { SharedListRole } from '@worldbrain/memex-common/lib/web-interface/types/storex-generated/content-sharing'
-import {
-    GenerateServerID,
-    ProcessSharedListKeyResult,
-} from '@worldbrain/memex-common/lib/content-sharing/service/types'
-import { SearchType } from '@worldbrain/memex-common/lib/common-ui/components/types'
-import { ContentSharingQueryParams } from '../../../types'
+import type { SharedListRole } from '@worldbrain/memex-common/lib/web-interface/types/storex-generated/content-sharing'
+import type { ProcessSharedListKeyResult } from '@worldbrain/memex-common/lib/content-sharing/service/types'
+import type { SearchType } from '@worldbrain/memex-common/lib/common-ui/components/types'
+import type { ContentSharingQueryParams } from '../../../types'
 import type { SlackList } from '@worldbrain/memex-common/lib/slack/types'
-import type {
-    CollectionDetailsData,
-    CollectionDetailsDeniedData,
-} from '@worldbrain/memex-common/lib/content-sharing/backend/types'
+import type { CollectionDetailsDeniedData } from '@worldbrain/memex-common/lib/content-sharing/backend/types'
 import type {
     EditableAnnotationsEvent,
     EditableAnnotationsState,
 } from '../../../../annotations/ui/types'
 import type StorageManager from '@worldbrain/storex'
-import { ImageSupportInterface } from '@worldbrain/memex-common/lib/image-support/types'
-import TypedEventEmitter from 'typed-emitter'
-import { PromptURL } from '@worldbrain/memex-common/lib/summarization/types'
-import { URLNormalizer } from '@worldbrain/memex-common/lib/url-utils/normalize/types'
+import type { ImageSupportInterface } from '@worldbrain/memex-common/lib/image-support/types'
+import type TypedEventEmitter from 'typed-emitter'
+import type { PromptURL } from '@worldbrain/memex-common/lib/summarization/types'
+import type { ReaderPageViewDependencies } from '../../../../reader/ui/types'
 
 export interface CollectionDetailsMessageEvents {
     addSpaceLinksAndNotesToEditor(event: {
@@ -57,7 +51,11 @@ export interface CollectionDetailsMessageEvents {
     }): void
 }
 
-export interface CollectionDetailsDependencies {
+export interface CollectionDetailsDependencies
+    extends Pick<
+        ReaderPageViewDependencies,
+        'pdfBlob' | 'normalizeUrl' | 'generateServerId' | 'openImageInPreview'
+    > {
     listID: string
     entryID?: string
     noteId?: string
@@ -98,10 +96,6 @@ export interface CollectionDetailsDependencies {
     storageManager: StorageManager
     imageSupport: ImageSupportInterface
     getRootElement: () => HTMLElement
-    normalizeUrl: URLNormalizer
-    pdfBlob?: Blob
-    generateServerId: GenerateServerID
-    openImageInPreview?: (imageSource: string) => Promise<void>
 }
 
 export type CollectionDetailsState = AnnotationConversationsState &
