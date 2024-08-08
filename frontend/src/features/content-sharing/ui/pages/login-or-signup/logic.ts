@@ -74,7 +74,7 @@ export default class LoginOrSignupPageLogic extends UILogic<
             if (authEnforced.isNewUser || authEnforced.reactivatedUser) {
                 window.open(
                     'https://links.memex.garden/onboarding/new-user',
-                    '_self',
+                    '_blank',
                 )
             } else {
                 this.emitMutation({ signupLoadState: { $set: 'success' } })
