@@ -1,0 +1,14 @@
+{
+    "client_id": "https://memex.social/client-metadata.json",
+    "client_name": "Memex",
+    "client_uri": "https://memex.social",
+    "policy_uri": "https://memex.garden/policy",
+    "application_type": "web",
+    "grant_types": ["authorization_code", "refresh_token"],
+    "scope": "atpropo transition:generic",
+    "response_types": ["code"],
+    "redirect_uris": [
+        "https://bsky-handleoauthredirect-6l544wqdyq-uc.a.run.app"
+    ],
+    "dpop_bound_access_tokens": true
+}
