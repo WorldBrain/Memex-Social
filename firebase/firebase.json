@@ -66,6 +66,14 @@
                 "pinTag": true
             },
             {
+                "source": "/oauth/bsky-redirect",
+                "function": {
+                    "functionId": "handleBskyOAuthRedirect",
+                    "region": "us-central1",
+                    "pinTag": false
+                }
+            },
+            {
                 "source": "**",
                 "destination": "/index.html"
             }
