@@ -33,7 +33,8 @@ import type {
     EditableAnnotationsState,
 } from '../../../../annotations/ui/types'
 import type StorageManager from '@worldbrain/storex'
-import { ImageSupportInterface } from '@worldbrain/memex-common/lib/image-support/types'
+import type { ImageSupportInterface } from '@worldbrain/memex-common/lib/image-support/types'
+import type { BlueskyList } from '@worldbrain/memex-common/lib/bsky/storage/types'
 
 export interface CollectionDetailsDependencies {
     listID: string
@@ -63,6 +64,7 @@ export interface CollectionDetailsDependencies {
         | 'contentSharing'
         | 'contentConversations'
         | 'users'
+        | 'bluesky'
         | 'slack'
         | 'slackRetroSync'
         | 'discord'
@@ -140,6 +142,7 @@ export type CollectionDetailsState = AnnotationConversationsState &
             creatorReference?: UserReference
             creator?: Pick<User, 'displayName'> | null
             list: SharedList
+            blueskyList: BlueskyList | null
             discordList: DiscordList | undefined | null
             slackList: SlackList | null
             isChatIntegrationSyncing?: boolean

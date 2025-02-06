@@ -53,8 +53,7 @@ import {
 import type { UploadStorageUtils } from '@worldbrain/memex-common/lib/personal-cloud/backend/translation-layer/storage-utils'
 import { createPersonalCloudStorageUtils } from '@worldbrain/memex-common/lib/content-sharing/storage/utils'
 import { LoggedOutAccessBox } from './space-access-box'
-import { IdField } from '@worldbrain/memex-common/lib/storage/types'
-import { isMemexPageAPdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
+import type { BlueskyList } from '@worldbrain/memex-common/lib/bsky/storage/types'
 const truncate = require('truncate')
 
 const LIST_DESCRIPTION_CHAR_LIMIT = 400
@@ -319,10 +318,22 @@ export default class CollectionDetailsLogic extends UILogic<
             const listDescription = retrievedList.sharedList.description ?? ''
             const listDescriptionFits =
                 listDescription.length < LIST_DESCRIPTION_CHAR_LIMIT
+            let blueskyList: BlueskyList | null = null
             let discordList: DiscordList | null = null
             let slackList: SlackList | null = null
             let isChatIntegrationSyncing = false
-            if (retrievedList.sharedList.platform === 'discord') {
+            if (retrievedList.sharedList.platform === 'bsky') {
+                blueskyList = await this.dependencies.storage.bluesky.findBlueskyListBySharedList(
+                    {
+                        sharedList: retrievedList.sharedList.reference,
+                    },
+                )
+                if (!blueskyList) {
+                    return {
+                        mutation: { listData: { $set: undefined } },
+                    }
+                }
+            } else if (retrievedList.sharedList.platform === 'discord') {
                 discordList = await this.dependencies.storage.discord.findDiscordListForSharedList(
                     retrievedList.sharedList.reference,
                 )
@@ -400,6 +411,7 @@ export default class CollectionDetailsLogic extends UILogic<
                         reference: retrievedList.sharedList.reference,
                         pageSize: PAGE_SIZE,
                         discordList,
+                        blueskyList,
                         isChatIntegrationSyncing,
                         creatorReference: data.retrievedList.creator,
                         creator: loadedUsers[retrievedList.creator.id],
