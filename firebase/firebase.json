@@ -68,7 +68,7 @@
             {
                 "source": "/oauth/bsky-redirect",
                 "function": {
-                    "functionId": "handleBskyOAuthRedirect",
+                    "functionId": "bsky-handleOAuthRedirect",
                     "region": "us-central1",
                     "pinTag": false
                 }
