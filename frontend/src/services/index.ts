@@ -49,6 +49,8 @@ import { ImageSupportInterface } from '@worldbrain/memex-common/lib/image-suppor
 import { PublicApiServiceInterface } from '@worldbrain/memex-common/lib/public-api/types'
 import { PdfUploadService } from '@worldbrain/memex-common/lib/pdf/uploads/service'
 import type { GenerateServerID } from '@worldbrain/memex-common/lib/content-sharing/service/types'
+import { BlueskyService } from '@worldbrain/memex-common/lib/bsky/service'
+import type { BlueskyServiceInterface } from '@worldbrain/memex-common/lib/bsky/service/types'
 
 export function createServices(options: {
     backend: BackendType
@@ -213,6 +215,23 @@ export function createServices(options: {
                   'contentSharing',
                   executeFirebaseCall,
               )
+    const bluesky =
+        options.backend === 'memory'
+            ? new BlueskyService({
+                  storageModules: options.storage.serverModules,
+                  getConfig: () => ({
+                      deployment: {
+                          environment:
+                              determineEnv() === 'production'
+                                  ? 'production'
+                                  : 'staging',
+                      },
+                  }),
+              })
+            : firebaseService<BlueskyServiceInterface>(
+                  'bsky',
+                  executeFirebaseCall,
+              )
 
     const services: Services = {
         overlay: new OverlayService(),
@@ -223,6 +242,7 @@ export function createServices(options: {
         device,
         auth,
         router,
+        bluesky,
         fixtures,
         localStorage,
         userMessages,

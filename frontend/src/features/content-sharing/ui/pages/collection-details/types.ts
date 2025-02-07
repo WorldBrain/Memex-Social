@@ -41,6 +41,7 @@ export interface CollectionDetailsDependencies {
     entryID?: string
     services: UIElementServices<
         | 'auth'
+        | 'bluesky'
         | 'overlay'
         | 'listKeys'
         | 'contentSharing'

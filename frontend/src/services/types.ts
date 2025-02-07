@@ -16,6 +16,7 @@ import type { SummarizationService } from '@worldbrain/memex-common/lib/summariz
 import type { FullTextSearchService } from './full-text-search'
 import type { PublicApiServiceInterface } from '@worldbrain/memex-common/lib/public-api/types'
 import type { PdfUploadServiceInterface } from '@worldbrain/memex-common/lib/pdf/uploads/types'
+import type { BlueskyServiceInterface } from '@worldbrain/memex-common/lib/bsky/service/types'
 
 type UIServices = 'logicRegistry' | 'device'
 export type UIElementServices<Wanted extends keyof Services = never> = Pick<
@@ -26,6 +27,7 @@ export type UIElementServices<Wanted extends keyof Services = never> = Pick<
 export type Services = SharedServices & {
     router: RouterService
     auth: AuthService
+    bluesky: BlueskyServiceInterface
     fixtures: FixtureService
     scenarios: ScenarioService
     documentTitle: DocumentTitleService
