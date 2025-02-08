@@ -24,6 +24,10 @@ import type {
     EditableAnnotationsState,
 } from '../../annotations/ui/types'
 import type { ImageSupportInterface } from '@worldbrain/memex-common/lib/image-support/types'
+import type {
+    BlueskyList,
+    BlueskyUser,
+} from '@worldbrain/memex-common/lib/bsky/storage/types'
 
 export interface ReaderPageViewDependencies {
     services: UIElementServices<
@@ -40,7 +44,7 @@ export interface ReaderPageViewDependencies {
     >
     storage: Pick<
         StorageModules,
-        'contentSharing' | 'contentConversations' | 'users'
+        'contentSharing' | 'contentConversations' | 'users' | 'bluesky'
     >
     storageManager: StorageManager
     listID: string
@@ -64,6 +68,8 @@ export type ReaderPageViewState = AnnotationConversationsState &
         sourceUrl: string | null
         users: { [id: string]: Pick<User, 'displayName' | 'platform'> }
         listLoadState: UITaskState
+        blueskyUsers: { [id: string]: BlueskyUser }
+        blueskyList: BlueskyList | null
         listData?: {
             reference: SharedListReference
             creatorReference: UserReference

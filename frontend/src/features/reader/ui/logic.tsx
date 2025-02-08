@@ -22,7 +22,10 @@ import {
     SharedListRoleID,
 } from '@worldbrain/memex-common/lib/content-sharing/types'
 import { makeStorageReference } from '@worldbrain/memex-common/lib/storage/references'
-import type { UserReference } from '@worldbrain/memex-common/lib/web-interface/types/users'
+import type {
+    User,
+    UserReference,
+} from '@worldbrain/memex-common/lib/web-interface/types/users'
 import {
     HighlightRenderer,
     Dependencies as HighlightRendererDeps,
@@ -178,7 +181,9 @@ export class ReaderPageViewLogic extends UILogic<
                         }
                     },
                     loadUserByReference: (reference) =>
-                        this.users.loadUser(reference),
+                        this.loadUsers([reference], {
+                            loadBlueskyUsers: false,
+                        }),
                     onNewAnnotationCreate: (_, annotation, sharedListEntry) => {
                         this.emitMutation({
                             annotationEditStates: {
@@ -255,9 +260,11 @@ export class ReaderPageViewLogic extends UILogic<
             },
             annotationLoadStates: {},
             users: {},
+            blueskyUsers: {},
             sidebarWidth: 450,
             activeAnnotationId: null,
             collaborationKey: null,
+            blueskyList: null,
             joinListResult: null,
             permissions: null,
             showShareMenu: false,
@@ -276,6 +283,32 @@ export class ReaderPageViewLogic extends UILogic<
             ...editableAnnotationsInitialState(),
             ...annotationConversationInitialState(),
         }
+    }
+
+    /**
+     * Simply serves to abstract away `UserProfileCache.loadUsers` call and support optional Bluesky user loading
+     */
+    private async loadUsers(
+        userReferences: UserReference[],
+        params: {
+            loadBlueskyUsers: boolean
+        },
+    ): Promise<{
+        [id: string]: User | null
+    }> {
+        // NOTE: `users` state mutation side-effect gets abstracted away by UserProfileCache
+        let result = await this.users.loadUsers(userReferences)
+
+        if (params.loadBlueskyUsers) {
+            let blueskyUsers = await this.dependencies.storage.bluesky.findBlueskyUsersByUserReferences(
+                {
+                    users: userReferences,
+                },
+            )
+            this.emitMutation({ blueskyUsers: { $merge: blueskyUsers } })
+        }
+
+        return result
     }
 
     init: EventHandler<'init'> = async (incoming) => {
@@ -327,10 +360,17 @@ export class ReaderPageViewLogic extends UILogic<
                 )
                 if (response.status !== 'success') {
                     if (response.status === 'permission-denied') {
-                        await this.users.loadUser({
-                            type: 'user-reference',
-                            id: response.data.creator,
-                        })
+                        await this.loadUsers(
+                            [
+                                {
+                                    type: 'user-reference',
+                                    id: response.data.creator,
+                                },
+                            ],
+                            {
+                                loadBlueskyUsers: false,
+                            },
+                        )
                         const permissionDeniedData = {
                             ...response.data,
                             hasKey: !!keyString,
@@ -357,6 +397,17 @@ export class ReaderPageViewLogic extends UILogic<
                     return
                 }
                 const { data } = response
+
+                let blueskyList:
+                    | ReaderPageViewState['blueskyList']
+                    | null = null
+                if (data.retrievedList.sharedList.platform === 'bsky') {
+                    blueskyList = await this.dependencies.storage.bluesky.findBlueskyListBySharedList(
+                        {
+                            sharedList: data.retrievedList.sharedList.reference,
+                        },
+                    )
+                }
 
                 const baseListRoles =
                     data.rolesByList[this.dependencies.listID] ?? []
@@ -463,6 +514,12 @@ export class ReaderPageViewLogic extends UILogic<
                     overLayModalStateValue = 'invitedForCollaboration'
                 }
 
+                let {
+                    [data.retrievedList.creator.id]: listCreator,
+                } = await this.loadUsers([data.retrievedList.creator], {
+                    loadBlueskyUsers: blueskyList != null,
+                })
+
                 nextState = this.emitAndApplyMutation(nextState, {
                     annotationLoadStates: {
                         [listEntry.normalizedUrl]: { $set: 'running' },
@@ -476,13 +533,12 @@ export class ReaderPageViewLogic extends UILogic<
                     overlayModalState: {
                         $set: overLayModalStateValue ?? null,
                     },
+                    blueskyList: { $set: blueskyList },
                     listData: {
                         $set: {
                             reference: listReference,
                             creatorReference: data.retrievedList.creator,
-                            creator: await this.users.loadUser(
-                                data.retrievedList.creator,
-                            ),
+                            creator: listCreator,
                             list: data.retrievedList.sharedList,
                             entry: listEntry,
                             title: data.retrievedList.sharedList.title,
@@ -659,13 +715,16 @@ export class ReaderPageViewLogic extends UILogic<
                         this.pageAnnotationPromises[normalizedPageUrl],
                         this.conversationThreadPromises[normalizedPageUrl],
                     ])
-                    await this.users.loadUsers(
+                    await this.loadUsers(
                         [...usersToLoad].map(
                             (id): UserReference => ({
                                 type: 'user-reference',
                                 id,
                             }),
                         ),
+                        {
+                            loadBlueskyUsers: blueskyList != null,
+                        },
                     )
                     return
                 } catch (e) {
