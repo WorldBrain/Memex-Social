@@ -22,6 +22,7 @@ import {
     SharedListRoleID,
 } from '@worldbrain/memex-common/lib/content-sharing/types'
 import { makeStorageReference } from '@worldbrain/memex-common/lib/storage/references'
+import { BSKY_LIST_OWNER_USER } from '@worldbrain/memex-common/lib/bsky/storage/constants'
 import type {
     User,
     UserReference,
@@ -517,7 +518,10 @@ export class ReaderPageViewLogic extends UILogic<
                 let {
                     [data.retrievedList.creator.id]: listCreator,
                 } = await this.loadUsers([data.retrievedList.creator], {
-                    loadBlueskyUsers: blueskyList != null,
+                    // NOTE: The bsky list owner user is a dummy bot which doesn't have an associated `blueskyUser` object, thus we don't want to attempt loading it
+                    loadBlueskyUsers:
+                        data.retrievedList.creator.id !==
+                        BSKY_LIST_OWNER_USER.id,
                 })
 
                 nextState = this.emitAndApplyMutation(nextState, {
