@@ -398,6 +398,8 @@ export class ReaderPageViewLogic extends UILogic<
                     return
                 }
                 const { data } = response
+                const isBluesky =
+                    response?.data.retrievedList.sharedList.platform === 'bsky'
 
                 let blueskyList:
                     | ReaderPageViewState['blueskyList']
@@ -422,6 +424,7 @@ export class ReaderPageViewLogic extends UILogic<
                 let nextState = await this.loadPermissions(
                     previousState,
                     myListRole?.roleID,
+                    isBluesky,
                 )
 
                 if (data.collaborationKey != null) {
@@ -787,6 +790,7 @@ export class ReaderPageViewLogic extends UILogic<
     private async loadPermissions(
         previousState: ReaderPageViewState,
         listRole?: SharedListRoleID,
+        isBluesky?: boolean,
     ): Promise<ReaderPageViewState> {
         const { auth, router, listKeys } = this.dependencies.services
         let nextState = previousState
@@ -813,6 +817,11 @@ export class ReaderPageViewLogic extends UILogic<
                     },
                 )
 
+                if (isBluesky) {
+                    nextState = this.emitAndApplyMutation(nextState, {
+                        permissions: { $set: 'contributor' },
+                    })
+                }
                 // Shortcut: Use the key from the URL param if it's present
                 const keyString = router.getQueryParam('key')
                 if (keyString?.length) {
@@ -1053,8 +1062,10 @@ export class ReaderPageViewLogic extends UILogic<
             })
         }
 
+        const isBluesky = state?.listData?.list?.platform === 'bsky'
+
         const keyString = router.getQueryParam('key')
-        if (state.permissions != null || keyString != null) {
+        if (state.permissions != null || keyString != null || isBluesky) {
             this.setupIframeTooltip(this.iframe, state)
         }
         this.emitMutation({
@@ -1158,6 +1169,7 @@ export class ReaderPageViewLogic extends UILogic<
                             showTooltipCb = showTooltip
                         }}
                         context={'reader'}
+                        shouldInitTooltip={true}
                     />
                 </ThemeProvider>
             </StyleSheetManager>,
