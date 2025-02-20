@@ -767,24 +767,25 @@ export class ReaderPageViewLogic extends UILogic<
 
     private async listenToUserChanges() {
         const userReference = this.dependencies.services.auth.getCurrentUserReference()
+        console.log('userReference', userReference)
 
-        if (!userReference) {
-            for await (const user of userChanges(
-                this.dependencies.services.auth,
-            )) {
-                if (user != null) {
-                    this.isReaderInitialized = false // Flag reader for re-initialization on user change
-                    setTimeout(() => {
-                        window.location.reload()
-                    }, 1500)
-                } else {
-                    this.emitMutation({
-                        collaborationKey: { $set: null },
-                        permissions: { $set: null },
-                    })
-                }
-            }
-        }
+        // if (!userReference) {
+        //     for await (const user of userChanges(
+        //         this.dependencies.services.auth,
+        //     )) {
+        //         if (user != null) {
+        //             this.isReaderInitialized = false // Flag reader for re-initialization on user change
+        //             setTimeout(() => {
+        //                 window.location.reload()
+        //             }, 1500)
+        //         } else {
+        //             this.emitMutation({
+        //                 collaborationKey: { $set: null },
+        //                 permissions: { $set: null },
+        //             })
+        //         }
+        //     }
+        // }
     }
 
     private async loadPermissions(

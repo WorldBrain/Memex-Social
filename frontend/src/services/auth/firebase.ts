@@ -240,7 +240,12 @@ export default class FirebaseAuthService extends AuthServiceBase {
     }
 
     async loginWithToken(token: string) {
-        await this._firebase.auth().signInWithCustomToken(token)
+        console.log('loginWithToken', token)
+        try {
+            return await this._firebase.auth().signInWithCustomToken(token)
+        } catch (error) {
+            console.log('error', error)
+        }
     }
 }
 

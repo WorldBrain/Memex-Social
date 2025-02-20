@@ -106,6 +106,7 @@ export const theme: Theme = THEME({
         twitter: require('../../assets/img/twitter.svg'),
         twitterThin: require('../../assets/img/twitterThin.svg'),
         twitterLogo: require('../../assets/img/twitter-logo.svg'),
+        blueskyLogo: require('../../assets/img/bluesky-logo.svg'),
         info: require('../../assets/img/infoIcon.svg'),
         webMonetizationLogo: require('../../assets/img/web-monetization-logo.svg'),
         webMonetizationLogoConfirmed: require('../../assets/img/web-monetization-logo-confirmed.svg'),

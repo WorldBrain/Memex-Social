@@ -1,1 +1,6 @@
-export type AuthProvider = 'facebook' | 'google' | 'github' | 'twitter'
+export type AuthProvider =
+    | 'facebook'
+    | 'google'
+    | 'github'
+    | 'twitter'
+    | 'bluesky'

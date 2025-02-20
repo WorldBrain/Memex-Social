@@ -147,6 +147,7 @@ export default class AuthDialogLogic extends UILogic<
     init: EventHandler<'init'> = async () => {}
 
     close: EventHandler<'close'> = async () => {
+        console.log('closing auth dialog')
         await this.dependencies.services.auth.logout()
         this._result({ status: 'cancelled' })
     }
@@ -269,6 +270,46 @@ export default class AuthDialogLogic extends UILogic<
     }
 
     socialSignIn: EventHandler<'socialSignIn'> = async ({ event }) => {
+        if (event.provider === 'bluesky') {
+            const result = await this.dependencies.services.bluesky.initiateOAuthFlow()
+
+            if (result.error) {
+                throw new Error(result.error)
+                return
+            }
+            const authUrl = result.authUrl
+
+            return new Promise((resolve) => {
+                // Create broadcast channel for communication
+                const channel = new BroadcastChannel('bluesky-auth')
+
+                // Setup broadcast channel listener
+                channel.onmessage = async (event) => {
+                    console.log('message', event)
+                    const authToken = event.data
+                    const authResult = await this.dependencies.services.auth.loginWithToken(
+                        authToken,
+                    )
+                    console.log('authResult', authResult)
+                    channel.close()
+                }
+
+                // Open popup
+                const width = 600
+                const height = 500
+                const left = window.screen.width / 2 - width / 2
+                const top = window.screen.height / 2 - height / 2
+
+                window.open(
+                    authUrl,
+                    '_blank',
+                    `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no,scrollbars=yes,resizable=yes`,
+                )
+
+                console.log('created channel', channel)
+            })
+        }
+
         const {
             result,
         } = await this.dependencies.services.auth.loginWithProvider(

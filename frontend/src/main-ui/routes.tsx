@@ -19,6 +19,7 @@ import { normalizeUrl } from '@worldbrain/memex-common/lib/url-utils/normalize'
 import type { UIRunnerOptions } from './types'
 import LoginOrSignupPage from '../features/content-sharing/ui/pages/login-or-signup'
 import TutorialsPage from '../features/content-sharing/ui/pages/tutorials'
+import OAuthCallbackPage from '../features/content-sharing/ui/pages/oauthCallback'
 
 interface Props extends UIRunnerOptions {}
 export default class Routes extends React.Component<Props> {
@@ -209,6 +210,19 @@ export default class Routes extends React.Component<Props> {
                                     storage={serverModules}
                                     getRootElement={this.props.getRootElement}
                                     tutorialId={tutorialId as string}
+                                />
+                            )
+                        }}
+                    />
+                    <Route
+                        exact
+                        path={getReactRoutePattern(ROUTES.oauthCallback.path)}
+                        render={(route) => {
+                            return (
+                                <OAuthCallbackPage
+                                    services={this.props.services}
+                                    storage={serverModules}
+                                    getRootElement={this.props.getRootElement}
                                 />
                             )
                         }}

@@ -216,6 +216,19 @@ export default class AuthDialog extends UIElement<
                                             }
                                             mode={state.mode}
                                         />
+                                        <SocialLogin
+                                            icon={'path to icon'}
+                                            provider="bluesky"
+                                            onClick={() =>
+                                                this.processEvent(
+                                                    'socialSignIn',
+                                                    {
+                                                        provider: 'bluesky',
+                                                    },
+                                                )
+                                            }
+                                            mode={state.mode}
+                                        />
                                         {/* <SocialLogin
                                             icon={'path to icon'}
                                             provider="twitter"
@@ -536,12 +549,20 @@ function SocialLogin(props: {
         return null
     }
 
+    console.log('props.provider', props.provider)
+
     let providerName: string
+    let icon: string
 
     if (props.provider === 'google') {
         providerName = 'Google'
+        icon = 'googleLogo'
+    } else if (props.provider === 'bluesky') {
+        providerName = 'Bluesky'
+        icon = 'blueskyLogo'
     } else {
         providerName = 'Twitter'
+        icon = 'twitterLogo'
     }
 
     return (
@@ -553,7 +574,7 @@ function SocialLogin(props: {
                 props.provider === 'twitter' ? 'twitter' : undefined
             }
             type="secondary"
-            icon={props.provider === 'google' ? 'googleLogo' : 'twitterLogo'}
+            icon={icon}
             width="100%"
         />
     )

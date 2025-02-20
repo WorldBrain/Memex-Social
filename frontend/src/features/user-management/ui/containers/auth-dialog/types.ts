@@ -6,7 +6,7 @@ import { StorageModules } from '../../../../../storage/types'
 import { UITaskState } from '../../../../../main-ui/types'
 
 export interface AuthDialogDependencies {
-    services: UIElementServices<'auth' | 'overlay' | 'listKeys'>
+    services: UIElementServices<'auth' | 'overlay' | 'listKeys' | 'bluesky'>
     storage: Pick<StorageModules, 'users'>
 }
 
