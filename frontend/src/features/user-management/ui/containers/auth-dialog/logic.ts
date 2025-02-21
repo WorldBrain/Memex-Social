@@ -148,7 +148,6 @@ export default class AuthDialogLogic extends UILogic<
     init: EventHandler<'init'> = async () => {}
 
     close: EventHandler<'close'> = async () => {
-        console.log('closing auth dialog')
         await this.dependencies.services.auth.logout()
         this._result({ status: 'cancelled' })
     }

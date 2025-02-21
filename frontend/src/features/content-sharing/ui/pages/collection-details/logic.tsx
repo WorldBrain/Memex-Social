@@ -1138,14 +1138,10 @@ export default class CollectionDetailsLogic extends UILogic<
                         },
                     }
 
-                    console.log('newCollectionEntry', newCollectionEntry)
-
                     const hasData = newCollectionEntry.normalizedUrl != null
 
                     if (hasData) {
                         existingListEntries?.unshift(newCollectionEntry)
-
-                        console.log('existingListEntries', existingListEntries)
                         this.emitMutation({
                             listData: {
                                 listEntries: { $set: existingListEntries },

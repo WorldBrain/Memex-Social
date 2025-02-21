@@ -553,8 +553,6 @@ function SocialLogin(props: {
         return null
     }
 
-    console.log('props.provider', props.provider)
-
     let providerName: string
 
     if (props.provider === 'google') {

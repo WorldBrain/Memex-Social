@@ -235,8 +235,6 @@ export class ReaderPageView extends UIElement<
                 )
             }
 
-            console.log('annotationsList', this.state.users)
-
             return (
                 <AnnotationsInPage
                     users={this.state.users}

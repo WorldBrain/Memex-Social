@@ -146,7 +146,6 @@ export class ReaderPageViewLogic extends UILogic<
         this.users = new UserProfileCache({
             ...dependencies,
             onUsersLoad: (users) => {
-                console.log('users', users)
                 this.emitMutation({ users: { $merge: users } })
             },
         })
@@ -303,7 +302,6 @@ export class ReaderPageViewLogic extends UILogic<
             userReferences,
             params.loadBlueskyUsers,
         )
-        console.log('result', result)
         this.emitMutation({ users: { $set: result } })
 
         return result
@@ -736,19 +734,6 @@ export class ReaderPageViewLogic extends UILogic<
                     throw e
                 }
             },
-            // const isYoutube = listEntry.normalizedUrl.startsWith(
-            //     'youtube.com/',
-            // )
-
-            // console.log('annotations', response.data.annotations)
-
-            // if (isYoutube) {
-            //     this.loadPageAnnotations(
-            //         { [listEntry.normalizedUrl]: entries },
-            //         [listEntry.normalizedUrl],
-            //         nextState,
-            //     )
-            // }
         )
     }
 
@@ -765,7 +750,6 @@ export class ReaderPageViewLogic extends UILogic<
 
     private async listenToUserChanges() {
         const userReference = this.dependencies.services.auth.getCurrentUserReference()
-        console.log('userReference', userReference)
 
         if (!userReference) {
             for await (const user of userChanges(

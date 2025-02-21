@@ -220,10 +220,6 @@ function createStorageMiddleware(options: {
                         error = e
                     }
                 } finally {
-                    console.group(...logGroupArgs)
-                    console.log('Request', request)
-                    console.log(`Result`, error ?? result)
-                    console.groupEnd()
                 }
             },
         })
