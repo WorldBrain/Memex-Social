@@ -19,7 +19,7 @@ import { normalizeUrl } from '@worldbrain/memex-common/lib/url-utils/normalize'
 import type { UIRunnerOptions } from './types'
 import LoginOrSignupPage from '../features/content-sharing/ui/pages/login-or-signup'
 import TutorialsPage from '../features/content-sharing/ui/pages/tutorials'
-import OAuthCallbackPage from '../features/content-sharing/ui/pages/oauthCallback'
+import OAuthCallbackPage from '../features/content-sharing/ui/pages/oauth-callback'
 
 interface Props extends UIRunnerOptions {}
 export default class Routes extends React.Component<Props> {

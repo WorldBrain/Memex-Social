@@ -2137,7 +2137,6 @@ export default class CollectionDetailsPage extends UIElement<
                                                         entry.entryTitle
                                                     }
                                                     onClick={(e) => {
-                                                        console.log('hee')
                                                         this.processEvent(
                                                             'clickPageResult',
                                                             {
