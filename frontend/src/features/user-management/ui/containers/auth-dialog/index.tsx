@@ -21,6 +21,7 @@ import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
 import IconBox from '@worldbrain/memex-common/lib/common-ui/components/icon-box'
 import TextField from '@worldbrain/memex-common/lib/common-ui/components/text-field'
 import type { AuthProvider } from '../../../../../types/auth'
+import LoadingIndicator from '@worldbrain/memex-common/lib/common-ui/components/loading-indicator'
 
 const FRIENDLY_ERRORS: { [Key in AuthError['reason']]: string } = {
     'popup-blocked': 'Could not open a popup for you to log in',
@@ -204,7 +205,7 @@ export default class AuthDialog extends UIElement<
                                 <>
                                     <SocialLogins>
                                         <SocialLogin
-                                            icon={'path to icon'}
+                                            icon={'googleLogo'}
                                             provider="google"
                                             onClick={() =>
                                                 this.processEvent(
@@ -217,7 +218,7 @@ export default class AuthDialog extends UIElement<
                                             mode={state.mode}
                                         />
                                         <SocialLogin
-                                            icon={'path to icon'}
+                                            icon={'blueskyLogo'}
                                             provider="bluesky"
                                             onClick={() =>
                                                 this.processEvent(
@@ -500,7 +501,10 @@ export default class AuthDialog extends UIElement<
     }
 
     renderOverlayContent() {
-        if (this.state.saveState === 'running') {
+        if (
+            this.state.saveState === 'running' ||
+            this.state.socialLoginLoading === 'running'
+        ) {
             return (
                 <LoadingBox>
                     <LoadingScreen />
@@ -552,17 +556,13 @@ function SocialLogin(props: {
     console.log('props.provider', props.provider)
 
     let providerName: string
-    let icon: string
 
     if (props.provider === 'google') {
         providerName = 'Google'
-        icon = 'googleLogo'
     } else if (props.provider === 'bluesky') {
         providerName = 'Bluesky'
-        icon = 'blueskyLogo'
     } else {
         providerName = 'Twitter'
-        icon = 'twitterLogo'
     }
 
     return (
@@ -574,7 +574,7 @@ function SocialLogin(props: {
                 props.provider === 'twitter' ? 'twitter' : undefined
             }
             type="secondary"
-            icon={icon}
+            icon={props.icon}
             width="100%"
         />
     )

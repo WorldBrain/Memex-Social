@@ -20,6 +20,7 @@ export interface AuthDialogState {
     error?: AuthError['reason']
     passwordRepeat: string
     passwordMatch: boolean
+    socialLoginLoading: UITaskState
 }
 export type AuthDialogMode =
     | 'hidden'

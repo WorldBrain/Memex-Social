@@ -97,6 +97,7 @@ import { promptPdfScreenshot } from '@worldbrain/memex-common/lib/pdf/screenshot
 import type { PdfScreenshotAnchor } from '@worldbrain/memex-common/lib/annotations/types'
 import type { ImageSupportInterface } from '@worldbrain/memex-common/lib/image-support/types'
 import { PseudoSelection } from '@worldbrain/memex-common/lib/in-page-ui/types'
+import { CreationInfoProps } from '@worldbrain/memex-common/lib/common-ui/components/creation-info'
 
 type EventHandler<EventName extends keyof ReaderPageViewEvent> = UIEventHandler<
     ReaderPageViewState,
@@ -145,6 +146,7 @@ export class ReaderPageViewLogic extends UILogic<
         this.users = new UserProfileCache({
             ...dependencies,
             onUsersLoad: (users) => {
+                console.log('users', users)
                 this.emitMutation({ users: { $merge: users } })
             },
         })
@@ -261,7 +263,6 @@ export class ReaderPageViewLogic extends UILogic<
             },
             annotationLoadStates: {},
             users: {},
-            blueskyUsers: {},
             sidebarWidth: 450,
             activeAnnotationId: null,
             collaborationKey: null,
@@ -295,19 +296,15 @@ export class ReaderPageViewLogic extends UILogic<
             loadBlueskyUsers: boolean
         },
     ): Promise<{
-        [id: string]: User | null
+        [id: string]: CreationInfoProps['creatorInfo']
     }> {
-        // NOTE: `users` state mutation side-effect gets abstracted away by UserProfileCache
-        let result = await this.users.loadUsers(userReferences)
-
-        if (params.loadBlueskyUsers) {
-            let blueskyUsers = await this.dependencies.storage.bluesky.findBlueskyUsersByUserReferences(
-                {
-                    users: userReferences,
-                },
-            )
-            this.emitMutation({ blueskyUsers: { $merge: blueskyUsers } })
-        }
+        // Load base user data
+        let result = await this.users.loadUsers(
+            userReferences,
+            params.loadBlueskyUsers,
+        )
+        console.log('result', result)
+        this.emitMutation({ users: { $set: result } })
 
         return result
     }
@@ -684,6 +681,7 @@ export class ReaderPageViewLogic extends UILogic<
                 const annotationReferences = flatten(
                     Object.values(annotationEntryData),
                 ).map((entry) => entry.sharedAnnotation)
+
                 this.emitMutation({
                     conversations: {
                         $merge: getInitialAnnotationConversationStates(
@@ -1709,176 +1707,6 @@ export class ReaderPageViewLogic extends UILogic<
             this.sidebarRef = event.ref
         }
     }
-
-    // private async loadPageAnnotations(
-    //     annotations: SharedAnnotation[],
-    //     annotationEntries: GetAnnotationListEntriesResult,
-    //     normalizedPageUrls: string[],
-    //     state: ReaderPageViewState,
-    // ) {
-    //     console.log('annotationEntries', annotationEntries)
-    //     // const toFetch: Array<{
-    //     //     normalizedPageUrl: string
-    //     //     sharedAnnotation: SharedAnnotationReference
-    //     // }> = flatten(
-    //     //     normalizedPageUrls
-    //     //         .filter(
-    //     //             (normalizedPageUrl) =>
-    //     //                 !this.pageAnnotationPromises[normalizedPageUrl],
-    //     //         )
-    //     //         .map((normalizedPageUrl) =>
-    //     //             (annotationEntries[normalizedPageUrl] ?? []).map(
-    //     //                 (entry) => ({
-    //     //                     normalizedPageUrl,
-    //     //                     sharedAnnotation: entry.sharedAnnotation,
-    //     //                 }),
-    //     //             ),
-    //     //         ),
-    //     // )
-
-    //     // const promisesByPage: {
-    //     //     [normalizedUrl: string]: Promise<GetAnnotationsResult>[]
-    //     // } = {}
-    //     // const annotationChunks: Promise<GetAnnotationsResult>[] = []
-    //     // const { contentSharing } = this.dependencies.storage
-    //     // for (const entryChunk of chunk(toFetch, 10)) {
-    //     //     const pageUrlsInChuck = new Set(
-    //     //         entryChunk.map((entry) => entry.normalizedPageUrl),
-    //     //     )
-    //     //     const promise = contentSharing.getAnnotations({
-    //     //         references: entryChunk.map((entry) => entry.sharedAnnotation),
-    //     //     })
-    //     //     for (const normalizedPageUrl of pageUrlsInChuck) {
-    //     //         promisesByPage[normalizedPageUrl] =
-    //     //             promisesByPage[normalizedPageUrl] ?? []
-    //     //         promisesByPage[normalizedPageUrl].push(promise)
-    //     //     }
-    //     //     annotationChunks.push(promise)
-    //     // }
-
-    //     const usersToLoad = new Set<UserReference['id']>()
-    //     // for (const normalizedPageUrl in promisesByPage) {
-    //     //     this.pageAnnotationPromises[normalizedPageUrl] = (async (
-    //     //         normalizedPageUrl: string,
-    //     //         pagePromises: Promise<GetAnnotationsResult>[],
-    //     //     ) => {
-    //             this.emitMutation({
-    //                 annotationLoadStates: {
-    //                     [normalizedPageUrls[0]]: { $set: 'running' },
-    //                 },
-    //             })
-
-    //             try {
-    //                 const annotationChunks = await Promise.all(pagePromises)
-    //                 console.log('chunks', annotationChunks)
-    //                 const newAnnotations: ReaderPageViewState['annotations'] = {}
-    //                 for (const annotationChunk of annotationChunks) {
-    //                     for (const [annotationId, annotation] of Object.entries(
-    //                         annotationChunk,
-    //                     )) {
-    //                         newAnnotations[annotationId] = annotation
-    //                     }
-    //                 }
-
-    //                 const toRender: RenderableAnnotation[] = []
-    //                 for (const newAnnotation of Object.values(newAnnotations)) {
-    //                     usersToLoad.add(newAnnotation.creator.id)
-    //                     if (!newAnnotation.selector) {
-    //                         continue
-    //                     }
-    //                 }
-
-    //                 const nextState = this.emitAndApplyMutation(state, {
-    //                     annotationLoadStates: {
-    //                         [normalizedPageUrl]: { $set: 'success' },
-    //                     },
-    //                     annotations: mapValues(
-    //                         newAnnotations,
-    //                         (newAnnotation) => ({ $set: newAnnotation }),
-    //                     ),
-    //                     annotationEditStates: mapValues(
-    //                         newAnnotations,
-    //                         (newAnnotation) => ({
-    //                             $set: {
-    //                                 isEditing: false,
-    //                                 loadState: 'pristine',
-    //                                 comment: newAnnotation.comment ?? '',
-    //                             },
-    //                         }),
-    //                     ) as any,
-    //                     annotationHoverStates: mapValues(
-    //                         newAnnotations,
-    //                         (newAnnotation) => ({
-    //                             $set: { isHovering: false },
-    //                         }),
-    //                     ),
-    //                     annotationDeleteStates: mapValues(
-    //                         newAnnotations,
-    //                         (newAnnotation) => ({
-    //                             $set: {
-    //                                 isDeleting: false,
-    //                                 deleteState: 'pristine' as UITaskState,
-    //                             },
-    //                         }),
-    //                     ),
-    //                     // Sort annot entries first by created time, then by highlight position in page (if highlight)
-    //                     annotationEntryData: mapValues(
-    //                         state.annotationEntryData,
-    //                         (entries) => {
-    //                             const annotationsByEntryLookup = new Map<
-    //                                 AutoPk,
-    //                                 SharedAnnotation
-    //                             >()
-    //                             for (const entry of entries) {
-    //                                 annotationsByEntryLookup.set(
-    //                                     entry.reference.id,
-    //                                     newAnnotations[
-    //                                         entry.sharedAnnotation.id.toString()
-    //                                     ],
-    //                                 )
-    //                             }
-    //                             const initEntriesSorter = (
-    //                                 sortFn: AnnotationsSorter,
-    //                             ) => (
-    //                                 a: GetAnnotationListEntriesElement,
-    //                                 b: GetAnnotationListEntriesElement,
-    //                             ) =>
-    //                                 sortFn(
-    //                                     annotationsByEntryLookup.get(
-    //                                         a.reference.id,
-    //                                     )!,
-    //                                     annotationsByEntryLookup.get(
-    //                                         b.reference.id,
-    //                                     )!,
-    //                                 )
-
-    //                             return {
-    //                                 $set: entries
-    //                                     .sort(
-    //                                         initEntriesSorter(
-    //                                             sortByCreatedTime,
-    //                                         ),
-    //                                     )
-    //                                     .sort(
-    //                                         initEntriesSorter(
-    //                                             sortByPagePosition,
-    //                                         ),
-    //                                     ),
-    //                             }
-    //                         },
-    //                     ),
-    //                 })
-    //                 await this.renderHighlightsInState(nextState)
-    //             } catch (e) {
-    //                 this.emitMutation({
-    //                     annotationLoadStates: {
-    //                         [normalizedPageUrl]: { $set: 'error' },
-    //                     },
-    //                 })
-    //                 console.error(e)
-    //             }
-    //         })(normalizedPageUrl, promisesByPage[normalizedPageUrl])
-    //     }
 
     private async renderHighlightsInState({
         annotations,

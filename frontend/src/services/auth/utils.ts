@@ -31,7 +31,6 @@ export async function* userChanges(
 ): AsyncIterableIterator<User | null> {
     let resolvable = createResolvable<User | null>()
     authService.events.on('changed', (user) => {
-        console.log('user changed', user)
         const oldResolvable = resolvable
         resolvable = createResolvable()
         oldResolvable.resolve(user)

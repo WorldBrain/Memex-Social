@@ -141,6 +141,7 @@ export default class AuthDialogLogic extends UILogic<
             header: null,
             passwordRepeat: '',
             passwordMatch: false,
+            socialLoginLoading: 'pristine',
         }
     }
 
@@ -271,7 +272,13 @@ export default class AuthDialogLogic extends UILogic<
 
     socialSignIn: EventHandler<'socialSignIn'> = async ({ event }) => {
         if (event.provider === 'bluesky') {
+            this.emitMutation({
+                socialLoginLoading: { $set: 'running' },
+            })
             const result = await this.dependencies.services.bluesky.initiateOAuthFlow()
+            this.emitMutation({
+                socialLoginLoading: { $set: 'pristine' },
+            })
 
             if (result.error) {
                 throw new Error(result.error)
@@ -285,12 +292,11 @@ export default class AuthDialogLogic extends UILogic<
 
                 // Setup broadcast channel listener
                 channel.onmessage = async (event) => {
-                    console.log('message', event)
                     const authToken = event.data
-                    const authResult = await this.dependencies.services.auth.loginWithToken(
+                    const result = await this.dependencies.services.auth.loginWithToken(
                         authToken,
                     )
-                    console.log('authResult', authResult)
+                    this._result(result.result)
                     channel.close()
                 }
 
@@ -305,8 +311,6 @@ export default class AuthDialogLogic extends UILogic<
                     '_blank',
                     `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no,scrollbars=yes,resizable=yes`,
                 )
-
-                console.log('created channel', channel)
             })
         }
 
@@ -315,6 +319,7 @@ export default class AuthDialogLogic extends UILogic<
         } = await this.dependencies.services.auth.loginWithProvider(
             event.provider,
         )
+
         this._result(result)
     }
 

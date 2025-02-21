@@ -28,6 +28,7 @@ import type {
     BlueskyList,
     BlueskyUser,
 } from '@worldbrain/memex-common/lib/bsky/storage/types'
+import { CreationInfoProps } from '@worldbrain/memex-common/lib/common-ui/components/creation-info'
 
 export interface ReaderPageViewDependencies {
     services: UIElementServices<
@@ -66,9 +67,8 @@ export type ReaderPageViewState = AnnotationConversationsState &
          * found in `listData.entry`.
          */
         sourceUrl: string | null
-        users: { [id: string]: Pick<User, 'displayName' | 'platform'> }
+        users: { [id: string]: CreationInfoProps['creatorInfo'] }
         listLoadState: UITaskState
-        blueskyUsers: { [id: string]: BlueskyUser }
         blueskyList: BlueskyList | null
         listData?: {
             reference: SharedListReference

@@ -301,6 +301,7 @@ export default class PageDetailsPage extends UIElement<
                             {state.annotationLoadState === 'success' &&
                                 !!annotations?.length && (
                                     <AnnotationsInPage
+                                        users={props.users}
                                         loadState={state.annotationLoadState}
                                         annotations={annotations}
                                         // newPageReply={

@@ -235,8 +235,11 @@ export class ReaderPageView extends UIElement<
                 )
             }
 
+            console.log('annotationsList', this.state.users)
+
             return (
                 <AnnotationsInPage
+                    users={this.state.users}
                     getRootElement={this.props.getRootElement}
                     hideThreadBar={true}
                     currentSpaceId={this.props.listID}
@@ -493,8 +496,6 @@ export class ReaderPageView extends UIElement<
                                     .reference,
                             }),
                     }}
-                    // onAnnotationBoxRootRef={this.onAnnotEntryRef}
-                    // onReplyRootRef={this.onReplyRef}
                     openImageInPreview={(imageSource) =>
                         this.processEvent('openImageInPreview', { imageSource })
                     }

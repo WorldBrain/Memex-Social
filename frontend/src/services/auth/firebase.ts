@@ -239,12 +239,12 @@ export default class FirebaseAuthService extends AuthServiceBase {
         return this._firebase.functions().httpsCallable(name)(...args)
     }
 
-    async loginWithToken(token: string) {
-        console.log('loginWithToken', token)
+    async loginWithToken(token: string): Promise<{ result: LoginResult }> {
         try {
-            return await this._firebase.auth().signInWithCustomToken(token)
-        } catch (error) {
-            console.log('error', error)
+            await this._firebase.auth().signInWithCustomToken(token)
+            return { result: { status: 'authenticated' } }
+        } catch (e) {
+            return { result: { status: 'error', reason: 'unknown' } }
         }
     }
 }

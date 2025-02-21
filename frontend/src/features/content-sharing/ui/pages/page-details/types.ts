@@ -27,6 +27,7 @@ import type {
     ExtDetectionEvent,
 } from '../../../../ext-detection/ui/logic'
 import { ImageSupportInterface } from '@worldbrain/memex-common/lib/image-support/types'
+import { CreationInfoProps } from '@worldbrain/memex-common/lib/common-ui/components/creation-info'
 
 export interface PageDetailsDependencies {
     services: UIElementServices<
@@ -55,6 +56,7 @@ export interface PageDetailsDependencies {
     userManagement: UserStorage
     imageSupport: ImageSupportInterface
     getRootElement: () => HTMLElement
+    users: { [id: string]: CreationInfoProps['creatorInfo'] }
 }
 
 export type PageDetailsState = AnnotationConversationsState &
