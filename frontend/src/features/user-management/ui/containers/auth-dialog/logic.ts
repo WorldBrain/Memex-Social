@@ -281,15 +281,11 @@ export default class AuthDialogLogic extends UILogic<
 
             if (result.error) {
                 throw new Error(result.error)
-                return
             }
+
             const authUrl = result.authUrl
-
-            return new Promise((resolve) => {
-                // Create broadcast channel for communication
+            await new Promise<void>((resolve) => {
                 const channel = new BroadcastChannel('bluesky-auth')
-
-                // Setup broadcast channel listener
                 channel.onmessage = async (event) => {
                     const authToken = event.data
                     const result = await this.dependencies.services.auth.loginWithToken(
@@ -297,6 +293,7 @@ export default class AuthDialogLogic extends UILogic<
                     )
                     this._result(result.result)
                     channel.close()
+                    resolve()
                 }
 
                 // Open popup
@@ -311,6 +308,7 @@ export default class AuthDialogLogic extends UILogic<
                     `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no,scrollbars=yes,resizable=yes`,
                 )
             })
+            return
         }
 
         const {
