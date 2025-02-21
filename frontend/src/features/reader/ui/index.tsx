@@ -32,6 +32,7 @@ import { OverlayModal } from './components/OverlayModals'
 import { hasUnsavedAnnotationEdits } from '../../annotations/ui/logic'
 import { hasUnsavedConversationEdits } from '../../content-conversations/ui/logic'
 import { sleepPromise } from '../../../utils/promises'
+import ImagePreviewModal from '@worldbrain/memex-common/lib/common-ui/image-preview-modal'
 
 const TopBarHeight = 50
 const memexLogo = require('../../../assets/img/memex-logo-beta.svg')
@@ -494,6 +495,9 @@ export class ReaderPageView extends UIElement<
                     }}
                     // onAnnotationBoxRootRef={this.onAnnotEntryRef}
                     // onReplyRootRef={this.onReplyRef}
+                    openImageInPreview={(imageSource) =>
+                        this.processEvent('openImageInPreview', { imageSource })
+                    }
                 />
             )
         }
@@ -1358,6 +1362,16 @@ export class ReaderPageView extends UIElement<
                         </Sidebar>
                     </ContainerStyled>
                 )}
+                {this.state.imageSourceForPreview &&
+                this.state.imageSourceForPreview?.length > 0 ? (
+                    <ImagePreviewModal
+                        imageSource={this.state.imageSourceForPreview}
+                        closeModal={() =>
+                            this.processEvent('openImageInPreview', null)
+                        }
+                        getRootElement={this.props.getRootElement}
+                    />
+                ) : null}
             </MainContainer>
         )
     }

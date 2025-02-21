@@ -91,6 +91,7 @@ export type ReaderPageViewState = AnnotationConversationsState &
         collaborationKey: string | null
         permissionsLoadState: UITaskState
         permissions: 'owner' | 'contributor' | null
+        imageSourceForPreview: string | null
         isYoutubeVideo: boolean
         reportURLSuccess: boolean
         showInstallTooltip: boolean
@@ -148,5 +149,6 @@ export type ReaderPageViewEvent = UIEvent<
             toggleSidebar: boolean | null
             createYoutubeNote: {}
             hideAnnotationInstruct: null
+            openImageInPreview: { imageSource: string }
         }
 >
