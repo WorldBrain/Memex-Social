@@ -74,6 +74,14 @@
                 }
             },
             {
+                "source": "/bsky/handle-bot-mention",
+                "function": {
+                    "functionId": "bsky-handleBotMention",
+                    "region": "us-central1",
+                    "pinTag": false
+                }
+            },
+            {
                 "source": "**",
                 "destination": "/index.html"
             }
