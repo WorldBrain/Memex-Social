@@ -816,6 +816,8 @@ export class ReaderPageView extends UIElement<
                 </YoutubeArea>
             )
         }
+
+        console.log('iframeLoadState', this.state.iframeLoadState)
         return (
             <>
                 <InjectedContent
@@ -857,9 +859,9 @@ export class ReaderPageView extends UIElement<
                         </div>
                     ) : (
                         this.state.iframeLoadState !== 'success' && (
-                            <LoadingBox height={'400px'}>
+                            <LoadingBoxBlurred>
                                 <LoadingIndicator size={34} />
-                            </LoadingBox>
+                            </LoadingBoxBlurred>
                         )
                     )}
                 </InjectedContent>
@@ -1616,6 +1618,21 @@ const LoadingBox = styled.div<{ height?: string; width?: string }>`
     height: ${(props) => (props.height ? props.height : 'fill-available')};
     width: ${(props) => (props.width ? props.width : '100%')};
     flex: 1;
+`
+const LoadingBoxBlurred = styled.div<{ height?: string; width?: string }>`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: ${(props) => (props.height ? props.height : 'fill-available')};
+    width: ${(props) => (props.width ? props.width : '100%')};
+    flex: 1;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: #ffffff60;
+    backdrop-filter: blur(5px);
 `
 
 const LinksContainer = styled.div`
