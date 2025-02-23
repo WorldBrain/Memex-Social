@@ -172,6 +172,10 @@ export class ReaderPageView extends UIElement<
                 ? getSinglePageShareUrl({
                       ...pageLinkIds,
                       collaborationKey: this.state.collaborationKey,
+                      environment:
+                          process.env.NODE_ENV === 'development'
+                              ? 'staging'
+                              : 'production',
                   })
                 : null,
         }
