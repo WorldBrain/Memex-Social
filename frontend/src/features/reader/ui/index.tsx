@@ -1,5 +1,5 @@
 import React from 'react'
-import styled, { css } from 'styled-components'
+import styled, { css, keyframes } from 'styled-components'
 import { UIElement } from '../../../main-ui/classes'
 import {
     ReaderPageViewDependencies,
@@ -45,6 +45,24 @@ const isIframe = () => {
         return true
     }
 }
+
+const slideUp = keyframes`
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+`
+
+const slideDown = keyframes`
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(100%);
+  }
+`
 
 export class ReaderPageView extends UIElement<
     ReaderPageViewDependencies,
@@ -869,7 +887,7 @@ export class ReaderPageView extends UIElement<
         )
     }
 
-    render() {
+    renderSidebar = (isYoutubeMobile: boolean, screenSmall: boolean) => {
         const style = {
             position: 'relative',
             right: '0px',
@@ -880,6 +898,198 @@ export class ReaderPageView extends UIElement<
             flexDirection: 'column',
         } as const
 
+        return (
+            <ContainerStyled
+                width={screenSmall ? null : this.state.sidebarWidth}
+                id={'annotationSidebarContainer'}
+                viewportBreakpoint={this.viewportBreakpoint}
+                shouldShowSidebar={
+                    this.state.showSidebar || (isYoutubeMobile && screenSmall)
+                }
+                isYoutubeMobile={isYoutubeMobile}
+            >
+                <Sidebar
+                    ref={(ref: Rnd) =>
+                        this.processEvent('setSidebarRef', {
+                            ref: ref?.getSelfElement() ?? null,
+                        })
+                    }
+                    style={style}
+                    default={{
+                        x: 0,
+                        y: 0,
+                        // width:
+                        //     screenSmall || isYoutubeMobile
+                        //         ? 'fill-available'
+                        //         : '400px',
+                        height: '100px',
+                    }}
+                    width={this.state.sidebarWidth}
+                    minWidth={screenSmall ? '100%' : this.state.sidebarWidth}
+                    resizeHandleWrapperClass={'sidebarResizeHandle'}
+                    className="sidebar-draggable"
+                    resizeGrid={[1, 0]}
+                    dragAxis={'none'}
+                    // minWidth={
+                    //     screenSmall || isYoutubeMobile
+                    //         ? 'fill-available'
+                    //         : '400px'
+                    // }
+                    // maxWidth={
+                    //     screenSmall || isYoutubeMobile
+                    //         ? 'fill-available'
+                    //         : '600px'
+                    // }
+                    disableDragging={true}
+                    enableResizing={{
+                        top: false,
+                        right: false,
+                        bottom: false,
+                        left: true,
+                        topRight: false,
+                        bottomRight: false,
+                        bottomLeft: false,
+                        topLeft: false,
+                    }}
+                    onResizeStart={() =>
+                        this.processEvent('toggleClickBlocker', null)
+                    }
+                    onResize={(
+                        e: any,
+                        direction: any,
+                        ref: any,
+                        delta: any,
+                        position: any,
+                    ) => {
+                        this.processEvent('setSidebarWidth', {
+                            width: ref.style.width,
+                        })
+                    }}
+                    onResizeStop={(
+                        e: any,
+                        direction: any,
+                        ref: any,
+                        delta: any,
+                        position: any,
+                    ) => {
+                        this.processEvent('toggleClickBlocker', null)
+                    }}
+                >
+                    {!isYoutubeMobile && !screenSmall && (
+                        <SidebarTopBar
+                            viewportBreakpoint={this.viewportBreakpoint}
+                        >
+                            <RightSideTopBar>
+                                {this.state.permissionsLoadState ===
+                                    'success' && (
+                                    <ShareContainer>
+                                        <PrimaryAction
+                                            icon={'peopleFine'}
+                                            type="primary"
+                                            label={'Share & Invite'}
+                                            size={
+                                                this.viewportBreakpoint ===
+                                                'mobile'
+                                                    ? 'small'
+                                                    : 'medium'
+                                            }
+                                            fontSize="14px"
+                                            iconSize="18px"
+                                            innerRef={this.sharePageButton}
+                                            onClick={() =>
+                                                this.processEvent(
+                                                    'showSharePageMenu',
+                                                    null,
+                                                )
+                                            }
+                                            padding="12px 10px 12px 5px"
+                                        />
+                                        {this.renderShareTooltip()}
+                                    </ShareContainer>
+                                )}
+                            </RightSideTopBar>
+                            {this.viewportBreakpoint === 'mobile' && (
+                                <Icon
+                                    icon="removeX"
+                                    heightAndWidth="24px"
+                                    onClick={() =>
+                                        this.processEvent('toggleSidebar', null)
+                                    }
+                                />
+                            )}
+                        </SidebarTopBar>
+                    )}
+                    <SidebarAnnotationContainer>
+                        {this.state.permissions != null && (
+                            <AnnotationCreateContainer>
+                                <AnnotationCreate
+                                    comment={
+                                        this.state.annotationCreateState.comment
+                                    }
+                                    isCreating={
+                                        this.state.annotationCreateState
+                                            .isCreating
+                                    }
+                                    onCancel={() =>
+                                        this.processEvent(
+                                            'cancelAnnotationCreate',
+                                            null,
+                                        )
+                                    }
+                                    onConfirm={() =>
+                                        this.processEvent(
+                                            'confirmAnnotationCreate',
+                                            null,
+                                        )
+                                    }
+                                    setAnnotationCreating={(value) =>
+                                        this.processEvent(
+                                            'setAnnotationCreating',
+                                            { isCreating: value },
+                                        )
+                                    }
+                                    setEditorInstanceRef={(ref) =>
+                                        (this.editor = ref)
+                                    }
+                                    onChange={(comment) => {
+                                        this.processEvent(
+                                            'changeAnnotationCreateComment',
+                                            {
+                                                comment,
+                                            },
+                                        )
+                                    }}
+                                    getYoutubePlayer={() =>
+                                        this.state.listLoadState === 'success'
+                                            ? this.props.services.youtube.getPlayerByElementId(
+                                                  getReaderYoutubePlayerId(
+                                                      this.state.listData!.entry
+                                                          .normalizedUrl,
+                                                  ),
+                                              )
+                                            : null!
+                                    }
+                                    imageSupport={this.props.imageSupport}
+                                    getRootElement={() =>
+                                        this.props.getRootElement()
+                                    }
+                                />
+                            </AnnotationCreateContainer>
+                        )}
+                        {this.state.listData && (
+                            <AnnotationsidebarContainer>
+                                {this.renderPageAnnotations(
+                                    this.state.listData.entry,
+                                )}
+                            </AnnotationsidebarContainer>
+                        )}
+                    </SidebarAnnotationContainer>
+                </Sidebar>
+            </ContainerStyled>
+        )
+    }
+
+    render() {
         const normalizedURL = this.state.listData?.entry.normalizedUrl
         let loadState = undefined
 
@@ -894,6 +1104,7 @@ export class ReaderPageView extends UIElement<
 
         let screenSmall = false
 
+        console.log('viewportBreakpoint', this.viewportBreakpoint)
         if (
             this.viewportBreakpoint === 'mobile' ||
             this.viewportBreakpoint === 'small'
@@ -908,6 +1119,10 @@ export class ReaderPageView extends UIElement<
         ) {
             isYoutubeMobile = true
         }
+
+        console.log('isYoutubeMobile', isYoutubeMobile)
+        console.log('screenSmall', screenSmall)
+        console.log('this.state.sourceUrl', this.state.sourceUrl)
 
         return (
             <MainContainer isYoutubeMobile={isYoutubeMobile}>
@@ -1009,51 +1224,53 @@ export class ReaderPageView extends UIElement<
                                             {this.renderShareTooltip()}
                                         </ShareContainer>
                                     )}
-                                    {this.viewportBreakpoint === 'mobile' &&
-                                        !isYoutubeMobile && (
-                                            <>
-                                                {loadState ? (
-                                                    <SidebarButtonBox
-                                                        onClick={() =>
-                                                            this.processEvent(
-                                                                'toggleSidebar',
-                                                                null,
-                                                            )
+                                    {screenSmall && (
+                                        <>
+                                            {loadState ? (
+                                                <SidebarButtonBox
+                                                    onClick={() =>
+                                                        this.processEvent(
+                                                            'toggleSidebar',
+                                                            null,
+                                                        )
+                                                    }
+                                                >
+                                                    <Icon
+                                                        icon={
+                                                            this.state
+                                                                .showSidebar
+                                                                ? 'removeX'
+                                                                : 'commentAdd'
                                                         }
-                                                    >
-                                                        <Icon
-                                                            icon="commentAdd"
-                                                            heightAndWidth="24px"
-                                                        />
-                                                        {annotationCounter >
-                                                            0 && (
-                                                            <AnnotationCounter
-                                                                onClick={() =>
-                                                                    this.processEvent(
-                                                                        'toggleSidebar',
-                                                                        null,
-                                                                    )
-                                                                }
-                                                            >
-                                                                {
-                                                                    Object.keys(
-                                                                        this
-                                                                            .state
-                                                                            .annotations,
-                                                                    ).length
-                                                                }
-                                                            </AnnotationCounter>
-                                                        )}
-                                                    </SidebarButtonBox>
-                                                ) : (
-                                                    <LoadingBox width={'30px'}>
-                                                        <LoadingIndicator
-                                                            size={20}
-                                                        />
-                                                    </LoadingBox>
-                                                )}
-                                            </>
-                                        )}
+                                                        heightAndWidth="24px"
+                                                    />
+                                                    {annotationCounter > 0 && (
+                                                        <AnnotationCounter
+                                                            onClick={() =>
+                                                                this.processEvent(
+                                                                    'toggleSidebar',
+                                                                    null,
+                                                                )
+                                                            }
+                                                        >
+                                                            {
+                                                                Object.keys(
+                                                                    this.state
+                                                                        .annotations,
+                                                                ).length
+                                                            }
+                                                        </AnnotationCounter>
+                                                    )}
+                                                </SidebarButtonBox>
+                                            ) : (
+                                                <LoadingBox width={'30px'}>
+                                                    <LoadingIndicator
+                                                        size={20}
+                                                    />
+                                                </LoadingBox>
+                                            )}
+                                        </>
+                                    )}
                                 </>
                             ) : (
                                 <>
@@ -1165,208 +1382,19 @@ export class ReaderPageView extends UIElement<
                         </LoadingBox>
                     )}
                 </LeftSide>
-                {this.state.sourceUrl != null && (
-                    <ContainerStyled
-                        width={this.state.sidebarWidth}
-                        id={'annotationSidebarContainer'}
-                        viewportBreakpoint={this.viewportBreakpoint}
-                        shouldShowSidebar={
-                            this.state.showSidebar ||
-                            (isYoutubeMobile && screenSmall)
-                        }
-                        isYoutubeMobile={isYoutubeMobile}
-                    >
-                        <Sidebar
-                            ref={(ref: Rnd) =>
-                                this.processEvent('setSidebarRef', {
-                                    ref: ref?.getSelfElement() ?? null,
-                                })
-                            }
-                            style={style}
-                            default={{
-                                x: 0,
-                                y: 0,
-                                // width:
-                                //     screenSmall || isYoutubeMobile
-                                //         ? 'fill-available'
-                                //         : '400px',
-                                height: '100px',
-                            }}
-                            width={this.state.sidebarWidth}
-                            minWidth={400}
-                            resizeHandleWrapperClass={'sidebarResizeHandle'}
-                            className="sidebar-draggable"
-                            resizeGrid={[1, 0]}
-                            dragAxis={'none'}
-                            // minWidth={
-                            //     screenSmall || isYoutubeMobile
-                            //         ? 'fill-available'
-                            //         : '400px'
-                            // }
-                            // maxWidth={
-                            //     screenSmall || isYoutubeMobile
-                            //         ? 'fill-available'
-                            //         : '600px'
-                            // }
-                            disableDragging={true}
-                            enableResizing={{
-                                top: false,
-                                right: false,
-                                bottom: false,
-                                left: true,
-                                topRight: false,
-                                bottomRight: false,
-                                bottomLeft: false,
-                                topLeft: false,
-                            }}
-                            onResizeStart={() =>
-                                this.processEvent('toggleClickBlocker', null)
-                            }
-                            onResize={(
-                                e: any,
-                                direction: any,
-                                ref: any,
-                                delta: any,
-                                position: any,
-                            ) => {
-                                this.processEvent('setSidebarWidth', {
-                                    width: ref.style.width,
-                                })
-                            }}
-                            onResizeStop={(
-                                e: any,
-                                direction: any,
-                                ref: any,
-                                delta: any,
-                                position: any,
-                            ) => {
-                                this.processEvent('toggleClickBlocker', null)
-                            }}
-                        >
-                            {!isYoutubeMobile && (
-                                <SidebarTopBar
-                                    viewportBreakpoint={this.viewportBreakpoint}
-                                >
-                                    <RightSideTopBar>
-                                        {this.state.permissionsLoadState ===
-                                            'success' && (
-                                            <ShareContainer>
-                                                <PrimaryAction
-                                                    icon={'peopleFine'}
-                                                    type="primary"
-                                                    label={'Share & Invite'}
-                                                    size={
-                                                        this
-                                                            .viewportBreakpoint ===
-                                                        'mobile'
-                                                            ? 'small'
-                                                            : 'medium'
-                                                    }
-                                                    fontSize="14px"
-                                                    iconSize="18px"
-                                                    innerRef={
-                                                        this.sharePageButton
-                                                    }
-                                                    onClick={() =>
-                                                        this.processEvent(
-                                                            'showSharePageMenu',
-                                                            null,
-                                                        )
-                                                    }
-                                                    padding="12px 10px 12px 5px"
-                                                />
-                                                {this.renderShareTooltip()}
-                                            </ShareContainer>
-                                        )}
-                                    </RightSideTopBar>
-                                    {this.viewportBreakpoint === 'mobile' && (
-                                        <Icon
-                                            icon="removeX"
-                                            heightAndWidth="24px"
-                                            onClick={() =>
-                                                this.processEvent(
-                                                    'toggleSidebar',
-                                                    null,
-                                                )
-                                            }
-                                        />
-                                    )}
-                                </SidebarTopBar>
-                            )}
-                            <SidebarAnnotationContainer>
-                                {this.state.permissions != null && (
-                                    <AnnotationCreateContainer>
-                                        <AnnotationCreate
-                                            comment={
-                                                this.state.annotationCreateState
-                                                    .comment
-                                            }
-                                            isCreating={
-                                                this.state.annotationCreateState
-                                                    .isCreating
-                                            }
-                                            onCancel={() =>
-                                                this.processEvent(
-                                                    'cancelAnnotationCreate',
-                                                    null,
-                                                )
-                                            }
-                                            onConfirm={() =>
-                                                this.processEvent(
-                                                    'confirmAnnotationCreate',
-                                                    null,
-                                                )
-                                            }
-                                            setAnnotationCreating={(value) =>
-                                                this.processEvent(
-                                                    'setAnnotationCreating',
-                                                    { isCreating: value },
-                                                )
-                                            }
-                                            setEditorInstanceRef={(ref) =>
-                                                (this.editor = ref)
-                                            }
-                                            onChange={(comment) => {
-                                                this.processEvent(
-                                                    'changeAnnotationCreateComment',
-                                                    {
-                                                        comment,
-                                                    },
-                                                )
-                                            }}
-                                            getYoutubePlayer={() =>
-                                                this.state.listLoadState ===
-                                                'success'
-                                                    ? this.props.services.youtube.getPlayerByElementId(
-                                                          getReaderYoutubePlayerId(
-                                                              this.state
-                                                                  .listData!
-                                                                  .entry
-                                                                  .normalizedUrl,
-                                                          ),
-                                                      )
-                                                    : null!
-                                            }
-                                            imageSupport={
-                                                this.props.imageSupport
-                                            }
-                                            getRootElement={() =>
-                                                this.props.getRootElement()
-                                            }
-                                        />
-                                    </AnnotationCreateContainer>
+                {this.state.sourceUrl != null &&
+                    (screenSmall ? (
+                        <BottomModal visible={this.state.showSidebar}>
+                            <BottomModalContent>
+                                {this.renderSidebar(
+                                    isYoutubeMobile,
+                                    screenSmall,
                                 )}
-                                {this.state.listData && (
-                                    <AnnotationsidebarContainer>
-                                        {this.renderPageAnnotations(
-                                            this.state.listData.entry,
-                                        )}
-                                    </AnnotationsidebarContainer>
-                                )}
-                            </SidebarAnnotationContainer>
-                        </Sidebar>
-                    </ContainerStyled>
-                )}
+                            </BottomModalContent>
+                        </BottomModal>
+                    ) : (
+                        this.renderSidebar(isYoutubeMobile, screenSmall)
+                    ))}
                 {this.state.imageSourceForPreview &&
                 this.state.imageSourceForPreview?.length > 0 ? (
                     <ImagePreviewModal
@@ -1662,6 +1690,7 @@ const SidebarAnnotationContainer = styled.div`
     scrollbar-width: none;
     display: flex;
     flex-direction: column;
+    padding: 0 10px;
 `
 
 const LinkBox = styled.div`
@@ -1887,7 +1916,7 @@ const Sidebar = styled(Rnd)`
 `
 
 const ContainerStyled = styled.div<{
-    width: number
+    width: number | null
     viewportBreakpoint: string
     shouldShowSidebar?: boolean
     isYoutubeMobile?: boolean
@@ -1899,8 +1928,8 @@ const ContainerStyled = styled.div<{
     position: relative;
     top: 0px;
     right: 0px;
-    width: ${(props) => props.width}px;
-    min-width: ${(props) => props.width}px;
+    width: ${(props) => (props.width ? props.width + 'px' : '100%')};
+    min-width: ${(props) => (props.width ? props.width + 'px' : '100%')};
     border-left: 1px solid ${(props) => props.theme.colors.greyScale3};
     font-family: 'Satoshi', sans-serif;
     font-feature-settings: 'pnum' on, 'lnum' on, 'case' on, 'ss03' on, 'ss04' on,
@@ -1941,4 +1970,32 @@ const ContainerStyled = styled.div<{
             border-left: none;
             height: 300px;
         `}
+`
+
+const BottomModal = styled.div<{ visible: boolean }>`
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: calc(100% - ${TopBarHeight}px);
+    background: #ffffff70;
+    backdrop-filter: blur(10px);
+    display: ${(props) => (props.visible ? 'flex' : 'none')};
+    padding-top: ${TopBarHeight + 10}px;
+`
+
+const BottomModalContent = styled.div<{ isClosing?: boolean }>`
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    border-radius: 10px 10px 0 0;
+    background: ${(props) => props.theme.colors.white};
+    animation: ${(props) => (props.isClosing ? slideDown : slideUp)} 0.3s
+        ease-in-out forwards;
 `
