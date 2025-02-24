@@ -315,6 +315,9 @@ export default class PageDetailsPage extends UIElement<
                                         getAnnotationCreatorRef={() =>
                                             state.creatorReference
                                         }
+                                        viewportBreakpoint={
+                                            this.viewportBreakpoint
+                                        }
                                         profilePopupProps={{
                                             services: this.props.services,
                                         }}

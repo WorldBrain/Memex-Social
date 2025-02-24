@@ -191,7 +191,7 @@ export class ReaderPageViewLogic extends UILogic<
                             annotationEditStates: {
                                 [annotation.linkId]: {
                                     $set: {
-                                        isEditing: false,
+                                        isEditing: true,
                                         loadState: 'pristine',
                                         comment: annotation.comment ?? '',
                                     },

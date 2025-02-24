@@ -269,6 +269,7 @@ export class ReaderPageView extends UIElement<
                     imageSupport={this.props.imageSupport}
                     variant={'dark-mode'}
                     pageEntry={entry}
+                    viewportBreakpoint={this.viewportBreakpoint}
                     // newPageReply={
                     //     this.isListContributor || state.isListOwner
                     //         ? state.newPageReplies[entry.normalizedUrl]
