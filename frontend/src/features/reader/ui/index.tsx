@@ -19,7 +19,10 @@ import AnnotationsInPage from '@worldbrain/memex-common/lib/content-conversation
 import AnnotationCreate from '@worldbrain/memex-common/lib/content-conversations/ui/components/annotation-create'
 import AuthHeader from '../../user-management/ui/containers/auth-header'
 import { PopoutBox } from '@worldbrain/memex-common/lib/common-ui/components/popout-box'
-import { getSinglePageShareUrl } from '@worldbrain/memex-common/lib/content-sharing/utils'
+import {
+    getPageLinkPath,
+    getWebUIBaseUrl,
+} from '@worldbrain/memex-common/lib/content-sharing/utils'
 import LoadingIndicator from '@worldbrain/memex-common/lib/common-ui/components/loading-indicator'
 import IconBox from '@worldbrain/memex-common/lib/common-ui/components/icon-box'
 import { getReaderYoutubePlayerId } from '../utils/utils'
@@ -118,6 +121,7 @@ export class ReaderPageView extends UIElement<
     }
 
     async componentDidMount() {
+        window['_state'] = () => ({ ...this.state })
         window.addEventListener('beforeunload', this.handleBeforeUnload)
         await super.componentDidMount()
 
@@ -175,6 +179,9 @@ export class ReaderPageView extends UIElement<
     // }
 
     private get pageLinks(): { reader: string; collab: string | null } | null {
+        let baseUrl = getWebUIBaseUrl(
+            process.env.NODE_ENV === 'development' ? 'staging' : 'production',
+        )
         const pageLinkIds = {
             remoteListEntryId: this.props.entryID,
             remoteListId: this.props.listID,
@@ -185,16 +192,12 @@ export class ReaderPageView extends UIElement<
         }
 
         return {
-            reader: getSinglePageShareUrl(pageLinkIds),
+            reader: `${baseUrl}${getPageLinkPath(pageLinkIds)}`,
             collab: this.state.collaborationKey
-                ? getSinglePageShareUrl({
+                ? `${baseUrl}${getPageLinkPath({
                       ...pageLinkIds,
                       collaborationKey: this.state.collaborationKey,
-                      environment:
-                          process.env.NODE_ENV === 'development'
-                              ? 'staging'
-                              : 'production',
-                  })
+                  })}`
                 : null,
         }
     }
