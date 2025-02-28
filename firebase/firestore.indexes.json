@@ -1,47 +1,47 @@
 {
-  "indexes": [
-    {
-      "collectionGroup": "objects",
-      "queryScope": "COLLECTION",
-      "fields": [
+    "indexes": [
         {
-          "fieldPath": "collection",
-          "order": "ASCENDING"
+            "collectionGroup": "objects",
+            "queryScope": "COLLECTION",
+            "fields": [
+                {
+                    "fieldPath": "collection",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "createdWhen",
+                    "order": "ASCENDING"
+                }
+            ]
         },
         {
-          "fieldPath": "createdWhen",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "sharedAnnotationListEntry",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "sharedList",
-          "order": "ASCENDING"
+            "collectionGroup": "sharedAnnotationListEntry",
+            "queryScope": "COLLECTION",
+            "fields": [
+                {
+                    "fieldPath": "sharedList",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "createdWhen",
+                    "order": "ASCENDING"
+                }
+            ]
         },
         {
-          "fieldPath": "createdWhen",
-          "order": "ASCENDING"
+            "collectionGroup": "sharedListEntry",
+            "queryScope": "COLLECTION",
+            "fields": [
+                {
+                    "fieldPath": "sharedList",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "createdWhen",
+                    "order": "DESCENDING"
+                }
+            ]
         }
-      ]
-    },
-    {
-      "collectionGroup": "sharedListEntry",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "sharedList",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "createdWhen",
-          "order": "DESCENDING"
-        }
-      ]
-    }
-  ],
-  "fieldOverrides": []
+    ],
+    "fieldOverrides": []
 }
