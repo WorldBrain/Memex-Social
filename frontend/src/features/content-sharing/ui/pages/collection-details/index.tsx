@@ -27,7 +27,6 @@ import { getViewportBreakpoint } from '../../../../../main-ui/styles/utils'
 import AnnotationsInPage from '../../../../annotations/ui/components/annotations-in-page'
 import ErrorWithAction from '../../../../../common-ui/components/error-with-action'
 import FollowBtn from '../../../../activity-follows/ui/components/follow-btn'
-import WebMonetizationIcon from '../../../../web-monetization/ui/components/web-monetization-icon'
 import InstallExtOverlay from '../../../../ext-detection/ui/components/install-ext-overlay'
 import { mergeTaskStates } from '../../../../../main-ui/classes/logic'
 import { UserReference } from '../../../../user-management/types'
@@ -125,7 +124,7 @@ export default class CollectionDetailsPage extends UIElement<
     }
 
     onAnnotEntryRef: AnnotationsInPageProps['onAnnotationBoxRootRef'] = (
-        event,
+        event: any,
     ) => {
         this.handleScrollableRef(
             event.annotation.createdWhen,
@@ -134,7 +133,7 @@ export default class CollectionDetailsPage extends UIElement<
         )
     }
 
-    onReplyRef: AnnotationsInPageProps['onReplyRootRef'] = (event) => {
+    onReplyRef: AnnotationsInPageProps['onReplyRootRef'] = (event: any) => {
         this.handleScrollableRef(
             event.reply.reply.createdWhen,
             event.element,
@@ -217,46 +216,6 @@ export default class CollectionDetailsPage extends UIElement<
         await this.processEvent('updateScrollState', {
             previousScrollTop: previousState.scrollTop!,
         })
-    }
-
-    private renderWebMonetizationIcon() {
-        const creatorReference = this.state.listData?.creatorReference
-
-        if (!creatorReference) {
-            return
-        }
-
-        if (this.state.isListOwner) {
-            return (
-                <PrimaryAction
-                    type={'tertiary'}
-                    icon={'addPeople'}
-                    iconColor={'prime1'}
-                    size={
-                        this.viewportBreakpoint === 'mobile'
-                            ? 'small'
-                            : 'medium'
-                    }
-                    onClick={() =>
-                        this.processEvent('toggleListShareModal', {})
-                    }
-                    label={'Invite Contributors'}
-                />
-            )
-        }
-
-        if (this.isListContributor) {
-            return
-        }
-
-        return (
-            <WebMonetizationIcon
-                services={this.props.services}
-                curatorUserRef={creatorReference}
-                isFollowedSpace={this.state.isCollectionFollowed}
-                getRootElement={this.props.getRootElement}
-            />
-        )
     }
 
     getPageEntryActions(
@@ -455,6 +414,8 @@ export default class CollectionDetailsPage extends UIElement<
 
         return (
             <AnnotationsInPage
+                users={this.state.users}
+                viewportBreakpoint={this.viewportBreakpoint}
                 originalUrl={entry.originalUrl}
                 contextLocation={'webUI'}
                 imageSupport={this.props.imageSupport}
@@ -513,7 +474,9 @@ export default class CollectionDetailsPage extends UIElement<
                     comment:
                         this.state.replyEditStates[replyReference.id]?.text ??
                         '',
-                    setAnnotationDeleting: (isDeleting) => (event) =>
+                    setAnnotationDeleting: (isDeleting) => (
+                        event: React.MouseEvent<HTMLDivElement>,
+                    ) =>
                         this.processEvent('setReplyToAnnotationDeleting', {
                             isDeleting,
                             replyReference,
@@ -524,7 +487,9 @@ export default class CollectionDetailsPage extends UIElement<
                             replyReference,
                         })
                     },
-                    setAnnotationHovering: (isHovering) => (event) => {
+                    setAnnotationHovering: (isHovering) => (
+                        event: React.MouseEvent<HTMLDivElement>,
+                    ) => {
                         this.processEvent('setReplyToAnnotationHovering', {
                             isHovering,
                             replyReference,
@@ -571,7 +536,9 @@ export default class CollectionDetailsPage extends UIElement<
                     comment:
                         this.state.annotationEditStates[annotationRef.id]
                             ?.comment ?? '',
-                    setAnnotationDeleting: (isDeleting) => (event) =>
+                    setAnnotationDeleting: (isDeleting) => (
+                        event: React.MouseEvent<HTMLDivElement>,
+                    ) =>
                         this.processEvent('setAnnotationDeleting', {
                             isDeleting,
                             annotationId: annotationRef.id,
@@ -582,7 +549,9 @@ export default class CollectionDetailsPage extends UIElement<
                             annotationId: annotationRef.id,
                         })
                     },
-                    setAnnotationHovering: (isHovering) => (event) => {
+                    setAnnotationHovering: (isHovering) => (
+                        event: React.MouseEvent<HTMLDivElement>,
+                    ) => {
                         this.processEvent('setAnnotationHovering', {
                             isHovering,
                             annotationId: annotationRef.id,
@@ -619,8 +588,13 @@ export default class CollectionDetailsPage extends UIElement<
                     ]?.creator
                     return creatorRef
                 }}
-                profilePopupProps={{ services: this.props.services }}
-                onToggleReplies={(event) =>
+                profilePopupProps={{
+                    services: this.props.services,
+                    children: null,
+                }}
+                onToggleReplies={(event: {
+                    annotationReference: SharedAnnotationReference
+                }) =>
                     this.processEvent('toggleAnnotationReplies', {
                         ...event,
                         sharedListReference: this.sharedListReference,
@@ -727,7 +701,7 @@ export default class CollectionDetailsPage extends UIElement<
                 <TitleClick
                     onClick={
                         !this.isIframe()
-                            ? (e) => {
+                            ? (e: React.MouseEvent<HTMLDivElement>) => {
                                   this.processEvent('clickPageResult', {
                                       urlToOpen:
                                           listData?.listEntries[0].originalUrl,
@@ -919,7 +893,9 @@ export default class CollectionDetailsPage extends UIElement<
                                 {users.length - showListRoleLimit() > 0 && (
                                     <>
                                         <ShowMoreCollaborators
-                                            onClick={(event) =>
+                                            onClick={(
+                                                event: React.MouseEvent<HTMLDivElement>,
+                                            ) =>
                                                 this.processEvent(
                                                     'toggleMoreCollaborators',
                                                     {
@@ -1061,7 +1037,7 @@ export default class CollectionDetailsPage extends UIElement<
                     icon={'searchIcon'}
                     placeholder="Search"
                     value={this.state.searchQuery}
-                    onChange={(event) => {
+                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                         this.processEvent('loadSearchResults', {
                             query: (event.target as HTMLInputElement).value,
                             sharedListIds: this.props.listID,
@@ -1070,7 +1046,9 @@ export default class CollectionDetailsPage extends UIElement<
                             endDateFilterValue: this.state.endDateFilterValue,
                         })
                     }}
-                    onKeyDown={(event) => {}}
+                    onKeyDown={(
+                        event: React.KeyboardEvent<HTMLInputElement>,
+                    ) => {}}
                     background={'greyScale1'}
                     height="34px"
                     width="220px"
@@ -1094,7 +1072,9 @@ export default class CollectionDetailsPage extends UIElement<
                                     .endDateFilterValue,
                             })
                         }, 200)}
-                        onKeyDown={(event) => {}}
+                        onKeyDown={(
+                            event: React.KeyboardEvent<HTMLInputElement>,
+                        ) => {}}
                         background={'greyScale1'}
                         height="34px"
                         width="180px"
@@ -1109,17 +1089,22 @@ export default class CollectionDetailsPage extends UIElement<
                         icon={'calendar'}
                         placeholder="to when?"
                         // value={this.state.endDateFilterValue}
-                        onChange={debounce((event) => {
-                            this.processEvent('loadSearchResults', {
-                                query: this.state.searchQuery,
-                                sharedListIds: this.props.listID,
-                                startDateFilterValue: this.state
-                                    .startDateFilterValue,
-                                endDateFilterValue: (event.target as HTMLInputElement)
-                                    .value,
-                            })
-                        }, 200)}
-                        onKeyDown={(event) => {}}
+                        onChange={debounce(
+                            (event: React.ChangeEvent<HTMLInputElement>) => {
+                                this.processEvent('loadSearchResults', {
+                                    query: this.state.searchQuery,
+                                    sharedListIds: this.props.listID,
+                                    startDateFilterValue: this.state
+                                        .startDateFilterValue,
+                                    endDateFilterValue: (event.target as HTMLInputElement)
+                                        .value,
+                                })
+                            },
+                            200,
+                        )}
+                        onKeyDown={(
+                            event: React.KeyboardEvent<HTMLInputElement>,
+                        ) => {}}
                         background={'greyScale1'}
                         height="34px"
                         width="180px"
@@ -1658,7 +1643,9 @@ export default class CollectionDetailsPage extends UIElement<
                 {this.state.actionBarSearchAndAddMode === 'AddLinks' && (
                     <TextFieldContainer>
                         <TextArea
-                            onChange={(event) => {
+                            onChange={(
+                                event: React.ChangeEvent<HTMLTextAreaElement>,
+                            ) => {
                                 this.processEvent('updateAddLinkField', {
                                     textFieldValue: (event?.target as HTMLTextAreaElement)
                                         .value,
@@ -1981,7 +1968,6 @@ export default class CollectionDetailsPage extends UIElement<
                     headerSubtitle={this.renderSubtitle()}
                     followBtn={this.renderFollowBtn()()}
                     renderHeaderActionArea={this.renderHeaderActionArea()}
-                    webMonetizationIcon={this.renderWebMonetizationIcon()}
                     // listsSidebarProps={this.listsSidebarProps}
                     // isSidebarShown={this.listsSidebarProps.isShown}
                     // permissionKeyOverlay={this.renderPermissionKeyOverlay()}
@@ -2136,7 +2122,9 @@ export default class CollectionDetailsPage extends UIElement<
                                                         entry &&
                                                         entry.entryTitle
                                                     }
-                                                    onClick={(e) => {
+                                                    onClick={(
+                                                        e: React.MouseEvent<HTMLDivElement>,
+                                                    ) => {
                                                         this.processEvent(
                                                             'clickPageResult',
                                                             {
@@ -2249,7 +2237,7 @@ export default class CollectionDetailsPage extends UIElement<
                                                 ) : undefined}
                                                 <ItemBoxBottom
                                                     creationInfo={{
-                                                        creator: this.state
+                                                        creatorInfo: this.state
                                                             .users[
                                                             entry.creator.id
                                                         ],

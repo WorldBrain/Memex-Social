@@ -22,12 +22,7 @@ const headerBackground = require('../../assets/img/headerBackground.svg')
 
 export default function DefaultPageLayout(props: {
     services: UIElementServices<
-        | 'auth'
-        | 'overlay'
-        | 'router'
-        | 'activityStreams'
-        | 'userManagement'
-        | 'webMonetization'
+        'auth' | 'overlay' | 'router' | 'activityStreams' | 'userManagement'
     >
     storage: Pick<StorageModules, 'activityStreams'>
     headerTitle?: string | JSX.Element

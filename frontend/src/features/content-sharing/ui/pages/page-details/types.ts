@@ -37,7 +37,6 @@ export interface PageDetailsDependencies {
         | 'activityStreams'
         | 'router'
         | 'userManagement'
-        | 'webMonetization'
         | 'localStorage'
         | 'documentTitle'
         | 'userMessages'
@@ -51,6 +50,7 @@ export interface PageDetailsDependencies {
         | 'users'
         | 'activityStreams'
         | 'activityFollows'
+        | 'bluesky'
     >
     pageID: string
     userManagement: UserStorage

@@ -113,7 +113,7 @@ const ProfileBio = styled(Margin)<{ theme: Theme }>`
 interface ProfilePopupProps {
     user: User
     userRef: UserReference | null
-    services: UIElementServices<'userManagement' | 'webMonetization'>
+    services: UIElementServices<'userManagement'>
     taskState: UITaskState
     userPublicProfile: UserPublicProfile | null
     webLinksArray: ProfileWebLink[]

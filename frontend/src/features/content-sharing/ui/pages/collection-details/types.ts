@@ -35,6 +35,7 @@ import type {
 import type StorageManager from '@worldbrain/storex'
 import type { ImageSupportInterface } from '@worldbrain/memex-common/lib/image-support/types'
 import type { BlueskyList } from '@worldbrain/memex-common/lib/bsky/storage/types'
+import { CreationInfoProps } from '@worldbrain/memex-common/lib/common-ui/components/creation-info'
 
 export interface CollectionDetailsDependencies {
     listID: string
@@ -51,7 +52,6 @@ export interface CollectionDetailsDependencies {
         | 'activityStreams'
         | 'documentTitle'
         | 'userManagement'
-        | 'webMonetization'
         | 'localStorage'
         | 'clipboard'
         | 'userMessages'
@@ -108,7 +108,7 @@ export type CollectionDetailsState = AnnotationConversationsState &
         isListOwner?: boolean
         scrollTop?: number
         scrolledComponent?: JSX.Element
-        users: { [id: string]: Pick<User, 'displayName' | 'platform'> }
+        users: { [id: string]: CreationInfoProps['creatorInfo'] }
         searchQuery: string
         dateFilterVisible: boolean
         endDateFilterValue: string

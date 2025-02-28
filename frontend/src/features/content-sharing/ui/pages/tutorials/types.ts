@@ -10,7 +10,6 @@ export interface LoginOrSignupPageDependencies {
         | 'overlay'
         | 'contentSharing'
         | 'userManagement'
-        | 'webMonetization'
         | 'activityStreams'
         | 'pdfUploadService'
     >

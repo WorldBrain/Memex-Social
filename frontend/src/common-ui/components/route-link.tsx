@@ -45,7 +45,7 @@ export default function RouteLink(props: Props) {
             className={props.className}
             href={url}
             target={props.target}
-            onClick={(event) => {
+            onClick={(event: React.MouseEvent<HTMLAnchorElement>) => {
                 if (
                     event.metaKey ||
                     event.ctrlKey ||

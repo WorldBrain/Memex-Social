@@ -29,7 +29,6 @@ import { LimitedWebStorage } from '../utils/web-storage/types'
 import CallModifier from '../utils/call-modifier'
 import { DocumentTitleService } from './document-title'
 import UserManagementService from '../features/user-management/service'
-import FirebaseWebMonetizationService from '../features/web-monetization/service/firebase'
 import { MemoryLocalStorageService } from './local-storage/memory'
 import { BrowserLocalStorageService } from './local-storage/browser'
 import { ListKeysService } from '../features/content-sharing/service'
@@ -161,14 +160,7 @@ export function createServices(options: {
         storage: options.storage.serverModules.users,
         auth,
     })
-    // const webMonetization = options.backend === 'memory' ? new MemoryWebMonetizationService({
-    //     services: { userManagement, auth }
-    // }) : new FirebaseWebMonetizationService({
-    //     services: { userManagement, auth }
-    // })
-    const webMonetization = new FirebaseWebMonetizationService({
-        services: { userManagement, auth },
-    })
+
     const localStorage =
         options.backend === 'memory'
             ? new MemoryLocalStorageService()
@@ -279,7 +271,6 @@ export function createServices(options: {
             services: { activityStreams, router },
             auth,
         }),
-        webMonetization,
         youtube: new YoutubeService(options.youtubeOptions),
         analytics,
         summarization: new SummarizationService({

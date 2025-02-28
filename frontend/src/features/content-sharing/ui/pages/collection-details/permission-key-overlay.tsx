@@ -7,8 +7,8 @@ import { UITaskState } from '../../../../../main-ui/types'
 import { Margin } from 'styled-components-spacing'
 import ExternalLink from '../../../../../common-ui/components/external-link'
 import { ProcessSharedListKeyResult } from '@worldbrain/memex-common/lib/content-sharing/service/types'
-import { PrimaryAction } from '../../../../../common-ui/components/PrimaryAction'
 import Icon from '@worldbrain/memex-common/lib/common-ui/components/icon'
+import { PrimaryAction } from '@worldbrain/memex-common/lib/common-ui/components/PrimaryAction'
 
 const Content = styled.div<{
     viewportBreakpoint: ViewportBreakpoint

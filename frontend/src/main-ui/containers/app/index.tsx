@@ -9,7 +9,9 @@ import { StorageModules } from '../../../storage/types'
 
 interface Props {
     children: React.ReactNode
-    services: UIElementServices<'auth' | 'overlay' | 'router' | 'listKeys'>
+    services: UIElementServices<
+        'auth' | 'overlay' | 'router' | 'listKeys' | 'bluesky'
+    >
     storage: Pick<StorageModules, 'users'>
 }
 

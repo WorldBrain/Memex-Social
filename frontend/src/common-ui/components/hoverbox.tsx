@@ -15,6 +15,7 @@ export interface Props {
     onMouseLeave?: () => void
     marginTop?: string
     marginLeft?: string
+    children?: React.ReactNode
 }
 
 export class HoverBox extends React.Component<Props> {

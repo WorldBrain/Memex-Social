@@ -22,6 +22,8 @@ import IconBox from '@worldbrain/memex-common/lib/common-ui/components/icon-box'
 import TextField from '@worldbrain/memex-common/lib/common-ui/components/text-field'
 import type { AuthProvider } from '../../../../../types/auth'
 import LoadingIndicator from '@worldbrain/memex-common/lib/common-ui/components/loading-indicator'
+import { IconKeys } from '@worldbrain/memex-common/lib/common-ui/styles/types'
+import { IconKeysMobile } from '@worldbrain/memex-common/lib/common-ui/styles/types'
 
 const FRIENDLY_ERRORS: { [Key in AuthError['reason']]: string } = {
     'popup-blocked': 'Could not open a popup for you to log in',
@@ -538,7 +540,7 @@ export default class AuthDialog extends UIElement<
 }
 
 function SocialLogin(props: {
-    icon: string
+    icon: IconKeys | IconKeysMobile
     provider: AuthProvider
     onClick(event: { provider: AuthProvider }): void
     mode: AuthDialogMode

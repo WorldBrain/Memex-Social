@@ -304,11 +304,6 @@ export default class PageDetailsPage extends UIElement<
                                         users={props.users}
                                         loadState={state.annotationLoadState}
                                         annotations={annotations}
-                                        // newPageReply={
-                                        //     state.newPageReplies[
-                                        //         normalizedPageUrl
-                                        //     ]
-                                        // }
                                         getAnnotationCreator={() =>
                                             state.creator
                                         }
@@ -320,6 +315,7 @@ export default class PageDetailsPage extends UIElement<
                                         }
                                         profilePopupProps={{
                                             services: this.props.services,
+                                            children: null,
                                         }}
                                         annotationConversations={
                                             state.conversations

@@ -262,6 +262,7 @@ export class ReaderPageViewLogic extends UILogic<
             },
             annotationLoadStates: {},
             users: {},
+            imageSourceForPreview: null,
             sidebarWidth: 450,
             activeAnnotationId: null,
             collaborationKey: null,
@@ -1116,6 +1117,14 @@ export class ReaderPageViewLogic extends UILogic<
                                 ) as HTMLElement
                         }
                         hideAddToSpaceBtn
+                        tooltip={{
+                            getState: async () => {
+                                return true
+                            },
+                            setState: async (state) => {
+                                console.log('setState', state)
+                            },
+                        }}
                         getWindow={() => iframe.contentWindow!}
                         createHighlight={async (
                             selection,
@@ -1161,6 +1170,15 @@ export class ReaderPageViewLogic extends UILogic<
                         }}
                         context={'reader'}
                         shouldInitTooltip={true}
+                        openImageInPreview={async (imageSource) => {
+                            this.processUIEvent('openImageInPreview', {
+                                event: {
+                                    imageSource,
+                                },
+                                // @ts-ignore
+                                previousState: null,
+                            })
+                        }}
                     />
                 </ThemeProvider>
             </StyleSheetManager>,
@@ -1292,6 +1310,7 @@ export class ReaderPageViewLogic extends UILogic<
             screenshotAnchor: args.screenShotAnchor,
             screenshotImage: args.screenShotImage,
             imageSupport: args.imageSupport,
+            highlightColorSettings: [],
         }
     }
 

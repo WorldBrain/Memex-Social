@@ -10,13 +10,11 @@ export interface OauthCallBackPageDependencies {
         | 'overlay'
         | 'contentSharing'
         | 'userManagement'
-        | 'webMonetization'
         | 'activityStreams'
         | 'pdfUploadService'
     >
     storage: Pick<StorageModules, 'users' | 'activityStreams'>
     getRootElement: () => HTMLElement
-    tutorialId: string
 }
 
 export type OauthCallBackPageEvent = UIEvent<{}>

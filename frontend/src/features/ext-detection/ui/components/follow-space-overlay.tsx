@@ -4,7 +4,7 @@ import Overlay from '../../../../main-ui/containers/overlay'
 import { ViewportBreakpoint } from '../../../../main-ui/styles/types'
 import { UIElementServices } from '../../../../services/types'
 import { Margin } from 'styled-components-spacing'
-import { PrimaryAction } from '../../../../common-ui/components/PrimaryAction'
+import { PrimaryAction } from '@worldbrain/memex-common/lib/common-ui/components/PrimaryAction'
 
 const noteIcon = require('../../../../assets/img/comment.svg')
 

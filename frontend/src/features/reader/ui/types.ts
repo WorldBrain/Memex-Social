@@ -149,6 +149,6 @@ export type ReaderPageViewEvent = UIEvent<
             toggleSidebar: boolean | null
             createYoutubeNote: {}
             hideAnnotationInstruct: null
-            openImageInPreview: { imageSource: string }
+            openImageInPreview: { imageSource: string | null }
         }
 >

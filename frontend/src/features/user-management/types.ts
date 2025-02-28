@@ -9,7 +9,12 @@ export type UserPublicProfile = Profile
 export type User = ImportedUser
 export type UserReference = UserRef
 
-export type ProfileWebLinkLabel = 'Website' | 'Medium' | 'Twitter' | 'Substack'
+export type ProfileWebLinkLabel =
+    | 'Website'
+    | 'Medium'
+    | 'Twitter'
+    | 'Substack'
+    | 'Bluesky'
 export type ProfileWebLinkName =
     | 'websiteURL'
     | 'mediumURL'

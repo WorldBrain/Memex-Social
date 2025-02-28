@@ -8,7 +8,6 @@ import type { DocumentTitleService } from './document-title'
 import type { ActivityStreamsService } from '@worldbrain/memex-common/lib/activity-streams/types'
 import type { UserMessageService } from '@worldbrain/memex-common/lib/user-messages/service/types'
 import type UserManagementService from '../features/user-management/service'
-import type WebMonetizationService from '../features/web-monetization/service'
 import type { LocalStorageService } from './local-storage/types'
 import type { MemexExtensionService } from './memex-extension'
 import type { AnalyticsService } from './analytics'
@@ -41,7 +40,6 @@ export type Services = SharedServices & {
     // Feature specific services
     activityStreams: ActivityStreamsService
     userManagement: UserManagementService
-    webMonetization: WebMonetizationService
     summarization: SummarizationService
     publicApi: PublicApiServiceInterface
     pdfUploadService: PdfUploadServiceInterface

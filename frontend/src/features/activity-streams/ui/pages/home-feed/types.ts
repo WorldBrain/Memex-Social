@@ -16,6 +16,7 @@ import type {
     ExtDetectionState,
     ExtDetectionEvent,
 } from '../../../../ext-detection/ui/logic'
+import { CreationInfoProps } from '@worldbrain/memex-common/lib/common-ui/components/creation-info'
 
 export interface HomeFeedDependencies {
     services: UIElementServices<
@@ -25,12 +26,12 @@ export interface HomeFeedDependencies {
         | 'activityStreams'
         | 'router'
         | 'userManagement'
-        | 'webMonetization'
         | 'localStorage'
         | 'documentTitle'
         | 'userMessages'
         | 'memexExtension'
     >
+
     storage: Pick<
         StorageModules,
         | 'contentSharing'
@@ -38,6 +39,7 @@ export interface HomeFeedDependencies {
         | 'users'
         | 'activityStreams'
         | 'activityFollows'
+        | 'bluesky'
     >
     listActivitiesLimit: number
     getRootElement: () => HTMLElement
@@ -47,7 +49,7 @@ export type HomeFeedState = {
     loadState: UITaskState
     needsAuth?: boolean
     activityItems: ActivityItem[]
-    users: { [userId: string]: Pick<User, 'displayName'> | null }
+    users: { [userId: string]: CreationInfoProps['creatorInfo'] | null }
     lastSeenTimestamp?: number | null
     shouldShowNewLine: boolean
     loadingIncludingUIFinished: boolean

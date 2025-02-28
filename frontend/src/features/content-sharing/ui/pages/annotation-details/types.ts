@@ -11,7 +11,6 @@ export interface AnnotationDetailsDependencies {
         | 'router'
         | 'activityStreams'
         | 'userManagement'
-        | 'webMonetization'
         | 'documentTitle'
     >
     storage: Pick<

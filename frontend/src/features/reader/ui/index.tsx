@@ -121,6 +121,7 @@ export class ReaderPageView extends UIElement<
     }
 
     async componentDidMount() {
+        // @ts-ignore
         window['_state'] = () => ({ ...this.state })
         window.addEventListener('beforeunload', this.handleBeforeUnload)
         await super.componentDidMount()
@@ -316,7 +317,7 @@ export class ReaderPageView extends UIElement<
                         comment:
                             this.state.replyEditStates[replyReference.id]
                                 ?.text ?? '',
-                        setAnnotationDeleting: (isDeleting) => (event) =>
+                        setAnnotationDeleting: (isDeleting) => (event: any) =>
                             this.processEvent('setReplyToAnnotationDeleting', {
                                 isDeleting,
                                 replyReference,
@@ -379,7 +380,7 @@ export class ReaderPageView extends UIElement<
                         comment:
                             this.state.annotationEditStates[annotationRef.id]
                                 ?.comment ?? '',
-                        setAnnotationDeleting: (isDeleting) => (event) =>
+                        setAnnotationDeleting: (isDeleting) => (event: any) =>
                             this.processEvent('setAnnotationDeleting', {
                                 isDeleting,
                                 annotationId: annotationRef.id,
@@ -390,7 +391,7 @@ export class ReaderPageView extends UIElement<
                                 annotationId: annotationRef.id,
                             })
                         },
-                        setAnnotationHovering: (isHovering) => (event) => {
+                        setAnnotationHovering: (isHovering) => (event: any) => {
                             this.processEvent('setAnnotationHovering', {
                                 isHovering,
                                 annotationId: annotationRef.id,
@@ -553,7 +554,7 @@ export class ReaderPageView extends UIElement<
             <div>
                 <YoutubeIframe
                     id={playerId}
-                    ref={(ref) => {
+                    ref={(ref: HTMLIFrameElement | null) => {
                         if (ref) {
                             youtube.createYoutubePlayer(playerId, {
                                 width: 'fill-available', // yes, these are meant to be strings
@@ -839,11 +840,10 @@ export class ReaderPageView extends UIElement<
             )
         }
 
-        console.log('iframeLoadState', this.state.iframeLoadState)
         return (
             <>
                 <InjectedContent
-                    ref={(ref) =>
+                    ref={(ref: HTMLIFrameElement | null) =>
                         this.processEvent('setReaderContainerRef', {
                             ref,
                         })
@@ -852,7 +852,9 @@ export class ReaderPageView extends UIElement<
                     {this.state.preventInteractionsInIframe && <ClickBlocker />}
                     {this.state.showDropPDFNotice && (
                         <PDFDropNoticeContainer
-                            onDragOver={(event) => {
+                            onDragOver={(
+                                event: React.DragEvent<HTMLDivElement>,
+                            ) => {
                                 event.preventDefault()
                                 this.processEvent('hideDropZone', null)
                             }}
@@ -1052,9 +1054,9 @@ export class ReaderPageView extends UIElement<
                                             { isCreating: value },
                                         )
                                     }
-                                    setEditorInstanceRef={(ref) =>
-                                        (this.editor = ref)
-                                    }
+                                    setEditorInstanceRef={(
+                                        ref: MemexEditorInstance | null,
+                                    ) => (this.editor = ref)}
                                     onChange={(comment) => {
                                         this.processEvent(
                                             'changeAnnotationCreateComment',
@@ -1404,7 +1406,9 @@ export class ReaderPageView extends UIElement<
                     <ImagePreviewModal
                         imageSource={this.state.imageSourceForPreview}
                         closeModal={() =>
-                            this.processEvent('openImageInPreview', null)
+                            this.processEvent('openImageInPreview', {
+                                imageSource: null,
+                            })
                         }
                         getRootElement={this.props.getRootElement}
                     />

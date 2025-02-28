@@ -14,7 +14,7 @@ export default class UserProfileCache {
         private dependencies: {
             storage: Pick<StorageModules, 'users' | 'bluesky'>
             onUsersLoad?(users: {
-                [id: string]: CreationInfoProps['creatorInfo'] | null
+                [id: string]: CreationInfoProps['creatorInfo']
             }): void
         },
     ) {}

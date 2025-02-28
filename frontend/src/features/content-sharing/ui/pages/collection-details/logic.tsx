@@ -392,16 +392,22 @@ export default class CollectionDetailsLogic extends UILogic<
                 })
             }
 
-            const loadedUsers = await this._users.loadUsers([
-                retrievedList.creator,
-                ...new Set([
-                    ...data.usersToLoad.map(
-                        (id) =>
-                            ({ type: 'user-reference', id } as UserReference),
-                    ),
-                    ...baseListRoles.map((role) => role.user),
-                ]),
-            ])
+            const loadedUsers = await this._users.loadUsers(
+                [
+                    retrievedList.creator,
+                    ...new Set([
+                        ...data.usersToLoad.map(
+                            (id) =>
+                                ({
+                                    type: 'user-reference',
+                                    id,
+                                } as UserReference),
+                        ),
+                        ...baseListRoles.map((role) => role.user),
+                    ]),
+                ],
+                true,
+            )
 
             this.emitMutation({
                 currentUserReference: { $set: userReference },
@@ -760,6 +766,7 @@ export default class CollectionDetailsLogic extends UILogic<
                         id,
                     }),
                 ),
+                true,
             )
 
             this.emitMutation({
@@ -816,17 +823,6 @@ export default class CollectionDetailsLogic extends UILogic<
                     isCollectionFollowed: { $set: isAlreadyFollowed },
                     followLoadState: { $set: 'success' },
                 })
-
-                if (isAlreadyFollowed && this._creatorReference) {
-                    const webMonetization = this.dependencies.services
-                        .webMonetization
-                    const paymentPointer = await webMonetization.getUserPaymentPointer(
-                        this._creatorReference,
-                    )
-                    if (paymentPointer) {
-                        webMonetization.initiatePayment(paymentPointer)
-                    }
-                }
             },
         )
     }
@@ -1018,6 +1014,7 @@ export default class CollectionDetailsLogic extends UILogic<
                         id,
                     }),
                 ),
+                true,
             )
         })
     }
@@ -1376,6 +1373,7 @@ export default class CollectionDetailsLogic extends UILogic<
                         id,
                     }),
                 ),
+                true,
             )
         })
     }

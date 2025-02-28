@@ -1,4 +1,3 @@
-import fetch from 'node-fetch'
 import * as firebase from '@firebase/testing'
 import { documentId, Timestamp, serverTimestamp } from '@firebase/firestore'
 import { Storage } from '../storage/types'
@@ -98,8 +97,9 @@ async function createMemoryTestDevice(
         imageSupport: null as any,
         generateServerId,
     })
+
     storageHooksChangeWatcher.setUp({
-        fetch,
+        fetch: fetch as any,
         services,
         normalizeUrl,
         getNow: () => Date.now(),

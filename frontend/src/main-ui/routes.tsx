@@ -159,6 +159,7 @@ export default class Routes extends React.Component<Props> {
                                     userManagement={serverModules.users}
                                     imageSupport={this.props.imageSupport}
                                     getRootElement={this.props.getRootElement}
+                                    users={{}}
                                 />
                             )
                         }}

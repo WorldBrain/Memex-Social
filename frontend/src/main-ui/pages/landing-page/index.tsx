@@ -118,7 +118,9 @@ export default class LandingPage extends UIElement<
                             ) : (
                                 <NewPDFArea
                                     fileDragState={this.state.fileDragState}
-                                    onDrop={(e) => {
+                                    onDrop={(
+                                        e: React.DragEvent<HTMLDivElement>,
+                                    ) => {
                                         e.preventDefault()
                                         const files = e.dataTransfer.files
                                         if (files.length > 0) {
@@ -156,7 +158,7 @@ export default class LandingPage extends UIElement<
                                         )
                                         input.type = 'file'
                                         input.accept = 'application/pdf'
-                                        input.onchange = (e) => {
+                                        input.onchange = (e: Event) => {
                                             const file = (e.target as HTMLInputElement)
                                                 .files?.[0]
                                             if (file) {
@@ -197,13 +199,17 @@ export default class LandingPage extends UIElement<
                                             },
                                         )
                                     }}
-                                    onDragOver={(e) => {
+                                    onDragOver={(
+                                        e: React.DragEvent<HTMLDivElement>,
+                                    ) => {
                                         e.preventDefault()
                                         this.processEvent('setFileDragState', {
                                             fileDragState: true,
                                         })
                                     }}
-                                    onDragLeave={(e) => {
+                                    onDragLeave={(
+                                        e: React.DragEvent<HTMLDivElement>,
+                                    ) => {
                                         e.preventDefault()
                                         this.processEvent('setFileDragState', {
                                             fileDragState: false,
@@ -244,9 +250,13 @@ export default class LandingPage extends UIElement<
                                         while on any public url
                                     </DragBookmarkletText>
                                     <DragBookmarkletHiddenText
-                                        onClick={(e) => e.preventDefault()}
+                                        onClick={(
+                                            e: React.MouseEvent<HTMLAnchorElement>,
+                                        ) => e.preventDefault()}
                                         href={BookmarkletCode}
-                                        onDragStart={(e) => {
+                                        onDragStart={(
+                                            e: React.DragEvent<HTMLAnchorElement>,
+                                        ) => {
                                             setTimeout(() => {
                                                 this.processEvent(
                                                     'switchToBookmarkletText',
