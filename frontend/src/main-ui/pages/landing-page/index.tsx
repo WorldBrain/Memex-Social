@@ -612,10 +612,10 @@ const DefaultTextBox = styled.div`
     }
 `
 
-const DragBookmarkletBox = styled(DefaultTextBox.withComponent('a'))`
+const DragBookmarkletBox = styled(DefaultTextBox).attrs({ as: 'a' })`
     position: relative;
 `
-const DragBookmarkletHiddenText = styled(DefaultTextBox.withComponent('a'))`
+const DragBookmarkletHiddenText = styled(DefaultTextBox).attrs({ as: 'a' })`
     position: absolute;
     top: 0;
     left: 0;
