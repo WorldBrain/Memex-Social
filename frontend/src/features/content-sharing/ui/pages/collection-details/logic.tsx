@@ -54,6 +54,7 @@ import type { UploadStorageUtils } from '@worldbrain/memex-common/lib/personal-c
 import { createPersonalCloudStorageUtils } from '@worldbrain/memex-common/lib/content-sharing/storage/utils'
 import { LoggedOutAccessBox } from './space-access-box'
 import type { BlueskyList } from '@worldbrain/memex-common/lib/bsky/storage/types'
+import { CreationInfoProps } from '@worldbrain/memex-common/lib/common-ui/components/creation-info'
 const truncate = require('truncate')
 
 const LIST_DESCRIPTION_CHAR_LIMIT = 400
@@ -392,7 +393,7 @@ export default class CollectionDetailsLogic extends UILogic<
                 })
             }
 
-            const loadedUsers = await this._users.loadUsers(
+            const loadedUsers = await this.loadUsers(
                 [
                     retrievedList.creator,
                     ...new Set([
@@ -406,11 +407,12 @@ export default class CollectionDetailsLogic extends UILogic<
                         ...baseListRoles.map((role) => role.user),
                     ]),
                 ],
-                true,
+                { loadBlueskyUsers: false },
             )
 
             this.emitMutation({
                 currentUserReference: { $set: userReference },
+                users: { $set: loadedUsers },
                 listData: {
                     $set: {
                         slackList,
@@ -1420,5 +1422,22 @@ export default class CollectionDetailsLogic extends UILogic<
             //         !this.conversationThreadPromises[normalizedPageUrl],
             // ),
         })
+    }
+    private async loadUsers(
+        userReferences: UserReference[],
+        params: {
+            loadBlueskyUsers: boolean
+        },
+    ): Promise<{
+        [id: string]: CreationInfoProps['creatorInfo']
+    }> {
+        // Load base user data
+        let result = await this._users.loadUsers(
+            userReferences,
+            params.loadBlueskyUsers,
+        )
+        this.emitMutation({ users: { $set: result } })
+
+        return result
     }
 }
