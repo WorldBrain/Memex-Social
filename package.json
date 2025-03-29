@@ -15,7 +15,9 @@
             "pre-commit": "pretty-quick --staged"
         }
     },
-    "dependencies": {},
+    "dependencies": {
+        "react-router-dom": "6"
+    },
     "devDependencies": {
         "@sentry/node": "^6.15.0",
         "@types/glob": "5.0.35",
