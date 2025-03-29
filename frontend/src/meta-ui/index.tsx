@@ -203,14 +203,16 @@ function MetaUI({ options }: { options: MetaUIOptions }) {
                                                 <ProgramContainer
                                                     size={screenSize}
                                                     ref={(
-                                                        element: HTMLDivElement | null,
+                                                        element: HTMLDivElement,
                                                     ) => {
                                                         if (!element) {
                                                             return
                                                         }
                                                         metaScenario.stepPrograms[
                                                             step.name
-                                                        ](element)
+                                                        ](
+                                                            element as HTMLDivElement,
+                                                        )
                                                     }}
                                                 />
                                             )}

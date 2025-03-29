@@ -128,8 +128,6 @@ export const extDetectionEventHandlers = (
                 event.preventOpening()
                 window.open(pageLinkURL, '_self')
 
-                console.log('oepening page link url', pageLinkURL)
-
                 if (event.notifAlreadyShown) {
                     window.open(pageLinkURL, '_self')
                 } else {

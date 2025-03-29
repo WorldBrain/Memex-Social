@@ -3,7 +3,7 @@ import type { UIEvent } from '../../../../../main-ui/classes/logic'
 import type { UIElementServices } from '../../../../../services/types'
 import type { StorageModules } from '../../../../../storage/types'
 
-export interface LoginOrSignupPageDependencies {
+export interface OauthCallBackPageDependencies {
     services: UIElementServices<
         | 'auth'
         | 'router'
@@ -15,7 +15,6 @@ export interface LoginOrSignupPageDependencies {
     >
     storage: Pick<StorageModules, 'users' | 'activityStreams'>
     getRootElement: () => HTMLElement
-    tutorialId: string
 }
 
-export type LoginOrSignupPageEvent = UIEvent<{}>
+export type OauthCallBackPageEvent = UIEvent<{}>

@@ -29,11 +29,10 @@ const StyledActionButton = styled.div<{
         outline: unset;
     }
 
-    &: hover {
+    &:hover {
         opacity: 0.8;
     }
 `
-
 const StyledActionLinkText = styled.div`
     font-family: ${(props) => props.theme.fonts.primary};
     font-weight: 'bold';
@@ -67,7 +66,7 @@ export const PrimaryActionButton = ({
         onClick={disabled === true ? undefined : onClick}
         disabled={disabled}
         ref={innerRef}
-        onKeyPress={(e: React.KeyboardEvent) =>
+        onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) =>
             e.key === 'Enter' ? onClick() : false
         }
     >
@@ -99,7 +98,9 @@ export const SecondaryActionButton = ({
         onClick={disabled === true ? undefined : onClick}
         disabled={disabled}
         ref={innerRef}
-        onKeyPress={(e) => (e.key === 'Enter' ? onClick() : false)}
+        onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) =>
+            e.key === 'Enter' ? onClick() : false
+        }
     >
         <StyledActionLinkText>{label}</StyledActionLinkText>
     </StyledSecondaryActionButton>

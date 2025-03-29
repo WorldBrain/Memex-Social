@@ -129,4 +129,12 @@ export default class MemoryAuthService extends AuthServiceBase {
     }
 
     async waitForAuthSync(): Promise<void> {}
+
+    async loginWithToken(token: string): Promise<{ result: LoginResult }> {
+        return { result: { status: 'error', reason: 'unknown' } }
+    }
+
+    getCurrentUserData(): firebase.default.User | null {
+        return null // Since we can't create a full Firebase User object in memory service
+    }
 }

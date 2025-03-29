@@ -1,5 +1,5 @@
-import React, { RefObject } from 'react'
-import styled, { css } from 'styled-components'
+import React from 'react'
+import styled, { css, keyframes } from 'styled-components'
 import { UIElement } from '../../../main-ui/classes'
 import {
     ReaderPageViewDependencies,
@@ -19,7 +19,10 @@ import AnnotationsInPage from '@worldbrain/memex-common/lib/content-conversation
 import AnnotationCreate from '@worldbrain/memex-common/lib/content-conversations/ui/components/annotation-create'
 import AuthHeader from '../../user-management/ui/containers/auth-header'
 import { PopoutBox } from '@worldbrain/memex-common/lib/common-ui/components/popout-box'
-import { getSinglePageShareUrl } from '@worldbrain/memex-common/lib/content-sharing/utils'
+import {
+    getPageLinkPath,
+    getWebUIBaseUrl,
+} from '@worldbrain/memex-common/lib/content-sharing/utils'
 import LoadingIndicator from '@worldbrain/memex-common/lib/common-ui/components/loading-indicator'
 import IconBox from '@worldbrain/memex-common/lib/common-ui/components/icon-box'
 import { getReaderYoutubePlayerId } from '../utils/utils'
@@ -32,6 +35,7 @@ import { OverlayModal } from './components/OverlayModals'
 import { hasUnsavedAnnotationEdits } from '../../annotations/ui/logic'
 import { hasUnsavedConversationEdits } from '../../content-conversations/ui/logic'
 import { sleepPromise } from '../../../utils/promises'
+import ImagePreviewModal from '@worldbrain/memex-common/lib/common-ui/image-preview-modal'
 
 const TopBarHeight = 50
 const memexLogo = require('../../../assets/img/memex-logo-beta.svg')
@@ -44,6 +48,24 @@ const isIframe = () => {
         return true
     }
 }
+
+const slideUp = keyframes`
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+`
+
+const slideDown = keyframes`
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(100%);
+  }
+`
 
 export class ReaderPageView extends UIElement<
     ReaderPageViewDependencies,
@@ -88,6 +110,8 @@ export class ReaderPageView extends UIElement<
     }
 
     async componentDidMount() {
+        // @ts-ignore
+        window['_state'] = () => ({ ...this.state })
         window.addEventListener('beforeunload', this.handleBeforeUnload)
         await super.componentDidMount()
 
@@ -132,21 +156,25 @@ export class ReaderPageView extends UIElement<
     private optionsMenuButtonRef = React.createRef<HTMLDivElement>()
 
     private get pageLinks(): { reader: string; collab: string | null } | null {
+        let baseUrl = getWebUIBaseUrl(
+            process.env.NODE_ENV === 'development' ? 'staging' : 'production',
+        )
+        const pageLinkIds = {
+            remoteListEntryId: this.props.entryID,
+            remoteListId: this.props.listID,
+        }
+
         if (this.state.permissionsLoadState !== 'success') {
             return null // Still loading
         }
 
         return {
-            reader: getSinglePageShareUrl({
-                remoteListEntryId: this.props.entryID as AutoPk,
-                remoteListId: this.props.listID as AutoPk,
-            }),
+            reader: `${baseUrl}${getPageLinkPath(pageLinkIds)}`,
             collab: this.state.collaborationKey
-                ? getSinglePageShareUrl({
-                      remoteListEntryId: this.props.entryID as AutoPk,
-                      remoteListId: this.props.listID as AutoPk,
+                ? `${baseUrl}${getPageLinkPath({
+                      ...pageLinkIds,
                       collaborationKey: this.state.collaborationKey,
-                  })
+                  })}`
                 : null,
         }
     }
@@ -399,70 +427,297 @@ export class ReaderPageView extends UIElement<
     //                             event.annotationReference.id.toString(),
     //                         )
 
-    //                         highlight?.scrollIntoView({
-    //                             behavior: 'smooth',
-    //                             block: 'start',
-    //                         })
-    //                     }, 50)
-    //                 }}
-    //                 newPageReplyEventHandlers={{
-    //                     onNewReplyInitiate: () =>
-    //                         this.processEvent('initiateNewReplyToPage', {
-    //                             pageReplyId: entry.normalizedUrl,
-    //                         }),
-    //                     onNewReplyCancel: () =>
-    //                         this.processEvent('cancelNewReplyToPage', {
-    //                             pageReplyId: entry.normalizedUrl,
-    //                         }),
-    //                     onNewReplyConfirm: () =>
-    //                         this.processEvent('confirmNewReplyToPage', {
-    //                             normalizedPageUrl: entry.normalizedUrl,
-    //                             pageCreatorReference: entry.creator,
-    //                             pageReplyId: entry.normalizedUrl,
-    //                             sharedListReference: this.state.listData!
-    //                                 .reference,
-    //                         }),
-    //                     onNewReplyEdit: ({ content }) =>
-    //                         this.processEvent('editNewReplyToPage', {
-    //                             pageReplyId: entry.normalizedUrl,
-    //                             content,
-    //                         }),
-    //                 }}
-    //                 newAnnotationReplyEventHandlers={{
-    //                     onNewReplyInitiate: (annotationReference) => () =>
-    //                         this.processEvent('initiateNewReplyToAnnotation', {
-    //                             annotationReference,
-    //                             sharedListReference: this.state.listData!
-    //                                 .reference,
-    //                         }),
-    //                     onNewReplyCancel: (annotationReference) => () =>
-    //                         this.processEvent('cancelNewReplyToAnnotation', {
-    //                             annotationReference,
-    //                             sharedListReference: this.state.listData!
-    //                                 .reference,
-    //                         }),
-    //                     onNewReplyConfirm: (annotationReference) => () =>
-    //                         this.processEvent('confirmNewReplyToAnnotation', {
-    //                             annotationReference,
-    //                             sharedListReference: this.state.listData!
-    //                                 .reference,
-    //                         }),
-    //                     onNewReplyEdit: (annotationReference) => ({
-    //                         content,
-    //                     }) =>
-    //                         this.processEvent('editNewReplyToAnnotation', {
-    //                             annotationReference,
-    //                             content,
-    //                             sharedListReference: this.state.listData!
-    //                                 .reference,
-    //                         }),
-    //                 }}
-    //                 // onAnnotationBoxRootRef={this.onAnnotEntryRef}
-    //                 // onReplyRootRef={this.onReplyRef}
-    //             />
-    //         )
-    //     }
-    // }
+            if (
+                state.annotationEntryData &&
+                state.annotationEntryData[entry.normalizedUrl] &&
+                state.annotationEntryData &&
+                state.annotations !== null
+            ) {
+                state.annotationEntryData[entry.normalizedUrl].map(
+                    (annotationEntry) => {
+                        if (
+                            this.state.annotations[
+                                annotationEntry.sharedAnnotation.id.toString()
+                            ]
+                        ) {
+                            annotationsList.push({
+                                ...this.state.annotations[
+                                    annotationEntry.sharedAnnotation.id.toString()
+                                ],
+                                id: annotationEntry.sharedAnnotation.id,
+                            })
+                        }
+                    },
+                )
+            }
+
+            return (
+                <AnnotationsInPage
+                    users={this.state.users}
+                    getRootElement={this.props.getRootElement}
+                    hideThreadBar={true}
+                    currentSpaceId={this.props.listID}
+                    currentNoteId={this.props.noteId}
+                    originalUrl={entry.originalUrl}
+                    contextLocation={'webUI'}
+                    imageSupport={this.props.imageSupport}
+                    variant={'dark-mode'}
+                    pageEntry={entry}
+                    viewportBreakpoint={this.viewportBreakpoint}
+                    // newPageReply={
+                    //     this.isListContributor || state.isListOwner
+                    //         ? state.newPageReplies[entry.normalizedUrl]
+                    //         : undefined
+                    // }
+                    shouldHighlightAnnotation={(annotation) =>
+                        isInRange(
+                            annotation.createdWhen,
+                            this.itemRanges.annotEntry,
+                        ) ||
+                        this.state.activeAnnotationId ===
+                            annotation.reference.id
+                    }
+                    shouldHighlightReply={(_, replyData) =>
+                        isInRange(
+                            replyData.reply.createdWhen,
+                            this.itemRanges.reply,
+                        )
+                    }
+                    getReplyEditProps={(
+                        replyReference,
+                        annotationReference,
+                    ) => ({
+                        isDeleting: this.state.replyDeleteStates[
+                            replyReference.id
+                        ]?.isDeleting,
+                        isEditing: this.state.replyEditStates[replyReference.id]
+                            ?.isEditing,
+                        isHovering: this.state.replyHoverStates[
+                            replyReference.id
+                        ]?.isHovering,
+                        imageSupport: this.props.imageSupport,
+                        isOwner:
+                            this.state.conversations[
+                                annotationReference.id.toString()
+                            ].replies.find(
+                                (reply) =>
+                                    reply.reference.id === replyReference.id,
+                            )?.userReference?.id ===
+                            this.state.currentUserReference?.id,
+                        comment:
+                            this.state.replyEditStates[replyReference.id]
+                                ?.text ?? '',
+                        setAnnotationDeleting: (isDeleting) => (event: any) =>
+                            this.processEvent('setReplyToAnnotationDeleting', {
+                                isDeleting,
+                                replyReference,
+                            }),
+                        setAnnotationEditing: (isEditing) => {
+                            this.processEvent('setReplyToAnnotationEditing', {
+                                isEditing,
+                                replyReference,
+                            })
+                        },
+                        setAnnotationHovering: (isHovering) => () => {
+                            this.processEvent('setReplyToAnnotationHovering', {
+                                isHovering,
+                                replyReference,
+                            })
+                        },
+                        onCommentChange: (comment) =>
+                            this.processEvent('editReplyToAnnotation', {
+                                replyText: comment,
+                                replyReference,
+                            }),
+                        onDeleteConfim: () =>
+                            this.processEvent(
+                                'confirmDeleteReplyToAnnotation',
+                                {
+                                    replyReference,
+                                    annotationReference,
+                                    sharedListReference: this.state.listData!
+                                        .reference,
+                                },
+                            ),
+                        onEditConfirm: () => () =>
+                            this.processEvent('confirmEditReplyToAnnotation', {
+                                replyReference,
+                                annotationReference,
+                                sharedListReference: this.state.listData!
+                                    .reference,
+                            }),
+                        onEditCancel: () =>
+                            this.processEvent('setReplyToAnnotationEditing', {
+                                isEditing: false,
+                                replyReference,
+                            }),
+                    })}
+                    getAnnotationEditProps={(annotationRef) => ({
+                        isDeleting: this.state.annotationDeleteStates[
+                            annotationRef.id
+                        ]?.isDeleting,
+                        imageSupport: this.props.imageSupport,
+                        isEditing: this.state.annotationEditStates[
+                            annotationRef.id
+                        ]?.isEditing,
+                        isHovering: this.state.annotationHoverStates[
+                            annotationRef.id
+                        ]?.isHovering,
+                        isOwner:
+                            this.state.annotations[annotationRef.id.toString()]
+                                ?.creator.id ===
+                            this.state.currentUserReference?.id,
+                        comment:
+                            this.state.annotationEditStates[annotationRef.id]
+                                ?.comment ?? '',
+                        setAnnotationDeleting: (isDeleting) => (event: any) =>
+                            this.processEvent('setAnnotationDeleting', {
+                                isDeleting,
+                                annotationId: annotationRef.id,
+                            }),
+                        setAnnotationEditing: (isEditing) => {
+                            this.processEvent('setAnnotationEditing', {
+                                isEditing,
+                                annotationId: annotationRef.id,
+                            })
+                        },
+                        setAnnotationHovering: (isHovering) => (event: any) => {
+                            this.processEvent('setAnnotationHovering', {
+                                isHovering,
+                                annotationId: annotationRef.id,
+                            })
+                        },
+                        onCommentChange: (comment) =>
+                            this.processEvent('changeAnnotationEditComment', {
+                                comment,
+                                annotationId: annotationRef.id,
+                            }),
+                        onDeleteConfim: () =>
+                            this.processEvent('confirmAnnotationDelete', {
+                                annotationId: annotationRef.id,
+                            }),
+                        onEditConfirm: () => () =>
+                            this.processEvent('confirmAnnotationEdit', {
+                                annotationId: annotationRef.id,
+                            }),
+                        onEditCancel: () =>
+                            this.processEvent('setAnnotationEditing', {
+                                annotationId: annotationRef.id,
+                                isEditing: false,
+                            }),
+                    })}
+                    onAnnotationClick={(annotation) => (event) =>
+                        this.processEvent('clickAnnotationInSidebar', {
+                            annotationId: annotation.id,
+                        })}
+                    loadState={state.annotationLoadStates[entry.normalizedUrl]}
+                    annotations={
+                        annotationsList?.map((annot) => ({
+                            ...annot,
+                            linkId: annot.id.toString(),
+                            reference: {
+                                type: 'shared-annotation-reference',
+                                id: annot.id,
+                            },
+                        })) ?? null
+                    }
+                    annotationConversations={this.state.conversations}
+                    getAnnotationCreator={(annotationReference) => {
+                        const creatorRef = this.state.annotations[
+                            annotationReference.id.toString()
+                        ]?.creator
+                        return creatorRef && this.state.users[creatorRef.id]
+                    }}
+                    getAnnotationCreatorRef={(annotationReference) => {
+                        const creatorRef = this.state.annotations[
+                            annotationReference.id.toString()
+                        ]?.creator
+                        return creatorRef
+                    }}
+                    // profilePopupProps={{
+                    //     storage: this.props.storage,
+                    //     services: this.props.services,
+                    // }}
+                    getYoutubePlayer={() =>
+                        this.props.services.youtube.getPlayerByElementId(
+                            getReaderYoutubePlayerId(entry.normalizedUrl),
+                        )
+                    }
+                    onToggleReplies={(event) => {
+                        this.processEvent('toggleAnnotationReplies', {
+                            ...event,
+                            sharedListReference: this.state.listData!.reference,
+                        })
+                        setTimeout(() => {
+                            const highlight = document.getElementById(
+                                event.annotationReference.id.toString(),
+                            )
+
+                            highlight?.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'start',
+                            })
+                        }, 50)
+                    }}
+                    newPageReplyEventHandlers={{
+                        onNewReplyInitiate: () =>
+                            this.processEvent('initiateNewReplyToPage', {
+                                pageReplyId: entry.normalizedUrl,
+                            }),
+                        onNewReplyCancel: () =>
+                            this.processEvent('cancelNewReplyToPage', {
+                                pageReplyId: entry.normalizedUrl,
+                            }),
+                        onNewReplyConfirm: () =>
+                            this.processEvent('confirmNewReplyToPage', {
+                                normalizedPageUrl: entry.normalizedUrl,
+                                pageCreatorReference: entry.creator,
+                                pageReplyId: entry.normalizedUrl,
+                                sharedListReference: this.state.listData!
+                                    .reference,
+                            }),
+                        onNewReplyEdit: ({ content }) =>
+                            this.processEvent('editNewReplyToPage', {
+                                pageReplyId: entry.normalizedUrl,
+                                content,
+                            }),
+                    }}
+                    newAnnotationReplyEventHandlers={{
+                        onNewReplyInitiate: (annotationReference) => () =>
+                            this.processEvent('initiateNewReplyToAnnotation', {
+                                annotationReference,
+                                sharedListReference: this.state.listData!
+                                    .reference,
+                            }),
+                        onNewReplyCancel: (annotationReference) => () =>
+                            this.processEvent('cancelNewReplyToAnnotation', {
+                                annotationReference,
+                                sharedListReference: this.state.listData!
+                                    .reference,
+                            }),
+                        onNewReplyConfirm: (annotationReference) => () =>
+                            this.processEvent('confirmNewReplyToAnnotation', {
+                                annotationReference,
+                                sharedListReference: this.state.listData!
+                                    .reference,
+                            }),
+                        onNewReplyEdit: (annotationReference) => ({
+                            content,
+                        }) =>
+                            this.processEvent('editNewReplyToAnnotation', {
+                                annotationReference,
+                                content,
+                                sharedListReference: this.state.listData!
+                                    .reference,
+                            }),
+                    }}
+                    openImageInPreview={(imageSource) =>
+                        this.processEvent('openImageInPreview', { imageSource })
+                    }
+                />
+            )
+        }
+    }
 
     renderYoutubePlayer = () => {
         const { youtube } = this.props.services
@@ -489,7 +744,7 @@ export class ReaderPageView extends UIElement<
             <div>
                 <YoutubeIframe
                     id={playerId}
-                    ref={(ref: HTMLDivElement | null) => {
+                    ref={(ref: HTMLIFrameElement | null) => {
                         if (ref) {
                             youtube.createYoutubePlayer(playerId, {
                                 width: 'fill-available', // yes, these are meant to be strings
@@ -744,10 +999,11 @@ export class ReaderPageView extends UIElement<
                 </YoutubeArea>
             )
         }
+
         return (
             <>
                 <InjectedContent
-                    ref={(ref) =>
+                    ref={(ref: HTMLIFrameElement | null) =>
                         this.processEvent('setReaderContainerRef', {
                             ref,
                         })
@@ -756,7 +1012,9 @@ export class ReaderPageView extends UIElement<
                     {this.state.preventInteractionsInIframe && <ClickBlocker />}
                     {this.state.showDropPDFNotice && (
                         <PDFDropNoticeContainer
-                            onDragOver={(event) => {
+                            onDragOver={(
+                                event: React.DragEvent<HTMLDivElement>,
+                            ) => {
                                 event.preventDefault()
                                 this.processEvent('hideDropZone', null)
                             }}
@@ -785,9 +1043,9 @@ export class ReaderPageView extends UIElement<
                         </div>
                     ) : (
                         this.state.iframeLoadState !== 'success' && (
-                            <LoadingBox height={'400px'}>
+                            <LoadingBoxBlurred>
                                 <LoadingIndicator size={34} />
-                            </LoadingBox>
+                            </LoadingBoxBlurred>
                         )
                     )}
                 </InjectedContent>
@@ -869,6 +1127,7 @@ export class ReaderPageView extends UIElement<
     }
 
     render() {
+    renderSidebar = (isYoutubeMobile: boolean, screenSmall: boolean) => {
         const style = {
             position: 'relative',
             right: '0px',
@@ -879,6 +1138,198 @@ export class ReaderPageView extends UIElement<
             flexDirection: 'column',
         } as const
 
+        return (
+            <ContainerStyled
+                width={screenSmall ? null : this.state.sidebarWidth}
+                id={'annotationSidebarContainer'}
+                viewportBreakpoint={this.viewportBreakpoint}
+                shouldShowSidebar={
+                    this.state.showSidebar || (isYoutubeMobile && screenSmall)
+                }
+                isYoutubeMobile={isYoutubeMobile}
+            >
+                <Sidebar
+                    ref={(ref: Rnd) =>
+                        this.processEvent('setSidebarRef', {
+                            ref: ref?.getSelfElement() ?? null,
+                        })
+                    }
+                    style={style}
+                    default={{
+                        x: 0,
+                        y: 0,
+                        // width:
+                        //     screenSmall || isYoutubeMobile
+                        //         ? 'fill-available'
+                        //         : '400px',
+                        height: '100px',
+                    }}
+                    width={this.state.sidebarWidth}
+                    minWidth={screenSmall ? '100%' : this.state.sidebarWidth}
+                    resizeHandleWrapperClass={'sidebarResizeHandle'}
+                    className="sidebar-draggable"
+                    resizeGrid={[1, 0]}
+                    dragAxis={'none'}
+                    // minWidth={
+                    //     screenSmall || isYoutubeMobile
+                    //         ? 'fill-available'
+                    //         : '400px'
+                    // }
+                    // maxWidth={
+                    //     screenSmall || isYoutubeMobile
+                    //         ? 'fill-available'
+                    //         : '600px'
+                    // }
+                    disableDragging={true}
+                    enableResizing={{
+                        top: false,
+                        right: false,
+                        bottom: false,
+                        left: true,
+                        topRight: false,
+                        bottomRight: false,
+                        bottomLeft: false,
+                        topLeft: false,
+                    }}
+                    onResizeStart={() =>
+                        this.processEvent('toggleClickBlocker', null)
+                    }
+                    onResize={(
+                        e: any,
+                        direction: any,
+                        ref: any,
+                        delta: any,
+                        position: any,
+                    ) => {
+                        this.processEvent('setSidebarWidth', {
+                            width: ref.style.width,
+                        })
+                    }}
+                    onResizeStop={(
+                        e: any,
+                        direction: any,
+                        ref: any,
+                        delta: any,
+                        position: any,
+                    ) => {
+                        this.processEvent('toggleClickBlocker', null)
+                    }}
+                >
+                    {!isYoutubeMobile && !screenSmall && (
+                        <SidebarTopBar
+                            viewportBreakpoint={this.viewportBreakpoint}
+                        >
+                            <RightSideTopBar>
+                                {this.state.permissionsLoadState ===
+                                    'success' && (
+                                    <ShareContainer>
+                                        <PrimaryAction
+                                            icon={'peopleFine'}
+                                            type="primary"
+                                            label={'Share & Invite'}
+                                            size={
+                                                this.viewportBreakpoint ===
+                                                'mobile'
+                                                    ? 'small'
+                                                    : 'medium'
+                                            }
+                                            fontSize="14px"
+                                            iconSize="18px"
+                                            innerRef={this.sharePageButton}
+                                            onClick={() =>
+                                                this.processEvent(
+                                                    'showSharePageMenu',
+                                                    null,
+                                                )
+                                            }
+                                            padding="12px 10px 12px 5px"
+                                        />
+                                        {this.renderShareTooltip()}
+                                    </ShareContainer>
+                                )}
+                            </RightSideTopBar>
+                            {this.viewportBreakpoint === 'mobile' && (
+                                <Icon
+                                    icon="removeX"
+                                    heightAndWidth="24px"
+                                    onClick={() =>
+                                        this.processEvent('toggleSidebar', null)
+                                    }
+                                />
+                            )}
+                        </SidebarTopBar>
+                    )}
+                    <SidebarAnnotationContainer>
+                        {this.state.permissions != null && (
+                            <AnnotationCreateContainer>
+                                <AnnotationCreate
+                                    comment={
+                                        this.state.annotationCreateState.comment
+                                    }
+                                    isCreating={
+                                        this.state.annotationCreateState
+                                            .isCreating
+                                    }
+                                    onCancel={() =>
+                                        this.processEvent(
+                                            'cancelAnnotationCreate',
+                                            null,
+                                        )
+                                    }
+                                    onConfirm={() =>
+                                        this.processEvent(
+                                            'confirmAnnotationCreate',
+                                            null,
+                                        )
+                                    }
+                                    setAnnotationCreating={(value) =>
+                                        this.processEvent(
+                                            'setAnnotationCreating',
+                                            { isCreating: value },
+                                        )
+                                    }
+                                    setEditorInstanceRef={(
+                                        ref: MemexEditorInstance | null,
+                                    ) => (this.editor = ref)}
+                                    onChange={(comment) => {
+                                        this.processEvent(
+                                            'changeAnnotationCreateComment',
+                                            {
+                                                comment,
+                                            },
+                                        )
+                                    }}
+                                    getYoutubePlayer={() =>
+                                        this.state.listLoadState === 'success'
+                                            ? this.props.services.youtube.getPlayerByElementId(
+                                                  getReaderYoutubePlayerId(
+                                                      this.state.listData!.entry
+                                                          .normalizedUrl,
+                                                  ),
+                                              )
+                                            : null!
+                                    }
+                                    imageSupport={this.props.imageSupport}
+                                    getRootElement={() =>
+                                        this.props.getRootElement()
+                                    }
+                                />
+                            </AnnotationCreateContainer>
+                        )}
+                        {this.state.listData && (
+                            <AnnotationsidebarContainer>
+                                {this.renderPageAnnotations(
+                                    this.state.listData.entry,
+                                )}
+                            </AnnotationsidebarContainer>
+                        )}
+                    </SidebarAnnotationContainer>
+                </Sidebar>
+            </ContainerStyled>
+        )
+    }
+
+    render() {
         const normalizedURL = this.state.listData?.entry.normalizedUrl
         let loadState = undefined
 
@@ -891,6 +1342,7 @@ export class ReaderPageView extends UIElement<
 
         let screenSmall = false
 
+        console.log('viewportBreakpoint', this.viewportBreakpoint)
         if (
             this.viewportBreakpoint === 'mobile' ||
             this.viewportBreakpoint === 'small'
@@ -905,6 +1357,10 @@ export class ReaderPageView extends UIElement<
         ) {
             isYoutubeMobile = true
         }
+
+        console.log('isYoutubeMobile', isYoutubeMobile)
+        console.log('screenSmall', screenSmall)
+        console.log('this.state.sourceUrl', this.state.sourceUrl)
 
         return (
             <MainContainer isYoutubeMobile={isYoutubeMobile}>
@@ -922,6 +1378,31 @@ export class ReaderPageView extends UIElement<
                         </LoadingBox>
                     )}
                 </LeftSide>
+                {this.state.sourceUrl != null &&
+                    (screenSmall ? (
+                        <BottomModal visible={this.state.showSidebar}>
+                            <BottomModalContent>
+                                {this.renderSidebar(
+                                    isYoutubeMobile,
+                                    screenSmall,
+                                )}
+                            </BottomModalContent>
+                        </BottomModal>
+                    ) : (
+                        this.renderSidebar(isYoutubeMobile, screenSmall)
+                    ))}
+                {this.state.imageSourceForPreview &&
+                this.state.imageSourceForPreview?.length > 0 ? (
+                    <ImagePreviewModal
+                        imageSource={this.state.imageSourceForPreview}
+                        closeModal={() =>
+                            this.processEvent('openImageInPreview', {
+                                imageSource: null,
+                            })
+                        }
+                        getRootElement={this.props.getRootElement}
+                    />
+                ) : null}
             </MainContainer>
         )
     }
@@ -1091,6 +1572,21 @@ const LoadingBox = styled.div<{ height?: string; width?: string }>`
     width: ${(props) => (props.width ? props.width : '100%')};
     flex: 1;
 `
+const LoadingBoxBlurred = styled.div<{ height?: string; width?: string }>`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: ${(props) => (props.height ? props.height : 'fill-available')};
+    width: ${(props) => (props.width ? props.width : '100%')};
+    flex: 1;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: #ffffff60;
+    backdrop-filter: blur(5px);
+`
 
 const LinksContainer = styled.div`
     display: flex;
@@ -1119,6 +1615,7 @@ const SidebarAnnotationContainer = styled.div`
     scrollbar-width: none;
     display: flex;
     flex-direction: column;
+    padding: 0 10px;
 `
 
 const LinkBox = styled.div`
@@ -1301,7 +1798,7 @@ const Sidebar = styled(Rnd)`
 `
 
 const ContainerStyled = styled.div<{
-    width: number
+    width: number | null
     viewportBreakpoint: string
     shouldShowSidebar?: boolean
     isYoutubeMobile?: boolean
@@ -1313,8 +1810,8 @@ const ContainerStyled = styled.div<{
     position: relative;
     top: 0px;
     right: 0px;
-    width: ${(props) => props.width}px;
-    min-width: ${(props) => props.width}px;
+    width: ${(props) => (props.width ? props.width + 'px' : '100%')};
+    min-width: ${(props) => (props.width ? props.width + 'px' : '100%')};
     border-left: 1px solid ${(props) => props.theme.colors.greyScale3};
     font-family: 'Satoshi', sans-serif;
     font-feature-settings: 'pnum' on, 'lnum' on, 'case' on, 'ss03' on, 'ss04' on,
@@ -1355,4 +1852,32 @@ const ContainerStyled = styled.div<{
             border-left: none;
             height: 300px;
         `}
+`
+
+const BottomModal = styled.div<{ visible: boolean }>`
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: calc(100% - ${TopBarHeight}px);
+    background: #ffffff70;
+    backdrop-filter: blur(10px);
+    display: ${(props) => (props.visible ? 'flex' : 'none')};
+    padding-top: ${TopBarHeight + 10}px;
+`
+
+const BottomModalContent = styled.div<{ isClosing?: boolean }>`
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    border-radius: 10px 10px 0 0;
+    background: ${(props) => props.theme.colors.white};
+    animation: ${(props) => (props.isClosing ? slideDown : slideUp)} 0.3s
+        ease-in-out forwards;
 `

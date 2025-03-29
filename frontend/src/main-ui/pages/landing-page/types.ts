@@ -30,7 +30,6 @@ export interface LandingPageDependencies {
         | 'auth'
         | 'overlay'
         | 'router'
-        | 'webMonetization'
         | 'localStorage'
         | 'documentTitle'
         | 'pdfUploadService'

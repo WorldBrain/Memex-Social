@@ -10,13 +10,10 @@ import { UITaskState } from '../../../../../main-ui/types'
 
 export interface ProfilePopupContainerDependencies {
     services: UIElementServices<
-        | 'device'
-        | 'documentTitle'
-        | 'logicRegistry'
-        | 'userManagement'
-        | 'webMonetization'
+        'device' | 'documentTitle' | 'logicRegistry' | 'userManagement'
     >
     userRef: UserReference | null
+    children: React.ReactNode
 }
 
 export interface ProfilePopupContainerState {

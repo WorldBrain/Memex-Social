@@ -4,6 +4,8 @@ import UserStorage from '../storage/'
 import UserProfileCache from '../utils/user-profile-cache'
 import TypedEventEmitter from 'typed-emitter'
 import { EventEmitter } from 'events'
+import { CreationInfoProps } from '@worldbrain/memex-common/lib/common-ui/components/creation-info'
+import { BlueskyStorage } from '@worldbrain/memex-common/lib/bsky/storage'
 
 interface UserManagementEvents {
     userProfileChange(): void
@@ -97,9 +99,13 @@ export default class UserManagementService {
         )
     }
 
-    async loadUserData(userRef: UserReference): Promise<User | null> {
+    async loadUserData(
+        userRef: UserReference,
+    ): Promise<CreationInfoProps['creatorInfo'] | null> {
         const userProfileCache = new UserProfileCache({
-            storage: { users: this.options.storage },
+            storage: {
+                users: this.options.storage,
+            },
         })
         const result = userProfileCache.loadUser(userRef)
         return result

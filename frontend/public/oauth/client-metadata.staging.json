@@ -1,0 +1,13 @@
+{
+    "client_id": "https://staging.memex.social/oauth/client-metadata.staging.json",
+    "client_name": "Memex",
+    "client_uri": "https://staging.memex.social",
+    "policy_uri": "https://memex.garden/policy",
+    "application_type": "web",
+    "grant_types": ["authorization_code", "refresh_token"],
+    "scope": "atproto",
+    "response_types": ["code"],
+    "redirect_uris": ["https://staging.memex.social/oauth/bsky-redirect"],
+    "token_endpoint_auth_method": "none",
+    "dpop_bound_access_tokens": true
+}

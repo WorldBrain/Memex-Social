@@ -55,6 +55,9 @@ import {
 import type { UploadStorageUtils } from '@worldbrain/memex-common/lib/personal-cloud/backend/translation-layer/storage-utils'
 import { createPersonalCloudStorageUtils } from '@worldbrain/memex-common/lib/content-sharing/storage/utils'
 import { LoggedOutAccessBox } from './space-access-box'
+import type { BlueskyList } from '@worldbrain/memex-common/lib/bsky/storage/types'
+import { CreationInfoProps } from '@worldbrain/memex-common/lib/common-ui/components/creation-info'
+const truncate = require('truncate')
 import { IdField } from '@worldbrain/memex-common/lib/storage/types'
 import { isMemexPageAPdf } from '@worldbrain/memex-common/lib/page-indexing/utils'
 import TypedEventEmitter from 'typed-emitter'
@@ -340,10 +343,46 @@ export default class CollectionDetailsLogic extends UILogic<
             const listDescription = retrievedList.sharedList.description ?? ''
             const listDescriptionFits =
                 listDescription.length < LIST_DESCRIPTION_CHAR_LIMIT
+            let blueskyList: BlueskyList | null = null
             let discordList: DiscordList | null = null
             let slackList: SlackList | null = null
             let isChatIntegrationSyncing = false
-
+            if (retrievedList.sharedList.platform === 'bsky') {
+                blueskyList = await this.dependencies.storage.bluesky.findBlueskyListBySharedList(
+                    {
+                        sharedList: retrievedList.sharedList.reference,
+                    },
+                )
+                if (!blueskyList) {
+                    return {
+                        mutation: { listData: { $set: undefined } },
+                    }
+                }
+            } else if (retrievedList.sharedList.platform === 'discord') {
+                discordList = await this.dependencies.storage.discord.findDiscordListForSharedList(
+                    retrievedList.sharedList.reference,
+                )
+                if (!discordList) {
+                    return {
+                        mutation: { listData: { $set: undefined } },
+                    }
+                }
+                isChatIntegrationSyncing = !!(await this.dependencies.storage.discordRetroSync.getSyncEntryByChannel(
+                    { channelId: discordList.channelId },
+                ))
+            } else if (retrievedList.sharedList.platform === 'slack') {
+                slackList = await this.dependencies.storage.slack.findSlackListForSharedList(
+                    retrievedList.sharedList.reference,
+                )
+                if (!slackList) {
+                    return {
+                        mutation: { listData: { $set: undefined } },
+                    }
+                }
+                isChatIntegrationSyncing = !!(await this.dependencies.storage.slackRetroSync.getSyncEntryByChannel(
+                    { channelId: slackList.channelId },
+                ))
+            }
             this.mainListEntries.push(...retrievedList.entries)
 
             await this.dependencies.services.auth.waitForAuthReady()
@@ -378,25 +417,33 @@ export default class CollectionDetailsLogic extends UILogic<
                 })
             }
 
-            const loadedUsers = await this._users.loadUsers([
-                retrievedList.creator,
-                ...new Set([
-                    ...data.usersToLoad.map(
-                        (id) =>
-                            ({ type: 'user-reference', id } as UserReference),
-                    ),
-                    ...baseListRoles.map((role) => role.user),
-                ]),
-            ])
+            const loadedUsers = await this.loadUsers(
+                [
+                    retrievedList.creator,
+                    ...new Set([
+                        ...data.usersToLoad.map(
+                            (id) =>
+                                ({
+                                    type: 'user-reference',
+                                    id,
+                                } as UserReference),
+                        ),
+                        ...baseListRoles.map((role) => role.user),
+                    ]),
+                ],
+                { loadBlueskyUsers: false },
+            )
 
             this.emitMutation({
                 currentUserReference: { $set: userReference },
+                users: { $set: loadedUsers },
                 listData: {
                     $set: {
                         slackList,
                         reference: retrievedList.sharedList.reference,
                         pageSize: PAGE_SIZE,
                         discordList,
+                        blueskyList,
                         isChatIntegrationSyncing,
                         creatorReference: data.retrievedList.creator,
                         creator: loadedUsers[retrievedList.creator.id],
@@ -793,6 +840,7 @@ export default class CollectionDetailsLogic extends UILogic<
                         id,
                     }),
                 ),
+                true,
             )
 
             this.emitMutation({
@@ -849,17 +897,6 @@ export default class CollectionDetailsLogic extends UILogic<
                     isCollectionFollowed: { $set: isAlreadyFollowed },
                     followLoadState: { $set: 'success' },
                 })
-
-                if (isAlreadyFollowed && this._creatorReference) {
-                    const webMonetization = this.dependencies.services
-                        .webMonetization
-                    const paymentPointer = await webMonetization.getUserPaymentPointer(
-                        this._creatorReference,
-                    )
-                    if (paymentPointer) {
-                        webMonetization.initiatePayment(paymentPointer)
-                    }
-                }
             },
         )
     }
@@ -1068,6 +1105,7 @@ export default class CollectionDetailsLogic extends UILogic<
                         id,
                     }),
                 ),
+                true,
             )
         })
     }
@@ -1192,7 +1230,6 @@ export default class CollectionDetailsLogic extends UILogic<
 
                     if (hasData) {
                         existingListEntries?.unshift(newCollectionEntry)
-
                         this.emitMutation({
                             listData: {
                                 listEntries: { $set: existingListEntries },
@@ -1427,6 +1464,7 @@ export default class CollectionDetailsLogic extends UILogic<
                         id,
                     }),
                 ),
+                true,
             )
         })
     }
@@ -1461,5 +1499,22 @@ export default class CollectionDetailsLogic extends UILogic<
                 imageSupport: this.dependencies.imageSupport,
             })
         }
+    }
+    private async loadUsers(
+        userReferences: UserReference[],
+        params: {
+            loadBlueskyUsers: boolean
+        },
+    ): Promise<{
+        [id: string]: CreationInfoProps['creatorInfo']
+    }> {
+        // Load base user data
+        let result = await this._users.loadUsers(
+            userReferences,
+            params.loadBlueskyUsers,
+        )
+        this.emitMutation({ users: { $set: result } })
+
+        return result
     }
 }

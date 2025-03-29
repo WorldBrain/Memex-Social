@@ -280,7 +280,6 @@ async function sync(
             throw new Error('Error syncing with extension')
         }
     } else {
-        console.log('goes here')
         await loginWithExtTokenHandler(authService, extensionID)
         if (
             urlAndSpaceOpenRequestData &&

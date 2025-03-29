@@ -1,3 +1,4 @@
+import { CreationInfoProps } from '@worldbrain/memex-common/lib/common-ui/components/creation-info'
 import { StorageModules } from '../../../storage/types'
 import {
     UserReference,
@@ -5,42 +6,100 @@ import {
 } from '@worldbrain/memex-common/lib/web-interface/types/users'
 
 export default class UserProfileCache {
-    users: { [id: string | number]: Promise<User | null> } = {}
+    users: {
+        [id: string]: CreationInfoProps['creatorInfo']
+    } = {}
 
     constructor(
         private dependencies: {
-            storage: Pick<StorageModules, 'users'>
-            onUsersLoad?(users: { [id: string]: User | null }): void
+            storage: Pick<StorageModules, 'users' | 'bluesky'>
+            onUsersLoad?(users: {
+                [id: string]: CreationInfoProps['creatorInfo']
+            }): void
         },
     ) {}
 
     loadUser = async (
         userReference: UserReference,
         skipCb?: boolean,
-    ): Promise<User | null> => {
-        if (await this.users[userReference.id]) {
+        loadSocialAccounts?: boolean,
+    ): Promise<CreationInfoProps['creatorInfo'] | null> => {
+        if (userReference.id === 'memex-bluesky-bot-id') {
+            this.users[userReference.id] = {
+                displayName: 'Memex Bluesky Bot',
+                profileImageUrl: undefined,
+                platforms: [],
+            }
+            return this.users[userReference.id]
+        }
+        if (this.users[userReference.id]) {
             return this.users[userReference.id]
         }
 
-        const user = this.dependencies.storage.users.getUser(userReference)
-        this.users[userReference.id] = user
-        const userData = await user
-        if (!skipCb) {
-            this.dependencies.onUsersLoad?.({ [userReference.id]: userData })
+        const user = await this.dependencies.storage.users.getUser(
+            userReference,
+        )
+
+        if (!user || !user.displayName) {
+            return null
         }
-        return user
+        this.users[userReference.id] = {
+            displayName: user.displayName,
+            profileImageUrl: undefined,
+            platforms: [],
+        }
+        if (loadSocialAccounts) {
+            try {
+                const blueskyUser = await this.dependencies.storage.bluesky.findBlueskyUsersByUserReferences(
+                    {
+                        users: [userReference],
+                    },
+                )
+
+                this.users[userReference.id] = {
+                    displayName: user.displayName,
+                    profileImageUrl: blueskyUser[userReference.id]?.avatar,
+                    platforms: blueskyUser[userReference.id]
+                        ? [
+                              {
+                                  id: blueskyUser[userReference.id].did,
+                                  platform: 'bluesky',
+                                  handle: blueskyUser[userReference.id].handle,
+                              },
+                          ]
+                        : [],
+                }
+            } catch (e) {
+                console.error('Error loading Bluesky user', e)
+            }
+        }
+
+        if (!skipCb) {
+            this.dependencies.onUsersLoad?.({
+                [userReference.id]: this.users[userReference.id],
+            })
+        }
+
+        return this.users[userReference.id]
     }
 
     loadUsers = async (
         userReferences: Array<UserReference>,
-    ): Promise<{ [id: string]: User | null }> => {
-        const users: { [id: string]: User | null } = {}
+        loadSocialAccounts: boolean,
+    ): Promise<{ [id: string]: CreationInfoProps['creatorInfo'] }> => {
+        const users: {
+            [id: string]: CreationInfoProps['creatorInfo']
+        } = {}
         await Promise.all(
             userReferences.map(async (userReference) => {
-                users[userReference.id] = await this.loadUser(
+                const userData = await this.loadUser(
                     userReference,
                     true,
+                    loadSocialAccounts,
                 )
+                if (userData) {
+                    users[userReference.id] = userData
+                }
             }),
         )
         this.dependencies.onUsersLoad?.(users)

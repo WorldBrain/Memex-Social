@@ -28,6 +28,7 @@ export abstract class AuthServiceBase implements AuthService {
     abstract loginWithEmailPassword(
         options: EmailPasswordCredentials,
     ): Promise<{ result: LoginResult }>
+    abstract loginWithToken(token: string): Promise<{ result: LoginResult }>
     abstract registerWithEmailPassword(
         options: EmailPasswordCredentials,
     ): Promise<{ result: RegistrationResult }>

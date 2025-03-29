@@ -5,7 +5,7 @@ rm -rf ../firebase/public/*
 mv build/* ../firebase/public/
 cp -r public/* ../firebase/public/
 
-if [ $SKIP_DEPLOY_SOCIAL_PREVIEW_FUNCS = "true" ]; then
+if [[ "$SKIP_DEPLOY_SOCIAL_PREVIEW_FUNCS" = "true" ]]; then
     exit 0
 fi
 

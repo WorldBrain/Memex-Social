@@ -1,6 +1,6 @@
 FB_REPO_DIR=../../firebase-backend
 
-if [ $SKIP_DEPLOY_SOCIAL_PREVIEW_FUNCS = "true" ]; then
+if [[ "$SKIP_DEPLOY_SOCIAL_PREVIEW_FUNCS" = "true" ]]; then
     exit 0
 fi
 
@@ -9,7 +9,7 @@ if ! test -d $FB_REPO_DIR; then
     exit 1
 fi
 
-if [ "$1" != "production" ] && [ "$1" != "staging" ]; then
+if [[ "$1" != "production" ]] && [[ "$1" != "staging" ]]; then
     echo 'First arg must be either "production" or "staging"'
     exit 1
 fi

@@ -21,7 +21,7 @@ export default class RouteLink extends UIElement<Props, State, Event> {
                     this.props.route,
                     this.props.params,
                 )}
-                onClick={(event) => {
+                onClick={(event: React.MouseEvent<HTMLAnchorElement>) => {
                     if (
                         event.ctrlKey ||
                         event.shiftKey ||

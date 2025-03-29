@@ -10,7 +10,6 @@ export interface PageLinkCreationPageDependencies {
         | 'overlay'
         | 'contentSharing'
         | 'userManagement'
-        | 'webMonetization'
         | 'activityStreams'
         | 'pdfUploadService'
     >

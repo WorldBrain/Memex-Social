@@ -24,6 +24,11 @@ import type {
     EditableAnnotationsState,
 } from '../../annotations/ui/types'
 import type { ImageSupportInterface } from '@worldbrain/memex-common/lib/image-support/types'
+import type {
+    BlueskyList,
+    BlueskyUser,
+} from '@worldbrain/memex-common/lib/bsky/storage/types'
+import { CreationInfoProps } from '@worldbrain/memex-common/lib/common-ui/components/creation-info'
 import { CollectionDetailsData } from '@worldbrain/memex-common/lib/content-sharing/backend/types'
 
 export interface ReaderPageViewDependencies {
@@ -41,7 +46,7 @@ export interface ReaderPageViewDependencies {
     >
     storage: Pick<
         StorageModules,
-        'contentSharing' | 'contentConversations' | 'users'
+        'contentSharing' | 'contentConversations' | 'users' | 'bluesky'
     >
     storageManager: StorageManager
     listID: string
@@ -65,8 +70,9 @@ export type ReaderPageViewState = AnnotationConversationsState &
          * found in `listData.entry`.
          */
         sourceUrl: string | null
-        users: { [id: string]: Pick<User, 'displayName' | 'platform'> }
+        users: { [id: string]: CreationInfoProps['creatorInfo'] }
         listLoadState: UITaskState
+        blueskyList: BlueskyList | null
         listData?: {
             reference: SharedListReference
             creatorReference: UserReference
@@ -88,6 +94,7 @@ export type ReaderPageViewState = AnnotationConversationsState &
         collaborationKey: string | null
         permissionsLoadState: UITaskState
         permissions: 'owner' | 'contributor' | null
+        imageSourceForPreview: string | null
         isYoutubeVideo: boolean
         reportURLSuccess: boolean
         showInstallTooltip: boolean
@@ -145,5 +152,6 @@ export type ReaderPageViewEvent = UIEvent<
             toggleSidebar: boolean | null
             createYoutubeNote: {}
             hideAnnotationInstruct: null
+            openImageInPreview: { imageSource: string | null }
         }
 >

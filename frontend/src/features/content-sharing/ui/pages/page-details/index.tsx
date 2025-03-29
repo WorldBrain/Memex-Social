@@ -301,21 +301,21 @@ export default class PageDetailsPage extends UIElement<
                             {state.annotationLoadState === 'success' &&
                                 !!annotations?.length && (
                                     <AnnotationsInPage
+                                        users={props.users}
                                         loadState={state.annotationLoadState}
                                         annotations={annotations}
-                                        // newPageReply={
-                                        //     state.newPageReplies[
-                                        //         normalizedPageUrl
-                                        //     ]
-                                        // }
                                         getAnnotationCreator={() =>
                                             state.creator
                                         }
                                         getAnnotationCreatorRef={() =>
                                             state.creatorReference
                                         }
+                                        viewportBreakpoint={
+                                            this.viewportBreakpoint
+                                        }
                                         profilePopupProps={{
                                             services: this.props.services,
+                                            children: null,
                                         }}
                                         annotationConversations={
                                             state.conversations

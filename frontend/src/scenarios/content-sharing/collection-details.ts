@@ -8,16 +8,12 @@ import {
     SharedAnnotationReference,
     SharedListRoleID,
 } from '@worldbrain/memex-common/lib/content-sharing/types'
-import { WebMonetizationEvents } from '../../features/web-monetization/service/types'
 import { ListShareModalEvent } from '@worldbrain/memex-common/lib/content-sharing/ui/list-share-modal/types'
 
 type Targets = {
     CollectionDetailsPage: {
         events: CollectionDetailsEvent
         signals: CollectionDetailsSignal
-    }
-    WebMonetizationIcon: {
-        events: WebMonetizationEvents
     }
     ListShareModal: {
         events: ListShareModalEvent

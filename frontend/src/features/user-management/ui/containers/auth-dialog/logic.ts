@@ -141,6 +141,7 @@ export default class AuthDialogLogic extends UILogic<
             header: null,
             passwordRepeat: '',
             passwordMatch: false,
+            socialLoginLoading: 'pristine',
         }
     }
 
@@ -269,11 +270,53 @@ export default class AuthDialogLogic extends UILogic<
     }
 
     socialSignIn: EventHandler<'socialSignIn'> = async ({ event }) => {
+        if (event.provider === 'bluesky') {
+            this.emitMutation({
+                socialLoginLoading: { $set: 'running' },
+            })
+            const result = await this.dependencies.services.bluesky.initiateOAuthFlow()
+            this.emitMutation({
+                socialLoginLoading: { $set: 'pristine' },
+            })
+
+            if (result.error) {
+                throw new Error(result.error)
+            }
+
+            const authUrl = result.authUrl
+            await new Promise<void>((resolve) => {
+                const channel = new BroadcastChannel('bluesky-auth')
+                channel.onmessage = async (event) => {
+                    const authToken = event.data
+                    const result = await this.dependencies.services.auth.loginWithToken(
+                        authToken,
+                    )
+                    this._result(result.result)
+                    channel.close()
+                    resolve()
+                }
+
+                // Open popup
+                const width = 600
+                const height = 500
+                const left = window.screen.width / 2 - width / 2
+                const top = window.screen.height / 2 - height / 2
+
+                window.open(
+                    authUrl,
+                    '_blank',
+                    `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no,scrollbars=yes,resizable=yes`,
+                )
+            })
+            return
+        }
+
         const {
             result,
         } = await this.dependencies.services.auth.loginWithProvider(
             event.provider,
         )
+
         this._result(result)
     }
 

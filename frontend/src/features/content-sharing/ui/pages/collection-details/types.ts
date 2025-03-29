@@ -34,6 +34,8 @@ import type {
 } from '../../../../annotations/ui/types'
 import type StorageManager from '@worldbrain/storex'
 import type { ImageSupportInterface } from '@worldbrain/memex-common/lib/image-support/types'
+import type { BlueskyList } from '@worldbrain/memex-common/lib/bsky/storage/types'
+import { CreationInfoProps } from '@worldbrain/memex-common/lib/common-ui/components/creation-info'
 import type TypedEventEmitter from 'typed-emitter'
 import type { PromptURL } from '@worldbrain/memex-common/lib/summarization/types'
 import type { ReaderPageViewDependencies } from '../../../../reader/ui/types'
@@ -61,6 +63,7 @@ export interface CollectionDetailsDependencies
     noteId?: string
     services: UIElementServices<
         | 'auth'
+        | 'bluesky'
         | 'overlay'
         | 'listKeys'
         | 'contentSharing'
@@ -70,7 +73,6 @@ export interface CollectionDetailsDependencies
         | 'activityStreams'
         | 'documentTitle'
         | 'userManagement'
-        | 'webMonetization'
         | 'localStorage'
         | 'clipboard'
         | 'userMessages'
@@ -85,6 +87,7 @@ export interface CollectionDetailsDependencies
         | 'contentSharing'
         | 'contentConversations'
         | 'users'
+        | 'bluesky'
         | 'slack'
         | 'slackRetroSync'
         | 'discord'
@@ -128,7 +131,7 @@ export type CollectionDetailsState = AnnotationConversationsState &
         isListOwner?: boolean
         scrollTop?: number
         scrolledComponent?: JSX.Element
-        users: { [id: string]: Pick<User, 'displayName' | 'platform'> }
+        users: { [id: string]: CreationInfoProps['creatorInfo'] }
         searchQuery: string
         dateFilterVisible: boolean
         endDateFilterValue: string
@@ -163,6 +166,7 @@ export type CollectionDetailsState = AnnotationConversationsState &
             creatorReference?: UserReference
             creator?: Pick<User, 'displayName'> | null
             list: SharedList
+            blueskyList: BlueskyList | null
             discordList: DiscordList | undefined | null
             slackList: SlackList | null
             isChatIntegrationSyncing?: boolean

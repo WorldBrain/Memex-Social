@@ -27,7 +27,6 @@ import { getViewportBreakpoint } from '../../../../../main-ui/styles/utils'
 import AnnotationsInPage from '../../../../annotations/ui/components/annotations-in-page'
 import ErrorWithAction from '../../../../../common-ui/components/error-with-action'
 import FollowBtn from '../../../../activity-follows/ui/components/follow-btn'
-import WebMonetizationIcon from '../../../../web-monetization/ui/components/web-monetization-icon'
 import InstallExtOverlay from '../../../../ext-detection/ui/components/install-ext-overlay'
 import { mergeTaskStates } from '../../../../../main-ui/classes/logic'
 import { UserReference } from '../../../../user-management/types'
@@ -145,7 +144,7 @@ export default class CollectionDetailsPage extends UIElement<
     }
 
     onAnnotEntryRef: AnnotationsInPageProps['onAnnotationBoxRootRef'] = (
-        event,
+        event: any,
     ) => {
         this.handleScrollableRef(
             event.annotation.createdWhen,
@@ -154,7 +153,7 @@ export default class CollectionDetailsPage extends UIElement<
         )
     }
 
-    onReplyRef: AnnotationsInPageProps['onReplyRootRef'] = (event) => {
+    onReplyRef: AnnotationsInPageProps['onReplyRootRef'] = (event: any) => {
         this.handleScrollableRef(
             event.reply.reply.createdWhen,
             event.element,
@@ -221,6 +220,22 @@ export default class CollectionDetailsPage extends UIElement<
             type: 'shared-list-reference',
             id: this.props.listID,
         }
+    }
+
+    async componentDidUpdate(
+        prevProps: CollectionDetailsDependencies,
+        previousState: CollectionDetailsState,
+    ) {
+        if (this.props.listID !== prevProps.listID) {
+            await this.processEvent('load', {
+                isUpdate: true,
+                listID: this.props.listID,
+            })
+        }
+
+        await this.processEvent('updateScrollState', {
+            previousScrollTop: previousState.scrollTop!,
+        })
     }
 
     getPageEntryActions(
@@ -419,6 +434,8 @@ export default class CollectionDetailsPage extends UIElement<
 
         return (
             <AnnotationsInPage
+                users={this.state.users}
+                viewportBreakpoint={this.viewportBreakpoint}
                 getRootElement={this.props.getRootElement}
                 hideThreadBar={true}
                 originalUrl={entry.originalUrl}
@@ -484,7 +501,9 @@ export default class CollectionDetailsPage extends UIElement<
                     comment:
                         this.state.replyEditStates[replyReference.id]?.text ??
                         '',
-                    setAnnotationDeleting: (isDeleting) => (event) =>
+                    setAnnotationDeleting: (isDeleting) => (
+                        event: React.MouseEvent<HTMLDivElement>,
+                    ) =>
                         this.processEvent('setReplyToAnnotationDeleting', {
                             isDeleting,
                             replyReference,
@@ -495,7 +514,9 @@ export default class CollectionDetailsPage extends UIElement<
                             replyReference,
                         })
                     },
-                    setAnnotationHovering: (isHovering) => (event) => {
+                    setAnnotationHovering: (isHovering) => (
+                        event: React.MouseEvent<HTMLDivElement>,
+                    ) => {
                         this.processEvent('setReplyToAnnotationHovering', {
                             isHovering,
                             replyReference,
@@ -542,7 +563,9 @@ export default class CollectionDetailsPage extends UIElement<
                     comment:
                         this.state.annotationEditStates[annotationRef.id]
                             ?.comment ?? '',
-                    setAnnotationDeleting: (isDeleting) => (event) =>
+                    setAnnotationDeleting: (isDeleting) => (
+                        event: React.MouseEvent<HTMLDivElement>,
+                    ) =>
                         this.processEvent('setAnnotationDeleting', {
                             isDeleting,
                             annotationId: annotationRef.id,
@@ -553,7 +576,9 @@ export default class CollectionDetailsPage extends UIElement<
                             annotationId: annotationRef.id,
                         })
                     },
-                    setAnnotationHovering: (isHovering) => (event) => {
+                    setAnnotationHovering: (isHovering) => (
+                        event: React.MouseEvent<HTMLDivElement>,
+                    ) => {
                         this.processEvent('setAnnotationHovering', {
                             isHovering,
                             annotationId: annotationRef.id,
@@ -590,8 +615,13 @@ export default class CollectionDetailsPage extends UIElement<
                     ]?.creator
                     return creatorRef
                 }}
-                profilePopupProps={{ services: this.props.services }}
-                onToggleReplies={(event) =>
+                profilePopupProps={{
+                    services: this.props.services,
+                    children: null,
+                }}
+                onToggleReplies={(event: {
+                    annotationReference: SharedAnnotationReference
+                }) =>
                     this.processEvent('toggleAnnotationReplies', {
                         ...event,
                         sharedListReference: this.sharedListReference,
@@ -697,7 +727,7 @@ export default class CollectionDetailsPage extends UIElement<
                 <TitleClick
                     onClick={
                         !this.isIframe()
-                            ? (e: React.MouseEvent) => {
+                            ? (e: React.MouseEvent<HTMLDivElement>) => {
                                   this.processEvent('clickPageResult', {
                                       urlToOpen: undefined,
                                       preventOpening: () => e.preventDefault(),
@@ -892,7 +922,9 @@ export default class CollectionDetailsPage extends UIElement<
                                 {users.length - showListRoleLimit() > 0 && (
                                     <>
                                         <ShowMoreCollaborators
-                                            onClick={(event) =>
+                                            onClick={(
+                                                event: React.MouseEvent<HTMLDivElement>,
+                                            ) =>
                                                 this.processEvent(
                                                     'toggleMoreCollaborators',
                                                     {
@@ -1034,7 +1066,7 @@ export default class CollectionDetailsPage extends UIElement<
                     icon={'searchIcon'}
                     placeholder="Search"
                     value={this.state.searchQuery}
-                    onChange={(event) => {
+                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                         this.processEvent('loadSearchResults', {
                             query: (event.target as HTMLInputElement).value,
                             sharedListIds: this.props.listID,
@@ -1043,17 +1075,12 @@ export default class CollectionDetailsPage extends UIElement<
                             endDateFilterValue: this.state.endDateFilterValue,
                         })
                     }}
-                    onKeyDown={(event) => {
-                        if (event.key === 'Enter') {
-                            this.processEvent('loadAIresults', {
-                                prompt: this.state.searchQuery,
-                            })
-                        }
-                    }}
-                    height="40px"
-                    width="200px"
-                    fontSize="16px"
-                    background="greyScale3"
+                    onKeyDown={(
+                        event: React.KeyboardEvent<HTMLInputElement>,
+                    ) => {}}
+                    background={'greyScale1'}
+                    height="34px"
+                    width="220px"
                 />
                 {/* <TooltipBox
                     placement="bottom"
@@ -1074,7 +1101,9 @@ export default class CollectionDetailsPage extends UIElement<
                                     .endDateFilterValue,
                             })
                         }, 200)}
-                        onKeyDown={(event) => {}}
+                        onKeyDown={(
+                            event: React.KeyboardEvent<HTMLInputElement>,
+                        ) => {}}
                         background={'greyScale1'}
                         height="34px"
                         width="180px"
@@ -1089,17 +1118,22 @@ export default class CollectionDetailsPage extends UIElement<
                         icon={'calendar'}
                         placeholder="to when?"
                         // value={this.state.endDateFilterValue}
-                        onChange={debounce((event) => {
-                            this.processEvent('loadSearchResults', {
-                                query: this.state.searchQuery,
-                                sharedListIds: this.props.listID,
-                                startDateFilterValue: this.state
-                                    .startDateFilterValue,
-                                endDateFilterValue: (event.target as HTMLInputElement)
-                                    .value,
-                            })
-                        }, 200)}
-                        onKeyDown={(event) => {}}
+                        onChange={debounce(
+                            (event: React.ChangeEvent<HTMLInputElement>) => {
+                                this.processEvent('loadSearchResults', {
+                                    query: this.state.searchQuery,
+                                    sharedListIds: this.props.listID,
+                                    startDateFilterValue: this.state
+                                        .startDateFilterValue,
+                                    endDateFilterValue: (event.target as HTMLInputElement)
+                                        .value,
+                                })
+                            },
+                            200,
+                        )}
+                        onKeyDown={(
+                            event: React.KeyboardEvent<HTMLInputElement>,
+                        ) => {}}
                         background={'greyScale1'}
                         height="34px"
                         width="180px"
@@ -1624,7 +1658,9 @@ export default class CollectionDetailsPage extends UIElement<
                 {this.state.actionBarSearchAndAddMode === 'AddLinks' && (
                     <TextFieldContainer>
                         <TextArea
-                            onChange={(event) => {
+                            onChange={(
+                                event: React.ChangeEvent<HTMLTextAreaElement>,
+                            ) => {
                                 this.processEvent('updateAddLinkField', {
                                     textFieldValue: (event?.target as HTMLTextAreaElement)
                                         .value,
@@ -2305,6 +2341,10 @@ export default class CollectionDetailsPage extends UIElement<
                     getRootElement={this.props.getRootElement}
                     storage={this.props.storage}
                     viewportBreakpoint={this.viewportBreakpoint}
+                    headerTitle={this.renderTitle()}
+                    headerSubtitle={this.renderSubtitle()}
+                    followBtn={this.renderFollowBtn()()}
+                    renderHeaderActionArea={this.renderHeaderActionArea()}
                     // listsSidebarProps={this.listsSidebarProps}
                     // isSidebarShown={this.listsSidebarProps.isShown}
                     // permissionKeyOverlay={this.renderPermissionKeyOverlay()}
@@ -2330,6 +2370,309 @@ export default class CollectionDetailsPage extends UIElement<
                             getRootElement={this.props.getRootElement}
                         />
                     ) : null}
+                    <PageResultsArea
+                        headerHeight={getHeaderHeight()}
+                        viewportWidth={this.viewportBreakpoint}
+                        isIframe={this.isIframe()}
+                    >
+                        {data.list.description?.length ? (
+                            <ReferencesBox>References</ReferencesBox>
+                        ) : null}
+                        {((this.state.listData &&
+                            this.state.listData?.listEntries?.length > 0) ||
+                            this.state.actionBarSearchAndAddMode ===
+                                'AddLinks') && (
+                            <ActionBarSearchAndAdd
+                                viewportWidth={this.viewportBreakpoint}
+                            >
+                                {(this.state.isListOwner ||
+                                    this.isListContributor) &&
+                                    this.renderAddLinksField()}
+                                {this.state.actionBarSearchAndAddMode !==
+                                    'AddLinks' && this.renderSearchBox()}
+                            </ActionBarSearchAndAdd>
+                        )}
+                        {!isPageView && this.renderAbovePagesBox()}
+                        {state.annotationEntriesLoadState === 'error' && (
+                            <Margin bottom={'large'}>
+                                <ErrorWithAction errorType="internal-error">
+                                    Error loading page notes. Reload page to
+                                    retry.
+                                </ErrorWithAction>
+                            </Margin>
+                        )}
+                        {(state.listData?.discordList != null ||
+                            state.listData?.slackList != null) &&
+                            state.listData?.isChatIntegrationSyncing && (
+                                <ChatSyncNotif>
+                                    <Icon
+                                        filePath="redo"
+                                        heightAndWidth="18px"
+                                        hoverOff
+                                        color="prime1"
+                                    />{' '}
+                                    This Space is still being synced. It may
+                                    take a while for everything to show up.
+                                </ChatSyncNotif>
+                            )}
+                        <ResultsList
+                            isIframe={this.isIframe()}
+                            viewportWidth={this.viewportBreakpoint}
+                        >
+                            {this.state.resultLoadingState === 'running' ? (
+                                <LoadingBox>
+                                    <LoadingIndicator size={34} />
+                                </LoadingBox>
+                            ) : resultsFilteredByType?.length ? (
+                                resultsFilteredByType?.map(
+                                    ([entryIndex, entry]) => (
+                                        <Margin
+                                            bottom="small"
+                                            key={entry.normalizedUrl}
+                                        >
+                                            <ItemBox
+                                                highlight={isInRange(
+                                                    entry.createdWhen,
+                                                    this.itemRanges.listEntry,
+                                                )}
+                                                onMouseEnter={(
+                                                    event: React.MouseEventHandler,
+                                                ) =>
+                                                    this.processEvent(
+                                                        'setPageHover',
+                                                        { entryIndex },
+                                                    )
+                                                }
+                                                onMouseOver={(
+                                                    event: React.MouseEventHandler,
+                                                ) => {
+                                                    !this.state.listData
+                                                        ?.listEntries[
+                                                        entryIndex
+                                                    ].hoverState &&
+                                                        this.processEvent(
+                                                            'setPageHover',
+                                                            {
+                                                                entryIndex,
+                                                            },
+                                                        )
+                                                }}
+                                                onMouseLeave={(
+                                                    event: React.MouseEventHandler,
+                                                ) =>
+                                                    this.processEvent(
+                                                        'setPageHover',
+                                                        { entryIndex },
+                                                    )
+                                                }
+                                                hoverState={
+                                                    this.state.listData
+                                                        ?.listEntries[
+                                                        entryIndex
+                                                    ].hoverState
+                                                }
+                                                // onRef={(event) => {
+                                                //     this.onListEntryRef({
+                                                //         element: event.currentTarget
+                                                //         entry,
+                                                //     })
+                                                // }}
+                                                background="black"
+                                            >
+                                                <BlockContent
+                                                    // pageLink ={'https://memex.social/' + this.props.listID + '/' + entry.reference.id}
+                                                    youtubeService={
+                                                        this.props.services
+                                                            .youtube
+                                                    }
+                                                    contextLocation={'webUI'}
+                                                    type={
+                                                        isMemexPageAPdf({
+                                                            url:
+                                                                entry.normalizedUrl,
+                                                        })
+                                                            ? 'pdf'
+                                                            : 'page'
+                                                    }
+                                                    normalizedUrl={
+                                                        entry.normalizedUrl
+                                                    }
+                                                    originalUrl={
+                                                        entry.sourceUrl
+                                                    }
+                                                    fullTitle={
+                                                        entry &&
+                                                        entry.entryTitle
+                                                    }
+                                                    onClick={(
+                                                        e: React.MouseEvent<HTMLDivElement>,
+                                                    ) => {
+                                                        this.processEvent(
+                                                            'clickPageResult',
+                                                            {
+                                                                urlToOpen:
+                                                                    entry.sourceUrl,
+                                                                preventOpening: () =>
+                                                                    e.preventDefault(),
+                                                                isFollowedSpace:
+                                                                    this.state
+                                                                        .isCollectionFollowed ||
+                                                                    this.state
+                                                                        .isListOwner,
+                                                                notifAlreadyShown: this
+                                                                    .state
+                                                                    .notifAlreadyShown,
+                                                                sharedListReference: this
+                                                                    .sharedListReference,
+                                                                listID: this
+                                                                    .props
+                                                                    .listID,
+                                                                listEntryID: entry
+                                                                    .reference
+                                                                    ?.id!,
+                                                                openInWeb: true,
+                                                            },
+                                                        )
+                                                        e.preventDefault()
+                                                        e.stopPropagation()
+                                                    }}
+                                                    viewportBreakpoint={
+                                                        this.viewportBreakpoint
+                                                    }
+                                                    mainContentHover={
+                                                        this.state.listData
+                                                            ?.listEntries[
+                                                            entryIndex
+                                                        ].hoverState
+                                                            ? 'main-content'
+                                                            : undefined
+                                                    }
+                                                    getRootElement={
+                                                        this.props
+                                                            .getRootElement
+                                                    }
+                                                    renderCreationInfo={() => {
+                                                        return entry.createdWhen ? (
+                                                            <CreationInfo
+                                                                createdWhen={
+                                                                    entry.createdWhen
+                                                                }
+                                                            />
+                                                        ) : (
+                                                            <></>
+                                                        )
+                                                    }}
+                                                />
+                                                {this.state
+                                                    .summarizeArticleLoadState[
+                                                    entry.normalizedUrl
+                                                ] ? (
+                                                    <SummarySection>
+                                                        {this.state
+                                                            .summarizeArticleLoadState[
+                                                            entry.normalizedUrl
+                                                        ] === 'running' && (
+                                                            <LoadingBox>
+                                                                <LoadingIndicator
+                                                                    size={24}
+                                                                />
+                                                            </LoadingBox>
+                                                        )}
+                                                        {this.state
+                                                            .summarizeArticleLoadState[
+                                                            entry.normalizedUrl
+                                                        ] === 'success' && (
+                                                            <SummaryContainer>
+                                                                <SummaryText>
+                                                                    {this.state
+                                                                        .articleSummary[
+                                                                        entry
+                                                                            .normalizedUrl
+                                                                    ] ??
+                                                                        undefined}
+                                                                </SummaryText>
+                                                            </SummaryContainer>
+                                                        )}
+                                                        {this.state
+                                                            .summarizeArticleLoadState[
+                                                            entry.normalizedUrl
+                                                        ] === 'error' && (
+                                                            <ErrorContainer>
+                                                                <Icon
+                                                                    icon="warning"
+                                                                    color="warning"
+                                                                    heightAndWidth="22px"
+                                                                    hoverOff
+                                                                />
+                                                                Page could not
+                                                                be summarised.
+                                                                This may be
+                                                                because it is
+                                                                behind a
+                                                                paywall. <br />{' '}
+                                                                Youtube videos
+                                                                and PDFs are not
+                                                                supported yet.
+                                                            </ErrorContainer>
+                                                        )}
+                                                    </SummarySection>
+                                                ) : undefined}
+                                                <ItemBoxBottom
+                                                    creationInfo={{
+                                                        creatorInfo: this.state
+                                                            .users[
+                                                            entry.creator.id
+                                                        ],
+                                                        createdWhen:
+                                                            entry.createdWhen,
+                                                    }}
+                                                    actions={this.getPageEntryActions(
+                                                        entry,
+                                                        entryIndex,
+                                                    )}
+                                                    getRootElement={
+                                                        this.props
+                                                            .getRootElement
+                                                    }
+                                                />
+                                            </ItemBox>
+                                            {state.pageAnnotationsExpanded[
+                                                entry.normalizedUrl
+                                            ] && (
+                                                <>
+                                                    {this.renderPageAnnotations(
+                                                        entry,
+                                                    )}
+                                                </>
+                                            )}
+                                            {entryIndex > 0 &&
+                                                (entryIndex + 1) %
+                                                    data.pageSize ===
+                                                    0 && (
+                                                    <Waypoint
+                                                        onEnter={() => {
+                                                            this.processEvent(
+                                                                'pageBreakpointHit',
+                                                                {
+                                                                    entryIndex,
+                                                                },
+                                                            )
+                                                        }}
+                                                    />
+                                                )}
+                                        </Margin>
+                                    ),
+                                )
+                            ) : (
+                                this.renderNoResults()
+                            )}
+                            {this.state.paginateLoading === 'running' && (
+                                <LoadingBox>
+                                    <LoadingIndicator size={34} />
+                                </LoadingBox>
+                            )}
+                        </ResultsList>
+                    </PageResultsArea>
                 </DefaultPageLayout>
                 {this.state.isListShareModalShown && (
                     <ListShareModal

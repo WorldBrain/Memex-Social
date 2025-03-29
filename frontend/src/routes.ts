@@ -9,6 +9,7 @@ export type RouteName =
     | 'pageLinkCreation'
     | 'loginOrSignupPage'
     | 'tutorials'
+    | 'oauthCallback'
 
 export type RouteMap = { [Name in RouteName]: Route }
 export interface Route {
@@ -51,6 +52,7 @@ const ROUTES: RouteMap = {
     pageLinkCreation: { path: [{ literal: 'new' }] },
     loginOrSignupPage: { path: [{ literal: 'auth' }] },
     tutorials: { path: [{ literal: 'tutorials' }] },
+    oauthCallback: { path: [{ literal: 'oauth' }, { literal: 'callback' }] },
 }
 
 export default ROUTES
