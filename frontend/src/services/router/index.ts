@@ -49,6 +49,7 @@ export default class RouterService {
         options?: { query?: { [key: string]: string } },
     ): string {
         let url = this.routes.getUrl(route, params)
+        console.log('url', url, params, options)
         if (options?.query) {
             url += '?'
             url += Object.entries(options.query)
@@ -107,5 +108,20 @@ export default class RouterService {
             this.blockLeaveMessage = null
             this.options.setBeforeLeaveHandler(null)
         }
+    }
+
+    replaceRoute(
+        route: RouteName,
+        params: { [key: string]: string } = {},
+        options?: {
+            query?: { [key: string]: string }
+            state?: any
+        },
+    ) {
+        console.log('url', this.getUrl(route, params, options), params, options)
+        this.options.history.replace(
+            this.getUrl(route, params, options),
+            options?.state,
+        )
     }
 }

@@ -16,6 +16,8 @@ import type { FullTextSearchService } from './full-text-search'
 import type { PublicApiServiceInterface } from '@worldbrain/memex-common/lib/public-api/types'
 import type { PdfUploadServiceInterface } from '@worldbrain/memex-common/lib/pdf/uploads/types'
 import type { BlueskyServiceInterface } from '@worldbrain/memex-common/lib/bsky/service/types'
+import { ThemeService } from './theme'
+import { CacheService } from './cache'
 
 type UIServices = 'logicRegistry' | 'device'
 export type UIElementServices<Wanted extends keyof Services = never> = Pick<
@@ -29,6 +31,8 @@ export type Services = SharedServices & {
     bluesky: BlueskyServiceInterface
     fixtures: FixtureService
     scenarios: ScenarioService
+    cache: CacheService
+    theme: ThemeService
     documentTitle: DocumentTitleService
     localStorage: LocalStorageService
     userMessages: UserMessageService

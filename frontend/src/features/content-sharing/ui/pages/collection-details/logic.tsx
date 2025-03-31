@@ -1304,17 +1304,26 @@ export default class CollectionDetailsLogic extends UILogic<
             ),
         })
         await executeUITask(this, taskStatesMutation, async () => {
+            console.log('loadPageAnnotations', normalizedPageUrls)
+            console.log(
+                'annotationEntries',
+                annotationEntries,
+                this.dependencies.listID,
+            )
+            const annotationIds = filterObject(
+                mapValues(annotationEntries, (entries) =>
+                    entries.map((entry) => entry.sharedAnnotation.id),
+                ),
+                (_, key) => normalizedPageUrls.includes(key),
+            )
+            console.log('annotationIds', annotationIds)
             const annotationsResult = await contentSharing.backend.loadAnnotationsWithThreads(
                 {
                     listId: this.dependencies.listID,
-                    annotationIds: filterObject(
-                        mapValues(annotationEntries, (entries) =>
-                            entries.map((entry) => entry.sharedAnnotation.id),
-                        ),
-                        (_, key) => normalizedPageUrls.includes(key),
-                    ),
+                    annotationIds: annotationIds,
                 },
             )
+            console.log('annotationsResult', annotationsResult)
             if (annotationsResult.status !== 'success') {
                 return
             }

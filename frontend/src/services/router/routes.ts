@@ -32,12 +32,21 @@ export default class Routes {
                 if ('placeholder' in part) {
                     const value = routeParams[part.placeholder]
                     if (value) {
-                        groupParts.push(value)
+                        urlParts.push(value)
                     } else {
                         undefinedPlaceholderFound = part.placeholder
                     }
                 } else if ('literal' in part) {
-                    groupParts.push(part.literal)
+                    const nextPartIndex = group.parts.indexOf(part) + 1
+                    if (nextPartIndex < group.parts.length) {
+                        const nextPart = group.parts[nextPartIndex]
+                        if (
+                            'placeholder' in nextPart &&
+                            routeParams[nextPart.placeholder]
+                        ) {
+                            urlParts.push(part.literal)
+                        }
+                    }
                 }
             }
             if (undefinedPlaceholderFound) {
@@ -46,10 +55,14 @@ export default class Routes {
                         `Tried to reverse URL '${routeName}', but couldn't find needed parameter '${undefinedPlaceholderFound}'`,
                     )
                 }
-            } else {
-                urlParts.push(...groupParts)
             }
+            //  else {
+            //     console.log('finalpush', groupParts)
+            //     urlParts.push(...groupParts)
+            // }
+            console.log('urlParts', urlParts)
         }
+        console.log('final', urlParts)
         return urlParts.join('/')
     }
 

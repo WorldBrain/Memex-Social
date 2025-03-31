@@ -50,6 +50,8 @@ import { PdfUploadService } from '@worldbrain/memex-common/lib/pdf/uploads/servi
 import type { GenerateServerID } from '@worldbrain/memex-common/lib/content-sharing/service/types'
 import { BlueskyService } from '@worldbrain/memex-common/lib/bsky/service'
 import type { BlueskyServiceInterface } from '@worldbrain/memex-common/lib/bsky/service/types'
+import { ThemeService } from './theme'
+import { CacheService } from './cache'
 
 export function createServices(options: {
     backend: BackendType
@@ -237,6 +239,8 @@ export function createServices(options: {
         bluesky,
         fixtures,
         localStorage,
+        cache: new CacheService(),
+        theme: null,
         userMessages,
         memexExtension: new MemexExtensionService(),
         scenarios: new ScenarioService({

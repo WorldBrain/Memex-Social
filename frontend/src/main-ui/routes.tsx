@@ -20,6 +20,7 @@ import type { UIRunnerOptions } from './types'
 import LoginOrSignupPage from '../features/content-sharing/ui/pages/login-or-signup'
 import TutorialsPage from '../features/content-sharing/ui/pages/tutorials'
 import OAuthCallbackPage from '../features/content-sharing/ui/pages/oauth-callback'
+import Dashboard from '../dashboard'
 
 interface Props extends UIRunnerOptions {}
 export default class Routes extends React.Component<Props> {
@@ -124,6 +125,42 @@ export default class Routes extends React.Component<Props> {
                     />
                     <Route
                         exact
+                        path={getReactRoutePattern(ROUTES.dashboard.path)}
+                        render={(route) => {
+                            const query = queryString.parse(
+                                route.location.search,
+                            ) as ContentSharingQueryParams
+                            return (
+                                <Dashboard
+                                    listID={route.match.params.id}
+                                    entryID={route.match.params.entryId}
+                                    services={this.props.services}
+                                    storage={serverModules}
+                                    imageSupport={this.props.imageSupport}
+                                    getRootElement={this.props.getRootElement}
+                                    storageManager={
+                                        this.props.storage.serverStorageManager
+                                    }
+                                />
+
+                                // <CollectionDetailsPage
+                                //     listID={route.match.params.id}
+                                //     entryID={route.match.params.entryId}
+                                //     noteId={route.match.params.noteId}
+                                //     services={this.props.services}
+                                //     storageManager={
+                                //         this.props.storage.serverStorageManager
+                                //     }
+                                //     storage={serverModules}
+                                //     query={query}
+                                //     imageSupport={this.props.imageSupport}
+                                //     getRootElement={this.props.getRootElement}
+                                // />
+                            )
+                        }}
+                    />
+                    <Route
+                        exact
                         path={getReactRoutePattern(
                             ROUTES.collectionDetails.path,
                         )}
@@ -132,9 +169,22 @@ export default class Routes extends React.Component<Props> {
                                 route.location.search,
                             ) as ContentSharingQueryParams
                             return (
+                                // <Dashboard
+                                //     listID={route.match.params.id}
+                                //     entryID={route.match.params.entryId}
+                                //     services={this.props.services}
+                                //     storage={serverModules}
+                                //     imageSupport={this.props.imageSupport}
+                                //     getRootElement={this.props.getRootElement}
+                                //     storageManager={
+                                //         this.props.storage.serverStorageManager
+                                //     }
+                                // />
+
                                 <CollectionDetailsPage
                                     listID={route.match.params.id}
                                     entryID={route.match.params.entryId}
+                                    noteId={route.match.params.noteId}
                                     services={this.props.services}
                                     storageManager={
                                         this.props.storage.serverStorageManager
