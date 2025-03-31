@@ -54,8 +54,8 @@ export interface ReaderPageViewDependencies {
     normalizeUrl: URLNormalizer
     generateServerId: GenerateServerID
     query: ContentSharingQueryParams
-    imageSupport: ImageSupportInterface
     pdfBlob?: Blob
+    imageSupport: ImageSupportInterface
     getRootElement: () => HTMLElement
 }
 

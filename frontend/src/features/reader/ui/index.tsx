@@ -78,11 +78,11 @@ export class ReaderPageView extends UIElement<
 
         const { query } = props
 
-        this.itemRanges = {
-            listEntry: parseRange(query.fromListEntry, query.toListEntry),
-            annotEntry: parseRange(query.fromAnnotEntry, query.toAnnotEntry),
-            reply: parseRange(query.fromReply, query.toReply),
-        }
+        // this.itemRanges = {
+        //     listEntry: parseRange(query.fromListEntry, query.toListEntry),
+        //     annotEntry: parseRange(query.fromAnnotEntry, query.toAnnotEntry),
+        //     reply: parseRange(query.fromReply, query.toReply),
+        // }
     }
 
     private getRootElement = (): HTMLElement => {
@@ -203,332 +203,6 @@ export class ReaderPageView extends UIElement<
         }
     }
 
-    private renderPageAnnotations(
-        entry: SharedListEntry & { creator: UserReference },
-    ) {
-        const { state } = this
-
-        // const youtubeElementId = getBlockContentYoutubePlayerId(
-        //     entry.normalizedUrl,
-        // )
-
-        const loadState = state.annotationLoadStates[entry.normalizedUrl]
-
-        if (
-            loadState &&
-            loadState === 'success' &&
-            Object.keys(state.annotationEntryData).length === 0
-        ) {
-            return (
-                <EmptyMessageContainer>
-                    <IconBox heightAndWidth="40px">
-                        <Icon
-                            filePath={'commentAdd'}
-                            heightAndWidth="20px"
-                            color="prime1"
-                            hoverOff
-                        />
-                    </IconBox>
-                    <InfoText>
-                        Add a note or highlight sections of the page
-                    </InfoText>
-                </EmptyMessageContainer>
-            )
-        } else {
-            let annotationsList: Array<SharedAnnotation & { id: AutoPk }> = []
-
-            if (
-                state.annotationEntryData &&
-                state.annotationEntryData[entry.normalizedUrl] &&
-                state.annotationEntryData &&
-                state.annotations !== null
-            ) {
-                state.annotationEntryData[entry.normalizedUrl].map(
-                    (annotationEntry) => {
-                        if (
-                            this.state.annotations[
-                                annotationEntry.sharedAnnotation.id.toString()
-                            ]
-                        ) {
-                            annotationsList.push({
-                                ...this.state.annotations[
-                                    annotationEntry.sharedAnnotation.id.toString()
-                                ],
-                                id: annotationEntry.sharedAnnotation.id,
-                            })
-                        }
-                    },
-                )
-            }
-
-            return (
-                <AnnotationsInPage
-                    users={this.state.users}
-                    getRootElement={this.props.getRootElement}
-                    hideThreadBar={true}
-                    currentSpaceId={this.props.listID}
-                    currentNoteId={this.props.noteId}
-                    originalUrl={entry.originalUrl}
-                    contextLocation={'webUI'}
-                    imageSupport={this.props.imageSupport}
-                    variant={'dark-mode'}
-                    pageEntry={entry}
-                    viewportBreakpoint={this.viewportBreakpoint}
-                    // newPageReply={
-                    //     this.isListContributor || state.isListOwner
-                    //         ? state.newPageReplies[entry.normalizedUrl]
-                    //         : undefined
-                    // }
-                    shouldHighlightAnnotation={(annotation) =>
-                        isInRange(
-                            annotation.createdWhen,
-                            this.itemRanges.annotEntry,
-                        ) ||
-                        this.state.activeAnnotationId ===
-                            annotation.reference.id
-                    }
-                    shouldHighlightReply={(_, replyData) =>
-                        isInRange(
-                            replyData.reply.createdWhen,
-                            this.itemRanges.reply,
-                        )
-                    }
-                    getReplyEditProps={(
-                        replyReference,
-                        annotationReference,
-                    ) => ({
-                        isDeleting: this.state.replyDeleteStates[
-                            replyReference.id
-                        ]?.isDeleting,
-                        isEditing: this.state.replyEditStates[replyReference.id]
-                            ?.isEditing,
-                        isHovering: this.state.replyHoverStates[
-                            replyReference.id
-                        ]?.isHovering,
-                        imageSupport: this.props.imageSupport,
-                        isOwner:
-                            this.state.conversations[
-                                annotationReference.id.toString()
-                            ].replies.find(
-                                (reply) =>
-                                    reply.reference.id === replyReference.id,
-                            )?.userReference?.id ===
-                            this.state.currentUserReference?.id,
-                        comment:
-                            this.state.replyEditStates[replyReference.id]
-                                ?.text ?? '',
-                        setAnnotationDeleting: (isDeleting) => (event: any) =>
-                            this.processEvent('setReplyToAnnotationDeleting', {
-                                isDeleting,
-                                replyReference,
-                            }),
-                        setAnnotationEditing: (isEditing) => {
-                            this.processEvent('setReplyToAnnotationEditing', {
-                                isEditing,
-                                replyReference,
-                            })
-                        },
-                        setAnnotationHovering: (isHovering) => () => {
-                            this.processEvent('setReplyToAnnotationHovering', {
-                                isHovering,
-                                replyReference,
-                            })
-                        },
-                        onCommentChange: (comment) =>
-                            this.processEvent('editReplyToAnnotation', {
-                                replyText: comment,
-                                replyReference,
-                            }),
-                        onDeleteConfim: () =>
-                            this.processEvent(
-                                'confirmDeleteReplyToAnnotation',
-                                {
-                                    replyReference,
-                                    annotationReference,
-                                    sharedListReference: this.state.listData!
-                                        .reference,
-                                },
-                            ),
-                        onEditConfirm: () => () =>
-                            this.processEvent('confirmEditReplyToAnnotation', {
-                                replyReference,
-                                annotationReference,
-                                sharedListReference: this.state.listData!
-                                    .reference,
-                            }),
-                        onEditCancel: () =>
-                            this.processEvent('setReplyToAnnotationEditing', {
-                                isEditing: false,
-                                replyReference,
-                            }),
-                    })}
-                    getAnnotationEditProps={(annotationRef) => ({
-                        isDeleting: this.state.annotationDeleteStates[
-                            annotationRef.id
-                        ]?.isDeleting,
-                        imageSupport: this.props.imageSupport,
-                        isEditing: this.state.annotationEditStates[
-                            annotationRef.id
-                        ]?.isEditing,
-                        isHovering: this.state.annotationHoverStates[
-                            annotationRef.id
-                        ]?.isHovering,
-                        isOwner:
-                            this.state.annotations[annotationRef.id.toString()]
-                                ?.creator.id ===
-                            this.state.currentUserReference?.id,
-                        comment:
-                            this.state.annotationEditStates[annotationRef.id]
-                                ?.comment ?? '',
-                        setAnnotationDeleting: (isDeleting) => (event: any) =>
-                            this.processEvent('setAnnotationDeleting', {
-                                isDeleting,
-                                annotationId: annotationRef.id,
-                            }),
-                        setAnnotationEditing: (isEditing) => {
-                            this.processEvent('setAnnotationEditing', {
-                                isEditing,
-                                annotationId: annotationRef.id,
-                            })
-                        },
-                        setAnnotationHovering: (isHovering) => (event: any) => {
-                            this.processEvent('setAnnotationHovering', {
-                                isHovering,
-                                annotationId: annotationRef.id,
-                            })
-                        },
-                        onCommentChange: (comment) =>
-                            this.processEvent('changeAnnotationEditComment', {
-                                comment,
-                                annotationId: annotationRef.id,
-                            }),
-                        onDeleteConfim: () =>
-                            this.processEvent('confirmAnnotationDelete', {
-                                annotationId: annotationRef.id,
-                            }),
-                        onEditConfirm: () => () =>
-                            this.processEvent('confirmAnnotationEdit', {
-                                annotationId: annotationRef.id,
-                            }),
-                        onEditCancel: () =>
-                            this.processEvent('setAnnotationEditing', {
-                                annotationId: annotationRef.id,
-                                isEditing: false,
-                            }),
-                    })}
-                    onAnnotationClick={(annotation) => (event) =>
-                        this.processEvent('clickAnnotationInSidebar', {
-                            annotationId: annotation.id,
-                        })}
-                    loadState={state.annotationLoadStates[entry.normalizedUrl]}
-                    annotations={
-                        annotationsList?.map((annot) => ({
-                            ...annot,
-                            linkId: annot.id.toString(),
-                            reference: {
-                                type: 'shared-annotation-reference',
-                                id: annot.id,
-                            },
-                        })) ?? null
-                    }
-                    annotationConversations={this.state.conversations}
-                    getAnnotationCreator={(annotationReference) => {
-                        const creatorRef = this.state.annotations[
-                            annotationReference.id.toString()
-                        ]?.creator
-                        return creatorRef && this.state.users[creatorRef.id]
-                    }}
-                    getAnnotationCreatorRef={(annotationReference) => {
-                        const creatorRef = this.state.annotations[
-                            annotationReference.id.toString()
-                        ]?.creator
-                        return creatorRef
-                    }}
-                    // profilePopupProps={{
-                    //     storage: this.props.storage,
-                    //     services: this.props.services,
-                    // }}
-                    getYoutubePlayer={() =>
-                        this.props.services.youtube.getPlayerByElementId(
-                            getReaderYoutubePlayerId(entry.normalizedUrl),
-                        )
-                    }
-                    onToggleReplies={(event) => {
-                        this.processEvent('toggleAnnotationReplies', {
-                            ...event,
-                            sharedListReference: this.state.listData!.reference,
-                        })
-                        setTimeout(() => {
-                            const highlight = document.getElementById(
-                                event.annotationReference.id.toString(),
-                            )
-
-                            highlight?.scrollIntoView({
-                                behavior: 'smooth',
-                                block: 'start',
-                            })
-                        }, 50)
-                    }}
-                    newPageReplyEventHandlers={{
-                        onNewReplyInitiate: () =>
-                            this.processEvent('initiateNewReplyToPage', {
-                                pageReplyId: entry.normalizedUrl,
-                            }),
-                        onNewReplyCancel: () =>
-                            this.processEvent('cancelNewReplyToPage', {
-                                pageReplyId: entry.normalizedUrl,
-                            }),
-                        onNewReplyConfirm: () =>
-                            this.processEvent('confirmNewReplyToPage', {
-                                normalizedPageUrl: entry.normalizedUrl,
-                                pageCreatorReference: entry.creator,
-                                pageReplyId: entry.normalizedUrl,
-                                sharedListReference: this.state.listData!
-                                    .reference,
-                            }),
-                        onNewReplyEdit: ({ content }) =>
-                            this.processEvent('editNewReplyToPage', {
-                                pageReplyId: entry.normalizedUrl,
-                                content,
-                            }),
-                    }}
-                    newAnnotationReplyEventHandlers={{
-                        onNewReplyInitiate: (annotationReference) => () =>
-                            this.processEvent('initiateNewReplyToAnnotation', {
-                                annotationReference,
-                                sharedListReference: this.state.listData!
-                                    .reference,
-                            }),
-                        onNewReplyCancel: (annotationReference) => () =>
-                            this.processEvent('cancelNewReplyToAnnotation', {
-                                annotationReference,
-                                sharedListReference: this.state.listData!
-                                    .reference,
-                            }),
-                        onNewReplyConfirm: (annotationReference) => () =>
-                            this.processEvent('confirmNewReplyToAnnotation', {
-                                annotationReference,
-                                sharedListReference: this.state.listData!
-                                    .reference,
-                            }),
-                        onNewReplyEdit: (annotationReference) => ({
-                            content,
-                        }) =>
-                            this.processEvent('editNewReplyToAnnotation', {
-                                annotationReference,
-                                content,
-                                sharedListReference: this.state.listData!
-                                    .reference,
-                            }),
-                    }}
-                    openImageInPreview={(imageSource) =>
-                        this.processEvent('openImageInPreview', { imageSource })
-                    }
-                />
-            )
-        }
-    }
-
     renderYoutubePlayer = () => {
         const { youtube } = this.props.services
         const { entry } = this.state.listData ?? {}
@@ -568,173 +242,143 @@ export class ReaderPageView extends UIElement<
         )
     }
 
-    // private renderInstallTooltip = () => {
-    //     if (this.state.showInstallTooltip) {
+    // private renderOptionsMenu = () => {
+    //     if (this.state.showOptionsMenu) {
     //         return (
-    //             <OverlayContainer>
-    //                 <TooltipContainer>
-    //                     <Title>Screens</Title>
-    //                     <Description>
-    //                         Try installing the Memex browser extension to view,
-    //                         annotate and reply on the live page.
-    //                         <br /> And it's just 2 clicks away.
-    //                     </Description>
-    //                     <PrimaryAction
-    //                         label="Install Extension"
-    //                         onClick={() =>
-    //                             this.processEvent('installMemexClick', {
-    //                                 urlToOpen: this.state.listData!.entry
-    //                                     .originalUrl,
-    //                                 sharedListReference: this.state.listData!
-    //                                     .reference,
-    //                             })
-    //                         }
-    //                         type="secondary"
-    //                         size="medium"
+    //             <PopoutBox
+    //                 targetElementRef={
+    //                     this.optionsMenuButtonRef.current ?? undefined
+    //                 }
+    //                 placement="bottom"
+    //                 closeComponent={() =>
+    //                     this.processEvent('toggleOptionsMenu', null)
+    //                 }
+    //                 offsetX={10}
+    //                 getPortalRoot={() => this.props.getRootElement()}
+    //             >
+    //                 <OptionsMenuBox>
+    //                     <AuthHeader
+    //                         services={this.props.services}
+    //                         getRootElement={this.props.getRootElement}
     //                     />
-    //                 </TooltipContainer>
-    //             </OverlayContainer>
+    //                     {this.state.listLoadState === 'success' && (
+    //                         <PrimaryAction
+    //                             icon={'goTo'}
+    //                             type="tertiary"
+    //                             label={'Open Original'}
+    //                             size="medium"
+    //                             onClick={() =>
+    //                                 window.open(
+    //                                     this.state.listData!.entry.originalUrl,
+    //                                     '_blank',
+    //                                 )
+    //                             }
+    //                             padding="5px 10px 5px 5px"
+    //                         />
+    //                     )}
+    //                 </OptionsMenuBox>
+    //             </PopoutBox>
     //         )
     //     }
     // }
 
-    private renderOptionsMenu = () => {
-        if (this.state.showOptionsMenu) {
-            return (
-                <PopoutBox
-                    targetElementRef={
-                        this.optionsMenuButtonRef.current ?? undefined
-                    }
-                    placement="bottom"
-                    closeComponent={() =>
-                        this.processEvent('toggleOptionsMenu', null)
-                    }
-                    offsetX={10}
-                    getPortalRoot={() => this.props.getRootElement()}
-                >
-                    <OptionsMenuBox>
-                        <AuthHeader
-                            services={this.props.services}
-                            getRootElement={this.props.getRootElement}
-                        />
-                        {this.state.listLoadState === 'success' && (
-                            <PrimaryAction
-                                icon={'goTo'}
-                                type="tertiary"
-                                label={'Open Original'}
-                                size="medium"
-                                onClick={() =>
-                                    window.open(
-                                        this.state.listData!.entry.originalUrl,
-                                        '_blank',
-                                    )
-                                }
-                                padding="5px 10px 5px 5px"
-                            />
-                        )}
-                    </OptionsMenuBox>
-                </PopoutBox>
-            )
-        }
-    }
+    // private renderShareTooltip = () => {
+    //     const links = this.pageLinks
 
-    private renderShareTooltip = () => {
-        const links = this.pageLinks
-
-        if (this.state.showShareMenu) {
-            return (
-                <PopoutBox
-                    targetElementRef={this.sharePageButton.current ?? undefined}
-                    placement="bottom"
-                    closeComponent={() =>
-                        this.processEvent('showSharePageMenu', null)
-                    }
-                    offsetX={10}
-                    getPortalRoot={() => this.props.getRootElement()}
-                >
-                    <TooltipContainer>
-                        {this.state.linkCopiedToClipBoard ? (
-                            <NotifBox>
-                                <Icon
-                                    filePath="checkRound"
-                                    heightAndWidth="30px"
-                                    hoverOff
-                                />
-                                <Title>Copied to Clipboard</Title>
-                            </NotifBox>
-                        ) : (
-                            <NotifBox>
-                                <Title>Invite Links</Title>
-                                {links != null &&
-                                this.state.permissionsLoadState ===
-                                    'success' ? (
-                                    <LinksContainer>
-                                        <LinkTitle>
-                                            Read & Reply Access
-                                        </LinkTitle>
-                                        <LinkBox>
-                                            <LinkField>
-                                                {links!.reader}
-                                            </LinkField>
-                                            <PrimaryAction
-                                                type="secondary"
-                                                size="small"
-                                                icon={'copy'}
-                                                label={'copy'}
-                                                padding={'4px 10px 4px 5px'}
-                                                onClick={() =>
-                                                    this.processEvent(
-                                                        'copyLink',
-                                                        {
-                                                            url: links!.reader,
-                                                        },
-                                                    )
-                                                }
-                                            />
-                                        </LinkBox>
-                                        {links.collab != null && (
-                                            <>
-                                                <LinkTitle>
-                                                    Contribute Access
-                                                </LinkTitle>
-                                                <LinkBox>
-                                                    <LinkField>
-                                                        {links!.collab}
-                                                    </LinkField>
-                                                    <PrimaryAction
-                                                        type="secondary"
-                                                        size="small"
-                                                        icon={'copy'}
-                                                        label={'copy'}
-                                                        padding={
-                                                            '4px 10px 4px 5px'
-                                                        }
-                                                        onClick={() =>
-                                                            this.processEvent(
-                                                                'copyLink',
-                                                                {
-                                                                    url: links!
-                                                                        .collab,
-                                                                },
-                                                            )
-                                                        }
-                                                    />
-                                                </LinkBox>
-                                            </>
-                                        )}
-                                    </LinksContainer>
-                                ) : (
-                                    <LoadingBox height={'50px'}>
-                                        <LoadingIndicator size={20} />
-                                    </LoadingBox>
-                                )}
-                            </NotifBox>
-                        )}
-                    </TooltipContainer>
-                </PopoutBox>
-            )
-        }
-    }
+    //     if (this.state.showShareMenu) {
+    //         return (
+    //             <PopoutBox
+    //                 targetElementRef={this.sharePageButton.current ?? undefined}
+    //                 placement="bottom"
+    //                 closeComponent={() =>
+    //                     this.processEvent('showSharePageMenu', null)
+    //                 }
+    //                 offsetX={10}
+    //                 getPortalRoot={() => this.props.getRootElement()}
+    //             >
+    //                 <TooltipContainer>
+    //                     {this.state.linkCopiedToClipBoard ? (
+    //                         <NotifBox>
+    //                             <Icon
+    //                                 filePath="checkRound"
+    //                                 heightAndWidth="30px"
+    //                                 hoverOff
+    //                             />
+    //                             <Title>Copied to Clipboard</Title>
+    //                         </NotifBox>
+    //                     ) : (
+    //                         <NotifBox>
+    //                             <Title>Invite Links</Title>
+    //                             {links != null &&
+    //                             this.state.permissionsLoadState ===
+    //                                 'success' ? (
+    //                                 <LinksContainer>
+    //                                     <LinkTitle>
+    //                                         Read & Reply Access
+    //                                     </LinkTitle>
+    //                                     <LinkBox>
+    //                                         <LinkField>
+    //                                             {links!.reader}
+    //                                         </LinkField>
+    //                                         <PrimaryAction
+    //                                             type="secondary"
+    //                                             size="small"
+    //                                             icon={'copy'}
+    //                                             label={'copy'}
+    //                                             padding={'4px 10px 4px 5px'}
+    //                                             onClick={() =>
+    //                                                 this.processEvent(
+    //                                                     'copyLink',
+    //                                                     {
+    //                                                         url: links!.reader,
+    //                                                     },
+    //                                                 )
+    //                                             }
+    //                                         />
+    //                                     </LinkBox>
+    //                                     {links.collab != null && (
+    //                                         <>
+    //                                             <LinkTitle>
+    //                                                 Contribute Access
+    //                                             </LinkTitle>
+    //                                             <LinkBox>
+    //                                                 <LinkField>
+    //                                                     {links!.collab}
+    //                                                 </LinkField>
+    //                                                 <PrimaryAction
+    //                                                     type="secondary"
+    //                                                     size="small"
+    //                                                     icon={'copy'}
+    //                                                     label={'copy'}
+    //                                                     padding={
+    //                                                         '4px 10px 4px 5px'
+    //                                                     }
+    //                                                     onClick={() =>
+    //                                                         this.processEvent(
+    //                                                             'copyLink',
+    //                                                             {
+    //                                                                 url: links!
+    //                                                                     .collab,
+    //                                                             },
+    //                                                         )
+    //                                                     }
+    //                                                 />
+    //                                             </LinkBox>
+    //                                         </>
+    //                                     )}
+    //                                 </LinksContainer>
+    //                             ) : (
+    //                                 <LoadingBox height={'50px'}>
+    //                                     <LoadingIndicator size={20} />
+    //                                 </LoadingBox>
+    //                             )}
+    //                         </NotifBox>
+    //                     )}
+    //                 </TooltipContainer>
+    //             </PopoutBox>
+    //         )
+    //     }
+    // }
 
     async captureScreenshotFromHTMLVideo(screenshotTarget: any) {
         let canvas = document.createElement('canvas')
@@ -850,7 +494,7 @@ export class ReaderPageView extends UIElement<
                     }
                 >
                     {this.state.preventInteractionsInIframe && <ClickBlocker />}
-                    {this.state.showDropPDFNotice && (
+                    {/* {this.state.showDropPDFNotice && (
                         <PDFDropNoticeContainer
                             onDragOver={(
                                 event: React.DragEvent<HTMLDivElement>,
@@ -875,7 +519,7 @@ export class ReaderPageView extends UIElement<
                                 drop it in here.
                             </PDFDropSubTitle>
                         </PDFDropNoticeContainer>
-                    )}
+                    )} */}
                     {this.state.iframeLoadState === 'error' ? (
                         <div>
                             The reader didn't load properly. Please try
@@ -890,208 +534,6 @@ export class ReaderPageView extends UIElement<
                     )}
                 </InjectedContent>
             </>
-        )
-    }
-
-    renderSidebar = (isYoutubeMobile: boolean, screenSmall: boolean) => {
-        const style = {
-            position: 'relative',
-            right: '0px',
-            top: '0px',
-            zIndex: 3,
-            height: 'fill-available',
-            display: 'flex',
-            flexDirection: 'column',
-        } as const
-
-        return (
-            <ContainerStyled
-                width={screenSmall ? null : this.state.sidebarWidth}
-                id={'annotationSidebarContainer'}
-                viewportBreakpoint={this.viewportBreakpoint}
-                shouldShowSidebar={
-                    this.state.showSidebar || (isYoutubeMobile && screenSmall)
-                }
-                isYoutubeMobile={isYoutubeMobile}
-            >
-                <Sidebar
-                    ref={(ref: Rnd) =>
-                        this.processEvent('setSidebarRef', {
-                            ref: ref?.getSelfElement() ?? null,
-                        })
-                    }
-                    style={style}
-                    default={{
-                        x: 0,
-                        y: 0,
-                        // width:
-                        //     screenSmall || isYoutubeMobile
-                        //         ? 'fill-available'
-                        //         : '400px',
-                        height: '100px',
-                    }}
-                    width={this.state.sidebarWidth}
-                    minWidth={screenSmall ? '100%' : this.state.sidebarWidth}
-                    resizeHandleWrapperClass={'sidebarResizeHandle'}
-                    className="sidebar-draggable"
-                    resizeGrid={[1, 0]}
-                    dragAxis={'none'}
-                    // minWidth={
-                    //     screenSmall || isYoutubeMobile
-                    //         ? 'fill-available'
-                    //         : '400px'
-                    // }
-                    // maxWidth={
-                    //     screenSmall || isYoutubeMobile
-                    //         ? 'fill-available'
-                    //         : '600px'
-                    // }
-                    disableDragging={true}
-                    enableResizing={{
-                        top: false,
-                        right: false,
-                        bottom: false,
-                        left: true,
-                        topRight: false,
-                        bottomRight: false,
-                        bottomLeft: false,
-                        topLeft: false,
-                    }}
-                    onResizeStart={() =>
-                        this.processEvent('toggleClickBlocker', null)
-                    }
-                    onResize={(
-                        e: any,
-                        direction: any,
-                        ref: any,
-                        delta: any,
-                        position: any,
-                    ) => {
-                        this.processEvent('setSidebarWidth', {
-                            width: ref.style.width,
-                        })
-                    }}
-                    onResizeStop={(
-                        e: any,
-                        direction: any,
-                        ref: any,
-                        delta: any,
-                        position: any,
-                    ) => {
-                        this.processEvent('toggleClickBlocker', null)
-                    }}
-                >
-                    {!isYoutubeMobile && !screenSmall && (
-                        <SidebarTopBar
-                            viewportBreakpoint={this.viewportBreakpoint}
-                        >
-                            <RightSideTopBar>
-                                {this.state.permissionsLoadState ===
-                                    'success' && (
-                                    <ShareContainer>
-                                        <PrimaryAction
-                                            icon={'peopleFine'}
-                                            type="primary"
-                                            label={'Share & Invite'}
-                                            size={
-                                                this.viewportBreakpoint ===
-                                                'mobile'
-                                                    ? 'small'
-                                                    : 'medium'
-                                            }
-                                            fontSize="14px"
-                                            iconSize="18px"
-                                            innerRef={this.sharePageButton}
-                                            onClick={() =>
-                                                this.processEvent(
-                                                    'showSharePageMenu',
-                                                    null,
-                                                )
-                                            }
-                                            padding="12px 10px 12px 5px"
-                                        />
-                                        {this.renderShareTooltip()}
-                                    </ShareContainer>
-                                )}
-                            </RightSideTopBar>
-                            {this.viewportBreakpoint === 'mobile' && (
-                                <Icon
-                                    icon="removeX"
-                                    heightAndWidth="24px"
-                                    onClick={() =>
-                                        this.processEvent('toggleSidebar', null)
-                                    }
-                                />
-                            )}
-                        </SidebarTopBar>
-                    )}
-                    <SidebarAnnotationContainer>
-                        {this.state.permissions != null && (
-                            <AnnotationCreateContainer>
-                                <AnnotationCreate
-                                    comment={
-                                        this.state.annotationCreateState.comment
-                                    }
-                                    isCreating={
-                                        this.state.annotationCreateState
-                                            .isCreating
-                                    }
-                                    onCancel={() =>
-                                        this.processEvent(
-                                            'cancelAnnotationCreate',
-                                            null,
-                                        )
-                                    }
-                                    onConfirm={() =>
-                                        this.processEvent(
-                                            'confirmAnnotationCreate',
-                                            null,
-                                        )
-                                    }
-                                    setAnnotationCreating={(value) =>
-                                        this.processEvent(
-                                            'setAnnotationCreating',
-                                            { isCreating: value },
-                                        )
-                                    }
-                                    setEditorInstanceRef={(
-                                        ref: MemexEditorInstance | null,
-                                    ) => (this.editor = ref)}
-                                    onChange={(comment) => {
-                                        this.processEvent(
-                                            'changeAnnotationCreateComment',
-                                            {
-                                                comment,
-                                            },
-                                        )
-                                    }}
-                                    getYoutubePlayer={() =>
-                                        this.state.listLoadState === 'success'
-                                            ? this.props.services.youtube.getPlayerByElementId(
-                                                  getReaderYoutubePlayerId(
-                                                      this.state.listData!.entry
-                                                          .normalizedUrl,
-                                                  ),
-                                              )
-                                            : null!
-                                    }
-                                    imageSupport={this.props.imageSupport}
-                                    getRootElement={() =>
-                                        this.props.getRootElement()
-                                    }
-                                />
-                            </AnnotationCreateContainer>
-                        )}
-                        {this.state.listData && (
-                            <AnnotationsidebarContainer>
-                                {this.renderPageAnnotations(
-                                    this.state.listData.entry,
-                                )}
-                            </AnnotationsidebarContainer>
-                        )}
-                    </SidebarAnnotationContainer>
-                </Sidebar>
-            </ContainerStyled>
         )
     }
 
@@ -1110,7 +552,6 @@ export class ReaderPageView extends UIElement<
 
         let screenSmall = false
 
-        console.log('viewportBreakpoint', this.viewportBreakpoint)
         if (
             this.viewportBreakpoint === 'mobile' ||
             this.viewportBreakpoint === 'small'
@@ -1126,255 +567,13 @@ export class ReaderPageView extends UIElement<
             isYoutubeMobile = true
         }
 
-        console.log('isYoutubeMobile', isYoutubeMobile)
-        console.log('screenSmall', screenSmall)
-        console.log('this.state.sourceUrl', this.state.sourceUrl)
-
         return (
             <MainContainer isYoutubeMobile={isYoutubeMobile}>
-                {OverlayModal({
+                {/* {OverlayModal({
                     type: this.state.overlayModalState,
                     closeModal: () => this.processEvent('setModalState', null),
-                })}
+                })} */}
                 <LeftSide isYoutubeMobile={isYoutubeMobile}>
-                    <TopBar>
-                        <LeftSideTopBar>
-                            <Logo
-                                onClick={() => {
-                                    this.props.services.router.goTo(
-                                        'landingPage',
-                                    )
-                                }}
-                                src={screenSmall ? memexIcon : memexLogo}
-                                screenSmall={screenSmall}
-                            />
-                            <BreadCrumbBox>
-                                {this.state.listData &&
-                                    this.state.listData?.list.type !==
-                                        'page-link' && (
-                                        <>
-                                            {/* {screenSmall ? (
-                                                <Icon
-                                                    icon="arrowLeft"
-                                                    heightAndWidth="24px"
-                                                    onClick={() =>
-                                                        window.open(
-                                                            this.state.listData
-                                                                ?.url,
-                                                            '_self',
-                                                        )
-                                                    }
-                                                />
-                                            ) : ( */}
-                                            <BreadCrumbButton>
-                                                <PrimaryAction
-                                                    icon="arrowLeft"
-                                                    type="tertiary"
-                                                    size="medium"
-                                                    label={
-                                                        this.state.listData
-                                                            ?.title
-                                                    }
-                                                    onClick={() => {
-                                                        console.log(
-                                                            this.state.listData
-                                                                ?.url,
-                                                        )
-                                                        window.open(
-                                                            this.state.listData
-                                                                ?.url,
-                                                            '_self',
-                                                        )
-                                                    }}
-                                                    padding="5px 10px 5px 5px"
-                                                />
-                                            </BreadCrumbButton>
-                                        </>
-                                    )}
-                            </BreadCrumbBox>
-                        </LeftSideTopBar>
-                        <RightSideTopBar>
-                            {screenSmall ? (
-                                <>
-                                    {this.renderOptionsMenu()}
-                                    <Icon
-                                        icon="dots"
-                                        heightAndWidth="24px"
-                                        onClick={() =>
-                                            this.processEvent(
-                                                'toggleOptionsMenu',
-                                                null,
-                                            )
-                                        }
-                                        containerRef={this.optionsMenuButtonRef}
-                                    />
-                                    {this.state.permissionsLoadState ===
-                                        'success' && (
-                                        <ShareContainer>
-                                            <PrimaryAction
-                                                icon={'peopleFine'}
-                                                type="primary"
-                                                label={'Share & Invite'}
-                                                size="small"
-                                                fontSize="14px"
-                                                iconSize="18px"
-                                                innerRef={this.sharePageButton}
-                                                onClick={() =>
-                                                    this.processEvent(
-                                                        'showSharePageMenu',
-                                                        null,
-                                                    )
-                                                }
-                                                padding="10px 10px 10px 5px"
-                                            />
-                                            {this.renderShareTooltip()}
-                                        </ShareContainer>
-                                    )}
-                                    {screenSmall && (
-                                        <>
-                                            {loadState ? (
-                                                <SidebarButtonBox
-                                                    onClick={() =>
-                                                        this.processEvent(
-                                                            'toggleSidebar',
-                                                            null,
-                                                        )
-                                                    }
-                                                >
-                                                    <Icon
-                                                        icon={
-                                                            this.state
-                                                                .showSidebar
-                                                                ? 'removeX'
-                                                                : 'commentAdd'
-                                                        }
-                                                        heightAndWidth="24px"
-                                                    />
-                                                    {annotationCounter > 0 && (
-                                                        <AnnotationCounter
-                                                            onClick={() =>
-                                                                this.processEvent(
-                                                                    'toggleSidebar',
-                                                                    null,
-                                                                )
-                                                            }
-                                                        >
-                                                            {
-                                                                Object.keys(
-                                                                    this.state
-                                                                        .annotations,
-                                                                ).length
-                                                            }
-                                                        </AnnotationCounter>
-                                                    )}
-                                                </SidebarButtonBox>
-                                            ) : (
-                                                <LoadingBox width={'30px'}>
-                                                    <LoadingIndicator
-                                                        size={20}
-                                                    />
-                                                </LoadingBox>
-                                            )}
-                                        </>
-                                    )}
-                                </>
-                            ) : (
-                                <>
-                                    {this.state.listLoadState === 'success' && (
-                                        <PrimaryAction
-                                            type="tertiary"
-                                            label={'Open Original'}
-                                            size="medium"
-                                            icon={
-                                                this.state
-                                                    .openOriginalStatus ===
-                                                'running' ? (
-                                                    <LoadingIndicator
-                                                        size={16}
-                                                    />
-                                                ) : (
-                                                    'goTo'
-                                                )
-                                            }
-                                            onClick={() =>
-                                                this.processEvent(
-                                                    'openOriginalLink',
-                                                    null,
-                                                )
-                                            }
-                                            padding="5px 10px 5px 10px"
-                                        />
-                                    )}
-                                    {!isIframe() && (
-                                        <SupportChatBox>
-                                            <PrimaryAction
-                                                onClick={() => {
-                                                    this.processEvent(
-                                                        'toggleSupportChat',
-                                                        null,
-                                                    )
-                                                }}
-                                                type="tertiary"
-                                                iconColor="prime1"
-                                                icon="chatWithUs"
-                                                innerRef={
-                                                    this.chatBoxRef ?? undefined
-                                                }
-                                                size="medium"
-                                                label="Support Chat"
-                                            />
-                                            {this.state.showSupportChat && (
-                                                <PopoutBox
-                                                    targetElementRef={
-                                                        this.chatBoxRef
-                                                            .current ??
-                                                        undefined
-                                                    }
-                                                    closeComponent={() =>
-                                                        this.processEvent(
-                                                            'toggleSupportChat',
-                                                            null,
-                                                        )
-                                                    }
-                                                    placement="bottom"
-                                                    offsetX={20}
-                                                    getPortalRoot={() =>
-                                                        this.props.getRootElement()
-                                                    }
-                                                >
-                                                    <ChatBox>
-                                                        <LoadingIndicator
-                                                            size={30}
-                                                        />
-                                                        <ChatFrame
-                                                            src={
-                                                                'https://go.crisp.chat/chat/embed/?website_id=05013744-c145-49c2-9c84-bfb682316599'
-                                                            }
-                                                            height={600}
-                                                            width={500}
-                                                        />
-                                                    </ChatBox>
-                                                    <ChatFrame
-                                                        src={
-                                                            'https://go.crisp.chat/chat/embed/?website_id=05013744-c145-49c2-9c84-bfb682316599'
-                                                        }
-                                                        height={600}
-                                                        width={500}
-                                                    />
-                                                </PopoutBox>
-                                            )}
-                                        </SupportChatBox>
-                                    )}
-                                    <AuthHeader
-                                        services={this.props.services}
-                                        getRootElement={
-                                            this.props.getRootElement
-                                        }
-                                    />
-                                </>
-                            )}
-                        </RightSideTopBar>
-                    </TopBar>
                     {this.state.permissionsLoadState === 'success' ? (
                         <MainContentContainer isYoutubeMobile={isYoutubeMobile}>
                             {this.renderMainContent(
@@ -1388,20 +587,7 @@ export class ReaderPageView extends UIElement<
                         </LoadingBox>
                     )}
                 </LeftSide>
-                {this.state.sourceUrl != null &&
-                    (screenSmall ? (
-                        <BottomModal visible={this.state.showSidebar}>
-                            <BottomModalContent>
-                                {this.renderSidebar(
-                                    isYoutubeMobile,
-                                    screenSmall,
-                                )}
-                            </BottomModalContent>
-                        </BottomModal>
-                    ) : (
-                        this.renderSidebar(isYoutubeMobile, screenSmall)
-                    ))}
-                {this.state.imageSourceForPreview &&
+                {/* {this.state.imageSourceForPreview &&
                 this.state.imageSourceForPreview?.length > 0 ? (
                     <ImagePreviewModal
                         imageSource={this.state.imageSourceForPreview}
@@ -1412,7 +598,7 @@ export class ReaderPageView extends UIElement<
                         }
                         getRootElement={this.props.getRootElement}
                     />
-                ) : null}
+                ) : null} */}
             </MainContainer>
         )
     }

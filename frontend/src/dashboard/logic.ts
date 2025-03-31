@@ -32,6 +32,9 @@ import {
 import { CreationInfoProps } from '@worldbrain/memex-common/lib/common-ui/components/creation-info'
 import { NewReplyState } from '../features/content-conversations/ui/types'
 import UserProfileCache from '../features/user-management/utils/user-profile-cache'
+import { ContentSharingQueryParams } from '../features/content-sharing/types'
+import { GenerateServerID } from '@worldbrain/memex-common/lib/content-sharing/service/types'
+import { URLNormalizer } from '@worldbrain/memex-common/lib/url-utils/normalize/types'
 
 const LIST_DESCRIPTION_CHAR_LIMIT = 400
 
@@ -39,6 +42,10 @@ export interface DashboardDependencies {
     listID: string
     entryID?: string
     noteId?: string
+    normalizeUrl: URLNormalizer
+    generateServerId: GenerateServerID
+    query: ContentSharingQueryParams
+    pdfBlob?: Blob
     services: UIElementServices<
         | 'auth'
         | 'cache'
@@ -403,16 +410,13 @@ export class DashboardLogic extends Logic<DashboardState> {
         })
     }
 
-    loadReader(id: string) {
+    loadReader(result: CollectionDetailsListEntry) {
         const currentUrl = new URL(window.location.href)
         this.props.services.router.replaceRoute('dashboard', {
             id: this.props.listID,
-            entryId: id,
+            entryId: result.reference.id,
         })
-        this.setState({
-            rightSideBarWidth: 450,
-            showRightSideBar: true,
-            pageToShowNotesFor: id,
-        })
+
+        this.loadNotes(result.normalizedUrl)
     }
 }

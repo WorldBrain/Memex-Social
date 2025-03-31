@@ -8,6 +8,7 @@ import PageInfoBox from '@worldbrain/memex-common/lib/common-ui/components/page-
 import AnnotationsInPage from '@worldbrain/memex-common/lib/content-conversations/ui/components/annotations-in-page'
 import NotesList from '../features/notes-list'
 import { getBlockContentYoutubePlayerId } from '@worldbrain/memex-common/lib/common-ui/components/block-content'
+import { ReaderPageView } from '../features/reader/ui'
 
 const RESULTS_LIST_MAX_WIDTH = 700
 
@@ -35,15 +36,14 @@ export default function Dashboard(props: DashboardDependencies) {
                                         {
                                             node: (
                                                 <div
-                                                    onClick={
-                                                        () =>
-                                                            logic.loadReader(
-                                                                result.reference
-                                                                    .id,
-                                                            )
-                                                        // logic.loadNotes(
-                                                        //     result.normalizedUrl,
+                                                    onClick={() =>
+                                                        // logic.loadReader(
+                                                        //     result.reference
+                                                        //         .id,
                                                         // )
+                                                        logic.loadNotes(
+                                                            result.normalizedUrl,
+                                                        )
                                                     }
                                                 >
                                                     Notes
@@ -51,9 +51,10 @@ export default function Dashboard(props: DashboardDependencies) {
                                             ),
                                         },
                                     ]}
-                                    // onClick={() => {
-                                    //     logic.loadReader(result.reference.id)
-                                    // }}
+                                    onClick={() => {
+                                        console.log('onlclick')
+                                        logic.loadReader(result)
+                                    }}
                                 />
                             )
 
@@ -104,7 +105,22 @@ export default function Dashboard(props: DashboardDependencies) {
     }
 
     const renderReader = () => {
-        return <div>Reader {state.readerUrl}</div>
+        return (
+            <ReaderContainer>
+                <ReaderPageView
+                    services={props.services}
+                    storage={props.storage}
+                    storageManager={props.storageManager}
+                    listID={props.listID}
+                    entryID={props.entryID ?? ''}
+                    normalizeUrl={props.normalizeUrl}
+                    generateServerId={props.generateServerId}
+                    query={props.query}
+                    imageSupport={props.imageSupport}
+                    getRootElement={props.getRootElement}
+                />
+            </ReaderContainer>
+        )
     }
 
     const renderRightSideBar = () => {
@@ -129,6 +145,8 @@ export default function Dashboard(props: DashboardDependencies) {
     const renderResultsContainer = () => {
         return (
             <ResultsContainer>
+                <Title>{state.listData?.list?.title}</Title>
+                <Subtitle>{state.listData?.list?.description}</Subtitle>
                 {renderResults()}
                 <BottomBox>
                     <ChatInput>
@@ -145,8 +163,6 @@ export default function Dashboard(props: DashboardDependencies) {
             <MainContent>
                 {renderLeftSideBar()}
                 <CenterArea>
-                    <Title>{state.listData?.list?.title}</Title>
-                    <Subtitle>{state.listData?.list?.description}</Subtitle>
                     {props.entryID ? renderReader() : renderResultsContainer()}
                 </CenterArea>
                 {renderRightSideBar()}
@@ -193,7 +209,6 @@ const CenterArea = styled.div`
     flex-direction: column;
     gap: 10px;
     flex: 1;
-    padding: 0 10px;
     height: 100%;
     overflow-y: hidden;
     margin-bottom: 80px; /* Space for the chat input */
@@ -378,4 +393,9 @@ const ResultsListInner = styled.div`
     flex-direction: column;
     align-items: center;
     padding-bottom: 350px;
+`
+
+const ReaderContainer = styled.div`
+    width: 100%;
+    height: 100%;
 `

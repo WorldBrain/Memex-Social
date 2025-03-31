@@ -103,8 +103,6 @@ export default class Routes extends React.Component<Props> {
                             ) as ContentSharingQueryParams
                             return (
                                 <ReaderPageView
-                                    query={query}
-                                    normalizeUrl={normalizeUrl}
                                     services={this.props.services}
                                     listID={route.match.params.id}
                                     entryID={route.match.params.entryId}
@@ -113,6 +111,8 @@ export default class Routes extends React.Component<Props> {
                                     storageManager={
                                         this.props.storage.serverStorageManager
                                     }
+                                    query={query}
+                                    normalizeUrl={normalizeUrl}
                                     generateServerId={
                                         this.props.generateServerId
                                     }
@@ -130,10 +130,12 @@ export default class Routes extends React.Component<Props> {
                             const query = queryString.parse(
                                 route.location.search,
                             ) as ContentSharingQueryParams
+
                             return (
                                 <Dashboard
                                     listID={route.match.params.id}
                                     entryID={route.match.params.entryId}
+                                    noteId={route.match.params.noteId}
                                     services={this.props.services}
                                     storage={serverModules}
                                     imageSupport={this.props.imageSupport}
@@ -141,6 +143,12 @@ export default class Routes extends React.Component<Props> {
                                     storageManager={
                                         this.props.storage.serverStorageManager
                                     }
+                                    query={query}
+                                    normalizeUrl={normalizeUrl}
+                                    generateServerId={
+                                        this.props.generateServerId
+                                    }
+                                    pdfBlob={route.location.state?.pdfBlob}
                                 />
 
                                 // <CollectionDetailsPage
