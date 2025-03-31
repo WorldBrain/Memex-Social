@@ -411,8 +411,7 @@ export class DashboardLogic extends Logic<DashboardState> {
     }
 
     loadReader(result: CollectionDetailsListEntry) {
-        const currentUrl = new URL(window.location.href)
-        this.props.services.router.replaceRoute('dashboard', {
+        this.props.services.router.goTo('dashboard', {
             id: this.props.listID,
             entryId: result.reference.id,
         })

@@ -10,8 +10,6 @@ import { theme } from '../../main-ui/styles/theme'
 
 export default function AnnotationItem(props: AnnotationItemDependencies) {
     const { logic, state } = useLogic(() => new AnnotationItemLogic(props))
-
-    console.log('rendering annotation item')
     return (
         <ItemBox
             onMouseOver={() => logic.setIsHovering(true)}

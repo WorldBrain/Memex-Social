@@ -4,6 +4,7 @@ import { useLogic } from '../../hooks/useLogic'
 import { NotesListDependencies, NotesListLogic } from './logic'
 import AnnotationEdit from '@worldbrain/memex-common/lib/content-conversations/ui/components/annotation-edit'
 import AnnotationItem from '../annotation-item'
+import LoadingIndicator from '../../common-ui/components/loading-indicator'
 
 export default function NotesList(props: NotesListDependencies) {
     const { logic, state } = useLogic(() => new NotesListLogic(props))
@@ -12,10 +13,14 @@ export default function NotesList(props: NotesListDependencies) {
         logic.loadAnnotations(props.url, props.annotationEntries)
     }, [props.url])
 
-    console.log('state.annotations', Object.values(state.annotations))
+    if (state.loadState === 'running') {
+        return <LoadingIndicator size={22} />
+    }
+
     if (Object.values(state.annotations)?.length === 0) {
         return <div>No annotations found</div>
     }
+
     return (
         <Container>
             {Object.entries(state.annotations)?.map(
@@ -23,7 +28,7 @@ export default function NotesList(props: NotesListDependencies) {
                     <AnnotationItem
                         annotationId={annotationId}
                         annotation={annotation}
-                        onClick={() => {}}
+                        onClick={() => props.onClick(annotationId)}
                         services={props.services}
                         storage={props.storage}
                         imageSupport={props.imageSupport}

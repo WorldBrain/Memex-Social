@@ -49,6 +49,7 @@ export interface NotesListDependencies {
     url: string
     listID: AutoPk
     getRootElement: () => HTMLElement
+    onClick: (annotationId: string) => void
     services: UIElementServices<
         | 'auth'
         | 'bluesky'
@@ -101,7 +102,6 @@ export class NotesListLogic extends Logic<NotesListState> {
     })
 
     async initialize() {
-        console.log('initialize')
         await executeTask(this, 'loadState', async () => {
             await this.loadAnnotations()
         })
@@ -111,28 +111,32 @@ export class NotesListLogic extends Logic<NotesListState> {
         url?: string,
         annotationEntries?: GetAnnotationListEntriesElement[],
     ) => {
-        const entries = annotationEntries ?? this.props.annotationEntries
-        if (!entries) {
+        await executeTask(this, 'loadState', async () => {
             this.setState({ annotations: {} })
-            return
-        }
-        const annotationIds = filterObject(
-            mapValues({ [this.props.url]: entries }, (entries) =>
-                entries.map((entry) => entry.sharedAnnotation.id),
-            ),
-            (_, key) => true,
-        )
-        const annotationsResult = await this.props.services.contentSharing.backend.loadAnnotationsWithThreads(
-            {
-                listId: this.props.listID.toString(),
-                annotationIds: annotationIds,
-            },
-        )
-        if (annotationsResult.status !== 'success') {
-            return
-        }
-        const annotationsData = annotationsResult.data
-        this.setState({ annotations: annotationsData.annotations })
+
+            const entries = annotationEntries ?? this.props.annotationEntries
+            if (!entries) {
+                this.setState({ annotations: {} })
+                return
+            }
+            const annotationIds = filterObject(
+                mapValues({ [this.props.url]: entries }, (entries) =>
+                    entries.map((entry) => entry.sharedAnnotation.id),
+                ),
+                (_, key) => true,
+            )
+            const annotationsResult = await this.props.services.contentSharing.backend.loadAnnotationsWithThreads(
+                {
+                    listId: this.props.listID.toString(),
+                    annotationIds: annotationIds,
+                },
+            )
+            if (annotationsResult.status !== 'success') {
+                return
+            }
+            const annotationsData = annotationsResult.data
+            this.setState({ annotations: annotationsData.annotations })
+        })
     }
 
     getAnnotation(

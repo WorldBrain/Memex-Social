@@ -21,7 +21,6 @@ export default function Dashboard(props: DashboardDependencies) {
                 <ResultsListInner>
                     {state.results.map(
                         (result: CollectionDetailsListEntry, index: number) => {
-                            console.log('result', result)
                             const pageInfoBox = (
                                 <PageInfoBox
                                     pageInfo={{
