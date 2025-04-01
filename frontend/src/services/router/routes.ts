@@ -139,7 +139,7 @@ export function getReactRoutePattern(routeParts: RoutePart[]): string {
     return patternParts.join('/')
 }
 
-function getRoutePartGroups(parts: RoutePart[], optional = false) {
+export function getRoutePartGroups(parts: RoutePart[], optional = false) {
     const groups: RoutePartGroup[] = []
     let activeGroup: RoutePartGroup = { optional, parts: [] }
     const closeGroup = () => {

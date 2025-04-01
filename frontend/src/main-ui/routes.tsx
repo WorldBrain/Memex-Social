@@ -130,9 +130,6 @@ export default class RoutesComponent extends React.Component<Props> {
                         Component={() => {
                             return (
                                 <Dashboard
-                                    listID={listId}
-                                    entryID={entryId}
-                                    noteId={noteId}
                                     services={this.props.services}
                                     storage={serverModules}
                                     imageSupport={this.props.imageSupport}
