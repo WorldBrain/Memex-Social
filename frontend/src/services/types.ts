@@ -18,6 +18,7 @@ import type { PdfUploadServiceInterface } from '@worldbrain/memex-common/lib/pdf
 import type { BlueskyServiceInterface } from '@worldbrain/memex-common/lib/bsky/service/types'
 import { ThemeService } from './theme'
 import { CacheService } from './cache'
+import { EventEmitter } from '../utils/events'
 
 type UIServices = 'logicRegistry' | 'device'
 export type UIElementServices<Wanted extends keyof Services = never> = Pick<
@@ -31,6 +32,7 @@ export type Services = SharedServices & {
     bluesky: BlueskyServiceInterface
     fixtures: FixtureService
     scenarios: ScenarioService
+    events: EventEmitter<any>
     cache: CacheService
     theme: ThemeService
     documentTitle: DocumentTitleService

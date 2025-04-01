@@ -88,9 +88,11 @@ interface MetaUIOptions {
     screenSize: MetaScreenSize
 }
 
-export default async function runMetaUi(options: MetaUIOptions) {
+export default function runMetaUi(options: MetaUIOptions) {
     ReactDOM.render(
-        <MetaUI options={options} />,
+        <React.StrictMode>
+            <MetaUI options={options} />
+        </React.StrictMode>,
         document.getElementById('root'),
     )
 }

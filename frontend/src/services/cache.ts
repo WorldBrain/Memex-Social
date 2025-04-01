@@ -1,10 +1,11 @@
 import { CreationInfoProps } from '@worldbrain/memex-common/lib/common-ui/components/creation-info'
 import { EventEmitter } from '../utils/events'
 import { UserReference } from '../features/user-management/types'
-
+import { SharedAnnotation } from '@worldbrain/memex-common/lib/content-sharing/types'
 export type CachedData = {
     currentUser: UserReference | null
     users: { [id: string]: CreationInfoProps['creatorInfo'] }
+    annotations: { [url: string]: SharedAnnotation[] }
 }
 
 export type CacheListener = (keys: Set<keyof CachedData>) => void

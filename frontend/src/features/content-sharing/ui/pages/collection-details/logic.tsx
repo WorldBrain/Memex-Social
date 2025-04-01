@@ -949,7 +949,10 @@ export default class CollectionDetailsLogic extends UILogic<
                     return
                 }
                 this.mainLatestEntryIndex = incoming.event.entryIndex
-
+                console.log(
+                    'loadCollectionDetailsPage',
+                    this.dependencies.listID,
+                )
                 const pageResult = await this.dependencies.services.contentSharing.backend.loadCollectionDetailsPage(
                     {
                         listId: listData.reference.id,
@@ -1304,7 +1307,6 @@ export default class CollectionDetailsLogic extends UILogic<
             ),
         })
         await executeUITask(this, taskStatesMutation, async () => {
-            console.log('loadPageAnnotations', normalizedPageUrls)
             console.log(
                 'annotationEntries',
                 annotationEntries,
@@ -1316,14 +1318,12 @@ export default class CollectionDetailsLogic extends UILogic<
                 ),
                 (_, key) => normalizedPageUrls.includes(key),
             )
-            console.log('annotationIds', annotationIds)
             const annotationsResult = await contentSharing.backend.loadAnnotationsWithThreads(
                 {
                     listId: this.dependencies.listID,
                     annotationIds: annotationIds,
                 },
             )
-            console.log('annotationsResult', annotationsResult)
             if (annotationsResult.status !== 'success') {
                 return
             }

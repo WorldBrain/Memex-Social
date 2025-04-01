@@ -44,16 +44,17 @@ export default class ProfilePopupContainer extends UIElement<
             profileLinks: webLinksArray,
         } = this.state
         const { services } = this.props
-        return (
-            <ProfilePopup
-                user={user}
-                userRef={this.props.userRef}
-                taskState={profileTaskState}
-                userPublicProfile={userPublicProfile}
-                services={services}
-                webLinksArray={webLinksArray}
-            />
-        )
+        return null
+        // (
+        //     <ProfilePopup
+        //         user={user}
+        //         userRef={this.props.userRef}
+        //         taskState={profileTaskState}
+        //         userPublicProfile={userPublicProfile}
+        //         services={services}
+        //         webLinksArray={webLinksArray}
+        //     />
+        // )
     }
 
     render() {

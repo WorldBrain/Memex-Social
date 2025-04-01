@@ -56,13 +56,7 @@ export default class Routes {
                     )
                 }
             }
-            //  else {
-            //     console.log('finalpush', groupParts)
-            //     urlParts.push(...groupParts)
-            // }
-            console.log('urlParts', urlParts)
         }
-        console.log('final', urlParts)
         return urlParts.join('/')
     }
 
@@ -80,7 +74,6 @@ export default class Routes {
             this.options.routes,
         ).reverse()) {
             const partGroups = getRoutePartGroups(route.path)
-            console.log('partGroups', partGroups)
             // console.log(urlParts)
             // console.log(require('util').inspect(partGroups, { colors: true, depth: 4 }))
             // console.log('-----')

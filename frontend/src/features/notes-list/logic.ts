@@ -3,39 +3,15 @@ import { UIElementServices } from '../../services/types'
 import { StorageModules } from '../../storage/types'
 import { Logic } from '../../utils/logic'
 import { executeTask, TaskState } from '../../utils/tasks'
-import { executeUITask } from '../../main-ui/classes/logic'
-import { BlueskyList } from '@worldbrain/memex-common/lib/bsky/storage/types'
-import { createPersonalCloudStorageUtils } from '@worldbrain/memex-common/lib/content-sharing/storage/utils'
+import { EventEmitter } from '../../utils/events'
 import {
-    SharedAnnotation,
     SharedAnnotationListEntry,
     SharedAnnotationReference,
-    SharedList,
-    SharedListReference,
-    SharedListRole,
 } from '@worldbrain/memex-common/lib/content-sharing/types'
-import { SharedListRoleID } from '@worldbrain/memex-common/lib/content-sharing/types'
-import { UserReference } from '../user-management/types'
-import { CollectionDetailsDeniedData } from '@worldbrain/memex-common/lib/content-sharing/backend/types'
-import { CollectionDetailsListEntry } from '../content-sharing/ui/pages/collection-details/types'
-import { UploadStorageUtils } from '@worldbrain/memex-common/lib/personal-cloud/backend/translation-layer/storage-utils'
-import StorageManager from '@worldbrain/storex'
-import { PAGE_SIZE } from '../content-sharing/ui/pages/collection-details/constants'
-import { getInitialNewReplyState } from '../content-conversations/ui/utils'
-import { UITaskState } from '../../main-ui/types'
 import {
     GetAnnotationListEntriesElement,
-    GetAnnotationListEntriesResult,
     GetAnnotationsResult,
 } from '@worldbrain/memex-common/lib/content-sharing/storage/types'
-import { PreparedThread } from '@worldbrain/memex-common/lib/content-conversations/storage/types'
-import {
-    detectAnnotationConversationThreads,
-    intializeNewPageReplies,
-} from '../content-conversations/ui/logic'
-import { CreationInfoProps } from '@worldbrain/memex-common/lib/common-ui/components/creation-info'
-import { NewReplyState } from '../content-conversations/ui/types'
-import UserProfileCache from '../user-management/utils/user-profile-cache'
 import {
     filterObject,
     mapValues,
@@ -53,6 +29,7 @@ export interface NotesListDependencies {
         | 'auth'
         | 'bluesky'
         | 'overlay'
+        | 'events'
         | 'listKeys'
         | 'contentSharing'
         | 'contentConversations'
@@ -89,7 +66,6 @@ export type NotesListState = {
     loadState: TaskState
     annotations: GetAnnotationsResult
 }
-
 export class NotesListLogic extends Logic<NotesListState> {
     constructor(public props: NotesListDependencies) {
         super()
@@ -116,6 +92,7 @@ export class NotesListLogic extends Logic<NotesListState> {
             const entries = annotationEntries ?? this.props.annotationEntries
             if (!entries) {
                 this.setState({ annotations: {} })
+                this.props.services.events.emit({ annotationsLoaded: {} })
                 return
             }
             const annotationIds = filterObject(
@@ -135,6 +112,9 @@ export class NotesListLogic extends Logic<NotesListState> {
             }
             const annotationsData = annotationsResult.data
             this.setState({ annotations: annotationsData.annotations })
+            this.props.services.events.emit({
+                annotationsLoaded: annotationsData.annotations,
+            })
         })
     }
 

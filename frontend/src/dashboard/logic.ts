@@ -88,9 +88,9 @@ export interface DashboardDependencies {
 
 export type DashboardState = {
     currentUserReference: UserReference | null
-    currentListId: string
-    currentEntryId: string
-    currentNoteId: string
+    currentListId: string | null
+    currentEntryId: string | null
+    currentNoteId: string | null
     listData: {
         reference: SharedListReference
         pageSize: number
@@ -141,9 +141,9 @@ export class DashboardLogic extends Logic<DashboardState> {
         const { listId, entryId, noteId } = this.parsePathParams()
 
         return {
-            currentListId: listId ?? '',
-            currentEntryId: entryId ?? '',
-            currentNoteId: noteId ?? '',
+            currentListId: listId,
+            currentEntryId: entryId,
+            currentNoteId: noteId,
             currentUserReference: null,
             listData: {
                 reference: {
@@ -204,7 +204,6 @@ export class DashboardLogic extends Logic<DashboardState> {
     }
 
     updatePathState() {
-        console.log('updatePathState', window.location.pathname)
         const { listId, entryId, noteId } = this.parsePathParams()
         this.setState({
             currentListId: listId ?? '',
@@ -243,7 +242,9 @@ export class DashboardLogic extends Logic<DashboardState> {
     }
 
     async load() {
-        console.log('start load')
+        if (!this.state.currentListId) {
+            return
+        }
         const response = await this.props.services.contentSharing.backend.loadCollectionDetails(
             {
                 listId: this.state.currentListId,
@@ -293,8 +294,6 @@ export class DashboardLogic extends Logic<DashboardState> {
         const { data } = response
         const { retrievedList } = data
 
-        console.log('retrievedList', retrievedList)
-
         const listDescription = retrievedList.sharedList.description ?? ''
         const listDescriptionFits =
             listDescription.length < LIST_DESCRIPTION_CHAR_LIMIT
@@ -306,7 +305,6 @@ export class DashboardLogic extends Logic<DashboardState> {
                     sharedList: retrievedList.sharedList.reference,
                 },
             )
-            console.log('blueskyList', blueskyList)
             if (!blueskyList) {
                 return {
                     mutation: { listData: { $set: undefined } },
@@ -346,8 +344,6 @@ export class DashboardLogic extends Logic<DashboardState> {
                 requestingAuth: true,
             })
         }
-
-        console.log('before loadUsers')
 
         const loadedUsers = await this.loadUsers(
             [
@@ -392,8 +388,6 @@ export class DashboardLogic extends Logic<DashboardState> {
             annotationEntryData: data.annotationEntries,
         })
 
-        console.log('state', this.state)
-
         if (this.state.currentEntryId) {
             const normalizedPageUrl = retrievedList.entries[0].normalizedUrl
             this.setState({
@@ -407,7 +401,6 @@ export class DashboardLogic extends Logic<DashboardState> {
                 data.threads,
             )
         }
-        console.log('users', this.props.services.cache.getKey('users'))
     }
 
     async loadUsers(
@@ -463,7 +456,6 @@ export class DashboardLogic extends Logic<DashboardState> {
     }
 
     loadNotes(url: string) {
-        console.log('loadNotes', url)
         this.setState({
             rightSideBarWidth: 450,
             showRightSideBar: true,
@@ -472,10 +464,13 @@ export class DashboardLogic extends Logic<DashboardState> {
     }
 
     loadReader(result: CollectionDetailsListEntry) {
+        this.loadNotes(result.normalizedUrl)
         this.setState({
             currentEntryId: result.reference.id,
         })
-
-        this.loadNotes(result.normalizedUrl)
+        this.props.services.router.goTo('dashboard', {
+            id: this.state.currentListId,
+            entryId: result.reference.id,
+        })
     }
 }

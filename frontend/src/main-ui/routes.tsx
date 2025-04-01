@@ -41,7 +41,6 @@ export default class RoutesComponent extends React.Component<Props> {
     render() {
         const { serverModules } = this.props.storage
         const route = this.props.history.location
-        console.log('route', route)
         const queryParams = new URLSearchParams(route.search)
 
         // Extract IDs from the path
@@ -97,7 +96,7 @@ export default class RoutesComponent extends React.Component<Props> {
                             )
                         }}
                     />
-                    <Route
+                    {/* <Route
                         path={getReactRoutePattern(ROUTES.pageView.path)}
                         Component={() => {
                             const query = queryString.parse(
@@ -124,7 +123,7 @@ export default class RoutesComponent extends React.Component<Props> {
                                 />
                             )
                         }}
-                    />
+                    /> */}
                     <Route
                         path={getReactRoutePattern(ROUTES.dashboard.path)}
                         Component={() => {
@@ -161,7 +160,7 @@ export default class RoutesComponent extends React.Component<Props> {
                             )
                         }}
                     />
-                    <Route
+                    {/* <Route
                         path={getReactRoutePattern(
                             ROUTES.collectionDetails.path,
                         )}
@@ -193,7 +192,7 @@ export default class RoutesComponent extends React.Component<Props> {
                                 />
                             )
                         }}
-                    />
+                    /> */}
                     <Route
                         path={getReactRoutePattern(ROUTES.pageDetails.path)}
                         Component={() => {

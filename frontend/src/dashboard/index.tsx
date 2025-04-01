@@ -9,6 +9,7 @@ import AnnotationsInPage from '@worldbrain/memex-common/lib/content-conversation
 import NotesList from '../features/notes-list'
 import { getBlockContentYoutubePlayerId } from '@worldbrain/memex-common/lib/common-ui/components/block-content'
 import { ReaderPageView } from '../features/reader/ui'
+import ReaderView from '../features/readerFrame/ui'
 
 const RESULTS_LIST_MAX_WIDTH = 700
 
@@ -51,7 +52,6 @@ export default function Dashboard(props: DashboardDependencies) {
                                         },
                                     ]}
                                     onClick={() => {
-                                        console.log('onlclick')
                                         logic.loadReader(result)
                                     }}
                                 />
@@ -84,10 +84,6 @@ export default function Dashboard(props: DashboardDependencies) {
     const renderPageAnnotations = () => {
         if (!state.pageToShowNotesFor || !state.showRightSideBar) return null
 
-        console.log(
-            'state.annotationEntryData',
-            state.annotationEntryData[state.pageToShowNotesFor],
-        )
         return (
             <NotesList
                 services={props.services}
@@ -104,17 +100,25 @@ export default function Dashboard(props: DashboardDependencies) {
     }
 
     const renderReader = () => {
+        if (!state.currentEntryId) return null
+
+        const pageData = state.listData.listEntries.find(
+            (entry) => entry.reference.id === state.currentEntryId,
+        )
+
+        const sourceUrl = pageData?.sourceUrl
+        if (!sourceUrl || !state.currentListId) return null
+
         return (
             <ReaderContainer>
-                <ReaderPageView
+                <ReaderView
                     services={props.services}
                     storage={props.storage}
                     storageManager={props.storageManager}
-                    listID={props.listID}
-                    entryID={props.entryID ?? ''}
-                    normalizeUrl={props.normalizeUrl}
+                    sourceUrl={sourceUrl}
+                    listId={state.currentListId}
+                    entryId={state.currentEntryId}
                     generateServerId={props.generateServerId}
-                    query={props.query}
                     imageSupport={props.imageSupport}
                     getRootElement={props.getRootElement}
                 />
@@ -124,6 +128,11 @@ export default function Dashboard(props: DashboardDependencies) {
 
     const renderRightSideBar = () => {
         if (!state.showRightSideBar) return null
+        console.log(
+            'renderRightSideBar',
+            state.pageToShowNotesFor,
+            state.showRightSideBar,
+        )
         return (
             <RightSideBarContainer width={state.rightSideBarWidth}>
                 <div>Notes</div>

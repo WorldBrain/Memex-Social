@@ -52,6 +52,7 @@ import { BlueskyService } from '@worldbrain/memex-common/lib/bsky/service'
 import type { BlueskyServiceInterface } from '@worldbrain/memex-common/lib/bsky/service/types'
 import { ThemeService } from './theme'
 import { CacheService } from './cache'
+import { EventEmitter } from '../utils/events'
 
 export function createServices(options: {
     backend: BackendType
@@ -77,6 +78,7 @@ export function createServices(options: {
     const logicRegistry = new LogicRegistryService({
         logEvents: options.logLogicEvents,
     })
+    const events = new EventEmitter()
     const device = new DeviceService({
         rootElement: options.uiMountPoint ?? {
             clientWidth: 600,
@@ -241,6 +243,7 @@ export function createServices(options: {
         localStorage,
         cache: new CacheService(),
         theme: null,
+        events,
         userMessages,
         memexExtension: new MemexExtensionService(),
         scenarios: new ScenarioService({
