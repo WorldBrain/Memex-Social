@@ -2095,7 +2095,6 @@ export default class CollectionDetailsPage extends UIElement<
                                                 //         entry,
                                                 //     })
                                                 // }}
-                                                background="black"
                                             >
                                                 <BlockContent
                                                     // pageLink ={'https://memex.social/' + this.props.listID + '/' + entry.reference.id}

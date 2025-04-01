@@ -80,6 +80,7 @@ export default class Routes {
             this.options.routes,
         ).reverse()) {
             const partGroups = getRoutePartGroups(route.path)
+            console.log('partGroups', partGroups)
             // console.log(urlParts)
             // console.log(require('util').inspect(partGroups, { colors: true, depth: 4 }))
             // console.log('-----')

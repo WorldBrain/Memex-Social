@@ -186,7 +186,9 @@ export default function Dashboard(props: DashboardDependencies) {
             <MainContent>
                 {renderLeftSideBar()}
                 <CenterArea>
-                    {props.entryID ? renderReader() : renderResultsContainer()}
+                    {state.currentEntryId
+                        ? renderReader()
+                        : renderResultsContainer()}
                 </CenterArea>
                 {renderRightSideBar()}
             </MainContent>

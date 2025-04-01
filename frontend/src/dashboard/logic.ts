@@ -35,6 +35,7 @@ import UserProfileCache from '../features/user-management/utils/user-profile-cac
 import { ContentSharingQueryParams } from '../features/content-sharing/types'
 import { GenerateServerID } from '@worldbrain/memex-common/lib/content-sharing/service/types'
 import { URLNormalizer } from '@worldbrain/memex-common/lib/url-utils/normalize/types'
+import { getRoutePartGroups } from '../services/router/routes'
 
 const LIST_DESCRIPTION_CHAR_LIMIT = 400
 
@@ -87,6 +88,9 @@ export interface DashboardDependencies {
 
 export type DashboardState = {
     currentUserReference: UserReference | null
+    currentListId: string
+    currentEntryId: string
+    currentNoteId: string
     listData: {
         reference: SharedListReference
         pageSize: number
@@ -133,46 +137,101 @@ export class DashboardLogic extends Logic<DashboardState> {
         })
     }
 
-    getInitialState = (): DashboardState => ({
-        currentUserReference: null,
-        listData: {
-            reference: {
-                type: 'shared-list-reference',
-                id: this.props.listID,
+    getInitialState = (): DashboardState => {
+        const { listId, entryId, noteId } = this.parsePathParams()
+
+        return {
+            currentListId: listId ?? '',
+            currentEntryId: entryId ?? '',
+            currentNoteId: noteId ?? '',
+            currentUserReference: null,
+            listData: {
+                reference: {
+                    type: 'shared-list-reference',
+                    id: listId ?? '',
+                },
+                pageSize: PAGE_SIZE,
+                blueskyList: null,
+                isChatIntegrationSyncing: false,
+                creatorReference: { type: 'user-reference', id: '' },
+                list: null,
+                listEntries: [],
+                listDescriptionState: 'collapsed',
             },
-            pageSize: PAGE_SIZE,
-            blueskyList: null,
-            isChatIntegrationSyncing: false,
-            creatorReference: { type: 'user-reference', id: '' },
-            list: null,
-            listEntries: [],
-            listDescriptionState: 'collapsed',
-        },
-        loadState: 'pristine',
-        listRoleID: undefined,
-        listRoles: [],
-        listKeyPresent: false,
-        listRoleLimit: null,
-        results: [],
-        permissionKeyResult: 'pristine',
-        pageAnnotationsExpanded: {},
-        requestingAuth: false,
-        annotationEntriesLoadState: 'pristine',
-        annotationEntryData: {},
-        isListOwner: false,
-        newPageReplies: {},
-        showLeftSideBar: false,
-        showRightSideBar: this.props.entryID ? true : false,
-        rightSideBarWidth: 450,
-        pageToShowNotesFor: null,
-        screenState: 'results',
-    })
+            loadState: 'pristine',
+            listRoleID: undefined,
+            listRoles: [],
+            listKeyPresent: false,
+            listRoleLimit: null,
+            results: [],
+            permissionKeyResult: 'pristine',
+            pageAnnotationsExpanded: {},
+            requestingAuth: false,
+            annotationEntriesLoadState: 'pristine',
+            annotationEntryData: {},
+            isListOwner: false,
+            newPageReplies: {},
+            showLeftSideBar: false,
+            showRightSideBar: entryId ? true : false,
+            rightSideBarWidth: 450,
+            pageToShowNotesFor: null,
+            screenState: 'results',
+        }
+    }
 
     async initialize() {
         await executeTask(this, 'loadState', async () => {
+            this.startPathnameListener()
             await this.getCurrentUserReference()
             await this.load()
         })
+    }
+
+    startPathnameListener() {
+        window.addEventListener('popstate', this.updatePathState)
+        window.addEventListener('pushstate', this.updatePathState)
+        window.addEventListener('replacestate', this.updatePathState)
+    }
+
+    stopPathnameListener() {
+        window.removeEventListener('popstate', this.updatePathState)
+        window.removeEventListener('pushstate', this.updatePathState)
+        window.removeEventListener('replacestate', this.updatePathState)
+    }
+
+    async cleanup() {
+        this.stopPathnameListener()
+    }
+
+    updatePathState() {
+        console.log('updatePathState', window.location.pathname)
+        const { listId, entryId, noteId } = this.parsePathParams()
+        this.setState({
+            currentListId: listId ?? '',
+            currentEntryId: entryId ?? '',
+            currentNoteId: noteId ?? '',
+        })
+    }
+
+    private parsePathParams(): {
+        listId: string | null
+        entryId: string | null
+        noteId: string | null
+    } {
+        const pathname = window.location.pathname
+        // Match pattern: /c/:listId/p/:entryId/a/:noteId
+        const pattern = /^\/d\/([^\/]+)(?:\/p\/([^\/]+))?(?:\/a\/([^\/]+))?/
+        const matches = pathname.match(pattern)
+
+        if (!matches) {
+            return { listId: null, entryId: null, noteId: null }
+        }
+
+        return {
+            listId: matches[1] || null,
+            entryId: matches[2] || null,
+            noteId: matches[3] || null,
+        }
     }
 
     async getCurrentUserReference() {
@@ -187,7 +246,7 @@ export class DashboardLogic extends Logic<DashboardState> {
         console.log('start load')
         const response = await this.props.services.contentSharing.backend.loadCollectionDetails(
             {
-                listId: this.props.listID,
+                listId: this.state.currentListId,
             },
         )
         if (response.status !== 'success') {
@@ -269,7 +328,7 @@ export class DashboardLogic extends Logic<DashboardState> {
             )
         }
 
-        const baseListRoles = data.rolesByList[this.props.listID] ?? []
+        const baseListRoles = data.rolesByList[this.state.currentListId] ?? []
         const isAuthenticated = !!userReference
         const isContributor =
             (userReference &&
@@ -335,7 +394,7 @@ export class DashboardLogic extends Logic<DashboardState> {
 
         console.log('state', this.state)
 
-        if (this.props.entryID) {
+        if (this.state.currentEntryId) {
             const normalizedPageUrl = retrievedList.entries[0].normalizedUrl
             this.setState({
                 pageAnnotationsExpanded: {
@@ -388,7 +447,7 @@ export class DashboardLogic extends Logic<DashboardState> {
                 ),
                 sharedListReference: {
                     type: 'shared-list-reference',
-                    id: this.props.listID,
+                    id: this.state.currentListId,
                 },
                 imageSupport: this.props.imageSupport,
             })
@@ -413,9 +472,8 @@ export class DashboardLogic extends Logic<DashboardState> {
     }
 
     loadReader(result: CollectionDetailsListEntry) {
-        this.props.services.router.goTo('dashboard', {
-            id: this.props.listID,
-            entryId: result.reference.id,
+        this.setState({
+            currentEntryId: result.reference.id,
         })
 
         this.loadNotes(result.normalizedUrl)
