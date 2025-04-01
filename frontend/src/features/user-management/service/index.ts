@@ -1,11 +1,10 @@
-import { User, UserPublicProfile, UserReference } from '../types'
-import { AuthService } from '../../../services/auth/types'
-import UserStorage from '../storage/'
+import type { UserPublicProfile, UserReference } from '../types'
+import type { AuthService } from '../../../services/auth/types'
 import UserProfileCache from '../utils/user-profile-cache'
-import TypedEventEmitter from 'typed-emitter'
+import type TypedEventEmitter from 'typed-emitter'
 import { EventEmitter } from 'events'
 import { CreationInfoProps } from '@worldbrain/memex-common/lib/common-ui/components/creation-info'
-import { BlueskyStorage } from '@worldbrain/memex-common/lib/bsky/storage'
+import type { StorageModules } from '../../../storage/types'
 
 interface UserManagementEvents {
     userProfileChange(): void
@@ -15,7 +14,7 @@ export default class UserManagementService {
     constructor(
         private options: {
             auth: AuthService
-            storage: UserStorage
+            storageModules: Pick<StorageModules, 'users' | 'bluesky'>
         },
     ) {}
 
@@ -42,7 +41,7 @@ export default class UserManagementService {
         }
         const userReference: UserReference =
             userRef ?? (await this.options.auth.getCurrentUserReference()!)
-        const publicProfile = await this.options.storage.getUserPublicProfile(
+        const publicProfile = await this.options.storageModules.users.getUserPublicProfile(
             userReference,
         )
         if (publicProfile) {
@@ -55,7 +54,7 @@ export default class UserManagementService {
         userRef: UserReference,
         profileData: UserPublicProfile,
     ): Promise<void> {
-        await this.options.storage.createOrUpdateUserPublicProfile(
+        await this.options.storageModules.users.createOrUpdateUserPublicProfile(
             userRef,
             { knownStatus: 'new' },
             profileData,
@@ -76,7 +75,7 @@ export default class UserManagementService {
                 console.error('Please login')
                 return
             }
-            await this.options.storage.createOrUpdateUserPublicProfile(
+            await this.options.storageModules.users.createOrUpdateUserPublicProfile(
                 userRef,
                 {},
                 profileData,
@@ -92,7 +91,7 @@ export default class UserManagementService {
         userRef: UserReference,
         value: string,
     ): Promise<void> {
-        await this.options.storage.updateUser(
+        await this.options.storageModules.users.updateUser(
             userRef,
             { knownStatus: 'exists' },
             { displayName: value },
@@ -103,9 +102,7 @@ export default class UserManagementService {
         userRef: UserReference,
     ): Promise<CreationInfoProps['creatorInfo'] | null> {
         const userProfileCache = new UserProfileCache({
-            storage: {
-                users: this.options.storage,
-            },
+            storage: this.options.storageModules,
         })
         const result = userProfileCache.loadUser(userRef)
         return result

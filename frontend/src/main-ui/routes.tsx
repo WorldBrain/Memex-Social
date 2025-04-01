@@ -1,6 +1,6 @@
 import queryString from 'query-string'
 import React from 'react'
-import { Router, Route, Switch } from 'react-router'
+import { BrowserRouter, Routes, Route } from 'react-router'
 
 import { EventHandlers } from './classes/events'
 
@@ -15,15 +15,15 @@ import HomeFeedPage from '../features/activity-streams/ui/pages/home-feed'
 import { getReactRoutePattern } from '../services/router/routes'
 import { ContentSharingQueryParams } from '../features/content-sharing/types'
 import { ReaderPageView } from '../features/reader/ui'
-import { normalizeUrl } from '@worldbrain/memex-common/lib/url-utils/normalize'
 import type { UIRunnerOptions } from './types'
 import LoginOrSignupPage from '../features/content-sharing/ui/pages/login-or-signup'
 import TutorialsPage from '../features/content-sharing/ui/pages/tutorials'
 import OAuthCallbackPage from '../features/content-sharing/ui/pages/oauth-callback'
 import Dashboard from '../dashboard'
+import { normalizeUrl } from '@worldbrain/memex-url-utils/lib/normalize'
 
 interface Props extends UIRunnerOptions {}
-export default class Routes extends React.Component<Props> {
+export default class RoutesComponent extends React.Component<Props> {
     private eventHandlers = new EventHandlers()
 
     componentDidMount() {
@@ -40,13 +40,21 @@ export default class Routes extends React.Component<Props> {
 
     render() {
         const { serverModules } = this.props.storage
+        const route = this.props.history.location
+        console.log('route', route)
+        const queryParams = new URLSearchParams(route.search)
+
+        // Extract IDs from the path
+        const pathParts = route.pathname.split('/')
+        const listId = pathParts[2] || '' // after /c/
+        const entryId = pathParts[4] || '' // after /p/
+        const noteId = pathParts[6] || '' // after /a/
         return (
-            <Router history={this.props.history}>
-                <Switch>
+            <BrowserRouter>
+                <Routes>
                     <Route
-                        exact
                         path={getReactRoutePattern(ROUTES.landingPage.path)}
-                        render={() => {
+                        Component={() => {
                             return (
                                 <LandingPage
                                     storage={serverModules}
@@ -60,9 +68,8 @@ export default class Routes extends React.Component<Props> {
                         }}
                     />
                     <Route
-                        exact
                         path={getReactRoutePattern(ROUTES.homeFeed.path)}
-                        render={() => {
+                        Component={() => {
                             return (
                                 <HomeFeedPage
                                     services={this.props.services}
@@ -73,14 +80,10 @@ export default class Routes extends React.Component<Props> {
                         }}
                     />
                     <Route
-                        exact
                         path={getReactRoutePattern(
                             ROUTES.pageLinkCreation.path,
                         )}
-                        render={(route) => {
-                            const queryParams = new URLSearchParams(
-                                route.location.search,
-                            )
+                        Component={() => {
                             return (
                                 <PageLinkCreationPage
                                     services={this.props.services}
@@ -95,18 +98,17 @@ export default class Routes extends React.Component<Props> {
                         }}
                     />
                     <Route
-                        exact
                         path={getReactRoutePattern(ROUTES.pageView.path)}
-                        render={(route) => {
+                        Component={() => {
                             const query = queryString.parse(
-                                route.location.search,
+                                route.search,
                             ) as ContentSharingQueryParams
                             return (
                                 <ReaderPageView
                                     services={this.props.services}
-                                    listID={route.match.params.id}
-                                    entryID={route.match.params.entryId}
-                                    noteId={route.match.params.noteId}
+                                    listID={listId}
+                                    entryID={entryId}
+                                    noteId={noteId}
                                     storage={this.props.storage.serverModules}
                                     storageManager={
                                         this.props.storage.serverStorageManager
@@ -116,7 +118,7 @@ export default class Routes extends React.Component<Props> {
                                     generateServerId={
                                         this.props.generateServerId
                                     }
-                                    pdfBlob={route.location.state?.pdfBlob}
+                                    pdfBlob={route.state?.pdfBlob}
                                     imageSupport={this.props.imageSupport}
                                     getRootElement={this.props.getRootElement}
                                 />
@@ -124,18 +126,13 @@ export default class Routes extends React.Component<Props> {
                         }}
                     />
                     <Route
-                        exact
                         path={getReactRoutePattern(ROUTES.dashboard.path)}
-                        render={(route) => {
-                            const query = queryString.parse(
-                                route.location.search,
-                            ) as ContentSharingQueryParams
-
+                        Component={() => {
                             return (
                                 <Dashboard
-                                    listID={route.match.params.id}
-                                    entryID={route.match.params.entryId}
-                                    noteId={route.match.params.noteId}
+                                    listID={listId}
+                                    entryID={entryId}
+                                    noteId={noteId}
                                     services={this.props.services}
                                     storage={serverModules}
                                     imageSupport={this.props.imageSupport}
@@ -143,12 +140,12 @@ export default class Routes extends React.Component<Props> {
                                     storageManager={
                                         this.props.storage.serverStorageManager
                                     }
-                                    query={query}
                                     normalizeUrl={normalizeUrl}
                                     generateServerId={
                                         this.props.generateServerId
                                     }
-                                    pdfBlob={route.location.state?.pdfBlob}
+                                    pdfBlob={route.state?.pdfBlob}
+                                    query={route}
                                 />
 
                                 // <CollectionDetailsPage
@@ -168,14 +165,10 @@ export default class Routes extends React.Component<Props> {
                         }}
                     />
                     <Route
-                        exact
                         path={getReactRoutePattern(
                             ROUTES.collectionDetails.path,
                         )}
-                        render={(route) => {
-                            const query = queryString.parse(
-                                route.location.search,
-                            ) as ContentSharingQueryParams
+                        Component={() => {
                             return (
                                 // <Dashboard
                                 //     listID={route.match.params.id}
@@ -190,15 +183,14 @@ export default class Routes extends React.Component<Props> {
                                 // />
 
                                 <CollectionDetailsPage
-                                    listID={route.match.params.id}
-                                    entryID={route.match.params.entryId}
-                                    noteId={route.match.params.noteId}
+                                    listID={listId}
+                                    entryID={entryId}
                                     services={this.props.services}
                                     storageManager={
                                         this.props.storage.serverStorageManager
                                     }
                                     storage={serverModules}
-                                    query={query}
+                                    query={route}
                                     imageSupport={this.props.imageSupport}
                                     getRootElement={this.props.getRootElement}
                                 />
@@ -206,12 +198,11 @@ export default class Routes extends React.Component<Props> {
                         }}
                     />
                     <Route
-                        exact
                         path={getReactRoutePattern(ROUTES.pageDetails.path)}
-                        render={(route) => {
+                        Component={() => {
                             return (
                                 <PageDetailsPage
-                                    pageID={route.match.params.id}
+                                    pageID={entryId}
                                     services={this.props.services}
                                     storage={serverModules}
                                     userManagement={serverModules.users}
@@ -223,14 +214,13 @@ export default class Routes extends React.Component<Props> {
                         }}
                     />
                     <Route
-                        exact
                         path={getReactRoutePattern(
                             ROUTES.annotationDetails.path,
                         )}
-                        render={(route) => {
+                        Component={() => {
                             return (
                                 <AnnotationDetailsPage
-                                    annotationID={route.match.params.id}
+                                    annotationID={noteId}
                                     services={this.props.services}
                                     storage={serverModules}
                                     getRootElement={this.props.getRootElement}
@@ -240,11 +230,10 @@ export default class Routes extends React.Component<Props> {
                         }}
                     />
                     <Route
-                        exact
                         path={getReactRoutePattern(
                             ROUTES.loginOrSignupPage.path,
                         )}
-                        render={(route) => {
+                        Component={(route) => {
                             return (
                                 <LoginOrSignupPage
                                     services={this.props.services}
@@ -255,14 +244,9 @@ export default class Routes extends React.Component<Props> {
                         }}
                     />
                     <Route
-                        exact
                         path={getReactRoutePattern(ROUTES.tutorials.path)}
-                        render={(route) => {
-                            const queryParams = queryString.parse(
-                                route.location.search,
-                            )
-                            const tutorialId = queryParams.id
-
+                        Component={() => {
+                            const tutorialId = queryParams.get('id')
                             return (
                                 <TutorialsPage
                                     services={this.props.services}
@@ -274,9 +258,8 @@ export default class Routes extends React.Component<Props> {
                         }}
                     />
                     <Route
-                        exact
                         path={getReactRoutePattern(ROUTES.oauthCallback.path)}
-                        render={(route) => {
+                        Component={(route) => {
                             return (
                                 <OAuthCallbackPage
                                     services={this.props.services}
@@ -286,9 +269,9 @@ export default class Routes extends React.Component<Props> {
                             )
                         }}
                     />
-                    <Route component={NotFound} />
-                </Switch>
-            </Router>
+                    <Route Component={NotFound} />
+                </Routes>
+            </BrowserRouter>
         )
     }
 }

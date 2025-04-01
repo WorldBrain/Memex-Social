@@ -159,7 +159,7 @@ export function createServices(options: {
                   executeCall: executeFirebaseCall,
               })
     const userManagement = new UserManagementService({
-        storage: options.storage.serverModules.users,
+        storageModules: options.storage.serverModules,
         auth,
     })
 

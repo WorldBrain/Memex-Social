@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { ThemeProvider } from 'styled-components'
-import Routes from './routes'
+import RoutesComponent from './routes'
 import App from './containers/app'
 import { OverlayContainer } from './containers/overlay'
 
@@ -32,7 +32,7 @@ export function renderMainUi(options: UIRunnerOptions) {
                     services={options.services}
                     storage={options.storage.serverModules}
                 >
-                    <Routes
+                    <RoutesComponent
                         history={options.history}
                         storage={options.storage}
                         services={options.services}

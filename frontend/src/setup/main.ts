@@ -1,4 +1,4 @@
-import createBrowserHistory from 'history/createBrowserHistory'
+import { createBrowserHistory } from 'history'
 import debounce from 'lodash/debounce'
 import firebase from 'firebase/compat/app'
 import 'firebase/compat/auth'
