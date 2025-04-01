@@ -28,7 +28,7 @@ export default function NotesList(props: NotesListDependencies) {
                     <AnnotationItem
                         annotationId={annotationId}
                         annotation={annotation}
-                        onClick={() => props.onClick(annotationId)}
+                        onClick={() => logic.onNoteClick(annotationId)}
                         services={props.services}
                         storage={props.storage}
                         imageSupport={props.imageSupport}

@@ -49,7 +49,6 @@ export interface NotesListDependencies {
     url: string
     listID: AutoPk
     getRootElement: () => HTMLElement
-    onClick: (annotationId: string) => void
     services: UIElementServices<
         | 'auth'
         | 'bluesky'
@@ -150,6 +149,10 @@ export class NotesListLogic extends Logic<NotesListState> {
         )
         const annotation = state.annotations[annotationID]
         return annotation ?? null
+    }
+
+    onNoteClick = (annotationId: string) => {
+        return null
     }
 
     // TODO:

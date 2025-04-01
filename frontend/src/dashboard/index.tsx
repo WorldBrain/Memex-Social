@@ -141,20 +141,44 @@ export default function Dashboard(props: DashboardDependencies) {
         )
     }
 
+    const renderAIChat = () => {
+        return (
+            <AIChatContainer>
+                <AIThreadContainer></AIThreadContainer>
+                {renderChatInput()}
+            </AIChatContainer>
+        )
+    }
+
+    const renderChatInput = () => {
+        return (
+            <BottomBox>
+                <ChatInput>
+                    <Input placeholder="Ask a question or generate reports..." />
+                    <SendButton>Send</SendButton>
+                </ChatInput>
+            </BottomBox>
+        )
+    }
+
     const renderResultsContainer = () => {
         return (
             <ResultsContainer>
                 <Title>{state.listData?.list?.title}</Title>
                 <Subtitle>{state.listData?.list?.description}</Subtitle>
                 {renderResults()}
-                <BottomBox>
-                    <ChatInput>
-                        <Input placeholder="Ask a question or generate reports..." />
-                        <SendButton>Send</SendButton>
-                    </ChatInput>
-                </BottomBox>
+                {renderChatInput()}
             </ResultsContainer>
         )
+    }
+
+    const renderMiddleArea = () => {
+        if (state.screenState === 'results') {
+            return renderResultsContainer
+        }
+        if (state.screenState === 'ai') {
+            return renderAIChat()
+        }
     }
 
     return (

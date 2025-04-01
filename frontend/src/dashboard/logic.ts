@@ -115,6 +115,7 @@ export type DashboardState = {
     showRightSideBar: boolean
     rightSideBarWidth: number
     pageToShowNotesFor: string | null
+    screenState: 'ai' | 'results' | 'reader' | null
 }
 
 export class DashboardLogic extends Logic<DashboardState> {
@@ -164,6 +165,7 @@ export class DashboardLogic extends Logic<DashboardState> {
         showRightSideBar: this.props.entryID ? true : false,
         rightSideBarWidth: 450,
         pageToShowNotesFor: null,
+        screenState: 'results',
     })
 
     async initialize() {
