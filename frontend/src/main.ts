@@ -1,4 +1,4 @@
-import createBrowserHistory from 'history/createBrowserHistory'
+import { createBrowserHistory } from 'history'
 import { CloudflareImageSupportBackend } from '@worldbrain/memex-common/lib/image-support/backend'
 import { ImageSupportInterface } from '@worldbrain/memex-common/lib/image-support/types'
 import { BackendType } from './types'
