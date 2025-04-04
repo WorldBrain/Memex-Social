@@ -1,5 +1,4 @@
 import { History } from 'history'
-import type nodeFetch from 'node-fetch'
 import firebaseModule from 'firebase/compat/app'
 import { firebaseService } from '@worldbrain/memex-common/lib/firebase-backend/services/client'
 import FirebaseFunctionsActivityStreamsService from '@worldbrain/memex-common/lib/activity-streams/services/firebase-functions/client'
@@ -53,7 +52,7 @@ import type { BlueskyServiceInterface } from '@worldbrain/memex-common/lib/bsky/
 
 export function createServices(options: {
     backend: BackendType
-    fetch: typeof nodeFetch | typeof window.fetch
+    fetch: typeof fetch
     storage: Storage
     history: History
     queryParams: ProgramQueryParams
