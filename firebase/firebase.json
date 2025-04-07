@@ -82,6 +82,18 @@
                 }
             },
             {
+                "source": "/rag/ingest-documents",
+                "function": "rag_ingest_documents",
+                "region": "us-central1",
+                "pinTag": false
+            },
+            {
+                "source": "/rag/query-documents",
+                "function": "rag_query_documents",
+                "region": "us-central1",
+                "pinTag": false
+            },
+            {
                 "source": "**",
                 "destination": "/index.html"
             }
