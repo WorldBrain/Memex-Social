@@ -178,7 +178,7 @@ export class DashboardLogic extends Logic<DashboardState> {
             showRightSideBar: entryId ? true : false,
             rightSideBarWidth: 450,
             pageToShowNotesFor: null,
-            screenState: 'results',
+            screenState: entryId ? 'reader' : 'results',
         }
     }
 
@@ -188,11 +188,16 @@ export class DashboardLogic extends Logic<DashboardState> {
             await this.getCurrentUserReference()
             await this.load()
             if (this.state.currentEntryId) {
-                const pageUrl = this.state.results.find(
+                const currentResult = this.state.results.find(
                     (entry) => entry.reference.id === this.state.currentEntryId,
-                )?.normalizedUrl
+                )
+                if (currentResult) {
+                    this.loadReader(currentResult)
+                }
+                const pageUrl = currentResult?.normalizedUrl
                 if (pageUrl) {
                     this.loadNotes(pageUrl)
+                    this.loadReader(currentResult)
                 }
             }
         })
@@ -484,7 +489,12 @@ export class DashboardLogic extends Logic<DashboardState> {
         this.loadNotes(result.normalizedUrl)
         this.setState({
             currentEntryId: result.reference.id,
+            pageToShowNotesFor: result.normalizedUrl,
+            screenState: 'reader',
         })
+
+        console.log('result', result)
+
         this.props.services.router.goTo('dashboard', {
             id: this.state.currentListId,
             entryId: result.reference.id,
