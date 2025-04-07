@@ -12,6 +12,7 @@ import type { LocalStorageService } from './local-storage/types'
 import type { MemexExtensionService } from './memex-extension'
 import type { AnalyticsService } from './analytics'
 import type { SummarizationService } from '@worldbrain/memex-common/lib/summarization'
+import type { LLMEndpointsService } from '@worldbrain/memex-common/lib/llm-endpoints'
 import type { FullTextSearchService } from './full-text-search'
 import type { PublicApiServiceInterface } from '@worldbrain/memex-common/lib/public-api/types'
 import type { PdfUploadServiceInterface } from '@worldbrain/memex-common/lib/pdf/uploads/types'
@@ -28,6 +29,7 @@ export type UIElementServices<Wanted extends keyof Services = never> = Pick<
 
 export type Services = SharedServices & {
     router: RouterService
+    aiChat: LLMEndpointsService
     auth: AuthService
     bluesky: BlueskyServiceInterface
     fixtures: FixtureService

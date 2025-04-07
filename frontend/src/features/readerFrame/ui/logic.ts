@@ -27,6 +27,7 @@ import {
 import { normalizeUrl } from '@worldbrain/memex-url-utils/lib/normalize'
 import { processCommentForImageUpload } from '@worldbrain/memex-common/lib/annotations/processCommentForImageUpload'
 import {
+    SharedAnnotation,
     SharedAnnotationReference,
     SharedListReference,
 } from '@worldbrain/memex-common/lib/content-sharing/types'
@@ -78,16 +79,10 @@ export interface ReaderViewDependencies {
     listId: string
     entryId: string
     sourceUrl: string
-    notesList: {
-        events: {
-            listen: (
-                callback: (event: { annotationsLoaded: any[] }) => void,
-            ) => void
-        }
-    }
 }
 
 export type ReaderViewState = {
+    annotations: SharedAnnotation[]
     loadState: TaskState
     preventInteractionsInIframe: boolean
     iframeLoadState: UITaskState
@@ -114,6 +109,7 @@ export class ReaderViewLogic extends Logic<ReaderViewState> {
         showDropPDFNotice: false,
         highlightCreateState: 'pristine',
         role: 'viewer',
+        annotations: [],
     })
 
     async initialize() {

@@ -51,7 +51,9 @@ export interface DashboardDependencies {
         | 'auth'
         | 'cache'
         | 'bluesky'
+        | 'aiChat'
         | 'overlay'
+        | 'events'
         | 'listKeys'
         | 'contentSharing'
         | 'contentConversations'
@@ -120,6 +122,7 @@ export type DashboardState = {
     rightSideBarWidth: number
     pageToShowNotesFor: string | null
     screenState: 'ai' | 'results' | 'reader' | null
+    initialChatMessage: string | null
 }
 
 export class DashboardLogic extends Logic<DashboardState> {
@@ -184,6 +187,14 @@ export class DashboardLogic extends Logic<DashboardState> {
             this.startPathnameListener()
             await this.getCurrentUserReference()
             await this.load()
+            if (this.state.currentEntryId) {
+                const pageUrl = this.state.results.find(
+                    (entry) => entry.reference.id === this.state.currentEntryId,
+                )?.normalizedUrl
+                if (pageUrl) {
+                    this.loadNotes(pageUrl)
+                }
+            }
         })
     }
 
@@ -245,6 +256,7 @@ export class DashboardLogic extends Logic<DashboardState> {
         if (!this.state.currentListId) {
             return
         }
+
         const response = await this.props.services.contentSharing.backend.loadCollectionDetails(
             {
                 listId: this.state.currentListId,
@@ -388,6 +400,11 @@ export class DashboardLogic extends Logic<DashboardState> {
             annotationEntryData: data.annotationEntries,
         })
 
+        console.log(
+            'this.state.annotationEntryData',
+            this.state.annotationEntryData,
+        )
+
         if (this.state.currentEntryId) {
             const normalizedPageUrl = retrievedList.entries[0].normalizedUrl
             this.setState({
@@ -471,6 +488,13 @@ export class DashboardLogic extends Logic<DashboardState> {
         this.props.services.router.goTo('dashboard', {
             id: this.state.currentListId,
             entryId: result.reference.id,
+        })
+    }
+
+    sendMessage(message: string) {
+        this.setState({
+            screenState: 'ai',
+            initialChatMessage: message,
         })
     }
 }

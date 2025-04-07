@@ -144,6 +144,7 @@ function MetaUI({ options }: { options: MetaUIOptions }) {
         }> = [{ name: '$start', description: 'Start' }, ...scenario.steps]
         return steps
     }
+    return
 
     return (
         <MainContainer>
