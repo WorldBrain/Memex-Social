@@ -1,8 +1,8 @@
 import { ImageSupportInterface } from '@worldbrain/memex-common/lib/image-support/types'
-import { UIElementServices } from '../../../services/types'
-import { StorageModules } from '../../../storage/types'
-import { Logic } from '../../../utils/logic'
-import { executeTask, TaskState } from '../../../utils/tasks'
+import { UIElementServices } from '../services/types'
+import { StorageModules } from '../storage/types'
+import { Logic } from '../utils/logic'
+import { executeTask, TaskState } from '../utils/tasks'
 import StorageManager from '@worldbrain/storex'
 
 export interface NotesSidebarDependencies {

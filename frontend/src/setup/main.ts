@@ -58,9 +58,7 @@ export async function mainProgram(
         changeWatcher: storageHooksChangeWatcher,
     })
 
-    const aiChat = new LLMEndpointsService({
-        serviceURL: process.env.PUBLIC_URL,
-    })
+    const aiChat = new LLMEndpointsService()
 
     const services = createServices({
         ...options,

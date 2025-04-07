@@ -40,7 +40,7 @@ import { getRoutePartGroups } from '../services/router/routes'
 const LIST_DESCRIPTION_CHAR_LIMIT = 400
 
 export interface DashboardDependencies {
-    listID: string
+    listID?: string
     entryID?: string
     noteId?: string
     normalizeUrl: URLNormalizer

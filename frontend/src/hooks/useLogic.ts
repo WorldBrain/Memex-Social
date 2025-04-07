@@ -1,4 +1,4 @@
-import { Logic } from '~/utils/logic'
+import { Logic } from '../utils/logic'
 import { useEffect, useRef, useState } from 'react'
 
 export function useLogic<L extends Logic<any>>(create: () => L) {

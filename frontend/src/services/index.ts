@@ -53,13 +53,15 @@ import type { BlueskyServiceInterface } from '@worldbrain/memex-common/lib/bsky/
 import { ThemeService } from './theme'
 import { CacheService } from './cache'
 import { EventEmitter } from '../utils/events'
-import { LLMEndpointsService } from '@worldbrain/memex-common/lib/llm-endpoints'
+import { AiChatService } from '@worldbrain/memex-common/lib/ai-chat/service'
+import { AiChatServiceInterface } from '@worldbrain/memex-common/lib/ai-chat/service/types'
 
 export function createServices(options: {
     backend: BackendType
     fetch: typeof nodeFetch | typeof window.fetch
     storage: Storage
     history: History
+    aiChat: AiChatServiceInterface
     queryParams: ProgramQueryParams
     localStorage: LimitedWebStorage
     uiMountPoint?: Element
@@ -70,7 +72,6 @@ export function createServices(options: {
     youtubeOptions: YoutubeServiceOptions
     imageSupport: ImageSupportInterface
     generateServerId: GenerateServerID
-    aiChat: LLMEndpointsService
     fetchPDFData?: (
         fullPageUrl: string,
         proxyUrl?: string,
@@ -241,10 +242,25 @@ export function createServices(options: {
         auth,
         router,
         bluesky,
+        aiChat: new AiChatService({
+            storageModules: options.storage.serverModules,
+            getConfig: () => ({
+                deployment: {
+                    environment:
+                        determineEnv() === 'production'
+                            ? 'production'
+                            : 'staging',
+                },
+            }),
+        }),
         fixtures,
         localStorage,
         cache: new CacheService(),
-        theme: null,
+        theme: new ThemeService({
+            getPersistedThemeVariant: async () => 'light',
+            setPersistedThemeVariant: async () => {},
+            removePersistedThemeVariant: async () => {},
+        }),
         events,
         userMessages,
         memexExtension: new MemexExtensionService(),
@@ -303,7 +319,6 @@ export function createServices(options: {
                     ? 'production'
                     : 'staging',
         }),
-        aiChat: options.aiChat,
     }
 
     return services

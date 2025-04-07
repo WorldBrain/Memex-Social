@@ -439,7 +439,11 @@ export class ReaderViewLogic extends Logic<ReaderViewState> {
             isPdf: doesUrlPointToPdf(args.state?.sourceUrl!),
             shouldShare: args.shouldShare ?? undefined,
             openInEditMode: args.openInEditMode ?? undefined,
-            onClick: this.handleHighlightClick,
+            onClick: (params) =>
+                this.handleHighlightClick({
+                    annotationId: params.annotationId,
+                    openInEdit: params.openInEdit,
+                }),
             getSelection: args.selection ?? null,
             getFullPageUrl: async () =>
                 args.state?.listData?.entry.originalUrl!,
@@ -570,7 +574,15 @@ export class ReaderViewLogic extends Logic<ReaderViewState> {
         }
     }
 
-    handleHighlightClick = async ({ annotationId, openInEdit }) => {}
+    handleHighlightClick = async ({
+        annotationId,
+        openInEdit,
+    }: {
+        annotationId: string
+        openInEdit: boolean
+    }) => {
+        console.log('handleHighlightClick', annotationId, openInEdit)
+    }
 
     setupIframeTooltip(
         iframe: HTMLIFrameElement,

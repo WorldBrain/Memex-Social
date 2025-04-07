@@ -10,6 +10,7 @@ import type ContentConversationStorage from '../features/content-conversations/s
 import type PersonalCloudStorage from '@worldbrain/memex-common/lib/personal-cloud/storage'
 import type { DiscordRetroSyncStorage } from '@worldbrain/memex-common/lib/discord/queue'
 import type { BlueskyStorage } from '@worldbrain/memex-common/lib/bsky/storage'
+import { AiChatStorage } from '@worldbrain/memex-common/lib/ai-chat/storage'
 
 export interface Storage {
     serverStorageManager: StorageManager
@@ -19,6 +20,7 @@ export interface Storage {
 export interface StorageModules {
     users: UserStorage
     slack: SlackStorage
+    aiChat: AiChatStorage
     slackRetroSync: SlackRetroSyncStorage
     bluesky: BlueskyStorage
     discord: DiscordStorage

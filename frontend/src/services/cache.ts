@@ -13,6 +13,7 @@ export class CacheService {
     public _data: CachedData = {
         currentUser: null,
         users: {},
+        annotations: {},
     }
 
     onUpdate = new EventEmitter<Set<keyof CachedData>>()

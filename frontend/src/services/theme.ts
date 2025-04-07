@@ -1,5 +1,6 @@
-import { ThemeVariant } from '~/theme'
-import { EventEmitter } from '~/utils/events'
+import { EventEmitter } from '../utils/events'
+
+export type ThemeVariant = 'light' | 'dark'
 
 export interface ThemeServiceDeps {
     getPersistedThemeVariant: () => Promise<ThemeVariant | null>

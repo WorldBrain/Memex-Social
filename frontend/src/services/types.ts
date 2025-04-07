@@ -20,6 +20,7 @@ import type { BlueskyServiceInterface } from '@worldbrain/memex-common/lib/bsky/
 import { ThemeService } from './theme'
 import { CacheService } from './cache'
 import { EventEmitter } from '../utils/events'
+import { AiChatServiceInterface } from '@worldbrain/memex-common/lib/ai-chat/service/types'
 
 type UIServices = 'logicRegistry' | 'device'
 export type UIElementServices<Wanted extends keyof Services = never> = Pick<
@@ -29,7 +30,7 @@ export type UIElementServices<Wanted extends keyof Services = never> = Pick<
 
 export type Services = SharedServices & {
     router: RouterService
-    aiChat: LLMEndpointsService
+    aiChat: AiChatServiceInterface
     auth: AuthService
     bluesky: BlueskyServiceInterface
     fixtures: FixtureService

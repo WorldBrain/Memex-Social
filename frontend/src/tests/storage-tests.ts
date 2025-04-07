@@ -12,6 +12,8 @@ import { ProgramQueryParams } from '../setup/types'
 import { mockClipboardAPI } from '../services/clipboard/mock'
 import fetchPDFData from '@worldbrain/memex-common/lib/page-indexing/fetch-page-data/fetch-pdf-data.node'
 import { normalizeUrl } from '@worldbrain/memex-common/lib/url-utils/normalize'
+import { LLMEndpointsService } from '@worldbrain/memex-common/lib/llm-endpoints'
+import { AiChatService } from '@worldbrain/memex-common/lib/ai-chat/service'
 
 export interface StorageTestDevice {
     storage: Storage
@@ -86,6 +88,14 @@ async function createMemoryTestDevice(
     const services = createServices({
         fetch,
         storage,
+        aiChat: new AiChatService({
+            storageModules: storage.serverModules,
+            getConfig: () => ({
+                deployment: {
+                    environment: 'staging',
+                },
+            }),
+        }),
         backend: 'memory',
         queryParams: testOptions.queryParams ?? {},
         clipboard: mockClipboardAPI,
@@ -201,6 +211,14 @@ async function createFirebaseTestDevice(
         firebase: context as any,
         queryParams: testOptions.queryParams ?? {},
         history: null!,
+        aiChat: new AiChatService({
+            storageModules: storage.serverModules,
+            getConfig: () => ({
+                deployment: {
+                    environment: 'staging',
+                },
+            }),
+        }),
         uiMountPoint: null!,
         localStorage: null!,
         clipboard: mockClipboardAPI,
