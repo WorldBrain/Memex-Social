@@ -8,11 +8,11 @@ import { MemoryUserMessageService } from '@worldbrain/memex-common/lib/user-mess
 import { FirebaseUserMessageService } from '@worldbrain/memex-common/lib/user-messages/service/firebase'
 import { ContentSharingBackend } from '@worldbrain/memex-common/lib/content-sharing/backend/index'
 import { ContentSharingBackendInterface } from '@worldbrain/memex-common/lib/content-sharing/backend/types'
-import { AutoPk, BackendType } from '../types'
-import { Storage } from '../storage/types'
+import type { AutoPk, BackendType } from '../types'
+import type { Storage } from '../storage/types'
 import ROUTES from '../routes'
 import ContentConversationsService from '../features/content-conversations/services/content-conversations'
-import { Services } from './types'
+import type { Services } from './types'
 import OverlayService from './overlay'
 import LogicRegistryService from './logic-registry'
 import FixtureService, {
@@ -50,6 +50,8 @@ import { PdfUploadService } from '@worldbrain/memex-common/lib/pdf/uploads/servi
 import type { GenerateServerID } from '@worldbrain/memex-common/lib/content-sharing/service/types'
 import { BlueskyService } from '@worldbrain/memex-common/lib/bsky/service'
 import type { BlueskyServiceInterface } from '@worldbrain/memex-common/lib/bsky/service/types'
+import type { AiChatServiceInterface } from '@worldbrain/memex-common/lib/ai-chat/service/types'
+import { AiChatService } from '@worldbrain/memex-common/lib/ai-chat/service'
 
 export function createServices(options: {
     backend: BackendType
@@ -246,6 +248,24 @@ export function createServices(options: {
             : firebaseService<BlueskyServiceInterface>('bsky', {
                   executeCall: executeFirebaseCall,
               })
+    const aiChat =
+        options.backend === 'memory'
+            ? new AiChatService({
+                  storageModules: options.storage.serverModules,
+                  getConfig: () => ({
+                      deployment: {
+                          environment:
+                              determineEnv() === 'production'
+                                  ? 'production'
+                                  : 'staging',
+                      },
+                  }),
+              })
+            : firebaseService<AiChatServiceInterface>('aiChat', {
+                  executeCall: executeFirebaseCall,
+                  executeStreamingCall: streamFirebaseCall,
+                  streamingMethods: new Set(['getAiChatResponse']),
+              })
 
     const services: Services = {
         overlay: new OverlayService(),
@@ -257,6 +277,7 @@ export function createServices(options: {
         auth,
         router,
         bluesky,
+        aiChat,
         fixtures,
         localStorage,
         userMessages,

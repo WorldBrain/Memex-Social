@@ -16,6 +16,7 @@ import type { FullTextSearchService } from './full-text-search'
 import type { PublicApiServiceInterface } from '@worldbrain/memex-common/lib/public-api/types'
 import type { PdfUploadServiceInterface } from '@worldbrain/memex-common/lib/pdf/uploads/types'
 import type { BlueskyServiceInterface } from '@worldbrain/memex-common/lib/bsky/service/types'
+import type { AiChatServiceInterface } from '@worldbrain/memex-common/lib/ai-chat/service/types'
 
 type UIServices = 'logicRegistry' | 'device'
 export type UIElementServices<Wanted extends keyof Services = never> = Pick<
@@ -38,6 +39,7 @@ export type Services = SharedServices & {
     fullTextSearch: FullTextSearchService
 
     // Feature specific services
+    aiChat: AiChatServiceInterface
     activityStreams: ActivityStreamsService
     userManagement: UserManagementService
     summarization: SummarizationService
