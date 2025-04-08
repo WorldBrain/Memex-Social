@@ -4,8 +4,13 @@ import { StorageModules } from '../../storage/types'
 import { Logic } from '../../utils/logic'
 import { executeTask, TaskState } from '../../utils/tasks'
 import StorageManager from '@worldbrain/storex'
-import { AiChatReference } from '@worldbrain/memex-common/lib/ai-chat/service/types'
-
+import {
+    AiChatReference,
+    AiChatResponseChunk,
+    AiChatResponseClient,
+    AiChatThreadClient,
+    GetAiChatResponseRequest,
+} from '@worldbrain/memex-common/lib/ai-chat/service/types'
 export interface AiChatDependencies {
     listId: string
     initialChatMessage: string | null
@@ -70,7 +75,7 @@ export class AiChatLogic extends Logic<AiChatState> {
         await executeTask(this, 'loadState', async () => {
             const threadId = this.generateChatId()
             const thread = {
-                id: threadId,
+                threadId: threadId,
                 messages: [],
             } as AiChatThreadClient
 
@@ -84,6 +89,9 @@ export class AiChatLogic extends Logic<AiChatState> {
     generateChatId = () => {
         return `chat-${Date.now()}`
     }
+    generateMessageId = () => {
+        return `message-${Date.now()}`
+    }
 
     sendMessage = async (message: string) => {
         const lastId = this.state.thread?.messages.length
@@ -92,8 +100,8 @@ export class AiChatLogic extends Logic<AiChatState> {
             : 0
 
         const newMessage = {
-            threadId: this.state.thread!.id,
-            messageId: lastId + 1,
+            threadId: this.state.thread!.threadId,
+            messageId: this.generateChatId(),
             message: message,
             role: 'user' as const,
             context: {
@@ -118,29 +126,43 @@ export class AiChatLogic extends Logic<AiChatState> {
             this.setState({ thread: updatedThread })
         }
 
-        const response = this.props.services.aiChat.getAiChatResponse({
-            request: {
-                parentMessageId: null,
-                sharedListIds: [this.props.listId],
-                threadId: this.state.thread!.id,
-                content: newMessage.message,
+        const userMessage: GetAiChatResponseRequest = {
+            role: 'user',
+            parentMessageId: null,
+            threadId: this.state.thread!.threadId,
+            messageId: newMessage.messageId.toString(),
+            message: newMessage.message,
+            options: {
                 temperature: 0.5,
                 model: 'gpt-4o-mini',
-            useMock: true,
+            },
+            context: {
+                sharedListIds: [this.props.listId],
+                pageUrls: [],
+                text: newMessage.message,
+            },
+        }
+
+        const response = this.props.services.aiChat.getAiChatResponse({
+            ...userMessage,
         })
+        this.updateThread(userMessage, 'user')
         for await (const chunk of response) {
             console.log('chunk', chunk)
-            this.updateThread(chunk as ResponseChunk, 'assistant')
+            this.updateThread(chunk as AiChatResponseChunk, 'assistant')
         }
     }
 
-    updateThread = (response: ResponseChunk, type: 'assistant' | 'user') => {
+    updateThread = (
+        message: AiChatResponseChunk | GetAiChatResponseRequest,
+        type: 'assistant' | 'user',
+    ) => {
         console.log('thread', this.state.thread)
         if (!this.state.thread) return
         if (type === 'assistant') {
             // Create a new array with all messages except the last one
             let messages = this.state.thread.messages
-            let lastMessage: AiChatResponseClient = this.state.thread.messages[
+            let lastMessage = this.state.thread.messages[
                 this.state.thread.messages.length - 1
             ]
 
@@ -152,7 +174,7 @@ export class AiChatLogic extends Logic<AiChatState> {
             const updatedLastMessage: AiChatResponseClient = {
                 role: 'assistant',
                 messageId: lastMessage.messageId,
-                message: [...lastMessage.message, response],
+                message: [...lastMessage.message, message],
             }
 
             console.log('updatedLastMessage', updatedLastMessage)
@@ -163,6 +185,13 @@ export class AiChatLogic extends Logic<AiChatState> {
             }
             this.setState({ thread: updatedThread })
             return
+        }
+        if (type === 'user') {
+            const updatedThread = {
+                threadId: this.state.thread.threadId,
+                messages: [...this.state.thread.messages, message],
+            }
+            this.setState({ thread: updatedThread })
         }
     }
 
