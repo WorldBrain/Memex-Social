@@ -1,4 +1,4 @@
-import { UserPublicProfile } from '@worldbrain/memex-common/ts/web-interface/types/storex-generated/user-management'
+import { UserPublicProfile } from '@worldbrain/memex-common/lib/web-interface/types/storex-generated/user-management'
 import { ProfileWebLink, ProfileWebLinkName } from '../types'
 
 export function getProfileLinks(

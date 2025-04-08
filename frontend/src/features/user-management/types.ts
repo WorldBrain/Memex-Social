@@ -2,7 +2,7 @@ import { UserReference as UserRef } from '@worldbrain/memex-common/lib/web-inter
 import {
     UserPublicProfile as Profile,
     User as ImportedUser,
-} from '@worldbrain/memex-common/ts/web-interface/types/storex-generated/user-management'
+} from '@worldbrain/memex-common/lib/web-interface/types/storex-generated/user-management'
 import { IconKeys } from '@worldbrain/memex-common/lib/common-ui/styles/types'
 
 export type UserPublicProfile = Profile

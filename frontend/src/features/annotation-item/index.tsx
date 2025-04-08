@@ -4,7 +4,7 @@ import { useLogic } from '../../hooks/useLogic'
 import { AnnotationItemDependencies, AnnotationItemLogic } from './logic'
 import ItemBox from '../../common-ui/components/item-box'
 import Markdown from '../../common-ui/components/markdown'
-import { RGBAobjectToString } from '@worldbrain/memex-common/ts/common-ui/components/highlightColorPicker/utils'
+import { RGBAobjectToString } from '@worldbrain/memex-common/lib/common-ui/components/highlightColorPicker/utils'
 import AnnotationEdit from '@worldbrain/memex-common/lib/content-conversations/ui/components/annotation-edit'
 import { theme } from '../../main-ui/styles/theme'
 
