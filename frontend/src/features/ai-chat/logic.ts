@@ -4,14 +4,7 @@ import { StorageModules } from '../../storage/types'
 import { Logic } from '../../utils/logic'
 import { executeTask, TaskState } from '../../utils/tasks'
 import StorageManager from '@worldbrain/storex'
-import {
-    AiChatMessageClient,
-    AiChatReference,
-    AiChatResponseClient,
-    AiChatThreadClient,
-    ResponseChunk,
-} from '@worldbrain/memex-common/lib/llm-endpoints/types'
-import { SharedAnnotationReference } from '@worldbrain/memex-common/lib/content-sharing/types'
+import { AiChatReference } from '@worldbrain/memex-common/lib/ai-chat/service/types'
 
 export interface AiChatDependencies {
     listId: string
@@ -125,9 +118,14 @@ export class AiChatLogic extends Logic<AiChatState> {
             this.setState({ thread: updatedThread })
         }
 
-        const response = this.props.services.aiChat.queryAI({
-            message: newMessage as AiChatMessageClient,
-            model: 'gpt-4o-mini',
+        const response = this.props.services.aiChat.getAiChatResponse({
+            request: {
+                parentMessageId: null,
+                sharedListIds: [this.props.listId],
+                threadId: this.state.thread!.id,
+                content: newMessage.message,
+                temperature: 0.5,
+                model: 'gpt-4o-mini',
             useMock: true,
         })
         for await (const chunk of response) {

@@ -47,7 +47,6 @@
   },
   "dependencies": {
     "@firebase/testing": "^0.20.11",
-    "@firebase/webchannel-wrapper": "^0.4.1",
     "@josephg/resolvable": "1.0.0",
     "@svgr/webpack": "4.3.3",
     "@testing-library/react": "^10.4.8",
@@ -91,8 +90,8 @@
     "eslint-plugin-react-hooks": "^1.6.1",
     "events": "3.3.0",
     "file-loader": "4.3.0",
-    "firebase": "10.11.0",
-    "firebase-tools": "13.31.2",
+    "firebase": "11.6.0",
+    "firebase-tools": "14.1.0",
     "font-awesome": "^4.7.0",
     "fs-extra": "^8.1.0",
     "getstream": "^7.0.0",

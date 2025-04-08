@@ -42,6 +42,7 @@ export interface CollectionDetailsDependencies {
     entryID?: string
     services: UIElementServices<
         | 'auth'
+        | 'aiChat'
         | 'bluesky'
         | 'overlay'
         | 'listKeys'

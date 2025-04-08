@@ -102,6 +102,7 @@ async function createMemoryTestDevice(
         history: null!,
         uiMountPoint: null!,
         localStorage: null!,
+        firebaseModular: null!,
         youtubeOptions: {} as any,
         fetchPDFData,
         imageSupport: null as any,
@@ -221,6 +222,11 @@ async function createFirebaseTestDevice(
         }),
         uiMountPoint: null!,
         localStorage: null!,
+        // TODO: Don't think this old FB testing API is 100% compatible with the new modular SDK's - needs rework
+        firebaseModular: {
+            getFunctions: () => context.functions as any,
+            httpsCallable: context.functions().httpsCallable as any,
+        },
         clipboard: mockClipboardAPI,
         youtubeOptions: {} as any,
         fetchPDFData,

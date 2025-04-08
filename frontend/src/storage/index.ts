@@ -33,6 +33,7 @@ import { DiscordRetroSyncStorage } from '@worldbrain/memex-common/lib/discord/qu
 import SlackStorage from '@worldbrain/memex-common/lib/slack/storage'
 import { SlackRetroSyncStorage } from '@worldbrain/memex-common/lib/slack/storage/retro-sync'
 import { BlueskyStorage } from '@worldbrain/memex-common/lib/bsky/storage'
+import { AiChatStorage } from '@worldbrain/memex-common/lib/ai-chat/storage'
 
 // import { checkAccountCollectionInfoMap } from './checks';
 // import { ACCOUNT_COLLECTIONS } from './constants';
@@ -138,6 +139,7 @@ export async function createStorage(options: {
         serverModules: {
             // auth: new AuthStorage({ storageManager }),
             bluesky: new BlueskyStorage({ storageManager }),
+            aiChat: new AiChatStorage({ storageManager }),
             slack: new SlackStorage({ storageManager }),
             slackRetroSync: new SlackRetroSyncStorage({
                 storageManager,

@@ -3,8 +3,8 @@ import debounce from 'lodash/debounce'
 import firebase from 'firebase/compat/app'
 import 'firebase/compat/auth'
 import 'firebase/compat/database'
-import 'firebase/compat/functions'
 import 'firebase/compat/firestore'
+import { httpsCallable, getFunctions } from 'firebase/functions'
 import { getUiMountpoint, getDefaultUiRunner } from '../main-ui'
 import { createServices } from '../services'
 import { MainProgramOptions, MainProgramSetup } from './types'
@@ -65,6 +65,10 @@ export async function mainProgram(
         fetch,
         aiChat,
         firebase,
+        firebaseModular: {
+            getFunctions,
+            httpsCallable,
+        },
         queryParams: options.queryParams,
         history,
         storage,
