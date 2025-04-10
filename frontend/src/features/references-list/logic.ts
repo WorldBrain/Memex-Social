@@ -3,26 +3,20 @@ import { UIElementServices } from '../../services/types'
 import { StorageModules } from '../../storage/types'
 import { Logic } from '../../utils/logic'
 import { executeTask, TaskState } from '../../utils/tasks'
-import { EventEmitter } from '../../utils/events'
 import {
+    SharedAnnotation,
     SharedAnnotationListEntry,
     SharedAnnotationReference,
+    SharedListEntry,
 } from '@worldbrain/memex-common/lib/content-sharing/types'
-import {
-    GetAnnotationListEntriesElement,
-    GetAnnotationsResult,
-} from '@worldbrain/memex-common/lib/content-sharing/storage/types'
-import {
-    filterObject,
-    mapValues,
-} from '@worldbrain/memex-common/lib/utils/iteration'
 import { AutoPk } from '../../types'
+import { AiChatReference } from '@worldbrain/memex-common/lib/ai-chat/service/types'
+import { GetAnnotationsResult } from '@worldbrain/memex-common/lib/content-sharing/storage/types'
 
 const LIST_DESCRIPTION_CHAR_LIMIT = 400
 
-export interface NotesListDependencies {
-    annotationEntries: GetAnnotationListEntriesElement[]
-    url: string
+export interface ReferencesListDependencies {
+    reference: AiChatReference
     listID: AutoPk
     getRootElement: () => HTMLElement
     services: UIElementServices<
@@ -62,58 +56,63 @@ export interface NotesListDependencies {
     imageSupport: ImageSupportInterface
 }
 
-export type NotesListState = {
+export type ReferencesListState = {
     loadState: TaskState
-    annotations: GetAnnotationsResult
+    annotations: { [id: string]: SharedAnnotation }
+    pages: SharedListEntry[]
+    type: 'annotation' | 'page' | null
 }
-export class NotesListLogic extends Logic<
-    NotesListDependencies,
-    NotesListState
+
+export class ReferencesListLogic extends Logic<
+    ReferencesListDependencies,
+    ReferencesListState
 > {
-    getInitialState = (): NotesListState => ({
+    getInitialState = (): ReferencesListState => ({
         loadState: 'pristine',
+        type: null,
         annotations: {},
+        pages: [],
     })
 
     async initialize() {
         await executeTask(this, 'loadState', async () => {
-            await this.loadAnnotations()
+            await this.loadReferences(this.deps.reference)
         })
     }
 
-    loadAnnotations = async (
-        url?: string,
-        annotationEntries?: GetAnnotationListEntriesElement[],
-    ) => {
+    loadReferences = async (reference?: AiChatReference) => {
         await executeTask(this, 'loadState', async () => {
-            this.setState({ annotations: {} })
+            if (!reference) {
+                return
+            }
 
-            const entries = annotationEntries ?? this.deps.annotationEntries
-            if (!entries) {
-                this.setState({ annotations: {} })
-                this.deps.services.events.emit({ annotationsLoaded: {} })
-                return
+            if (reference.type === 'annotation') {
+                const annotationResult = await this.deps.storage.contentSharing.getAnnotation(
+                    {
+                        reference: {
+                            type: 'shared-annotation-reference',
+                            id: reference.id,
+                        },
+                    },
+                )
+                const annotationData = annotationResult?.annotation
+                if (!annotationData) {
+                    return
+                }
+                this.setState({
+                    type: 'annotation',
+                    annotations: {
+                        [this.deps.reference.id]: annotationData,
+                    },
+                })
+            } else if (reference.type === 'page') {
+                const page = await this.deps.storage.contentSharing.getListEntryByReference(
+                    {
+                        type: 'shared-list-entry-reference',
+                        id: reference.id,
+                    },
+                )
             }
-            const annotationIds = filterObject(
-                mapValues({ [this.deps.url]: entries }, (entries) =>
-                    entries.map((entry) => entry.sharedAnnotation.id),
-                ),
-                (_, key) => true,
-            )
-            const annotationsResult = await this.deps.services.contentSharing.backend.loadAnnotationsWithThreads(
-                {
-                    listId: this.deps.listID.toString(),
-                    annotationIds: annotationIds,
-                },
-            )
-            if (annotationsResult.status !== 'success') {
-                return
-            }
-            const annotationsData = annotationsResult.data
-            this.setState({ annotations: annotationsData.annotations })
-            this.deps.services.events.emit({
-                annotationsLoaded: annotationsData.annotations,
-            })
         })
     }
 

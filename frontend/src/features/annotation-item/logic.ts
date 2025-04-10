@@ -57,11 +57,10 @@ export type AnnotationItemState = {
     isScreenshotAnnotation: boolean
 }
 
-export class AnnotationItemLogic extends Logic<AnnotationItemState> {
-    constructor(public props: AnnotationItemDependencies) {
-        super()
-    }
-
+export class AnnotationItemLogic extends Logic<
+    AnnotationItemDependencies,
+    AnnotationItemState
+> {
     getInitialState = (): AnnotationItemState => ({
         loadState: 'pristine',
         loadingReplies: 'pristine',
@@ -74,14 +73,13 @@ export class AnnotationItemLogic extends Logic<AnnotationItemState> {
     })
 
     async initialize() {
-        console.log('initializing annotation item')
         await executeTask(this, 'loadState', async () => {
             let isScreenshotAnnotation = false
-            if (this.props.annotation.selector) {
-                isScreenshotAnnotation =
-                    JSON.parse(this.props.annotation.selector).dimensions !=
-                    null
-            }
+            // if (this.deps.annotation.selector) {
+            //     isScreenshotAnnotation =
+            //         JSON.parse(this.deps.annotation.selector)?.dimensions !=
+            //         null
+            // }
         })
     }
 

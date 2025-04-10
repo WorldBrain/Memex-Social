@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import { useLogic } from '../hooks/useLogic'
 import { NotesSidebarDependencies, NotesSidebarLogic } from './logic'
 export default function NotesSidebar(props: NotesSidebarDependencies) {
-    const { logic, state } = useLogic(() => new NotesSidebarLogic(props))
+    const { logic, state } = useLogic(NotesSidebarLogic, props)
 
     return <Container></Container>
 }

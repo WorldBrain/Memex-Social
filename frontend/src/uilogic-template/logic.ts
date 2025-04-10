@@ -48,11 +48,10 @@ export type NotesSidebarState = {
     loadState: TaskState
 }
 
-export class NotesSidebarLogic extends Logic<NotesSidebarState> {
-    constructor(public props: NotesSidebarDependencies) {
-        super()
-    }
-
+export class NotesSidebarLogic extends Logic<
+    NotesSidebarDependencies,
+    NotesSidebarState
+> {
     getInitialState = (): NotesSidebarState => ({
         loadState: 'pristine',
     })

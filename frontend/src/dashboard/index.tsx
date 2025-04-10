@@ -11,11 +11,14 @@ import { ReaderPageView } from '../features/reader/ui'
 import ReaderView from '../features/readerFrame/ui'
 import ChatInput from '../features/ai-chat/components/chatInput'
 import AiChat from '../features/ai-chat'
+import ReferencesList from '../features/references-list'
+import AddContentOverlay from '../features/add-content-overlay'
+import { PrimaryAction } from '@worldbrain/memex-common/lib/common-ui/components/PrimaryAction'
 
 export const RESULTS_LIST_MAX_WIDTH = 700
 
 export default function Dashboard(props: DashboardDependencies) {
-    const { logic, state } = useLogic(() => new DashboardLogic(props))
+    const { logic, state } = useLogic(DashboardLogic, props)
 
     const renderResults = () => {
         return (
@@ -58,7 +61,7 @@ export default function Dashboard(props: DashboardDependencies) {
                                 />
                             )
 
-                            if (index === 3) {
+                            if (index === 2) {
                                 return (
                                     <>
                                         <ExtensionPromo>
@@ -99,7 +102,22 @@ export default function Dashboard(props: DashboardDependencies) {
             />
         )
     }
+    const renderReferences = () => {
+        if (!state.referenceToShow || !state.showRightSideBar) return null
 
+        console.log('state.referenceToShow', state.referenceToShow)
+
+        return (
+            <ReferencesList
+                services={props.services}
+                storage={props.storage}
+                imageSupport={props.imageSupport}
+                getRootElement={props.getRootElement}
+                reference={state.referenceToShow}
+                listID={state.listData?.reference.id}
+            />
+        )
+    }
     const renderReader = () => {
         if (!state.currentEntryId) return null
 
@@ -129,15 +147,12 @@ export default function Dashboard(props: DashboardDependencies) {
 
     const renderRightSideBar = () => {
         if (!state.showRightSideBar) return null
-        console.log(
-            'renderRightSideBar',
-            state.pageToShowNotesFor,
-            state.showRightSideBar,
-        )
         return (
             <RightSideBarContainer width={state.rightSideBarWidth}>
                 <div>Notes</div>
-                {renderPageAnnotations()}
+                {state.pageToShowNotesFor && renderPageAnnotations()}
+
+                {state.referenceToShow && renderReferences()}
             </RightSideBarContainer>
         )
     }
@@ -168,20 +183,29 @@ export default function Dashboard(props: DashboardDependencies) {
 
     const renderChatInput = () => {
         return (
-            <ChatInput
-                services={props.services}
-                storage={props.storage}
-                imageSupport={props.imageSupport}
-                getRootElement={props.getRootElement}
-                storageManager={props.storageManager}
-                sendMessage={(message: string) => logic.sendMessage(message)}
-            />
+            <BottomBox>
+                <ChatInput
+                    services={props.services}
+                    storage={props.storage}
+                    imageSupport={props.imageSupport}
+                    getRootElement={props.getRootElement}
+                    storageManager={props.storageManager}
+                    sendMessage={(message: string) =>
+                        logic.sendMessage(message)
+                    }
+                />
+            </BottomBox>
         )
     }
 
     const renderResultsContainer = () => {
         return (
             <ResultsContainer>
+                <PrimaryAction
+                    onClick={() => logic.toggleAddContentOverlay()}
+                    label="Add New"
+                    type="primary"
+                />
                 <Title>{state.listData?.list?.title}</Title>
                 <Subtitle>{state.listData?.list?.description}</Subtitle>
                 {renderResults()}
@@ -208,6 +232,21 @@ export default function Dashboard(props: DashboardDependencies) {
                 {renderLeftSideBar()}
                 <CenterArea>{renderMiddleArea()}</CenterArea>
                 {renderRightSideBar()}
+                {state.showAddContentOverlay && (
+                    <AddContentOverlay
+                        services={props.services}
+                        storage={props.storage}
+                        imageSupport={props.imageSupport}
+                        getRootElement={props.getRootElement}
+                        handleDroppedFiles={async (files: File[]) =>
+                            await logic.handleDroppedFiles(files)
+                        }
+                        handlePastedText={async (text: string) =>
+                            await logic.handlePastedText(text)
+                        }
+                        storageManager={props.storageManager}
+                    />
+                )}
             </MainContent>
         </Container>
     )
@@ -242,7 +281,6 @@ const Subtitle = styled.p`
 const MainContent = styled.div`
     display: flex;
     flex: 1;
-    gap: 20px;
     overflow: hidden;
 `
 
@@ -365,7 +403,6 @@ const ResultsList = styled.div`
 
 const ResultsListInner = styled.div`
     width: 100%;
-    height: 100%;
     max-width: ${RESULTS_LIST_MAX_WIDTH}px;
     gap: 10px;
     display: flex;
@@ -377,4 +414,20 @@ const ResultsListInner = styled.div`
 const ReaderContainer = styled.div`
     width: 100%;
     height: 100%;
+`
+
+const BottomBox = styled.div`
+    position: absolute;
+    width: 100%;
+    height: 10%;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: linear-gradient(180deg, rgba(17, 19, 23, 0) 0%, #111317 67.51%);
+    padding: 0 20px 20px 20px;
+    box-sizing: border-box;
+    justify-content: center;
+    align-items: flex-end;
+    display: flex;
 `

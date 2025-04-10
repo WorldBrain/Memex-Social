@@ -7,9 +7,22 @@ import Markdown from '../../common-ui/components/markdown'
 import { RGBAobjectToString } from '@worldbrain/memex-common/lib/common-ui/components/highlightColorPicker/utils'
 import AnnotationEdit from '@worldbrain/memex-common/lib/content-conversations/ui/components/annotation-edit'
 import { theme } from '../../main-ui/styles/theme'
+import { HIGHLIGHT_COLORS_DEFAULT } from '@worldbrain/memex-common/lib/common-ui/components/highlightColorPicker/constants'
+import { DEFAULT_HIGHLIGHT_COLOR } from '@worldbrain/memex-common/lib/annotations/constants'
 
 export default function AnnotationItem(props: AnnotationItemDependencies) {
-    const { logic, state } = useLogic(() => new AnnotationItemLogic(props))
+    const { logic, state } = useLogic(AnnotationItemLogic, props)
+
+    const annotation = props.annotation
+
+    annotation.color = HIGHLIGHT_COLORS_DEFAULT.find(
+        (color) => color.id === annotation.color,
+    )?.color
+
+    if (!annotation.color) {
+        annotation.color = DEFAULT_HIGHLIGHT_COLOR
+    }
+
     return (
         <ItemBox
             onMouseOver={() => logic.setIsHovering(true)}
@@ -21,12 +34,8 @@ export default function AnnotationItem(props: AnnotationItemDependencies) {
                     {!state.isScreenshotAnnotation && (
                         <HighlightBar
                             color={
-                                props.annotation.color
-                                    ? RGBAobjectToString(
-                                          JSON.parse(
-                                              props.annotation.color as string,
-                                          )[0],
-                                      )
+                                annotation.color
+                                    ? RGBAobjectToString(annotation.color)
                                     : theme.colors.prime2
                             }
                         />
@@ -34,27 +43,13 @@ export default function AnnotationItem(props: AnnotationItemDependencies) {
                     <HighlightContainer
                         isScreenshotAnnotation={state.isScreenshotAnnotation}
                     >
-                        {props.annotation.color &&
-                            JSON.parse(props.annotation.color as string)[1] !=
-                                null && (
-                                <HighlightLabelPill
-                                    color={
-                                        props.annotation.color &&
-                                        RGBAobjectToString(
-                                            JSON.parse(
-                                                props.annotation
-                                                    .color as string,
-                                            )[0],
-                                        )
-                                    }
-                                >
-                                    {
-                                        JSON.parse(
-                                            props.annotation.color as string,
-                                        )[1]
-                                    }
-                                </HighlightLabelPill>
-                            )}
+                        {/* {props.annotation.color && (
+                            <HighlightLabelPill
+                                color={RGBAobjectToString(annotation.color)}
+                            >
+                                Highlight
+                            </HighlightLabelPill>
+                        )} */}
                         <MarkdownBox
                             isHighlight
                             isScreenshotAnnotation={

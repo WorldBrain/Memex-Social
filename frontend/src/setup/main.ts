@@ -15,7 +15,6 @@ import { RouteName } from '../routes'
 import { createYoutubeServiceOptions } from '@worldbrain/memex-common/lib/services/youtube/library'
 import type { GenerateServerID } from '@worldbrain/memex-common/lib/content-sharing/service/types'
 import { normalizeUrl } from '@worldbrain/memex-common/lib/url-utils/normalize'
-import { LLMEndpointsService } from '@worldbrain/memex-common/lib/llm-endpoints'
 
 export async function mainProgram(
     options: MainProgramOptions,
@@ -58,12 +57,9 @@ export async function mainProgram(
         changeWatcher: storageHooksChangeWatcher,
     })
 
-    const aiChat = new LLMEndpointsService()
-
     const services = createServices({
         ...options,
         fetch,
-        aiChat,
         firebase,
         firebaseModular: {
             getFunctions,

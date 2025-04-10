@@ -92,14 +92,13 @@ export type ReaderViewState = {
     role: 'owner' | 'viewer' | 'collaborator'
 }
 
-export class ReaderViewLogic extends Logic<ReaderViewState> {
+export class ReaderViewLogic extends Logic<
+    ReaderViewDependencies,
+    ReaderViewState
+> {
     iframe: HTMLIFrameElement | null = null
     private highlightRenderer!: HighlightRenderer
     private iframeSetupResolvable = createResolvable()
-
-    constructor(public props: ReaderViewDependencies) {
-        super()
-    }
 
     getInitialState = (): ReaderViewState => ({
         loadState: 'pristine',
@@ -114,7 +113,7 @@ export class ReaderViewLogic extends Logic<ReaderViewState> {
 
     async initialize() {
         await executeTask(this, 'loadState', async () => {
-            this.props.services.events.listen(async ({ annotationsLoaded }) => {
+            this.deps.services.events.listen(async ({ annotationsLoaded }) => {
                 // Handle the loaded annotations here
                 console.log(
                     'Reader frame received annotations:',
@@ -141,15 +140,15 @@ export class ReaderViewLogic extends Logic<ReaderViewState> {
             return
         }
 
-        const isPdf = doesUrlPointToPdf(this.props.sourceUrl!)
-        // this.props.pdfBlob != null
+        const isPdf = doesUrlPointToPdf(this.deps.sourceUrl!)
+        // this.deps.pdfBlob != null
 
         let pdfJsViewer
         await executeTask(this, 'loadState', async () => {
             if (isPdf) {
                 this.iframe = utils.createIframeForPDFViewer()
             } else {
-                const url = this.props.sourceUrl
+                const url = this.deps.sourceUrl
                 this.iframe = utils.createReaderIframe()
 
                 // const scope = window.location.pathname
@@ -220,8 +219,8 @@ export class ReaderViewLogic extends Logic<ReaderViewState> {
 
             if (isPdf) {
                 const isLocalPDF =
-                    this.props.sourceUrl != null &&
-                    this.props.sourceUrl.includes('memex.cloud/ct/')
+                    this.deps.sourceUrl != null &&
+                    this.deps.sourceUrl.includes('memex.cloud/ct/')
                 // Get PDFViewer from now-loaded iframe
                 pdfJsViewer = (this.iframe.contentWindow as any)[
                     'PDFViewerApplication'
@@ -239,7 +238,7 @@ export class ReaderViewLogic extends Logic<ReaderViewState> {
                 } else {
                     await utils.loadPDFInViewer(
                         pdfJsViewer,
-                        this.props.sourceUrl!,
+                        this.deps.sourceUrl!,
                     )
                 }
             }
@@ -319,7 +318,7 @@ export class ReaderViewLogic extends Logic<ReaderViewState> {
         iframe?: HTMLIFrameElement | null,
     ) => {
         if (state?.currentUserReference == null) {
-            this.props.services.auth.requestAuth({
+            this.deps.services.auth.requestAuth({
                 reason: 'login-requested',
             })
             return
@@ -356,7 +355,7 @@ export class ReaderViewLogic extends Logic<ReaderViewState> {
                             openInEditMode: false,
                             screenShotAnchor: screenshotGrabResult.anchor,
                             screenShotImage: screenshotGrabResult.screenshot,
-                            imageSupport: this.props.imageSupport,
+                            imageSupport: this.deps.imageSupport,
                             state,
                         }),
                     )
@@ -369,7 +368,7 @@ export class ReaderViewLogic extends Logic<ReaderViewState> {
                     openInEditMode: false,
                     screenShotAnchor: undefined,
                     screenShotImage: undefined,
-                    imageSupport: this.props.imageSupport,
+                    imageSupport: this.deps.imageSupport,
                     state,
                 }),
             )
@@ -429,7 +428,7 @@ export class ReaderViewLogic extends Logic<ReaderViewState> {
         state?: ReaderPageViewState
     }): SaveAndRenderHighlightDeps => {
         const currentUser =
-            this.props.services.auth.getCurrentUserReference() ?? undefined
+            this.deps.services.auth.getCurrentUserReference() ?? undefined
         if (!currentUser) {
             throw new Error('No user logged in')
         }
@@ -456,18 +455,18 @@ export class ReaderViewLogic extends Logic<ReaderViewState> {
 
     scheduleAnnotationCreation = async (annotationData, openInEditMode) => {
         const normalizedPageUrl = normalizeUrl(annotationData.fullPageUrl, {})
-        const creator = this.props.services.auth.getCurrentUserReference()
+        const creator = this.deps.services.auth.getCurrentUserReference()
         if (!creator) {
             throw new Error('No user logged in')
         }
-        const annotationId = this.props.generateServerId('sharedAnnotation')
+        const annotationId = this.deps.generateServerId('sharedAnnotation')
         const annotationRef: SharedAnnotationReference = {
             type: 'shared-annotation-reference',
             id: annotationId,
         }
         const listRef: SharedListReference = {
             type: 'shared-list-reference',
-            id: this.props.listId,
+            id: this.deps.listId,
         }
 
         let sanitizedAnnotation
@@ -484,7 +483,7 @@ export class ReaderViewLogic extends Logic<ReaderViewState> {
                 sanitizedAnnotation,
                 normalizedPageUrl,
                 annotationId,
-                this.props.imageSupport,
+                this.deps.imageSupport,
                 false,
             )
         }
@@ -510,7 +509,7 @@ export class ReaderViewLogic extends Logic<ReaderViewState> {
         })
 
         // Schedule DB entry creation
-        const createPromise = this.props.storage.contentSharing
+        const createPromise = this.deps.storage.contentSharing
             .createAnnotations({
                 creator,
                 annotationsByPage: {
@@ -528,7 +527,7 @@ export class ReaderViewLogic extends Logic<ReaderViewState> {
                 listReferences: [
                     {
                         type: 'shared-list-reference',
-                        id: this.props.listId,
+                        id: this.deps.listId,
                     },
                 ],
             })

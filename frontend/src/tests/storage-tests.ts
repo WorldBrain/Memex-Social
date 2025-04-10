@@ -12,7 +12,6 @@ import { ProgramQueryParams } from '../setup/types'
 import { mockClipboardAPI } from '../services/clipboard/mock'
 import fetchPDFData from '@worldbrain/memex-common/lib/page-indexing/fetch-page-data/fetch-pdf-data.node'
 import { normalizeUrl } from '@worldbrain/memex-common/lib/url-utils/normalize'
-import { LLMEndpointsService } from '@worldbrain/memex-common/lib/llm-endpoints'
 import { AiChatService } from '@worldbrain/memex-common/lib/ai-chat/service'
 
 export interface StorageTestDevice {

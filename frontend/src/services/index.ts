@@ -50,7 +50,6 @@ import { PdfUploadService } from '@worldbrain/memex-common/lib/pdf/uploads/servi
 import type { GenerateServerID } from '@worldbrain/memex-common/lib/content-sharing/service/types'
 import { BlueskyService } from '@worldbrain/memex-common/lib/bsky/service'
 import type { BlueskyServiceInterface } from '@worldbrain/memex-common/lib/bsky/service/types'
-import type { AiChatServiceInterface } from '@worldbrain/memex-common/lib/ai-chat/service/types'
 import { AiChatService } from '@worldbrain/memex-common/lib/ai-chat/service'
 import { ThemeService } from './theme'
 import { CacheService } from './cache'
@@ -61,7 +60,6 @@ export function createServices(options: {
     fetch: typeof fetch
     storage: Storage
     history: History
-    aiChat: AiChatServiceInterface
     queryParams: ProgramQueryParams
     localStorage: LimitedWebStorage
     uiMountPoint?: Element

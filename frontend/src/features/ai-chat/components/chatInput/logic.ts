@@ -4,6 +4,7 @@ import { StorageModules } from '../../../../storage/types'
 import { Logic } from '../../../../utils/logic'
 import { executeTask, TaskState } from '../../../../utils/tasks'
 import StorageManager from '@worldbrain/storex'
+import { AvailableModels } from '@worldbrain/memex-common/lib/ai-chat/constants'
 
 export interface ChatInputDependencies {
     services: UIElementServices<
@@ -48,16 +49,21 @@ export interface ChatInputDependencies {
 export type ChatInputState = {
     loadState: TaskState
     message: string
+    showModelSelector: boolean
+    selectedModel: typeof AvailableModels[number]
+    editorOptionsExpanded: boolean
 }
 
-export class ChatInputLogic extends Logic<ChatInputState> {
-    constructor(public props: ChatInputDependencies) {
-        super()
-    }
-
+export class ChatInputLogic extends Logic<
+    ChatInputDependencies,
+    ChatInputState
+> {
     getInitialState = (): ChatInputState => ({
         loadState: 'pristine',
         message: '',
+        showModelSelector: false,
+        selectedModel: AvailableModels[0],
+        editorOptionsExpanded: false,
     })
 
     async initialize() {
@@ -65,7 +71,19 @@ export class ChatInputLogic extends Logic<ChatInputState> {
     }
 
     sendMessage = (message: string) => {
-        this.props.sendMessage(message)
+        this.deps.sendMessage(message)
+    }
+
+    setSelectedModel = (model: typeof AvailableModels[number]) => {
+        this.setState({ selectedModel: model })
+    }
+
+    setShowModelSelector = (show: boolean) => {
+        this.setState({ showModelSelector: show })
+    }
+
+    focusEditor = () => {
+        this.setState({ editorOptionsExpanded: true })
     }
 
     updateMessage = (message: string) => {

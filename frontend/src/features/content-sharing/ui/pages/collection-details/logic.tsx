@@ -286,7 +286,6 @@ export default class CollectionDetailsLogic extends UILogic<
                     listId: this.dependencies.listID,
                 },
             )
-            console.log('response listdets', response)
 
             for await (const chunk of this.dependencies.services.aiChat.getAiChatResponse(
                 {

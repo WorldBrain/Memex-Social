@@ -5,12 +5,30 @@ import { Logic } from '../../utils/logic'
 import { executeTask, TaskState } from '../../utils/tasks'
 import StorageManager from '@worldbrain/storex'
 import {
+    AiChatMessage,
+    AiChatMessageAssistantClient,
+    AiChatMessageUserClient,
+    AiChatModels,
     AiChatReference,
     AiChatResponseChunk,
-    AiChatResponseClient,
-    AiChatThreadClient,
     GetAiChatResponseRequest,
+    StreamAiChatReplyRequest,
 } from '@worldbrain/memex-common/lib/ai-chat/service/types'
+import {
+    AvailableModels,
+    LOCAL_STORAGE_MODEL_KEY,
+    mockChunks,
+} from '@worldbrain/memex-common/lib/ai-chat/constants'
+interface ChatMessage {
+    threadId: string
+    messageId: string
+    message: string | AiChatResponseChunk[]
+    role: 'user' | 'assistant'
+    context?: {
+        spaceId: string
+    }
+}
+
 export interface AiChatDependencies {
     listId: string
     initialChatMessage: string | null
@@ -54,21 +72,27 @@ export interface AiChatDependencies {
     storageManager: StorageManager
 }
 
-export type AiChatState = {
-    loadState: TaskState
-    thread: AiChatThreadClient | null
-    references: AiChatReference[]
+function isValidModel(model: string | null): model is AiChatModels {
+    return model != null && AvailableModels.some((m) => m.id === model)
 }
 
-export class AiChatLogic extends Logic<AiChatState> {
-    constructor(public props: AiChatDependencies) {
-        super()
-    }
-
+export type AiChatState = {
+    loadState: TaskState
+    thread: {
+        threadId: string
+        messages: AiChatMessage[]
+    } | null
+    references: AiChatReference[]
+    model: AiChatModels
+    editingMessageId: string | null
+}
+export class AiChatLogic extends Logic<AiChatDependencies, AiChatState> {
     getInitialState = (): AiChatState => ({
         loadState: 'pristine',
         thread: null,
         references: [],
+        model: 'gpt-4o-mini',
+        editingMessageId: null,
     })
 
     async initialize() {
@@ -77,154 +101,160 @@ export class AiChatLogic extends Logic<AiChatState> {
             const thread = {
                 threadId: threadId,
                 messages: [],
-            } as AiChatThreadClient
+            }
 
             this.setState({ thread })
-            if (this.props.initialChatMessage) {
-                this.sendMessage(this.props.initialChatMessage)
+            if (this.deps.initialChatMessage) {
+                await this.sendMessage(this.deps.initialChatMessage)
+            }
+
+            const storedModel = localStorage.getItem(LOCAL_STORAGE_MODEL_KEY)
+            if (isValidModel(storedModel)) {
+                this.setState({ model: storedModel })
             }
         })
+    }
+
+    async *mockAiChatResponse(): AsyncGenerator<AiChatResponseChunk> {
+        for (const chunk of mockChunks) {
+            await new Promise((resolve) => setTimeout(resolve, 500))
+            yield chunk
+        }
+    }
+
+    async getAiChatResponseWithMock(
+        userMessage: StreamAiChatReplyRequest,
+        useMock: boolean = true,
+    ): Promise<AsyncIterableIterator<AiChatResponseChunk>> {
+        if (useMock) {
+            return this.mockAiChatResponse()
+        }
+        return this.deps.services.aiChat.streamAiChatReply(userMessage)
     }
 
     generateChatId = () => {
         return `chat-${Date.now()}`
     }
+
     generateMessageId = () => {
         return `message-${Date.now()}`
     }
 
     sendMessage = async (message: string) => {
-        const lastId = this.state.thread?.messages.length
-            ? this.state.thread.messages[this.state.thread.messages.length - 1]
-                  .messageId
-            : 0
+        if (!this.state.thread) {
+            return
+        }
 
-        const newMessage = {
-            threadId: this.state.thread!.threadId,
-            messageId: this.generateChatId(),
-            message: message,
-            role: 'user' as const,
+        const newMessage: AiChatMessageUserClient = {
+            threadId: this.state.thread.threadId,
+            messageId: this.generateMessageId(),
+            content: message,
+            role: 'user',
             context: {
-                spaceId: this.props.listId,
+                spaceId: this.deps.listId,
             },
         }
 
         const existingThread = this.state.thread
 
-        if (!existingThread) {
-            this.setState({
-                thread: {
-                    id: this.generateChatId(),
-                    messages: [newMessage],
-                },
-            })
-        } else {
-            const updatedThread = {
-                ...existingThread,
-                messages: [...existingThread.messages, newMessage],
-            }
-            this.setState({ thread: updatedThread })
+        const updatedThread = {
+            ...existingThread,
+            messages: [...existingThread.messages, newMessage],
         }
+        this.setState({ thread: updatedThread })
 
-        const userMessage: GetAiChatResponseRequest = {
+        const userMessage: AiChatMessageUserClient = {
             role: 'user',
             parentMessageId: null,
-            threadId: this.state.thread!.threadId,
-            messageId: newMessage.messageId.toString(),
-            message: newMessage.message,
-            options: {
-                temperature: 0.5,
-                model: 'gpt-4o-mini',
-            },
+            threadId: this.state.thread.threadId,
+            messageId: newMessage.messageId,
+            content: newMessage.message as string,
+            temperature: 0.5,
+            model: 'gpt-4o-mini',
             context: {
-                sharedListIds: [this.props.listId],
-                pageUrls: [],
-                text: newMessage.message,
+                sharedListIds: [this.deps.listId],
             },
         }
 
-        const response = this.props.services.aiChat.getAiChatResponse({
-            ...userMessage,
+        const response = await this.getAiChatResponseWithMock(userMessage, true)
+        const chunks: AiChatResponseChunk[] = []
+
+        const assistantMessage: AiChatMessageAssistantClient = {
+            parentMessageId: null,
+            messageId: this.generateMessageId(),
+            content: chunks,
+            role: 'assistant',
+        }
+
+        this.setState({
+            thread: {
+                ...this.state.thread,
+                messages: [...this.state.thread.messages, assistantMessage],
+            },
         })
-        this.updateThread(userMessage, 'user')
+
         for await (const chunk of response) {
-            console.log('chunk', chunk)
-            this.updateThread(chunk as AiChatResponseChunk, 'assistant')
-        }
-    }
-
-    updateThread = (
-        message: AiChatResponseChunk | GetAiChatResponseRequest,
-        type: 'assistant' | 'user',
-    ) => {
-        console.log('thread', this.state.thread)
-        if (!this.state.thread) return
-        if (type === 'assistant') {
-            // Create a new array with all messages except the last one
-            let messages = this.state.thread.messages
-            let lastMessage = this.state.thread.messages[
-                this.state.thread.messages.length - 1
-            ]
-
-            if (lastMessage.role === 'assistant') {
-                messages = this.state.thread.messages.slice(0, -1)
-            }
-
-            // Add updated last message
-            const updatedLastMessage: AiChatResponseClient = {
-                role: 'assistant',
-                messageId: lastMessage.messageId,
-                message: [...lastMessage.message, message],
-            }
-
-            console.log('updatedLastMessage', updatedLastMessage)
-
-            const updatedThread = {
-                threadId: this.state.thread.threadId,
-                messages: [...messages, updatedLastMessage],
-            }
-            this.setState({ thread: updatedThread })
-            return
-        }
-        if (type === 'user') {
-            const updatedThread = {
-                threadId: this.state.thread.threadId,
-                messages: [...this.state.thread.messages, message],
-            }
-            this.setState({ thread: updatedThread })
+            chunks.push(chunk)
+            this.setState({
+                thread: {
+                    ...this.state.thread,
+                    messages: this.state.thread.messages.map((msg) =>
+                        msg.messageId === assistantMessage.messageId
+                            ? { ...msg, content: chunks }
+                            : msg,
+                    ),
+                },
+            })
         }
     }
 
     openReference = async (reference: AiChatReference) => {
-        console.log('reference2', reference)
         if (reference.type === 'page') {
+            this.deps.services.events.emit({
+                openReference: {
+                    type: 'page',
+                    id: reference.id,
+                },
+            })
         } else if (reference.type === 'annotation') {
-            console.log('reference.reference', reference.id, this.props.listId)
-            try {
-                const annotationsResult = await this.props.services.contentSharing.backend.loadAnnotationsWithThreads(
-                    {
-                        listId: this.props.listId,
-                        annotationIds: {
-                            'en.wikipedia.org/wiki/World_Programme_for_the_Census_of_Agriculture': [
-                                reference.id,
-                            ],
-                        },
-                    },
-                )
-
-                console.log('annotationsResult', annotationsResult)
-                const annotation = await this.props.storage.contentSharing.getAnnotation(
-                    {
-                        reference: {
-                            id: reference.id,
-                            type: 'shared-annotation-reference',
-                        },
-                    },
-                )
-                console.log('annotation', annotation)
-            } catch (error) {
-                console.error('error', error)
-            }
+            this.deps.services.events.emit({
+                openReference: {
+                    type: 'annotation',
+                    id: reference.id,
+                },
+            })
         }
+    }
+
+    async setModel(model: AiChatModels) {
+        this.setState({ model })
+    }
+
+    editMessage = (messageId: string) => {
+        this.setState({ editingMessageId: messageId })
+    }
+
+    cancelEdit = () => {
+        this.setState({ editingMessageId: null })
+    }
+
+    updateMessage = async (messageId: string, newContent: string) => {
+        if (!this.state.thread) {
+            return
+        }
+
+        const updatedThread = {
+            ...this.state.thread,
+            messages: this.state.thread.messages.map((msg) =>
+                msg.messageId === messageId
+                    ? { ...msg, content: newContent }
+                    : msg,
+            ),
+        }
+
+        this.setState({
+            thread: updatedThread,
+            editingMessageId: null,
+        })
     }
 }

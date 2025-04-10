@@ -1,31 +1,14 @@
 import React from 'react'
 import styled, { css, keyframes } from 'styled-components'
-import { UIElement } from '../../../main-ui/classes'
-import {
-    ReaderPageViewDependencies,
-    ReaderPageViewEvent,
-    ReaderPageViewState,
-} from './types'
-import { ReaderPageViewLogic } from './logicOld'
-import {
-    getPageLinkPath,
-    getWebUIBaseUrl,
-} from '@worldbrain/memex-common/lib/content-sharing/utils'
 import LoadingIndicator from '@worldbrain/memex-common/lib/common-ui/components/loading-indicator'
 import { getReaderYoutubePlayerId } from '../utils/utils'
-import { ViewportBreakpoint } from '@worldbrain/memex-common/lib/common-ui/styles/types'
-import { getViewportBreakpoint } from '@worldbrain/memex-common/lib/common-ui/styles/utils'
-import { MemexEditorInstance } from '@worldbrain/memex-common/lib/editor'
-import { hasUnsavedAnnotationEdits } from '../../annotations/ui/logic'
-import { hasUnsavedConversationEdits } from '../../content-conversations/ui/logic'
-import { sleepPromise } from '../../../utils/promises'
 import { normalizeUrl } from '@worldbrain/memex-url-utils/lib/normalize'
 import { ReaderViewDependencies } from './logic'
 import { useLogic } from '../../../hooks/useLogic'
 import { ReaderViewLogic } from './logic'
 
 export default function ReaderView(props: ReaderViewDependencies) {
-    const { logic, state } = useLogic(() => new ReaderViewLogic(props))
+    const { logic, state } = useLogic(ReaderViewLogic, props)
 
     const isYoutubeMobile = false
 

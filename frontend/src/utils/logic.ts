@@ -1,11 +1,16 @@
 import { EventEmitter, EventListener } from './events'
 
-export abstract class Logic<State> {
+export abstract class Logic<Deps, State> {
     // TODO: Document
     cleanupFns: Array<() => void> = []
 
+    constructor(public deps: Deps) {}
+
     abstract getInitialState(): State
     async initialize(): Promise<void> {}
+    shouldReload(oldDeps: Deps, newDeps: Deps): boolean {
+        return false
+    }
     async cleanup(): Promise<void> {}
     getState(): State {
         throw new Error('useLogic hook is supposed to override this')

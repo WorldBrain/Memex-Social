@@ -36,6 +36,7 @@ import { ContentSharingQueryParams } from '../features/content-sharing/types'
 import { GenerateServerID } from '@worldbrain/memex-common/lib/content-sharing/service/types'
 import { URLNormalizer } from '@worldbrain/memex-common/lib/url-utils/normalize/types'
 import { getRoutePartGroups } from '../services/router/routes'
+import { AiChatReference } from '@worldbrain/memex-common/lib/ai-chat/service/types'
 
 const LIST_DESCRIPTION_CHAR_LIMIT = 400
 
@@ -119,26 +120,23 @@ export type DashboardState = {
     isListOwner: boolean
     showLeftSideBar: boolean
     showRightSideBar: boolean
+    referenceToShow: {
+        type: 'annotation' | 'page'
+        id: string
+    } | null
     rightSideBarWidth: number
     pageToShowNotesFor: string | null
     screenState: 'ai' | 'results' | 'reader' | null
     initialChatMessage: string | null
+    showAddContentOverlay: boolean
 }
 
-export class DashboardLogic extends Logic<DashboardState> {
+export class DashboardLogic extends Logic<
+    DashboardDependencies,
+    DashboardState
+> {
     private personalCloudStorageUtils: UploadStorageUtils | null = null
     private _users: UserProfileCache
-
-    constructor(public props: DashboardDependencies) {
-        super()
-
-        this._users = new UserProfileCache({
-            ...props,
-            onUsersLoad: (users) => {
-                this.props.services.cache.setKey('users', users)
-            },
-        })
-    }
 
     getInitialState = (): DashboardState => {
         const { listId, entryId, noteId } = this.parsePathParams()
@@ -176,17 +174,26 @@ export class DashboardLogic extends Logic<DashboardState> {
             newPageReplies: {},
             showLeftSideBar: false,
             showRightSideBar: entryId ? true : false,
+            referenceToShow: null,
             rightSideBarWidth: 450,
             pageToShowNotesFor: null,
             screenState: entryId ? 'reader' : 'results',
+            showAddContentOverlay: false,
         }
     }
 
     async initialize() {
         await executeTask(this, 'loadState', async () => {
+            this._users = new UserProfileCache({
+                ...this.deps,
+                onUsersLoad: (users) => {
+                    this.deps.services.cache.setKey('users', users)
+                },
+            })
             this.startPathnameListener()
             await this.getCurrentUserReference()
             await this.load()
+
             if (this.state.currentEntryId) {
                 const currentResult = this.state.results.find(
                     (entry) => entry.reference.id === this.state.currentEntryId,
@@ -200,6 +207,14 @@ export class DashboardLogic extends Logic<DashboardState> {
                     this.loadReader(currentResult)
                 }
             }
+            this.deps.services.events.listen((data) => {
+                if (
+                    data.openReference &&
+                    data.openReference.type === 'annotation'
+                ) {
+                    this.showReference(data.openReference)
+                }
+            })
         })
     }
 
@@ -250,7 +265,7 @@ export class DashboardLogic extends Logic<DashboardState> {
     }
 
     async getCurrentUserReference() {
-        const userReference = this.props.services.auth.getCurrentUserReference()
+        const userReference = this.deps.services.auth.getCurrentUserReference()
         this.setState({
             currentUserReference: userReference,
         })
@@ -262,14 +277,14 @@ export class DashboardLogic extends Logic<DashboardState> {
             return
         }
 
-        const response = await this.props.services.contentSharing.backend.loadCollectionDetails(
+        const response = await this.deps.services.contentSharing.backend.loadCollectionDetails(
             {
                 listId: this.state.currentListId,
             },
         )
         if (response.status !== 'success') {
             if (response.status === 'permission-denied') {
-                const keyString = this.props.services.listKeys.getCurrentKey()
+                const keyString = this.deps.services.listKeys.getCurrentKey()
                 await this.loadUsers(
                     [
                         {
@@ -289,7 +304,7 @@ export class DashboardLogic extends Logic<DashboardState> {
                     listRoles: [],
                     permissionDenied: permissionDeniedData,
                 })
-                const { auth } = this.props.services
+                const { auth } = this.deps.services
                 const currentUser = auth.getCurrentUser()
                 // if (!currentUser) {
                 //     await auth.requestAuth({
@@ -309,6 +324,8 @@ export class DashboardLogic extends Logic<DashboardState> {
             return
         }
         const { data } = response
+
+        console.log('data', data)
         const { retrievedList } = data
 
         const listDescription = retrievedList.sharedList.description ?? ''
@@ -317,7 +334,7 @@ export class DashboardLogic extends Logic<DashboardState> {
         let blueskyList: BlueskyList | null = null
         let isChatIntegrationSyncing = false
         if (retrievedList.sharedList.platform === 'bsky') {
-            blueskyList = await this.props.storage.bluesky.findBlueskyListBySharedList(
+            blueskyList = await this.deps.storage.bluesky.findBlueskyListBySharedList(
                 {
                     sharedList: retrievedList.sharedList.reference,
                 },
@@ -332,13 +349,13 @@ export class DashboardLogic extends Logic<DashboardState> {
             results: [...this.state.results, ...retrievedList.entries],
         })
 
-        await this.props.services.auth.waitForAuthReady()
-        const userReference = this.props.services.auth.getCurrentUserReference()
+        await this.deps.services.auth.waitForAuthReady()
+        const userReference = this.deps.services.auth.getCurrentUserReference()
         if (userReference) {
             this.personalCloudStorageUtils = await createPersonalCloudStorageUtils(
                 {
                     userId: userReference.id,
-                    storageManager: this.props.storageManager,
+                    storageManager: this.deps.storageManager,
                 },
             )
         }
@@ -438,7 +455,7 @@ export class DashboardLogic extends Logic<DashboardState> {
             userReferences,
             params.loadBlueskyUsers,
         )
-        this.props.services.cache.setKeys({
+        this.deps.services.cache.setKeys({
             users: result,
         })
 
@@ -454,7 +471,7 @@ export class DashboardLogic extends Logic<DashboardState> {
             await detectAnnotationConversationThreads(this as any, {
                 threads,
                 getThreadsForAnnotations: (...args) =>
-                    this.props.storage.contentConversations.getThreadsForAnnotations(
+                    this.deps.storage.contentConversations.getThreadsForAnnotations(
                         ...args,
                     ),
                 annotationReferences: Object.values(annotations).map(
@@ -464,7 +481,7 @@ export class DashboardLogic extends Logic<DashboardState> {
                     type: 'shared-list-reference',
                     id: this.state.currentListId,
                 },
-                imageSupport: this.props.imageSupport,
+                imageSupport: this.deps.imageSupport,
             })
             intializeNewPageReplies(this as any, {
                 normalizedPageUrls: [
@@ -472,9 +489,17 @@ export class DashboardLogic extends Logic<DashboardState> {
                         (annotation) => annotation.normalizedPageUrl,
                     ),
                 ],
-                imageSupport: this.props.imageSupport,
+                imageSupport: this.deps.imageSupport,
             })
         }
+    }
+
+    showReference(reference: AiChatReference) {
+        this.setState({
+            rightSideBarWidth: 450,
+            showRightSideBar: true,
+            referenceToShow: reference,
+        })
     }
 
     loadNotes(url: string) {
@@ -493,9 +518,7 @@ export class DashboardLogic extends Logic<DashboardState> {
             screenState: 'reader',
         })
 
-        console.log('result', result)
-
-        this.props.services.router.goTo('dashboard', {
+        this.deps.services.router.goTo('dashboard', {
             id: this.state.currentListId,
             entryId: result.reference.id,
         })
@@ -506,5 +529,41 @@ export class DashboardLogic extends Logic<DashboardState> {
             screenState: 'ai',
             initialChatMessage: message,
         })
+    }
+
+    toggleAddContentOverlay() {
+        this.setState({
+            showAddContentOverlay: !this.state.showAddContentOverlay,
+        })
+    }
+
+    handleDroppedFiles(files: File[]) {
+        console.log('files', files)
+    }
+
+    async handlePastedText(text: string) {
+        console.log('text', text, this.state.currentListId)
+        if (!this.state.currentListId) {
+            return
+        }
+
+        // Extract URLs from text using regex
+        const urlRegex = /(https?:\/\/[^\s]+)/g
+        const urls = text.match(urlRegex) || []
+
+        if (urls.length === 0) {
+            return
+        }
+
+        const addedEntry = await this.deps.services.contentSharing.backend.addRemoteUrlsToList(
+            {
+                listReference: {
+                    id: this.state.currentListId,
+                    type: 'shared-list-reference',
+                },
+                fullPageUrls: urls,
+            },
+        )
+        console.log('addedEntry', addedEntry)
     }
 }

@@ -1,55 +1,96 @@
-import React from 'react'
+import React, { useRef } from 'react'
 import styled, { css } from 'styled-components'
 import { useLogic } from '../../hooks/useLogic'
 import { AiChatDependencies, AiChatLogic } from './logic'
-import { AiChatResponseClient } from '@worldbrain/memex-common/lib/llm-endpoints/types'
-import { AiChatMessageClient } from '@worldbrain/memex-common/lib/llm-endpoints/types'
 import ChatInput from './components/chatInput'
-import { Colors } from '../../constants/Colors'
+import {
+    AiChatMessageAssistantClient,
+    AiChatMessage,
+    AiChatResponseChunk,
+    AiChatReference,
+} from '@worldbrain/memex-common/lib/ai-chat/service/types'
+
 export default function AiChat(props: AiChatDependencies) {
-    const { logic, state } = useLogic(() => new AiChatLogic(props))
+    const { logic, state } = useLogic(AiChatLogic, props)
+    const messagesRef = useRef<HTMLDivElement[]>([])
 
     let referenceIndex = 0
 
-    const renderAssistantMessage = (message: AiChatResponseClient) => {
-        return message.message.map((chunk, chunkIndex) => {
-            console.log('chunk', chunk)
+    const renderAssistantMessage = (message: AiChatMessageAssistantClient) => {
+        return message.content.map(
+            (chunk: AiChatResponseChunk, chunkIndex: number) => {
+                if (
+                    chunk.type === 'header' ||
+                    chunk.type === 'paragraph' ||
+                    chunk.type === 'list'
+                ) {
+                    return (
+                        <AssistantMessage type={chunk.type} key={chunk.text}>
+                            {chunk.text}{' '}
+                            {chunk.references?.map(
+                                (reference: AiChatReference, index: number) => {
+                                    referenceIndex++
+                                    return (
+                                        <ReferencePill
+                                            onClick={() =>
+                                                logic.openReference(reference)
+                                            }
+                                            key={reference.id}
+                                        >
+                                            {referenceIndex}
+                                        </ReferencePill>
+                                    )
+                                },
+                            )}
+                        </AssistantMessage>
+                    )
+                }
+                return null
+            },
+        )
+    }
+
+    const renderUserMessage = (message: AiChatMessage) => {
+        if (state.editingMessageId === message.messageId) {
             return (
-                <AssistantMessage type={chunk.type} key={chunk.text}>
-                    {chunk.text}{' '}
-                    {chunk.references?.map((reference, index) => {
-                        referenceIndex++
-                        console.log('reference', reference)
-                        return (
-                            <ReferencePill
-                                onClick={() => logic.openReference(reference)}
-                                key={reference.id}
-                            >
-                                {referenceIndex}
-                            </ReferencePill>
-                        )
-                    })}
-                </AssistantMessage>
+                <ChatInput
+                    services={props.services}
+                    storage={props.storage}
+                    imageSupport={props.imageSupport}
+                    getRootElement={props.getRootElement}
+                    storageManager={props.storageManager}
+                    initialMessage={message.content}
+                    sendMessage={(newContent: string) => {
+                        logic.sendMessage(message.messageId)
+                    }}
+                    onCancel={() => logic.cancelEdit()}
+                />
             )
-        })
+        }
+
+        return (
+            <UserMessageContainer>
+                <UserMessageContent>{message.content}</UserMessageContent>
+                <EditButton
+                    onClick={() => logic.editMessage(message.messageId)}
+                >
+                    Edit
+                </EditButton>
+            </UserMessageContainer>
+        )
     }
 
-    const renderUserMessage = (message: AiChatMessageClient) => {
-        return <div key={message.messageId}>{message.message}</div>
-    }
-
-    console.log('state.thread', state.thread)
     return (
         <Container>
-            {state.thread?.messages.map(
-                (message: AiChatMessageClient | AiChatResponseClient) => (
+            {state.thread?.messages.map((message: AiChatMessage) => {
+                return (
                     <ChatMessage key={message.messageId}>
                         {message.role === 'assistant'
                             ? renderAssistantMessage(message)
                             : renderUserMessage(message)}
                     </ChatMessage>
-                ),
-            )}
+                )
+            })}
             <ChatInput
                 services={props.services}
                 storage={props.storage}
@@ -74,7 +115,7 @@ const ChatMessage = styled.div`
 `
 
 const AssistantMessage = styled.div<{
-    type: 'header' | 'paragraph' | 'error'
+    type: 'header' | 'paragraph' | 'list' | 'error'
 }>`
     color: ${(props) => props.theme.colors.greyScale7};
     opacity: 0;
@@ -109,4 +150,28 @@ const ReferencePill = styled.span`
     font-weight: 400;
     margin-left: 5px;
     width: fit-content;
+`
+
+const UserMessageContainer = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 10px;
+`
+
+const UserMessageContent = styled.div`
+    flex: 1;
+`
+
+const EditButton = styled.button`
+    background: transparent;
+    border: 1px solid ${(props) => props.theme.colors.greyScale3};
+    color: ${(props) => props.theme.colors.greyScale7};
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+
+    &:hover {
+        background: ${(props) => props.theme.colors.greyScale3};
+    }
 `

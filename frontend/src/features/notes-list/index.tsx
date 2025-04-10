@@ -7,7 +7,7 @@ import AnnotationItem from '../annotation-item'
 import LoadingIndicator from '../../common-ui/components/loading-indicator'
 
 export default function NotesList(props: NotesListDependencies) {
-    const { logic, state } = useLogic(() => new NotesListLogic(props))
+    const { logic, state } = useLogic(NotesListLogic, props)
 
     useEffect(() => {
         logic.loadAnnotations(props.url, props.annotationEntries)
