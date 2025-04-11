@@ -176,7 +176,10 @@ export class AiChatLogic extends Logic<AiChatDependencies, AiChatState> {
             },
         }
 
-        const response = await this.getAiChatResponseWithMock(userMessage, true)
+        const response = await this.getAiChatResponseWithMock(
+            userMessage,
+            false,
+        )
         const chunks: AiChatResponseChunk[] = []
 
         const assistantMessage: AiChatMessageAssistantClient = {

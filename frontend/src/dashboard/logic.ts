@@ -37,6 +37,7 @@ import { GenerateServerID } from '@worldbrain/memex-common/lib/content-sharing/s
 import { URLNormalizer } from '@worldbrain/memex-common/lib/url-utils/normalize/types'
 import { getRoutePartGroups } from '../services/router/routes'
 import { AiChatReference } from '@worldbrain/memex-common/lib/ai-chat/service/types'
+import { AutoPk } from '@worldbrain/memex-common/lib/storage/types'
 
 const LIST_DESCRIPTION_CHAR_LIMIT = 400
 
@@ -91,7 +92,7 @@ export interface DashboardDependencies {
 
 export type DashboardState = {
     currentUserReference: UserReference | null
-    currentListId: string | null
+    currentListId: string | null | AutoPk
     currentEntryId: string | null
     currentNoteId: string | null
     listData: {
@@ -184,27 +185,36 @@ export class DashboardLogic extends Logic<
 
     async initialize() {
         await executeTask(this, 'loadState', async () => {
-            this._users = new UserProfileCache({
-                ...this.deps,
-                onUsersLoad: (users) => {
-                    this.deps.services.cache.setKey('users', users)
-                },
-            })
-            this.startPathnameListener()
-            await this.getCurrentUserReference()
-            await this.load()
+            if (!this.state.currentListId) {
+                this.setState({
+                    screenState: 'results',
+                    showAddContentOverlay: true,
+                })
+                return
+            } else {
+                this._users = new UserProfileCache({
+                    ...this.deps,
+                    onUsersLoad: (users) => {
+                        this.deps.services.cache.setKey('users', users)
+                    },
+                })
+                this.startPathnameListener()
+                await this.getCurrentUserReference()
+                await this.load()
 
-            if (this.state.currentEntryId) {
-                const currentResult = this.state.results.find(
-                    (entry) => entry.reference.id === this.state.currentEntryId,
-                )
-                if (currentResult) {
-                    this.loadReader(currentResult)
-                }
-                const pageUrl = currentResult?.normalizedUrl
-                if (pageUrl) {
-                    this.loadNotes(pageUrl)
-                    this.loadReader(currentResult)
+                if (this.state.currentEntryId) {
+                    const currentResult = this.state.results.find(
+                        (entry) =>
+                            entry.reference.id === this.state.currentEntryId,
+                    )
+                    if (currentResult) {
+                        this.loadReader(currentResult)
+                    }
+                    const pageUrl = currentResult?.normalizedUrl
+                    if (pageUrl) {
+                        this.loadNotes(pageUrl)
+                        this.loadReader(currentResult)
+                    }
                 }
             }
             this.deps.services.events.listen((data) => {
@@ -543,7 +553,14 @@ export class DashboardLogic extends Logic<
 
     async handlePastedText(text: string) {
         console.log('text', text, this.state.currentListId)
-        if (!this.state.currentListId) {
+
+        let currentListId = this.state.currentListId ?? null
+        if (currentListId == null) {
+            currentListId = await this.createSpace()
+            console.log('currentListId', currentListId)
+        }
+
+        if (currentListId == null) {
             return
         }
 
@@ -558,12 +575,27 @@ export class DashboardLogic extends Logic<
         const addedEntry = await this.deps.services.contentSharing.backend.addRemoteUrlsToList(
             {
                 listReference: {
-                    id: this.state.currentListId,
+                    id: currentListId,
                     type: 'shared-list-reference',
                 },
                 fullPageUrls: urls,
             },
         )
         console.log('addedEntry', addedEntry)
+    }
+
+    async createSpace() {
+        console.log('creating space')
+        try {
+            const spaceId = await this.deps.services.contentSharing.backend.createSpace()
+            console.log('spaceId', spaceId)
+            this.setState({
+                currentListId: spaceId.remoteListId,
+            })
+            return spaceId.remoteListId
+        } catch (error) {
+            console.error('Error creating space', error)
+            return null
+        }
     }
 }

@@ -59,11 +59,9 @@ export default function AiChat(props: AiChatDependencies) {
                     imageSupport={props.imageSupport}
                     getRootElement={props.getRootElement}
                     storageManager={props.storageManager}
-                    initialMessage={message.content}
                     sendMessage={(newContent: string) => {
                         logic.sendMessage(message.messageId)
                     }}
-                    onCancel={() => logic.cancelEdit()}
                 />
             )
         }

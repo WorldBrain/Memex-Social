@@ -29,6 +29,7 @@ export default function ChatInput(props: ChatInputDependencies) {
                             key={model.id}
                             label={model.name}
                             type="glass"
+                            onClick={() => logic.selectModel(model)}
                         />
                     )
                 })}
@@ -69,7 +70,7 @@ export default function ChatInput(props: ChatInputDependencies) {
             <BottomBar>
                 {state.showModelSelector && renderModelSelector()}
                 <PrimaryAction
-                    label={state.selectedModel?.name}
+                    label={state.selectedModel?.name || 'Select Model'}
                     type="glass"
                     onClick={() => {
                         logic.setShowModelSelector(true)

@@ -39,7 +39,7 @@ const ROUTES: RouteMap = {
     dashboard: {
         path: [
             { literal: 'd' },
-            { placeholder: 'id' },
+            { optional: [{ placeholder: 'id' }] },
             {
                 optional: [
                     { literal: 'p' },
