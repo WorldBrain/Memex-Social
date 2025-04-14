@@ -8,19 +8,23 @@ export default function AddContentOverlay(
 ) {
     const { logic, state } = useLogic(AddContentOverlayLogic, props)
 
-    const handleClose = () => {
-        props.services.overlay.events.emit('closeRequest', { id: 0 })
-    }
-
     return (
         <Overlay>
-            <ContentContainer>
-                <Header>
-                    <Title>Add Content</Title>
-                    <CloseButton onClick={handleClose}>×</CloseButton>
-                </Header>
-                <MainContent>{/* Content will go here */}</MainContent>
-            </ContentContainer>
+            {state.loadState === 'running' ? (
+                <ContentContainer>
+                    <Title>Importing...</Title>
+                </ContentContainer>
+            ) : (
+                <ContentContainer>
+                    <Header>
+                        <Title>Add Content</Title>
+                        <CloseButton onClick={() => props.handleClose()}>
+                            ×
+                        </CloseButton>
+                    </Header>
+                    <MainContent>{/* Content will go here */}</MainContent>
+                </ContentContainer>
+            )}
         </Overlay>
     )
 }

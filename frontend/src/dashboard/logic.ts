@@ -105,7 +105,8 @@ export type DashboardState = {
         listEntries: CollectionDetailsListEntry[]
         listDescriptionState: 'collapsed' | 'fits'
     }
-    loadState: TaskState
+    importLoadState: UITaskState
+    loadState: UITaskState
     listRoleID?: SharedListRoleID
     listRoles?: Array<SharedListRole & { user: UserReference }>
     listKeyPresent?: boolean
@@ -406,6 +407,7 @@ export class DashboardLogic extends Logic<
             { loadBlueskyUsers: false },
         )
 
+        console.log('retrievedList.entries', retrievedList.entries)
         this.setState({
             currentUserReference: userReference,
             listData: {
@@ -572,7 +574,7 @@ export class DashboardLogic extends Logic<
             return
         }
 
-        const addedEntry = await this.deps.services.contentSharing.backend.addRemoteUrlsToList(
+        const addedEntries = await this.deps.services.contentSharing.backend.addRemoteUrlsToList(
             {
                 listReference: {
                     id: currentListId,
@@ -581,7 +583,18 @@ export class DashboardLogic extends Logic<
                 fullPageUrls: urls,
             },
         )
-        console.log('addedEntry', addedEntry)
+        console.log('addedEntries', addedEntries)
+        const newListEntries = [
+            ...this.state.listData.listEntries,
+            ...Object.values(addedEntries),
+        ]
+        this.setState({
+            listData: {
+                ...this.state.listData,
+                listEntries: newListEntries,
+            },
+        })
+        return newListEntries
     }
 
     async createSpace() {

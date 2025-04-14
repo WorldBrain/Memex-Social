@@ -43,7 +43,8 @@ export interface AddContentOverlayDependencies {
     getRootElement: () => HTMLElement
     storageManager: StorageManager
     handleDroppedFiles: (files: File[]) => Promise<void>
-    handlePastedText: (text: string) => Promise<void>
+    handlePastedText: (text: string) => Promise<any>
+    handleClose: () => void
 }
 
 export type AddContentOverlayState = {
@@ -104,6 +105,9 @@ export class AddContentOverlayLogic extends Logic<
 
     // Method to handle pasted text
     async handlePastedText(text: string) {
-        this.deps.handlePastedText(text)
+        executeTask(this, 'loadState', async () => {
+            await this.deps.handlePastedText(text)
+            this.deps.handleClose()
+        })
     }
 }

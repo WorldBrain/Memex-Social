@@ -241,6 +241,7 @@ export default function Dashboard(props: DashboardDependencies) {
                         handlePastedText={async (text: string) =>
                             await logic.handlePastedText(text)
                         }
+                        handleClose={() => logic.toggleAddContentOverlay()}
                         storageManager={props.storageManager}
                     />
                 )}
