@@ -13,7 +13,10 @@ import {
 } from '@worldbrain/memex-common/lib/content-sharing/types'
 import { SharedListRoleID } from '@worldbrain/memex-common/lib/content-sharing/types'
 import { UserReference } from '../features/user-management/types'
-import { CollectionDetailsDeniedData } from '@worldbrain/memex-common/lib/content-sharing/backend/types'
+import {
+    CollectionDetailsDeniedData,
+    CreatePageEntryParams,
+} from '@worldbrain/memex-common/lib/content-sharing/backend/types'
 import { CollectionDetailsListEntry } from '../features/content-sharing/ui/pages/collection-details/types'
 import { UploadStorageUtils } from '@worldbrain/memex-common/lib/personal-cloud/backend/translation-layer/storage-utils'
 import StorageManager from '@worldbrain/storex'
@@ -131,6 +134,7 @@ export type DashboardState = {
     screenState: 'ai' | 'results' | 'reader' | null
     initialChatMessage: string | null
     showAddContentOverlay: boolean
+    showLoginOverlay: boolean
 }
 
 export class DashboardLogic extends Logic<
@@ -181,6 +185,7 @@ export class DashboardLogic extends Logic<
             pageToShowNotesFor: null,
             screenState: entryId ? 'reader' : 'results',
             showAddContentOverlay: false,
+            showLoginOverlay: false,
         }
     }
 
@@ -554,23 +559,27 @@ export class DashboardLogic extends Logic<
     }
 
     async handlePastedText(text: string) {
-        console.log('text', text, this.state.currentListId)
-
-        let currentListId = this.state.currentListId ?? null
-        if (currentListId == null) {
-            currentListId = await this.createSpace()
-            console.log('currentListId', currentListId)
-        }
-
-        if (currentListId == null) {
+        if (this.deps.services.cache.getKey('currentUser') == null) {
+            this.setState({
+                showLoginOverlay: true,
+            })
             return
         }
-
+        console.log('text', text, this.state.currentListId)
         // Extract URLs from text using regex
         const urlRegex = /(https?:\/\/[^\s]+)/g
         const urls = text.match(urlRegex) || []
 
         if (urls.length === 0) {
+            return
+        }
+        let currentListId = this.state.currentListId ?? null
+        if (currentListId == null) {
+            currentListId = await this.createSpaceWithEntries(urls)
+            console.log('currentListId', currentListId)
+        }
+
+        if (currentListId == null) {
             return
         }
 
@@ -597,15 +606,43 @@ export class DashboardLogic extends Logic<
         return newListEntries
     }
 
-    async createSpace() {
+    async createSpaceWithEntries(urls?: string[], files?: File[]) {
+        let entries: CreatePageEntryParams[] = []
+
+        if (files) {
+            // const spaceId = await this.deps.services.contentSharing.backend.createSpaceWithEntries({
+            //     spaceTitle: 'Untitled Space',
+            //     entries: {
+            //         fullP
+            //     },
+            //     isPrivate: true,
+            // })
+        }
+        if (urls) {
+            for (let url of urls) {
+                entries.push({
+                    fullPageUrl: url,
+                })
+            }
+        }
         console.log('creating space')
         try {
-            const spaceId = await this.deps.services.contentSharing.backend.createSpace()
-            console.log('spaceId', spaceId)
+            const spaceCreateResponse = await this.deps.services.contentSharing.backend.createSpaceWithEntries(
+                {
+                    spaceTitle: 'Untitled Space',
+                    entries: entries,
+                    isPrivate: true,
+                },
+            )
+            const spaceId = spaceCreateResponse.sharedListReference.id
             this.setState({
-                currentListId: spaceId.remoteListId,
+                currentListId: spaceId,
+                listData: {
+                    listEntries: spaceCreateResponse.listEntryReferences,
+                },
             })
-            return spaceId.remoteListId
+            window.location.href = window.location.href + '/' + spaceId
+            return spaceId
         } catch (error) {
             console.error('Error creating space', error)
             return null

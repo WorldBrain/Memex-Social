@@ -5,9 +5,9 @@ import { AiChatDependencies, AiChatLogic } from './logic'
 import ChatInput from './components/chatInput'
 import {
     AiChatMessageAssistantClient,
-    AiChatMessage,
+    AiChatMessageUserClient,
     AiChatResponseChunk,
-    AiChatReference,
+    AiChatThreadClient,
 } from '@worldbrain/memex-common/lib/ai-chat/service/types'
 
 export default function AiChat(props: AiChatDependencies) {
@@ -16,41 +16,11 @@ export default function AiChat(props: AiChatDependencies) {
 
     let referenceIndex = 0
 
-    const renderAssistantMessage = (message: AiChatMessageAssistantClient) => {
-        return message.content.map(
-            (chunk: AiChatResponseChunk, chunkIndex: number) => {
-                if (
-                    chunk.type === 'header' ||
-                    chunk.type === 'paragraph' ||
-                    chunk.type === 'list'
-                ) {
-                    return (
-                        <AssistantMessage type={chunk.type} key={chunk.text}>
-                            {chunk.text}{' '}
-                            {chunk.references?.map(
-                                (reference: AiChatReference, index: number) => {
-                                    referenceIndex++
-                                    return (
-                                        <ReferencePill
-                                            onClick={() =>
-                                                logic.openReference(reference)
-                                            }
-                                            key={reference.id}
-                                        >
-                                            {referenceIndex}
-                                        </ReferencePill>
-                                    )
-                                },
-                            )}
-                        </AssistantMessage>
-                    )
-                }
-                return null
-            },
-        )
+    const renderAssistantMessage = (message: string) => {
+        return <AssistantMessage>{message}</AssistantMessage>
     }
 
-    const renderUserMessage = (message: AiChatMessage) => {
+    const renderUserMessage = (message: AiChatMessageUserClient) => {
         if (state.editingMessageId === message.messageId) {
             return (
                 <ChatInput
@@ -80,15 +50,21 @@ export default function AiChat(props: AiChatDependencies) {
 
     return (
         <Container>
-            {state.thread?.messages.map((message: AiChatMessage) => {
-                return (
-                    <ChatMessage key={message.messageId}>
-                        {message.role === 'assistant'
-                            ? renderAssistantMessage(message)
-                            : renderUserMessage(message)}
-                    </ChatMessage>
-                )
-            })}
+            {state.thread?.messages.map(
+                (
+                    message:
+                        | AiChatMessageUserClient
+                        | AiChatMessageAssistantClient,
+                ) => {
+                    return (
+                        <ChatMessage key={message.messageId}>
+                            {message.role === 'assistant'
+                                ? renderAssistantMessage(message.content)
+                                : renderUserMessage(message)}
+                        </ChatMessage>
+                    )
+                },
+            )}
             <ChatInput
                 services={props.services}
                 storage={props.storage}

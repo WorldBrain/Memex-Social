@@ -11,6 +11,7 @@ import AiChat from '../features/ai-chat'
 import ReferencesList from '../features/references-list'
 import AddContentOverlay from '../features/add-content-overlay'
 import { PrimaryAction } from '@worldbrain/memex-common/lib/common-ui/components/PrimaryAction'
+import AuthDialog from '../features/user-management/ui/containers/auth-dialog'
 
 export const RESULTS_LIST_MAX_WIDTH = 700
 
@@ -245,6 +246,15 @@ export default function Dashboard(props: DashboardDependencies) {
                         storageManager={props.storageManager}
                     />
                 )}
+                {state.showLoginOverlay && (
+                    <Overlay>
+                        <AuthDialog
+                            services={props.services}
+                            storage={props.storage}
+                            showOnLoad={true}
+                        />
+                    </Overlay>
+                )}
             </MainContent>
         </Container>
     )
@@ -259,7 +269,7 @@ const Container = styled.div`
 `
 
 const Title = styled.h1`
-    font-family: 'Geist', sans-serif;
+    font-family: 'Roca', sans-serif;
     font-weight: 700;
     font-size: 24px;
     line-height: 1.417em;
@@ -428,4 +438,18 @@ const BottomBox = styled.div`
     justify-content: center;
     align-items: flex-end;
     display: flex;
+`
+
+const Overlay = styled.div`
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(17, 19, 23, 0.95);
+    backdrop-filter: blur(8px);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 `

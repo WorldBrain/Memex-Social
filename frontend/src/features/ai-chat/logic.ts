@@ -5,13 +5,11 @@ import { Logic } from '../../utils/logic'
 import { executeTask, TaskState } from '../../utils/tasks'
 import StorageManager from '@worldbrain/storex'
 import {
-    AiChatMessage,
     AiChatMessageAssistantClient,
     AiChatMessageUserClient,
     AiChatModels,
-    AiChatReference,
     AiChatResponseChunk,
-    GetAiChatResponseRequest,
+    AiChatThreadClient,
     StreamAiChatReplyRequest,
 } from '@worldbrain/memex-common/lib/ai-chat/service/types'
 import {
@@ -19,6 +17,8 @@ import {
     LOCAL_STORAGE_MODEL_KEY,
     mockChunks,
 } from '@worldbrain/memex-common/lib/ai-chat/constants'
+import { AiChatThread } from '@worldbrain/memex-common/lib/web-interface/types/storex-generated/ai-chat'
+import { AiChatThreadReference } from '@worldbrain/memex-common/lib/ai-chat/storage/types'
 interface ChatMessage {
     threadId: string
     messageId: string
@@ -78,11 +78,8 @@ function isValidModel(model: string | null): model is AiChatModels {
 
 export type AiChatState = {
     loadState: TaskState
-    thread: {
-        threadId: string
-        messages: AiChatMessage[]
-    } | null
-    references: AiChatReference[]
+    thread: AiChatThreadClient | null
+    references: AiChatThreadReference[]
     model: AiChatModels
     editingMessageId: string | null
 }
@@ -129,6 +126,7 @@ export class AiChatLogic extends Logic<AiChatDependencies, AiChatState> {
         if (useMock) {
             return this.mockAiChatResponse()
         }
+        console.log('usemock', this.deps.services.aiChat)
         return this.deps.services.aiChat.streamAiChatReply(userMessage)
     }
 
@@ -136,8 +134,8 @@ export class AiChatLogic extends Logic<AiChatDependencies, AiChatState> {
         return `chat-${Date.now()}`
     }
 
-    generateMessageId = () => {
-        return `message-${Date.now()}`
+    generateMessageId = (role: 'user' | 'assistant') => {
+        return `${role}-${Date.now()}`
     }
 
     sendMessage = async (message: string) => {
@@ -145,48 +143,55 @@ export class AiChatLogic extends Logic<AiChatDependencies, AiChatState> {
             return
         }
 
-        const newMessage: AiChatMessageUserClient = {
-            threadId: this.state.thread.threadId,
-            messageId: this.generateMessageId(),
+        const lastMessageId =
+            this.state.thread.messages[this.state.thread.messages.length - 1]
+                ?.messageId ?? null
+
+        const newUserMessage: AiChatMessageUserClient = {
+            messageId: this.generateMessageId('user'),
             content: message,
             role: 'user',
+            model: this.state.model,
+            temperature: 1,
             context: {
-                spaceId: this.deps.listId,
+                sharedListIds: [this.deps.listId],
             },
+            createdWhen: Date.now(),
         }
 
         const existingThread = this.state.thread
 
         const updatedThread = {
             ...existingThread,
-            messages: [...existingThread.messages, newMessage],
+            messages: [...existingThread.messages, newUserMessage],
         }
         this.setState({ thread: updatedThread })
 
-        const userMessage: AiChatMessageUserClient = {
-            role: 'user',
-            parentMessageId: null,
+        const assistantMessageId = this.generateMessageId('assistant')
+
+        const userMessage: StreamAiChatReplyRequest = {
             threadId: this.state.thread.threadId,
-            messageId: newMessage.messageId,
-            content: newMessage.message as string,
-            temperature: 0.5,
+            parentMessageId: lastMessageId ?? null,
+            userMessageId: this.generateMessageId('user'),
+            assistantMessageId: assistantMessageId,
+            content: newUserMessage.content as string,
             model: 'gpt-4o-mini',
-            context: {
-                sharedListIds: [this.deps.listId],
-            },
+            sharedListIds: [this.deps.listId],
         }
 
         const response = await this.getAiChatResponseWithMock(
             userMessage,
             false,
         )
-        const chunks: AiChatResponseChunk[] = []
 
-        const assistantMessage: AiChatMessageAssistantClient = {
-            parentMessageId: null,
-            messageId: this.generateMessageId(),
-            content: chunks,
+        let assistantMessage: AiChatMessageAssistantClient = {
             role: 'assistant',
+            messageId: assistantMessageId,
+            content: '',
+            model: this.state.model,
+            temperature: 1,
+            parentId: newUserMessage.messageId,
+            createdWhen: Date.now(),
         }
 
         this.setState({
@@ -196,14 +201,16 @@ export class AiChatLogic extends Logic<AiChatDependencies, AiChatState> {
             },
         })
 
+        let responseText: string = ''
         for await (const chunk of response) {
-            chunks.push(chunk)
+            responseText += chunk
+
             this.setState({
                 thread: {
                     ...this.state.thread,
                     messages: this.state.thread.messages.map((msg) =>
                         msg.messageId === assistantMessage.messageId
-                            ? { ...msg, content: chunks }
+                            ? { ...msg, content: responseText }
                             : msg,
                     ),
                 },

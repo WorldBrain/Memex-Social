@@ -134,7 +134,7 @@ export default class AuthDialogLogic extends UILogic<
     getInitialState(): AuthDialogState {
         return {
             saveState: 'pristine',
-            mode: 'hidden',
+            mode: this.dependencies.showOnLoad ? 'login' : 'hidden',
             email: '',
             password: '',
             displayName: '',
@@ -354,7 +354,11 @@ export default class AuthDialogLogic extends UILogic<
     _result(result: AuthResult) {
         this.emitMutation({ mode: { $set: 'hidden' } })
         this.emitAuthResult?.(result)
-        delete this.emitAuthResult
+        const currentUser = this.dependencies.services.auth.getCurrentUserReference()
+        if (currentUser) {
+            this.dependencies.services.cache.setKey('currentUser', currentUser)
+            delete this.emitAuthResult
+        }
     }
 
     passwordResetSwitch: EventHandler<'passwordResetSwitch'> = () => {
