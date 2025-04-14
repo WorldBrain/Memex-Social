@@ -275,30 +275,11 @@ export default class CollectionDetailsLogic extends UILogic<
             ? this.dependencies.services.listKeys.getCurrentKey()
             : null
         await executeUITask(this, 'listLoadState', async () => {
-            console.log(
-                'load collection details:',
-                this.dependencies.services.contentSharing.backend
-                    .loadCollectionDetails,
-            )
-
             const response = await this.dependencies.services.contentSharing.backend.loadCollectionDetails(
                 {
                     listId: this.dependencies.listID,
                 },
             )
-
-            for await (const chunk of this.dependencies.services.aiChat.getAiChatResponse(
-                {
-                    content: 'test',
-                    model: 'gpt-4o',
-                    temperature: 0.5,
-                    parentMessageId: null,
-                    sharedListIds: ['Wtk5pi0mnMEUWwbOtLAX'],
-                    threadId: 'test-thread-1',
-                },
-            )) {
-                console.log('DEBUG: chunk', chunk)
-            }
 
             if (response.status !== 'success') {
                 if (response.status === 'permission-denied') {
