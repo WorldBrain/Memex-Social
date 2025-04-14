@@ -264,7 +264,7 @@ export function createServices(options: {
             : firebaseService<AiChatServiceInterface>('aiChat', {
                   executeCall: executeFirebaseCall,
                   executeStreamingCall: streamFirebaseCall,
-                  streamingMethods: new Set(['getAiChatResponse']),
+                  streamingMethods: new Set(['streamAiChatReply']),
               })
 
     const services: Services = {
