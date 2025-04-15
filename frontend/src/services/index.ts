@@ -211,7 +211,7 @@ export function createServices(options: {
                   sendPrivateListEmailInvite: async () => ({
                       status: 'success',
                   }),
-                  services: { pushMessaging: undefined }, // TODO: Set up push messaging service for meta UI
+                  services: { pushMessaging: undefined } as any, // TODO: Set up push messaging service for meta UI
                   storageManager: options.storage.serverStorageManager,
                   storageModules: options.storage.serverModules,
                   getCurrentUserId: async () =>

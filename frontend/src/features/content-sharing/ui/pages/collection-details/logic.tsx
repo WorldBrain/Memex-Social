@@ -1113,29 +1113,33 @@ export default class CollectionDetailsLogic extends UILogic<
             })
 
             try {
-                const addedEntry = await contentSharing.backend.addRemoteUrlsToList(
-                    {
-                        listReference: {
-                            id: this.dependencies.listID,
-                            type: 'shared-list-reference',
-                        },
-                        fullPageUrls: [url],
+                const {
+                    listEntryReferences,
+                } = await contentSharing.backend.addEntriesToSpace({
+                    sharedListReference: {
+                        id: this.dependencies.listID,
+                        type: 'shared-list-reference',
                     },
-                )
+                    entries: [
+                        {
+                            fullPageUrl: url,
+                        },
+                    ],
+                })
 
-                if (addedEntry) {
+                if (listEntryReferences[0]) {
+                    const now = Date.now()
                     const newCollectionEntry: CollectionDetailsListEntry = {
-                        ...addedEntry[url],
                         creator: {
                             type: 'user-reference',
                             id: previousState.currentUserReference?.id ?? '',
                         },
-                        sourceUrl: addedEntry[url]?.originalUrl,
-                        updatedWhen: addedEntry[url]?.createdWhen,
-                        reference: {
-                            id: addedEntry[url]?.id,
-                            type: 'shared-list-entry-reference',
-                        },
+                        createdWhen: now,
+                        sourceUrl: url,
+                        updatedWhen: now,
+                        reference: listEntryReferences[0],
+                        originalUrl: url,
+                        normalizedUrl: this.dependencies.normalizeUrl(url),
                     }
 
                     const hasData = newCollectionEntry.normalizedUrl != null

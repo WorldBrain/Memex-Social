@@ -16,6 +16,7 @@ import type {
     UserReference,
     User,
 } from '@worldbrain/memex-common/lib/web-interface/types/users'
+import type { URLNormalizer } from '@worldbrain/memex-common/lib/url-utils/normalize/types'
 import type { UIElementServices } from '../../../../../services/types'
 import type { StorageModules } from '../../../../../storage/types'
 import type {
@@ -78,6 +79,7 @@ export interface CollectionDetailsDependencies {
     storageManager: StorageManager
     imageSupport: ImageSupportInterface
     getRootElement: () => HTMLElement
+    normalizeUrl: URLNormalizer
 }
 
 export type CollectionDetailsState = AnnotationConversationsState &
