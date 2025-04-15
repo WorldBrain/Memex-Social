@@ -192,6 +192,7 @@ export default class RoutesComponent extends React.Component<Props> {
                                     query={route}
                                     imageSupport={this.props.imageSupport}
                                     getRootElement={this.props.getRootElement}
+                                    normalizeUrl={normalizeUrl}
                                 />
                             )
                         }}

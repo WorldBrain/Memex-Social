@@ -12,6 +12,7 @@ import { TestLogicContainer } from '../../../../../tests/ui-logic'
 import CollectionDetailsLogic from './logic'
 import CallModifier from '../../../../../utils/call-modifier'
 import { CollectionDetailsEvent, CollectionDetailsState } from './types'
+import { normalizeUrl } from '@worldbrain/memex-common/lib/url-utils/normalize'
 
 class TestDataFactory {
     createdWhen = 0
@@ -102,6 +103,7 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
                 storageManager: storage.serverStorageManager,
                 storage: storage.serverModules,
                 services,
+                normalizeUrl,
                 listID: storage.serverModules.contentSharing.getSharedListLinkID(
                     listReference,
                 ),
@@ -228,6 +230,7 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
                 storageManager: storage.serverStorageManager,
                 storage: storage.serverModules,
                 services,
+                normalizeUrl,
                 listID: storage.serverModules.contentSharing.getSharedListLinkID(
                     listReference,
                 ),
@@ -315,6 +318,7 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
                 services,
                 listID,
                 query: {},
+                normalizeUrl,
                 imageSupport: null as any,
                 getRootElement: () =>
                     document.getElementById('body') as HTMLElement,
@@ -428,6 +432,7 @@ createStorageTestSuite('Collection details logic', ({ it }) => {
                 listID,
                 query: {},
                 imageSupport: null as any,
+                normalizeUrl,
                 getRootElement: () =>
                     document.getElementById('body') as HTMLElement,
             })
