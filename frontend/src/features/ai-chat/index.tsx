@@ -6,18 +6,41 @@ import ChatInput from './components/chatInput'
 import {
     AiChatMessageAssistantClient,
     AiChatMessageUserClient,
-    AiChatResponseChunk,
-    AiChatThreadClient,
+    ContentBlock,
 } from '@worldbrain/memex-common/lib/ai-chat/service/types'
+import Markdown from 'react-markdown'
 
 export default function AiChat(props: AiChatDependencies) {
     const { logic, state } = useLogic(AiChatLogic, props)
     const messagesRef = useRef<HTMLDivElement[]>([])
 
-    let referenceIndex = 0
-
     const renderAssistantMessage = (message: string) => {
-        return <AssistantMessage>{message}</AssistantMessage>
+        if (message && message.length) {
+            return (
+                <Markdown
+                    components={{
+                        a(props) {
+                            const { node, ...rest } = props
+                            const reference = props.node.properties?.href
+                            const referenceIndex = props.node.children[0]?.value
+                            return (
+                                <ReferencePill
+                                    onClick={() =>
+                                        logic.openReference(reference)
+                                    }
+                                    key={reference}
+                                    {...rest}
+                                >
+                                    {referenceIndex}
+                                </ReferencePill>
+                            )
+                        },
+                    }}
+                >
+                    {message}
+                </Markdown>
+            )
+        }
     }
 
     const renderUserMessage = (message: AiChatMessageUserClient) => {
@@ -89,7 +112,7 @@ const ChatMessage = styled.div`
 `
 
 const AssistantMessage = styled.div<{
-    type: 'header' | 'paragraph' | 'list' | 'error'
+    type: 'h1' | 'h2' | 'paragraph' | 'list' | 'error'
 }>`
     color: ${(props) => props.theme.colors.greyScale7};
     opacity: 0;
@@ -148,4 +171,9 @@ const EditButton = styled.button`
     &:hover {
         background: ${(props) => props.theme.colors.greyScale3};
     }
+`
+
+const MessageBlock = styled.div`
+    display: flex;
+    flex-dire
 `

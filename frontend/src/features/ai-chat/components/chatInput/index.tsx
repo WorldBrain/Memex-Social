@@ -51,7 +51,7 @@ export default function ChatInput(props: ChatInputDependencies) {
                 getRootElement={props.getRootElement}
                 imageSupport={props.imageSupport}
                 openImageInPreview={() => Promise.resolve()}
-                // sendOffUserPrompt={() => logic.sendMessage(state.message)}
+                sendOffUserPrompt={() => logic.sendMessage(state.message)}
                 updatePromptState={async () => {
                     const markdown = await editorRef.current?.getMarkdown()
                     if (markdown) {

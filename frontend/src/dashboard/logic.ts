@@ -16,6 +16,7 @@ import { UserReference } from '../features/user-management/types'
 import {
     CollectionDetailsDeniedData,
     CreatePageEntryParams,
+    CreatePageListEntryParams,
 } from '@worldbrain/memex-common/lib/content-sharing/backend/types'
 import { CollectionDetailsListEntry } from '../features/content-sharing/ui/pages/collection-details/types'
 import { UploadStorageUtils } from '@worldbrain/memex-common/lib/personal-cloud/backend/translation-layer/storage-utils'
@@ -39,7 +40,7 @@ import { ContentSharingQueryParams } from '../features/content-sharing/types'
 import { GenerateServerID } from '@worldbrain/memex-common/lib/content-sharing/service/types'
 import { URLNormalizer } from '@worldbrain/memex-common/lib/url-utils/normalize/types'
 import { getRoutePartGroups } from '../services/router/routes'
-import { AiChatReference } from '@worldbrain/memex-common/lib/ai-chat/service/types'
+import { AiChatMessageContext } from '@worldbrain/memex-common/lib/web-interface/types/storex-generated/ai-chat'
 import { AutoPk } from '@worldbrain/memex-common/lib/storage/types'
 
 const LIST_DESCRIPTION_CHAR_LIMIT = 400
@@ -125,10 +126,7 @@ export type DashboardState = {
     isListOwner: boolean
     showLeftSideBar: boolean
     showRightSideBar: boolean
-    referenceToShow: {
-        type: 'annotation' | 'page'
-        id: string
-    } | null
+    referenceToShow: AiChatMessageContext | null
     rightSideBarWidth: number
     pageToShowNotesFor: string | null
     screenState: 'ai' | 'results' | 'reader' | null
@@ -224,10 +222,7 @@ export class DashboardLogic extends Logic<
                 }
             }
             this.deps.services.events.listen((data) => {
-                if (
-                    data.openReference &&
-                    data.openReference.type === 'annotation'
-                ) {
+                if (data.openReference) {
                     this.showReference(data.openReference)
                 }
             })
@@ -341,7 +336,6 @@ export class DashboardLogic extends Logic<
         }
         const { data } = response
 
-        console.log('data', data)
         const { retrievedList } = data
 
         const listDescription = retrievedList.sharedList.description ?? ''
@@ -412,7 +406,6 @@ export class DashboardLogic extends Logic<
             { loadBlueskyUsers: false },
         )
 
-        console.log('retrievedList.entries', retrievedList.entries)
         this.setState({
             currentUserReference: userReference,
             listData: {
@@ -511,7 +504,7 @@ export class DashboardLogic extends Logic<
         }
     }
 
-    showReference(reference: AiChatReference) {
+    showReference(reference: AiChatMessageContext) {
         this.setState({
             rightSideBarWidth: 450,
             showRightSideBar: true,
@@ -565,7 +558,6 @@ export class DashboardLogic extends Logic<
             })
             return
         }
-        console.log('text', text, this.state.currentListId)
         // Extract URLs from text using regex
         const urlRegex = /(https?:\/\/[^\s]+)/g
         const urls = text.match(urlRegex) || []
@@ -576,23 +568,29 @@ export class DashboardLogic extends Logic<
         let currentListId = this.state.currentListId ?? null
         if (currentListId == null) {
             currentListId = await this.createSpaceWithEntries(urls)
-            console.log('currentListId', currentListId)
         }
 
         if (currentListId == null) {
             return
         }
 
-        const addedEntries = await this.deps.services.contentSharing.backend.addRemoteUrlsToList(
+        let urlsToAdd: CreatePageListEntryParams[] = []
+
+        for (let url of urls) {
+            urlsToAdd.push({
+                fullPageUrl: url,
+            })
+        }
+
+        const addedEntries = await this.deps.services.contentSharing.backend.addEntriesToSpace(
             {
-                listReference: {
+                sharedListReference: {
                     id: currentListId,
                     type: 'shared-list-reference',
                 },
-                fullPageUrls: urls,
+                entries: urlsToAdd,
             },
         )
-        console.log('addedEntries', addedEntries)
         const newListEntries = [
             ...this.state.listData.listEntries,
             ...Object.values(addedEntries),

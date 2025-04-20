@@ -18,7 +18,6 @@ export default function ReferencesList(props: ReferencesListDependencies) {
     }
 
     if (state.type === 'annotation') {
-        console.log('annotations', state.annotations)
         return (
             <Container>
                 {Object.entries(

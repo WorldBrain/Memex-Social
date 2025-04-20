@@ -48,9 +48,6 @@ export default class RoutesComponent extends React.Component<Props> {
         const listId = pathParts[2] || '' // after /c/
         const entryId = pathParts[4] || '' // after /p/
         const noteId = pathParts[6] || '' // after /a/
-        console.log('listId', listId)
-        console.log('entryId', entryId)
-        console.log('noteId', noteId)
         return (
             <BrowserRouter>
                 <Routes>

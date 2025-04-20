@@ -11,23 +11,18 @@ import {
     AiChatResponseChunk,
     AiChatThreadClient,
     StreamAiChatReplyRequest,
+    ContentBlock,
 } from '@worldbrain/memex-common/lib/ai-chat/service/types'
 import {
     AvailableModels,
     LOCAL_STORAGE_MODEL_KEY,
     mockChunks,
 } from '@worldbrain/memex-common/lib/ai-chat/constants'
-import { AiChatThread } from '@worldbrain/memex-common/lib/web-interface/types/storex-generated/ai-chat'
+import {
+    AiChatMessageContext,
+    AiChatThread,
+} from '@worldbrain/memex-common/lib/web-interface/types/storex-generated/ai-chat'
 import { AiChatThreadReference } from '@worldbrain/memex-common/lib/ai-chat/storage/types'
-interface ChatMessage {
-    threadId: string
-    messageId: string
-    message: string | AiChatResponseChunk[]
-    role: 'user' | 'assistant'
-    context?: {
-        spaceId: string
-    }
-}
 
 export interface AiChatDependencies {
     listId: string
@@ -82,6 +77,7 @@ export type AiChatState = {
     references: AiChatThreadReference[]
     model: AiChatModels
     editingMessageId: string | null
+    context: AiChatMessageContext[] | null
 }
 export class AiChatLogic extends Logic<AiChatDependencies, AiChatState> {
     getInitialState = (): AiChatState => ({
@@ -90,6 +86,7 @@ export class AiChatLogic extends Logic<AiChatDependencies, AiChatState> {
         references: [],
         model: 'gpt-4o-mini',
         editingMessageId: null,
+        context: null,
     })
 
     async initialize() {
@@ -126,7 +123,6 @@ export class AiChatLogic extends Logic<AiChatDependencies, AiChatState> {
         if (useMock) {
             return this.mockAiChatResponse()
         }
-        console.log('usemock', this.deps.services.aiChat)
         return this.deps.services.aiChat.streamAiChatReply(userMessage)
     }
 
@@ -188,6 +184,7 @@ export class AiChatLogic extends Logic<AiChatDependencies, AiChatState> {
             role: 'assistant',
             messageId: assistantMessageId,
             content: '',
+            contentBlocks: [],
             model: this.state.model,
             temperature: 1,
             parentId: newUserMessage.messageId,
@@ -201,39 +198,110 @@ export class AiChatLogic extends Logic<AiChatDependencies, AiChatState> {
             },
         })
 
-        let responseText: string = ''
-        for await (const chunk of response) {
-            responseText += chunk
+        let responseString: string = ''
+        let buffer: string = ''
+        let inMarkdownLink: boolean = false
+        let hasClosingBracket: boolean = false
+        // let contentBlocks: ContentBlock[] = this.state.thread.messages[
+        //     this.state.thread.messages.length - 1
+        // ].contentBlocks
+        let headerType: 'h1' | 'h2' | null = 'h1'
+        let referenceIndex = 1
 
-            this.setState({
-                thread: {
-                    ...this.state.thread,
-                    messages: this.state.thread.messages.map((msg) =>
-                        msg.messageId === assistantMessage.messageId
-                            ? { ...msg, content: responseText }
-                            : msg,
-                    ),
-                },
-            })
+        for await (const chunk of response) {
+            if (!chunk.done) {
+                if (chunk.type === 'context') {
+                    this.setState({
+                        context: chunk.value,
+                    })
+                } else {
+                    if (chunk.value.includes('[')) {
+                        buffer += chunk.value
+                        inMarkdownLink = true
+                    } else if (inMarkdownLink) {
+                        buffer += chunk.value
+                        if (!hasClosingBracket && chunk.value.includes(']')) {
+                            hasClosingBracket = true
+                        }
+
+                        if (hasClosingBracket && buffer.includes(')')) {
+                            inMarkdownLink = false
+                            hasClosingBracket = false
+
+                            const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/
+                            const match = buffer.match(linkRegex)
+                            if (match) {
+                                const url = match[2]
+                                buffer = buffer.replace(
+                                    linkRegex,
+                                    `[${referenceIndex}](${url})`,
+                                )
+                            }
+
+                            referenceIndex++
+                            responseString += buffer
+                            buffer = ''
+                        }
+                    } else {
+                        responseString += chunk.value
+                    }
+                    //  else {
+                    //     if (buffer.includes('# ')) {
+                    //         headerType = 'h1'
+                    //     }
+                    //     if (buffer.includes('## ') || buffer.includes('### ')) {
+                    //         headerType = 'h2'
+                    //     }
+                    //     console.log('headerType', headerType)
+                    //     if (headerType != null) {
+                    //         contentBlocks[contentBlocks.length - 1] = {
+                    //             type: headerType,
+                    //             value: buffer,
+                    //         }
+                    //     } else {
+                    //         contentBlocks[contentBlocks.length - 1] = {
+                    //             type: 'paragraph',
+                    //             value: buffer,
+                    //         }
+                    //     }
+                    // }
+                }
+            } else {
+                if (chunk.error != null) {
+                    console.log('chunk error', chunk.error)
+                }
+            }
+
+            if (!inMarkdownLink) {
+                this.setState({
+                    thread: {
+                        ...this.state.thread,
+                        messages: this.state.thread.messages.map((msg) =>
+                            msg.messageId === assistantMessage.messageId
+                                ? {
+                                      ...msg,
+                                      content: responseString,
+                                  }
+                                : msg,
+                        ),
+                    },
+                })
+            }
         }
     }
 
-    openReference = async (reference: AiChatReference) => {
-        if (reference.type === 'page') {
-            this.deps.services.events.emit({
-                openReference: {
-                    type: 'page',
-                    id: reference.id,
-                },
-            })
-        } else if (reference.type === 'annotation') {
-            this.deps.services.events.emit({
-                openReference: {
-                    type: 'annotation',
-                    id: reference.id,
-                },
-            })
-        }
+    openReference = async (referenceText: string) => {
+        const referenceComponents = referenceText.split(':')
+        const referenceType = referenceComponents[0]
+        const referenceId = referenceComponents[1]
+
+        const reference = this.state.context?.find(
+            (context) => context.id === referenceId,
+        )
+
+        this.deps.services.events.emit({
+            openReference: reference,
+        })
     }
 
     async setModel(model: AiChatModels) {

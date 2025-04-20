@@ -10,13 +10,12 @@ import {
     SharedListEntry,
 } from '@worldbrain/memex-common/lib/content-sharing/types'
 import { AutoPk } from '../../types'
-import { AiChatReference } from '@worldbrain/memex-common/lib/ai-chat/service/types'
-import { GetAnnotationsResult } from '@worldbrain/memex-common/lib/content-sharing/storage/types'
+import { AiChatMessageContext } from '@worldbrain/memex-common/lib/web-interface/types/storex-generated/ai-chat'
 
 const LIST_DESCRIPTION_CHAR_LIMIT = 400
 
 export interface ReferencesListDependencies {
-    reference: AiChatReference
+    reference: AiChatMessageContext
     listID: AutoPk
     getRootElement: () => HTMLElement
     services: UIElementServices<
@@ -80,13 +79,20 @@ export class ReferencesListLogic extends Logic<
         })
     }
 
-    loadReferences = async (reference?: AiChatReference) => {
+    shouldReload(
+        oldDeps: ReferencesListDependencies,
+        newDeps: ReferencesListDependencies,
+    ) {
+        return newDeps.reference !== oldDeps.reference
+    }
+
+    loadReferences = async (reference?: AiChatMessageContext) => {
         await executeTask(this, 'loadState', async () => {
             if (!reference) {
                 return
             }
 
-            if (reference.type === 'annotation') {
+            if (reference.metadata.__content_type === 'annotation') {
                 const annotationResult = await this.deps.storage.contentSharing.getAnnotation(
                     {
                         reference: {
@@ -105,11 +111,15 @@ export class ReferencesListLogic extends Logic<
                         [this.deps.reference.id]: annotationData,
                     },
                 })
-            } else if (reference.type === 'page') {
-                const page = await this.deps.storage.contentSharing.getListEntryByReference(
+            } else if (reference.metadata.__content_type === 'web') {
+                const url = reference.metadata.__associated_id
+                const page = await this.deps.storage.contentSharing.getListEntryByListAndUrl(
                     {
-                        type: 'shared-list-entry-reference',
-                        id: reference.id,
+                        listReference: {
+                            type: 'shared-list-reference',
+                            id: this.deps.listID,
+                        },
+                        normalizedPageUrl: url,
                     },
                 )
             }

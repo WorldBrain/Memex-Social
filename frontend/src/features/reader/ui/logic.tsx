@@ -1121,9 +1121,7 @@ export class ReaderPageViewLogic extends UILogic<
                             getState: async () => {
                                 return true
                             },
-                            setState: async (state) => {
-                                console.log('setState', state)
-                            },
+                            setState: async (state) => {},
                         }}
                         getWindow={() => iframe.contentWindow!}
                         createHighlight={async (

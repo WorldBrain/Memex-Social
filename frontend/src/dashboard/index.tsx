@@ -103,8 +103,6 @@ export default function Dashboard(props: DashboardDependencies) {
     const renderReferences = () => {
         if (!state.referenceToShow || !state.showRightSideBar) return null
 
-        console.log('state.referenceToShow', state.referenceToShow)
-
         return (
             <ReferencesList
                 services={props.services}
