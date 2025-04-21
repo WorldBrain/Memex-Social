@@ -112,6 +112,7 @@ export class ReferencesListLogic extends Logic<
                     },
                 })
             } else if (reference.metadata.__content_type === 'web') {
+                console.log('loading page', reference)
                 const url = reference.metadata.__associated_id
                 const page = await this.deps.storage.contentSharing.getListEntryByListAndUrl(
                     {
@@ -122,6 +123,11 @@ export class ReferencesListLogic extends Logic<
                         normalizedPageUrl: url,
                     },
                 )
+                console.log('page', page)
+                this.setState({
+                    type: 'page',
+                    pages: [page],
+                })
             }
         })
     }

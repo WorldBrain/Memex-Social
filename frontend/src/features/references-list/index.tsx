@@ -5,6 +5,7 @@ import { ReferencesListDependencies, ReferencesListLogic } from './logic'
 import AnnotationEdit from '@worldbrain/memex-common/lib/content-conversations/ui/components/annotation-edit'
 import AnnotationItem from '../annotation-item'
 import LoadingIndicator from '../../common-ui/components/loading-indicator'
+import PageInfoBox from '../../common-ui/components/page-info-box'
 
 export default function ReferencesList(props: ReferencesListDependencies) {
     let { logic, state } = useLogic(ReferencesListLogic, props)
@@ -12,9 +13,13 @@ export default function ReferencesList(props: ReferencesListDependencies) {
     if (state.loadState === 'running') {
         return <LoadingIndicator size={22} />
     }
+    console.log('state', state.type, state.annotations, state.pages)
 
-    if (Object.values(state.annotations)?.length === 0) {
-        return <div>No annotations found</div>
+    if (
+        Object.entries(state.annotations)?.length === 0 &&
+        Object.entries(state.pages)?.length === 0
+    ) {
+        return <div>No references found</div>
     }
 
     if (state.type === 'annotation') {
@@ -33,6 +38,52 @@ export default function ReferencesList(props: ReferencesListDependencies) {
                             storage={props.storage}
                             imageSupport={props.imageSupport}
                             getRootElement={props.getRootElement}
+                        />
+                    ) : null,
+                )}
+            </Container>
+        )
+    }
+
+    if (state.type === 'page') {
+        console.log('state.pages', state.pages)
+        return (
+            <Container>
+                {Object.entries(state.pages)?.map(([pageId, page]) =>
+                    page ? (
+                        <PageInfoBox
+                            pageInfo={{
+                                fullTitle: page.entryTitle,
+                                originalUrl: page.originalUrl,
+                                createdWhen: page.createdWhen,
+                                updatedWhen: page.updatedWhen,
+                                normalizedUrl: page.normalizedUrl,
+                            }}
+                            type="page"
+                            // actions={[
+                            //     {
+                            //         node: (
+                            //             <div
+                            //                 onClick={() =>
+                            //                     // logic.loadReader(
+                            //                     //     result.reference
+                            //                     //         .id,
+                            //                     // )
+                            //                     logic.loadNotes(
+                            //                         result.normalizedUrl,
+                            //                     )
+                            //                 }
+                            //             >
+                            //                 Notes
+                            //             </div>
+                            //         ),
+                            //     },
+                            // ]}
+                            onClick={() => {
+                                props.services.events.emit({
+                                    openPage: page,
+                                })
+                            }}
                         />
                     ) : null,
                 )}

@@ -8,6 +8,8 @@ import { BlueskyList } from '@worldbrain/memex-common/lib/bsky/storage/types'
 import { createPersonalCloudStorageUtils } from '@worldbrain/memex-common/lib/content-sharing/storage/utils'
 import {
     SharedList,
+    SharedListEntry,
+    SharedListEntryReference,
     SharedListReference,
     SharedListRole,
 } from '@worldbrain/memex-common/lib/content-sharing/types'
@@ -15,7 +17,6 @@ import { SharedListRoleID } from '@worldbrain/memex-common/lib/content-sharing/t
 import { UserReference } from '../features/user-management/types'
 import {
     CollectionDetailsDeniedData,
-    CreatePageEntryParams,
     CreatePageListEntryParams,
 } from '@worldbrain/memex-common/lib/content-sharing/backend/types'
 import { CollectionDetailsListEntry } from '../features/content-sharing/ui/pages/collection-details/types'
@@ -224,6 +225,9 @@ export class DashboardLogic extends Logic<
             this.deps.services.events.listen((data) => {
                 if (data.openReference) {
                     this.showReference(data.openReference)
+                }
+                if (data.openPage) {
+                    this.loadReaderExternal(data.openPage)
                 }
             })
         })
@@ -520,7 +524,27 @@ export class DashboardLogic extends Logic<
         })
     }
 
-    loadReader(result: CollectionDetailsListEntry) {
+    loadReaderExternal(page: SharedListEntry) {
+        if (!page.reference) {
+            return
+        }
+        this.setState({
+            currentEntryId: page.reference.id,
+            pageToShowNotesFor: page.normalizedUrl,
+            referenceToShow: null,
+            screenState: 'reader',
+        })
+        this.loadReader({
+            id: page.reference.id,
+            reference: page.reference,
+            hoverState: false,
+            createdWhen: page.createdWhen,
+            updatedWhen: page.updatedWhen,
+            normalizedUrl: page.normalizedUrl,
+            originalUrl: page.originalUrl,
+        })
+    }
+    loadReader(result: CollectionDetailsListEntry | SharedListEntry) {
         this.loadNotes(result.normalizedUrl)
         this.setState({
             currentEntryId: result.reference.id,
@@ -623,7 +647,6 @@ export class DashboardLogic extends Logic<
                 })
             }
         }
-        console.log('creating space')
         try {
             const spaceCreateResponse = await this.deps.services.contentSharing.backend.createSpaceWithEntries(
                 {

@@ -31,10 +31,9 @@ export default class RouterService {
             state?: any
         },
     ) {
-        this.options.history.push(
-            this.getUrl(route, params, options),
-            options?.state,
-        )
+        const url = this.getUrl(route, params, options)
+        console.log('goTo', url)
+        this.options.history.push(url, options?.state)
     }
 
     goToExternalUrl(url: string) {

@@ -29,6 +29,7 @@ export default class Routes {
             const groupParts: string[] = []
             let undefinedPlaceholderFound: string | undefined
             for (const part of group.parts) {
+                console.log('part', part)
                 if ('placeholder' in part) {
                     const value = routeParams[part.placeholder]
                     if (value) {
@@ -38,8 +39,17 @@ export default class Routes {
                     }
                 } else if ('literal' in part) {
                     const nextPartIndex = group.parts.indexOf(part) + 1
+                    console.log('nextPartIndex', nextPartIndex)
+                    console.log(
+                        'group.parts',
+                        group.parts.indexOf(part),
+                        group.parts.length,
+                        group.parts,
+                    )
+                    // urlParts.push(part.literal)
                     if (nextPartIndex < group.parts.length) {
                         const nextPart = group.parts[nextPartIndex]
+                        console.log('nextPart', nextPart)
                         if (
                             'placeholder' in nextPart &&
                             routeParams[nextPart.placeholder]

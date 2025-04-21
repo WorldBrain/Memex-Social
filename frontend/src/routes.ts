@@ -39,9 +39,9 @@ const ROUTES: RouteMap = {
     dashboard: {
         path: [
             { literal: 'd' },
-            { optional: [{ placeholder: 'id' }] },
             {
                 optional: [
+                    { placeholder: 'id' },
                     { literal: 'p' },
                     { placeholder: 'entryId' },
                     { literal: 'a' },
