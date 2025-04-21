@@ -42,6 +42,7 @@ export interface PageDetailsDependencies {
         | 'userMessages'
         | 'memexExtension'
         | 'contentSharing'
+        | 'ragPipeline'
     >
     storage: Pick<
         StorageModules,

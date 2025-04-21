@@ -52,6 +52,7 @@ import { BlueskyService } from '@worldbrain/memex-common/lib/bsky/service'
 import type { BlueskyServiceInterface } from '@worldbrain/memex-common/lib/bsky/service/types'
 import type { AiChatServiceInterface } from '@worldbrain/memex-common/lib/ai-chat/service/types'
 import { AiChatService } from '@worldbrain/memex-common/lib/ai-chat/service'
+import { RagPipelineService } from '@worldbrain/memex-common/lib/rag/service'
 
 export function createServices(options: {
     backend: BackendType
@@ -281,6 +282,9 @@ export function createServices(options: {
         fixtures,
         localStorage,
         userMessages,
+        ragPipeline: new RagPipelineService({
+            frontendWebUIHost: window.location.origin,
+        }),
         memexExtension: new MemexExtensionService(),
         scenarios: new ScenarioService({
             services: { fixtures: fixtures, logicRegistry, auth },

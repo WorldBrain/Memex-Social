@@ -88,6 +88,12 @@
                 "pinTag": false
             },
             {
+                "source": "/rag/ingest-annotations",
+                "function": "rag_ingest_annotations",
+                "region": "us-central1",
+                "pinTag": false
+            },
+            {
                 "source": "**",
                 "destination": "/index.html"
             }

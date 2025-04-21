@@ -12,7 +12,10 @@ export const setupConversationLogicDeps = ({
     services,
     storage,
 }: {
-    services: Pick<Services, 'auth' | 'contentConversations' | 'contentSharing'>
+    services: Pick<
+        Services,
+        'auth' | 'contentConversations' | 'contentSharing' | 'ragPipeline'
+    >
     storage: {
         contentSharing: Pick<
             ContentSharingStorage,
@@ -33,9 +36,33 @@ export const setupConversationLogicDeps = ({
     editReply: services.contentConversations.editReply.bind(
         services.contentConversations,
     ),
-    createAnnotations: storage.contentSharing.createAnnotations.bind(
-        storage.contentSharing,
-    ),
+    createAnnotations: (async (params) => {
+        const result = await storage.contentSharing.createAnnotations(params)
+        const annotations = Object.entries(params.annotationsByPage).flatMap(
+            ([normalizedPageUrl, annotations]) =>
+                annotations.map((annot) => ({
+                    ...annot,
+                    normalizedPageUrl,
+                })),
+        )
+
+        // Spawn off ingestion requests for each annotation in each list (though don't wait for them)
+        Promise.all(
+            params.listReferences.map((listReference) =>
+                services.ragPipeline.ingestAnnotations({
+                    sharedListReference: listReference,
+                    annotations: annotations.map((annot) => ({
+                        ...annot,
+                        id: result.sharedAnnotationReferences[annot.localId].id,
+                        updatedWhen: annot.createdWhen,
+                        creator: params.creator,
+                    })),
+                }),
+            ),
+        )
+
+        return result
+    }) as ContentSharingStorage['createAnnotations'],
     getSharedAnnotationLinkID: storage.contentSharing.getSharedAnnotationLinkID.bind(
         storage.contentSharing,
     ),

@@ -61,6 +61,7 @@ export interface CollectionDetailsDependencies {
         | 'memexExtension'
         | 'summarization'
         | 'fullTextSearch'
+        | 'ragPipeline'
     >
     storage: Pick<
         StorageModules,

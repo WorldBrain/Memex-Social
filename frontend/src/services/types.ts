@@ -17,6 +17,7 @@ import type { PublicApiServiceInterface } from '@worldbrain/memex-common/lib/pub
 import type { PdfUploadServiceInterface } from '@worldbrain/memex-common/lib/pdf/uploads/types'
 import type { BlueskyServiceInterface } from '@worldbrain/memex-common/lib/bsky/service/types'
 import type { AiChatServiceInterface } from '@worldbrain/memex-common/lib/ai-chat/service/types'
+import type { RagPipelineServiceInterface } from '@worldbrain/memex-common/lib/rag/service/types'
 
 type UIServices = 'logicRegistry' | 'device'
 export type UIElementServices<Wanted extends keyof Services = never> = Pick<
@@ -45,4 +46,5 @@ export type Services = SharedServices & {
     summarization: SummarizationService
     publicApi: PublicApiServiceInterface
     pdfUploadService: PdfUploadServiceInterface
+    ragPipeline: RagPipelineServiceInterface
 }

@@ -42,6 +42,7 @@ export interface ReaderPageViewDependencies {
         | 'youtube'
         | 'memexExtension'
         | 'contentSharing'
+        | 'ragPipeline'
     >
     storage: Pick<
         StorageModules,
